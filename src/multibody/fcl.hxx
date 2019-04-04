@@ -5,9 +5,7 @@
 #ifndef __pinocchio_fcl_hxx__
 #define __pinocchio_fcl_hxx__
 
-
-#include <iostream>
-
+#include <ostream>
 
 namespace pinocchio
 {

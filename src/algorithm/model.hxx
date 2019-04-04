@@ -194,6 +194,7 @@ namespace pinocchio
       AppendJointOfModelAlgo::run (modelA.joints[jid], args);
     }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
     // Add collision pairs of geomModelA and geomModelB
     geomModel.collisionPairs.reserve(geomModelA.collisionPairs.size()
        + geomModelB.collisionPairs.size()
@@ -221,6 +222,7 @@ namespace pinocchio
           geomModel.addCollisionPair(CollisionPair(go1, go2));
       }
     }
+#endif
   }
 
 } // namespace pinocchio

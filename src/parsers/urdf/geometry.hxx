@@ -32,55 +32,66 @@ namespace pinocchio
   {
     namespace details
     {
-     struct UrdfTree
-     {
-       typedef boost::property_tree::ptree ptree;
-       typedef std::map<std::string, const ptree&> LinkMap_t;
-
-       void parse (const std::string & xmlStr)
-       {
-         urdf_ = ::urdf::parseURDF(xmlStr);
-         if (!urdf_) {
-           throw std::invalid_argument ("Enable to parse URDF");
-         }
-
-         std::istringstream iss(xmlStr);
-         using namespace boost::property_tree;
-         read_xml(iss, tree_, xml_parser::no_comments);
-
-         BOOST_FOREACH(const ptree::value_type & link, tree_.get_child("robot")) {
-           if (link.first == "link") {
-             std::string name = link.second.get<std::string>("<xmlattr>.name");
-             links_.insert(std::pair<std::string,const ptree&>(name, link.second));
-           }
-         } // BOOST_FOREACH
-       }
-
-       bool replaceCylinderByCapsule (const std::string & linkName,
-                                      const std::string & geomName) const
-       {
-         LinkMap_t::const_iterator _link = links_.find(linkName);
-         assert (_link != links_.end());
-         const ptree& link = _link->second;
-         if (link.count ("collision_checking") == 0)
-           return false;
-         BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
-           if (cc.first == "capsule") {
-             std::string name = cc.second.get<std::string>("<xmlattr>.name");
-             if (geomName == name) return true;
-           }
-         } // BOOST_FOREACH
-
-         return false;
-       }
-
-       // For standard URDF tags
-       ::urdf::ModelInterfaceSharedPtr urdf_;
-       // For other tags
-       ptree tree_;
-       // A mapping from link name to corresponding child of tree_
-       LinkMap_t links_;
-     };
+      struct UrdfTree
+      {
+        typedef boost::property_tree::ptree ptree;
+        typedef std::map<std::string, const ptree&> LinkMap_t;
+        
+        void parse (const std::string & xmlStr)
+        {
+          urdf_ = ::urdf::parseURDF(xmlStr);
+          if (!urdf_) {
+            throw std::invalid_argument ("Enable to parse URDF");
+          }
+          
+          std::istringstream iss(xmlStr);
+          using namespace boost::property_tree;
+          read_xml(iss, tree_, xml_parser::no_comments);
+          
+          BOOST_FOREACH(const ptree::value_type & link, tree_.get_child("robot")) {
+            if (link.first == "link") {
+              std::string name = link.second.get<std::string>("<xmlattr>.name");
+              links_.insert(std::pair<std::string,const ptree&>(name, link.second));
+            }
+          } // BOOST_FOREACH
+        }
+        
+        bool replaceCylinderByCapsule (const std::string & linkName,
+                                       const std::string & geomName) const
+        {
+          LinkMap_t::const_iterator _link = links_.find(linkName);
+          assert (_link != links_.end());
+          const ptree& link = _link->second;
+          if (link.count ("collision_checking") == 0)
+            return false;
+          BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
+            if (cc.first == "capsule") {
+              std::string name = cc.second.get<std::string>("<xmlattr>.name");
+              if (geomName == name) return true;
+            }
+          } // BOOST_FOREACH
+          
+          return false;
+        }
+        
+        // For standard URDF tags
+        ::urdf::ModelInterfaceSharedPtr urdf_;
+        // For other tags
+        ptree tree_;
+        // A mapping from link name to corresponding child of tree_
+        LinkMap_t links_;
+      };
+      
+      template<typename Vector3>
+      static void retrieveMeshScale(const ::urdf::MeshSharedPtr & mesh,
+                                    const Eigen::MatrixBase<Vector3> & scale)
+      {
+        Vector3 & scale_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3,scale);
+        scale_ <<
+        mesh->scale.x,
+        mesh->scale.y,
+        mesh->scale.z;
+      }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL      
       /**
@@ -109,8 +120,8 @@ namespace pinocchio
         // Handle the case where collision geometry is a mesh
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
         {
-          const ::urdf::MeshSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
-          std::string collisionFilename = collisionGeometry->filename;
+          const ::urdf::MeshSharedPtr urdf_mesh = ::urdf::dynamic_pointer_cast< ::urdf::Mesh> (urdf_geometry);
+          std::string collisionFilename = urdf_mesh->filename;
           
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
           if (meshPath == "") {
@@ -119,14 +130,12 @@ namespace pinocchio
             throw std::invalid_argument (ss.str());
           }
           
-          fcl::Vec3f scale = fcl::Vec3f(collisionGeometry->scale.x,
-                                        collisionGeometry->scale.y,
-                                        collisionGeometry->scale.z
+          fcl::Vec3f scale = fcl::Vec3f(urdf_mesh->scale.x,
+                                        urdf_mesh->scale.y,
+                                        urdf_mesh->scale.z
                                         );
           
-          meshScale << collisionGeometry->scale.x,
-          collisionGeometry->scale.y,
-          collisionGeometry->scale.z;
+          retrieveMeshScale(urdf_mesh, meshScale);
           
           // Create FCL mesh by parsing Collada file.
           geometry = meshLoader->load (meshPath, scale, fcl::BV_OBBRSS);
@@ -302,7 +311,8 @@ namespace pinocchio
 #ifndef PINOCCHIO_WITH_HPP_FCL
         PINOCCHIO_UNUSED_VARIABLE(tree);
         PINOCCHIO_UNUSED_VARIABLE(meshLoader);
-#endif
+#endif // PINOCCHIO_WITH_HPP_FCL
+        
         typedef std::vector< PINOCCHIO_URDF_SHARED_PTR(GeometryType) > VectorSharedT;
         typedef GeometryModel::SE3 SE3;
 
@@ -329,11 +339,12 @@ namespace pinocchio
           {
             meshPath.clear();
 #ifdef PINOCCHIO_WITH_HPP_FCL
+            
 #ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
             const std::string & geom_name = (*i)->group_name;
 #else
             const std::string & geom_name = (*i)->name;
-#endif
+#endif // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
             const boost::shared_ptr<fcl::CollisionGeometry> geometry =
             retrieveCollisionGeometry(tree, meshLoader, link_name, geom_name,
                                       (*i)->geometry, package_dirs, meshPath, meshScale);
@@ -342,6 +353,7 @@ namespace pinocchio
             if (urdf_mesh)
             {
               meshPath = retrieveResourcePath(urdf_mesh->filename, package_dirs);
+              retrieveMeshScale(urdf_mesh, meshScale);
             }
 
             const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
