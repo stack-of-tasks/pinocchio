@@ -82,12 +82,14 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     //TODO fix inertia of the base
     manipulator.inertias[0].setRandom();
     SE3 aMb = SE3::Random();
-    FrameIndex fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
+    int fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
           humanoid.getJointId("humanoid/chest2_joint"),
           humanoid.getFrameId("humanoid/chest2_joint"), aMb,
           OP_FRAME));
 
-    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
+    BOOST_CHECK(fid >= 0);
+
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
         SE3::Identity(), model, geomModel);
 
     BOOST_TEST_MESSAGE(model);

@@ -162,13 +162,13 @@ namespace pinocchio
     static const SE3 id = SE3::Identity();
 
     int njoints = modelA.njoints + modelB.njoints - 1;
-    model.names                 .reserve (njoints);
-    model.joints                .reserve (njoints);
-    model.jointPlacements       .reserve (njoints);
-    model.parents               .reserve (njoints);
-    model.inertias              .reserve (njoints);
+    model.names                 .reserve ((size_t)njoints);
+    model.joints                .reserve ((size_t)njoints);
+    model.jointPlacements       .reserve ((size_t)njoints);
+    model.parents               .reserve ((size_t)njoints);
+    model.inertias              .reserve ((size_t)njoints);
     int nframes = modelA.nframes + modelB.nframes - 1;
-    model.frames                .reserve (nframes);
+    model.frames                .reserve ((size_t)nframes);
 
     geomModel.geometryObjects.reserve (geomModelA.ngeoms + geomModelB.ngeoms);
 
