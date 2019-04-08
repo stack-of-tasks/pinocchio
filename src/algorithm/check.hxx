@@ -113,7 +113,7 @@ namespace pinocchio
     CHECK_DATA( data.U.cols()        == model.nv );
     CHECK_DATA( data.U.rows()        == model.nv );
     CHECK_DATA( data.D.size()        == model.nv );
-    CHECK_DATA( data.tmp.size()      == model.nv );
+    CHECK_DATA( data.tmp.size()      >= model.nv );
     CHECK_DATA( data.J.cols()        == model.nv );
     CHECK_DATA( data.Jcom.cols()     == model.nv );
     CHECK_DATA( data.torque_residual.size() == model.nv );
