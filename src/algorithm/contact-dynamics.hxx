@@ -23,7 +23,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar inv_damping)
+                  const Scalar mu)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
@@ -50,7 +50,7 @@ namespace pinocchio
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
     
-    data.JMinvJt.diagonal().array() += inv_damping;
+    data.JMinvJt.diagonal().array() += mu;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers
@@ -76,16 +76,35 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar inv_damping)
+                  const Scalar mu)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv);
 
     computeAllTerms(model, data, q, v);
-
-    return forwardDynamics(model,data,tau,J,gamma,inv_damping);
+    return forwardDynamics(model,data,tau,J,gamma,mu);
   }
-
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  PINOCCHIO_DEPRECATED
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType1> & v,
+                  const Eigen::MatrixBase<TangentVectorType2> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const Scalar mu,
+                  const bool updateKinematics)
+  {
+    if(updateKinematics)
+      return forwardDynamics(model,data,q,v,tau,J,gamma,mu);
+    else
+      return forwardDynamics(model,data,tau,J,gamma,mu);
+  }
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
