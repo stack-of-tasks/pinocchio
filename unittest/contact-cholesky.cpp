@@ -20,25 +20,28 @@
 
 namespace pinocchio
 {
-  template<typename Scalar, int Options>
-  struct ContactCholeskyDecompositionAccessorTpl
-  : public ContactCholeskyDecompositionTpl<Scalar,Options>
+  namespace cholesky
   {
-    typedef ContactCholeskyDecompositionTpl<Scalar,Options> Base;
-    typedef typename Base::IndexVector IndexVector;
-    typedef typename Base::BooleanVector BooleanVector;
+    template<typename Scalar, int Options>
+    struct ContactCholeskyDecompositionAccessorTpl
+    : public ContactCholeskyDecompositionTpl<Scalar,Options>
+    {
+      typedef ContactCholeskyDecompositionTpl<Scalar,Options> Base;
+      typedef typename Base::IndexVector IndexVector;
+      typedef typename Base::BooleanVector BooleanVector;
+      
+      ContactCholeskyDecompositionAccessorTpl(const Base & other)
+      : Base(other)
+      {}
+      
+      const IndexVector & getParents_fromRow() const
+      { return this->parents_fromRow; }
+      const std::vector<BooleanVector> & getExtented_parents_fromRow() const
+      { return this->extented_parents_fromRow; }
+    };
     
-    ContactCholeskyDecompositionAccessorTpl(const Base & other)
-    : Base(other)
-    {}
-    
-    const IndexVector & getParents_fromRow() const
-    { return this->parents_fromRow; }
-    const std::vector<BooleanVector> & getExtented_parents_fromRow() const
-    { return this->extented_parents_fromRow; }
-  };
-  
-  typedef ContactCholeskyDecompositionAccessorTpl<double,0> ContactCholeskyDecompositionAccessor;
+    typedef ContactCholeskyDecompositionAccessorTpl<double,0> ContactCholeskyDecompositionAccessor;
+  }
 }
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
@@ -47,6 +50,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
 {
   using namespace Eigen;
   using namespace pinocchio;
+  using namespace pinocchio::cholesky;
   
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model,true);
@@ -92,6 +96,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
 {
   using namespace Eigen;
   using namespace pinocchio;
+  using namespace pinocchio::cholesky;
   
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model,true);
@@ -195,6 +200,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
 {
   using namespace Eigen;
   using namespace pinocchio;
+  using namespace pinocchio::cholesky;
   
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model,true);
