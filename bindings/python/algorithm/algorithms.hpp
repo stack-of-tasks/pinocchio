@@ -33,6 +33,7 @@ namespace pinocchio
     void exposeRNEADerivatives();
     void exposeABADerivatives();
     void exposeKinematicsDerivatives();
+    void exposeCentroidalDerivatives();
 
     void exposeAlgorithms();
     

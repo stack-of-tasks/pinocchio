@@ -26,7 +26,7 @@ namespace pinocchio
       exposeGeometryAlgo();
       exposeRegressor();
       exposeCholesky();
-      
+      exposeCentroidalDerivatives();      
       // expose derivative version of the algorithms
       exposeRNEADerivatives();
       exposeABADerivatives();
