@@ -198,6 +198,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   pinocchio::Data data_ref(model);
   
   VectorXd q = VectorXd::Ones(model.nq);
+  q.segment<4>(3).normalize();
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
