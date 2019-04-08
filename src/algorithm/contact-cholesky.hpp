@@ -45,7 +45,8 @@ namespace pinocchio
     template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
     void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                  DataTpl<S1,O1,JointCollectionTpl> & data,
-                 const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos);
+                 const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos,
+                 const S1 mu = 0.);
     
     Eigen::DenseIndex dim() const { return D.size(); }
     

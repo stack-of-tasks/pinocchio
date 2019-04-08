@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
 #define __pinocchio_algorithm_contact_cholesky_hxx__
 
+#include "pinocchio/algorithm/check.hpp"
+
 namespace pinocchio
 {
   
@@ -81,7 +83,8 @@ namespace pinocchio
   void ContactCholeskyDecompositionTpl<Scalar,Options>::
   compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
           DataTpl<S1,O1,JointCollectionTpl> & data,
-          const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos)
+          const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos,
+          const S1 mu)
   {
     typedef ContactInfoTpl<S1,O1> ContactInfo;
     assert(model.check(data) && "data is not consistent with model.");
@@ -166,7 +169,7 @@ namespace pinocchio
       typename Data::VectorXs::SegmentReturnType DUt = data.tmp.head(slice_dim);
       DUt.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
 
-      D[j] = - U.row(j).segment(j+1,slice_dim).dot(DUt);
+      D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt);
       assert(D[j] != 0. && "The diagonal element is equal to zero.");
       Dinv[j] = Scalar(1)/D[j];
 

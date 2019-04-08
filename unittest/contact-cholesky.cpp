@@ -169,6 +169,26 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  ContactCholeskyDecomposition contact_chol_decomposition_mu;
+  contact_chol_decomposition_mu.allocate(model, contact_infos);
+  contact_chol_decomposition_mu.compute(model,data,contact_infos,0.);
+  
+  BOOST_CHECK(contact_chol_decomposition_mu.D.isApprox(contact_chol_decomposition.D));
+  BOOST_CHECK(contact_chol_decomposition_mu.Dinv.isApprox(contact_chol_decomposition.Dinv));
+  BOOST_CHECK(contact_chol_decomposition_mu.U.isApprox(contact_chol_decomposition.U));
+  
+  const double mu = 0.1;
+  contact_chol_decomposition_mu.compute(model,data,contact_infos,mu);
+  Data::MatrixXs H_mu(H);
+  H_mu.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
+  
+  Data::MatrixXs H_recomposed_mu
+  = contact_chol_decomposition_mu.U
+  * contact_chol_decomposition_mu.D.asDiagonal()
+  * contact_chol_decomposition_mu.U.transpose();
+  
+  BOOST_CHECK(H_recomposed_mu.isApprox(H_mu));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
