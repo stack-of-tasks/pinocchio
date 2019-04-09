@@ -8,6 +8,8 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
+#include "pinocchio/algorithm/proximal.hpp"
+
 namespace pinocchio
 {
 
@@ -118,6 +120,45 @@ namespace pinocchio
   /// \param[in] tau The joint torque vector (dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
+  /// \param[in] prox_settings Proximal settings.
+  ///
+  /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType1> & v,
+                  const Eigen::MatrixBase<TangentVectorType2> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const ProximalSettingsTpl<Scalar> & prox_settings = ProximalSettingsTpl<Scalar>());
+  
+  ///
+  /// \brief Compute the forward dynamics with contact constraints.
+  /// \note It computes the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
+  ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
+  ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
+  ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
+  ///  By default, the constraint Jacobian is assumed to be full rank, and undamped Cholesky inverse is performed.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  /// \tparam ConstraintMatrixType Type of the constraint matrix.
+  /// \tparam DriftVectorType Type of the drift vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v The joint velocity (vector dim model.nv).
+  /// \param[in] tau The joint torque vector (dim model.nv).
+  /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
+  /// \param[in] gamma The drift of the constraints (dim nb_constraints).
   /// \param[in] mu Damping factor for cholesky decomposition of JMinvJt. Set to zero if contact constraints are full rank.
   ///
   /// \note A hint: 1e-12 as the damping factor gave good result in the particular case of redundancy in contact constraints on the two feet.
@@ -135,6 +176,40 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
                   const Scalar mu = 0.);
+  
+  ///
+  /// \brief Compute the forward dynamics with contact constraints.
+  /// \note It computes the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
+  ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
+  ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
+  ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
+  ///  By default, the constraint Jacobian is assumed to be full rank, and undamped Cholesky inverse is performed.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam TangentVectorType Type of the joint torque vector.
+  /// \tparam ConstraintMatrixType Type of the constraint matrix.
+  /// \tparam DriftVectorType Type of the drift vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] tau The joint torque vector (dim model.nv).
+  /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
+  /// \param[in] gamma The drift of the constraints (dim nb_constraints).
+  /// \param[in] prox_settings Proximal settings.
+  /// \param[in] prox_settings Proximal settings.
+  ///
+  /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<TangentVectorType> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const ProximalSettingsTpl<Scalar> & prox_settings = ProximalSettingsTpl<Scalar>());
   
   ///
   /// \brief Compute the forward dynamics with contact constraints.

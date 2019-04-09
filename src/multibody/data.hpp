@@ -334,6 +334,12 @@ namespace pinocchio
     /// \brief Lagrange Multipliers corresponding to the contact forces in pinocchio::forwardDynamics.
     VectorXs lambda_c;
     
+    /// \brief Proximal Lagrange Multipliers used in the computation of the Forward Dynamics computations.
+    VectorXs lambda_c_prox;
+    
+    /// \brief Difference between two consecutive iterations of the proxy algorithm.
+    VectorXs diff_lambda_c;
+    
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
     MatrixXs sDUiJt;
     

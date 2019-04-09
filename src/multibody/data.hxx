@@ -98,6 +98,8 @@ namespace pinocchio
   , sDUiJt(MatrixXs::Zero(model.nv,model.nv))
   , torque_residual(VectorXs::Zero(model.nv))
   , dq_after(VectorXs::Zero(model.nv))
+  , lambda_c_prox()
+  , diff_lambda_c()
   , impulse_c()
   , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
   , bodyRegressor(BodyRegressorType::Zero())

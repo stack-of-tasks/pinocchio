@@ -10,7 +10,7 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-#include <Eigen/Cholesky>
+#include <iostream>
 
 namespace pinocchio
 {
@@ -23,7 +23,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar mu)
+                  const ProximalSettingsTpl<Scalar> & prox_settings)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
@@ -34,6 +34,7 @@ namespace pinocchio
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::VectorXs & lambda_c = data.lambda_c;
+    typename Data::VectorXs & lambda_c_prox = data.lambda_c_prox;
     
     // Compute the UDUt decomposition of data.M
     cholesky::decompose(model, data);
@@ -49,23 +50,76 @@ namespace pinocchio
       data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
-    
-    data.JMinvJt.diagonal().array() += mu;
+
+    const Scalar & mu = prox_settings.mu;
+    assert(mu >= 0. && "mu must be positive");
+    int max_it = prox_settings.max_it;
+    assert(max_it >= 1 && "mu must greater or equal to 1");
+
+    if(mu == 0.)
+      max_it = 1;
+    else
+      data.JMinvJt.diagonal().array() += mu;
+
     data.llt_JMinvJt.compute(data.JMinvJt);
     
-    // Compute the Lagrange Multipliers
-    lambda_c.noalias() = -J*data.torque_residual;
-    lambda_c -= gamma;
-    data.llt_JMinvJt.solveInPlace(lambda_c);
+    lambda_c_prox = Data::VectorXs::Zero(gamma.size());
+    for(int it = 0; it < max_it; ++it)
+    {
+      // Compute the Lagrange Multipliers
+      lambda_c.noalias() = -J*data.torque_residual;
+      lambda_c += -gamma + mu*lambda_c_prox;
+      data.llt_JMinvJt.solveInPlace(lambda_c);
+      
+      data.diff_lambda_c = lambda_c - lambda_c_prox;
+      lambda_c_prox = lambda_c;
+      
+      // Check termination
+      if(max_it > 1)
+        std::cout << "data.diff_lambda_c.template lpNorm<Eigen::Infinity>():\n" << data.diff_lambda_c.template lpNorm<Eigen::Infinity>() << std::endl;
+      if(data.diff_lambda_c.template lpNorm<Eigen::Infinity>() <= prox_settings.threshold)
+        break;
+    }
     
     // Compute the joint acceleration
     a.noalias() = J.transpose() * lambda_c;
     cholesky::solve(model, data, a);
     a += data.torque_residual;
-    
+
     return a;
   }
-
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<TangentVectorType> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const Scalar mu)
+  {
+    ProximalSettingsTpl<Scalar> prox_settings;
+    prox_settings.mu = mu;
+    return forwardDynamics(model,data,tau,J,gamma,prox_settings);
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType1> & v,
+                  const Eigen::MatrixBase<TangentVectorType2> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const ProximalSettingsTpl<Scalar> & prox_settings)
+  {
+    computeAllTerms(model, data, q, v);
+    return forwardDynamics(model,data,tau,J,gamma,prox_settings);
+  }
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename ConstraintMatrixType, typename DriftVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &

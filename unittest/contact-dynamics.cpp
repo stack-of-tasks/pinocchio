@@ -236,6 +236,48 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 
+//BOOST_AUTO_TEST_CASE ( test_FD_with_singularity )
+//{
+//  using namespace Eigen;
+//  using namespace pinocchio;
+//  
+//  pinocchio::Model model;
+//  pinocchio::buildModels::humanoidRandom(model,true);
+//  pinocchio::Data data(model);
+//  
+//  VectorXd q = VectorXd::Ones(model.nq);
+//  q.segment<4>(3).normalize();
+//  
+//  pinocchio::computeJointJacobians(model, data, q);
+//  
+//  VectorXd v = VectorXd::Ones(model.nv);
+//  VectorXd tau = VectorXd::Zero(model.nv);
+//  
+//  const std::string RF = "rleg6_joint";
+//  
+//  Data::Matrix6x J_RF (6, model.nv);
+//  J_RF.setZero();
+//  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
+//  
+//  Eigen::MatrixXd J(12, model.nv);
+//  J.topRows<6> () = J_RF;
+//  J.bottomRows<6> () = J_RF;
+//  
+//  Eigen::VectorXd gamma (VectorXd::Ones(12));
+//  
+//  ProximalSettings prox_settings(1e-12,1e-8,20);
+//  
+//  // Forward Dynamics with damping
+//  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, prox_settings);
+//  
+//  // Actual Residuals
+//  Eigen::VectorXd constraint_residual (J * data.ddq + gamma);
+//  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
+//  BOOST_CHECK(constraint_residual.norm() <= 1e-9);
+//  BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
+//  std::cout << "dynamics_residual: " << dynamics_residual.norm() << std::endl;
+//}
+
 BOOST_AUTO_TEST_CASE ( test_ID )
 {
   using namespace Eigen;
