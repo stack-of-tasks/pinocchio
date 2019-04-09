@@ -16,6 +16,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 namespace pinocchio
 {
 

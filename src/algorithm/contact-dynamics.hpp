@@ -8,6 +8,8 @@
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
+#include "pinocchio/algorithm/proximal.hpp"
+
 namespace pinocchio
 {
 
