@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-info.hpp"
+#include "pinocchio/bindings/python/algorithm/proximal.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
 namespace pinocchio
@@ -84,6 +85,7 @@ namespace pinocchio
       ;
       
       ContactInfoPythonVisitor<ContactInfo>::expose();
+      ProximalSettingsPythonVisitor<ProximalSettings>::expose();
       
       bp::def("forwardDynamics",
               &forwardDynamics_proxy,
