@@ -80,6 +80,7 @@ IF(NOT HPP_FCL_FOUND)
     multibody/fcl/collision-result.hpp
     multibody/fcl/distance-result.hpp
     multibody/fcl/collision-geometry.hpp
+    multibody/fcl/mesh-loader.hpp
     )
 
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
