@@ -12,6 +12,8 @@
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
+#include "pinocchio/bindings/python/utils/copyable.hpp"
+
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Data)
 
 namespace pinocchio
@@ -124,7 +126,8 @@ namespace pinocchio
                          "Articulated rigid body data.\n"
                          "It contains all the data that can be modified by the algorithms.",
                          bp::no_init)
-        .def(DataPythonVisitor());
+        .def(DataPythonVisitor())
+        .def(CopyableVisitor<Data>());
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
         StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
         StdVectorPythonVisitor<int>::expose("StdVec_int");
