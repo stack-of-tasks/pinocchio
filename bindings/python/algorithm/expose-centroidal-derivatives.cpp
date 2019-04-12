@@ -19,15 +19,15 @@ namespace pinocchio
                                                          const Eigen::VectorXd & a)
     {
       typedef Data::Matrix6x Matrix6x;
-      
+      Matrix6x partialh_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_da(Matrix6x::Zero(6,model.nv));
       
       computeCentroidalDynamicsDerivatives(model,data,q, v, a,
-                                           partial_dq, partial_dv, partial_da);
+                                           partialh_dq, partial_dq, partial_dv, partial_da);
       
-      return bp::make_tuple(partial_dq,partial_dv,partial_da);
+      return bp::make_tuple(partialh_dq, partial_dq,partial_dv,partial_da);
     }
     
     bp::tuple getCentroidalDynamicsDerivatives_proxy(const Model & model,
