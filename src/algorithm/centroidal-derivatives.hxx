@@ -142,6 +142,7 @@ namespace pinocchio
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+      ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
       ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
@@ -171,6 +172,9 @@ namespace pinocchio
       data.doYcrb[parent] += data.doYcrb[i];
       data.oh[parent] += data.oh[i];
       data.of[parent] += data.of[i];
+
+      forceSet::motionActions(J_cols, data.oh[i], dHdq_cols);
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
     
     template<typename Min, typename Mout>
@@ -211,13 +215,14 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
-  typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+  typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
   inline void
   computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
                                        const Eigen::MatrixBase<TangentVectorType1> & v,
                                        const Eigen::MatrixBase<TangentVectorType2> & a,
+                                       const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
                                        const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
                                        const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                        const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
@@ -225,6 +230,8 @@ namespace pinocchio
     assert(q.size() == model.nq && "The joint configuration vector is not of right size");
     assert(v.size() == model.nv && "The joint velocity vector is not of right size");
     assert(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    assert(dh_dq.cols() == model.nv);
+    assert(dh_dq.rows() == 6);
     assert(dhdot_dq.cols() == model.nv);
     assert(dhdot_dq.rows() == 6);
     assert(dhdot_dv.cols() == model.nv);
@@ -278,6 +285,7 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Compute the partial derivatives
+    translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
     translateForceSet(data.dFdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));

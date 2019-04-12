@@ -34,6 +34,7 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
+  /// \param[out] dh_dq The partial derivative of the centroidal momentum with respect to the configuration vector (dim 6 x model.nv).
   /// \param[out] dhdot_dq The partial derivative of the centroidal dynamics with respect to the configuration vector (dim 6 x model.nv).
   /// \param[out] dhdot_dv The partial derivative of the centroidal dynamics with respect to the velocity vector (dim 6 x model.nv).
   /// \param[out] dhdot_da The partial derivative of the centroidal dynamics with respect to the acceleration vector (dim 6 x model.nv).
@@ -43,13 +44,14 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
-           typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+           typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
   inline void
   computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
                                        const Eigen::MatrixBase<TangentVectorType1> & v,
                                        const Eigen::MatrixBase<TangentVectorType2> & a,
+                                       const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
                                        const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
                                        const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                        const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da);
