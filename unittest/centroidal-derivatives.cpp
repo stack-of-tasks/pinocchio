@@ -194,14 +194,15 @@ BOOST_AUTO_TEST_CASE(test_retrieve_centroidal_derivatives)
   
   pinocchio::Data::Matrix6x
     dh_dq(6,model.nv), dhdot_dq(6,model.nv), dhdot_dv(6,model.nv), dhdot_da(6,model.nv);
-  pinocchio::Data::Matrix6x dhdot_dq_ref(6,model.nv), dhdot_dv_ref(6,model.nv), dhdot_da_ref(6,model.nv);
+  pinocchio::Data::Matrix6x
+    dh_dq_ref(6,model.nv), dhdot_dq_ref(6,model.nv), dhdot_dv_ref(6,model.nv), dhdot_da_ref(6,model.nv);
   
   pinocchio::computeCentroidalDynamicsDerivatives(model,data_ref,q,v,a,
-                                                  dh_dq, dhdot_dq_ref,dhdot_dv_ref,dhdot_da_ref);
+                                                  dh_dq_ref, dhdot_dq_ref,dhdot_dv_ref,dhdot_da_ref);
   
   pinocchio::computeRNEADerivatives(model,data,q,v,a);
   pinocchio::getCentroidalDynamicsDerivatives(model,data,
-                                        dhdot_dq,dhdot_dv,dhdot_da);
+                                              dh_dq, dhdot_dq,dhdot_dv,dhdot_da);
   
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
@@ -222,7 +223,7 @@ BOOST_AUTO_TEST_CASE(test_retrieve_centroidal_derivatives)
   BOOST_CHECK(data.Fcrb[0].isApprox(data_ref.dFdq));
   BOOST_CHECK(data.dFdv.isApprox(data_ref.dFdv));
   BOOST_CHECK(data.dFda.isApprox(data_ref.dFda));
-  
+  BOOST_CHECK(dh_dq.isApprox(dh_dq_ref));
   BOOST_CHECK(dhdot_dq.isApprox(dhdot_dq_ref));
   BOOST_CHECK(dhdot_dv.isApprox(dhdot_dv_ref));
   BOOST_CHECK(dhdot_da.isApprox(dhdot_da_ref));
