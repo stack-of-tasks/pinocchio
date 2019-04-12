@@ -17,6 +17,9 @@ namespace pinocchio
   /**
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
+   * @details This function corresponds to the exponential map of the joint configuration Lie Group.
+   *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
+   *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
@@ -31,6 +34,9 @@ namespace pinocchio
 
   /**
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
+   *
+   * @details This function corresponds to the exponential map of the joint configuration Lie Group.
+   *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
@@ -87,6 +93,9 @@ namespace pinocchio
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
+   * @details This function corresponds to the log map of the joint configuration Lie Group.
+   *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
+   *
    * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
    * @param[in]  q1      Wished configuration (size model.nq)
@@ -101,6 +110,9 @@ namespace pinocchio
 
   /**
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
+   *
+   * @details This function corresponds to the log map of the joint configuration Lie Group.
+   *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
    *
    * @param[in]  model   Model of the system
    * @param[in]  q0      Initial configuration (size model.nq)
@@ -217,6 +229,13 @@ namespace pinocchio
   /**
    * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
    *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ f(q, v) \f$ the integrate function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q \delta q + o(\delta q)\f$.
+   *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v \delta v + o(\delta v)\f$.
+   *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
@@ -233,6 +252,13 @@ namespace pinocchio
 
   /**
    * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ f(q, v) \f$ the integrate function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q(q, v) \delta q + o(\delta q)\f$.
+   *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v(q, v) \delta v + o(\delta v)\f$.
    *
    * @param[in]  model   Model that must be integrated
    * @param[in]  q       Initial configuration (size model.nq)
