@@ -77,10 +77,11 @@ namespace pinocchio
   ///         For information, the centroidal momentum matrix is equivalent to dhdot_da.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+           typename Matrix6xLike0,typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
   inline void
   getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<Matrix6xLike1> & dh_dq,
                                    const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
                                    const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                    const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da);

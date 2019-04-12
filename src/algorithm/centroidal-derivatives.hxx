@@ -318,6 +318,8 @@ namespace pinocchio
       typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
       ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+      ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
       
@@ -339,14 +341,18 @@ namespace pinocchio
         data.of[0] += data.of[i];
         data.oYcrb[0] += data.oYcrb[i];
       }
+
+      forceSet::motionActions(J_cols, data.oh[i], dHdq_cols);
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
   }; // struct GetCentroidalDynDerivativesBackwardStep
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+           typename Matrix6xLike0,typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
   inline void
   getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
                                    const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
                                    const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                    const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
@@ -396,6 +402,7 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Retrieve the partial derivatives from RNEA derivatives
+    translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
     translateForceSet(data.Fcrb[0],com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
