@@ -64,7 +64,7 @@ namespace pinocchio
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Force>,f,"Joint spatial force expresssed in the joint frame.")
         .ADD_DATA_PROPERTY(container::aligned_vector<Force>,of,"Joint spatial force expresssed at the origin of the world frame.")
-        
+        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,h,"Vector of spatial momenta expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")
