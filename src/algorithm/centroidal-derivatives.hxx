@@ -85,17 +85,16 @@ namespace pinocchio
       J_cols = data.oMi[i].act(jdata.S());
       motionSet::motionAction(ov,J_cols,dJ_cols);
       motionSet::motionAction(data.oa[parent],J_cols,dAdq_cols);
-      
+      dAdv_cols = dJ_cols;      
       if(parent > 0)
       {
-        motionSet::motionAction<ADDTO>(data.ov[parent],dJ_cols,dAdq_cols);
-        dVdq_cols = dJ_cols;
-        dAdv_cols.noalias() = (Scalar)2*dJ_cols;
+        motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
+        motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
+        dAdv_cols.noalias() += dVdq_cols;
       }
       else
       {
         dVdq_cols.setZero();
-        dAdv_cols = dJ_cols;
       }
       
       // computes variation of inertias
