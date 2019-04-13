@@ -4,6 +4,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/centroidal-derivatives.hpp"
@@ -50,7 +51,7 @@ static void addJointAndBody(pinocchio::Model & model,
       
       model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
       model.addBodyFrame(name + "_body", idx);
-      }
+}
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   
@@ -58,6 +59,10 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 {
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model);
+  const std::string parent_name = model.names[model.njoints-1];
+  const std::string joint_name = "ee_spherical_joint";
+  addJointAndBody(model, pinocchio::JointModelSpherical(), parent_name , joint_name);
+  
   pinocchio::Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
