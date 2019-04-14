@@ -10,6 +10,7 @@
 
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -34,6 +35,7 @@ namespace pinocchio
         .def(bp::init<const GeomIndex &, const GeomIndex &>(bp::args("co1 (index)", "co2 (index)"),
                                                         "Initializer of collision pair."))
         .def(PrintableVisitor<CollisionPair>())
+        .def(CopyableVisitor<CollisionPair>())
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
         
