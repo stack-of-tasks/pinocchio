@@ -44,6 +44,7 @@ namespace pinocchio
   , M(model.nv,model.nv)
   , Minv(model.nv,model.nv)
   , C(model.nv,model.nv)
+  , dHdq(6,model.nv)
   , dFdq(6,model.nv)
   , dFdv(6,model.nv)
   , dFda(6,model.nv)

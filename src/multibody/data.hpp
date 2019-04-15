@@ -143,6 +143,9 @@ namespace pinocchio
     
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     MatrixXs C;
+
+    /// \brief Variation of the spatial momenta with respect to the joint configuration.
+    Matrix6x dHdq;
     
     /// \brief Variation of the forceset with respect to the joint configuration.
     Matrix6x dFdq;
