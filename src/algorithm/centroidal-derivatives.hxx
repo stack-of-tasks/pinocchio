@@ -173,7 +173,7 @@ namespace pinocchio
       data.oh[parent] += data.oh[i];
       data.of[parent] += data.of[i];
 
-      forceSet::motionActions(J_cols, data.oh[i], dHdq_cols);
+      motionSet::act(J_cols, data.oh[i], dHdq_cols);
       motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
     
@@ -342,13 +342,13 @@ namespace pinocchio
         data.oYcrb[0] += data.oYcrb[i];
       }
 
-      forceSet::motionActions(J_cols, data.oh[i], dHdq_cols);
+      motionSet::act(J_cols, data.oh[i], dHdq_cols);
       motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
   }; // struct GetCentroidalDynDerivativesBackwardStep
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename Matrix6xLike0,typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+           typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
   inline void
   getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
