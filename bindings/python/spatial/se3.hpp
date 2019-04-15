@@ -34,19 +34,22 @@ namespace pinocchio
       typedef typename SE3::Scalar Scalar;
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Vector3 Vector3;
-      
+      typedef typename SE3::Matrix4 Matrix4;
+
     public:
 
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<>("Default constructor."))
         .def(bp::init<Matrix3,Vector3>
              ((bp::arg("Rotation"),bp::arg("translation")),
               "Initialize from rotation and translation."))
         .def(bp::init<int>((bp::arg("trivial arg (should be 1)")),"Init to identity."))
         .def(bp::init<SE3>((bp::arg("other")), "Copy constructor."))
+        .def(bp::init<Matrix4>
+             ((bp::arg("Homogeneous matrix")),
+              "Initialize from a homogeneous matrix."))
 
         .add_property("rotation",
                       &getRotation,

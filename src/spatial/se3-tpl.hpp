@@ -45,6 +45,7 @@ namespace pinocchio
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
     typedef typename traits<SE3Tpl>::Vector3 Vector3;
     typedef typename traits<SE3Tpl>::Matrix3 Matrix3;
+    typedef typename traits<SE3Tpl>::Matrix4 Matrix4;
     typedef typename traits<SE3Tpl>::Vector4 Vector4;
     typedef typename traits<SE3Tpl>::Matrix6 Matrix6;
     
