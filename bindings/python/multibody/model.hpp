@@ -48,7 +48,7 @@ namespace pinocchio
         const JointIndex m_parent_id;
         const SE3 & m_joint_placement;
         const std::string & m_joint_name;
-        
+
         addJointVisitor(Model & model,
                         const JointIndex parent_id,
                         const SE3 & joint_placement,
@@ -58,13 +58,49 @@ namespace pinocchio
         , m_joint_placement(joint_placement)
         , m_joint_name(joint_name)
         {}
-       
+
         template <typename JointModelDerived>
         JointIndex operator()(JointModelDerived & jmodel) const
         {
           return m_model.addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name);
         }
       }; // struct addJointVisitor
+
+      struct addJointWithLimitsVisitor : public boost::static_visitor<Model::Index>
+      {
+        Model & m_model;
+        const JointIndex m_parent_id;
+        const SE3 & m_joint_placement;
+        const std::string & m_joint_name;
+        const Eigen::VectorXd & m_max_effort;
+        const Eigen::VectorXd & m_max_velocity;
+        const Eigen::VectorXd & m_min_config;
+        const Eigen::VectorXd & m_max_config;
+
+        addJointWithLimitsVisitor(Model & model,
+                                  const JointIndex parent_id,
+                                  const SE3 & joint_placement,
+                                  const std::string & joint_name,
+                                  const Eigen::VectorXd & max_effort,
+                                  const Eigen::VectorXd & max_velocity,
+                                  const Eigen::VectorXd & min_config,
+                                  const Eigen::VectorXd & max_config)
+        : m_model(model)
+        , m_parent_id(parent_id)
+        , m_joint_placement(joint_placement)
+        , m_joint_name(joint_name)
+        , m_max_effort(max_effort)
+        , m_max_velocity(max_velocity)
+        , m_min_config(min_config)
+        , m_max_config(max_config)
+        {}
+
+        template <typename JointModelDerived>
+        JointIndex operator()(JointModelDerived & jmodel) const
+        {
+          return m_model.addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name,m_max_effort,m_max_velocity,m_min_config,m_max_config);
+        }
+      }; // struct addJointWithLimitsVisitor
       
     public:
 
@@ -132,6 +168,7 @@ namespace pinocchio
         
         // Class Methods
         .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
+        .def("addJoint",&ModelPythonVisitor::addJointWithLimits,bp::args("parent_id","joint_model","joint_placement","joint_name","max_effort","max_velocity","min_config","max_config"),"Adds a joint to the kinematic tree with given bounds. The joint is defined by its placement relative to its parent joint and its name.")
         .def("addJointFrame", &Model::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
         .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
         
@@ -159,7 +196,7 @@ namespace pinocchio
         ;
       }
 
-      
+
       static JointIndex addJoint(Model & model,
                                  JointIndex parent_id,
                                  bp::object jmodel,
@@ -169,7 +206,21 @@ namespace pinocchio
         JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel)();
         return boost::apply_visitor(addJointVisitor(model,parent_id,joint_placement,joint_name), jmodel_variant);
       }
-      
+
+      static JointIndex addJointWithLimits(Model & model,
+                                           JointIndex parent_id,
+                                           bp::object jmodel,
+                                           const SE3 & joint_placement,
+                                           const std::string & joint_name,
+                                           const Eigen::VectorXd & max_effort,
+                                           const Eigen::VectorXd & max_velocity,
+                                           const Eigen::VectorXd & min_config,
+                                           const Eigen::VectorXd & max_config)
+      {
+        JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel)();
+        return boost::apply_visitor(addJointWithLimitsVisitor(model,parent_id,joint_placement,joint_name,max_effort,max_velocity,min_config,max_config), jmodel_variant);
+      }
+
       static Data createData(const Model & model) { return Data(model); }
 
       ///
