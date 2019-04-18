@@ -156,8 +156,10 @@ namespace pinocchio
 
       out << cosOmega * ca - sinOmega * sa,
              sinOmega * ca + cosOmega * sa;
-      const Scalar norm2 = q.squaredNorm();
-      out *= (3 - norm2) / 2; // First order approximation of the normalization of the quaternion
+      // First order approximation of the normalization of the unit complex
+      // See quaternion::firstOrderNormalize for equations.
+      const Scalar norm2 = out.squaredNorm();
+      out *= (3 - norm2) / 2;
     }
     
     template <class Config_t, class Jacobian_t>
