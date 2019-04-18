@@ -15,6 +15,32 @@ class TestModel(TestCase):
         self.assertEqual(model.nq, 0)
         self.assertEqual(model.nv, 0)
 
+    def test_add_joint(self):
+        model = pin.Model()
+        idx = 0
+        idx = model.addJoint(idx, pin.JointModelRY(), pin.SE3.Identity(), 'joint_'+str(idx+1))
+
+        MAX_EFF = 100.
+        MAX_VEL = 10.
+        MIN_POS = -1.
+        MAX_POS = 1.
+
+        me = np.matrix([MAX_EFF])
+        mv = np.matrix([MAX_VEL])
+        lb = np.matrix([MIN_POS])
+        ub = np.matrix([MAX_POS])
+        idx = model.addJoint(idx, pin.JointModelRY(), pin.SE3.Identity(), 'joint_'+str(idx+1),me,mv,lb,ub)
+
+        self.assertEqual(model.nbodies, 1)
+        self.assertEqual(model.njoints, 3)
+        self.assertEqual(model.nq, 2)
+        self.assertEqual(model.nv, 2)
+
+        self.assertEqual(float(model.effortLimit[1]), MAX_EFF)
+        self.assertEqual(float(model.velocityLimit[1]), MAX_VEL)
+        self.assertEqual(float(model.lowerPositionLimit[1]), MIN_POS)
+        self.assertEqual(float(model.upperPositionLimit[1]), MAX_POS)
+
     def test_model(self):
         model = self.model
         nb = 28  # We should have 28 bodies, thus 27 joints, one of them a free-flyer.
