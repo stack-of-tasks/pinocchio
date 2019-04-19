@@ -42,7 +42,8 @@ namespace pinocchio
   enum ReferenceFrame
   {
     WORLD = 0,
-    LOCAL = 1
+    LOCAL = 1,
+    LOCAL_CARTESIAN_ORIENTED = 2
   };
 
   /**

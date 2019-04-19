@@ -44,6 +44,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
   .value("WORLD",::pinocchio::WORLD)
   .value("LOCAL",::pinocchio::LOCAL)
+  .value("LOCAL_CARTESIAN_ORIENTED",::pinocchio::LOCAL_CARTESIAN_ORIENTED)
   ;
 
   exposeModel();

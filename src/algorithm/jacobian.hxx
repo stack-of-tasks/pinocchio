@@ -141,6 +141,13 @@ namespace pinocchio
         J_.col(j) = oMjoint.actInv(mref).toVector();
       }
     }
+
+    if (rf == LOCAL_CARTESIAN_ORIENTED) {
+        Matrix6Like J_tmp;
+        J_tmp.resize(6, model.nv);
+        J_tmp = SE3(oMjoint.rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * J;
+        J_ = J_tmp;
+      }
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>

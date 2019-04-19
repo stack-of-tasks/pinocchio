@@ -125,11 +125,7 @@ namespace pinocchio
     if(rf == WORLD)
     {
       getJointJacobian(model,data,joint_id,WORLD,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
-      return;
-    }
-    
-    if(rf == LOCAL)
-    {
+    } else if(rf == LOCAL || rf == LOCAL_CARTESIAN_ORIENTED) {
       Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
       const typename Data::SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
@@ -138,7 +134,13 @@ namespace pinocchio
       {
         J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
       }
-      return;
+
+      if (rf == LOCAL_CARTESIAN_ORIENTED) {
+        Matrix6xLike J_tmp;
+        J_tmp.resize(6, model.nv);
+        J_tmp = SE3(data.oMf[frame_id].rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * J;
+        J_ = J_tmp;
+      }
     }
   }
   
