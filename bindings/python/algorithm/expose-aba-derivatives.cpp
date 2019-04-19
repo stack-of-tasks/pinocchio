@@ -51,7 +51,7 @@ namespace pinocchio
               "put the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the acceleration output with respect to the joint configuration,\n"
               "velocity and torque vectors.\n"
-              "The forces are of type StdVect_Force.");
+              "The forces are of type StdVec_Force.");
     }
   } // namespace python
 } // namespace pinocchio

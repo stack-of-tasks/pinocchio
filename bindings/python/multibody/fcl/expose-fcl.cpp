@@ -19,13 +19,13 @@ namespace pinocchio
     {
       using namespace pinocchio::python::fcl;
       ContactPythonVisitor::expose();
-      StdVectorPythonVisitor<ContactPythonVisitor::Contact>::expose("StdVect_Contact");
+      StdVectorPythonVisitor<ContactPythonVisitor::Contact>::expose("StdVec_Contact");
       
       CollisionResultPythonVisitor::expose();
-      StdVectorPythonVisitor<CollisionResultPythonVisitor::CollisionResult>::expose("StdVect_CollisionResult");
+      StdVectorPythonVisitor<CollisionResultPythonVisitor::CollisionResult>::expose("StdVec_CollisionResult");
       
       DistanceResultPythonVisitor::expose();
-      StdVectorPythonVisitor<DistanceResultPythonVisitor::DistanceResult>::expose("StdVect_DistanceResult");
+      StdVectorPythonVisitor<DistanceResultPythonVisitor::DistanceResult>::expose("StdVec_DistanceResult");
       
       CollisionGeometryPythonVisitor::expose();
 
