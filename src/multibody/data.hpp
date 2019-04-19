@@ -67,6 +67,7 @@ namespace pinocchio
     /// \brief The 3d jacobian type (temporary)
     typedef Eigen::Matrix<Scalar,3,Eigen::Dynamic,Options> Matrix3x;
     
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Eigen::Matrix<Scalar,6,6,Eigen::RowMajor | Options> RowMatrix6;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXs;
     
@@ -181,6 +182,7 @@ namespace pinocchio
     typename Inertia::Matrix6 Itmp;
     
     /// \brief Temporary for derivative algorithms
+    Matrix6 M6tmp;
     RowMatrix6 M6tmpR;
     RowMatrix6 M6tmpR2;
     
