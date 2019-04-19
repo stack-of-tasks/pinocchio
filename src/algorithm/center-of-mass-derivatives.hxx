@@ -46,8 +46,8 @@ namespace pinocchio
       Motion & vpc = data.v[0] = (parent>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]
       
-      typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6>::Type
-      vxS = data.M6tmp.template leftCols<JointModel::NV>(jmodel.nv());
+        typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6>::Type vxS =
+      SizeDepType<JointModel::NV>::middleCols(data.M6tmp,0,jmodel.nv());
       vxS = vpc.cross(jdata.S());
       
       dvcom_dqi.noalias() = (data.mass[i]/data.mass[0])*data.oMi[i].rotation()
