@@ -51,15 +51,22 @@ namespace pinocchio
       bool smart;
 
       Handler(CppObject * cppobj,bool transmitOwnership=false)
-	: smptr( transmitOwnership ? cppobj : NULL )
-	, rawptr( cppobj )
-	, smart( transmitOwnership ) {}
-      Handler( SmartPtr_t cppobj )
-	: smptr(cppobj), rawptr(NULL), smart(true) {}
+      : smptr(transmitOwnership ? cppobj : NULL)
+      , rawptr(cppobj)
+      , smart(transmitOwnership)
+      {}
+        
+      Handler(SmartPtr_t cppobj)
+      : smptr(cppobj),
+      rawptr(NULL),
+      smart(true)
+      {}
+
       ~Handler()
       {    
-	//std::cout << "Destroy cppobj handler " << std::endl;
-	if( (!smart) && (rawptr!=NULL) ) delete rawptr;
+        //std::cout << "Destroy cppobj handler " << std::endl;
+        if( (!smart) && (rawptr!=NULL) )
+          delete rawptr;
       }
 
       CppObject *       ptr()              { return smart ?  smptr.get() :  rawptr; }
