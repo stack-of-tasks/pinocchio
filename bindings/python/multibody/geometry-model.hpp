@@ -46,7 +46,8 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
-                      "Vector of collision pairs.")
+                      "Vector of collision pairs."
+                      " Note: for technical reasons, when you read a collision pair from this vector it is automatically copied")
         .def("addCollisionPair",&GeometryModel::addCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Add a collision pair given by the index of the two collision objects."

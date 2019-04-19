@@ -42,17 +42,14 @@ namespace pinocchio
         .def_readwrite("second",&CollisionPair::second);
         
         bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+        .def(bp::vector_indexing_suite< std::vector<CollisionPair>, true >());
       }
-      
-      
+
     }; // struct CollisionPairPythonVisitor
 
     struct GeometryDataPythonVisitor
       : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
-      
-    
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
