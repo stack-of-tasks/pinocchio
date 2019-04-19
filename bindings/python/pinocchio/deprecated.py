@@ -11,6 +11,17 @@ import warnings as _warnings
 from . import libpinocchio_pywrap as pin 
 from .deprecation import deprecated, DeprecatedWarning
 
+# deprecated StdVect_ (since: 19/04/2019)
+StdVect_Frame = deprecated("Please use StdVec_Frame")(pin.StdVec_Frame)
+StdVect_GeometryObject = deprecated("Please use StdVec_GeometryObject")(pin.StdVec_GeometryObject)
+if pin.WITH_FCL_SUPPORT():
+    StdVect_Contact = deprecated("Please use StdVec_Contact")(pin.StdVec_Contact)
+    StdVect_CollisionResult = deprecated("Please use StdVec_CollisionResult")(pin.StdVec_CollisionResult)
+    StdVect_DistanceResult = deprecated("Please use StdVec_DistanceResult")(pin.StdVec_DistanceResult)
+StdVect_SE3 = deprecated("Please use StdVec_SE3")(pin.StdVec_SE3)
+StdVect_Force = deprecated("Please use StdVec_Force")(pin.StdVec_Force)
+StdVect_Motion = deprecated("Please use StdVec_Motion")(pin.StdVec_Motion)
+
 @deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
 def impactDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
   return pin.impulseDynamics(model, data, q, v_before, J, r_coeff, update_kinematics)

@@ -14,7 +14,7 @@ namespace pinocchio
     void exposeForce()
     {
       ForcePythonVisitor<Force>::expose();
-      StdAlignedVectorPythonVisitor<Force>::expose("StdVect_Force");
+      StdAlignedVectorPythonVisitor<Force>::expose("StdVec_Force");
     }
     
   } // namespace python

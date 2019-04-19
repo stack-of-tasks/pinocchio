@@ -14,7 +14,7 @@ namespace pinocchio
     void exposeMotion()
     {
       MotionPythonVisitor<Motion>::expose();
-      StdAlignedVectorPythonVisitor<Motion>::expose("StdVect_Motion");
+      StdAlignedVectorPythonVisitor<Motion>::expose("StdVec_Motion");
     }
     
   } // namespace python
