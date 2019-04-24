@@ -47,8 +47,8 @@ namespace pinocchio
             ;
 
         bp::class_<Frame>("Frame",
-                           "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
-	                         bp::no_init
+                          "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
+                          bp::no_init
                          )
         .def(FramePythonVisitor())
         .def(CopyableVisitor<Frame>())

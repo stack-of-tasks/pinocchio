@@ -36,6 +36,8 @@ namespace pinocchio
                                                         "Initializer of collision pair."))
         .def(PrintableVisitor<CollisionPair>())
         .def(CopyableVisitor<CollisionPair>())
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
         

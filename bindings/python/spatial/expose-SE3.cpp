@@ -14,7 +14,7 @@ namespace pinocchio
     void exposeSE3()
     {
       SE3PythonVisitor<SE3>::expose();
-      StdAlignedVectorPythonVisitor<SE3>::expose("StdVect_SE3");
+      StdAlignedVectorPythonVisitor<SE3>::expose("StdVec_SE3");
     }
     
   } // namespace python

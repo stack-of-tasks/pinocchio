@@ -31,40 +31,44 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
-	cl
-	  .def("__getitem__", &PyWraperForAlignedStdVector::getItem)
-	  .def("__setitem__", &PyWraperForAlignedStdVector::setItem)
-	  .def("__len__",     &PyWraperForAlignedStdVector::length)
-	  ;
+        cl
+        .def("__getitem__", &PyWraperForAlignedStdVector::getItem)
+        .def("__setitem__", &PyWraperForAlignedStdVector::setItem)
+        .def("__len__",     &PyWraperForAlignedStdVector::length)
+        ;
       }
 
       static EigenObject getItem( const stdVectorAligned & Ys,int i)
       {
-	assert( Ys.size()<INT_MAX );
-	if( i<0 ) i = int(Ys.size())+i;
-	assert( (i>=0) && (i<int(Ys.size())) );
-	return Ys[(std::size_t)i]; 
+        assert( Ys.size()<INT_MAX );
+        if(i<0)
+          i = int(Ys.size())+i;
+          assert( (i>=0) && (i<int(Ys.size())) );
+          return Ys[(std::size_t)i];
       }
 
       static void setItem( stdVectorAligned & Ys,
-			   int i,const EigenObject & Y)
+                           int i,const EigenObject & Y)
       { 
-	assert( Ys.size()<INT_MAX );
-	if( i<0 ) i = int(Ys.size())+i;
-	assert( (i>=0) && (i<int(Ys.size())) );
-	Ys[(std::size_t)i] = Y; 
+        assert( Ys.size()<INT_MAX );
+        if(i<0)
+          i = int(Ys.size())+i;
+        assert( (i>=0) && (i<int(Ys.size())) );
+        Ys[(std::size_t)i] = Y;
       }
       static typename stdVectorAligned::size_type length( const stdVectorAligned & Ys )
-      { return Ys.size(); }
+      {
+        return Ys.size();
+      }
 
       static void expose(const std::string & className)
       {
-	bp::class_<stdVectorAligned>(className.c_str())
-	  .def(PyWraperForAlignedStdVector());
+        bp::class_<stdVectorAligned>(className.c_str())
+        .def(PyWraperForAlignedStdVector());
       }
     };
-
-  }} // namespace pinocchio::python
+  }
+} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_eigen_container_hpp__
 

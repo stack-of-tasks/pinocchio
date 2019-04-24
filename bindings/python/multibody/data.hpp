@@ -31,22 +31,22 @@ namespace pinocchio
 
     public:
 
-#define ADD_DATA_PROPERTY(TYPE,NAME,DOC)				 \
-      def_readwrite(#NAME,						 \
-      &Data::NAME,		 \
+#define ADD_DATA_PROPERTY(TYPE,NAME,DOC)    \
+      def_readwrite(#NAME,                  \
+      &Data::NAME,                          \
       DOC)
       
-#define ADD_DATA_PROPERTY_READONLY(TYPE,NAME,DOC)				 \
-      def_readonly(#NAME,						 \
-      &Data::NAME,		 \
+#define ADD_DATA_PROPERTY_READONLY(TYPE,NAME,DOC) \
+      def_readonly(#NAME,                         \
+      &Data::NAME,                                \
       DOC)
       
-#define ADD_DATA_PROPERTY_READONLY_BYVALUE(TYPE,NAME,DOC)				 \
-      add_property(#NAME,						 \
-      make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()), \
-      DOC)
-      
-	 
+#define ADD_DATA_PROPERTY_READONLY_BYVALUE(TYPE,NAME,DOC)                       \
+      add_property(#NAME,                                                       \
+      make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()),  \
+      DOC) 
+
+
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
       void visit(PyClass& cl) const 
