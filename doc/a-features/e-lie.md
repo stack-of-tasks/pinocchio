@@ -13,15 +13,15 @@ It is also interesting to have general vector space over which a Lie algebra is 
 As a motivating example let us consider a mobile robot evolving in a plane \f$(\mathbb{R}^2 \times \mathbb{S}^1 \f$).
 ![SE2MotivatingExample.svg](SE2MotivatingExample.svg)
 
-The robot starts at position \f$ pose_s=(x_s,y_s,\theta_s) \f$ and after a ridig motion
+The robot starts at position \f$ pose_s=(x_s,y_s,\theta_s) \f$ and after a rigid motion
 \f$ \delta_u=(\delta x,\delta y,\delta \theta) \f$ 
 it is finishing 
 at position \f$ pose_g = (x_g,y_g,\theta_g)\f$.
-It is possible to instanciate the corresponding \\(SE(2)\\) objects using:
+It is possible to instantiate the corresponding \\(SE(2)\\) objects using:
 
 \code
   typedef double Scalar;
-  enum {Option = 0};
+  enum {Options = 0};
   
   SpecialEuclideanOperationTpl<2,Scalar,Options> aSE2;
   SpecialEuclideanOperationTpl<2,Scalar,Options>::ConfigVector_t pose_s,pose_g;
@@ -38,10 +38,6 @@ In this example, \f$pose_s=(1,1,\pi/4)\f$ and \f$ pose_g=(3,1,-\pi/2) \f$ and we
   pose_g(0) = 3.0; pose_g(1) = -1.0;
   pose_g(2) = cos(-M_PI/2.0); pose_g(3) = sin(-M_PI/2.0);
 
-  aSE2.difference(pose_s,pose_g,delta_u);
-  std::cout << delta_u << std::endl;
-  pose_s = aSE2.random();
-  pose_g = aSE2.random();
   aSE2.difference(pose_s,pose_g,delta_u);
   std::cout << delta_u << std::endl;
 \endcode
