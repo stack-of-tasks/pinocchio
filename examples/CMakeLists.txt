@@ -4,6 +4,7 @@
 
 SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
+  o-liegroup
   #overview-urdf
   )
 
