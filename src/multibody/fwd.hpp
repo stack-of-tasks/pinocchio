@@ -43,7 +43,7 @@ namespace pinocchio
   {
     WORLD = 0,
     LOCAL = 1,
-    LOCAL_CARTESIAN_ORIENTED = 2
+    LOCAL_WORLD_ALIGNED = 2
   };
 
   /**

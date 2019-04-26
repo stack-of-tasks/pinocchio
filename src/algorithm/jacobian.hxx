@@ -134,20 +134,16 @@ namespace pinocchio
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(rf == WORLD)   J_.col(j) = data.J.col(j);
-      else
-      {
+      if(rf == WORLD) {
+        J_.col(j) = data.J.col(j);
+      } else if (rf == LOCAL_WORLD_ALIGNED) {
+        J_.col(j) = data.J.col(j);
+        J_.col(j).template segment<3>(Motion::LINEAR) -= oMjoint.translation().cross(data.J.col(j).template segment<3>(Motion::ANGULAR));
+      } else {
         const MotionRef<M6xColXpr> mref(data.J.col(j).derived());
         J_.col(j) = oMjoint.actInv(mref).toVector();
       }
     }
-
-    if (rf == LOCAL_CARTESIAN_ORIENTED) {
-        Matrix6Like J_tmp;
-        J_tmp.resize(6, model.nv);
-        J_tmp = SE3(oMjoint.rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * J;
-        J_ = J_tmp;
-      }
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
