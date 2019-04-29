@@ -98,7 +98,7 @@ namespace pinocchio
     void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               GeometryModel & geomModel,
                               const std::string & filename,
-                              const bool verbose) throw (std::invalid_argument)
+                              const bool verbose)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
@@ -134,7 +134,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const std::string & filename,
-                             const bool verbose) throw (std::invalid_argument)
+                             const bool verbose)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;
@@ -206,7 +206,7 @@ namespace pinocchio
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
     getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             const std::string & filename,
-                            const bool verbose) throw (std::invalid_argument)
+                            const bool verbose)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;
@@ -340,7 +340,7 @@ namespace pinocchio
     void
     loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const std::string & filename,
-                                const bool verbose) throw (std::invalid_argument)
+                                const bool verbose)
     {
       // Check extension
       const std::string extension = filename.substr(filename.find_last_of('.')+1);
@@ -365,7 +365,7 @@ namespace pinocchio
     void
     loadReferenceConfigurationsFromXML(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        std::istream & xmlStream,
-                                       const bool verbose) throw (std::invalid_argument)
+                                       const bool verbose)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::JointModel JointModel;

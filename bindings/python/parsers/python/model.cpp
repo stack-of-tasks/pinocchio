@@ -21,7 +21,7 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    Model buildModel(const std::string & filename, const std::string & model_name, bool verbose) throw (bp::error_already_set)
+    Model buildModel(const std::string & filename, const std::string & model_name, bool verbose)
     {
       Py_Initialize();
 

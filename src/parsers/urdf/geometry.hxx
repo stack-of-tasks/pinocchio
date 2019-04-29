@@ -306,7 +306,7 @@ namespace pinocchio
                                              ::urdf::LinkConstSharedPtr link,
                                              const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                              GeometryModel & geomModel,
-                                             const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
+                                             const std::vector<std::string> & package_dirs)
       {
 #ifndef PINOCCHIO_WITH_HPP_FCL
         PINOCCHIO_UNUSED_VARIABLE(tree);
@@ -398,7 +398,7 @@ namespace pinocchio
                             const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             GeometryModel & geomModel,
                             const std::vector<std::string> & package_dirs,
-                            const GeometryType type) throw (std::invalid_argument)
+                            const GeometryType type)
       {
         
         switch(type)
@@ -430,7 +430,6 @@ namespace pinocchio
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
                                ::hpp::fcl::MeshLoaderPtr meshLoader)
-      throw(std::invalid_argument)
       {
         std::ifstream xmlStream(filename.c_str());
         if (! xmlStream.is_open())
@@ -448,7 +447,6 @@ namespace pinocchio
                                GeometryModel & geomModel,
                                const std::vector<std::string> & package_dirs,
                                ::hpp::fcl::MeshLoaderPtr meshLoader)
-      throw(std::invalid_argument)
       {
         std::string xmlStr;
         {

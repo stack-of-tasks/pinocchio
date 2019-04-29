@@ -193,7 +193,7 @@ namespace pinocchio
       
       static void loadReferenceConfigurationsFromXML (Model& model,
           const std::string & xmlStream,
-          const bool verbose = false) throw (std::invalid_argument)
+          const bool verbose = false)
       {
         std::istringstream iss (xmlStream);
         pinocchio::srdf::loadReferenceConfigurationsFromXML(model, iss, verbose);

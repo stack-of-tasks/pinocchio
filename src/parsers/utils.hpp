@@ -62,7 +62,7 @@ namespace pinocchio
    * @return     The path to the file (can be a relative or absolute path)
    */
    inline std::string retrieveResourcePath(const std::string & string,
-                                           const std::vector<std::string> & package_dirs) throw (std::invalid_argument)
+                                           const std::vector<std::string> & package_dirs)
    {
 
     namespace bf = boost::filesystem;
