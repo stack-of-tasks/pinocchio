@@ -4,6 +4,7 @@
 
 SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
+  overview-lie
   #overview-urdf
   )
 
