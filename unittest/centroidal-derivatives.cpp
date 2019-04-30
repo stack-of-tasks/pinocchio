@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
 {
   pinocchio::Model model;
   pinocchio::buildModels::humanoidRandom(model);
-  const std::string parent_name = model.names[model.njoints-1];
+  const std::string parent_name = model.names.back();
   const std::string joint_name = "ee_spherical_joint";
   addJointAndBody(model, pinocchio::JointModelSpherical(), parent_name , joint_name);
   
