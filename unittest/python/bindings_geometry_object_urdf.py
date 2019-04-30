@@ -13,7 +13,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
         hint_list = [model_dir, "wrong/hint"]
         model = pin.buildModelFromUrdf(model_path, pin.JointModelFreeFlyer())
-        collision_model = pin.buildGeomFromUrdf(model, model_path, pin.utils.fromListToVectorOfString(hint_list), pin.GeometryType.COLLISION)
+        collision_model = pin.buildGeomFromUrdf(model, model_path, hint_list, pin.GeometryType.COLLISION)
 
         col = collision_model.geometryObjects[1]
         self.assertTrue(col.meshPath == expected_mesh_path)

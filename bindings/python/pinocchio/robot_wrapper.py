@@ -51,10 +51,8 @@ class RobotWrapper(object):
                 if not all(isinstance(item, str) for item in package_dirs):
                     raise Exception('The list of package directories is wrong. At least one is not a string')
                 else:
-                    collision_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.COLLISION, meshLoader,
-                                                            dirs = utils.fromListToVectorOfString(package_dirs))
-                    visual_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.VISUAL, meshLoader,
-                                                         dirs = utils.fromListToVectorOfString(package_dirs))
+                    collision_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.COLLISION, meshLoader, package_dirs)
+                    visual_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.VISUAL, meshLoader, package_dirs)
 
 
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)

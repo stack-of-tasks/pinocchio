@@ -14,7 +14,7 @@ urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
 model = pin.buildModelFromUrdf(urdf_model_path,pin.JointModelFreeFlyer())
 
 # Load collision geometries
-geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,[model_path],pin.GeometryType.COLLISION)
+geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,model_path,pin.GeometryType.COLLISION)
 
 # Add collisition pairs
 geom_model.addAllCollisionPairs()
