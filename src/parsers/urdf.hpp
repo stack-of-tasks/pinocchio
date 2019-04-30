@@ -44,7 +44,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const bool verbose = false) throw (std::invalid_argument);
+               const bool verbose = false);
 
 
     ///
@@ -59,7 +59,7 @@ namespace pinocchio
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const bool verbose = false) throw (std::invalid_argument);
+               const bool verbose = false);
 
     ///
     /// \brief Build the model from a URDF model with a particular joint as root of the model tree inside
@@ -113,8 +113,7 @@ namespace pinocchio
     buildModelFromXML(const std::string & xmlStream,
                       const JointModelVariant & rootJoint,
                       ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      const bool verbose = false)
-    throw (std::invalid_argument);
+                      const bool verbose = false);
     
     ///
     /// \brief Build the model from an XML stream
@@ -130,8 +129,7 @@ namespace pinocchio
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModelFromXML(const std::string & xmlStream,
                       ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      const bool verbose = false)
-    throw (std::invalid_argument);
+                      const bool verbose = false);
 
 
     /**
@@ -161,8 +159,7 @@ namespace pinocchio
                               const GeometryType type,
                               GeometryModel & geomModel,
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
-                              ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr())
-    throw (std::invalid_argument);
+                              ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr());
     
     /**
      * @brief      Build The GeometryModel from a URDF file. Search for meshes
@@ -191,7 +188,7 @@ namespace pinocchio
                               GeometryModel & geomModel,
                               const std::string & packageDir,
                               hpp::fcl::MeshLoaderPtr meshLoader = hpp::fcl::MeshLoaderPtr())
-    throw (std::invalid_argument)
+   
     {
       const std::vector<std::string> dirs(1,packageDir);
       return buildGeom(model,filename,type,geomModel,dirs,meshLoader);
@@ -224,8 +221,7 @@ namespace pinocchio
                               const GeometryType type,
                               GeometryModel & geomModel,
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
-                              hpp::fcl::MeshLoaderPtr meshLoader = hpp::fcl::MeshLoaderPtr())
-    throw (std::invalid_argument);
+                              hpp::fcl::MeshLoaderPtr meshLoader = hpp::fcl::MeshLoaderPtr());
     
     /**
      * @brief      Build The GeometryModel from a URDF model. Search for meshes
@@ -254,7 +250,7 @@ namespace pinocchio
                               GeometryModel & geomModel,
                               const std::string & packageDir,
                               hpp::fcl::MeshLoaderPtr meshLoader = hpp::fcl::MeshLoaderPtr())
-    throw (std::invalid_argument)
+   
     {
       const std::vector<std::string> dirs(1,packageDir);
       return buildGeom(model,xmlStream,type,geomModel,dirs, meshLoader);

@@ -36,7 +36,7 @@ namespace pinocchio
     ///
     template<typename T>
     inline void loadFromText(T & object,
-                             const std::string & filename) throw (std::invalid_argument)
+                             const std::string & filename)
     {
       std::ifstream ifs(filename.c_str());
       if(ifs)
@@ -63,7 +63,7 @@ namespace pinocchio
     ///
     template<typename T>
     inline void saveToText(const T & object,
-                           const std::string & filename) throw (std::invalid_argument)
+                           const std::string & filename)
     {
       std::ofstream ofs(filename.c_str());
       if(ofs)
@@ -90,7 +90,7 @@ namespace pinocchio
     template<typename T>
     inline void loadFromXML(T & object,
                             const std::string & filename,
-                            const std::string & tag_name) throw (std::invalid_argument)
+                            const std::string & tag_name)
     {
       assert(!tag_name.empty());
       
@@ -121,7 +121,7 @@ namespace pinocchio
     template<typename T>
     inline void saveToXML(const T & object,
                           const std::string & filename,
-                          const std::string & tag_name) throw (std::invalid_argument)
+                          const std::string & tag_name)
     {
       assert(!tag_name.empty());
       
@@ -148,7 +148,7 @@ namespace pinocchio
     ///
     template<typename T>
     inline void loadFromBinary(T & object,
-                               const std::string & filename) throw (std::invalid_argument)
+                               const std::string & filename)
     {
       std::ifstream ifs(filename.c_str());
       if(ifs)
@@ -173,7 +173,7 @@ namespace pinocchio
     ///
     template<typename T>
     void saveToBinary(const T & object,
-                      const std::string & filename) throw (std::invalid_argument)
+                      const std::string & filename)
     {
       std::ofstream ofs(filename.c_str());
       if(ofs)

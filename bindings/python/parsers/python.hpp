@@ -24,7 +24,7 @@ namespace pinocchio
     /// \returns The model constructed by the Python script.
     ///
     // TODO: look inside the context of Python and find an occurence of object Model
-    Model buildModel(const std::string & filename, const std::string & var_name = "model", bool verbose = false) throw (boost::python::error_already_set);
+    Model buildModel(const std::string & filename, const std::string & var_name = "model", bool verbose = false);
     
   } // namespace python
   

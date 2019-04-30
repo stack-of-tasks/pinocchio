@@ -23,39 +23,39 @@ namespace pinocchio
     public:
       
       /// \brief Loads a Derived object from a text file.
-      void loadFromText(const std::string & filename) throw (std::invalid_argument)
+      void loadFromText(const std::string & filename)
       {
         pinocchio::serialization::loadFromText(derived(),filename);
       }
       
       /// \brief Saves a Derived object as a text file.
-      void saveToText(const std::string & filename) const throw (std::invalid_argument)
+      void saveToText(const std::string & filename) const
       {
         pinocchio::serialization::saveToText(derived(),filename);
       }
       
       /// \brief Loads a Derived object from an XML file.
       void loadFromXML(const std::string & filename,
-                       const std::string & tag_name) throw (std::invalid_argument)
+                       const std::string & tag_name)
       {
         pinocchio::serialization::loadFromXML(derived(),filename,tag_name);
       }
       
       /// \brief Saves a Derived object as an XML file.
       void saveToXML(const std::string & filename,
-                     const std::string & tag_name) const throw (std::invalid_argument)
+                     const std::string & tag_name) const
       {
         pinocchio::serialization::saveToXML(derived(),filename,tag_name);
       }
       
       /// \brief Loads a Derived object from an binary file.
-      void loadFromBinary(const std::string & filename) throw (std::invalid_argument)
+      void loadFromBinary(const std::string & filename)
       {
         pinocchio::serialization::loadFromBinary(derived(),filename);
       }
       
       /// \brief Saves a Derived object as an binary file.
-      void saveToBinary(const std::string & filename) const throw (std::invalid_argument)
+      void saveToBinary(const std::string & filename) const
       {
         pinocchio::serialization::saveToBinary(derived(),filename);
       }

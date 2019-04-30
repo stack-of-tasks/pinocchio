@@ -29,7 +29,7 @@ namespace pinocchio
     void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               GeometryModel & geomModel,
                               const std::string & filename,
-                              const bool verbose = false) throw (std::invalid_argument);
+                              const bool verbose = false);
     
     /// \copydoc removeCollisionPairs
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -37,7 +37,7 @@ namespace pinocchio
     void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       GeometryModel & geomModel,
                                       const std::string & filename,
-                                      const bool verbose = false) throw (std::invalid_argument)
+                                      const bool verbose = false)
     {
       removeCollisionPairs(model,geomModel,filename,verbose);
     }
@@ -85,7 +85,7 @@ namespace pinocchio
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
     getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             const std::string & filename,
-                            const bool verbose = false) throw (std::invalid_argument);
+                            const bool verbose = false);
     
     /// \copydoc pinocchio::srdf::getNeutralConfiguration
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -93,7 +93,7 @@ namespace pinocchio
     typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
     getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                     const std::string & filename,
-                                    const bool verbose = false) throw (std::invalid_argument)
+                                    const bool verbose = false)
     { return getNeutralConfiguration(model,filename,verbose); }
 
 
@@ -109,7 +109,7 @@ namespace pinocchio
     void
     loadReferenceConfigurations(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const std::string & filename,
-                                const bool verbose = false) throw (std::invalid_argument);
+                                const bool verbose = false);
 
     ///
     /// \brief Get the reference configurations of a given model associated to a SRDF file.
@@ -123,7 +123,7 @@ namespace pinocchio
     void
     loadReferenceConfigurationsFromXML(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        std::istream & xmlStream,
-                                       const bool verbose = false) throw (std::invalid_argument);
+                                       const bool verbose = false);
       
     
     ///
@@ -139,14 +139,14 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const std::string & filename,
-                             const bool verbose = false) throw (std::invalid_argument);
+                             const bool verbose = false);
     
     /// \copydoc pinocchio::srdf::loadRotorParameters
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     PINOCCHIO_DEPRECATED
     bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  const std::string & filename,
-                                 const bool verbose = false) throw (std::invalid_argument)
+                                 const bool verbose = false)
     {
       return loadRotorParameters(model,filename,verbose);
     }

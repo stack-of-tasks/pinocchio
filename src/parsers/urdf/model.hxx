@@ -191,7 +191,7 @@ namespace pinocchio
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseTree(::urdf::LinkConstSharedPtr link,
                      ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                     bool verbose) throw (std::invalid_argument)
+                     bool verbose)
       {
         typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
         typedef typename Model::JointCollection JointCollection;
@@ -536,7 +536,7 @@ namespace pinocchio
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void parseRootTree(::urdf::LinkConstSharedPtr root_link,
                          ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                         const bool verbose) throw (std::invalid_argument)
+                         const bool verbose)
       {
         addFixedJointAndBody(model, 0, SE3::Identity(), "root_joint",
                              root_link->inertial, root_link->name);
@@ -560,7 +560,7 @@ namespace pinocchio
       void parseRootTree(::urdf::LinkConstSharedPtr root_link,
                          ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          const JointModelBase<JointModel> & root_joint,
-                         const bool verbose) throw (std::invalid_argument)
+                         const bool verbose)
       {
         addJointAndBody(model,root_joint,
                         0,SE3::Identity(),"root_joint",
@@ -613,7 +613,7 @@ namespace pinocchio
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
-      throw (std::invalid_argument)
+     
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile (filename);
 
@@ -633,7 +633,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
-    throw (std::invalid_argument)
+   
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
       if (urdfTree)
@@ -654,7 +654,7 @@ namespace pinocchio
     buildModelFromXML(const std::string & xmlStream,
                       const JointModelVariant & rootJoint,
                       ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      const bool verbose) throw (std::invalid_argument)
+                      const bool verbose)
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDF(xmlStream);
       
@@ -673,7 +673,7 @@ namespace pinocchio
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModelFromXML(const std::string & xmlStream,
                       ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      const bool verbose) throw (std::invalid_argument)
+                      const bool verbose)
     {
       ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDF(xmlStream);
       
