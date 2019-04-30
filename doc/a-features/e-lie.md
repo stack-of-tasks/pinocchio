@@ -43,7 +43,7 @@ In this example, \f$pose_s=(1,1,\pi/4)\f$ and \f$ pose_g=(3,1,-\pi/2) \f$ and we
 \endcode
 
 aSE2 is used to compute the difference between two configuration vectors representing the two poses. Note that the rotation is represented by two numbers \f$(sin(\theta),cos(\theta))\f$ which is also a \f$ SO(2) \f$ object.
-The difference lies in the tangent space of \f$SE(3)\f$ and is representend by a vector of 3 reals.
+The difference lies in the tangent space of \f$SE(2)\f$ and is representend by a vector of 3 reals.
 Therefore the output is:
 \code
  3.33216
