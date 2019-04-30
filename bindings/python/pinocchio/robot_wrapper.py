@@ -31,21 +31,15 @@ class RobotWrapper(object):
         self.collision_model = collision_model
         self.visual_model = visual_model
 
-        if "buildGeomFromUrdf" not in dir(pin):
+        if self.collision_model is None:
             self.collision_data = None
-            self.visual_data = None
-            if verbose:
-                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
         else:
-            if self.collision_model is None:
-                self.collision_data = None
-            else:
-                self.collision_data = pin.GeometryData(self.collision_model)
+            self.collision_data = pin.GeometryData(self.collision_model)
 
-            if self.visual_model is None:
-                self.visual_data = None
-            else:
-                self.visual_data = pin.GeometryData(self.visual_model)
+        if self.visual_model is None:
+            self.visual_data = None
+        else:
+            self.visual_data = pin.GeometryData(self.visual_model)
 
         self.v0 = utils.zero(self.nv)
         self.q0 = pin.neutral(self.model)
