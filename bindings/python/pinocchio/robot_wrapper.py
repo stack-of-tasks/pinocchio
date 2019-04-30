@@ -5,6 +5,7 @@
 from . import libpinocchio_pywrap as pin
 from . import utils
 from .deprecation import deprecated
+from .shortcuts import buildModelsFromUrdf
 
 import time
 import os
@@ -13,50 +14,14 @@ import numpy as np
 class RobotWrapper(object):
 
     @staticmethod
-    def BuildFromURDF(filename, package_dirs=None, root_joint=None, verbose=False):
+    def BuildFromURDF(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
         robot = RobotWrapper()
-        robot.initFromURDF(filename, package_dirs, root_joint, verbose)
+        robot.initFromURDF(filename, package_dirs, root_joint, verbose, meshLoader)
         return robot
 
     def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
-        if root_joint is None:
-            model = pin.buildModelFromUrdf(filename)
-        else:
-            model = pin.buildModelFromUrdf(filename, root_joint)
-
-        if "buildGeomFromUrdf" not in dir(pin):
-            collision_model = None
-            visual_model = None
-            if verbose:
-                print('Info: the Geometry Module has not been compiled with Pinocchio. No geometry model and data have been built.')
-        else:
-            if verbose and "removeCollisionPairs" not in dir(pin) and meshLoader is not None:
-                print('Info: Pinocchio was compiled without hpp-fcl. meshLoader is ignored.')
-            def _buildGeomFromUrdf (model, filename, geometryType, meshLoader, dirs=None):
-                if "removeCollisionPairs" not in dir(pin):
-                    if dirs:
-                        return pin.buildGeomFromUrdf(model, filename, dirs, geometryType)
-                    else:
-                        return pin.buildGeomFromUrdf(model, filename, geometryType)
-                else:
-                    if dirs:
-                        return pin.buildGeomFromUrdf(model, filename, dirs, geometryType, meshLoader)
-                    else:
-                        return pin.buildGeomFromUrdf(model, filename, geometryType, meshLoader)
-
-            if package_dirs is None:
-                self.collision_model = _buildGeomFromUrdf(self.model, filename, pin.GeometryType.COLLISION,meshLoader)
-                self.visual_model = _buildGeomFromUrdf(self.model, filename, pin.GeometryType.VISUAL, meshLoader)
-            else:
-                if not all(isinstance(item, str) for item in package_dirs):
-                    raise Exception('The list of package directories is wrong. At least one is not a string')
-                else:
-                    collision_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.COLLISION, meshLoader, package_dirs)
-                    visual_model = _buildGeomFromUrdf(model, filename, pin.GeometryType.VISUAL, meshLoader, package_dirs)
-
-
+        model, collision_model, visual_model = buildModelsFromUrdf(filename, package_dirs, root_joint, verbose, meshLoader)
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
-
 
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, verbose=False):
 
