@@ -263,6 +263,41 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
   BOOST_CHECK(Jf.isApprox(Jf_ref));  
 }
 
+BOOST_AUTO_TEST_CASE ( test_frame_jacobian_local_world_oriented )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  BOOST_CHECK(model.existFrame(frame_name));
+
+  pinocchio::Data data(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Ones(model.nv);
+
+  Model::Index idx = model.getFrameId(frame_name);
+  Data::Matrix6x Jf(6,model.nv); Jf.fill(0);
+  Data::Matrix6x Jf_ref(6,model.nv); Jf_ref.fill(0);
+
+  computeJointJacobians(model, data, q);
+  updateFramePlacement(model,  data, idx);
+  getFrameJacobian(model,      data, idx, LOCAL, Jf_ref);
+
+  // Compute the jacobians.
+  Jf_ref = SE3(data.oMf[idx].rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * Jf_ref;
+  getFrameJacobian(model,      data, idx, LOCAL_WORLD_ALIGNED, Jf);
+
+  BOOST_CHECK(Jf.isApprox(Jf_ref));
+}
+
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
 {
   using namespace Eigen;

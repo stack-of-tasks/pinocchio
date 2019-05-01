@@ -44,6 +44,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
   .value("WORLD",::pinocchio::WORLD)
   .value("LOCAL",::pinocchio::LOCAL)
+  .value("LOCAL_WORLD_ALIGNED",::pinocchio::LOCAL_WORLD_ALIGNED)
   ;
 
   exposeModel();

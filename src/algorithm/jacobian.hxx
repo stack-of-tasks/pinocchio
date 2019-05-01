@@ -134,9 +134,12 @@ namespace pinocchio
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
     for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(rf == WORLD)   J_.col(j) = data.J.col(j);
-      else
-      {
+      if(rf == WORLD) {
+        J_.col(j) = data.J.col(j);
+      } else if (rf == LOCAL_WORLD_ALIGNED) {
+        J_.col(j) = data.J.col(j);
+        J_.col(j).template segment<3>(Motion::LINEAR) -= oMjoint.translation().cross(data.J.col(j).template segment<3>(Motion::ANGULAR));
+      } else {
         const MotionRef<M6xColXpr> mref(data.J.col(j).derived());
         J_.col(j) = oMjoint.actInv(mref).toVector();
       }
