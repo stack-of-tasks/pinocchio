@@ -33,5 +33,9 @@ class TestGeometryObjectBindings(unittest.TestCase):
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(col.meshPath == "")
 
+    def test_create_data(self):
+        collision_data = self.collision_model.createData()
+        self.assertEqual(len(collision_data.oMg), self.collision_model.ngeoms)
+
 if __name__ == '__main__':
     unittest.main()

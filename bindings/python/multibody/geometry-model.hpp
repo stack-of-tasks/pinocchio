@@ -43,6 +43,7 @@ namespace pinocchio
                                                             "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in model")
         .def("getGeometryId",&GeometryModel::getGeometryId)
         .def("existGeometryName",&GeometryModel::existGeometryName)
+        .def("createData",&GeometryModelPythonVisitor::createData)
 #ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
@@ -71,7 +72,7 @@ namespace pinocchio
         ;
       }
       
-      
+      static GeometryData createData(const GeometryModel & geomModel) { return GeometryData(geomModel); }
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
