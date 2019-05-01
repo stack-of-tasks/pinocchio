@@ -5,7 +5,7 @@
 from . import libpinocchio_pywrap as pin
 from . import utils
 from .deprecation import deprecated
-from .shortcuts import buildModelsFromUrdf
+from .shortcuts import buildModelsFromUrdf, createDatas
 
 import time
 import os
@@ -26,20 +26,10 @@ class RobotWrapper(object):
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, verbose=False):
 
         self.model = model
-        self.data = self.model.createData()
-
         self.collision_model = collision_model
         self.visual_model = visual_model
 
-        if self.collision_model is None:
-            self.collision_data = None
-        else:
-            self.collision_data = pin.GeometryData(self.collision_model)
-
-        if self.visual_model is None:
-            self.visual_data = None
-        else:
-            self.visual_data = pin.GeometryData(self.visual_model)
+        self.data, self.collision_data, self.visual_data = createDatas(model,collision_model,visual_model)
 
         self.v0 = utils.zero(self.nv)
         self.q0 = pin.neutral(self.model)

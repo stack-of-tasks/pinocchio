@@ -48,3 +48,9 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
     else:
         geom_model = _buildGeomFromUrdf(model, filename, package_dirs, geometry_type, meshLoader)
         return model, geom_model
+
+def createDatas(*models):
+    """Call createData() on each Model or GeometryModel in input and return the results in a tuple.
+    If one of the models is None, the corresponding data object in the result is also None.
+    """
+    return tuple([None if model is None else model.createData() for model in models])
