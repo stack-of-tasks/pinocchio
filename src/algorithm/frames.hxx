@@ -126,6 +126,7 @@ namespace pinocchio
     if(rf == WORLD)
     {
       getJointJacobian(model,data,joint_id,WORLD,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
+      return;
     } 
     else if(rf == LOCAL || rf == LOCAL_WORLD_ALIGNED) 
     {
