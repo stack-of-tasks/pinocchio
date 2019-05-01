@@ -122,22 +122,28 @@ namespace pinocchio
     
     const Frame & frame = model.frames[frame_id];
     const JointIndex & joint_id = frame.parent;
+    
     if(rf == WORLD)
     {
       getJointJacobian(model,data,joint_id,WORLD,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
-    } else if(rf == LOCAL || rf == LOCAL_WORLD_ALIGNED) {
+    } 
+    else if(rf == LOCAL || rf == LOCAL_WORLD_ALIGNED) 
+    {
       Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
       const typename Data::SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
       for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
-        if (rf == LOCAL) {
-        J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
-        } else {
+        if (rf == LOCAL) 
+        {
+          J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
+        } 
+        else 
+        {
           J_.col(j) = data.J.col(j);
           J_.col(j).template segment<3>(Motion::LINEAR) -= oMframe.translation().cross(J_.col(j).template segment<3>(Motion::ANGULAR));
-      }
+        }
       }
     }
   }
