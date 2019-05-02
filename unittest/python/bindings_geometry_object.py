@@ -6,8 +6,8 @@ import numpy as np
 class TestGeometryObjectBindings(unittest.TestCase):
 
     def setUp(self):
-        model = pin.buildSampleModelHumanoid()
-        self.collision_model = pin.buildSampleGeometryModelHumanoid(model)
+        self.model = pin.buildSampleModelHumanoid()
+        self.collision_model = pin.buildSampleGeometryModelHumanoid(self.model)
 
     def test_name_get_set(self):
         col = self.collision_model.geometryObjects[0]
@@ -32,6 +32,19 @@ class TestGeometryObjectBindings(unittest.TestCase):
     def test_meshpath_get(self):
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(col.meshPath == "")
+
+    def test_create_data(self):
+        collision_data = self.collision_model.createData()
+        self.assertEqual(len(collision_data.oMg), self.collision_model.ngeoms)
+
+    def test_create_datas(self):
+        collision_data = self.collision_model.createData()
+
+        self.assertEqual(len(collision_data.oMg), self.collision_model.ngeoms)
+
+        data_2, collision_data_2 = pin.createDatas(self.model, self.collision_model)
+        self.assertTrue(self.model.check(data_2))
+        self.assertEqual(len(collision_data_2.oMg), self.collision_model.ngeoms)
 
 if __name__ == '__main__':
     unittest.main()
