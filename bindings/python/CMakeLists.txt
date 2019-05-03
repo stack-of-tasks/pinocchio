@@ -171,6 +171,7 @@ ENDFOREACH(python)
 # --- INSTALL DISPLAY SCRIPTS
 SET(PYTHON_DISPLAY_FILES
   __init__.py
+  abstract_display.py
   )
 
 FOREACH(python ${PYTHON_DISPLAY_FILES})
