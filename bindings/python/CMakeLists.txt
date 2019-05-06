@@ -173,6 +173,7 @@ SET(PYTHON_DISPLAY_FILES
   __init__.py
   abstract_display.py
   gepetto_display.py
+  meshcat_display.py
   )
 
 FOREACH(python ${PYTHON_DISPLAY_FILES})
