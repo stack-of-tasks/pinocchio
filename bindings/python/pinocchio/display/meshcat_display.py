@@ -72,8 +72,11 @@ class MeshcatDisplay(AbstractDisplay):
         for visual in self.visual_model.geometryObjects:
             # Get mesh pose.
             M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
+            # Manage scaling
+            S = np.diag(np.concatenate((visual.meshScale,np.array([[1.0]]))).flat)
+            T = np.array(M.homogeneous).dot(S)
             # Update viewer configuration.
-            self.viewer[self.viewerRootNodeName + visual.name].set_transform(np.array(M.homogeneous))
+            self.viewer[self.viewerRootNodeName + visual.name].set_transform(T)
 
     def displayCollisions(self,visibility):
         """Set whether to diplay collision objects or not"""

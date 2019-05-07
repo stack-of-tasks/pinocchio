@@ -17,10 +17,18 @@ romeo_model_path = str(os.path.abspath(os.path.join(romeo_model_dir, 'romeo_desc
 
 display = MeshcatDisplay.BuildFromURDF(romeo_model_path, romeo_model_dir, pin.JointModelFreeFlyer())
 
+# Scale the model
+# This is necessary for Romeo, as the provided model has wrong scaling
+pin.scaleGeometryModel(display.visual_model,0.01)
+
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
 # this enables the server to remain active after the current script ends.
 display.initDisplay()
+
+# Open the visualizer.
+# Note: the visualizer can also be opened seperately by visiting the provided URL.
+display.viewer.open()
 
 input("Press enter to continue")
 
@@ -45,6 +53,7 @@ input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
 red_robot = MeshcatDisplay.BuildFromURDF(romeo_model_path, romeo_model_dir, pin.JointModelFreeFlyer())
+pin.scaleGeometryModel(red_robot.visual_model,0.01)
 red_robot.initDisplay(display.viewer)
 red_robot.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
 q = q0.copy()
