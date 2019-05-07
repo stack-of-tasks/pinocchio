@@ -41,23 +41,26 @@ class GepettoDisplay(AbstractDisplay):
             print("Error while starting the viewer client. ")
             print("Check wheter gepetto-viewer is properly started")
 
+    def loadDisplayGeometryObject(self,geometry_object,geometry_type):
+        """Load a single geometry object"""
+
+        from ..rpy import npToTuple
+        gui = self.viewer.gui
+
+        meshName = self.getViewerNodeName(geometry_object,geometry_type)
+        meshPath = geometry_object.meshPath
+        meshTexturePath = geometry_object.meshTexturePath
+        meshScale = geometry_object.meshScale
+        meshColor = geometry_object.meshColor
+        if gui.addMesh(meshName, meshPath):
+            gui.setScale(meshName, npToTuple(meshScale))
+            if geometry_object.overrideMaterial:
+                gui.setColor(meshName, npToTuple(meshColor))
+                if meshTexturePath is not '':
+                    gui.setTexture(meshName, meshTexturePath)
+
     def loadDisplayModel(self, rootNodeName="pinocchio"):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
-        def loadDisplayGeometryObject(geometry_object,geometry_type):
-            from ..rpy import npToTuple
-
-            meshName = self.getViewerNodeName(geometry_object,geometry_type)
-            meshPath = geometry_object.meshPath
-            meshTexturePath = geometry_object.meshTexturePath
-            meshScale = geometry_object.meshScale
-            meshColor = geometry_object.meshColor
-            if gui.addMesh(meshName, meshPath):
-                gui.setScale(meshName, npToTuple(meshScale))
-                if geometry_object.overrideMaterial:
-                    gui.setColor(meshName, npToTuple(meshColor))
-                    if meshTexturePath is not '':
-                        gui.setTexture(meshName, meshTexturePath)
-
 
         # Start a new "scene" in this window, named "world", with just a floor.
         gui = self.viewer.gui
@@ -76,11 +79,11 @@ class GepettoDisplay(AbstractDisplay):
 
         # iterate over visuals and create the meshes in the viewer
         for collision in self.collision_model.geometryObjects:
-            loadDisplayGeometryObject(collision,pin.GeometryType.COLLISION)
+            self.loadDisplayGeometryObject(collision,pin.GeometryType.COLLISION)
         self.displayCollisions(False)
 
         for visual in self.visual_model.geometryObjects:
-            loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL)
+            self.loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL)
         self.displayVisuals(True)
 
         # Finally, refresh the layout to obtain your first rendering.
