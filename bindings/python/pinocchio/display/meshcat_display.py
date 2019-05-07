@@ -11,7 +11,10 @@ class MeshcatDisplay(AbstractDisplay):
 
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer"""
-        pass
+        if geometry_type is pin.GeometryType.VISUAL:
+            return self.viewerVisualGroupName + '/' + geometry_object.name
+        elif geometry_type is pin.GeometryType.COLLISION:
+            return None
 
     def initDisplay(self, meshcat_visualizer=None, loadModel=False):
         """Start a new MeshCat server and client.
@@ -38,8 +41,16 @@ class MeshcatDisplay(AbstractDisplay):
         self.viewerRootNodeName = rootNodeName
 
         # Load robot meshes in MeshCat
+
+        # Collisions
+        # self.viewerCollisionGroupName = self.viewerRootNodeName + "/" + "collisions"
+        self.viewerCollisionGroupName = None # TODO: collision meshes
+
+        # Visuals
+        # self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
+        self.viewerVisualGroupName = self.viewerRootNodeName
         for visual in self.visual_model.geometryObjects:
-            viewer_name = self.viewerRootNodeName + visual.name
+            viewer_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
             if visual.meshPath == "":
                 raise IOError("Visual mesh file not found for link {}.".format(visual.name))
             # Get file type from filename extension.
@@ -76,14 +87,16 @@ class MeshcatDisplay(AbstractDisplay):
             S = np.diag(np.concatenate((visual.meshScale,np.array([[1.0]]))).flat)
             T = np.array(M.homogeneous).dot(S)
             # Update viewer configuration.
-            self.viewer[self.viewerRootNodeName + visual.name].set_transform(T)
+            self.viewer[self.getViewerNodeName(visual,pin.GeometryType.VISUAL)].set_transform(T)
 
     def displayCollisions(self,visibility):
         """Set whether to diplay collision objects or not"""
+        # TODO
         pass
 
     def displayVisuals(self,visibility):
         """Set whether to diplay visual objects or not"""
+        # TODO
         pass
 
 __all__ = ['MeshcatDisplay']
