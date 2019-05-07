@@ -22,6 +22,7 @@
 ##
 
 import pinocchio as pin
+from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.display import *
 
 DISPLAY = None
@@ -38,27 +39,31 @@ mesh_dir = model_path
 urdf_filename = "romeo_small.urdf"
 urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
 
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
-# In this example, we do not explicitely need collision data and visual data
-data = model.createData()
+# alias
+model = robot.model
+data = robot.data
 
 # do whatever, e.g. compute the center of mass position expressed in the world frame
-q0 = pin.neutral(model)
-com = pin.centerOfMass(model,data,q0)
+q0 = robot.q0
+com = robot.com(q0)
+
+# This last command is similar to:
+com2 = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
 if DISPLAY:
-    display = DISPLAY(model, collision_model, visual_model)
-    display.initDisplay()
+    robot.setDisplay(DISPLAY())
+    robot.initDisplay()
     if DISPLAY == GepettoDisplay:
-        display.loadDisplayModel("pinocchio")
+        robot.loadDisplayModel("pinocchio")
     elif DISPLAY == MeshcatDisplay:
-        pin.scaleGeometryModel(visual_model,0.01)
-        display.viewer.open()
-        display.loadDisplayModel("pinocchio",color=[0.,0.,0.,1.])
+        pin.scaleGeometryModel(robot.visual_model,0.01)
+        robot.viewer.open()
+        robot.loadDisplayModel("pinocchio",color=[0.,0.,0.,1.])
     else:
         raise Exception("Unknown display")
-    display.display(q0)
+    robot.display(q0)
 
 raw_input("Press enter to exit.")
