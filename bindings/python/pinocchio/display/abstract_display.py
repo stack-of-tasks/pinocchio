@@ -9,27 +9,18 @@ class AbstractDisplay(object):
     New displays should extend this class and override its methods as neeeded.
     """
 
-    @classmethod
-    def BuildFromURDF(cls,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
-        """Construct a display from the given URDF file"""
+    def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, copy_models=False):
+        """Construct a display from the given model, collision model, and visual model.
+        If copy_models is True, the models are copied. Otherwise, they are simply kept as a reference."""
 
-        display = cls()
-        display.initFromURDF(filename, package_dirs, root_joint, verbose, meshLoader)
-        return display
-
-    def initFromURDF(self,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
-        """Initialize a display from the given URDF file"""
-
-        model, collision_model, visual_model = buildModelsFromUrdf(filename, package_dirs, root_joint, verbose, meshLoader)
-        cls = type(self)
-        cls.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
-
-    def __init__(self, model = pin.Model(), collision_model = None, visual_model = None):
-        """Construct a display from the given model, collision model, and visual model"""
-
-        self.model = model
-        self.collision_model = collision_model
-        self.visual_model = visual_model
+        if copy_models:
+            self.model = model.copy()
+            self.collision_model = collision_model.copy()
+            self.visual_model = visual_model.copy()
+        else:
+            self.model = model
+            self.collision_model = collision_model
+            self.visual_model = visual_model
 
         self.data, self.collision_data, self.visual_data = createDatas(model,collision_model,visual_model)
 
@@ -50,11 +41,11 @@ class AbstractDisplay(object):
         pass
 
     def displayCollisions(self,visibility):
-        """Set whether to diplay collision objects or not"""
+        """Set whether to display collision objects or not"""
         pass
  
     def displayVisuals(self,visibility):
-        """Set whether to diplay visual objects or not"""
+        """Set whether to display visual objects or not"""
         pass
 
     def play(self, q_trajectory, dt):

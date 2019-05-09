@@ -99,6 +99,7 @@ class GepettoDisplay(AbstractDisplay):
         pin.forwardKinematics(self.model,self.data,q)
 
         if self.display_collisions:
+            pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
             gui.applyConfigurations (
                     [ self.getViewerNodeName(collision,pin.GeometryType.COLLISION) for collision in self.collision_model.geometryObjects ],
                     [ pin.se3ToXYZQUATtuple(self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]) for collision in self.collision_model.geometryObjects ]
@@ -114,7 +115,7 @@ class GepettoDisplay(AbstractDisplay):
         gui.refresh()
 
     def displayCollisions(self,visibility):
-        """Set whether to diplay collision objects or not"""
+        """Set whether to display collision objects or not"""
         gui = self.viewer.gui
         self.display_collisions = visibility
 
@@ -128,7 +129,7 @@ class GepettoDisplay(AbstractDisplay):
             gui.setVisibility(nodeName,visibility_mode)
 
     def displayVisuals(self,visibility):
-        """Set whether to diplay visual objects or not"""
+        """Set whether to display visual objects or not"""
         gui = self.viewer.gui
         self.display_visuals = visibility
 

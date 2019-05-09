@@ -10,13 +10,13 @@ class MeshcatDisplay(AbstractDisplay):
     """A Pinocchio display using Meshcat"""
 
     def getViewerNodeName(self, geometry_object, geometry_type):
-        """Return the name of the geometry object inside the viewer"""
+        """Return the name of the geometry object inside the viewer."""
         if geometry_type is pin.GeometryType.VISUAL:
             return self.viewerVisualGroupName + '/' + geometry_object.name
         elif geometry_type is pin.GeometryType.COLLISION:
-            return None
+            return None # TODO: collision meshes
 
-    def initDisplay(self, meshcat_visualizer=None, loadModel=False):
+    def initDisplay(self, meshcat_visualizer=None, open=False, loadModel=False):
         """Start a new MeshCat server and client.
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
@@ -25,6 +25,9 @@ class MeshcatDisplay(AbstractDisplay):
         import meshcat
 
         self.viewer = meshcat.Visualizer() if meshcat_visualizer is None else meshcat_visualizer
+
+        if open:
+            self.viewer.open()
 
         if loadModel:
             self.loadDisplayModel()
@@ -78,8 +81,7 @@ class MeshcatDisplay(AbstractDisplay):
         self.viewerCollisionGroupName = None # TODO: collision meshes
 
         # Visuals
-        # self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
-        self.viewerVisualGroupName = self.viewerRootNodeName
+        self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
 
         for visual in self.visual_model.geometryObjects:
             self.loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL,color)
@@ -98,13 +100,19 @@ class MeshcatDisplay(AbstractDisplay):
             self.viewer[self.getViewerNodeName(visual,pin.GeometryType.VISUAL)].set_transform(T)
 
     def displayCollisions(self,visibility):
-        """Set whether to diplay collision objects or not"""
+        """Set whether to display collision objects or not.
+        WARNING: Plotting collision meshes is not yet available for MeshcatDisplay."""
         # TODO
+        import warnings
+        warnings.warn("Plotting collision meshes is not available for MeshcatDisplay", category=UserWarning, stacklevel=2)
         pass
 
     def displayVisuals(self,visibility):
-        """Set whether to diplay visual objects or not"""
+        """Set whether to display visual objects or not
+        WARNING: Visual meshes are always plotted for MeshcatDisplay"""
         # TODO
+        import warnings
+        warnings.warn("Visual meshes are always plotted for MeshcatDisplay", category=UserWarning, stacklevel=2)
         pass
 
 __all__ = ['MeshcatDisplay']

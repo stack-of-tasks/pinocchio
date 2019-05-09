@@ -1,3 +1,7 @@
+##
+## Copyright (c) 2018-2019 CNRS
+##
+
 # NOTE: this example needs gepetto-gui to be installed
 # usage: launch gepetto-gui and then run this test
 
@@ -9,11 +13,13 @@ from pinocchio.display import GepettoDisplay
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-current_file =  str(os.path.dirname(os.path.abspath(__file__)))
-romeo_model_dir = str(os.path.abspath(os.path.join(current_file, '../../models/romeo')))
-romeo_model_path = str(os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo_small.urdf')))
+current_path =  str(os.path.dirname(os.path.abspath(__file__)))
+model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
+mesh_dir = model_path
+urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
-display = GepettoDisplay.BuildFromURDF(romeo_model_path, romeo_model_dir, pin.JointModelFreeFlyer())
+model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+display = GepettoDisplay(model, collision_model, visual_model)
 
 # Initialize the display.
 display.initDisplay()

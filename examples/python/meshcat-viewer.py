@@ -1,3 +1,7 @@
+##
+## Copyright (c) 2019 CNRS
+##
+
 # This examples shows how to load and move a robot in meshcat.
 # Note: this feature requires Meshcat to be installed, this can be done using
 # pip install --user meshcat
@@ -11,24 +15,26 @@ from pinocchio.display import MeshcatDisplay
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-current_file =  str(os.path.dirname(os.path.abspath(__file__)))
-romeo_model_dir = str(os.path.abspath(os.path.join(current_file, '../../models/romeo')))
-romeo_model_path = str(os.path.abspath(os.path.join(romeo_model_dir, 'romeo_description/urdf/romeo_small.urdf')))
+current_path =  str(os.path.dirname(os.path.abspath(__file__)))
+model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
+mesh_dir = model_path
+urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
-display = MeshcatDisplay.BuildFromURDF(romeo_model_path, romeo_model_dir, pin.JointModelFreeFlyer())
+model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
-# Scale the model
-# This is necessary for Romeo, as the provided model has wrong scaling
+# Build MeshcatDisplay using copies and scale the model
+# The scaling is necessary for Romeo due to issues with the measurement units
+# We are passing copies in order not to affect the original models
+display = MeshcatDisplay(model, collision_model, visual_model, copy_models=True)
 pin.setGeometryMeshScales(display.visual_model,0.01)
 
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
 # this enables the server to remain active after the current script ends.
-display.initDisplay()
-
-# Open the visualizer.
+#
+# Option open=True pens the visualizer.
 # Note: the visualizer can also be opened seperately by visiting the provided URL.
-display.viewer.open()
+display.initDisplay(open=True)
 
 input("Press enter to continue")
 
@@ -52,7 +58,7 @@ display.display(q0)
 input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
-red_robot = MeshcatDisplay.BuildFromURDF(romeo_model_path, romeo_model_dir, pin.JointModelFreeFlyer())
+red_robot = MeshcatDisplay(model, collision_model, visual_model, copy_models=True)
 pin.setGeometryMeshScales(red_robot.visual_model,0.01)
 red_robot.initDisplay(display.viewer)
 red_robot.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])

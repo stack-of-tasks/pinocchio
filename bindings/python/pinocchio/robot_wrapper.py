@@ -214,10 +214,12 @@ class RobotWrapper(object):
     def viewer(self):
         return self.disp.viewer
 
-    def setDisplay(self, display, init=True):
-        """Set the display. If init is true, the display is initialized with this wrapper's models."""
+    def setDisplay(self, display, init=True, copy_models=False):
+        """Set the display. If init is True, the display is initialized with this wrapper's models.
+        If copy_models is also True, the models are copied. Otherwise, they are simply kept as a reference.
+        """
         if init:
-            display.__init__(self.model, self.collision_model, self.visual_model)
+            display.__init__(self.model, self.collision_model, self.visual_model, copy_models)
         self.disp = display
 
     def getViewerNodeName(self, geometry_object, geometry_type):

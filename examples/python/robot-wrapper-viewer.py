@@ -1,19 +1,5 @@
 ##
-## Copyright (c) 2018 CNRS
-##
-## This file is part of Pinocchio
-## Pinocchio is free software: you can redistribute it
-## and/or modify it under the terms of the GNU Lesser General Public
-## License as published by the Free Software Foundation, either version
-## 3 of the License, or (at your option) any later version.
-##
-## Pinocchio is distributed in the hope that it will be
-## useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-## of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-## General Lesser Public License for more details. You should have
-## received a copy of the GNU Lesser General Public License along with
-## Pinocchio If not, see
-## <http:##www.gnu.org/licenses/>.
+## Copyright (c) 2018-2019 CNRS
 ##
 
 ##
@@ -24,20 +10,18 @@
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.display import *
+import os
 
 DISPLAY = None
 # DISPLAY = GepettoDisplay
 # DISPLAY = MeshcatDisplay
 
-## Load Romeo with RomeoWrapper
-import os
-current_path = os.getcwd()
-
-# The model of Romeo is contained in the path PINOCCHIO_GIT_REPOSITORY/models/romeo
-model_path = current_path + "/" + "../../models/romeo"
+# Load the URDF model with RobotWrapper
+# Conversion with str seems to be necessary when executing this file with ipython
+current_path =  str(os.path.dirname(os.path.abspath(__file__)))
+model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
 mesh_dir = model_path
-urdf_filename = "romeo_small.urdf"
-urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
+urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
 robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
@@ -54,12 +38,12 @@ com2 = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
 if DISPLAY:
-    robot.setDisplay(DISPLAY())
+    robot.setDisplay(DISPLAY(),copy_models = (DISPLAY == MeshcatDisplay))
     robot.initDisplay()
     if DISPLAY == GepettoDisplay:
         robot.loadDisplayModel("pinocchio")
     elif DISPLAY == MeshcatDisplay:
-        pin.setGeometryMeshScales(robot.visual_model,0.01)
+        pin.setGeometryMeshScales(robot.disp.visual_model,0.01)
         robot.viewer.open()
         robot.loadDisplayModel("pinocchio",color=[0.,0.,0.,1.])
     else:
