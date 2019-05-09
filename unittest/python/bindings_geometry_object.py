@@ -59,5 +59,13 @@ class TestGeometryObjectBindings(unittest.TestCase):
         self.assertTrue(self.model.check(data_2))
         self.assertEqual(len(collision_data_2.oMg), self.collision_model.ngeoms)
 
+    def test_copy(self):
+        collision_model_copy = self.collision_model.copy()
+        self.assertEqual(self.collision_model.ngeoms,collision_model_copy.ngeoms)
+
+        collision_data = self.collision_model.createData()
+        collision_data_copy = collision_data.copy()
+        self.assertEqual(len(collision_data.oMg),len(collision_data_copy.oMg))
+
 if __name__ == '__main__':
     unittest.main()

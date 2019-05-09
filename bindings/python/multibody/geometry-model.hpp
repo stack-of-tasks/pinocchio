@@ -9,6 +9,7 @@
 
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryModel)
@@ -82,6 +83,7 @@ namespace pinocchio
                                   bp::no_init)
         .def(GeometryModelPythonVisitor())
         .def(PrintableVisitor<GeometryModel>())
+        .def(CopyableVisitor<GeometryModel>())
         ;
       }
       
