@@ -35,14 +35,14 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_scale(self):
         scale = np.matrix([1.,2.,3.]).T
-        pin.scaleGeometryModel(self.collision_model,scale)
+        pin.setGeometryMeshScales(self.collision_model,scale)
         for obj in self.collision_model.geometryObjects:
             self.assertTrue(np.allclose(obj.meshScale, scale))
 
     def test_scalar_scale(self):
         scale = 2.
         vec = np.matrix([scale]*3).T
-        pin.scaleGeometryModel(self.collision_model,scale)
+        pin.setGeometryMeshScales(self.collision_model,scale)
         for obj in self.collision_model.geometryObjects:
             self.assertTrue(np.allclose(obj.meshScale, vec))
 

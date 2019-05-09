@@ -54,7 +54,7 @@ if DISPLAY:
     if DISPLAY == GepettoDisplay:
         display.loadDisplayModel("pinocchio")
     elif DISPLAY == MeshcatDisplay:
-        pin.scaleGeometryModel(visual_model,0.01)
+        pin.setGeometryMeshScales(visual_model,0.01)
         display.viewer.open()
         display.loadDisplayModel("pinocchio",color=[0.,0.,0.,1.])
     else:
