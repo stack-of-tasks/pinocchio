@@ -28,11 +28,11 @@ class BaseVisualizer(object):
         """Return the name of the geometry object inside the viewer."""
         pass 
 
-    def initDisplay(self, *args, **kwargs):
-        """Init display by loading the gui and creating a window."""
+    def initViewer(self, *args, **kwargs):
+        """Init the viewer by loading the gui and creating a window."""
         pass
 
-    def loadDisplayModel(self, *args, **kwargs):
+    def loadViewerModel(self, *args, **kwargs):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
         pass
 

@@ -34,11 +34,11 @@ com = pin.centerOfMass(model,data,q0)
 ## load model into gepetto-gui
 if VISUALIZER:
     display = VISUALIZER(model, collision_model, visual_model)
-    display.initDisplay()
+    display.initViewer()
     if VISUALIZER == MeshcatVisualizer:
-        display.loadDisplayModel("pinocchio", color=[0., 0., 0., 1.])
+        display.loadViewerModel("pinocchio", color=[0., 0., 0., 1.])
     else:
-        display.loadDisplayModel("pinocchio")
+        display.loadViewerModel("pinocchio")
     display.display(q0)
 
 raw_input("Press enter to exit.")

@@ -23,8 +23,8 @@ model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, 
 display = GepettoVisualizer(model, collision_model, visual_model)
 
 # Initialize the display.
-display.initDisplay()
-display.loadDisplayModel("pinocchio")
+display.initViewer()
+display.loadViewerModel("pinocchio")
 
 # Display a robot configuration.
 q0 = np.matrix([
@@ -42,8 +42,8 @@ input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
 display2 = GepettoVisualizer(model, collision_model, visual_model)
-display2.initDisplay(display.viewer)
-display2.loadDisplayModel(rootNodeName = "pinocchio2")
+display2.initViewer(display.viewer)
+display2.loadViewerModel(rootNodeName = "pinocchio2")
 q = q0.copy()
 q[1] = 1.0
 display2.display(q)

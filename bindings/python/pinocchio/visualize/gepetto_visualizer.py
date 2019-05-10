@@ -13,8 +13,8 @@ class GepettoVisualizer(BaseVisualizer):
         elif geometry_type is pin.GeometryType.COLLISION:
             return self.viewerCollisionGroupName + '/' + geometry_object.name
 
-    def initDisplay(self, viewer=None, windowName="python-pinocchio", sceneName="world", loadModel=False):
-        """Init gepetto-viewer by loading the gui and creating a window."""
+    def initViewer(self, viewer=None, windowName="python-pinocchio", sceneName="world", loadModel=False):
+        """Init GepettoViewer by loading the gui and creating a window."""
 
         import gepetto.corbaserver
         try:
@@ -36,7 +36,7 @@ class GepettoVisualizer(BaseVisualizer):
             gui.addSceneToWindow(sceneName, self.windowID)
 
             if loadModel:
-                self.loadDisplayModel()
+                self.loadViewerModel()
         except:
             import warnings
             msg = ("Error while starting the viewer client.\n"
@@ -44,7 +44,7 @@ class GepettoVisualizer(BaseVisualizer):
                   )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
 
-    def loadDisplayGeometryObject(self, geometry_object, geometry_type):
+    def loadViewerGeometryObject(self, geometry_object, geometry_type):
         """Load a single geometry object"""
 
         from ..rpy import npToTuple
@@ -62,7 +62,7 @@ class GepettoVisualizer(BaseVisualizer):
                 if meshTexturePath is not '':
                     gui.setTexture(meshName, meshTexturePath)
 
-    def loadDisplayModel(self, rootNodeName="pinocchio"):
+    def loadViewerModel(self, rootNodeName="pinocchio"):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
 
         # Start a new "scene" in this window, named "world", with just a floor.
@@ -82,11 +82,11 @@ class GepettoVisualizer(BaseVisualizer):
 
         # iterate over visuals and create the meshes in the viewer
         for collision in self.collision_model.geometryObjects:
-            self.loadDisplayGeometryObject(collision,pin.GeometryType.COLLISION)
+            self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION)
         self.displayCollisions(False)
 
         for visual in self.visual_model.geometryObjects:
-            self.loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL)
+            self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL)
         self.displayVisuals(True)
 
         # Finally, refresh the layout to obtain your first rendering.

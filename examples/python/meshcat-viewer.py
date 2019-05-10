@@ -30,14 +30,14 @@ display = MeshcatVisualizer(model, collision_model, visual_model)
 #
 # Option open=True pens the visualizer.
 # Note: the visualizer can also be opened seperately by visiting the provided URL.
-display.initDisplay(open=True)
+display.initViewer(open=True)
 
 input("Press enter to continue")
 
 # Load the robot in the viewer.
 # Color is needed here because the Romeo URDF doesn't contain any color, so the default color results in an
 # invisible robot (alpha value set to 0).
-display.loadDisplayModel(color = [0.0, 0.0, 0.0, 1.0])
+display.loadViewerModel(color = [0.0, 0.0, 0.0, 1.0])
 
 # Display a robot configuration.
 q0 = np.matrix([
@@ -55,8 +55,8 @@ input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
 red_robot_display = MeshcatVisualizer(model, collision_model, visual_model)
-red_robot_display.initDisplay(display.viewer)
-red_robot_display.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
+red_robot_display.initViewer(display.viewer)
+red_robot_display.loadViewerModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
 q = q0.copy()
 q[1] = 1.0
 red_robot_display.display(q)

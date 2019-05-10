@@ -16,7 +16,7 @@ class MeshcatVisualizer(BaseVisualizer):
         elif geometry_type is pin.GeometryType.COLLISION:
             return None # TODO: collision meshes
 
-    def initDisplay(self, viewer=None, open=False, loadModel=False):
+    def initViewer(self, viewer=None, open=False, loadModel=False):
         """Start a new MeshCat server and client.
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
@@ -30,9 +30,9 @@ class MeshcatVisualizer(BaseVisualizer):
             self.viewer.open()
 
         if loadModel:
-            self.loadDisplayModel()
+            self.loadViewerModel()
 
-    def loadDisplayGeometryObject(self, geometry_object,geometry_type, color=None):
+    def loadViewerGeometryObject(self, geometry_object,geometry_type, color=None):
         """Load a single geometry object"""
 
         import meshcat.geometry
@@ -63,7 +63,7 @@ class MeshcatVisualizer(BaseVisualizer):
             material.opacity = float(meshColor[3])
         self.viewer[viewer_name].set_object(obj, material)
 
-    def loadDisplayModel(self, rootNodeName="pinocchio", color = None):
+    def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
         Parameters:
             rootNodeName: name to give to the robot in the viewer
@@ -84,7 +84,7 @@ class MeshcatVisualizer(BaseVisualizer):
         self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
 
         for visual in self.visual_model.geometryObjects:
-            self.loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL,color)
+            self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
     def display(self, q):
         """Display the robot at configuration q in the viewer by placing all the bodies."""

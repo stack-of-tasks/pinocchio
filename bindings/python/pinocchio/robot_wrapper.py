@@ -226,14 +226,18 @@ class RobotWrapper(object):
         """For each geometry object, returns the corresponding name of the node in the display."""
         return disp.getViewerNodeName(geometry_object, geometry_type)
 
-    def initDisplay(self, *args, **kwargs):
-        """Init the display"""
+    def initViewer(self, *args, **kwargs):
+        """Init the viewer"""
         # Set viewer to use to gepetto-gui.
         if self.viz is None:
             from .visualize import GepettoVisualizer
             self.viz = GepettoVisualizer(self.model, self.collision_model, self.visual_model)
 
-        self.viz.initDisplay(*args, **kwargs)
+        self.viz.initViewer(*args, **kwargs)
+
+    @deprecated("Use initViewer")
+    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
+        self.initViewer(windowName=windowName, sceneName=sceneName, loadModel=loadModel)
 
     @deprecated("You should manually set the visualizer, initialize it, and load the model.")
     def initMeshcatDisplay(self, meshcat_visualizer, robot_name = "pinocchio", robot_color = None):
@@ -246,12 +250,17 @@ class RobotWrapper(object):
         """
         from .visualize import MeshcatVisualizer
         self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
-        self.viz.initDisplay(meshcat_visualizer)
-        self.viz.loadDisplayModel(rootNodeName=robot_name, color=robot_color)
+        self.viz.initViewer(meshcat_visualizer)
+        self.viz.loadViewerModel(rootNodeName=robot_name, color=robot_color)
 
-    def loadDisplayModel(self, *args, **kwargs):
+    def loadViewerModel(self, *args, **kwargs):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
-        self.viz.loadDisplayModel(*args, **kwargs)
+        self.viz.loadViewerModel(*args, **kwargs)
+
+    @deprecated("Use loadViewerModel")
+    def loadDisplayModel(self, rootNodeName="pinocchio"):
+        """Create the scene displaying the robot meshes in gepetto-viewer"""
+        self.loadViewerModel(rootNodeName=rootNodeName)
 
     def display(self, q):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
