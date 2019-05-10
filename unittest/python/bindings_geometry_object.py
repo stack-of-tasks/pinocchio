@@ -33,6 +33,19 @@ class TestGeometryObjectBindings(unittest.TestCase):
         col = self.collision_model.geometryObjects[0]
         self.assertTrue(col.meshPath == "")
 
+    def test_scale(self):
+        scale = np.matrix([1.,2.,3.]).T
+        pin.setGeometryMeshScales(self.collision_model,scale)
+        for obj in self.collision_model.geometryObjects:
+            self.assertTrue(np.allclose(obj.meshScale, scale))
+
+    def test_scalar_scale(self):
+        scale = 2.
+        vec = np.matrix([scale]*3).T
+        pin.setGeometryMeshScales(self.collision_model,scale)
+        for obj in self.collision_model.geometryObjects:
+            self.assertTrue(np.allclose(obj.meshScale, vec))
+
     def test_create_data(self):
         collision_data = self.collision_model.createData()
         self.assertEqual(len(collision_data.oMg), self.collision_model.ngeoms)
@@ -45,6 +58,14 @@ class TestGeometryObjectBindings(unittest.TestCase):
         data_2, collision_data_2 = pin.createDatas(self.model, self.collision_model)
         self.assertTrue(self.model.check(data_2))
         self.assertEqual(len(collision_data_2.oMg), self.collision_model.ngeoms)
+
+    def test_copy(self):
+        collision_model_copy = self.collision_model.copy()
+        self.assertEqual(self.collision_model.ngeoms,collision_model_copy.ngeoms)
+
+        collision_data = self.collision_model.createData()
+        collision_data_copy = collision_data.copy()
+        self.assertEqual(len(collision_data.oMg),len(collision_data_copy.oMg))
 
 if __name__ == '__main__':
     unittest.main()

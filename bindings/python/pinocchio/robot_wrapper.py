@@ -7,8 +7,6 @@ from . import utils
 from .deprecation import deprecated
 from .shortcuts import buildModelsFromUrdf, createDatas
 
-import time
-import os
 import numpy as np
 
 class RobotWrapper(object):
@@ -34,8 +32,7 @@ class RobotWrapper(object):
         self.v0 = utils.zero(self.nv)
         self.q0 = pin.neutral(self.model)
 
-        # Two viewers are supported: meshcat or gepetto-gui. By default, gepetto-gui is to be used.
-        self.used_viewer = 'gepetto-gui'
+        self.viz = None
 
     @property
     def nq(self):
@@ -208,202 +205,77 @@ class RobotWrapper(object):
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
     def index(self, name):
-        return [i for i, n in enumerate(self.model.names) if n == name][0]
+        return self.model.getJointId(name)
 
     # --- VIEWER ---
-    # For each geometry object, returns the corresponding name of the node in Gepetto-viewer.
+
+    # for backwards compatibility
+    @property
+    def viewer(self):
+        return self.viz.viewer
+
+    def setVisualizer(self, visualizer, init=True, copy_models=False):
+        """Set the visualizer. If init is True, the visualizer is initialized with this wrapper's models.
+        If copy_models is also True, the models are copied. Otherwise, they are simply kept as a reference.
+        """
+        if init:
+            visualizer.__init__(self.model, self.collision_model, self.visual_model, copy_models)
+        self.viz = visualizer
+
     def getViewerNodeName(self, geometry_object, geometry_type):
-        if geometry_type is pin.GeometryType.VISUAL:
-            return self.viewerVisualGroupName + '/' + geometry_object.name
-        elif geometry_type is pin.GeometryType.COLLISION:
-            return self.viewerCollisionGroupName + '/' + geometry_object.name
+        """For each geometry object, returns the corresponding name of the node in the display."""
+        return disp.getViewerNodeName(geometry_object, geometry_type)
 
-
-    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
-        """
-        Init gepetto-viewer by loading the gui and creating a window.
-        """
+    def initViewer(self, *args, **kwargs):
+        """Init the viewer"""
         # Set viewer to use to gepetto-gui.
-        self.used_viewer = 'gepetto-gui'
-        import gepetto.corbaserver
-        try:
-            self.viewer = gepetto.corbaserver.Client()
-            gui = self.viewer.gui
+        if self.viz is None:
+            from .visualize import GepettoVisualizer
+            self.viz = GepettoVisualizer(self.model, self.collision_model, self.visual_model)
 
-            # Create window
-            window_l = gui.getWindowList()
-            if not windowName in window_l:
-                self.windowID = self.viewer.gui.createWindow(windowName)
-            else:
-                self.windowID = self.viewer.gui.getWindowID(windowName)
+        self.viz.initViewer(*args, **kwargs)
 
-            # Create scene if needed
-            scene_l = gui.getSceneList()
-            if sceneName not in scene_l:
-                gui.createScene(sceneName)
-            self.sceneName = sceneName
-            gui.addSceneToWindow(sceneName, self.windowID)
+    @deprecated("Use initViewer")
+    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
+        self.initViewer(windowName=windowName, sceneName=sceneName, loadModel=loadModel)
 
-            if loadModel:
-                self.loadDisplayModel()
-        except:
-            print("Error while starting the viewer client. ")
-            print("Check wheter gepetto-viewer is properly started")
-
+    @deprecated("You should manually set the visualizer, initialize it, and load the model.")
     def initMeshcatDisplay(self, meshcat_visualizer, robot_name = "pinocchio", robot_color = None):
-        """ Load the robot in a MeshCat viewer.
+        """ Load the robot in a Meshcat viewer.
         Parameters:
             visualizer: the meshcat.Visualizer instance to use.
             robot_name: name to give to the robot in the viewer
             robot_color: optional, color to give to the robot. This overwrites the color present in the urdf.
                          Format is a list of four RGBA floats (between 0 and 1)
         """
-        import meshcat.geometry
-        # Set viewer to use to gepetto-gui.
-        self.used_viewer = 'meshcat'
-        self.meshcat_viewer = meshcat_visualizer
-        self.viewerRootNodeName = robot_name
+        from .visualize import MeshcatVisualizer
+        self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
+        self.viz.initViewer(meshcat_visualizer)
+        self.viz.loadViewerModel(rootNodeName=robot_name, color=robot_color)
 
-        # Load robot meshes in MeshCat
-        for visual in self.visual_model.geometryObjects:
-            viewer_name = self.viewerRootNodeName + visual.name
-            if visual.meshPath == "":
-                raise IOError("Visual mesh file not found for link {}.".format(visual.name))
-            # Get file type from filename extension.
-            _, file_extension = os.path.splitext(visual.meshPath)
-            if file_extension.lower() == ".dae":
-                obj = meshcat.geometry.DaeMeshGeometry.from_file(visual.meshPath)
-            elif file_extension.lower() == ".obj":
-                obj = meshcat.geometry.ObjMeshGeometry.from_file(visual.meshPath)
-            elif file_extension.lower() == ".stl":
-                obj = meshcat.geometry.StlMeshGeometry.from_file(visual.meshPath)
-            else:
-                raise ImportError("Unknown mesh file format: {}.".format(visual.meshPath))
-            material = meshcat.geometry.MeshPhongMaterial()
-            # Set material color from URDF, converting for triplet of doubles to a single int.
-            if robot_color is None:
-                meshColor = visual.meshColor
-            else:
-                meshColor = robot_color
-            material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
-            # Add transparency, if needed.
-            if float(meshColor[3]) != 1.0:
-                material.transparent = True
-                material.opacity = float(meshColor[3])
-            self.meshcat_viewer[viewer_name].set_object(obj, material)
+    def loadViewerModel(self, *args, **kwargs):
+        """Create the scene displaying the robot meshes in gepetto-viewer"""
+        self.viz.loadViewerModel(*args, **kwargs)
 
-    # Create the scene displaying the robot meshes in gepetto-viewer
+    @deprecated("Use loadViewerModel")
     def loadDisplayModel(self, rootNodeName="pinocchio"):
-        def loadDisplayGeometryObject(geometry_object,geometry_type):
-            from .rpy import npToTuple
+        """Create the scene displaying the robot meshes in gepetto-viewer"""
+        self.loadViewerModel(rootNodeName=rootNodeName)
 
-            meshName = self.getViewerNodeName(geometry_object,geometry_type)
-            meshPath = geometry_object.meshPath
-            meshTexturePath = geometry_object.meshTexturePath
-            meshScale = geometry_object.meshScale
-            meshColor = geometry_object.meshColor
-            if gui.addMesh(meshName, meshPath):
-                gui.setScale(meshName, npToTuple(meshScale))
-                if geometry_object.overrideMaterial:
-                    gui.setColor(meshName, npToTuple(meshColor))
-                    if meshTexturePath is not '':
-                        gui.setTexture(meshName, meshTexturePath)
-
-
-        # Start a new "scene" in this window, named "world", with just a floor.
-        gui = self.viewer.gui
-        self.viewerRootNodeName = self.sceneName + "/" + rootNodeName
-
-        if not gui.nodeExists(self.viewerRootNodeName):
-            gui.createGroup(self.viewerRootNodeName)
-
-        self.viewerCollisionGroupName = self.viewerRootNodeName + "/" + "collisions"
-        if not gui.nodeExists(self.viewerCollisionGroupName):
-            gui.createGroup(self.viewerCollisionGroupName)
-
-        self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
-        if not gui.nodeExists(self.viewerVisualGroupName):
-            gui.createGroup(self.viewerVisualGroupName)
-
-        # iterate over visuals and create the meshes in the viewer
-        for collision in self.collision_model.geometryObjects:
-            loadDisplayGeometryObject(collision,pin.GeometryType.COLLISION)
-        self.displayCollisions(False)
-
-        for visual in self.visual_model.geometryObjects:
-            loadDisplayGeometryObject(visual,pin.GeometryType.VISUAL)
-        self.displayVisuals(True)
-
-        # Finally, refresh the layout to obtain your first rendering.
-        gui.refresh()
-
-    # Display the robot at configuration q in the viewer (meshcat or gepetto-gui), by placing all the bodies.
     def display(self, q):
-        if self.used_viewer == 'gepetto-gui':
-            if 'viewer' not in self.__dict__:
-                return
-
-            gui = self.viewer.gui
-            # Update the robot kinematics and geometry.
-            self.forwardKinematics(q)
-
-            if self.display_collisions:
-                gui.applyConfigurations (
-                        [ self.getViewerNodeName(collision,pin.GeometryType.COLLISION) for collision in self.collision_model.geometryObjects ],
-                        [ pin.se3ToXYZQUATtuple(self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]) for collision in self.collision_model.geometryObjects ]
-                        )
-
-            if self.display_visuals:
-                self.updateGeometryPlacements(visual=True)
-                gui.applyConfigurations (
-                        [ self.getViewerNodeName(visual,pin.GeometryType.VISUAL) for visual in self.visual_model.geometryObjects ],
-                        [ pin.se3ToXYZQUATtuple(self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]) for visual in self.visual_model.geometryObjects ]
-                        )
-
-            gui.refresh()
-        elif self.used_viewer == 'meshcat':
-            # Update the robot kinematics and geometry.
-            self.forwardKinematics(q)
-            self.updateGeometryPlacements(visual=True)
-            for visual in self.visual_model.geometryObjects:
-                # Get mesh pose.
-                M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-                # Update viewer configuration.
-                self.meshcat_viewer[self.viewerRootNodeName + visual.name].set_transform(np.array(M.homogeneous))
+        """Display the robot at configuration q in the viewer by placing all the bodies."""
+        self.viz.display(q)
 
     def displayCollisions(self,visibility):
-        gui = self.viewer.gui
-        self.display_collisions = visibility
-
-        if visibility:
-            visibility_mode = "ON"
-        else:
-            visibility_mode = "OFF"
-
-        for collision in self.collision_model.geometryObjects:
-            nodeName = self.getViewerNodeName(collision,pin.GeometryType.COLLISION)
-            gui.setVisibility(nodeName,visibility_mode)
+        """Set whether to diplay collision objects or not"""
+        self.viz.displayCollisions(visibility)
 
     def displayVisuals(self,visibility):
-        gui = self.viewer.gui
-        self.display_visuals = visibility
-
-        if visibility:
-            visibility_mode = "ON"
-        else:
-            visibility_mode = "OFF"
-
-        for visual in self.visual_model.geometryObjects:
-            nodeName = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
-            gui.setVisibility(nodeName,visibility_mode)
+        """Set whether to diplay visual objects or not"""
+        self.viz.displayVisuals(visibility)
 
     def play(self, q_trajectory, dt):
-        for k in range(q_trajectory.shape[1]):
-            t0 = time.time()
-            self.display(q_trajectory[:, k])
-            t1 = time.time()
-            elapsed_time = t1 - t0
-            if elapsed_time < dt:
-                time.sleep(dt - elapsed_time)
+        """Play a trajectory with given time step"""
+        self.viz.play(q_trajectory, dt)
 
 __all__ = ['RobotWrapper']

@@ -108,6 +108,7 @@ namespace pinocchio
                                  bp::no_init)
         .def(GeometryDataPythonVisitor())
         .def(PrintableVisitor<GeometryData>())
+        .def(CopyableVisitor<GeometryData>())
         ;
      
       }

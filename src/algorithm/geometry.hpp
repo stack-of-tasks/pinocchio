@@ -50,6 +50,31 @@ namespace pinocchio
                                        const GeometryModel & geomModel,
                                        GeometryData & geomData);
 
+  ///
+  /// \brief     Set a mesh scaling vector to each GeometryObject contained in the the GeometryModel.
+  ///
+  /// param[in]  geomModel The geometry model containing the collision objects.
+  /// param[in]  meshScale The scale to be applied to each GeometryObject
+  ///
+  template<typename Vector3Like>
+  inline void setGeometryMeshScales(GeometryModel & geomModel, const Eigen::MatrixBase<Vector3Like> & meshScale)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+    for(GeomIndex index=0; index<geomModel.ngeoms; index++)
+      geomModel.geometryObjects[index].meshScale = meshScale;
+  }
+
+  ///
+  /// \brief     Set an isotropic mesh scaling to each GeometryObject contained in the the GeometryModel.
+  ///
+  /// param[in]  geomModel The geometry model containing the collision objects.
+  /// param[in]  meshScale The scale, to be applied to each GeometryObject, equally in all directions
+  ///
+  inline void setGeometryMeshScales(GeometryModel & geomModel, const double meshScale)
+  {
+    setGeometryMeshScales(geomModel, Eigen::Vector3d::Constant(meshScale));
+  }
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
 
   ///

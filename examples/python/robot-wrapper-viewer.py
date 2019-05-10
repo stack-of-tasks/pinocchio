@@ -8,6 +8,7 @@
 ##
 
 import pinocchio as pin
+from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import *
 import os
 
@@ -15,30 +16,34 @@ VISUALIZER = None
 # VISUALIZER = GepettoVisualizer
 # VISUALIZER = MeshcatVisualizer
 
-# Load the URDF model.
+# Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
 current_path =  str(os.path.dirname(os.path.abspath(__file__)))
 model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
 mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
-# In this example, we do not explicitely need collision data and visual data
-data = model.createData()
+# alias
+model = robot.model
+data = robot.data
 
 # do whatever, e.g. compute the center of mass position expressed in the world frame
-q0 = pin.neutral(model)
-com = pin.centerOfMass(model,data,q0)
+q0 = robot.q0
+com = robot.com(q0)
+
+# This last command is similar to:
+com2 = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
 if VISUALIZER:
-    display = VISUALIZER(model, collision_model, visual_model)
-    display.initViewer()
+    robot.setVisualizer(VISUALIZER())
+    robot.initViewer()
     if VISUALIZER == MeshcatVisualizer:
-        display.loadViewerModel("pinocchio", color=[0., 0., 0., 1.])
+        robot.loadViewerModel("pinocchio", color=[0., 0., 0., 1.])
     else:
-        display.loadViewerModel("pinocchio")
-    display.display(q0)
+        robot.loadViewerModel("pinocchio")
+    robot.display(q0)
 
 raw_input("Press enter to exit.")

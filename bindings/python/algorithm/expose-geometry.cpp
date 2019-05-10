@@ -26,7 +26,19 @@ namespace pinocchio
               bp::args("model", "data", "geometry model", "geometry data"),
               "Update the placement of the collision objects according to the current joint placement stored in data."
               );
-      
+
+      bp::def("setGeometryMeshScales",
+              (void (*)(GeometryModel &, const Vector3d &))&setGeometryMeshScales<Vector3d>,
+              bp::args("geometry model", "scale"),
+              "Set a mesh scaling vector to each GeometryObject contained in the the GeometryModel."
+              );
+
+      bp::def("setGeometryMeshScales",
+              (void (*)(GeometryModel &, const double))&setGeometryMeshScales,
+              bp::args("geometry model", "scale"),
+              "Set an isotropic mesh scaling to each GeometryObject contained in the the GeometryModel."
+              );
+
 #ifdef PINOCCHIO_WITH_HPP_FCL       
       bp::def("computeCollision",computeCollision,
               bp::args("geometry model", "geometry data", "collision pair index"),
