@@ -10,7 +10,7 @@ import numpy as np
 import os
 from future.builtins import input
 
-from pinocchio.display import GepettoDisplay
+from pinocchio.visualize import GepettoVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -20,7 +20,7 @@ mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
-display = GepettoDisplay(model, collision_model, visual_model)
+display = GepettoVisualizer(model, collision_model, visual_model)
 
 # Initialize the display.
 display.initDisplay()
@@ -41,7 +41,7 @@ display.display(q0)
 input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
-display2 = GepettoDisplay(model, collision_model, visual_model)
+display2 = GepettoVisualizer(model, collision_model, visual_model)
 display2.initDisplay(display.viewer)
 display2.loadDisplayModel(rootNodeName = "pinocchio2")
 q = q0.copy()

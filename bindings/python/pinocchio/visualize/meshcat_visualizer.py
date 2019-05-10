@@ -1,12 +1,12 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 
-from . import AbstractDisplay
+from . import BaseVisualizer
 
 import os
 import numpy as np
 
-class MeshcatDisplay(AbstractDisplay):
+class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
     def getViewerNodeName(self, geometry_object, geometry_type):
@@ -101,18 +101,18 @@ class MeshcatDisplay(AbstractDisplay):
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not.
-        WARNING: Plotting collision meshes is not yet available for MeshcatDisplay."""
+        WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
         # TODO
         import warnings
-        warnings.warn("Plotting collision meshes is not available for MeshcatDisplay", category=UserWarning, stacklevel=2)
+        warnings.warn("Plotting collision meshes is not available for MeshcatVisualizer", category=UserWarning, stacklevel=2)
         pass
 
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not
-        WARNING: Visual meshes are always plotted for MeshcatDisplay"""
+        WARNING: Visual meshes are always plotted for MeshcatVisualizer"""
         # TODO
         import warnings
-        warnings.warn("Visual meshes are always plotted for MeshcatDisplay", category=UserWarning, stacklevel=2)
+        warnings.warn("Visual meshes are always plotted for MeshcatVisualizer", category=UserWarning, stacklevel=2)
         pass
 
-__all__ = ['MeshcatDisplay']
+__all__ = ['MeshcatVisualizer']

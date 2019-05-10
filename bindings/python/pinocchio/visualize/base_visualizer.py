@@ -3,10 +3,10 @@ from ..shortcuts import buildModelsFromUrdf, createDatas
 
 import time
 
-class AbstractDisplay(object):
-    """Pinocchio displays are employed to easily display a model at a given configuration.
-    AbstractDisplay is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
-    New displays should extend this class and override its methods as neeeded.
+class BaseVisualizer(object):
+    """Pinocchio visualizers are employed to easily display a model at a given configuration.
+    BaseVisualizer is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
+    New visualizers should extend this class and override its methods as neeeded.
     """
 
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, copy_models=False):
@@ -25,7 +25,7 @@ class AbstractDisplay(object):
         self.data, self.collision_data, self.visual_data = createDatas(model,collision_model,visual_model)
 
     def getViewerNodeName(self, geometry_object, geometry_type):
-        """Return the name of the geometry object inside the viewer"""
+        """Return the name of the geometry object inside the viewer."""
         pass 
 
     def initDisplay(self, *args, **kwargs):
@@ -41,15 +41,15 @@ class AbstractDisplay(object):
         pass
 
     def displayCollisions(self,visibility):
-        """Set whether to display collision objects or not"""
+        """Set whether to display collision objects or not."""
         pass
  
     def displayVisuals(self,visibility):
-        """Set whether to display visual objects or not"""
+        """Set whether to display visual objects or not."""
         pass
 
     def play(self, q_trajectory, dt):
-        """Play a trajectory with given time step"""
+        """Play a trajectory with given time step."""
         for k in range(q_trajectory.shape[1]):
             t0 = time.time()
             self.display(q_trajectory[:, k])
@@ -58,4 +58,4 @@ class AbstractDisplay(object):
             if elapsed_time < dt:
                 time.sleep(dt - elapsed_time)
 
-__all__ = ['AbstractDisplay']
+__all__ = ['BaseVisualizer']

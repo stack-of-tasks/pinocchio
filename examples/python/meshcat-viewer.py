@@ -11,7 +11,7 @@ import numpy as np
 import os
 from future.builtins import input
 
-from pinocchio.display import MeshcatDisplay
+from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -21,7 +21,7 @@ mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
-display = MeshcatDisplay(model, collision_model, visual_model)
+display = MeshcatVisualizer(model, collision_model, visual_model)
 # pin.setGeometryMeshScales(visual_model,0.01)
 
 # Start a new MeshCat server and client.
@@ -54,7 +54,7 @@ display.display(q0)
 input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
-red_robot_display = MeshcatDisplay(model, collision_model, visual_model)
+red_robot_display = MeshcatVisualizer(model, collision_model, visual_model)
 red_robot_display.initDisplay(display.viewer)
 red_robot_display.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
 q = q0.copy()

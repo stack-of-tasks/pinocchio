@@ -8,12 +8,12 @@
 ##
 
 import pinocchio as pin
-from pinocchio.display import *
+from pinocchio.visualize import *
 import os
 
-DISPLAY = None
-# DISPLAY = GepettoDisplay
-# DISPLAY = MeshcatDisplay
+VISUALIZER = None
+# VISUALIZER = GepettoVisualizer
+# VISUALIZER = MeshcatVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -32,10 +32,10 @@ q0 = pin.neutral(model)
 com = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
-if DISPLAY:
-    display = DISPLAY(model, collision_model, visual_model)
+if VISUALIZER:
+    display = VISUALIZER(model, collision_model, visual_model)
     display.initDisplay()
-    if DISPLAY == MeshcatDisplay:
+    if VISUALIZER == MeshcatVisualizer:
         display.loadDisplayModel("pinocchio", color=[0., 0., 0., 1.])
     else:
         display.loadDisplayModel("pinocchio")

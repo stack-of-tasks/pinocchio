@@ -9,12 +9,12 @@
 
 import pinocchio as pin
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.display import *
+from pinocchio.visualize import *
 import os
 
-DISPLAY = None
-# DISPLAY = GepettoDisplay
-# DISPLAY = MeshcatDisplay
+VISUALIZER = None
+# VISUALIZER = GepettoVisualizer
+# VISUALIZER = MeshcatVisualizer
 
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -37,10 +37,10 @@ com = robot.com(q0)
 com2 = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
-if DISPLAY:
-    robot.setDisplay(DISPLAY())
+if VISUALIZER:
+    robot.setVisualizer(VISUALIZER())
     robot.initDisplay()
-    if DISPLAY == MeshcatDisplay:
+    if VISUALIZER == MeshcatVisualizer:
         robot.loadDisplayModel("pinocchio", color=[0., 0., 0., 1.])
     else:
         robot.loadDisplayModel("pinocchio")

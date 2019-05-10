@@ -32,7 +32,7 @@ class RobotWrapper(object):
         self.v0 = utils.zero(self.nv)
         self.q0 = pin.neutral(self.model)
 
-        self.disp = None
+        self.viz = None
 
     @property
     def nq(self):
@@ -212,15 +212,15 @@ class RobotWrapper(object):
     # for backwards compatibility
     @property
     def viewer(self):
-        return self.disp.viewer
+        return self.viz.viewer
 
-    def setDisplay(self, display, init=True, copy_models=False):
-        """Set the display. If init is True, the display is initialized with this wrapper's models.
+    def setVisualizer(self, visualizer, init=True, copy_models=False):
+        """Set the visualizer. If init is True, the visualizer is initialized with this wrapper's models.
         If copy_models is also True, the models are copied. Otherwise, they are simply kept as a reference.
         """
         if init:
-            display.__init__(self.model, self.collision_model, self.visual_model, copy_models)
-        self.disp = display
+            visualizer.__init__(self.model, self.collision_model, self.visual_model, copy_models)
+        self.viz = visualizer
 
     def getViewerNodeName(self, geometry_object, geometry_type):
         """For each geometry object, returns the corresponding name of the node in the display."""
@@ -229,44 +229,44 @@ class RobotWrapper(object):
     def initDisplay(self, *args, **kwargs):
         """Init the display"""
         # Set viewer to use to gepetto-gui.
-        if self.disp is None:
-            from .display import GepettoDisplay
-            self.disp = GepettoDisplay(self.model, self.collision_model, self.visual_model)
+        if self.viz is None:
+            from .visualize import GepettoVisualizer
+            self.viz = GepettoVisualizer(self.model, self.collision_model, self.visual_model)
 
-        self.disp.initDisplay(*args, **kwargs)
+        self.viz.initDisplay(*args, **kwargs)
 
-    @deprecated("You should manually set the display, initialize it, and load the model.")
+    @deprecated("You should manually set the visualizer, initialize it, and load the model.")
     def initMeshcatDisplay(self, meshcat_visualizer, robot_name = "pinocchio", robot_color = None):
-        """ Load the robot in a MeshCat viewer.
+        """ Load the robot in a Meshcat viewer.
         Parameters:
             visualizer: the meshcat.Visualizer instance to use.
             robot_name: name to give to the robot in the viewer
             robot_color: optional, color to give to the robot. This overwrites the color present in the urdf.
                          Format is a list of four RGBA floats (between 0 and 1)
         """
-        from .display import MeshcatDisplay
-        self.disp = MeshcatDisplay(self.model, self.collision_model, self.visual_model)
-        self.disp.initDisplay(meshcat_visualizer)
-        self.disp.loadDisplayModel(rootNodeName=robot_name, color=robot_color)
+        from .visualize import MeshcatVisualizer
+        self.viz = MeshcatVisualizer(self.model, self.collision_model, self.visual_model)
+        self.viz.initDisplay(meshcat_visualizer)
+        self.viz.loadDisplayModel(rootNodeName=robot_name, color=robot_color)
 
     def loadDisplayModel(self, *args, **kwargs):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
-        self.disp.loadDisplayModel(*args, **kwargs)
+        self.viz.loadDisplayModel(*args, **kwargs)
 
     def display(self, q):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
-        self.disp.display(q)
+        self.viz.display(q)
 
     def displayCollisions(self,visibility):
         """Set whether to diplay collision objects or not"""
-        self.disp.displayCollisions(visibility)
+        self.viz.displayCollisions(visibility)
 
     def displayVisuals(self,visibility):
         """Set whether to diplay visual objects or not"""
-        self.disp.displayVisuals(visibility)
+        self.viz.displayVisuals(visibility)
 
     def play(self, q_trajectory, dt):
         """Play a trajectory with given time step"""
-        self.disp.play(q_trajectory, dt)
+        self.viz.play(q_trajectory, dt)
 
 __all__ = ['RobotWrapper']

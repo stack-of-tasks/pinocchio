@@ -168,19 +168,19 @@ FOREACH(python ${PYTHON_FILES})
     DESTINATION ${${PYWRAP}_INSTALL_DIR})
 ENDFOREACH(python)
 
-# --- INSTALL DISPLAY SCRIPTS
-SET(PYTHON_DISPLAY_FILES
+# --- INSTALL VISUALIZATION SCRIPTS
+SET(PYTHON_VISUALIZE_FILES
   __init__.py
-  abstract_display.py
-  gepetto_display.py
-  meshcat_display.py
+  base_visualizer.py
+  gepetto_visualizer.py
+  meshcat_visualizer.py
   )
 
-FOREACH(python ${PYTHON_DISPLAY_FILES})
-  PYTHON_BUILD(${PROJECT_NAME}/display ${python})
+FOREACH(python ${PYTHON_VISUALIZE_FILES})
+  PYTHON_BUILD(${PROJECT_NAME}/visualize ${python})
   INSTALL(FILES
-    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/display/${python}"
-    DESTINATION ${${PYWRAP}_INSTALL_DIR}/display)
+    "${${PROJECT_NAME}_SOURCE_DIR}/bindings/python/pinocchio/visualize/${python}"
+    DESTINATION ${${PYWRAP}_INSTALL_DIR}/visualize)
 ENDFOREACH(python)
 
 # --- PACKAGING --- #

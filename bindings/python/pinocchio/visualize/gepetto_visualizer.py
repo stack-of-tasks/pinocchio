@@ -1,9 +1,9 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 
-from . import AbstractDisplay
+from . import BaseVisualizer
 
-class GepettoDisplay(AbstractDisplay):
+class GepettoVisualizer(BaseVisualizer):
     """A Pinocchio display using Gepetto Viewer"""
 
     def getViewerNodeName(self, geometry_object, geometry_type):
@@ -145,4 +145,4 @@ class GepettoDisplay(AbstractDisplay):
             nodeName = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
             gui.setVisibility(nodeName,visibility_mode)
 
-__all__ = ['GepettoDisplay']
+__all__ = ['GepettoVisualizer']
