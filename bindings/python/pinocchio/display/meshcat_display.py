@@ -16,7 +16,7 @@ class MeshcatDisplay(AbstractDisplay):
         elif geometry_type is pin.GeometryType.COLLISION:
             return None # TODO: collision meshes
 
-    def initDisplay(self, meshcat_visualizer=None, open=False, loadModel=False):
+    def initDisplay(self, viewer=None, open=False, loadModel=False):
         """Start a new MeshCat server and client.
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
@@ -24,7 +24,7 @@ class MeshcatDisplay(AbstractDisplay):
 
         import meshcat
 
-        self.viewer = meshcat.Visualizer() if meshcat_visualizer is None else meshcat_visualizer
+        self.viewer = meshcat.Visualizer() if viewer is None else viewer
 
         if open:
             self.viewer.open()
@@ -32,7 +32,7 @@ class MeshcatDisplay(AbstractDisplay):
         if loadModel:
             self.loadDisplayModel()
 
-    def loadDisplayGeometryObject(self,geometry_object,geometry_type,color=None):
+    def loadDisplayGeometryObject(self, geometry_object,geometry_type, color=None):
         """Load a single geometry object"""
 
         import meshcat.geometry

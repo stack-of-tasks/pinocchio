@@ -13,12 +13,12 @@ class GepettoDisplay(AbstractDisplay):
         elif geometry_type is pin.GeometryType.COLLISION:
             return self.viewerCollisionGroupName + '/' + geometry_object.name
 
-    def initDisplay(self, windowName="python-pinocchio", sceneName="world", loadModel=False):
+    def initDisplay(self, viewer=None, windowName="python-pinocchio", sceneName="world", loadModel=False):
         """Init gepetto-viewer by loading the gui and creating a window."""
 
         import gepetto.corbaserver
         try:
-            self.viewer = gepetto.corbaserver.Client()
+            self.viewer = gepetto.corbaserver.Client() if viewer is None else viewer
             gui = self.viewer.gui
 
             # Create window
@@ -38,10 +38,13 @@ class GepettoDisplay(AbstractDisplay):
             if loadModel:
                 self.loadDisplayModel()
         except:
-            print("Error while starting the viewer client. ")
-            print("Check wheter gepetto-viewer is properly started")
+            import warnings
+            msg = ("Error while starting the viewer client.\n"
+                   "Check whether gepetto-viewer is properly started"
+                  )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
 
-    def loadDisplayGeometryObject(self,geometry_object,geometry_type):
+    def loadDisplayGeometryObject(self, geometry_object, geometry_type):
         """Load a single geometry object"""
 
         from ..rpy import npToTuple

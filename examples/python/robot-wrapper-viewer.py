@@ -38,16 +38,12 @@ com2 = pin.centerOfMass(model,data,q0)
 
 ## load model into gepetto-gui
 if DISPLAY:
-    robot.setDisplay(DISPLAY(),copy_models = (DISPLAY == MeshcatDisplay))
+    robot.setDisplay(DISPLAY())
     robot.initDisplay()
-    if DISPLAY == GepettoDisplay:
-        robot.loadDisplayModel("pinocchio")
-    elif DISPLAY == MeshcatDisplay:
-        pin.setGeometryMeshScales(robot.disp.visual_model,0.01)
-        robot.viewer.open()
-        robot.loadDisplayModel("pinocchio",color=[0.,0.,0.,1.])
+    if DISPLAY == MeshcatDisplay:
+        robot.loadDisplayModel("pinocchio", color=[0., 0., 0., 1.])
     else:
-        raise Exception("Unknown display")
+        robot.loadDisplayModel("pinocchio")
     robot.display(q0)
 
 raw_input("Press enter to exit.")

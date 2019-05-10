@@ -8,6 +8,7 @@
 import pinocchio as pin
 import numpy as np
 import os
+from future.builtins import input
 
 from pinocchio.display import GepettoDisplay
 
@@ -36,3 +37,14 @@ q0 = np.matrix([
     1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,  # right arm
 ]).T
 display.display(q0)
+
+input("Displaying a single robot configuration. Press enter to continue")
+
+# Display another robot.
+display2 = GepettoDisplay(model, collision_model, visual_model)
+display2.initDisplay(display.viewer)
+display2.loadDisplayModel(rootNodeName = "pinocchio2")
+q = q0.copy()
+q[1] = 1.0
+display2.display(q)
+input("Displaying a second robot. Press enter to exit")

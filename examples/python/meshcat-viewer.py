@@ -21,12 +21,8 @@ mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
-
-# Build MeshcatDisplay using copies and scale the model
-# The scaling is necessary for Romeo due to issues with the measurement units
-# We are passing copies in order not to affect the original models
-display = MeshcatDisplay(model, collision_model, visual_model, copy_models=True)
-pin.setGeometryMeshScales(display.visual_model,0.01)
+display = MeshcatDisplay(model, collision_model, visual_model)
+# pin.setGeometryMeshScales(visual_model,0.01)
 
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
@@ -58,11 +54,10 @@ display.display(q0)
 input("Displaying a single robot configuration. Press enter to continue")
 
 # Display another robot.
-red_robot = MeshcatDisplay(model, collision_model, visual_model, copy_models=True)
-pin.setGeometryMeshScales(red_robot.visual_model,0.01)
-red_robot.initDisplay(display.viewer)
-red_robot.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
+red_robot_display = MeshcatDisplay(model, collision_model, visual_model)
+red_robot_display.initDisplay(display.viewer)
+red_robot_display.loadDisplayModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
 q = q0.copy()
 q[1] = 1.0
-red_robot.display(q)
+red_robot_display.display(q)
 input("Displaying a second robot with color red, semi-transparent. Press enter to exit")
