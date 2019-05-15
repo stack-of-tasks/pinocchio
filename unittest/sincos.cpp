@@ -9,6 +9,29 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
+
+namespace 
+{
+  template <typename Scalar>
+  Scalar sinCosTolerance();
+
+  template<> inline float sinCosTolerance<float>()
+  {
+    return 0.F;
+  }
+
+  template<> inline double sinCosTolerance<double>()
+  {
+    return 1e-15;
+  }
+
+  template<> inline long double sinCosTolerance<long double>()
+  {
+    return 0.L;
+  }
+}
+
+
 template<typename Scalar>
 void testSINCOS(int n)
 {
@@ -20,9 +43,9 @@ void testSINCOS(int n)
     
     Scalar sin_value_ref = std::sin(alpha),
            cos_value_ref = std::cos(alpha);
-    
-    BOOST_CHECK(sin_value == sin_value_ref);
-    BOOST_CHECK(cos_value == cos_value_ref);
+
+    BOOST_CHECK_CLOSE_FRACTION(sin_value, sin_value_ref, sinCosTolerance<Scalar>());
+    BOOST_CHECK_CLOSE_FRACTION(cos_value, cos_value_ref, sinCosTolerance<Scalar>());
   }
 }
 
