@@ -1,12 +1,12 @@
 //
-// Copyright (c) 2018-2019 INRIA
+// Copyright (c) 2018 INRIA
 //
 
 #include "utils/macros.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include <cstdlib>
 
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
 
