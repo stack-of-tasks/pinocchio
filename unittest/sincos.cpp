@@ -35,7 +35,6 @@ namespace
 template<typename Scalar>
 void testSINCOS(int n)
 {
-  namespace tt = boost::test_tools;
   for(int k = 0; k < n; ++k)
   {
     Scalar sin_value, cos_value;
@@ -45,8 +44,8 @@ void testSINCOS(int n)
     Scalar sin_value_ref = std::sin(alpha),
            cos_value_ref = std::cos(alpha);
 
-    BOOST_TEST(sin_value == sin_value_ref, tt::tolerance(sinCosTolerance<Scalar>()));
-    BOOST_TEST(cos_value == cos_value_ref, tt::tolerance(sinCosTolerance<Scalar>()));
+    BOOST_CHECK_CLOSE_FRACTION(sin_value, sin_value_ref, sinCosTolerance<Scalar>());
+    BOOST_CHECK_CLOSE_FRACTION(cos_value, cos_value_ref, sinCosTolerance<Scalar>());
   }
 }
 
