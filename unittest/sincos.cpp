@@ -27,7 +27,7 @@ namespace
 
   template<> inline long double sinCosTolerance<long double>()
   {
-    return 0.L;
+    return 1e-19;
   }
 }
 
