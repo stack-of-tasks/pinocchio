@@ -293,7 +293,7 @@ namespace pinocchio
   {
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1) ReturnType;
     ReturnType res(model.nq);
-    interpolate<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0, q1, u, res);
+    interpolate<LieGroup_t,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0.derived(), q1.derived(), u, res);
     return res;
   }
 
