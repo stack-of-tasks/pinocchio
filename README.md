@@ -36,7 +36,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
-**Pinocchio** is supported on Mac Os X and many Linux distributions ([See build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+**Pinocchio** is supported on Mac Os X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Ongoing developments
 
@@ -47,6 +47,10 @@ If you want to follow the current developments, you can directly refer to the [d
 **Pinocchio** can be easily installed on various Linux (Ubuntu, Fedora, etc.) and Unix distributions (Mac OS X, BSD, etc.). Please refer to the [installation procedure](http://stack-of-tasks.github.io/pinocchio/download.html).
 
 **Pinocchio** is also being deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
+
+## Documentation
+
+The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
 
 ## Examples
 
