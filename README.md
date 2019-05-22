@@ -55,6 +55,7 @@ The online **Pinocchio** documentation of the last release is available [here](h
 ## Examples
 
 We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python) directory.
+Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html)
 
 ## Tutorials
 
