@@ -106,9 +106,10 @@ The following people have been involved in the development of **Pinocchio**:
 - [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
 - [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
 - [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
-- [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): bug fixes
+- [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes and Python bindings
 - [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 - [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
+- [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
 
