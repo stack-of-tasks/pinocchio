@@ -429,10 +429,14 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     // Default _impl methods are reimplemented by dynamic-size joints.
     int     nv_impl() const { return NV; }
     int     nq_impl() const { return NQ; }
+    
+    int  idx_q() const { return derived().idx_q_impl(); }
+    int  idx_v() const { return derived().idx_v_impl(); }
+    JointIndex id() const { return derived().id_impl(); }
 
-    int  idx_q() const { return i_q; }
-    int  idx_v() const { return i_v; }
-    JointIndex id() const { return i_id; }
+    int  idx_q_impl() const { return i_q; }
+    int  idx_v_impl() const { return i_v; }
+    JointIndex id_impl() const { return i_id; }
 
     void setIndexes(JointIndex id, int q, int v) { derived().setIndexes_impl(id, q, v); }
     
@@ -443,9 +447,9 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       using namespace std;
       os
       << shortname() << endl
-      << "  index: " << i_id << endl
-      << "  index q: " << i_q << endl
-      << "  index v: " << i_v << endl
+      << "  index: " << id() << endl
+      << "  index q: " << idx_q() << endl
+      << "  index v: " << idx_v() << endl
       << "  nq: " << nq() << endl
       << "  nv: " << nv() << endl
       ;
