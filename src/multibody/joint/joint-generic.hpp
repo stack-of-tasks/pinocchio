@@ -197,10 +197,10 @@ namespace pinocchio
     int     nq_impl() const { return ::pinocchio::nq(*this); }
     int     nv_impl() const { return ::pinocchio::nv(*this); }
 
-    int     idx_q()   const { return ::pinocchio::idx_q(*this); }
-    int     idx_v()   const { return ::pinocchio::idx_v(*this); }
+    int     idx_q_impl()   const { return ::pinocchio::idx_q(*this); }
+    int     idx_v_impl()   const { return ::pinocchio::idx_v(*this); }
 
-    JointIndex     id()      const { return ::pinocchio::id(*this); }
+    JointIndex     id_impl()      const { return ::pinocchio::id(*this); }
 
     void setIndexes(JointIndex id, int nq, int nv)
     { ::pinocchio::setIndexes(*this,id, nq, nv); }
