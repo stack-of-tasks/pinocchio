@@ -155,7 +155,9 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
-    
+
+    typedef typename Eigen::Matrix<_Scalar, 10, 1, _Options> Vector10;
+
   public:
     // Constructors
     InertiaTpl()
@@ -264,6 +266,42 @@ namespace pinocchio
       M.template block<3,3>(ANGULAR,ANGULAR) = (inertia() - AlphaSkewSquare(mass(),lever())).matrix();
 
       return M;
+    }
+
+    /** Returns the representation of the matrix as a vector of dynamic parameters.
+    * The parameters are given as
+    * \f$ v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T \f$
+    * where \f$ I = I_C + mS^T(c)S(c) \f$ and \f$ I_C \f$ has its origin at the barycenter.
+    */
+    Vector10 toDynamicParameters() const
+    {
+      Vector10 v;
+
+      v[0] = mass();
+      v.template segment<3>(1) = mass() * lever();
+      v.template segment<6>(4) = (inertia() - AlphaSkewSquare(mass(),lever())).data();
+
+      return v;
+    }
+
+    /** Builds and inertia matrix from a vector of dynamic parameters.
+    *
+    * @param[in] params The dynamic parameters.
+    *
+    * The parameters are given as
+    * \f$ v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T \f$
+    * where \f$ I = I_C + mS^T(c)S(c) \f$ and \f$ I_C \f$ has its origin at the barycenter.
+    */
+    template<typename Vector10Like>
+    static InertiaTpl FromDynamicParameters(const Eigen::MatrixBase<Vector10Like> & params)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector10Like, params, 10, 1);
+
+      const Scalar & mass = params[0];
+      Vector3 lever = params.template segment<3>(1);
+      lever /= mass;
+
+      return InertiaTpl(mass, lever, Symmetric3(params.template segment<6>(4)) + AlphaSkewSquare(mass,lever));
     }
 
     // Arithmetic operators
