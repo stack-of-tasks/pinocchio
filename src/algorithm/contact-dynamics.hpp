@@ -134,7 +134,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const ProximalSettingsTpl<Scalar> & prox_settings = ProximalSettingsTpl<Scalar>());
+//                  const ProximalSettingsTpl<Scalar> & prox_settings = ProximalSettingsTpl<Scalar>());
+                  const ProximalSettingsTpl<Scalar> & prox_settings);
   
   ///
   /// \brief Compute the forward dynamics with contact constraints.
