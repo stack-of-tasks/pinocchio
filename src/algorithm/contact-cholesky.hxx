@@ -39,6 +39,9 @@ namespace pinocchio
       parents_fromRow.resize(total_dim);
       parents_fromRow.head(num_total_constraints).fill(-1);
       
+      nvSubtree_fromRow.resize(total_dim);
+      parents_fromRow.fill(-1);
+      
       for(JointIndex joint_id=1;joint_id<(JointIndex)(model.njoints);joint_id++)
       {
         const JointIndex & parent = model.parents[joint_id];
@@ -79,13 +82,14 @@ namespace pinocchio
       D.resize(total_dim); Dinv.resize(total_dim);
       U.resize(total_dim,total_dim);
       U.setIdentity();
+      DUt.resize(total_dim);
     }
     
     template<typename Scalar, int Options>
     template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-            DataTpl<S1,O1,JointCollectionTpl> & data,
+            const DataTpl<S1,O1,JointCollectionTpl> & data,
             const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos,
             const S1 mu)
     {
@@ -98,29 +102,26 @@ namespace pinocchio
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       const typename Data::MatrixXs & M = data.M;
       
-      if(data.tmp.size() < total_dim)
-        data.tmp.resize(total_dim);
-      
       const size_t num_ee = contact_infos.size();
       for(Eigen::DenseIndex j=model.nv-1;j>=0;--j)
       {
         // Classic Cholesky decomposition related to the mass matrix
         const Eigen::DenseIndex jj = total_constraints_dim + j; // shifted index
         const Eigen::DenseIndex NVT = data.nvSubtree_fromRow[(size_t)j]-1;
-        typename Data::VectorXs::SegmentReturnType DUt = data.tmp.head(NVT);
+        typename Vector::SegmentReturnType DUt_partial = DUt.head(NVT);
         
         if(NVT)
-          DUt.noalias() = U.row(jj).segment(jj+1,NVT).transpose()
+          DUt_partial.noalias() = U.row(jj).segment(jj+1,NVT).transpose()
           .cwiseProduct(D.segment(jj+1,NVT));
         
-        D[jj] = M(j,j) - U.row(jj).segment(jj+1,NVT).dot(DUt);
+        D[jj] = M(j,j) - U.row(jj).segment(jj+1,NVT).dot(DUt_partial);
         assert(D[jj] != 0. && "The diagonal element is equal to zero.");
         Dinv[jj] = Scalar(1)/D[jj];
         
         for(Eigen::DenseIndex _i = data.parents_fromRow[(size_t)j]; _i >= 0; _i = data.parents_fromRow[(size_t)_i])
         {
           const Eigen::DenseIndex _ii = _i + total_constraints_dim;
-          U(_ii,jj) = (M(_i,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt)) * Dinv[jj];
+          U(_ii,jj) = (M(_i,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
         }
         
         // Constraint handling
@@ -144,7 +145,7 @@ namespace pinocchio
                 for(int _i = 0; _i < 3; _i++)
                 {
                   const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(3-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt)) * Dinv[jj];
+                  U(_ii,jj) = (data.J(3-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
                 
@@ -152,7 +153,7 @@ namespace pinocchio
                 for(int _i = 0; _i < 6; _i++)
                 {
                   const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(6-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt)) * Dinv[jj];
+                  U(_ii,jj) = (data.J(6-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
                 
@@ -169,8 +170,8 @@ namespace pinocchio
       for(Eigen::DenseIndex j = total_constraints_dim-1; j>=0; --j)
       {
         const Eigen::DenseIndex slice_dim = total_dim - j - 1;
-        typename Data::VectorXs::SegmentReturnType DUt = data.tmp.head(slice_dim);
-        DUt.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
+        typename Vector::SegmentReturnType DUt_partial = DUt.head(slice_dim);
+        DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
         
         D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt);
         assert(D[j] != 0. && "The diagonal element is equal to zero.");
