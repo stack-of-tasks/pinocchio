@@ -149,8 +149,8 @@ namespace pinocchio
       lastChild[parent] = std::max(lastChild[(Index)i],lastChild[parent]);
       
       nvSubtree[(Index)i]
-      = idx_v(model.joints[(Index)lastChild[(Index)i]]) + nv(model.joints[(Index)lastChild[(Index)i]])
-      - idx_v(model.joints[(Index)i]);
+      = model.joints[(Index)lastChild[(Index)i]].idx_v() + model.joints[(Index)lastChild[(Index)i]].nv()
+      - model.joints[(Index)i].idx_v();
     }
   }
 
@@ -163,14 +163,13 @@ namespace pinocchio
     for(Index joint=1;joint<(Index)(model.njoints);joint++)
     {
       const Index & parent = model.parents[joint];
-      const int nvj    = nv   (model.joints[joint]);
-      const int idx_vj = idx_v(model.joints[joint]);
+      const int nvj    = model.joints[joint].nv();
+      const int idx_vj = model.joints[joint].idx_v();
       
       assert(idx_vj >= 0 && idx_vj < model.nv);
-      
-      if(parent>0) parents_fromRow[(size_t)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-      else         parents_fromRow[(size_t)idx_vj] = -1;
-      nvSubtree_fromRow[(size_t)idx_vj] = nvSubtree[joint];
+      if(parent>0) parents_fromRow[(Index)idx_vj] = model.joints[parent].idx_v()+model.joints[parent].nv()-1;
+      else         parents_fromRow[(Index)idx_vj] = -1;
+      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
       
       start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
       end_idx_v_fromRow[(size_t)idx_vj] = idx_vj+nvj-1;
