@@ -397,12 +397,6 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
-    Scalar finiteDifferenceIncrement() const
-    {
-      using math::sqrt;
-      return 2.*sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
-    }
-
     static std::string classname() { return std::string("JointModelSphericalZYX"); }
     std::string shortname() const { return classname(); }
     

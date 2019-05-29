@@ -530,12 +530,6 @@ namespace pinocchio
       }
     }
     
-    Scalar finiteDifferenceIncrement() const
-    {
-      using math::sqrt;
-      return sqrt(Eigen::NumTraits<Scalar>::epsilon());
-    }
-    
     static std::string classname() { return std::string("JointModelTranslation"); }
     std::string shortname() const { return classname(); }
     

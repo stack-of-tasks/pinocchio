@@ -139,28 +139,6 @@ namespace pinocchio
     Algo::run(jmodel, jdata, typename Algo::ArgsType(I_, update_I) );
   }
   
-  template<typename OutScalar>
-  struct JointEpsVisitor
-  : boost::static_visitor<OutScalar>
-  {
-    
-    template<typename JointModelDerived>
-    OutScalar operator()(const JointModelBase<JointModelDerived> & jmodel) const
-    { return jmodel.finiteDifferenceIncrement(); }
-    
-    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-    static OutScalar run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
-    { return boost::apply_visitor(JointEpsVisitor(),jmodel); }
-    
-  }; // struct JointEpsVisitor
-  
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline Scalar
-  finiteDifferenceIncrement(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
-  {
-    return JointEpsVisitor<Scalar>::run(jmodel);
-  }
-
   /**
    * @brief      JointNvVisitor visitor
    */
