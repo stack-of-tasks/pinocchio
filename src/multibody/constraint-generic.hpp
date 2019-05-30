@@ -42,10 +42,9 @@ namespace pinocchio
   }
   
   template<int _Dim, typename _Scalar, int _Options>
-  class ConstraintTpl
+  struct ConstraintTpl
   : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >
   {
-  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef ConstraintBase<ConstraintTpl> Base;
@@ -57,7 +56,6 @@ namespace pinocchio
     
     using Base::nv;
     
-  public:
     template<typename D>
     explicit ConstraintTpl(const Eigen::MatrixBase<D> & _S) : S(_S)
     {

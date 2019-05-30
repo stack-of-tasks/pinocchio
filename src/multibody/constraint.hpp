@@ -10,7 +10,7 @@
 namespace pinocchio
 {
   
-  template<int _Dim, typename _Scalar, int _Options=0> class ConstraintTpl;
+  template<int _Dim, typename _Scalar, int _Options=0> struct ConstraintTpl;
   
   typedef ConstraintTpl<1,double,0> Constraint1d;
   typedef ConstraintTpl<3,double,0> Constraint3d;
