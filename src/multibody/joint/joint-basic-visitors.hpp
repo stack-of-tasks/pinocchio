@@ -76,17 +76,6 @@ namespace pinocchio
                        const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I);
 
-  ///
-  /// \brief Returns the finite difference increment of the joint model.
-  ///
-  /// \param[in] jmodel The model of the joint.
-  ///
-  /// \returns The finite diffrence increment.
-  ///
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline Scalar
-  finiteDifferenceIncrement(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
-
   /**
    * @brief      Visit a JointModelTpl through JointNvVisitor to get the dimension of
    *             the joint tangent space

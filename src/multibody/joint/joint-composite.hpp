@@ -282,17 +282,6 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
 
-    Scalar finiteDifferenceIncrement() const
-    {
-      using std::max;
-      Scalar eps = 0;
-      for(typename JointModelVector::const_iterator it = joints.begin();
-          it != joints.end(); ++it)
-        eps = max((Scalar)::pinocchio::finiteDifferenceIncrement(*it),eps);
-      
-      return eps;
-    }
-
     int nv_impl() const { return m_nv; }
     int nq_impl() const { return m_nq; }
 

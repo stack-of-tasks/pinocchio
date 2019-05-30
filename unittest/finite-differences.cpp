@@ -26,13 +26,10 @@ Data::Matrix6x finiteDiffJacobian(const Model & model, Data & data, const Eigen:
   forwardKinematics(model,data,q);
   const SE3 oMi_ref = data.oMi[joint_id];
   
-  const VectorXd fd_increment = finiteDifferenceIncrement(model);
- 
   double eps = 1e-8;
   for(int k=0; k<model.nv; ++k)
   {
     // Integrate along kth direction
-    eps = fd_increment[k];
     v_integrate[k] = eps;
     q_integrate = integrate(model,q,v_integrate);
     
@@ -79,11 +76,10 @@ struct FiniteDiffJoint
     
     CV q_int(jmodel.nq());
     TV v(jmodel.nv()); v.setZero();
-    double eps = 1e-4;
+    double eps = 1e-8;
     
     Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(jdata.S.matrix());
     
-    eps = jmodel.finiteDifferenceIncrement();
     for(int k=0;k<jmodel.nv();++k)
     {
       v[k] = eps;
@@ -168,23 +164,6 @@ void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointMod
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-BOOST_AUTO_TEST_CASE(increment)
-{
-  typedef double Scalar;
-  
-  Model model;
-  buildModels::humanoidRandom(model);
-  
-  VectorXd fd_increment(model.nv);
-  fd_increment = finiteDifferenceIncrement(model);
-  
-  for(int k=0; k<model.nv; ++k)
-  {
-    BOOST_CHECK(fd_increment[k] > Eigen::NumTraits<Scalar>::epsilon());
-    BOOST_CHECK(fd_increment[k] < 1e-3);
-  }
-}
-
 BOOST_AUTO_TEST_CASE (test_S_finit_diff)
 {
   boost::mpl::for_each<JointModelVariant::types>(FiniteDiffJoint());
@@ -196,8 +175,6 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   pinocchio::buildModels::humanoidRandom(model);
   pinocchio::Data data(model);
   
-  const VectorXd fd_increment = finiteDifferenceIncrement(model);
-
   VectorXd q = VectorXd::Ones(model.nq);
   q.segment<4>(3).normalize();
   computeJointJacobians(model,data,q);
@@ -207,11 +184,11 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   
   getJointJacobian(model,data,idx,WORLD,Jrh);
   Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian<false>(model,data,q,idx);
-  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,1e-8*1e1));
   
   getJointJacobian(model,data,idx,LOCAL,Jrh);
   Jrh_finite_diff = finiteDiffJacobian<true>(model,data,q,idx);
-  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,fd_increment.maxCoeff()*1e1));
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,1e-8*1e1));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

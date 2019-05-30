@@ -410,15 +410,6 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
       derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
     
-    ///
-    /// \brief Return the resolution of the finite differerence increment according to the Scalar type
-    /// \remark Ideally, this function must depend on the value of q
-    ///
-    /// \returns The finite difference increment.
-    ///
-    Scalar finiteDifferenceIncrement() const
-    { return derived().finiteDifferenceIncrement(); }
-
     JointIndex i_id; // ID of the joint in the multibody list.
     int i_q;    // Index of the joint configuration in the joint configuration vector.
     int i_v;    // Index of the joint velocity in the joint velocity vector.

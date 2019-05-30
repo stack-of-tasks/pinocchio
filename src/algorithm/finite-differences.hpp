@@ -7,7 +7,8 @@
 
 #include "pinocchio/multibody/model.hpp"
 
-namespace pinocchio {
+namespace pinocchio
+{
   
   ///
   /// \brief Computes the finite difference increments for each degree of freedom according to the current joint configuration.
@@ -19,6 +20,7 @@ namespace pinocchio {
   /// \returns The finite difference increments for each degree of freedom.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED
   inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType
   finiteDifferenceIncrement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 }
