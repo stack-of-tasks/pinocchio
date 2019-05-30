@@ -13,28 +13,13 @@ namespace pinocchio
   struct traits< ConstraintTpl<_Dim, _Scalar, _Options> >
   {
     typedef _Scalar Scalar;
-    enum {
+    enum
+    {
       LINEAR = 0,
       ANGULAR = 3,
       Options = _Options,
       Dim = _Dim
     };
-    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
-    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
-    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
-    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef Matrix3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Matrix3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
-    typedef SE3Tpl<Scalar,Options> SE3;
-    typedef ForceTpl<Scalar,Options> Force;
-    typedef MotionTpl<Scalar,Options> Motion;
-    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     
     typedef MotionTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,Dim,1,Options> JointForce;
@@ -66,13 +51,7 @@ namespace pinocchio
     typedef ConstraintBase<ConstraintTpl> Base;
     
     friend class ConstraintBase<ConstraintTpl>;
-    SPATIAL_TYPEDEF_TEMPLATE(ConstraintTpl);
-    
-    typedef typename Base::JointMotion JointMotion;
-    typedef typename Base::JointForce JointForce;
-    typedef typename Base::DenseBase DenseBase;
-    typedef typename Base::ConstMatrixReturnType ConstMatrixReturnType;
-    typedef typename Base::MatrixReturnType MatrixReturnType;
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintTpl)
     
     enum { NV = _Dim, Options = _Options };
     

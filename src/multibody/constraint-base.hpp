@@ -14,6 +14,18 @@
 // S   : v   \in M^6              -> v_J \in lie(Q) ~= R^nv
 // S^T : f_J \in lie(Q)^* ~= R^nv -> f    \in F^6
 
+#define PINOCCHIO_CONSTRAINT_TYPEDEF_GENERIC(DERIVED,TYPENAME) \
+  typedef TYPENAME traits<DERIVED>::Scalar Scalar; \
+  typedef TYPENAME traits<DERIVED>::JointMotion JointMotion;  \
+  typedef TYPENAME traits<DERIVED>::JointForce JointForce;  \
+  typedef TYPENAME traits<DERIVED>::DenseBase DenseBase; \
+  typedef TYPENAME traits<DERIVED>::MatrixReturnType MatrixReturnType; \
+  typedef TYPENAME traits<DERIVED>::ConstMatrixReturnType ConstMatrixReturnType; \
+  enum { LINEAR = traits<DERIVED>::LINEAR, ANGULAR = traits<DERIVED>::ANGULAR };
+
+#define PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(DERIVED) PINOCCHIO_CONSTRAINT_TYPEDEF_GENERIC(DERIVED,typename)
+#define PINOCCHIO_CONSTRAINT_TYPEDEF(DERIVED) PINOCCHIO_CONSTRAINT_TYPEDEF_GENERIC(DERIVED,PINOCCHIO_EMPTY_ARG)
+
 namespace pinocchio
 {
   
@@ -21,12 +33,7 @@ namespace pinocchio
   class ConstraintBase
   {
   protected:
-    typedef typename traits<Derived>::Scalar Scalar;
-    typedef typename traits<Derived>::JointMotion JointMotion;
-    typedef typename traits<Derived>::JointForce JointForce;
-    typedef typename traits<Derived>::DenseBase DenseBase;
-    typedef typename traits<Derived>::MatrixReturnType MatrixReturnType;
-    typedef typename traits<Derived>::ConstMatrixReturnType ConstMatrixReturnType;
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(Derived)
 
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
