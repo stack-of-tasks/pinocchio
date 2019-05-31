@@ -91,6 +91,19 @@ namespace pinocchio
         .def("Random",&Inertia::Random,"Returns a random Inertia.")
         .staticmethod("Random")
         
+        .def("toDynamicParameters",&InertiaPythonVisitor::toDynamicParameters_proxy,
+             "Returns the representation of the matrix as a vector of dynamic parameters."
+              "\nThe parameters are given as v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
+              "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter"
+        )
+        .def("FromDynamicParameters",&Inertia::template FromDynamicParameters<Eigen::VectorXd>,
+              bp::args("Dynamic parameters (size 10)"),
+              "Builds and inertia matrix from a vector of dynamic parameters."
+              "\nThe parameters are given as v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
+              "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter"
+        )
+        .staticmethod("FromDynamicParameters")
+
         .def("FromEllipsoid", &Inertia::FromEllipsoid,
              bp::args("mass","length_x","length_y","length_z"),
              "Returns an Inertia of an ellipsoid shape with a mass and of dimension the semi axis of length_{x,y,z}.")
@@ -127,6 +140,8 @@ namespace pinocchio
         symmetric_inertia(1,2),
         symmetric_inertia(2,2);
       }
+
+      static Eigen::VectorXd toDynamicParameters_proxy( const Inertia & self ) { return self.toDynamicParameters(); }
 
       static Inertia* makeFromMCI(const double & mass,
                                   const Vector3 & lever,

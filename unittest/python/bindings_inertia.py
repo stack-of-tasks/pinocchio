@@ -1,9 +1,11 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import eye,zero,rand
+from pinocchio.utils import eye,zero,rand,skew
 
-class TestInertiaBindings(unittest.TestCase):
+from test_case import TestCase
+
+class TestInertiaBindings(TestCase):
 
     def test_zero_getters(self):
         Y = pin.Inertia.Zero()
@@ -72,6 +74,27 @@ class TestInertiaBindings(unittest.TestCase):
         self.assertTrue(np.allclose((m * Y).matrix(),  m.inverse().action.T * Y.matrix() * m.inverse().action))
         self.assertTrue(np.allclose(m.act(Y).matrix(), m.inverse().action.T * Y.matrix() * m.inverse().action))
         self.assertTrue(np.allclose((m.actInv(Y)).matrix(), m.action.T * Y.matrix() * m.action))
+
+    def test_dynamic_parameters(self):
+        I = pin.Inertia.Random()
+
+        v = I.toDynamicParameters()
+
+        self.assertApprox(v[0], I.mass)
+        self.assertApprox(v[1:4], I.mass * I.lever)
+
+        I_o = I.inertia + I.mass * skew(I.lever).transpose() * skew(I.lever)
+        I_ov = np.matrix(
+                [[float(v[4]), float(v[5]), float(v[7])],
+                 [float(v[5]), float(v[6]), float(v[8])],
+                 [float(v[7]), float(v[8]), float(v[9])]
+                ]
+               )
+
+        self.assertApprox(I_o, I_ov)
+
+        I2 = pin.Inertia.FromDynamicParameters(v)
+        self.assertApprox(I2, I)
 
 if __name__ == '__main__':
     unittest.main()
