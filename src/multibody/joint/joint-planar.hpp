@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -190,22 +190,6 @@ namespace pinocchio
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
-    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    typedef Eigen::Matrix<Scalar,4,1,Options> Vector4;
-    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-    typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
-    typedef Eigen::Matrix<Scalar,4,4,Options> Matrix4;
-    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef Matrix3 Angular_t;
-    typedef Vector3 Linear_t;
-    typedef const Matrix3 ConstAngular_t;
-    typedef const Vector3 ConstLinear_t;
-    typedef Matrix6 ActionMatrix_t;
-    typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
-    typedef SE3Tpl<Scalar,Options> SE3;
-    typedef ForceTpl<Scalar,Options> Force;
-    typedef MotionTpl<Scalar,Options> Motion;
-    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -221,12 +205,9 @@ namespace pinocchio
   struct ConstraintPlanarTpl : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    SPATIAL_TYPEDEF_TEMPLATE(ConstraintPlanarTpl);
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPlanarTpl)
     
-    enum { NV = 3, Options = _Options }; // to check
-    typedef typename traits<ConstraintPlanarTpl>::JointMotion JointMotion;
-    typedef typename traits<ConstraintPlanarTpl>::JointForce JointForce;
-    typedef typename traits<ConstraintPlanarTpl>::DenseBase DenseBase;
+    enum { NV = 3, Options = _Options };
 
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const
