@@ -47,4 +47,20 @@ BOOST_AUTO_TEST_CASE(test_static_regressor)
   BOOST_CHECK(static_com.isApprox(static_com_ref)); 
 }
 
+BOOST_AUTO_TEST_CASE(test_body_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Inertia I(Inertia::Random());
+  Motion v(Motion::Random());
+  Motion a(Motion::Random());
+
+  Force f = I*a + I.vxiv(v);
+
+  Inertia::Vector6 f_regressor = bodyRegressor(v,a) * I.toDynamicParameters();
+
+  BOOST_CHECK(f_regressor.isApprox(f.toVector()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

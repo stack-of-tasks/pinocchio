@@ -34,6 +34,21 @@ namespace pinocchio
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Eigen::MatrixBase<ConfigVectorType> & q);
   }
+
+  ///
+  /// \brief Computes the regressor for the dynamic parameters of a single rigid body.
+  ///
+  /// The result is such that
+  /// \f$ I a + v \times I v = bodyRegressor(v,a) * I.toDynamicParameters() \f$
+  ///
+  /// \param[in] v Velocity of the rigid body
+  /// \param[in] a Acceleration of the rigid body
+  ///
+  /// \return The regressor of the body.
+  ///
+  template<typename MotionVelocity, typename MotionAcceleration>
+  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,MotionVelocity::Options>
+  bodyRegressor(const MotionBase<MotionVelocity> & v, const MotionBase<MotionAcceleration> & a);
   
 } // namespace pinocchio
 
