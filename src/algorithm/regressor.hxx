@@ -99,6 +99,19 @@ namespace pinocchio
     return res;
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,6,10,Options>
+  jointBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     JointIndex jointId)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    PINOCCHIO_UNUSED_VARIABLE(model);
+
+    return bodyRegressor(data.v[jointId], data.a_gf[jointId]);
+  }
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_regressor_hxx__

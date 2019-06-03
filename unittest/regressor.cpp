@@ -4,6 +4,7 @@
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/algorithm/regressor.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -59,6 +60,30 @@ BOOST_AUTO_TEST_CASE(test_body_regressor)
   Force f = I*a + I.vxiv(v);
 
   Inertia::Vector6 f_regressor = bodyRegressor(v,a) * I.toDynamicParameters();
+
+  BOOST_CHECK(f_regressor.isApprox(f.toVector()));
+}
+
+BOOST_AUTO_TEST_CASE(test_joint_body_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::manipulator(model);
+  pinocchio::Data data(model);
+
+  JointIndex JOINT_ID = JointIndex(model.njoints) - 1;
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+  VectorXd a = Eigen::VectorXd::Random(model.nv);
+
+  rnea(model,data,q,v,a);
+
+  Force f = data.f[JOINT_ID];
+
+  Inertia::Vector6 f_regressor = jointBodyRegressor(model,data,JOINT_ID) * model.inertias[JOINT_ID].toDynamicParameters();
 
   BOOST_CHECK(f_regressor.isApprox(f.toVector()));
 }
