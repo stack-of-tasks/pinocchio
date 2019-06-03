@@ -47,8 +47,8 @@ namespace pinocchio
   /// \return The regressor of the body.
   ///
   template<typename MotionVelocity, typename MotionAcceleration>
-  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,MotionVelocity::Options>
-  bodyRegressor(const MotionBase<MotionVelocity> & v, const MotionBase<MotionAcceleration> & a);
+  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
+  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given joint.

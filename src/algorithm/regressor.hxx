@@ -58,11 +58,12 @@ namespace pinocchio
   namespace details {
     // auxiliary function for bodyRegressor: bigL(omega)*I.toDynamicParameters().tail<6>() = I.inertia() * omega
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,6>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,6,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     bigL(const Eigen::MatrixBase<Vector3Like> & omega)
     {
       typedef typename Vector3Like::Scalar Scalar;
-      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,6> ReturnType;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options };
+      typedef Eigen::Matrix<Scalar,3,6,Options> ReturnType;
 
       ReturnType L;
       L <<  omega[0],  omega[1], Scalar(0),  omega[2], Scalar(0), Scalar(0),
@@ -73,16 +74,18 @@ namespace pinocchio
   }
 
   template<typename MotionVelocity, typename MotionAcceleration>
-  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,MotionVelocity::Options>
-  bodyRegressor(const MotionBase<MotionVelocity> & v, const MotionBase<MotionAcceleration> & a)
+  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
+  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a)
   {
     typedef typename MotionVelocity::Scalar Scalar;
-    typedef Symmetric3Tpl<typename MotionVelocity::Scalar,MotionVelocity::Options> Symmetric3;
-    typedef typename Symmetric3Tpl<typename MotionVelocity::Scalar,MotionVelocity::Options>::SkewSquare SkewSquare;
-    typedef Eigen::Matrix<typename MotionVelocity::Scalar,6,10,MotionVelocity::Options> ReturnType;
+    enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
+
+    typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
+    typedef typename Symmetric3::SkewSquare SkewSquare;
+    typedef Eigen::Matrix<Scalar,6,10,Options> ReturnType;
     using ::pinocchio::details::bigL;
 
-    Eigen::Matrix<Scalar, 3, 1, MotionVelocity::Options> acc = a.linear() + v.angular().cross(v.linear());
+    Eigen::Matrix<Scalar, 3, 1, Options> acc = a.linear() + v.angular().cross(v.linear());
 
     ReturnType res;
 
