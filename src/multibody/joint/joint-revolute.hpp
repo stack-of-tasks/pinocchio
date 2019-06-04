@@ -348,10 +348,11 @@ namespace pinocchio
     { return JointMotion(v[0]); }
 
     template<typename S1, int O1>
-    Eigen::Matrix<Scalar,6,1,Options>
+    typename internal::SE3GroupAction<ConstraintRevoluteTpl>::ReturnType
     se3Action(const SE3Tpl<S1,O1> & m) const
-    { 
-      Eigen::Matrix<Scalar,6,1,Options> res;
+    {
+      typedef typename internal::SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
+      ReturnType res;
       res.template head<3>() = m.translation().cross(m.rotation().col(axis));
       res.template tail<3>() = m.rotation().col(axis);
       return res;
@@ -387,19 +388,21 @@ namespace pinocchio
      *   - MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
      *   - SE3::act(ForceSet::Block)
      */
-     DenseBase matrix_impl() const
-     {
-       DenseBase S;
-       MotionRef<DenseBase> v(S);
-       v << Axis();
+    DenseBase matrix_impl() const
+    {
+      DenseBase S;
+      MotionRef<DenseBase> v(S);
+      v << Axis();
       return S;
     }
     
     template<typename MotionDerived>
-    DenseBase motionAction(const MotionDense<MotionDerived> & m) const
+    typename internal::MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType
+    motionAction(const MotionDense<MotionDerived> & m) const
     {
-      DenseBase res;
-      MotionRef<DenseBase> v(res);
+      typedef typename internal::MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType ReturnType;
+      ReturnType res;
+      MotionRef<ReturnType> v(res);
       v = m.cross(Axis());
       return res;
     }
