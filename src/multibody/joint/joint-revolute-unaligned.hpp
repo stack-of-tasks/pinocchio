@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/math/matrix.hpp"
 
 namespace pinocchio
 {
@@ -239,21 +240,14 @@ namespace pinocchio
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-      template<typename D>
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-      const Eigen::Product<
+      template<typename Derived>
+      const typename MatrixProduct<
       Eigen::Transpose<const Vector3>,
-      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >
-#else
-      const typename Eigen::ProductReturnType<
-      Eigen::Transpose<const Vector3>,
-      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >::Type
-#endif
-      operator*(const Eigen::MatrixBase<D> & F)
+      typename Eigen::MatrixBase<const Derived>::template NRowsBlockXpr<3>::Type
+      >::type
+      operator*(const Eigen::MatrixBase<Derived> & F)
       {
-        EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
+        EIGEN_STATIC_ASSERT(Derived::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
         /* Return ax.T * F[3:end,:] */
         return ref.axis.transpose() * F.template middleRows<3>(ANGULAR);
       }
@@ -322,18 +316,12 @@ namespace pinocchio
   
   template<typename M6Like, typename S2, int O2>
   inline
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-  const typename Eigen::Product<
+  const typename MatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
   typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
-  >
-#else
-  const typename Eigen::ProductReturnType<
-  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
-  typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
-  >::Type
-#endif
-  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintRevoluteUnalignedTpl<S2,O2> & cru)
+  >::type
+  operator*(const Eigen::MatrixBase<M6Like> & Y,
+            const ConstraintRevoluteUnalignedTpl<S2,O2> & cru)
   {
     typedef ConstraintRevoluteUnalignedTpl<S2,O2> Constraint;
     return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis;
