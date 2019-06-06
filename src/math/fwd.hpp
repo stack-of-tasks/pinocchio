@@ -10,7 +10,6 @@
 #include <boost/math/constants/constants.hpp>
 #include "pinocchio/math/sincos.hpp"
 
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 namespace boost
 {
   namespace math
@@ -19,6 +18,13 @@ namespace boost
     {
       namespace detail
       {
+        
+#ifdef PINOCCHIO_WITH_CASADI_SUPPORT
+        template <>
+        struct constant_pi< casadi::SX > : constant_pi<double> {};
+#endif
+        
+#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
         template<typename Scalar>
         struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
         
@@ -26,11 +32,11 @@ namespace boost
         template<typename Scalar>
         struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {};
 #endif
+#endif
       }
     }
   }
 }
-#endif
 
 namespace pinocchio
 {
