@@ -127,14 +127,14 @@ namespace pinocchio
       
     }
     
-    DenseBase se3Action(const SE3 & m) const
+    DenseBase se3Action(const SE3Tpl<Scalar,Options> & m) const
     {
       DenseBase res(6,nv());
       motionSet::se3Action(m,S,res);
       return res;
     }
     
-    DenseBase se3ActionInverse(const SE3 & m) const
+    DenseBase se3ActionInverse(const SE3Tpl<Scalar,Options> & m) const
     {
       DenseBase res(6,nv());
       motionSet::se3ActionInverse(m,S,res);

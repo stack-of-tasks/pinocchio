@@ -63,9 +63,25 @@ namespace pinocchio
       return os;
     }
     
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3Action(const SE3Tpl<Scalar,Options> & m) const
+    {
+      return derived().se3Action(m);
+    }
+    
+    typename internal::SE3GroupAction<Derived>::ReturnType
+    se3ActionInverse(const SE3Tpl<Scalar,Options> & m) const
+    {
+      return derived().se3ActionInverse(m);
+    }
+    
     template<typename MotionDerived>
-    DenseBase motionAction(const MotionDense<MotionDerived> & v) const
-    { return derived().motionAction(v); }
+    typename internal::MotionAlgebraAction<Derived,MotionDerived>::ReturnType
+    motionAction(const MotionDense<MotionDerived> & v) const
+    {
+      return derived().motionAction(v);
+    }
+    
 
   }; // class ConstraintBase
 
