@@ -176,7 +176,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismaticUnaligned)
     
-    enum { NV = 1, Options = _Options };
+    enum { NV = 1 };
     
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
 

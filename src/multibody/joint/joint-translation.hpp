@@ -268,7 +268,7 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintTranslationTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
     
     ConstraintTranslationTpl() {}
     

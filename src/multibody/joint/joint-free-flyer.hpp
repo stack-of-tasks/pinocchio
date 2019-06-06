@@ -44,7 +44,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintIdentityTpl)
     
-    enum { NV = 6, Options = _Options };
+    enum { NV = 6 };
     
     template<typename Vector6Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector6Like> & vj) const

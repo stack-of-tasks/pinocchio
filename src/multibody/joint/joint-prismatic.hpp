@@ -263,7 +263,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismatic)
-    enum { NV = 1, Options = _Options };
+    enum { NV = 1 };
     
     typedef SpatialAxis<LINEAR+axis> Axis;
 

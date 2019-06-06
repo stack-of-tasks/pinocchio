@@ -52,7 +52,7 @@ namespace pinocchio
     friend class ConstraintBase<ConstraintTpl>;
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintTpl)
     
-    enum { NV = _Dim, Options = _Options };
+    enum { NV = _Dim };
     
     using Base::nv;
     

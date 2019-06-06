@@ -207,7 +207,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPlanarTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
 
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const

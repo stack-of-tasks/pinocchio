@@ -339,7 +339,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintRevoluteTpl)
-    enum { NV = 1, Options = _Options };
+    enum { NV = 1 };
     
     typedef SpatialAxis<ANGULAR+axis> Axis;
 

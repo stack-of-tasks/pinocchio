@@ -46,7 +46,7 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalZYXTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     
     ConstraintSphericalZYXTpl() {}
