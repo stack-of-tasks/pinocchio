@@ -1,11 +1,11 @@
 //
-// Copyright (c) 2018 CNRS INRIA
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_fwd_hpp__
 #define __pinocchio_fwd_hpp__
 
-// Forward declaration of main pinocchio namespace
+// Forward declaration of the main pinocchio namespace
 namespace pinocchio {}
 
 #include "pinocchio/macros.hpp"
@@ -15,12 +15,12 @@ namespace pinocchio {}
 
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"
-#else
-#include <Eigen/Dense>
 #endif
 
-#ifdef PINOCCHIO_WITH_CASADI_SUPPORT
-#include <casadi/casadi.hpp>
+#include <Eigen/Dense>
+
+#if defined(PINOCCHIO_WITH_CASADI_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+#include "pinocchio/math/casadi.hpp"
 #endif
 
 #include "pinocchio/eigen-macros.hpp"

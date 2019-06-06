@@ -19,7 +19,7 @@ namespace boost
       namespace detail
       {
         
-#ifdef PINOCCHIO_WITH_CASADI_SUPPORT
+#ifdef PINOCCHIO_WITH_CASADI_SUPPORT && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
         template <>
         struct constant_pi< casadi::SX > : constant_pi<double> {};
 #endif
