@@ -19,6 +19,10 @@ namespace pinocchio {}
 #include <Eigen/Dense>
 #endif
 
+#ifdef PINOCCHIO_WITH_CASADI_SUPPORT
+#include <casadi/casadi.hpp>
+#endif
+
 #include "pinocchio/eigen-macros.hpp"
 
 namespace pinocchio
