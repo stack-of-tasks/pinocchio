@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -7,13 +7,13 @@
 #define __math_sincos_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include <boost/type_traits.hpp>
 #include <cmath>
 
 namespace pinocchio
 {
   /// Forward declaration
-  template<typename Scalar> struct SINCOSAlgo;
-  
+  template<typename Scalar,bool value = boost::is_floating_point<Scalar>::value> struct SINCOSAlgo;
   
   ///
   /// \brief Computes sin/cos values of a given input scalar.
@@ -31,7 +31,7 @@ namespace pinocchio
   }
   
   /// Generic evaluation of sin/cos functions.
-  template<typename Scalar>
+  template<typename Scalar,bool>
   struct SINCOSAlgo
   {
     static void run(const Scalar & a, Scalar * sa, Scalar * ca) 
@@ -86,20 +86,16 @@ namespace pinocchio
     }
   };
 
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-  
-  /// Implementation for CppAD scalar types.
-  template<typename Scalar>
-  struct SINCOSAlgo< CppAD::AD<Scalar> >
+  /// Implementation for overloaded scalar types (e.g. Automatic Differentiation).
+  template<class Scalar>
+  struct SINCOSAlgo< Scalar, false >
   {
-    static void run(const CppAD::AD<Scalar> & a, CppAD::AD<Scalar> * sa, CppAD::AD<Scalar> * ca)
+    static void run(const Scalar & a, Scalar * sa, Scalar * ca)
     {
-      (*sa) = CppAD::sin(a); (*ca) = CppAD::cos(a);
+      (*sa) = sin(a); (*ca) = cos(a);
     }
   };
   
-#endif
- 
 }
 
 #endif //#ifndef __math_sincos_hpp__
