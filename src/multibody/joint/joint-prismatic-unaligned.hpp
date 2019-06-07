@@ -299,7 +299,7 @@ namespace pinocchio
   template<typename M6, typename S2, int O2>
   const typename MatrixProduct<
   Eigen::Block<const M6,6,3>,
-  const typename ConstraintPrismaticUnaligned<S2,O2>::Vector3
+  typename ConstraintPrismaticUnaligned<S2,O2>::Vector3
   >::type
   operator*(const Eigen::MatrixBase<M6> & Y, const ConstraintPrismaticUnaligned<S2,O2> & cpu)
   {
