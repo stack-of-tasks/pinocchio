@@ -5,12 +5,13 @@
 
 #ifndef __pinocchio_joint_spherical_ZYX_hpp__
 #define __pinocchio_joint_spherical_ZYX_hpp__
-#include <iostream>
+
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/sincos.hpp"
+#include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
@@ -73,18 +74,10 @@ namespace pinocchio
       ConstraintTranspose(const ConstraintSphericalZYXTpl & ref) : ref(ref) {}
       
       template<typename Derived>
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-      const typename Eigen::Product<
+      const typename MatrixProduct<
       Eigen::Transpose<const Matrix3>,
       Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
-      >
-#else
-      const typename Eigen::ProductReturnType<
-      Eigen::Transpose<const Matrix3>,
-      //        typename Motion::ConstAngular_t::Base /* This feature leads currently to a bug */
-      Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
-      >::Type
-#endif
+      >::type
       operator* (const ForceDense<Derived> & phi) const
       {
         return ref.S_minimal.transpose() * phi.angular();
@@ -92,17 +85,10 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-      const typename Eigen::Product<
+      const typename MatrixProduct<
       typename Eigen::Transpose<const Matrix3>,
       typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >
-#else
-      const typename Eigen::ProductReturnType<
-      typename Eigen::Transpose<const Matrix3>,
-      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >::Type
-#endif
+      >::type
       operator* (const Eigen::MatrixBase<D> & F) const
       {
         EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -180,17 +166,10 @@ namespace pinocchio
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,3>
   template<typename Matrix6Like, typename S2, int O2>
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-  const typename Eigen::Product<
+  const typename MatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
   typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
-  >
-#else
-  const typename Eigen::ProductReturnType<
-  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
-  typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
-  >::Type
-#endif
+  >::type
   operator*(const Eigen::MatrixBase<Matrix6Like> & Y,
             const ConstraintSphericalZYXTpl<S2,O2> & S)
   {

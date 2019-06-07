@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -11,6 +11,7 @@
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/math/matrix.hpp"
 
 namespace pinocchio
 {
@@ -224,22 +225,16 @@ namespace pinocchio
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
-      template<typename D>
+      template<typename Derived>
       friend
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-      const Eigen::Product<
+      const typename MatrixProduct<
       Eigen::Transpose<const Vector3>,
-      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >
-#else
-      const typename Eigen::ProductReturnType<
-      Eigen::Transpose<const Vector3>,
-      typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
-      >::Type
-#endif
-      operator* (const TransposeConst & tc, const Eigen::MatrixBase<D> & F)
+      typename Eigen::MatrixBase<const Derived>::template NRowsBlockXpr<3>::Type
+      >::type
+      operator*(const TransposeConst & tc,
+                const Eigen::MatrixBase<Derived> & F)
       {
-        EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
+        EIGEN_STATIC_ASSERT(Derived::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
         /* Return ax.T * F[1:3,:] */
         return tc.ref.axis.transpose () * F.template topRows<3> ();
       }
@@ -302,17 +297,10 @@ namespace pinocchio
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   template<typename M6, typename S2, int O2>
-#if EIGEN_VERSION_AT_LEAST(3,2,90)
-  const typename Eigen::Product<
+  const typename MatrixProduct<
   Eigen::Block<const M6,6,3>,
-  typename ConstraintPrismaticUnaligned<S2,O2>::Vector3,
-  Eigen::DefaultProduct>
-#else
-  const typename Eigen::ProductReturnType<
-  Eigen::Block<const M6,6,3>,
-  const typename ConstraintPrismaticUnaligned<S2,O2>::Vector3
-  >::Type
-#endif
+  typename ConstraintPrismaticUnaligned<S2,O2>::Vector3
+  >::type
   operator*(const Eigen::MatrixBase<M6> & Y, const ConstraintPrismaticUnaligned<S2,O2> & cpu)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
