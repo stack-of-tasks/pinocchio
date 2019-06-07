@@ -11,7 +11,7 @@ namespace Eigen
 {
   namespace internal
   {
-    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    // Specialization of Eigen::internal::cast_impl for Casadi input types
     template<typename Scalar>
     struct cast_impl<casadi::SX,Scalar>
     {
@@ -20,7 +20,7 @@ namespace Eigen
 #endif
       static inline Scalar run(const casadi::SX & x)
       {
-        return (Scalar)x;
+        return static_cast<Scalar>(x);
       }
     };
   }
