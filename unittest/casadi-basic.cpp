@@ -1,11 +1,10 @@
 //
 // Copyright (c) 2019 INRIA
 //
-
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <casadi/casadi.hpp>
-#include <Eigen/Core>
+#include <pinocchio/math/casadi.hpp>
+#include <Eigen/Dense>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -37,8 +36,6 @@ eigenFun(Eigen::MatrixBase<T1> const& A,
 BOOST_AUTO_TEST_CASE(test_example)
 {
   // Declare casadi symbolic matrix arguments
-  // casadi::SX cs_A = casadi::SX::sym("A", 3, 3);
-  // casadi::SX cs_B = casadi::SX::sym("B", 3, 3);
   casadi::SX cs_a = casadi::SX::sym("a", 4);
   casadi::SX cs_b = casadi::SX::sym("b", 3);
   
@@ -52,8 +49,8 @@ BOOST_AUTO_TEST_CASE(test_example)
   {
     for (Eigen::Index j = 0; j < A.cols(); ++j)
     {
-      A(i, j) = 10 * i + j;
-      B(i, j) = -10 * i - j;
+      A(i, j) = 10. * static_cast<double>(i) + static_cast<double>(j);
+      B(i, j) = -10. * static_cast<double>(i) - static_cast<double>(j);
     }
   }
   
@@ -105,6 +102,42 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
 
   // Display the resulting jacobian
   std::cout << "dy/dx = " << dy_dx << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test_copy_casadi_to_eigen)
+{
+  casadi::SX cs_mat = casadi::SX::sym("A", 3, 4);
+  Eigen::Matrix<casadi::SX, 3, 4> eig_mat;
+
+  copy(cs_mat, eig_mat);
+  std::cout << eig_mat << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test_copy_eigen_to_casadi)
+{
+  Eigen::Matrix<casadi::SX, 3, 4> eig_mat;
+  sym(eig_mat, "A");
+
+  casadi::SX cs_mat;
+
+  copy(eig_mat, cs_mat);
+  std::cout << cs_mat << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test_chol)
+{
+  using EigenSX = Eigen::Matrix<casadi::SX, 2, 2>;
+  
+  EigenSX A;
+  sym(A, "A");
+  Eigen::LLT<EigenSX> llt(A);
+
+  EigenSX L = llt.matrixL();
+  EigenSX U = llt.matrixU();
+  std::cout << "L = " << std::endl << L << std::endl << std::endl;
+  std::cout << "U = " << std::endl << U << std::endl << std::endl;
+  std::cout << "L*L' = " << std::endl << L * L.transpose() << std::endl << std::endl;
+  std::cout << "U'*U = " << std::endl << U.transpose() * U << std::endl << std::endl;
 }
 
 
