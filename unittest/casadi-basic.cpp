@@ -55,8 +55,6 @@ BOOST_AUTO_TEST_CASE(test_example)
       A(i, j) = 10 * i + j;
       B(i, j) = -10 * i - j;
     }
-    
-    b[i] = cs_b(i);
   }
   
   // Let a, b be symbolic arguments of a function
@@ -91,5 +89,23 @@ BOOST_AUTO_TEST_CASE(test_example)
   casadi::DMVector res = fun(casadi::DMVector {std::vector<double> {1., 2., 3., 4.}, std::vector<double> {-1., -2., -3.}});
   std::cout << "fun(a, b)=" << res << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(test_jacobian)
+{
+  casadi::SX cs_x = casadi::SX::sym("x", 3);
+  
+  casadi::SX cs_y = casadi::SX::sym("y", 1);
+  cs_y(0) = cs_x(0) + cs_x(1) + cs_x(2);
+  
+  // Display the resulting expression
+  std::cout << "y = " << cs_y << std::endl;
+  
+  // Do some AD
+  casadi::SX dy_dx = jacobian(cs_x, cs_x);
+
+  // Display the resulting jacobian
+  std::cout << "dy/dx = " << dy_dx << std::endl;
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
