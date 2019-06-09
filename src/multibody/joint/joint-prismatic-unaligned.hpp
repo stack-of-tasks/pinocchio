@@ -411,11 +411,13 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
     JointModelPrismaticUnalignedTpl() {}
-    JointModelPrismaticUnalignedTpl(Scalar x, Scalar y, Scalar z)
+    JointModelPrismaticUnalignedTpl(const Scalar & x,
+                                    const Scalar & y,
+                                    const Scalar & z)
     : axis(x,y,z)
     {
       axis.normalize();
-      assert(axis.isUnitary() && "Translation axis is not unitary");
+      assert(isUnitary(axis) && "Translation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -423,7 +425,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(axis.isUnitary() && "Translation axis is not unitary");
+      assert(isUnitary(axis) && "Translation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }

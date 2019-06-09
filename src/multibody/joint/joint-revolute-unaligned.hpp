@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -431,11 +431,13 @@ namespace pinocchio
     
     JointModelRevoluteUnalignedTpl() {}
     
-    JointModelRevoluteUnalignedTpl(const Scalar & x, const Scalar & y, const Scalar & z)
+    JointModelRevoluteUnalignedTpl(const Scalar & x,
+                                   const Scalar & y,
+                                   const Scalar & z)
     : axis(x,y,z)
     {
       axis.normalize();
-      assert(axis.isUnitary() && "Rotation axis is not unitary");
+      assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -443,7 +445,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(axis.isUnitary() && "Rotation axis is not unitary");
+      assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }
