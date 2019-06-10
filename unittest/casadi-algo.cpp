@@ -136,5 +136,170 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   J_world_mat = Eigen::Map<Data::Matrix6x>(J_world_vec.data(),6,model.nv);
   BOOST_CHECK(jacobian_world.isApprox(J_world_mat));
 }
+  
+BOOST_AUTO_TEST_CASE(test_rnea)
+{
+  typedef double Scalar;
+  typedef casadi::SX ADScalar;
+  
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef Model::Data Data;
+  
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
+  typedef ADModel::Data ADData;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  Data data(model);
+  
+  typedef Model::ConfigVectorType ConfigVector;
+  typedef Model::TangentVectorType TangentVector;
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector a(TangentVector::Random(model.nv));
+  
+  typedef ADModel::ConfigVectorType ConfigVectorAD;
+  typedef ADModel::TangentVectorType TangentVectorAD;
+  ADModel ad_model = model.cast<ADScalar>();
+  ADData ad_data(ad_model);
+  
+  pinocchio::rnea(model,data,q,v,a);
+  
+  casadi::SX cs_q = casadi::SX::sym("q", model.nq);
+  ConfigVectorAD q_ad(model.nq);
+  q_ad = Eigen::Map<ConfigVectorAD>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
+  
+  casadi::SX cs_v = casadi::SX::sym("v", model.nv);
+  TangentVectorAD v_ad(model.nv);
+  v_ad = Eigen::Map<TangentVectorAD>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
+  
+  casadi::SX cs_a = casadi::SX::sym("a", model.nv);
+  TangentVectorAD a_ad(model.nv);
+  a_ad = Eigen::Map<TangentVectorAD>(static_cast< std::vector<ADScalar> >(cs_a).data(),model.nv,1);
+  
+  rnea(ad_model,ad_data,q_ad,v_ad,a_ad);
+  casadi::SX tau_ad(model.nv,1);
+  //    Eigen::Map<TangentVectorAD>(tau_ad->data(),model.nv,1)
+  //    = ad_data.tau;
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+    tau_ad(k) = ad_data.tau[k];
+  casadi::Function eval_rnea("eval_rnea",
+                             casadi::SXVector {cs_q, cs_v, cs_a},
+                             casadi::SXVector {tau_ad});
+  
+  std::vector<double> q_vec((size_t)model.nq);
+  Eigen::Map<ConfigVector>(q_vec.data(),model.nq,1) = q;
+  
+  std::vector<double> v_vec((size_t)model.nv);
+  Eigen::Map<TangentVector>(v_vec.data(),model.nv,1) = v;
+  
+  std::vector<double> a_vec((size_t)model.nv);
+  Eigen::Map<TangentVector>(a_vec.data(),model.nv,1) = a;
+  casadi::DM tau_res = eval_rnea(casadi::DMVector {q_vec,v_vec,a_vec})[0];
+  std::cout << "tau_res = " << tau_res << std::endl;
+  Data::TangentVectorType tau_vec = Eigen::Map<Data::TangentVectorType>(static_cast< std::vector<double> >(tau_res).data(),model.nv,1);
+  
+  BOOST_CHECK(data.tau.isApprox(tau_vec));
+}
+  
+BOOST_AUTO_TEST_CASE(test_crba)
+{
+  typedef double Scalar;
+  typedef casadi::SX ADScalar;
+  
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef Model::Data Data;
+  
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
+  typedef ADModel::Data ADData;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  Data data(model);
+  
+  typedef Model::ConfigVectorType ConfigVector;
+  typedef Model::TangentVectorType TangentVector;
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector a(TangentVector::Random(model.nv));
+  
+  typedef ADModel::ConfigVectorType ConfigVectorAD;
+  typedef ADModel::TangentVectorType TangentVectorAD;
+  ADModel ad_model = model.cast<ADScalar>();
+  ADData ad_data(ad_model);
+  
+  pinocchio::crba(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>()
+  = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  pinocchio::rnea(model,data,q,v,a);
+  
+  casadi::SX cs_q = casadi::SX::sym("q", model.nq);
+  ConfigVectorAD q_ad(model.nq);
+  q_ad = Eigen::Map<ConfigVectorAD>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
+  
+  casadi::SX cs_v = casadi::SX::sym("v", model.nv);
+  TangentVectorAD v_ad(model.nv);
+  v_ad = Eigen::Map<TangentVectorAD>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
+  
+  casadi::SX cs_a = casadi::SX::sym("a", model.nv);
+  TangentVectorAD a_ad(model.nv);
+  a_ad = Eigen::Map<TangentVectorAD>(static_cast< std::vector<ADScalar> >(cs_a).data(),model.nv,1);
+  
+  // RNEA
+  rnea(ad_model,ad_data,q_ad,v_ad,a_ad);
+  casadi::SX cs_tau(model.nv,1);
+  //    Eigen::Map<TangentVectorAD>(tau_ad->data(),model.nv,1)
+  //    = ad_data.tau;
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+    cs_tau(k) = ad_data.tau[k];
+  casadi::Function eval_rnea("eval_rnea",
+                             casadi::SXVector {cs_q, cs_v, cs_a},
+                             casadi::SXVector {cs_tau});
+  // CRBA
+  crba(ad_model,ad_data,q_ad);
+  ad_data.M.triangularView<Eigen::StrictlyLower>()
+  = ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  casadi::SX M_ad(model.nv,model.nv);
+  for(Eigen::DenseIndex j = 0; j < model.nv; ++j)
+  {
+    for(Eigen::DenseIndex i = 0; i < model.nv; ++i)
+    {
+      M_ad(i,j) = ad_data.M(i,j);
+    }
+  }
+  
+  std::vector<double> q_vec((size_t)model.nq);
+  Eigen::Map<ConfigVector>(q_vec.data(),model.nq,1) = q;
+  
+  std::vector<double> v_vec((size_t)model.nv);
+  Eigen::Map<TangentVector>(v_vec.data(),model.nv,1) = v;
+  
+  std::vector<double> a_vec((size_t)model.nv);
+  Eigen::Map<TangentVector>(a_vec.data(),model.nv,1) = a;
+  
+  casadi::Function eval_crba("eval_crba",
+                             casadi::SXVector {cs_q},
+                             casadi::SXVector {M_ad});
+  casadi::DM M_res = eval_crba(casadi::DMVector {q_vec})[0];
+  Data::MatrixXs M_mat = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(M_res).data(),
+                                                    model.nv,model.nv);
+  
+  BOOST_CHECK(data.M.isApprox(M_mat));
+  
+  casadi::SX dtau_da = jacobian(cs_tau,cs_a);
+  casadi::Function eval_dtau_da("eval_dtau_da",
+                                casadi::SXVector {cs_q,cs_v,cs_a},
+                                casadi::SXVector {dtau_da});
+  casadi::DM dtau_da_res = eval_dtau_da(casadi::DMVector {q_vec, v_vec, a_vec})[0];
+  Data::MatrixXs dtau_da_mat = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(dtau_da_res).data(),
+                                                          model.nv,model.nv);
+  BOOST_CHECK(data.M.isApprox(dtau_da_mat));
+}
 
 BOOST_AUTO_TEST_SUITE_END()
