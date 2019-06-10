@@ -29,27 +29,27 @@ namespace pinocchio
   
   namespace internal
   {
-    template<typename VectorLike, bool value = boost::is_floating_point<typename VectorLike::Scalar>::value>
+    template<typename MatrixLike, bool value = boost::is_floating_point<typename MatrixLike::Scalar>::value>
     struct isUnitaryAlgo
     {
-      typedef typename VectorLike::Scalar Scalar;
-      typedef typename VectorLike::RealScalar RealScalar;
+      typedef typename MatrixLike::Scalar Scalar;
+      typedef typename MatrixLike::RealScalar RealScalar;
       
-      static bool run(const Eigen::MatrixBase<VectorLike> & vec,
+      static bool run(const Eigen::MatrixBase<MatrixLike> & mat,
                       const RealScalar & prec =
                       Eigen::NumTraits< Scalar >::dummy_precision())
       {
-        return vec.isUnitary(prec);
+        return mat.isUnitary(prec);
       }
     };
     
-    template<typename VectorLike>
-    struct isUnitaryAlgo<VectorLike,false>
+    template<typename MatrixLike>
+    struct isUnitaryAlgo<MatrixLike,false>
     {
-      typedef typename VectorLike::Scalar Scalar;
-      typedef typename VectorLike::RealScalar RealScalar;
+      typedef typename MatrixLike::Scalar Scalar;
+      typedef typename MatrixLike::RealScalar RealScalar;
       
-      static bool run(const Eigen::MatrixBase<VectorLike> & /*vec*/,
+      static bool run(const Eigen::MatrixBase<MatrixLike> & /*vec*/,
                       const RealScalar & prec =
                       Eigen::NumTraits< Scalar >::dummy_precision())
       {
@@ -59,16 +59,13 @@ namespace pinocchio
     };
   }
   
-  template<typename VectorLike>
-  inline bool isUnitary(const Eigen::MatrixBase<VectorLike> & vec,
-                        const typename VectorLike::RealScalar & prec =
-                        Eigen::NumTraits< typename VectorLike::Scalar >::dummy_precision())
+  template<typename MatrixLike>
+  inline bool isUnitary(const Eigen::MatrixBase<MatrixLike> & mat,
+                        const typename MatrixLike::RealScalar & prec =
+                        Eigen::NumTraits< typename MatrixLike::Scalar >::dummy_precision())
   {
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
-    return internal::isUnitaryAlgo<VectorLike>::run(vec,prec);
+    return internal::isUnitaryAlgo<MatrixLike>::run(mat,prec);
   }
-  
-
 
 }
 #endif //#ifndef __pinocchio_math_matrix_hpp__
