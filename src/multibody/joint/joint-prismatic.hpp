@@ -240,10 +240,10 @@ namespace pinocchio
     Scalar m_displacement;
   };
 
-  template<typename Scalar, int Options, int axis> struct ConstraintPrismatic;
+  template<typename Scalar, int Options, int axis> struct ConstraintPrismaticTpl;
   
   template<typename _Scalar, int _Options, int axis>
-  struct traits< ConstraintPrismatic<_Scalar,_Options,axis> >
+  struct traits< ConstraintPrismaticTpl<_Scalar,_Options,axis> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -275,11 +275,11 @@ namespace pinocchio
   { typedef typename Eigen::MatrixBase<ForceSet>::ConstRowXpr ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
-  struct ConstraintPrismatic
-  : ConstraintBase < ConstraintPrismatic <_Scalar,_Options,axis> >
+  struct ConstraintPrismaticTpl
+  : ConstraintBase < ConstraintPrismaticTpl <_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismatic)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismaticTpl)
     enum { NV = 1 };
     
     typedef SpatialAxis<LINEAR+axis> Axis;
@@ -307,8 +307,8 @@ namespace pinocchio
 
     struct TransposeConst
     {
-      const ConstraintPrismatic & ref; 
-      TransposeConst(const ConstraintPrismatic & ref) : ref(ref) {}
+      const ConstraintPrismaticTpl & ref; 
+      TransposeConst(const ConstraintPrismaticTpl & ref) : ref(ref) {}
 
       template<typename ForceDerived>
       typename ConstraintForceOp<ConstraintPrismatic,ForceDerived>::ReturnType
@@ -351,12 +351,12 @@ namespace pinocchio
       return res;
     }
 
-  }; // struct ConstraintPrismatic
+  }; // struct ConstraintPrismaticTpl
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,0> &)
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,0> &)
   { 
     /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
     const S1
@@ -370,7 +370,7 @@ namespace pinocchio
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,1> & )
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,1> & )
   { 
     /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
     const S1
@@ -384,7 +384,7 @@ namespace pinocchio
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismatic<S2,O2,2> & )
+  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,2> & )
   { 
     /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
     const S1
@@ -399,7 +399,7 @@ namespace pinocchio
   /* [ABA] operator* (Inertia Y,Constraint S) */
   template<typename M6Like, typename S2, int O2, int axis>
   inline const typename M6Like::ConstColXpr
-  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismatic<S2,O2,axis> &)
+  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismaticTpl<S2,O2,axis> &)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
     return Y.derived().col(Inertia::LINEAR + axis);
@@ -428,7 +428,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataPrismaticTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelPrismaticTpl<Scalar,Options,axis> JointModelDerived;
-    typedef ConstraintPrismatic<Scalar,Options,axis> Constraint_t;
+    typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
