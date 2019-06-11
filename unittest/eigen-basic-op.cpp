@@ -22,5 +22,27 @@ BOOST_AUTO_TEST_CASE(test_matrix_matrix_product)
   BOOST_CHECK(not res.eval().isZero());
 }
 
+BOOST_AUTO_TEST_CASE(test_scalar_matrix_product)
+{
+  using namespace pinocchio;
+  using namespace Eigen;
+  const Eigen::DenseIndex m = 20, n = 100;
+  MatrixXd M(MatrixXd::Ones(m,n));
+  const double alpha = 0.;
+  ScalarMatrixProduct<double,MatrixXd>::type res = alpha * M;
+  BOOST_CHECK(res.eval().isZero());
+}
+
+BOOST_AUTO_TEST_CASE(test_matrix_scalar_product)
+{
+  using namespace pinocchio;
+  using namespace Eigen;
+  const Eigen::DenseIndex m = 20, n = 100;
+  MatrixXd M(MatrixXd::Ones(m,n));
+  const double alpha = 1.;
+  MatrixScalarProduct<MatrixXd,double>::type res = M * alpha;
+  BOOST_CHECK(res.eval() == M);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
