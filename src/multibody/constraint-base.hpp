@@ -30,6 +30,24 @@
 namespace pinocchio
 {
   
+  namespace internal
+  {
+    /// \brief Return type of the Constraint::Transpose * Force operation
+    template<class ConstraintDerived, typename Force>
+    struct ConstraintForceOp
+    {
+      typedef ReturnTypeNotDefined ReturnType;
+    };
+    
+    /// \brief Return type of the Constraint::Transpose * ForceSet operation
+    template<class ConstraintDerived, typename ForceSet>
+    struct ConstraintForceSetOp
+    {
+      typedef ReturnTypeNotDefined ReturnType;
+    };
+    
+  } // namespace internal
+  
   template<class Derived>
   class ConstraintBase
   {
