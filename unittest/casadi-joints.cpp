@@ -28,10 +28,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   
   typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
   typedef Eigen::Matrix<AD_double,6,1> Vector6AD;
-  typedef Eigen::Matrix<AD_double,3,1> Vector3AD;
-  typedef Eigen::Matrix<AD_double,9,1> Vector9AD;
-  typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
-  
+
   typedef JointCollectionAD::JointModelRX JointModelRXAD;
   typedef JointModelRXAD::ConfigVector_t ConfigVectorAD;
 //  typedef JointModelRXAD::TangentVector_t TangentVectorAD;
@@ -201,9 +198,7 @@ struct TestADOnJoints
   static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
   {
     typedef casadi::SX AD_double;
-    typedef pinocchio::JointCollectionDefaultTpl<AD_double> JointCollectionAD;
-    typedef pinocchio::JointCollectionDefaultTpl<double> JointCollection;
-    
+
     typedef pinocchio::SE3Tpl<AD_double> SE3AD;
     typedef pinocchio::MotionTpl<AD_double> MotionAD;
     typedef pinocchio::SE3Tpl<double> SE3;
@@ -212,10 +207,7 @@ struct TestADOnJoints
     
     typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
     typedef Eigen::Matrix<AD_double,6,1> Vector6AD;
-    typedef Eigen::Matrix<AD_double,3,1> Vector3AD;
-    typedef Eigen::Matrix<AD_double,9,1> Vector9AD;
-    typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
-    
+
     typedef typename pinocchio::CastType<AD_double,JointModel>::type JointModelAD;
     typedef typename JointModelAD::JointDataDerived JointDataAD;
     
