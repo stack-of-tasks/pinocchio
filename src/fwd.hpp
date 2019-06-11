@@ -49,6 +49,10 @@ namespace pinocchio
     ARG3 = 3,
     ARG4 = 4
   };
+  
+  /// \brief Return type undefined
+  ///        This is an helper structure to help internal diagnosis.
+  struct ReturnTypeNotDefined;
 }
 
 #endif // #ifndef __pinocchio_fwd_hpp__
