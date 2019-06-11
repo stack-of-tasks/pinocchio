@@ -206,10 +206,17 @@ namespace pinocchio
 
     MotionRevoluteTpl() {}
     
-    template<typename OtherScalar>
-    MotionRevoluteTpl(const OtherScalar & w) : w(w)  {}
+    MotionRevoluteTpl(const Scalar & w) : w(w)  {}
     
-//    operator MotionPlain() const { return Axis() * w; }
+    template<typename Vector1Like>
+    MotionRevoluteTpl(const Eigen::MatrixBase<Vector1Like> & v)
+    : w(v[0])
+    {
+      using namespace Eigen;
+      EIGEN_STATIC_ASSERT_SIZE_1x1(Vector1Like);
+    }
+    
+    operator MotionPlain() const { return Axis() * w; }
     
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & m) const
@@ -220,14 +227,14 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    void addTo(MotionDense<MotionDerived> & v) const
+    inline void addTo(MotionDense<MotionDerived> & v) const
     {
       typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
       v.angular()[axis] += (OtherScalar)w;
     }
     
     template<typename S2, int O2, typename D2>
-    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    inline void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.angular().noalias() = m.rotation().col(axis) * w;
       v.linear().noalias() = m.translation().cross(v.angular());
@@ -242,13 +249,12 @@ namespace pinocchio
     }
     
     template<typename S2, int O2, typename D2>
-    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
+    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m,
+                               MotionDense<D2> & v) const
     {
       // Linear
-      // TODO: use v.angular() as temporary variable
-      Vector3 v3_tmp;
-      CartesianAxis3::alphaCross(w,m.translation(),v3_tmp);
-      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
+      CartesianAxis3::alphaCross(w,m.translation(),v.angular());
+      v.linear().noalias() = m.rotation().transpose() * v.angular();
       
       // Angular
       v.angular().noalias() = m.rotation().transpose().col(axis) * w;
@@ -597,7 +603,9 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I.col(Inertia::ANGULAR + axis);
       data.Dinv[0] = Scalar(1)/I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis);
