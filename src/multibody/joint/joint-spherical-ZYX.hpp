@@ -14,6 +14,7 @@
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -346,14 +347,17 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
       data.StU.noalias() = data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.StU.llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.StU.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;
       

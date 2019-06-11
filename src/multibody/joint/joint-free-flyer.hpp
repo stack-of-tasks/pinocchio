@@ -13,6 +13,7 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -269,11 +270,16 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I;
-      data.Dinv.setIdentity();
-      I.llt().solveInPlace(data.Dinv);
+      
+      // compute inverse
+//      data.Dinv.setIdentity();
+//      I.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(I,data.Dinv);
       
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).setZero();

@@ -12,6 +12,7 @@
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -448,13 +449,16 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::ANGULAR),data.Dinv);
       
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
       data.UDinv.template middleRows<3>(Inertia::LINEAR).noalias() = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;

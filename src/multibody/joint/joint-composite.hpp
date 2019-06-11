@@ -268,18 +268,21 @@ namespace pinocchio
               const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.noalias() = I * data.S.matrix();
       data.StU.noalias() = data.S.matrix().transpose() * data.U;
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.StU.llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.StU.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       data.UDinv.noalias() = data.U * data.Dinv;
 
       if (update_I)
-        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
 
     int nv_impl() const { return m_nv; }

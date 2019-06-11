@@ -11,6 +11,7 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -489,13 +490,16 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I.template middleCols<3>(Inertia::LINEAR);
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.U.template middleRows<3>(Inertia::LINEAR).llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.U.template middleRows<3>(Inertia::LINEAR).llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::LINEAR),data.Dinv);
       
       data.UDinv.template middleRows<3>(Inertia::LINEAR).setIdentity(); // can be put in data constructor
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).noalias() = data.U.template middleRows<3>(Inertia::ANGULAR) * data.Dinv;
