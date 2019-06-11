@@ -89,6 +89,7 @@ namespace Eigen
       return std::numeric_limits<double>::digits10;
     }
   };
+} // namespace Eigen
 
 namespace pinocchio
 {
