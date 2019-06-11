@@ -16,8 +16,9 @@ namespace pinocchio
     struct PerformStYSInversion
     {
       template<typename M1, typename M2>
-      static void run(const Eigen::MatrixBase<M1> & StYS,
-                      const Eigen::MatrixBase<M2> & Dinv)
+      static EIGEN_STRONG_INLINE
+      void run(const Eigen::MatrixBase<M1> & StYS,
+               const Eigen::MatrixBase<M2> & Dinv)
       {
         M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2,Dinv);
         Dinv_.setIdentity();
@@ -29,8 +30,9 @@ namespace pinocchio
     struct PerformStYSInversion<Scalar, false>
     {
       template<typename M1, typename M2>
-      static void run(const Eigen::MatrixBase<M1> & StYS,
-                      const Eigen::MatrixBase<M2> & Dinv)
+      static EIGEN_STRONG_INLINE
+      void run(const Eigen::MatrixBase<M1> & StYS,
+               const Eigen::MatrixBase<M2> & Dinv)
       {
         M2 & Dinv_ = PINOCCHIO_EIGEN_CONST_CAST(M2,Dinv);
         inverse(StYS,Dinv_);
