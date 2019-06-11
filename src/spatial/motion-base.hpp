@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -94,6 +94,13 @@ namespace pinocchio
     }
     
   }; // class MotionBase
+  
+  template<typename MotionDerived>
+  MotionDerived operator*(const typename MotionDerived::Scalar & alpha,
+                          const MotionBase<MotionDerived> & motion)
+  {
+    return motion*alpha;
+  }
   
 } // namespace pinocchio
 
