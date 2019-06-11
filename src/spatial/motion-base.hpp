@@ -56,10 +56,11 @@ namespace pinocchio
     Derived & operator-=(const MotionBase<Derived> & v) { return derived().__mequ__(v.derived()); }
     
     template<typename OtherScalar>
-    MotionPlain operator*(const OtherScalar & alpha) const
+    Derived operator*(const OtherScalar & alpha) const
     { return derived().__mult__(alpha); }
+    
     template<typename OtherScalar>
-    MotionPlain operator/(const OtherScalar & alpha) const
+    Derived operator/(const OtherScalar & alpha) const
     { return derived().__div__(alpha); }
     
     template<typename OtherSpatialType>
