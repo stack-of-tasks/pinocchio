@@ -38,6 +38,7 @@ ENDMACRO(ADD_PINOCCHIO_UNIT_TEST)
 # --- RULES -------------------------------------------------------------------
 
 # Math components
+ADD_PINOCCHIO_UNIT_TEST(eigen-basic-op eigen3)
 ADD_PINOCCHIO_UNIT_TEST(sincos eigen3)
 ADD_PINOCCHIO_UNIT_TEST(quaternion eigen3)
 
