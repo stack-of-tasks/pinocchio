@@ -18,7 +18,7 @@ namespace pinocchio
   }
 
   template<typename M1, typename M2>
-  struct MatrixProduct
+  struct MatrixMatrixProduct
   {
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
     typedef typename Eigen::Product<M1,M2> type;

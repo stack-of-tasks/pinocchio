@@ -224,7 +224,7 @@ namespace pinocchio
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename Derived>
       friend
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       Eigen::Transpose<const Vector3>,
       typename Eigen::MatrixBase<const Derived>::template NRowsBlockXpr<3>::Type
       >::type
@@ -294,7 +294,7 @@ namespace pinocchio
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   template<typename M6, typename S2, int O2>
-  const typename MatrixProduct<
+  const typename MatrixMatrixProduct<
   Eigen::Block<const M6,6,3>,
   typename ConstraintPrismaticUnaligned<S2,O2>::Vector3
   >::type

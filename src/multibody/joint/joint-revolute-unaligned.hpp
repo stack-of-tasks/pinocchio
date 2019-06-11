@@ -238,7 +238,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename Derived>
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       Eigen::Transpose<const Vector3>,
       typename Eigen::MatrixBase<const Derived>::template NRowsBlockXpr<3>::Type
       >::type
@@ -313,7 +313,7 @@ namespace pinocchio
   
   template<typename M6Like, typename S2, int O2>
   inline
-  const typename MatrixProduct<
+  const typename MatrixMatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
   typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
   >::type

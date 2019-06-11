@@ -75,7 +75,7 @@ namespace pinocchio
       ConstraintTranspose(const ConstraintSphericalZYXTpl & ref) : ref(ref) {}
       
       template<typename Derived>
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       Eigen::Transpose<const Matrix3>,
       Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
       >::type
@@ -86,7 +86,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       typename Eigen::Transpose<const Matrix3>,
       typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
       >::type
@@ -167,7 +167,7 @@ namespace pinocchio
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,3>
   template<typename Matrix6Like, typename S2, int O2>
-  const typename MatrixProduct<
+  const typename MatrixMatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
   typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
   >::type
