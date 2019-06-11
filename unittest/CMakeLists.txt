@@ -90,7 +90,6 @@ IF(BUILD_PYTHON_INTERFACE)
   ADD_SUBDIRECTORY(python)
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-# Work in progress
 ADD_PINOCCHIO_UNIT_TEST(model eigen3)
 ADD_PINOCCHIO_UNIT_TEST(constraint eigen3)
 #ADD_PINOCCHIO_UNIT_TEST(variant eigen3)
@@ -105,6 +104,7 @@ ADD_PINOCCHIO_UNIT_TEST(finite-differences eigen3)
 ADD_PINOCCHIO_UNIT_TEST(visitor eigen3)
 ADD_PINOCCHIO_UNIT_TEST(algo-check eigen3)
 ADD_PINOCCHIO_UNIT_TEST(joint-composite eigen3)
+ADD_PINOCCHIO_UNIT_TEST(joint-mimic eigen3)
 
 ADD_PINOCCHIO_UNIT_TEST(liegroups eigen3)
 ADD_PINOCCHIO_UNIT_TEST(regressor eigen3)
