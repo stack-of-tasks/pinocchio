@@ -31,8 +31,7 @@ namespace pinocchio
     typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -64,7 +63,6 @@ namespace pinocchio
     Transformation_t M;
     Motion_t v;
     Bias_t c;
-    F_t F;
 
     // [ABA] specific data
     U_t U;

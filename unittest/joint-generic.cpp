@@ -153,7 +153,6 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
     
-    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> F_t;
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;

@@ -415,8 +415,7 @@ namespace pinocchio
     typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -449,8 +448,6 @@ namespace pinocchio
     Motion_t v;
     Bias_t c;
 
-    F_t F;
-    
     // [ABA] specific data
     U_t U;
     D_t Dinv;

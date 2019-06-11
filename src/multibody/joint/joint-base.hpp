@@ -11,9 +11,6 @@
 
 #include <limits>
 
-namespace pinocchio
-{
-
 #define PINOCCHIO_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
   typedef Eigen::DenseIndex Index;                \
   typedef TYPENAME traits<JointDerived>::Scalar Scalar;    \
@@ -23,7 +20,6 @@ namespace pinocchio
   typedef TYPENAME traits<JointDerived>::Transformation_t Transformation_t; \
   typedef TYPENAME traits<JointDerived>::Motion_t Motion_t;        \
   typedef TYPENAME traits<JointDerived>::Bias_t Bias_t;        \
-  typedef TYPENAME traits<JointDerived>::F_t F_t;          \
   typedef TYPENAME traits<JointDerived>::U_t U_t;       \
   typedef TYPENAME traits<JointDerived>::D_t D_t;       \
   typedef TYPENAME traits<JointDerived>::UD_t UD_t;       \
@@ -102,7 +98,10 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
   typedef U_t & UTypeRef; \
   typedef const D_t & DTypeConstRef; \
   typedef const UD_t & UDTypeConstRef;
-  
+
+namespace pinocchio
+{
+
   template<typename Derived>
   struct JointDataBase
   {
@@ -118,8 +117,7 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     TansformTypeConstRef M() const     { return derived().M_accessor(); }
     MotionTypeConstRef v() const     { return derived().v_accessor(); }
     BiasTypeConstRef c() const     { return derived().c_accessor(); }
-    F_t & F()                              { return derived().F; }
-    
+
     UTypeConstRef U() const     { return derived().U_accessor(); }
     UTypeRef U()           { return derived().U_accessor(); }
     DTypeConstRef Dinv() const  { return derived().Dinv_accessor(); }
