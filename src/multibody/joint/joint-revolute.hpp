@@ -318,6 +318,14 @@ namespace pinocchio
   template<typename Scalar, int Options, int axis, typename MotionDerived>
   struct MotionAlgebraAction< ConstraintRevoluteTpl<Scalar,Options,axis>, MotionDerived >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
+    
+  template<typename Scalar, int Options, int axis, typename ForceDerived>
+  struct ConstraintForceOp< ConstraintRevoluteTpl<Scalar,Options,axis>, ForceDerived>
+  { typedef typename ForceDense<ForceDerived>::ConstAngularType::template ConstFixedBlockXpr<1,1>::Type ReturnType; };
+  
+  template<typename Scalar, int Options, int axis, typename ForceSet>
+  struct ConstraintForceSetOp< ConstraintRevoluteTpl<Scalar,Options,axis>, ForceSet>
+  { typedef typename Eigen::MatrixBase<ForceSet>::ConstRowXpr ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< ConstraintRevoluteTpl<_Scalar,_Options,axis> >
@@ -368,15 +376,15 @@ namespace pinocchio
       const ConstraintRevoluteTpl & ref;
       TransposeConst(const ConstraintRevoluteTpl & ref) : ref(ref) {}
 
-      template<typename Derived>
-      typename ForceDense<Derived>::ConstAngularType::template ConstFixedSegmentReturnType<1>::Type
-      operator* (const ForceDense<Derived> & f) const
+      template<typename ForceDerived>
+      typename ConstraintForceOp<ConstraintRevoluteTpl,ForceDerived>::ReturnType
+      operator*(const ForceDense<ForceDerived> & f) const
       { return f.angular().template segment<1>(axis); }
 
-        /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
-      template<typename D>
-      typename Eigen::MatrixBase<D>::ConstRowXpr
-      operator*(const Eigen::MatrixBase<D> & F) const
+      /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
+      template<typename Derived>
+      typename ConstraintForceSetOp<ConstraintRevoluteTpl,Derived>::ReturnType
+      operator*(const Eigen::MatrixBase<Derived> & F) const
       {
         assert(F.rows()==6);
         return F.row(ANGULAR + axis);
