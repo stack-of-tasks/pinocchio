@@ -66,6 +66,31 @@ namespace pinocchio
   {
     return internal::isUnitaryAlgo<MatrixLike>::run(mat,prec);
   }
+  
+  namespace internal
+  {
+    template<typename Scalar>
+    struct CallCorrectMatrixInverseAccordingToScalar
+    {
+      template<typename MatrixIn, typename MatrixOut>
+      static void run(const Eigen::MatrixBase<MatrixIn> & m_in,
+                      const Eigen::MatrixBase<MatrixOut> & dest)
+      {
+        MatrixOut & dest_ = const_cast<MatrixOut &>(dest.derived());
+        dest_.noalias() = m_in.inverse();
+      }
+    };
+  
+  }
+  
+  template<typename MatrixIn, typename MatrixOut>
+  inline void inverse(const Eigen::MatrixBase<MatrixIn> & m_in,
+                      const Eigen::MatrixBase<MatrixOut> & dest)
+  {
+    MatrixOut & dest_ = const_cast<MatrixOut &>(dest.derived());
+    internal::CallCorrectMatrixInverseAccordingToScalar<typename MatrixIn::Scalar>::run(m_in,dest_);
+  }
 
 }
+
 #endif //#ifndef __pinocchio_math_matrix_hpp__
