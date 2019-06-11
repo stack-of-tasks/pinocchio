@@ -37,8 +37,8 @@ namespace pinocchio
   template<typename Matrix, typename Scalar>
   struct MatrixScalarProduct
   {
-    typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<typename Eigen::internal::traits<Matrix>::Scalar,Scalar>, const Matrix,
-    const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type> type;
+    typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<typename Eigen::internal::traits<Matrix>::Scalar,Scalar>,
+    const Matrix, const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type> type;
   };
   
   namespace internal
