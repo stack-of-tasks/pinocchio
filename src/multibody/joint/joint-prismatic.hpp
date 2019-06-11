@@ -53,7 +53,8 @@ namespace pinocchio
   }; // struct traits MotionPrismaticTpl
 
   template<typename _Scalar, int _Options, int _axis>
-  struct MotionPrismaticTpl : MotionBase < MotionPrismaticTpl<_Scalar,_Options,_axis> >
+  struct MotionPrismaticTpl
+  : MotionBase < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPrismaticTpl);
@@ -66,7 +67,13 @@ namespace pinocchio
     MotionPrismaticTpl() {}
     MotionPrismaticTpl(const Scalar & v) : rate(v) {}
 
-//    inline operator MotionPlain() const { return Axis() * rate; }
+    inline operator MotionPlain() const { return Axis() * rate; }
+    
+    template<typename OtherScalar>
+    MotionPrismaticTpl __mult__(const OtherScalar & alpha) const
+    {
+      return MotionPrismaticTpl(alpha*rate);
+    }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const

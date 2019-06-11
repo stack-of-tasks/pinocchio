@@ -212,6 +212,12 @@ namespace pinocchio
     
     operator MotionPlain() const { return Axis() * w; }
     
+    template<typename OtherScalar>
+    MotionRevoluteTpl __mult__(const OtherScalar & alpha) const
+    {
+      return MotionRevoluteTpl(alpha*w);
+    }
+    
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & m) const
     {

@@ -66,12 +66,18 @@ namespace pinocchio
     : axis(axis)
     , w(w)
     {}
-
-//    operator MotionPlain() const
-//    { 
-//      return MotionPlain(MotionPlain::Vector3::Zero(),
-//                         axis*w);
-//    }
+    
+    inline operator MotionPlain() const
+    {
+      return MotionPlain(MotionPlain::Vector3::Zero(),
+                         axis*w);
+    }
+    
+    template<typename OtherScalar>
+    MotionRevoluteUnalignedTpl __mult__(const OtherScalar & alpha) const
+    {
+      return MotionRevoluteUnalignedTpl(axis,alpha*w);
+    }
     
     template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & v) const

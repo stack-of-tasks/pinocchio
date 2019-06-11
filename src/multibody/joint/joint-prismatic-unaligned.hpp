@@ -63,12 +63,21 @@ namespace pinocchio
     
     template<typename Vector3Like, typename S2>
     MotionPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
-                                const S2 rate)
+                                const S2 & rate)
     : axis(axis), rate(rate)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
-//    operator MotionPlain() const
-//    { return MotionPlain(axis*rate,MotionPlain::Vector3::Zero());}
+    operator MotionPlain() const
+    {
+      return MotionPlain(axis*rate,
+                         MotionPlain::Vector3::Zero());
+    }
+    
+    template<typename OtherScalar>
+    MotionPrismaticUnalignedTpl __mult__(const OtherScalar & alpha) const
+    {
+      return MotionPrismaticUnalignedTpl(axis,alpha*rate);
+    }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
