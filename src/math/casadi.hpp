@@ -11,7 +11,7 @@
 // This is a workaround to make the code compiling with Eigen.
 namespace casadi
 {
-  bool operator||(const bool & x, const casadi::Matrix<SXElem> & /*y*/)
+  inline bool operator||(const bool & x, const casadi::Matrix<SXElem> & /*y*/)
   {
     return x;
   }
@@ -74,7 +74,7 @@ namespace Eigen
       return NumTraits<double>::dummy_precision();
     }
     
-    static double hightest()
+    static double highest()
     {
       return std::numeric_limits<double>::max();
     }
