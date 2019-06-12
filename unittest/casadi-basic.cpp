@@ -124,5 +124,17 @@ BOOST_AUTO_TEST_CASE(test_copy_eigen_to_casadi)
   std::cout << cs_mat << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(test_casadi_codegen)
+{
+  casadi::SX x = casadi::SX::sym("x");
+  casadi::SX y = casadi::SX::sym("y");
+  casadi::Function fun("fun", casadi::SXVector {x, y}, casadi::SXVector {x + y});
+  
+  casadi::CodeGenerator gen("module");
+  gen.add(fun);
+  
+  std::cout << gen.dump();
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
