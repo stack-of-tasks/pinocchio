@@ -27,6 +27,23 @@ namespace pinocchio
   
   template<typename Scalar, int Options=0> class InertiaTpl;
   template<typename Scalar, int Options=0> class Symmetric3Tpl;
+  
+  namespace internal
+  {
+    /// \brief Default return type for the operation: Type*Scalar
+    template<typename Type, typename Scalar>
+    struct RHSScalarMultiplication
+    {
+      typedef Type ReturnType;
+    };
+    
+    /// \brief Default return type for the operation: Scalar*Type
+    template<typename Type, typename Scalar>
+    struct LHSScalarMultiplication
+    {
+      typedef Type ReturnType;
+    };
+  }
 
   /**
    * \addtogroup spatial

@@ -56,7 +56,8 @@ namespace pinocchio
     Derived & operator-=(const MotionBase<Derived> & v) { return derived().__mequ__(v.derived()); }
     
     template<typename OtherScalar>
-    Derived operator*(const OtherScalar & alpha) const
+    typename internal::RHSScalarMultiplication<Derived,OtherScalar>::ReturnType
+    operator*(const OtherScalar & alpha) const
     { return derived().__mult__(alpha); }
     
     template<typename OtherScalar>
@@ -96,8 +97,9 @@ namespace pinocchio
   }; // class MotionBase
   
   template<typename MotionDerived>
-  MotionDerived operator*(const typename MotionDerived::Scalar & alpha,
-                          const MotionBase<MotionDerived> & motion)
+  typename internal::RHSScalarMultiplication<MotionDerived,typename MotionDerived::Scalar>::ReturnType
+  operator*(const typename MotionDerived::Scalar & alpha,
+            const MotionBase<MotionDerived> & motion)
   {
     return motion*alpha;
   }
