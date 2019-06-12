@@ -14,15 +14,18 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 typedef Eigen::Matrix<double,6,Eigen::Dynamic> Matrix6x;
 
 template<typename JointModel>
-void test_constraint_mimic(const JointModelBase<JointModel> & /*joint_base*/)
+void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
 {
-  typedef typename traits<JointModel>::JointDerived JointDerived;
-  typedef typename traits<JointDerived>::Constraint_t ConstraintType;
+  typedef typename traits<JointModel>::JointDerived Joint;
+  typedef typename traits<Joint>::Constraint_t ConstraintType;
+  typedef typename traits<Joint>::JointDataDerived JointData;
   typedef ScaledConstraint<ConstraintType> ScaledConstraintType;
   
+  JointData jdata = jmodel.createData();
+  
   const double scaling_factor = 2.;
-  ConstraintType constraint_ref;
-  ScaledConstraintType scaled_constraint(constraint_ref,scaling_factor);
+  ConstraintType constraint_ref(jdata.S), constraint_ref_shared(jdata.S);
+  ScaledConstraintType scaled_constraint(constraint_ref_shared,scaling_factor);
   
   BOOST_CHECK(constraint_ref.nv() == scaled_constraint.nv());
   
@@ -66,7 +69,7 @@ void test_constraint_mimic(const JointModelBase<JointModel> & /*joint_base*/)
     BOOST_CHECK(Fout.isApprox(Fout_ref));
     
     Force force_in(Force::Random());
-    Eigen::MatrixXd Stf = scaled_constraint.transpose() * force_in;
+    Eigen::MatrixXd Stf = (scaled_constraint.transpose() * force_in);
     Eigen::MatrixXd Stf_ref = scaling_factor * (constraint_ref.transpose() * force_in);
     BOOST_CHECK(Stf_ref.isApprox(Stf));
   }

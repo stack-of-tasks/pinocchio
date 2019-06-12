@@ -45,7 +45,8 @@ namespace pinocchio
       typedef typename Constraint::Scalar Scalar;
       typedef typename ConstraintForceOp<Constraint,ForceDerived>::ReturnType OriginalReturnType;
       
-      typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
+      typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type IdealReturnType;
+      typedef Eigen::Matrix<Scalar,IdealReturnType::RowsAtCompileTime,IdealReturnType::ColsAtCompileTime,Constraint::Options> ReturnType;
     };
     
     template<class Constraint, typename ForceSet>
@@ -71,7 +72,7 @@ namespace pinocchio
     
     typedef typename internal::SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
     
-    ScaledConstraint(const Constraint & constraint,
+    ScaledConstraint(Constraint & constraint,
                      const Scalar & scaling_factor)
     : constraint(constraint)
     , scaling_factor(scaling_factor)
@@ -104,7 +105,9 @@ namespace pinocchio
       typename internal::ConstraintForceOp<ScaledConstraint,Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
-        return ref.scaling_factor * (ref.constraint.transpose() * f);
+        // TODO: I don't know why, but we should a dense a return type, otherwise it failes at the evaluation level;
+        typedef typename internal::ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
+        return ReturnType(ref.scaling_factor * (ref.constraint.transpose() * f));
       }
       
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
@@ -136,7 +139,7 @@ namespace pinocchio
     
   protected:
     
-    Constraint constraint;
+    Constraint & constraint;
     Scalar scaling_factor;
   }; // struct ConstraintRevoluteTpl
   
