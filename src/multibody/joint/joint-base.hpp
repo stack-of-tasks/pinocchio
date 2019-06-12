@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -12,60 +12,60 @@
 
 #include <limits>
 
-#define PINOCCHIO_JOINT_TYPEDEF_GENERIC(TYPENAME)              \
+#define PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,TYPENAME)              \
   typedef Eigen::DenseIndex Index;                \
-  typedef TYPENAME traits<JointDerived>::Scalar Scalar;    \
-  typedef TYPENAME traits<JointDerived>::JointDataDerived JointDataDerived;        \
-  typedef TYPENAME traits<JointDerived>::JointModelDerived JointModelDerived;      \
-  typedef TYPENAME traits<JointDerived>::Constraint_t Constraint_t;      \
-  typedef TYPENAME traits<JointDerived>::Transformation_t Transformation_t; \
-  typedef TYPENAME traits<JointDerived>::Motion_t Motion_t;        \
-  typedef TYPENAME traits<JointDerived>::Bias_t Bias_t;        \
-  typedef TYPENAME traits<JointDerived>::U_t U_t;       \
-  typedef TYPENAME traits<JointDerived>::D_t D_t;       \
-  typedef TYPENAME traits<JointDerived>::UD_t UD_t;       \
+  typedef TYPENAME traits<Joint>::Scalar Scalar;    \
+  typedef TYPENAME traits<Joint>::JointDataDerived JointDataDerived;        \
+  typedef TYPENAME traits<Joint>::JointModelDerived JointModelDerived;      \
+  typedef TYPENAME traits<Joint>::Constraint_t Constraint_t;      \
+  typedef TYPENAME traits<Joint>::Transformation_t Transformation_t; \
+  typedef TYPENAME traits<Joint>::Motion_t Motion_t;        \
+  typedef TYPENAME traits<Joint>::Bias_t Bias_t;        \
+  typedef TYPENAME traits<Joint>::U_t U_t;       \
+  typedef TYPENAME traits<Joint>::D_t D_t;       \
+  typedef TYPENAME traits<Joint>::UD_t UD_t;       \
   enum {                  \
-    Options = traits<JointDerived>::Options,    \
-    NQ = traits<JointDerived>::NQ,              \
-    NV = traits<JointDerived>::NV               \
+    Options = traits<Joint>::Options,    \
+    NQ = traits<Joint>::NQ,              \
+    NV = traits<Joint>::NV               \
   };                        \
-  typedef TYPENAME traits<JointDerived>::ConfigVector_t ConfigVector_t;        \
-  typedef TYPENAME traits<JointDerived>::TangentVector_t TangentVector_t
+  typedef TYPENAME traits<Joint>::ConfigVector_t ConfigVector_t;        \
+  typedef TYPENAME traits<Joint>::TangentVector_t TangentVector_t
   
-#define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(TYPENAME)              \
-  PINOCCHIO_JOINT_TYPEDEF_GENERIC(TYPENAME); \
-  typedef TYPENAME traits<JointDerived>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::TansformTypeConstRef TansformTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::MotionTypeConstRef MotionTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::BiasTypeConstRef BiasTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::UTypeConstRef UTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::UTypeRef UTypeRef;      \
-  typedef TYPENAME traits<JointDerived>::DTypeConstRef DTypeConstRef;      \
-  typedef TYPENAME traits<JointDerived>::UDTypeConstRef UDTypeConstRef
+#define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,TYPENAME)              \
+  PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,TYPENAME); \
+  typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::MotionTypeConstRef MotionTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::BiasTypeConstRef BiasTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::UTypeConstRef UTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::UTypeRef UTypeRef;      \
+  typedef TYPENAME traits<Joint>::DTypeConstRef DTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::UDTypeConstRef UDTypeConstRef
   
 #ifdef __clang__
 
-  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_TYPEDEF(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,PINOCCHIO_EMPTY_ARG)
   
-  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,typename)
 
 #elif (__GNUC__ == 4) && (__GNUC_MINOR__ == 4) && (__GNUC_PATCHLEVEL__ == 2)
 
-  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_TYPEDEF(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,PINOCCHIO_EMPTY_ARG)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,PINOCCHIO_EMPTY_ARG)
   
-  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,typename)
 
 #else
 
-  #define PINOCCHIO_JOINT_TYPEDEF PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,typename)
   
-  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_TYPEDEF_GENERIC(typename)
-  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(typename)
+  #define PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_TYPEDEF_GENERIC(Joint,typename)
+  #define PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(Joint) PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,typename)
 
 #endif
 
@@ -109,7 +109,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename traits<Derived>::JointDerived JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
 
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived & derived() const { return *static_cast<const Derived*>(this); }
@@ -378,7 +378,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef typename traits<Derived>::JointDerived JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
 
     JointModelDerived & derived() { return *static_cast<Derived*>(this); }
     const JointModelDerived & derived() const { return *static_cast<const Derived*>(this); }

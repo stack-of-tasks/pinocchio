@@ -65,7 +65,7 @@ namespace pinocchio
     
     typedef JointDataBase<JointDataCompositeTpl> Base;
     typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
@@ -146,7 +146,7 @@ namespace pinocchio
     
     typedef JointModelBase<JointModelCompositeTpl> Base;
     typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
