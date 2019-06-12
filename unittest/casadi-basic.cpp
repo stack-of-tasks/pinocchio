@@ -55,19 +55,15 @@ BOOST_AUTO_TEST_CASE(test_example)
   }
   
   // Let a, b be symbolic arguments of a function
-  for (Eigen::Index i = 0; i < b.size(); ++i)
-    b[i] = cs_b(i);
-  
-  for (Eigen::Index i = 0; i < a.size(); ++i)
-    a[i] = cs_a(i);
+  pinocchio::casadi::copy(cs_b, b);
+  pinocchio::casadi::copy(cs_a, a);
   
   // Call the function taking Eigen matrices
   c = eigenFun<casadi::SX>(A, a, B, b);
   
   // Copy the result from Eigen matrices to casadi matrix
   casadi::SX cs_c = casadi::SX(casadi::Sparsity::dense(c.rows(), 1));
-  for (Eigen::Index i = 0; i < c.rows(); ++i)
-    cs_c(i) = c[i];
+  pinocchio::casadi::copy(c, cs_c);
   
   // Display the resulting casadi matrix
   std::cout << "c = " << cs_c << std::endl;
