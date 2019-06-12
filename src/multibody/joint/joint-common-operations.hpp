@@ -12,6 +12,9 @@ namespace pinocchio
 {
   namespace internal
   {
+    ///
+    /// \brief Operation called in JointModelBase<JointModel>::calc_aba
+    ///
     template<typename Scalar, bool is_floating_point = boost::is_floating_point<Scalar>::value>
     struct PerformStYSInversion
     {
@@ -40,6 +43,10 @@ namespace pinocchio
     };
   }
   
+  ///
+  /// \brief Linear affine transformation of the configuration vector.
+  ///        Valide for most common joints which are evolving on a vectorial space.
+  ///
   struct LinearAffineTransform
   {
     template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
@@ -53,6 +60,9 @@ namespace pinocchio
     }
   };
   
+  ///
+  /// \brief Assign the correct configuration vector space affine transformation according to the joint type.
+  ///
   template<typename Joint>
   struct ConfigVectorAffineTransform
   {
