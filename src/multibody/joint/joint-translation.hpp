@@ -11,7 +11,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
-#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {

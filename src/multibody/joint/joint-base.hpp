@@ -8,6 +8,7 @@
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/fwd.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 #include <limits>
 

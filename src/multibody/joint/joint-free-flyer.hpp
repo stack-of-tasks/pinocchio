@@ -13,7 +13,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
-#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
