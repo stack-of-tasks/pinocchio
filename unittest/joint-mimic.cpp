@@ -117,4 +117,34 @@ BOOST_AUTO_TEST_CASE(test_constraint)
   boost::mpl::for_each<Variant::types>(TestJointConstraint());
 }
 
+BOOST_AUTO_TEST_CASE(test_transform_linear_affine)
+{
+  typedef JointModelRX::ConfigVector_t ConfigVectorType;
+  double scaling = 1., offset = 0.;
+  
+  ConfigVectorType q0 = ConfigVectorType::Random();
+  ConfigVectorType q1;
+  LinearAffineTransform::run(q0,scaling,offset,q1);
+  BOOST_CHECK(q0 == q1);
+  
+  offset = 2.;
+  LinearAffineTransform::run(ConfigVectorType::Zero(),scaling,offset,q1);
+  BOOST_CHECK(q1 == ConfigVectorType::Constant(offset));
+}
+
+BOOST_AUTO_TEST_CASE(test_transform_linear_revolute)
+{
+  typedef JointModelRUBX::ConfigVector_t ConfigVectorType;
+  double scaling = 1., offset = 0.;
+  
+  ConfigVectorType q0 = ConfigVectorType::Random().normalized();
+  ConfigVectorType q1;
+  UnboundedRevoluteAffineTransform::run(q0,scaling,offset,q1);
+  BOOST_CHECK(q0.isApprox(q1));
+  
+  offset = 2.;
+  UnboundedRevoluteAffineTransform::run(ConfigVectorType::Zero(),scaling,offset,q1);
+  BOOST_CHECK(q1 == ConfigVectorType(math::cos(offset),math::sin(offset)));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

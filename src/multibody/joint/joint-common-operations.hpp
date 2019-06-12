@@ -39,6 +39,26 @@ namespace pinocchio
       }
     };
   }
+  
+  struct LinearAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Scalar & scaling,
+                    const Scalar & offset,
+                    const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    {
+      assert(q.size() == dest.size());
+      PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,dest).noalias() = scaling * q + ConfigVectorOut::Constant(dest.size(),offset);
+    }
+  };
+  
+  template<typename Joint>
+  struct ConfigVectorAffineTransform
+  {
+    typedef LinearAffineTransform Type;
+  };
+  
 }
 
 #endif // ifndef __pinocchio_multibody_joint_joint_common_operations_hpp__

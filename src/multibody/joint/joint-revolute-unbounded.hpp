@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_revolute_unbounded_hpp__
@@ -152,6 +152,34 @@ namespace pinocchio
 
   }; // struct JointModelRevoluteUnboundedTpl
   
+  struct UnboundedRevoluteAffineTransform
+  {
+    template<typename ConfigVectorIn, typename Scalar, typename ConfigVectorOut>
+    static void run(const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Scalar & scaling,
+                    const Scalar & offset,
+                    const Eigen::MatrixBase<ConfigVectorOut> & dest)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorIn,2);
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(ConfigVectorOut,2);
+      
+      const typename ConfigVectorIn::Scalar & ca = q(0);
+      const typename ConfigVectorIn::Scalar & sa = q(1);
+      
+      const typename ConfigVectorIn::Scalar & theta = math::atan2(sa,ca);
+      const typename ConfigVectorIn::Scalar & theta_transform = scaling * theta + offset;
+      
+      ConfigVectorOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,dest);
+      SINCOS(theta_transform,&dest_.coeffRef(1),&dest_.coeffRef(0));
+    }
+  };
+  
+  template<typename Scalar, int Options, int axis>
+  struct ConfigVectorAffineTransform< JointRevoluteUnboundedTpl<Scalar,Options,axis> >
+  {
+    typedef UnboundedRevoluteAffineTransform Type;
+  };
+  
   typedef JointRevoluteUnboundedTpl<double,0,0> JointRUBX;
   typedef JointDataRevoluteUnboundedTpl<double,0,0> JointDataRUBX;
   typedef JointModelRevoluteUnboundedTpl<double,0,0> JointModelRUBX;
@@ -165,7 +193,6 @@ namespace pinocchio
   typedef JointModelRevoluteUnboundedTpl<double,0,2> JointModelRUBZ;
 
 } //namespace pinocchio
-
 
 #include <boost/type_traits.hpp>
 
