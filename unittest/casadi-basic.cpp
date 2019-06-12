@@ -109,18 +109,18 @@ BOOST_AUTO_TEST_CASE(test_copy_casadi_to_eigen)
   casadi::SX cs_mat = casadi::SX::sym("A", 3, 4);
   Eigen::Matrix<casadi::SX, 3, 4> eig_mat;
 
-  copy(cs_mat, eig_mat);
+  pinocchio::casadi::copy(cs_mat, eig_mat);
   std::cout << eig_mat << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test_copy_eigen_to_casadi)
 {
   Eigen::Matrix<casadi::SX, 3, 4> eig_mat;
-  sym(eig_mat, "A");
+  pinocchio::casadi::sym(eig_mat, "A");
 
   casadi::SX cs_mat;
 
-  copy(eig_mat, cs_mat);
+  pinocchio::casadi::copy(eig_mat, cs_mat);
   std::cout << cs_mat << std::endl;
 }
 
