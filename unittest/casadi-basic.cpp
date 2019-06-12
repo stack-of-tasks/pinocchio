@@ -124,21 +124,5 @@ BOOST_AUTO_TEST_CASE(test_copy_eigen_to_casadi)
   std::cout << cs_mat << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(test_chol)
-{
-  using EigenSX = Eigen::Matrix<casadi::SX, 2, 2>;
-  
-  EigenSX A;
-  sym(A, "A");
-  Eigen::LLT<EigenSX> llt(A);
-
-  EigenSX L = llt.matrixL();
-  EigenSX U = llt.matrixU();
-  std::cout << "L = " << std::endl << L << std::endl << std::endl;
-  std::cout << "U = " << std::endl << U << std::endl << std::endl;
-  std::cout << "L*L' = " << std::endl << L * L.transpose() << std::endl << std::endl;
-  std::cout << "U'*U = " << std::endl << U.transpose() * U << std::endl << std::endl;
-}
-
 
 BOOST_AUTO_TEST_SUITE_END()
