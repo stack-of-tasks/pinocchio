@@ -131,12 +131,12 @@ namespace pinocchio
     inline void sym(const Eigen::MatrixBase<MatrixDerived> & eig_mat,
                     std::string const & name)
     {
-      typedef ::casadi::Matrix<typename MatrixDerived::Scalar> SX;
+      typedef typename MatrixDerived::Scalar SX;
       
       MatrixDerived & eig_mat_ = const_cast<MatrixDerived &>(eig_mat.derived());
       for (Eigen::Index i = 0; i < eig_mat.rows(); ++i)
         for (Eigen::Index j = 0; j < eig_mat.cols(); ++j)
-          eig_mat(i, j) = SX::sym(name + "_" + std::to_string(i) + "_" + std::to_string(j));
+          eig_mat_(i, j) = SX::sym(name + "_" + std::to_string(i) + "_" + std::to_string(j));
     }
   
   } // namespace casadi
