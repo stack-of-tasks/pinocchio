@@ -342,36 +342,36 @@ namespace pinocchio
     using Base::setIndexes;
     
     JointModelMimic()
-    { /*std::cout << "call default constructor" << std::endl;*/ }
+    {}
     
     JointModelMimic(const JointModelBase<JointModel> & jmodel,
                     const Scalar & scaling,
                     const Scalar & offset)
-    : jmodel_ref(jmodel.derived())
-    , scaling(scaling)
-    , offset(offset)
+    : m_jmodel_ref(jmodel.derived())
+    , m_scaling(scaling)
+    , m_offset(offset)
     {}
     
     Base & base() { return *static_cast<Base*>(this); }
     const Base & base() const { return *static_cast<const Base*>(this); }
     
-    inline int nq_impl() const { return jmodel_ref.nq(); }
-    inline int nv_impl() const { return jmodel_ref.nv(); }
+    inline int nq_impl() const { return m_jmodel_ref.nq(); }
+    inline int nv_impl() const { return m_jmodel_ref.nv(); }
     
-    inline JointIndex id_impl() const { return jmodel_ref.id(); }
-    inline int idx_q_impl() const { return jmodel_ref.idx_q(); }
-    inline int idx_v_impl() const { return jmodel_ref.idx_v(); }
+    inline JointIndex id_impl() const { return m_jmodel_ref.id(); }
+    inline int idx_q_impl() const { return m_jmodel_ref.idx_q(); }
+    inline int idx_v_impl() const { return m_jmodel_ref.idx_v(); }
     
     void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/)
     {
       Base::i_id = id; // Only the id of the joint in the model is different.
-      Base::i_q = jmodel_ref.idx_q();
-      Base::i_v = jmodel_ref.idx_v();
+      Base::i_q = m_jmodel_ref.idx_q();
+      Base::i_v = m_jmodel_ref.idx_v();
     }
     
     JointDataDerived createData() const
     {
-      return JointDataDerived(jmodel_ref.createData(),scaling);
+      return JointDataDerived(m_jmodel_ref.createData(),scaling);
     }
     
     template<typename ConfigVector>
@@ -381,8 +381,8 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs,scaling,offset,jdata.q_transform);
-      jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
+      AffineTransform::run(qs,m_scaling,m_offset,jdata.q_transform);
+      m_jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -393,11 +393,11 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs,scaling,offset,jdata.q_transform);
-      jdata.v_transform.noalias() = scaling * vs;
-      jmodel_ref.calc(jdata.jdata_ref,
-                      jdata.q_transform,
-                      jdata.v_transform);
+      AffineTransform::run(qs,m_scaling,m_offset,jdata.q_transform);
+      jdata.v_transform.noalias() = m_scaling * vs;
+      m_jmodel_ref.calc(jdata.jdata_ref,
+                        jdata.q_transform,
+                        jdata.v_transform);
     }
     
     template<typename Matrix6Like>
@@ -405,9 +405,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      jmodel_ref.calc_aba(data.jdata_ref,
-                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
-                          update_I);
+      m_jmodel_ref.calc_aba(data.jdata_ref,
+                            PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                            update_I);
     }
     
     static std::string classname()
@@ -417,7 +417,7 @@ namespace pinocchio
     
     std::string shortname() const
     {
-      return std::string("JointModelMimic<") + jmodel_ref.shortname() + std::string(">");
+      return std::string("JointModelMimic<") + m_jmodel_ref.shortname() + std::string(">");
     }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
@@ -425,16 +425,28 @@ namespace pinocchio
     typename CastType<NewScalar,JointModelMimic>::type cast() const
     {
       typedef typename CastType<NewScalar,JointModelMimic>::type ReturnType;
-      ReturnType res(jmodel_ref.template cast<NewScalar>(),scaling,offset);
+      
+      ReturnType res(m_jmodel_ref.template cast<NewScalar>(),
+                     (NewScalar)m_scaling,
+                     (NewScalar)m_offset);
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
     
+    const JointModel & jmodel() const { return m_jmodel_ref; }
+    JointModel & jmodel() { return m_jmodel_ref; }
+    
+    const Scalar & scaling() const { return m_scaling; }
+    Scalar & scaling() { return m_scaling; }
+    
+    const Scalar & offset() const { return m_offset; }
+    Scalar & offset() { return m_offset; }
+    
   protected:
     
     // data
-    JointModel jmodel_ref;
-    Scalar scaling, offset;
+    JointModel m_jmodel_ref;
+    Scalar m_scaling, m_offset;
 
   }; // struct JointModelMimic
   
