@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018)2019 CNRS, INRIA
+// Copyright (c) 2018-2019 CNRS, INRIA
 //
 
 #ifndef __pinocchio_lie_group_algo_hxx__
