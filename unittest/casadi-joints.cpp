@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
 template<typename JointModel_> struct init;
   
 template<typename JointModel_>
-  struct init//<pinocchio::JointModelBase<JointModel> >
+  struct init
 {
   static JointModel_ run()
   {
