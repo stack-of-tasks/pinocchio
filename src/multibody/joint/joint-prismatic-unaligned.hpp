@@ -158,6 +158,14 @@ namespace pinocchio
     typedef typename MotionDerived::MotionPlain ReturnType;
     return ReturnType(m1.rate*m1.axis + m2.linear(), m2.angular());
   }
+  
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionPrismaticUnalignedTpl<S2,O2> & m2)
+  {
+    return m2.motionAction(m1);
+  }
 
   template<typename Scalar, int Options> struct ConstraintPrismaticUnalignedTpl;
   
@@ -245,27 +253,16 @@ namespace pinocchio
       TransposeConst(const ConstraintPrismaticUnalignedTpl & ref) : ref(ref) {}
       
       template<typename ForceDerived>
-<<<<<<< HEAD
       typename ConstraintForceOp<ConstraintPrismaticUnaligned,ForceDerived>::ReturnType
       operator* (const ForceDense<ForceDerived> & f) const
       {
         typedef typename ConstraintForceOp<ConstraintPrismaticUnaligned,ForceDerived>::ReturnType ReturnType;
-=======
-      typename internal::ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType
-      operator* (const ForceDense<ForceDerived> & f) const
-      {
-        typedef typename internal::ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType ReturnType;
->>>>>>> joint/prismatic: add missing Tpl in the naming
         return ReturnType(ref.axis.dot(f.linear()));
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename ForceSet>
-<<<<<<< HEAD
       typename ConstraintForceSetOp<ConstraintPrismaticUnaligned,ForceSet>::ReturnType
-=======
-      typename internal::ConstraintForceSetOp<ConstraintPrismaticUnalignedTpl,ForceSet>::ReturnType
->>>>>>> joint/prismatic: add missing Tpl in the naming
       operator*(const Eigen::MatrixBase<ForceSet> & F)
       {
         EIGEN_STATIC_ASSERT(ForceSet::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -303,44 +300,67 @@ namespace pinocchio
     Vector3 axis;
     
   }; // struct ConstraintPrismaticUnalignedTpl
-
-
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1,
-            const MotionPrismaticUnalignedTpl<S2,O2> & m2)
-  {
-    return m2.motionAction(m1);
-  }
-
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S1,6,1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticUnalignedTpl<S2,O2> & cpu)
-  {
-    typedef InertiaTpl<S1,O1> Inertia;
-    /* YS = [ m -mcx ; mcx I-mcxcx ] [ v ; 0 ] = [ mv ; mcxv ] */
-    const S1 & m                             = Y.mass();
-    const typename Inertia::Vector3 & c      = Y.lever();
-    
-    Eigen::Matrix<S1,6,1> res;
-    res.template head<3>().noalias() = m*cpu.axis;
-    res.template tail<3>() = c.cross(res.template head<3>());
-    return res;
-  }
   
-  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  template<typename M6, typename S2, int O2>
-  const typename MatrixMatrixProduct<
-  Eigen::Block<const M6,6,3>,
-  typename ConstraintPrismaticUnalignedTpl<S2,O2>::Vector3
-  >::type
-  operator*(const Eigen::MatrixBase<M6> & Y, const ConstraintPrismaticUnalignedTpl<S2,O2> & cpu)
+  template<typename S1, int O1,typename S2, int O2>
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticUnalignedTpl<S2,O2> >
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
-    return Y.template block<6,3> (0,Inertia::LINEAR) * cpu.axis;
-  }
-
+    typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
+  };
+  
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  namespace impl
+  {
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticUnalignedTpl<S2,O2> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintPrismaticUnalignedTpl<S2,O2> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & cpu)
+      {
+        ReturnType res;
+        /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
+        const S1 & m                             = Y.mass();
+        const typename Inertia::Vector3 & c      = Y.lever();
+        
+        res.template head<3>().noalias() = m*cpu.axis;
+        res.template tail<3>().noalias() = c.cross(res.template head<3>());
+        
+        return res;
+      }
+    };
+  } // namespace impl
+  
+  template<typename M6Like, typename Scalar, int Options>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticUnalignedTpl<Scalar,Options> >
+  {
+    typedef typename SizeDepType<3>::ColsReturn<M6Like>::ConstType M6LikeCols;
+    typedef typename Eigen::internal::remove_const<M6LikeCols>::type M6LikeColsNonConst;
+    
+    typedef ConstraintPrismaticUnalignedTpl<Scalar,Options> Constraint;
+    typedef typename Constraint::Vector3 Vector3;
+    typedef const typename MatrixMatrixProduct<M6LikeColsNonConst,Vector3>::type ReturnType;
+  };
+  
+  /* [ABA] operator* (Inertia Y,Constraint S) */
+  namespace impl
+  {
+    template<typename M6Like, typename Scalar, int Options>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticUnalignedTpl<Scalar,Options> >
+    {
+      typedef ConstraintPrismaticUnalignedTpl<Scalar,Options> Constraint;
+      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
+                                   const Constraint & cru)
+      {
+        EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
+        return Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis;
+      }
+    };
+  } // namespace impl
+  
   template<typename Scalar, int Options> struct JointPrismaticUnalignedTpl;
   
   template<typename _Scalar, int _Options>

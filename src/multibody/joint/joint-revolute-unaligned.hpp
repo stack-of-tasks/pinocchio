@@ -163,11 +163,20 @@ namespace pinocchio
 
   template<typename S1, int O1, typename MotionDerived>
   inline typename MotionDerived::MotionPlain
-  operator+(const MotionRevoluteUnalignedTpl<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
+  operator+(const MotionRevoluteUnalignedTpl<S1,O1> & m1,
+            const MotionDense<MotionDerived> & m2)
   {
     typename MotionDerived::MotionPlain res(m2);
     res += m1;
     return res;
+  }
+  
+  template<typename MotionDerived, typename S2, int O2>
+  inline typename MotionDerived::MotionPlain
+  operator^(const MotionDense<MotionDerived> & m1,
+            const MotionRevoluteUnalignedTpl<S2,O2> & m2)
+  {
+    return m2.motionAction(m1);
   }
 
   template<typename Scalar, int Options> struct ConstraintRevoluteUnalignedTpl;
@@ -312,47 +321,69 @@ namespace pinocchio
     
   }; // struct ConstraintRevoluteUnalignedTpl
   
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1, const MotionRevoluteUnalignedTpl<S2,O2> & m2)
+  template<typename S1, int O1,typename S2, int O2>
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteUnalignedTpl<S2,O2> >
   {
-    /* m1xm2 = [ v1xw2 + w1xv2; w1xw2 ] = [ v1xw2; w1xw2 ] */
-    return m2.motionAction(m1);
-  }
+    typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
+  };
   
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S2,6,1,O2>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintRevoluteUnalignedTpl<S2,O2> & cru)
+  namespace impl
   {
-    typedef InertiaTpl<S1,O1> Inertia;
-    /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
-    const typename Inertia::Scalar & m                 = Y.mass();
-    const typename Inertia::Vector3 & c      = Y.lever();
-    const typename Inertia::Symmetric3 & I   = Y.inertia();
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteUnalignedTpl<S2,O2> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintRevoluteUnalignedTpl<S2,O2> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & cru)
+      {
+        ReturnType res;
+        
+        /* YS = [ m -mcx ; mcx I-mcxcx ] [ 0 ; w ] = [ mcxw ; Iw -mcxcxw ] */
+        const typename Inertia::Scalar & m       = Y.mass();
+        const typename Inertia::Vector3 & c      = Y.lever();
+        const typename Inertia::Symmetric3 & I   = Y.inertia();
+
+        res.template segment<3>(Inertia::LINEAR) = -m*c.cross(cru.axis);
+        res.template segment<3>(Inertia::ANGULAR).noalias() = I*cru.axis;
+        res.template segment<3>(Inertia::ANGULAR) += c.cross(res.template segment<3>(Inertia::LINEAR));
+        
+        return res;
+      }
+    };
+  } // namespace impl
+  
+  template<typename M6Like, typename Scalar, int Options>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintRevoluteUnalignedTpl<Scalar,Options> >
+  {
+    typedef typename SizeDepType<3>::ColsReturn<M6Like>::ConstType M6LikeCols;
+    typedef typename Eigen::internal::remove_const<M6LikeCols>::type M6LikeColsNonConst;
     
-    Eigen::Matrix<S2,6,1,O2>res;
-    res.template segment<3>(Inertia::LINEAR) = -m*c.cross(cru.axis);
-    res.template segment<3>(Inertia::ANGULAR).noalias() = I*cru.axis;
-    res.template segment<3>(Inertia::ANGULAR) += c.cross(res.template segment<3>(Inertia::LINEAR));
-    return res;
-  }
+    typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint;
+    typedef typename Constraint::Vector3 Vector3;
+    typedef const typename MatrixMatrixProduct<M6LikeColsNonConst,Vector3>::type ReturnType;
+  };
   
-  /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  
-  template<typename M6Like, typename S2, int O2>
-  inline
-  const typename MatrixMatrixProduct<
-  typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<M6Like>::ConstType>::type,
-  typename ConstraintRevoluteUnalignedTpl<S2,O2>::Vector3
-  >::type
-  operator*(const Eigen::MatrixBase<M6Like> & Y,
-            const ConstraintRevoluteUnalignedTpl<S2,O2> & cru)
+  /* [ABA] operator* (Inertia Y,Constraint S) */
+  namespace impl
   {
-    typedef ConstraintRevoluteUnalignedTpl<S2,O2> Constraint;
-    return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis;
-  }
-  
+    template<typename M6Like, typename Scalar, int Options>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintRevoluteUnalignedTpl<Scalar,Options> >
+    {
+      typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint;
+      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
+                                   const Constraint & cru)
+      {
+        EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
+        return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis;
+      }
+    };
+  } // namespace impl
+
   template<typename Scalar, int Options> struct JointRevoluteUnalignedTpl;
   
   template<typename _Scalar, int _Options>

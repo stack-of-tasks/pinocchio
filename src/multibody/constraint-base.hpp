@@ -102,6 +102,26 @@ namespace pinocchio
     
 
   }; // class ConstraintBase
+  
+  /// \brief Operation Y * S used in the CRBA algorithm for instance
+  template<typename Scalar, int Options, typename ConstraintDerived>
+  typename MultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::ReturnType
+  operator*(const InertiaTpl<Scalar,Options> & Y,
+            const ConstraintBase<ConstraintDerived> & constraint)
+  {
+    return impl::LhsMultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::run(Y,
+                                                                                        constraint.derived());
+  }
+  
+  /// \brief Operation Y_matrix * S used in the ABA algorithm for instance
+  template<typename MatrixDerived, typename ConstraintDerived>
+  typename MultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::ReturnType
+  operator*(const Eigen::MatrixBase<MatrixDerived> & Y,
+            const ConstraintBase<ConstraintDerived> & constraint)
+  {
+    return impl::LhsMultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::run(Y.derived(),
+                                                                                              constraint.derived());
+  }
 
 } // namespace pinocchio
 

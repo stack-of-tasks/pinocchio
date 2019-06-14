@@ -432,76 +432,132 @@ namespace pinocchio
       axis = _axis
     };
   };
+  
+  template<typename S1, int O1,typename S2, int O2, int axis>
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteTpl<S2,O2,axis> >
+  {
+    typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
+  };
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S2,6,1,O2>
-  operator*(const InertiaTpl<S1,O1> & Y,const ConstraintRevoluteTpl<S2,O2,0> &)
+  namespace impl
   {
-    typedef InertiaTpl<S1,O1> Inertia;
-    /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
-    const S1
-    &m = Y.mass(),
-    &x = Y.lever()[0],
-    &y = Y.lever()[1],
-    &z = Y.lever()[2];
-    const typename Inertia::Symmetric3 & I = Y.inertia();
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteTpl<S2,O2,0> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintRevoluteTpl<S2,O2,0> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
+        const S1
+        &m = Y.mass(),
+        &x = Y.lever()[0],
+        &y = Y.lever()[1],
+        &z = Y.lever()[2];
+        const typename Inertia::Symmetric3 & I = Y.inertia();
+        
+        res <<
+        (S2)0,
+        -m*z,
+        m*y,
+        I(0,0)+m*(y*y+z*z),
+        I(0,1)-m*x*y,
+        I(0,2)-m*x*z;
+        
+        return res;
+      }
+    };
     
-    Eigen::Matrix<S2,6,1,O2> res;
-    res << (S2)0,-m*z,m*y,
-    I(0,0)+m*(y*y+z*z),
-    I(0,1)-m*x*y,
-    I(0,2)-m*x*z ;
-    return res;
-  }
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S2,6,1,O2>
-  operator*(const InertiaTpl<S1,O1> & Y,const ConstraintRevoluteTpl<S2,O2,1> &)
-  {
-    typedef InertiaTpl<S1,O1> Inertia;
-    /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
-    const S1
-    &m = Y.mass(),
-    &x = Y.lever()[0],
-    &y = Y.lever()[1],
-    &z = Y.lever()[2];
-    const typename Inertia::Symmetric3 & I = Y.inertia();
-    Eigen::Matrix<S2,6,1,O2> res;
-    res << m*z,(S2)0,-m*x,
-    I(1,0)-m*x*y,
-    I(1,1)+m*(x*x+z*z),
-    I(1,2)-m*y*z ;
-    return res;
-  }
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S2,6,1,O2>
-  operator*(const InertiaTpl<S1,O1> & Y,const ConstraintRevoluteTpl<S2,O2,2> &)
-  {
-    typedef InertiaTpl<S1,O1> Inertia;
-    /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
-    const S1
-    &m = Y.mass(),
-    &x = Y.lever()[0],
-    &y = Y.lever()[1],
-    &z = Y.lever()[2];
-    const typename Inertia::Symmetric3 & I = Y.inertia();
-    Eigen::Matrix<S2,6,1,O2> res; res << -m*y,m*x,(S2)0,
-    I(2,0)-m*x*z,
-    I(2,1)-m*y*z,
-    I(2,2)+m*(x*x+y*y) ;
-    return res;
-  }
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteTpl<S2,O2,1> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintRevoluteTpl<S2,O2,1> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
+        const S1
+        &m = Y.mass(),
+        &x = Y.lever()[0],
+        &y = Y.lever()[1],
+        &z = Y.lever()[2];
+        const typename Inertia::Symmetric3 & I = Y.inertia();
+        
+        res <<
+        m*z,
+        (S2)0,
+        -m*x,
+        I(1,0)-m*x*y,
+        I(1,1)+m*(x*x+z*z),
+        I(1,2)-m*y*z;
+        
+        return res;
+      }
+    };
+    
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintRevoluteTpl<S2,O2,2> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintRevoluteTpl<S2,O2,2> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
+        const S1
+        &m = Y.mass(),
+        &x = Y.lever()[0],
+        &y = Y.lever()[1],
+        &z = Y.lever()[2];
+        const typename Inertia::Symmetric3 & I = Y.inertia();
+        
+        res <<
+        -m*y,
+        m*x,
+        (S2)0,
+        I(2,0)-m*x*z,
+        I(2,1)-m*y*z,
+        I(2,2)+m*(x*x+y*y);
+        
+        return res;
+      }
+    };
+  } // namespace impl
   
-  /* [ABA] I*S operator (Inertia Y,Constraint S) */
-  template<typename M6Like, typename S2, int O2,int axis>
-  inline const typename M6Like::ConstColXpr
-  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintRevoluteTpl<S2,O2,axis> &)
+  template<typename M6Like,typename S2, int O2, int axis>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintRevoluteTpl<S2,O2,axis> >
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-    return Y.col(Inertia::ANGULAR + axis);
-  }
+    typedef typename M6Like::ConstColXpr ReturnType;
+  };
+  
+  /* [ABA] operator* (Inertia Y,Constraint S) */
+  namespace impl
+  {
+    template<typename M6Like, typename Scalar, int Options, int axis>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintRevoluteTpl<Scalar,Options,axis> >
+    {
+      typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint;
+      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
+        return Y.col(Inertia::ANGULAR + axis);
+      }
+    };
+  } // namespace impl
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< JointRevoluteTpl<_Scalar,_Options,axis> >

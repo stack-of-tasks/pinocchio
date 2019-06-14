@@ -353,59 +353,108 @@ namespace pinocchio
     }
 
   }; // struct ConstraintPrismaticTpl
-
+  
+  template<typename S1, int O1,typename S2, int O2, int axis>
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,axis> >
+  {
+    typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
+  };
+  
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,0> &)
-  { 
-    /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
-    const S1
-    &m = Y.mass(),
-    &y = Y.lever()[1],
-    &z = Y.lever()[2];
-    Eigen::Matrix<S1,6,1,O1> res;
-    res << m, S1(0), S1(0), S1(0), m*z, -m*y;
-    return res;
-  }
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,1> & )
-  { 
-    /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
-    const S1
-    &m = Y.mass(),
-    &x = Y.lever()[0],
-    &z = Y.lever()[2];
-    Eigen::Matrix<S1,6,1,O1> res;
-    res << S1(0), m, S1(0), -m*z, S1(0), m*x;
-    return res;
-  }
-  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-  template<typename S1, int O1, typename S2, int O2>
-  inline Eigen::Matrix<S1,6,1,O1>
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintPrismaticTpl<S2,O2,2> & )
-  { 
-    /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
-    const S1
-    &m = Y.mass(),
-    &x = Y.lever()[0],
-    &y = Y.lever()[1];
-    Eigen::Matrix<S1,6,1,O1> res;
-    res << S1(0), S1(0), m, m*y, -m*x, S1(0);
-    return res;
-  }
+  namespace impl
+  {
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,0> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintPrismaticTpl<S2,O2,0> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
+        const S1
+        &m = Y.mass(),
+        &y = Y.lever()[1],
+        &z = Y.lever()[2];
+        res << m, S1(0), S1(0), S1(0), m*z, -m*y;
+        
+        return res;
+      }
+    };
+    
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,1> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintPrismaticTpl<S2,O2,1> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
+        const S1
+        &m = Y.mass(),
+        &x = Y.lever()[0],
+        &z = Y.lever()[2];
+        
+        res << S1(0), m, S1(0), -m*z, S1(0), m*x;
+        
+        return res;
+      }
+    };
+    
+    template<typename S1, int O1, typename S2, int O2>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,2> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ConstraintPrismaticTpl<S2,O2,2> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & /*constraint*/)
+      {
+        ReturnType res;
+        
+        /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
+        const S1
+        &m = Y.mass(),
+        &x = Y.lever()[0],
+        &y = Y.lever()[1];
+        
+        res << S1(0), S1(0), m, m*y, -m*x, S1(0);
+        
+        return res;
+      }
+    };
+  } // namespace impl
+  
+  template<typename M6Like,typename S2, int O2, int axis>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticTpl<S2,O2,axis> >
+  {
+    typedef typename M6Like::ConstColXpr ReturnType;
+  };
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
-  template<typename M6Like, typename S2, int O2, int axis>
-  inline const typename M6Like::ConstColXpr
-  operator*(const Eigen::MatrixBase<M6Like> & Y, const ConstraintPrismaticTpl<S2,O2,axis> &)
+  namespace impl
   {
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-    return Y.derived().col(Inertia::LINEAR + axis);
-  }
-
+    template<typename M6Like, typename Scalar, int Options, int axis>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticTpl<Scalar,Options,axis> >
+    {
+      typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint;
+      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
+                             const Constraint & /*constraint*/)
+      {
+        EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
+        return Y.derived().col(Inertia::LINEAR + axis);
+      }
+    };
+  } // namespace impl
+  
   template<typename _Scalar, int _Options, int _axis>
   struct JointPrismaticTpl
   {
