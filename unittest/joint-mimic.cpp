@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
+#include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -74,6 +75,15 @@ void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
     BOOST_CHECK(Stf_ref.isApprox(Stf));
   }
   
+  // CRBA Y*S
+  {
+    Inertia Y = Inertia::Random();
+    Eigen::MatrixXd YS = Y * scaled_constraint;
+    Eigen::MatrixXd YS_ref = scaling_factor * (Y * constraint_ref);
+    
+    BOOST_CHECK(YS.isApprox(YS_ref));
+  }
+  
 }
 
 struct TestJointConstraint
@@ -118,6 +128,120 @@ BOOST_AUTO_TEST_CASE(test_constraint)
   > Variant;
   
   boost::mpl::for_each<Variant::types>(TestJointConstraint());
+}
+
+template<typename JointModel>
+void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
+{
+  typedef typename traits<JointModel>::JointDerived Joint;
+  typedef typename traits<Joint>::JointDataDerived JointData;
+  
+  JointData jdata = jmodel.createData();
+  
+  const double scaling_factor = 1.;
+  const double offset = 0.;
+  
+  typedef JointMimic<Joint> JointMimicType;
+  typedef typename traits<JointMimicType>::JointModelDerived JointModelMimicType;
+  typedef typename traits<JointMimicType>::JointDataDerived JointDataMimicType;
+  
+  // test constructor
+  JointModelMimicType jmodel_mimic(jmodel.derived(),scaling_factor,offset);
+  JointDataMimicType jdata_mimic = jmodel_mimic.createData();
+  
+  BOOST_CHECK(jmodel_mimic.nq() == jmodel.nq());
+  BOOST_CHECK(jmodel_mimic.nv() == jmodel.nv());
+  
+  BOOST_CHECK(jmodel_mimic.id() == jmodel.id());
+  BOOST_CHECK(jmodel_mimic.idx_q() == jmodel.idx_q());
+  BOOST_CHECK(jmodel_mimic.idx_v() == jmodel.idx_v());
+  
+  BOOST_CHECK(jmodel_mimic.id() == 0);
+  BOOST_CHECK(jmodel_mimic.idx_q() == 0);
+  BOOST_CHECK(jmodel_mimic.idx_v() == 0);
+  
+  typedef typename JointModelMimicType::ConfigVector_t ConfigVectorType;
+  typedef typename LieGroup<JointModel>::type LieGroupType;
+  ConfigVectorType q0 = LieGroupType().randomConfiguration(-ConfigVectorType::Ones(),ConfigVectorType::Ones());
+  
+  jmodel.calc(jdata,q0);
+  jmodel_mimic.calc(jdata_mimic,q0);
+  
+  BOOST_CHECK(((SE3)jdata.M).isApprox((SE3)jdata_mimic.M()));
+  BOOST_CHECK(jdata.S.matrix().isApprox(jdata_mimic.S.matrix()));
+
+  typedef typename JointModelMimicType::TangentVector_t TangentVectorType;
+  
+  q0 = LieGroupType().randomConfiguration(-ConfigVectorType::Ones(),ConfigVectorType::Ones());
+  TangentVectorType v0 = TangentVectorType::Random();
+  jmodel.calc(jdata,q0,v0);
+  jmodel_mimic.calc(jdata_mimic,q0,v0);
+  
+  BOOST_CHECK(((SE3)jdata.M).isApprox((SE3)jdata_mimic.M()));
+  BOOST_CHECK(jdata.S.matrix().isApprox(jdata_mimic.S.matrix()));
+  BOOST_CHECK(((Motion)jdata.v).isApprox((Motion)jdata_mimic.v()));
+}
+
+struct TestJointMimic
+{
+  template <typename JointModel>
+  void operator()(const JointModelBase<JointModel> &) const
+  {
+    JointModel jmodel = init<JointModel>();
+    jmodel.setIndexes(0,0,0);
+    
+    test_joint_mimic(jmodel);
+  }
+  
+  template <typename JointModel>
+  JointModel init(const JointModelBase<JointModel> &) const
+  {
+    JointModel jmodel;
+    jmodel.setIndexes(0,0,0);
+    
+    return jmodel;
+  }
+  
+  template <typename JointModel>
+  void operator()(const JointMimic<JointModel> &) const
+  {
+    JointModel jmodel_ref = init<JointModel>();
+    JointModel jmodel(jmodel_ref,1.,0.);
+    jmodel.setIndexes(0,0,0);
+    
+    test_joint_mimic(jmodel);
+  }
+  
+  void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
+  {
+    JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test_joint_mimic(jmodel);
+  }
+
+  void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
+  {
+    JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
+    jmodel.setIndexes(0,0,0);
+
+    test_joint_mimic(jmodel);
+  }
+  
+};
+
+BOOST_AUTO_TEST_CASE(test_joint)
+{
+  using namespace pinocchio;
+  typedef boost::variant<
+  JointModelRX, JointModelRY, JointModelRZ
+  , JointModelRevoluteUnaligned
+  , JointModelPX, JointModelPY, JointModelPZ
+  , JointModelPrismaticUnaligned
+  , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+  > Variant;
+  
+  boost::mpl::for_each<Variant::types>(TestJointMimic());
 }
 
 BOOST_AUTO_TEST_CASE(test_transform_linear_affine)
