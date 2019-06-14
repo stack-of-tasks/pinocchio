@@ -74,27 +74,34 @@ namespace pinocchio
     
     ScaledConstraint(Constraint & constraint,
                      const Scalar & scaling_factor)
-    : constraint(constraint)
-    , scaling_factor(scaling_factor)
+    : m_constraint(constraint)
+    , m_scaling_factor(scaling_factor)
     {}
+    
+    ScaledConstraint & operator=(const ScaledConstraint & other)
+    {
+      m_constraint = other.m_constraint;
+      m_scaling_factor = other.m_scaling_factor;
+      return *this;
+    }
     
     template<typename VectorLike>
     JointMotion __mult__(const Eigen::MatrixBase<VectorLike> & v) const
     {
       assert(v.size() == nv());
-      JointMotion jm = constraint * v;
-      return jm * scaling_factor;
+      JointMotion jm = m_constraint * v;
+      return jm * m_scaling_factor;
     }
     
     template<typename S1, int O1>
     SE3ActionReturnType
     se3Action(const SE3Tpl<S1,O1> & m) const
     {
-      SE3ActionReturnType res = constraint.se3Action(m);
-      return scaling_factor * res;
+      SE3ActionReturnType res = m_constraint.se3Action(m);
+      return m_scaling_factor * res;
     }
     
-    int nv_impl() const { return constraint.nv(); }
+    int nv_impl() const { return m_constraint.nv(); }
     
     struct TransposeConst
     {
@@ -107,7 +114,7 @@ namespace pinocchio
       {
         // TODO: I don't know why, but we should a dense a return type, otherwise it failes at the evaluation level;
         typedef typename internal::ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
-        return ReturnType(ref.scaling_factor * (ref.constraint.transpose() * f));
+        return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
       }
       
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
@@ -115,7 +122,7 @@ namespace pinocchio
       typename internal::ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        return ref.scaling_factor * (ref.constraint.transpose() * F);
+        return ref.m_scaling_factor * (ref.m_constraint.transpose() * F);
       }
       
     }; // struct TransposeConst
@@ -124,7 +131,7 @@ namespace pinocchio
     
     DenseBase matrix_impl() const
     {
-      DenseBase S = scaling_factor * constraint.matrix();
+      DenseBase S = m_scaling_factor * m_constraint.matrix();
       return S;
     }
     
@@ -133,15 +140,72 @@ namespace pinocchio
     motionAction(const MotionDense<MotionDerived> & m) const
     {
       typedef typename internal::MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType ReturnType;
-      ReturnType res = scaling_factor * constraint.motionAction(m);
+      ReturnType res = m_scaling_factor * m_constraint.motionAction(m);
       return res;
     }
     
+    inline const Scalar & scaling() const { return m_scaling_factor; }
+    inline const Constraint & constraint() const { return m_constraint; }
+    
   protected:
     
-    Constraint & constraint;
-    Scalar scaling_factor;
-  }; // struct ConstraintRevoluteTpl
+    Constraint & m_constraint;
+    Scalar m_scaling_factor;
+  }; // struct ScaledConstraint
+  
+  template<typename S1, int O1, typename _Constraint>
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ScaledConstraint<_Constraint> >
+  {
+    typedef InertiaTpl<S1,O1> Inertia;
+    typedef ScaledConstraint<_Constraint> Constraint;
+    typedef typename Constraint::Scalar Scalar;
+    
+    typedef typename MultiplicationOp<Inertia,_Constraint>::ReturnType OriginalReturnType;
+//    typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
+    typedef OriginalReturnType ReturnType;
+  };
+  
+  /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+  namespace impl
+  {
+    template<typename S1, int O1, typename _Constraint>
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ScaledConstraint<_Constraint> >
+    {
+      typedef InertiaTpl<S1,O1> Inertia;
+      typedef ScaledConstraint<_Constraint> Constraint;
+      typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const Inertia & Y,
+                                   const Constraint & scaled_constraint)
+      {
+        return scaled_constraint.scaling() * (Y * scaled_constraint.constraint());
+      }
+    };
+  } // namespace impl
+  
+  template<typename M6Like, typename _Constraint>
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledConstraint<_Constraint> >
+  {
+    typedef typename MultiplicationOp<Inertia,_Constraint>::ReturnType OriginalReturnType;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(OriginalReturnType) ReturnType;
+  };
+  
+  /* [ABA] operator* (Inertia Y,Constraint S) */
+  namespace impl
+  {
+    template<typename M6Like, typename _Constraint>
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledConstraint<_Constraint> >
+    {
+      typedef ScaledConstraint<_Constraint> Constraint;
+      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
+                                   const Constraint & scaled_constraint)
+      {
+        return scaled_constraint.scaling() * (Y.derived() * scaled_constraint.constraint());
+      }
+    };
+  } // namespace impl
   
   template<class Joint> struct JointMimic;
   template<class JointModel> struct JointModelMimic;
@@ -150,17 +214,21 @@ namespace pinocchio
   template<class Joint>
   struct traits< JointMimic<Joint> >
   {
-    enum {
+    enum
+    {
       NQ = traits<Joint>::NV,
       NV = traits<Joint>::NQ
     };
     typedef typename traits<Joint>::Scalar Scalar;
     enum { Options = traits<Joint>::Options };
     
-    typedef JointDataMimic<Joint> JointDataDerived;
-    typedef JointModelMimic<Joint> JointModelDerived;
+    typedef typename traits<Joint>::JointDataDerived JointDataBase;
+    typedef typename traits<Joint>::JointModelDerived JointModelBase;
     
-    typedef typename traits<Joint>::Constraint_t Constraint_t;
+    typedef JointDataMimic<JointDataBase> JointDataDerived;
+    typedef JointModelMimic<JointModelBase> JointModelDerived;
+    
+    typedef ScaledConstraint<typename traits<Joint>::Constraint_t> Constraint_t;
     typedef typename traits<Joint>::Transformation_t Transformation_t;
     typedef typename traits<Joint>::Motion_t Motion_t;
     typedef typename traits<Joint>::Bias_t Bias_t;
@@ -178,38 +246,50 @@ namespace pinocchio
   
   template<class Joint>
   struct traits< JointDataMimic<Joint> >
-  { typedef JointMimic<Joint> JointDerived; };
+  { typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived; };
   
   template<class Joint>
   struct traits< JointModelMimic<Joint> >
-  { typedef JointMimic<Joint> JointDerived; };
+  { typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived; };
   
   template<class JointData>
   struct JointDataMimic
-  : public traits<JointData>::JointDataDerived
+  : public JointDataBase< JointDataMimic<JointData> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    typedef typename traits<JointDataMimic>::JointDerived JointDerived;
+    typedef JointDataBase< JointDataMimic<JointData> > Base;
     
-    typedef JointMimic<JointData> JointDerived;
-    typedef typename traits<JointData>::JointDataDerived Base;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    JointDataMimic(const JointDataBase<JointData> & jdata,
+                   const Scalar & scaling)
+    : jdata_ref(jdata.derived())
+    , scaling(scaling)
+    , S(jdata_ref.S,scaling)
+    {}
     
-    Base & base() { return *static_cast<Base*>(this); }
-    const Base & base() const { return *static_cast<const Base*>(this); }
+    JointDataMimic & operator=(const JointDataMimic & other)
+    {
+      jdata_ref = other.jdata_ref;
+      scaling = other.scaling;
+      S = Constraint_t(jdata_ref.S,other.scaling);
+      return *this;
+    }
     
     static std::string classname()
     {
-      return std::string("JointDataMimic<") + Base::classname() + std::string(">");
+      return std::string("JointDataMimic<") + JointData::classname() + std::string(">");
     }
     
     std::string shortname() const
     {
-      return std::string("JointDataMimic<") + base().shortname() + std::string(">");
+      return std::string("JointDataMimic<") + jdata_ref.shortname() + std::string(">");
     }
     
     // Accessors
-    ConstraintTypeConstRef S_accessor() const { return jdata_ref.S; }
+    ConstraintTypeConstRef S_accessor() const { return S; }
     TansformTypeConstRef M_accessor() const { return jdata_ref.M; }
     MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
     BiasTypeConstRef c_accessor() const { return jdata_ref.c; }
@@ -218,17 +298,32 @@ namespace pinocchio
     DTypeConstRef Dinv_accessor() const { return jdata_ref.Dinv; }
     UDTypeConstRef UDinv_accessor() const { return jdata_ref.UDinv; }
     
+    template<class JointModel>
+    friend struct JointModelMimic;
+    
+  protected:
+    
+    JointData jdata_ref;
+    Scalar scaling;
+    
     /// \brief Transform configuration vector
     ConfigVector_t q_transform;
     /// \brief Transform velocity vector.
     TangentVector_t v_transform;
     
-  protected:
+  public:
     
-    const JointData & jdata_ref;
-    const Scalar scaling;
+    // data
+    Constraint_t S;
     
   }; // struct JointDataMimic
+  
+  template<typename NewScalar, typename JointModel>
+  struct CastType< NewScalar, JointModelMimic<JointModel> >
+  {
+    typedef typename CastType<NewScalar,JointModel>::type JointModelNewType;
+    typedef JointModelMimic<JointModelNewType> type;
+  };
   
   template<class JointModel>
   struct JointModelMimic
@@ -236,29 +331,36 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef JointModelMimic<JointModel> JointDerived;
+    typedef typename traits<JointModelMimic>::JointDerived JointDerived;
     
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
-    typedef typename traits<JointModel>::JointModelDerived Base;
+    typedef JointModelBase<JointModelMimic> Base;
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
     using Base::setIndexes;
     
-    JointModelMimic(const JointModel & jmodel,
-                    const Scalar & multiplier,
+    JointModelMimic()
+    { /*std::cout << "call default constructor" << std::endl;*/ }
+    
+    JointModelMimic(const JointModelBase<JointModel> & jmodel,
+                    const Scalar & scaling,
                     const Scalar & offset)
-    : jmodel_ref(jmodel)
-    , multiplier(multiplier)
+    : jmodel_ref(jmodel.derived())
+    , scaling(scaling)
     , offset(offset)
     {}
     
     Base & base() { return *static_cast<Base*>(this); }
     const Base & base() const { return *static_cast<const Base*>(this); }
     
-    static int nq_impl() { return 0; }
-    static int nv_impl() { return 0; }
+    inline int nq_impl() const { return jmodel_ref.nq(); }
+    inline int nv_impl() const { return jmodel_ref.nv(); }
+    
+    inline JointIndex id_impl() const { return jmodel_ref.id(); }
+    inline int idx_q_impl() const { return jmodel_ref.idx_q(); }
+    inline int idx_v_impl() const { return jmodel_ref.idx_v(); }
     
     void setIndexes_impl(JointIndex id, int /*q*/, int /*v*/)
     {
@@ -268,25 +370,34 @@ namespace pinocchio
     }
     
     JointDataDerived createData() const
-    { return jmodel_ref.createData(); }
+    {
+      return JointDataDerived(jmodel_ref.createData(),scaling);
+    }
     
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
-    void calc(JointDataDerived & data,
+    void calc(JointDataDerived & jdata,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
+      typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
+      AffineTransform::run(qs,scaling,offset,jdata.q_transform);
+      jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
     }
     
     template<typename ConfigVector, typename TangentVector>
     EIGEN_DONT_INLINE
-    void calc(JointDataDerived & data,
+    void calc(JointDataDerived & jdata,
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      calc(data,qs.derived());
+      typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      data.v.w = (Scalar)vs[idx_v()];
+      AffineTransform::run(qs,scaling,offset,jdata.q_transform);
+      jdata.v_transform.noalias() = scaling * vs;
+      jmodel_ref.calc(jdata.jdata_ref,
+                      jdata.q_transform,
+                      jdata.v_transform);
     }
     
     template<typename Matrix6Like>
@@ -294,7 +405,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      jmodel_ref.calc_aba(data.base(),I.derived(),update_I);
+      jmodel_ref.calc_aba(data.jdata_ref,
+                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                          update_I);
     }
     
     static std::string classname()
@@ -312,7 +425,7 @@ namespace pinocchio
     typename CastType<NewScalar,JointModelMimic>::type cast() const
     {
       typedef typename CastType<NewScalar,JointModelMimic>::type ReturnType;
-      ReturnType res;
+      ReturnType res(jmodel_ref.template cast<NewScalar>(),scaling,offset);
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
@@ -320,9 +433,9 @@ namespace pinocchio
   protected:
     
     // data
-    Scalar multiplier, offset;
-    const JointModel & jmodel_ref;
-    
+    JointModel jmodel_ref;
+    Scalar scaling, offset;
+
   }; // struct JointModelMimic
   
 } // namespace pinocchio
