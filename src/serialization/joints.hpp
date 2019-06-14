@@ -190,6 +190,20 @@ namespace boost
       ar & make_nvp("base_variant",base_object<JointModelVariant>(joint));
     }
     
+    template <class Archive, typename JointModel>
+    void serialize(Archive & ar,
+                   pinocchio::JointModelMimic<JointModel> & joint,
+                   const unsigned int version)
+    {
+      typedef pinocchio::JointModelMimic<JointModel> JointType;
+      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType> >(joint));
+      fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
+      
+      ar & make_nvp("jmodel",joint.jmodel());
+      ar & make_nvp("scaling",joint.scaling());
+      ar & make_nvp("offset",joint.offset());
+    }
+    
   }
 }
 
