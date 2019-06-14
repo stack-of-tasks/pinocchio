@@ -482,47 +482,47 @@ namespace pinocchio
     // Const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSelector(const Eigen::MatrixBase<D>& a) const
+    jointConfigSelector(const Eigen::MatrixBase<D> & a) const
     { return derived().jointConfigSelector_impl(a); }
     
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType 
-    jointConfigSelector_impl(const Eigen::MatrixBase<D>& a) const
-    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
+    jointConfigSelector_impl(const Eigen::MatrixBase<D> & a) const
+    { return SizeDepType<NQ>::segment(a.derived(),idx_q(),nq()); }
     
     // Non-const access
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSelector( Eigen::MatrixBase<D>& a) const
+    jointConfigSelector(Eigen::MatrixBase<D> & a) const
     { return derived().jointConfigSelector_impl(a); }
     
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::Type 
-    jointConfigSelector_impl( Eigen::MatrixBase<D>& a) const
-    { return SizeDepType<NQ>::segment(a,i_q,nq()); }
+    jointConfigSelector_impl(Eigen::MatrixBase<D> & a) const
+    { return SizeDepType<NQ>::segment(a,idx_q(),nq()); }
 
     /* Acces to dedicated segment in robot config velocity space.  */
     // Const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySelector(const Eigen::MatrixBase<D>& a) const
+    jointVelocitySelector(const Eigen::MatrixBase<D> & a) const
     { return derived().jointVelocitySelector_impl(a); }
     
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
-    jointVelocitySelector_impl(const Eigen::MatrixBase<D>& a) const
-    { return SizeDepType<NV>::segment(a,i_v,nv()); }
+    jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
+    { return SizeDepType<NV>::segment(a,idx_v(),nv()); }
     
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector( Eigen::MatrixBase<D>& a) const
+    jointVelocitySelector(Eigen::MatrixBase<D>& a) const
     { return derived().jointVelocitySelector_impl(a); }
     
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector_impl( Eigen::MatrixBase<D>& a) const
-    { return SizeDepType<NV>::segment(a,i_v,nv()); }
+    jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
+    { return SizeDepType<NV>::segment(a,idx_v(),nv()); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
@@ -532,7 +532,7 @@ namespace pinocchio
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols_impl(const Eigen::MatrixBase<D>& A) const
-    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
+    { return SizeDepType<NV>::middleCols(A,idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
@@ -541,30 +541,30 @@ namespace pinocchio
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
-    jointCols_impl(Eigen::MatrixBase<D>& A) const
-    { return SizeDepType<NV>::middleCols(A,i_v,nv()); }
+    jointCols_impl(Eigen::MatrixBase<D> & A) const
+    { return SizeDepType<NV>::middleCols(A,idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    jointRows(const Eigen::MatrixBase<D>& A) const
+    jointRows(const Eigen::MatrixBase<D> & A) const
     { return derived().jointRows_impl(A); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
-    jointRows_impl(const Eigen::MatrixBase<D>& A) const
-    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
+    jointRows_impl(const Eigen::MatrixBase<D> & A) const
+    { return SizeDepType<NV>::middleRows(A,idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
-    jointRows(Eigen::MatrixBase<D>& A) const
+    jointRows(Eigen::MatrixBase<D> & A) const
     { return derived().jointRows_impl(A); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
-    jointRows_impl(Eigen::MatrixBase<D>& A) const
-    { return SizeDepType<NV>::middleRows(A,i_v,nv()); }
+    jointRows_impl(Eigen::MatrixBase<D> & A) const
+    { return SizeDepType<NV>::middleRows(A,idx_v(),nv()); }
     
-    /// \brief Returns a block of dimension nv()xnv() located at position i_v,i_v in the matrix Mat
+    /// \brief Returns a block of dimension nv()xnv() located at position idx_v(),idx_v() in the matrix Mat
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock(const Eigen::MatrixBase<D> & Mat) const
@@ -573,7 +573,7 @@ namespace pinocchio
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
-    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat,idx_v(),idx_v(),nv(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
@@ -583,7 +583,7 @@ namespace pinocchio
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
-    { return SizeDepType<NV>::block(Mat,i_v,i_v,nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat,idx_v(),idx_v(),nv(),nv()); }
 
   protected:
 
