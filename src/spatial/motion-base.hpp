@@ -31,6 +31,9 @@ namespace pinocchio
     void linear(const Eigen::MatrixBase<V3Like> & v)
     { derived().linear_impl(v.derived()); }
     
+    operator PlainReturnType() const { return derived().plain(); }
+    PlainReturnType plain() const { return derived().plain(); }
+    
     ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }
     ToVectorReturnType toVector() { return derived().toVector_impl(); }
     operator Vector6() const { return toVector(); }

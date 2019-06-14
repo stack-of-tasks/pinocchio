@@ -26,6 +26,7 @@ namespace pinocchio
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) DataRefType;
     typedef DataRefType ToVectorReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) ConstDataRefType;
@@ -157,6 +158,8 @@ namespace pinocchio
     { return MotionPlain(alpha*m_ref); }
     
     MotionRef & ref() { return *this; }
+    
+    inline PlainReturnType plain() const { return PlainReturnType(m_ref); }
 
   protected:
     DataRefType m_ref;
@@ -218,6 +221,8 @@ namespace pinocchio
     { return MotionPlain(alpha*m_ref); }
     
     const MotionRef & ref() const { return *this; }
+
+    inline PlainReturnType plain() const { return PlainReturnType(m_ref); }
     
   protected:
     DataRefType m_ref;

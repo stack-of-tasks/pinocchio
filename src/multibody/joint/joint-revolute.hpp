@@ -46,6 +46,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -190,7 +191,8 @@ namespace pinocchio
   };
 
   template<typename _Scalar, int _Options, int axis>
-  struct MotionRevoluteTpl : MotionBase< MotionRevoluteTpl<_Scalar,_Options,axis> >
+  struct MotionRevoluteTpl
+  : MotionBase< MotionRevoluteTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -210,7 +212,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_SIZE_1x1(Vector1Like);
     }
     
-    operator MotionPlain() const { return Axis() * w; }
+    inline PlainReturnType plain() const { return Axis() * w; }
     
     template<typename OtherScalar>
     MotionRevoluteTpl __mult__(const OtherScalar & alpha) const

@@ -23,6 +23,7 @@ namespace pinocchio
     typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
     typedef typename Vector6::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
     typedef MotionTpl<Scalar,_Options> MotionPlain;
+    typedef const MotionPlain & PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3,
@@ -87,6 +88,8 @@ namespace pinocchio
     // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }
     static MotionTpl Random() { return MotionTpl(Vector6::Random()); }
+    
+    inline PlainReturnType plain() const { return *this; }
     
     ToVectorConstReturnType toVector_impl() const { return m_data; }
     ToVectorReturnType toVector_impl() { return m_data; }

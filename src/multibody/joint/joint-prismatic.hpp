@@ -46,6 +46,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -67,7 +68,7 @@ namespace pinocchio
     MotionPrismaticTpl() {}
     MotionPrismaticTpl(const Scalar & v) : rate(v) {}
 
-    inline operator MotionPlain() const { return Axis() * rate; }
+    inline PlainReturnType plain() const { return Axis() * rate; }
     
     template<typename OtherScalar>
     MotionPrismaticTpl __mult__(const OtherScalar & alpha) const

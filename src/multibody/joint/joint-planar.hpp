@@ -47,6 +47,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -54,7 +55,8 @@ namespace pinocchio
   }; // traits MotionPlanarTpl
 
   template<typename _Scalar, int _Options>
-  struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
+  struct MotionPlanarTpl
+  : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
@@ -75,11 +77,11 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
     }
 
-//    operator MotionPlain() const
-//    {
-//      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-//                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
-//    }
+    inline PlainReturnType plain() const
+    {
+      return PlainReturnType(typename PlainReturnType::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+                             typename PlainReturnType::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+    }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const

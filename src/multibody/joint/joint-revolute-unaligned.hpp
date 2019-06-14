@@ -46,6 +46,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -53,7 +54,8 @@ namespace pinocchio
   }; // traits MotionRevoluteUnalignedTpl
 
   template<typename _Scalar, int _Options>
-  struct MotionRevoluteUnalignedTpl : MotionBase< MotionRevoluteUnalignedTpl<_Scalar,_Options> >
+  struct MotionRevoluteUnalignedTpl
+  : MotionBase< MotionRevoluteUnalignedTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionRevoluteUnalignedTpl);
@@ -67,10 +69,10 @@ namespace pinocchio
     , w(w)
     {}
     
-    inline operator MotionPlain() const
+    inline PlainReturnType plain() const
     {
-      return MotionPlain(MotionPlain::Vector3::Zero(),
-                         axis*w);
+      return PlainReturnType(PlainReturnType::Vector3::Zero(),
+                             axis*w);
     }
     
     template<typename OtherScalar>
