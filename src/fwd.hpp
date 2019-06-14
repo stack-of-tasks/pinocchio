@@ -21,6 +21,9 @@ namespace pinocchio {}
 
 #include "pinocchio/eigen-macros.hpp"
 
+#include "pinocchio/core/binary-op.hpp"
+#include "pinocchio/core/unary-op.hpp"
+
 namespace pinocchio
 {
   ///
