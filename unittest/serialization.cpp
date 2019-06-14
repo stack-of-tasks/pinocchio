@@ -91,46 +91,110 @@ BOOST_AUTO_TEST_CASE(test_multibody_serialization)
   generic_test(frame,TEST_SERIALIZATION_FOLDER"/Frame","Frame");
 }
 
+template<typename JointModel_> struct init;
+
+template<typename JointModel_>
+struct init
+{
+  static JointModel_ run()
+  {
+    std::cout << "call default init" << std::endl;
+    JointModel_ jmodel;
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    JointModel jmodel((JointModelRX()));
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+    JointModel jmodel((JointModelRX()));
+    jmodel.addJoint(JointModelRY());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename JointModel_>
+struct init<pinocchio::JointModelMimic<JointModel_> >
+{
+  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  
+  static JointModel run()
+  {
+    JointModel_ jmodel_ref = init<JointModel_>::run();
+    
+    JointModel jmodel(jmodel_ref,1.,0.);
+    
+    return jmodel;
+  }
+};
+
 struct TestJoint
 {
-  template <typename T>
-  void operator()(const T) const
+  template <typename JointModel>
+  void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
-    T jmodel;
-    jmodel.setIndexes(0,0,0);
-
-    test(jmodel);
-  }
-  
-  void operator()(const pinocchio::JointModelComposite & ) const
-  {
-    pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX()));
-    jmodel.addJoint(pinocchio::JointModelRY());
-    jmodel.setIndexes(0,0,0);
-    
-    test(jmodel);
-  }
-  
-  void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
-  {
-    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-
-    test(jmodel);
-  }
-  
-  void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
-  {
-    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-
+    JointModel jmodel = init<JointModel>::run();
     test(jmodel);
   }
   
   template<typename JointType>
   static void test(JointType & jmodel)
   {
-    generic_test(jmodel,TEST_SERIALIZATION_FOLDER"/Joint",jmodel.shortname());
+    generic_test(jmodel,TEST_SERIALIZATION_FOLDER"/Joint","jmodel");
   }
   
 };
