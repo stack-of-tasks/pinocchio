@@ -72,9 +72,9 @@ namespace pinocchio
     
     typedef typename internal::SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
     
-    ScaledConstraint(Constraint & constraint,
     ScaledConstraint() {}
     
+    ScaledConstraint(const Constraint & constraint,
                      const Scalar & scaling_factor)
     : m_constraint(constraint)
     , m_scaling_factor(scaling_factor)
@@ -151,7 +151,7 @@ namespace pinocchio
     
   protected:
     
-    Constraint & m_constraint;
+    Constraint m_constraint;
     Scalar m_scaling_factor;
   }; // struct ScaledConstraint
   
