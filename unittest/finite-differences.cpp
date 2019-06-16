@@ -56,36 +56,132 @@ void filterValue(MatrixBase<Matrix> & mat, typename Matrix::Scalar value)
     mat.derived().data()[k] =  math::fabs(mat.derived().data()[k]) <= value?0:mat.derived().data()[k];
 }
 
+template<typename JointModel_> struct init;
+
+template<typename JointModel_>
+struct init
+{
+  static JointModel_ run()
+  {
+    JointModel_ jmodel;
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    JointModel jmodel((JointModelRX()));
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+    JointModel jmodel((JointModelRX()));
+    jmodel.addJoint(JointModelRY());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename JointModel_>
+struct init<pinocchio::JointModelMimic<JointModel_> >
+{
+  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  
+  static JointModel run()
+  {
+    JointModel_ jmodel_ref = init<JointModel_>::run();
+    
+    JointModel jmodel(jmodel_ref,1.,0.);
+    jmodel.setIndexes(0,0,0);
+    
+    return jmodel;
+  }
+};
+
 struct FiniteDiffJoint
 {
-  template<typename JointModel>
-  static void init (JointModelBase<JointModel> & /*jmodel*/) {}
+  void operator()(JointModelComposite & /*jmodel*/) const
+  {}
   
   template<typename JointModel>
-  void operator()(JointModelBase<JointModel> & jmodel) const
+  void operator()(JointModelBase<JointModel> & /*jmodel*/) const
   {
     typedef typename JointModel::ConfigVector_t CV;
     typedef typename JointModel::TangentVector_t TV;
     typedef typename LieGroup<JointModel>::type LieGroupType;
     
-    init(jmodel); jmodel.setIndexes(0,0,0);
-    typename JointModel::JointDataDerived jdata = jmodel.createData();
-    CV q; LieGroupType().random(q);
-    jmodel.calc(jdata,q);
-    SE3 M_ref(jdata.M);
+    JointModel jmodel = init<JointModel>::run();
+    std::cout << "name: " << jmodel.classname() << std::endl;
+    
+    typename JointModel::JointDataDerived jdata_ = jmodel.createData();
+    typedef JointDataBase<typename JointModel::JointDataDerived> DataBaseType;
+    DataBaseType & jdata = static_cast<DataBaseType &>(jdata_);
+    
+    CV q(jmodel.nq()); LieGroupType().random(q);
+    jmodel.calc(jdata.derived(),q);
+    SE3 M_ref(jdata.M());
     
     CV q_int(jmodel.nq());
     TV v(jmodel.nv()); v.setZero();
     double eps = 1e-8;
     
-    Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(jdata.S.matrix());
+    Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(jdata.S().matrix());
     
     for(int k=0;k<jmodel.nv();++k)
     {
       v[k] = eps;
       q_int = LieGroupType().integrate(q,v);
-      jmodel.calc(jdata,q_int);
-      SE3 M_int = jdata.M;
+      jmodel.calc(jdata.derived(),q_int);
+      SE3 M_int = jdata.M();
       
       S.col(k) = log6(M_ref.inverse()*M_int).toVector();
       S.col(k) /= eps;
@@ -94,73 +190,10 @@ struct FiniteDiffJoint
     }
     
     BOOST_CHECK(S.isApprox(S_ref,eps*1e1));
-    std::cout << "name: " << jmodel.classname() << std::endl;
     std::cout << "S_ref:\n" << S_ref << std::endl;
     std::cout << "S:\n" << S << std::endl;
   }
 };
-
-template<>
-void FiniteDiffJoint::init<JointModelRevoluteUnaligned>(JointModelBase<JointModelRevoluteUnaligned> & jmodel)
-{
-  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
-}
-
-template<>
-void FiniteDiffJoint::init<JointModelPrismaticUnaligned>(JointModelBase<JointModelPrismaticUnaligned> & jmodel)
-{
-  jmodel.derived().axis.setRandom(); jmodel.derived().axis.normalize();
-}
-
-template<>
-void FiniteDiffJoint::init<JointModelComposite>(JointModelBase<JointModelComposite> & jmodel)
-{
-  jmodel.derived().addJoint(JointModelRX());
-  jmodel.derived().addJoint(JointModelRZ());
-}
-
-template<>
-void FiniteDiffJoint::operator()< JointModelComposite > (JointModelBase<JointModelComposite> & ) const
-{
-  // DO NOT CHECK BECAUSE IT IS NOT WORKINK YET - TODO
-//  typedef typename JointModel::ConfigVector_t CV;
-//  typedef typename JointModel::TangentVector_t TV;
-//
-//  pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX())/*, (pinocchio::JointModelRY())*/);
-//  jmodel.setIndexes(0,0,0);
-//
-//  pinocchio::JointModelComposite::JointDataDerived jdata = jmodel.createData();
-//
-//  CV q = jmodel.random();
-//  jmodel.calc(jdata,q);
-//  SE3 M_ref(jdata.M);
-//
-//  CV q_int;
-//  TV v(Eigen::VectorXd::Random(jmodel.nv())); v.setZero();
-//  double eps = 1e-4;
-//
-//  assert(q.size() == jmodel.nq()&& "nq false");
-//  assert(v.size() == jmodel.nv()&& "nv false");
-//  Eigen::MatrixXd S(6,jmodel.nv()), S_ref(ConstraintXd(jdata.S).matrix());
-//
-//  eps = jmodel.finiteDifferenceIncrement();
-//  for(int k=0;k<jmodel.nv();++k)
-//  {
-//    v[k] = eps;
-//    q_int = jmodel.integrate(q,v);
-//    jmodel.calc(jdata,q_int);
-//    SE3 M_int = jdata.M;
-//
-//    S.col(k) = log6(M_ref.inverse()*M_int).toVector();
-//    S.col(k) /= eps;
-//
-//    v[k] = 0.;
-//  }
-//
-//  std::cout << "S\n" << S << std::endl;
-//  std::cout << "S_ref\n" << S_ref << std::endl;
-  // BOOST_CHECK(S.isApprox(S_ref,eps*1e1)); //@TODO Uncomment to test once JointComposite maths are ok
-}
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 

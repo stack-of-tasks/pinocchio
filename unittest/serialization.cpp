@@ -98,7 +98,6 @@ struct init
 {
   static JointModel_ run()
   {
-    std::cout << "call default init" << std::endl;
     JointModel_ jmodel;
     jmodel.setIndexes(0,0,0);
     return jmodel;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2019 CNRS, INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -32,30 +32,34 @@
 
 using namespace pinocchio;
 
-template <typename JoinData_t>
-void printOutJointData(
-#ifdef VERBOSE
-  const Eigen::VectorXd & q,
-  const Eigen::VectorXd & q_dot,
-  const JoinData_t & joint_data)
+template<typename JointData>
+void printOutJointData(const Eigen::VectorXd & q,
+                       const Eigen::VectorXd & v,
+                       const JointDataBase<JointData> & joint_data)
 {
+  PINOCCHIO_UNUSED_VARIABLE(q);
+  PINOCCHIO_UNUSED_VARIABLE(v);
+  PINOCCHIO_UNUSED_VARIABLE(joint_data);
+  
+#ifdef VERBOSE
   using namespace std;
   
   cout << "q: " << q.transpose () << endl;
-  cout << "q_dot: " << q_dot.transpose () << endl;
-  cout << "Joint configuration:" << endl << joint_data.M << endl;
-  cout << "v_J:\n" << (Motion) joint_data.v << endl;
-  cout << "c_J:\n" << (Motion) joint_data.c << endl;
-}
-#else
-const Eigen::VectorXd &,
-const Eigen::VectorXd &,
-const JoinData_t &)
-{}
+  cout << "v: " << v.transpose () << endl;
+  cout << "Joint configuration:" << endl << joint_data.M() << endl;
+  cout << "v_J:\n" << (Motion) joint_data.v() << endl;
+  cout << "c_J:\n" << (Motion) joint_data.c() << endl;
 #endif
+}
+
 
 template<typename D>
-void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & joint_name, const Inertia & Y)
+void addJointAndBody(Model & model,
+                     const JointModelBase<D> & jmodel,
+                     const Model::JointIndex parent_id,
+                     const SE3 & joint_placement,
+                     const std::string & joint_name,
+                     const Inertia & Y)
 {
   Model::JointIndex idx;
   
@@ -259,7 +263,7 @@ BOOST_AUTO_TEST_CASE (vsFreeFlyer)
 
   addJointAndBody(modelSpherical,JointModelSpherical(),0,pos,"spherical",inertia);
   addJointAndBody(modelFreeflyer,JointModelFreeFlyer(),0,pos,"free-flyer",inertia);
-
+  
   Data dataSpherical(modelSpherical);
   Data dataFreeFlyer(modelFreeflyer);
 
@@ -1090,6 +1094,98 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
   
 BOOST_AUTO_TEST_SUITE_END()
   
+  template<typename JointModel_> struct init;
+  
+  template<typename JointModel_>
+  struct init
+  {
+    static JointModel_ run()
+    {
+      std::cout << "call default init" << std::endl;
+      JointModel_ jmodel;
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+  
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+  
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+  {
+    typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+    
+    static JointModel run()
+    {
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      JointModel jmodel((JointModelRX()));
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+  {
+    typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+    
+    static JointModel run()
+    {
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+      JointModel jmodel((JointModelRX()));
+      jmodel.addJoint(JointModelRY());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+  
+  template<typename JointModel_>
+  struct init<pinocchio::JointModelMimic<JointModel_> >
+  {
+    typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+    
+    static JointModel run()
+    {
+      JointModel_ jmodel_ref = init<JointModel_>::run();
+      
+      JointModel jmodel(jmodel_ref,1.,0.);
+      jmodel.setIndexes(0,0,0);
+      
+      return jmodel;
+    }
+  };
+  
 BOOST_AUTO_TEST_SUITE(JointModelBase_test)
   
   struct TestJointModelIsEqual
@@ -1097,41 +1193,7 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     template<typename JointModel>
     void operator()(const pinocchio::JointModelBase<JointModel> &) const
     {
-      JointModel jmodel;
-      jmodel.setIndexes(0,0,0);
-      
-      test(jmodel);
-    }
-    
-    template<typename Scalar, int Options>
-    void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
-    {
-      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
-      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
-      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
-      jmodel.setIndexes(0,0,0);
-      
-      test(jmodel);
-    }
-    
-    template<typename Scalar, int Options>
-    void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
-    {
-      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
-      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
-      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
-      jmodel.setIndexes(0,0,0);
-      
-      test(jmodel);
-    }
-    
-    template<typename Scalar, int Options, template<typename,int> class JointCollection>
-    void operator()(const JointModelTpl<Scalar,Options,JointCollection> & ) const
-    {
-      typedef JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
-      typedef JointModelTpl<Scalar,Options,JointCollection> JointModel;
-      JointModel jmodel((JointModelRX()));
-      jmodel.setIndexes(0,0,0);
+      JointModel jmodel = init<JointModel>::run();
       
       test(jmodel);
     }

@@ -36,9 +36,12 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   typedef typename JointModel::TangentVector_t TangentVector_t;
   typedef typename LieGroup<JointModel>::type LieGroupType;
   
+  typedef Eigen::Matrix<typename ConfigVector_t::Scalar, Eigen::Dynamic, 1, ConfigVector_t::Options> DynConfigVectorType;
+  typedef DynConfigVectorType DynTangentVectorType;
+  
   ConfigVector_t ql(ConfigVector_t::Constant(jmodel.nq(),-M_PI));
   ConfigVector_t qu(ConfigVector_t::Constant(jmodel.nq(),M_PI));
-  ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
+  DynConfigVectorType q = LieGroupType().randomConfiguration(ql,qu);
 
   BOOST_CHECK(jmodel.nv() == jmodel_composite.nv());
   BOOST_CHECK(jmodel.nq() == jmodel_composite.nq());
@@ -50,7 +53,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   BOOST_CHECK(jdata_composite.S.matrix().isApprox(jdata.S.matrix()));
   
   q = LieGroupType().randomConfiguration(ql,qu);
-  TangentVector_t v = TangentVector_t::Random(jmodel.nv());
+  DynTangentVectorType v = TangentVector_t::Random(jmodel.nv());
   jmodel.calc(jdata,q,v);
   jmodel_composite.calc(jdata_composite,q,v);
   

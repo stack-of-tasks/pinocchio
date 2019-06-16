@@ -184,29 +184,11 @@ void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
 
 struct TestJointMimic
 {
+  
   template <typename JointModel>
   void operator()(const JointModelBase<JointModel> &) const
   {
-    JointModel jmodel = init<JointModel>();
-    jmodel.setIndexes(0,0,0);
-    
-    test_joint_mimic(jmodel);
-  }
-  
-  template <typename JointModel>
-  JointModel init(const JointModelBase<JointModel> &) const
-  {
     JointModel jmodel;
-    jmodel.setIndexes(0,0,0);
-    
-    return jmodel;
-  }
-  
-  template <typename JointModel>
-  void operator()(const JointMimic<JointModel> &) const
-  {
-    JointModel jmodel_ref = init<JointModel>();
-    JointModel jmodel(jmodel_ref,1.,0.);
     jmodel.setIndexes(0,0,0);
     
     test_joint_mimic(jmodel);

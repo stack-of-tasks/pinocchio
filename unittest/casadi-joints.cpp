@@ -144,7 +144,6 @@ template<typename JointModel_>
 {
   static JointModel_ run()
   {
-    std::cout << "call default init" << std::endl;
     JointModel_ jmodel;
     jmodel.setIndexes(0,0,0);
     return jmodel;
@@ -264,7 +263,6 @@ struct TestADOnJoints
   void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
     JointModel_ jmodel = init<JointModel_>::run();
-
     jmodel.setIndexes(0,0,0);
     test(jmodel);
   }
