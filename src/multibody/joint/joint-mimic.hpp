@@ -73,6 +73,8 @@ namespace pinocchio
     typedef typename internal::SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
     
     ScaledConstraint(Constraint & constraint,
+    ScaledConstraint() {}
+    
                      const Scalar & scaling_factor)
     : m_constraint(constraint)
     , m_scaling_factor(scaling_factor)
@@ -262,6 +264,8 @@ namespace pinocchio
     typedef JointDataBase< JointDataMimic<JointData> > Base;
     
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
+    
+    JointDataMimic() {}
     
     JointDataMimic(const JointDataBase<JointData> & jdata,
                    const Scalar & scaling)

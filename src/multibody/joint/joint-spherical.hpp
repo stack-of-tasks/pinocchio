@@ -200,6 +200,8 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalTpl)
     
+    ConstraintSphericalTpl() {}
+    
     enum { NV = 3 };
     
     int nv_impl() const { return NV; }

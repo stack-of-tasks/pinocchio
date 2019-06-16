@@ -201,12 +201,15 @@ namespace pinocchio
   }; // struct traits ConstraintPlanarTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintPlanarTpl : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
+  struct ConstraintPlanarTpl
+  : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPlanarTpl)
     
     enum { NV = 3 };
+    
+    ConstraintPlanarTpl() {};
 
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const

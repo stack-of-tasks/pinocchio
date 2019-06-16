@@ -355,6 +355,8 @@ namespace pinocchio
     enum { NV = 1 };
     
     typedef SpatialAxis<ANGULAR+axis> Axis;
+    
+    ConstraintRevoluteTpl() {}
 
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
@@ -626,7 +628,8 @@ namespace pinocchio
   };
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointModelRevoluteTpl : public JointModelBase< JointModelRevoluteTpl<_Scalar,_Options,axis> >
+  struct JointModelRevoluteTpl
+  : public JointModelBase< JointModelRevoluteTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
@@ -639,6 +642,8 @@ namespace pinocchio
     using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
+    
+    JointModelRevoluteTpl() {}
     
     template<typename ConfigVector>
     EIGEN_DONT_INLINE

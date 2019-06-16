@@ -284,6 +284,8 @@ namespace pinocchio
     enum { NV = 1 };
     
     typedef SpatialAxis<LINEAR+axis> Axis;
+    
+    ConstraintPrismaticTpl() {};
 
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
