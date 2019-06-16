@@ -377,7 +377,7 @@ namespace pinocchio
     
     JointDataDerived createData() const
     {
-      return JointDataDerived(m_jmodel_ref.createData(),scaling);
+      return JointDataDerived(m_jmodel_ref.createData(),scaling());
     }
     
     template<typename ConfigVector>
