@@ -343,6 +343,8 @@ namespace pinocchio
     using Base::id;
     using Base::idx_q;
     using Base::idx_v;
+    using Base::nq;
+    using Base::nv;
     using Base::setIndexes;
     
     JointModelMimic()
@@ -385,7 +387,7 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs,m_scaling,m_offset,jdata.q_transform);
+      AffineTransform::run(qs.head(nq()),m_scaling,m_offset,jdata.q_transform);
       m_jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
     }
     
@@ -397,8 +399,8 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs,m_scaling,m_offset,jdata.q_transform);
-      jdata.v_transform.noalias() = m_scaling * vs;
+      AffineTransform::run(qs.head(nq()),m_scaling,m_offset,jdata.q_transform);
+      jdata.v_transform.noalias() = m_scaling * vs.head(nv());
       m_jmodel_ref.calc(jdata.jdata_ref,
                         jdata.q_transform,
                         jdata.v_transform);
