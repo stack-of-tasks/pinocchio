@@ -259,6 +259,7 @@ namespace pinocchio
     typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintRevolute
   
+<<<<<<< HEAD
   template<typename Scalar, int Options, int axis>
   struct SE3GroupAction< ConstraintPrismatic<Scalar,Options,axis> >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
