@@ -69,6 +69,9 @@ namespace pinocchio
     
     int nv() const { return derived().nv_impl(); }
     
+    static int rows() { return 6; }
+    int cols() const { return nv(); }
+    
     template<class OtherDerived>
     bool isApprox(const ConstraintBase<OtherDerived> & other,
                   const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
@@ -99,7 +102,6 @@ namespace pinocchio
     {
       return derived().motionAction(v);
     }
-    
 
   }; // class ConstraintBase
   
