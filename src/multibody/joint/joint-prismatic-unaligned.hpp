@@ -257,7 +257,9 @@ namespace pinocchio
       operator* (const ForceDense<ForceDerived> & f) const
       {
         typedef typename ConstraintForceOp<ConstraintPrismaticUnaligned,ForceDerived>::ReturnType ReturnType;
-        return ReturnType(ref.axis.dot(f.linear()));
+        ReturnType res;
+        res[0] = ref.axis.dot(f.linear());
+        return res;
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
