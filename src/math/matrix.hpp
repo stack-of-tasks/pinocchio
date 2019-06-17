@@ -30,15 +30,23 @@ namespace pinocchio
   template<typename Scalar, typename Matrix>
   struct ScalarMatrixProduct
   {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
     typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<Scalar,typename Eigen::internal::traits<Matrix>::Scalar>,
     const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type, const Matrix> type;
+#else
+    typedef const Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
+#endif
   };
   
   template<typename Matrix, typename Scalar>
   struct MatrixScalarProduct
   {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
     typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<typename Eigen::internal::traits<Matrix>::Scalar,Scalar>,
     const Matrix, const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type> type;
+#else
+    typedef const Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
+#endif
   };
   
   namespace internal
