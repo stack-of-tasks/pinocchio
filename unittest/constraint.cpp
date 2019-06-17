@@ -81,6 +81,8 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   ConstraintType constraint(jdata.S);
   
   BOOST_CHECK(constraint.nv() == jmodel.nv());
+  BOOST_CHECK(constraint.cols() == constraint.nv());
+  BOOST_CHECK(constraint.rows() == 6);
   
   typedef typename JointModel::TangentVector_t TangentVector_t;
   TangentVector_t v = TangentVector_t::Random(jmodel.nv());
