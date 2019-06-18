@@ -20,8 +20,8 @@ namespace boost
       {
         
 #if defined(PINOCCHIO_WITH_CASADI_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-        template <>
-        struct constant_pi< casadi::SX > : constant_pi<double> {};
+        template<typename Scalar>
+        struct constant_pi< ::casadi::Matrix<Scalar> > : constant_pi<double> {};
 #endif
         
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
