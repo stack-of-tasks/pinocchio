@@ -51,26 +51,30 @@ namespace pinocchio
   
   namespace math
   {
-    using std::fabs;
-    using std::sqrt;
-    using std::atan;
-    using std::acos;
-    using std::asin;
-    using std::pow;
-    using std::cos;
-    using std::sin;
     
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-    using CppAD::fabs;
-    using CppAD::sqrt;
-    using CppAD::atan;
-    using CppAD::acos;
-    using CppAD::asin;
-    using CppAD::atan2;
-    using CppAD::pow;
-    using CppAD::cos;
-    using CppAD::sin;
-#else
+#define PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(name) \
+    template<typename Scalar> \
+    Scalar name(const Scalar & value) \
+    { using std::name; return name(value); }
+    
+#define PINOCCHIO_OVERLOAD_MATH_BINARY_OPERATOR(name) \
+    template<typename Scalar, typename OtherScalar> \
+    Scalar name(const Scalar & value1, const OtherScalar & value2) \
+    { using std::name; return name(value1,value2); }
+    
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(fabs);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(sqrt);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(atan);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(acos);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(asin);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(cos);
+    PINOCCHIO_OVERLOAD_MATH_UNARY_OPERATOR(sin);
+    
+    PINOCCHIO_OVERLOAD_MATH_BINARY_OPERATOR(pow);
+    PINOCCHIO_OVERLOAD_MATH_BINARY_OPERATOR(min);
+    PINOCCHIO_OVERLOAD_MATH_BINARY_OPERATOR(max);
+
+#ifndef PINOCCHIO_WITH_CPPAD_SUPPORT
     using std::atan2;
 #endif
   }
