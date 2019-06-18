@@ -6,6 +6,7 @@
 #define __pinocchio_math_casadi_hpp__
 
 #include <casadi/casadi.hpp>
+#include "pinocchio/math/taylor-expansion.hpp"
 #include <Eigen/Core>
 
 // This is a workaround to make the code compiling with Eigen.
@@ -17,6 +18,16 @@ namespace casadi
   }
 }
 
+namespace pinocchio
+{
+  template<typename Scalar>
+  struct TaylorSeriesExpansion< ::casadi::Matrix<Scalar> >
+  : TaylorSeriesExpansion<Scalar>
+  {
+    typedef TaylorSeriesExpansion<Scalar> Base;
+    using Base::precision;
+  };
+}
 
 namespace Eigen
 {
