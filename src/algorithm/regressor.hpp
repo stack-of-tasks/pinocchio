@@ -91,6 +91,31 @@ namespace pinocchio
   frameBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      FrameIndex frameId);
+
+    ///
+    /// \brief Computes the joint torque regressor that links the joint torque
+    ///        to the dynamic parameters of each link according to the current the robot motion.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
+    /// \tparam ConfigVectorType Type of the joint configuration vector.
+    /// \tparam TangentVectorType1 Type of the joint velocity vector.
+    /// \tparam TangentVectorType2 Type of the joint acceleration vector.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[in] q The joint configuration vector (dim model.nq).
+    /// \param[in] v The joint velocity vector (dim model.nv).
+    /// \param[in] a The joint acceleration vector (dim model.nv).
+    ///
+    /// \return The joint torque regressor of the system.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+    inline typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    computeJointTorqueRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q,
+                                const Eigen::MatrixBase<TangentVectorType1> & v,
+                                const Eigen::MatrixBase<TangentVectorType2> & a);
   
 } // namespace pinocchio
 

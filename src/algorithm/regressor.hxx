@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/symmetric3.hpp"
+#include "pinocchio/algorithm/rnea.hxx"
 
 namespace pinocchio
 {
@@ -137,6 +138,81 @@ namespace pinocchio
     const Motion a  = placement.actInv(data.a_gf[parent]);
 
     return bodyRegressor(v, a);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct JointTorqueRegressorBackwardStep
+  : public fusion::JointVisitorBase< JointTorqueRegressorBackwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const JointIndex,
+                                  Eigen::Matrix<Scalar,6,10,Options> &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const JointIndex col_idx,
+                     Eigen::Matrix<Scalar,6,10,Options> & A)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+      
+      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(int(col_idx)-1),jmodel.nv(),10) = jdata.S().transpose()*A;
+      
+      if(parent>0)
+          forceSet::se3Action(data.liMi[i],A,A);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  computeJointTorqueRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                              const Eigen::MatrixBase<ConfigVectorType> & q,
+                              const Eigen::MatrixBase<TangentVectorType1> & v,
+                              const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq);
+    assert(v.size() == model.nv);
+    assert(a.size() == model.nv);
+
+    data.v[0].setZero();
+    data.a_gf[0] = -model.gravity;
+    data.jointTorqueRegressor.setZero();
+
+    typedef RneaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typename Pass1::ArgsType arg1(model,data,q.derived(),v.derived(),a.derived());
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 arg1);
+    }
+
+    typedef JointTorqueRegressorBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    Eigen::Matrix<Scalar,6,10,Options> jointRegressor;
+    for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
+    {
+      jointRegressor = jointBodyRegressor(model,data,i);
+
+      typename Pass2::ArgsType arg2(model,data,i,jointRegressor);
+      for(JointIndex j=i; j>0; j = model.parents[j])
+      {
+        Pass2::run(model.joints[j],data.joints[j],
+                   arg2);
+      }
+    }
+
+    return data.jointTorqueRegressor;
   }
 
 } // namespace pinocchio

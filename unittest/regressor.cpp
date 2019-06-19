@@ -117,4 +117,35 @@ BOOST_AUTO_TEST_CASE(test_frame_body_regressor)
   BOOST_CHECK(f_regressor.isApprox(f.toVector()));
 }
 
+BOOST_AUTO_TEST_CASE(test_joint_torque_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill(1.);
+
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+  VectorXd a = Eigen::VectorXd::Random(model.nv);
+
+  rnea(model,data_ref,q,v,a);
+
+  Eigen::VectorXd params(10*(model.njoints-1));
+  for(JointIndex i=1; i<(Model::JointIndex)model.njoints; ++i)
+      params.segment<10>((int)((i-1)*10)) = model.inertias[i].toDynamicParameters();
+
+  computeJointTorqueRegressor(model,data,q,v,a);
+
+  Eigen::VectorXd tau_regressor = data.jointTorqueRegressor * params;
+
+  BOOST_CHECK(tau_regressor.isApprox(data_ref.tau));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
