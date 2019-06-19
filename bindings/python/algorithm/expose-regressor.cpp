@@ -20,6 +20,11 @@ namespace pinocchio
       return jointBodyRegressor(model,data,jointId);
     }
 
+    Eigen::MatrixXd frameBodyRegressor_proxy(const Model & model, Data & data, const FrameIndex frameId)
+    {
+      return frameBodyRegressor(model,data,frameId);
+    }
+
     void exposeRegressor()
     {
       using namespace Eigen;
@@ -44,6 +49,13 @@ namespace pinocchio
               bp::args("Model","Data",
                        "jointId (int)"),
               "Compute the regressor for the dynamic parameters of a rigid body attached to a given joint.\n"
+              "This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.");
+
+      bp::def("frameBodyRegressor",
+              &frameBodyRegressor_proxy,
+              bp::args("Model","Data",
+                       "frameId (int)"),
+              "Computes the regressor for the dynamic parameters of a rigid body attached to a given frame.\n"
               "This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.");
     }
     
