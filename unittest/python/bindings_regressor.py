@@ -17,5 +17,23 @@ class TestRegressorBindings(TestCase):
         
         self.assertApprox(f_regressor, f.vector)
 
+    def test_jointBodyRegressor(self):
+        model = pin.buildSampleModelManipulator()
+        data = model.createData()
+
+        JOINT_ID = model.njoints - 1
+
+        q = pin.randomConfiguration(model)
+        v = pin.utils.rand(model.nv)
+        a = pin.utils.rand(model.nv)
+
+        pin.rnea(model,data,q,v,a)
+
+        f = data.f[JOINT_ID]
+
+        f_regressor = pin.jointBodyRegressor(model,data,JOINT_ID) * model.inertias[JOINT_ID].toDynamicParameters()
+
+        self.assertApprox(f_regressor, f.vector)
+
 if __name__ == '__main__':
     unittest.main()
