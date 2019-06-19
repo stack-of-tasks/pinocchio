@@ -325,8 +325,11 @@ namespace pinocchio
     /// \brief Lagrange Multipliers corresponding to the contact impulses in pinocchio::impulseDynamics.
     VectorXs impulse_c;
     
-    // data related to regressor
+    // data related to static regressor
     Matrix3x staticRegressor;
+
+    // data related to joint torque regressor
+    MatrixXs jointTorqueRegressor;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

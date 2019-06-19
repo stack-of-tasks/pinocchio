@@ -92,6 +92,7 @@ namespace pinocchio
   , dq_after(model.nv)
   , impulse_c()
   , staticRegressor(3,4*(model.njoints-1))
+  , jointTorqueRegressor(model.nv,10*(model.njoints-1))
   {
     typedef typename Model::JointIndex JointIndex;
     
