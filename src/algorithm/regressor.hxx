@@ -115,6 +115,30 @@ namespace pinocchio
     return bodyRegressor(data.v[jointId], data.a_gf[jointId]);
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,6,10,Options>
+  frameBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     FrameIndex frameId)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+    typedef typename Model::JointIndex JointIndex;
+    typedef typename Model::SE3 SE3;
+    typedef typename Model::Motion Motion;
+
+    const Frame & frame = model.frames[frameId];
+    const JointIndex & parent = frame.parent;
+    const SE3 & placement = frame.placement;
+
+    const Motion v  = placement.actInv(data.v[parent]);
+    const Motion a  = placement.actInv(data.a_gf[parent]);
+
+    return bodyRegressor(v, a);
+  }
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_regressor_hxx__

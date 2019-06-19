@@ -88,4 +88,33 @@ BOOST_AUTO_TEST_CASE(test_joint_body_regressor)
   BOOST_CHECK(f_regressor.isApprox(f.toVector()));
 }
 
+BOOST_AUTO_TEST_CASE(test_frame_body_regressor)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  buildModels::manipulator(model);
+
+  JointIndex JOINT_ID = JointIndex(model.njoints) - 1;
+
+  const SE3 & framePlacement = SE3::Random();
+  FrameIndex FRAME_ID = (FrameIndex) model.addBodyFrame ("test_body", JOINT_ID, framePlacement, -1);
+
+  pinocchio::Data data(model);
+
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = Eigen::VectorXd::Random(model.nv);
+  VectorXd a = Eigen::VectorXd::Random(model.nv);
+
+  rnea(model,data,q,v,a);
+
+  Force f = framePlacement.actInv(data.f[JOINT_ID]);
+  Inertia I = framePlacement.actInv(model.inertias[JOINT_ID]);
+
+  Inertia::Vector6 f_regressor = frameBodyRegressor(model,data,FRAME_ID) * I.toDynamicParameters();
+
+  BOOST_CHECK(f_regressor.isApprox(f.toVector()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

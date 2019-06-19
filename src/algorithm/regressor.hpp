@@ -70,6 +70,27 @@ namespace pinocchio
   jointBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      JointIndex jointId);
+
+  ///
+  /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given frame.
+  ///
+  /// This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.
+  ///
+  /// The result is such that
+  /// \f$ f = frameBodyRegressor(model,data,frameId) * I.toDynamicParameters() \f$
+  /// where \f$ f \f$ is the net force acting on the body, including gravity
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] frameId The id of the frame.
+  ///
+  /// \return The regressor of the body.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,6,10,Options>
+  frameBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     FrameIndex frameId);
   
 } // namespace pinocchio
 
