@@ -132,5 +132,15 @@ BOOST_AUTO_TEST_CASE(test_casadi_codegen)
   std::cout << gen.dump();
 }
 
+BOOST_AUTO_TEST_CASE(test_max)
+{
+  casadi::SX x = casadi::SX::sym("x");
+  casadi::SX y = casadi::SX::sym("y");
+  
+  casadi::SX max_x_y = pinocchio::math::max(x,y);
+  casadi::SX max_x_0 = pinocchio::math::max(x,0.);
+  casadi::SX max_0_y = pinocchio::math::max(0.,y);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
