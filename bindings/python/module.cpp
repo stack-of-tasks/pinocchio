@@ -23,8 +23,10 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   
   eigenpy::enableEigenPy();
   
-  register_symbolic_link_to_registered_type<Eigen::Quaterniond>();
-  register_symbolic_link_to_registered_type<Eigen::AngleAxisd>();
+  if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
+    eigenpy::exposeQuaternion();
+  if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
+    eigenpy::exposeAngleAxis();
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
