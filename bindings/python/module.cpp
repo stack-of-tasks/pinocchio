@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -12,6 +12,7 @@
 #include "pinocchio/bindings/python/utils/version.hpp"
 #include "pinocchio/bindings/python/utils/dependencies.hpp"
 #include "pinocchio/bindings/python/utils/conversions.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 namespace bp = boost::python;
 using namespace pinocchio::python;
@@ -21,8 +22,11 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::scope().attr("__version__") = pinocchio::printVersion();
   
   eigenpy::enableEigenPy();
-  eigenpy::exposeAngleAxis();
-  eigenpy::exposeQuaternion();
+  
+  if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
+    eigenpy::exposeQuaternion();
+  if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
+    eigenpy::exposeAngleAxis();
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
