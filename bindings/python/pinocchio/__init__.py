@@ -6,6 +6,9 @@ import numpy as np
 from .robot_wrapper import RobotWrapper
 from .libpinocchio_pywrap import __version__
 
+from eigenpy import Quaternion
+from eigenpy import AngleAxis
+
 from . import libpinocchio_pywrap as pin
 from . import utils
 from . import visualize

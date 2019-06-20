@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -21,8 +21,6 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::scope().attr("__version__") = pinocchio::printVersion();
   
   eigenpy::enableEigenPy();
-  eigenpy::exposeAngleAxis();
-  eigenpy::exposeQuaternion();
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
