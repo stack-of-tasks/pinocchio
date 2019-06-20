@@ -12,6 +12,7 @@
 #include "pinocchio/bindings/python/utils/version.hpp"
 #include "pinocchio/bindings/python/utils/dependencies.hpp"
 #include "pinocchio/bindings/python/utils/conversions.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 namespace bp = boost::python;
 using namespace pinocchio::python;
@@ -21,6 +22,9 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::scope().attr("__version__") = pinocchio::printVersion();
   
   eigenpy::enableEigenPy();
+  
+  register_symbolic_link_to_registered_type<Eigen::Quaterniond>();
+  register_symbolic_link_to_registered_type<Eigen::AngleAxisd>();
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
