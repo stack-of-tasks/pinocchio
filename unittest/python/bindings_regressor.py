@@ -6,6 +6,29 @@ import numpy as np
 
 class TestRegressorBindings(TestCase):
 
+    def test_staticRegressor(self):
+        model = pin. buildSampleModelHumanoidRandom()
+
+        data = model.createData()
+        data_ref = model.createData()
+
+        model.lowerPositionLimit[:7] = -1.
+        model.upperPositionLimit[:7] = 1.
+  
+        q = pin.randomConfiguration(model)
+        staticRegressor = pin.computeStaticRegressor(model,data,q)
+
+        phi = zero(4*(model.njoints-1))
+        for k in range(1,model.njoints):
+            Y = model.inertias[k]
+            phi[4*(k-1)] = Y.mass
+            phi[4*k-3:4*k] = Y.mass * Y.lever
+
+        static_com_ref = pin.centerOfMass(model,data_ref,q)
+        static_com = staticRegressor * phi
+
+        self.assertApprox(static_com, static_com_ref)
+
     def test_bodyRegressor(self):
         I = pin.Inertia.Random()
         v = pin.Motion.Random()
