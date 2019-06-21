@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(test_static_regressor)
   model.upperPositionLimit.head<7>().fill(1.);
   
   VectorXd q = randomConfiguration(model);
-  regressor::computeStaticRegressor(model,data,q);
+  computeStaticRegressor(model,data,q);
   
   VectorXd phi(4*(model.njoints-1));
   for(int k = 1; k < model.njoints; ++k)

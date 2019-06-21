@@ -128,9 +128,6 @@ namespace pinocchio {
   /// \namespace pinocchio::quaternion
   /// \brief Quaternion operations
 
-  /// \namespace pinocchio::regressor
-  /// \brief Regressor computation
-
   /// \namespace pinocchio::urdf
   /// \brief URDF parsing
 

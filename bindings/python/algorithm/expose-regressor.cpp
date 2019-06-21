@@ -30,7 +30,7 @@ namespace pinocchio
       using namespace Eigen;
 
       bp::def("computeStaticRegressor",
-              &regressor::computeStaticRegressor<double,0,JointCollectionDefaultTpl,VectorXd>,
+              &computeStaticRegressor<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the static regressor that links the inertia parameters of the system to its center of mass position,\n"
