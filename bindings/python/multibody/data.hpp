@@ -117,6 +117,7 @@ namespace pinocchio
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,staticRegressor,"Static regressor.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint Torque Regressor.")
         ;
       }
 

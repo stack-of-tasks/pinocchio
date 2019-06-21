@@ -57,6 +57,17 @@ namespace pinocchio
                        "frameId (int)"),
               "Computes the regressor for the dynamic parameters of a rigid body attached to a given frame.\n"
               "This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.");
+
+      bp::def("computeJointTorqueRegressor",
+              &computeJointTorqueRegressor<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Velocity v (size Model::nv)"
+                       "Acceleration a (size Model::nv)"),
+              "Compute the joint torque regressor that links the joint torque "
+              "to the dynamic parameters of each link according to the current the robot motion,\n"
+              "put the result in Data and return it.",
+              bp::return_value_policy<bp::return_by_value>());
     }
     
   } // namespace python

@@ -81,5 +81,29 @@ class TestRegressorBindings(TestCase):
 
         self.assertApprox(f_regressor, f.vector)
 
+    def test_joint_torque_regressor(self):
+        model = pin.buildSampleModelHumanoidRandom()
+        model.lowerPositionLimit[:7] = -1.
+        model.upperPositionLimit[:7] = 1.
+
+        data = model.createData()
+        data_ref = model.createData()
+
+        q = pin.randomConfiguration(model)
+        v = pin.utils.rand(model.nv)
+        a = pin.utils.rand(model.nv)
+
+        pin.rnea(model,data_ref,q,v,a)
+
+        params = zero(10*(model.njoints-1))
+        for i in range(1, model.njoints):
+            params[(i-1)*10:i*10] = model.inertias[i].toDynamicParameters()
+
+        pin.computeJointTorqueRegressor(model,data,q,v,a)
+
+        tau_regressor = data.jointTorqueRegressor * params
+
+        self.assertApprox(tau_regressor, data_ref.tau)
+
 if __name__ == '__main__':
     unittest.main()
