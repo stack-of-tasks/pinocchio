@@ -5,11 +5,17 @@
 #ifndef __pinocchio_math_casadi_hpp__
 #define __pinocchio_math_casadi_hpp__
 
-#include <casadi/casadi.hpp>
-
+#include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/sincos.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
+#include <casadi/casadi.hpp>
 #include <Eigen/Core>
+
+namespace boost { namespace math { namespace constants { namespace detail {
+  template<typename Scalar>
+  struct constant_pi< ::casadi::Matrix<Scalar> > : constant_pi<double> {};
+}}}}
 
 // This is a workaround to make the code compiling with Eigen.
 namespace casadi
@@ -237,6 +243,11 @@ namespace pinocchio
     
   } // namespace math
   
+} // namespace pinocchio
+
+#include "pinocchio/math/quaternion.hpp"
+namespace pinocchio
+{
   namespace quaternion
   {
     namespace internal

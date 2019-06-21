@@ -19,10 +19,6 @@ namespace pinocchio {}
 
 #include <Eigen/Dense>
 
-#if defined(PINOCCHIO_WITH_CASADI_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-#include "pinocchio/math/casadi.hpp"
-#endif
-
 #include "pinocchio/eigen-macros.hpp"
 
 namespace pinocchio
