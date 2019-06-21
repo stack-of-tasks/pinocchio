@@ -4,4 +4,3 @@ Xcode*
 *.pyc
 coverage*
 .vscode*
-_build*
