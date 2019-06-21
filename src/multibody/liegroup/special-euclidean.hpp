@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_special_euclidean_operation_hpp__
@@ -7,7 +7,7 @@
 
 #include <limits>
 
-#include <pinocchio/macros.hpp>
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
@@ -477,8 +477,8 @@ namespace pinocchio
       SE3 M1 (M0 * exp6(mref_v));
 
       out.template head<3>() = M1.translation();
-      res_quat = M1.rotation();
       if(res_quat.dot(quat) < 0) res_quat.coeffs() *= -1.;
+      quaternion::assignQuaternion(res_quat,M1.rotation()); // required by CasADi
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
       // It is then safer to re-normalized after converting M1.rotation to quaternion.
       quaternion::firstOrderNormalize(res_quat);
