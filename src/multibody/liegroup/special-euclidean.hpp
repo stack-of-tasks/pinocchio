@@ -514,7 +514,7 @@ namespace pinocchio
 //      std::cout << "Jlog\n" << Jlog << std::endl;
       
 //      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
-      if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
+      if(quat_map.coeffs()[3] >= Scalar(0)) // comes from the log3 for quaternions which may change the sign.
         PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = Jexp3QuatCoeffWise * Jlog;
       else
         PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = -Jexp3QuatCoeffWise * Jlog;
