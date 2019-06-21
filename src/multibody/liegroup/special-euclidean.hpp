@@ -65,18 +65,23 @@ namespace pinocchio
       typedef typename Matrix2Like::Scalar Scalar;
       const Scalar omega = v(2);
       Scalar cv,sv; SINCOS(omega, &sv, &cv);
-      const_cast<Matrix2Like &>(R.derived()) << cv, -sv, sv, cv;
+      PINOCCHIO_EIGEN_CONST_CAST(Matrix2Like,R) << cv, -sv, sv, cv;
+      using internal::if_then_else;
 
-      if (math::fabs(omega) > 1e-14)
       {
         typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
+        vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).noalias() = vcross - R * vcross;
+        Scalar omega_abs = math::fabs(omega);
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(omega_abs > 1e-14,
+                                                                             vcross.coeff(0),
+                                                                             v.coeff(0));
+        
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(omega_abs > 1e-14,
+                                                                             vcross.coeff(1),
+                                                                             v.coeff(1));
       }
-      else
-      {
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t) = v.template head<2>();
-      }
+      
     }
 
     template<typename Matrix2Like, typename Vector2Like, typename Matrix3Like>
