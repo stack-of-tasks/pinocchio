@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2018 CNRS, INRIA
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_explog_quaternion_hpp__
 #define __pinocchio_spatial_explog_quaternion_hpp__
 
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
 {
@@ -28,20 +29,27 @@ namespace pinocchio
       assert(v.size() == 3);
       
       typedef typename Vector3Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options };
+      typedef Eigen::Quaternion<typename QuaternionLike::Scalar,Options> QuaternionPlain;
       
       const Scalar t2 = v.squaredNorm();
+      const Scalar t = math::sqrt(t2);
       
       static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
-      if(t2 > ts_prec)
+    
+      Eigen::AngleAxis<Scalar> aa(t,v/t);
+      QuaternionPlain quat_then(aa);
+      
+      QuaternionPlain quat_else;
+      quat_else.vec() = (Scalar(1)/Scalar(2) - t2/48) * v;
+      quat_else.w() = Scalar(1) - t2/8;
+      
+      using ::pinocchio::internal::if_then_else;
+      for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
-        const Scalar t = math::sqrt(t2);
-        Eigen::AngleAxis<Scalar> aa(t,v/t);
-        quat_out = aa;
-      }
-      else
-      {
-        quat_out.vec().noalias() = (Scalar(1)/Scalar(2) - t2/48) * v;
-        quat_out.w() = Scalar(1) - t2/8;
+        quat_out.coeffs().coeffRef(k) = if_then_else(t2 > ts_prec,
+                                                     quat_then.coeffs().coeffRef(k),
+                                                     quat_else.coeffs().coeffRef(k));
       }
       
     }
