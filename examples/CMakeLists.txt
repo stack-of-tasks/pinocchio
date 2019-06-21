@@ -5,6 +5,8 @@
 SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
   overview-lie
+  overview-SE3
+  interpolation-SE3
   #overview-urdf
   )
 

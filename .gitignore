@@ -3,3 +3,4 @@ Xcode*
 *~
 *.pyc
 coverage*
+.vscode*
