@@ -14,9 +14,9 @@ class TestRegressorBindings(TestCase):
 
         model.lowerPositionLimit[:7] = -1.
         model.upperPositionLimit[:7] = 1.
-  
+
         q = pin.randomConfiguration(model)
-        staticRegressor = pin.computeStaticRegressor(model,data,q)
+        pin.computeStaticRegressor(model,data,q)
 
         phi = zero(4*(model.njoints-1))
         for k in range(1,model.njoints):
@@ -25,7 +25,7 @@ class TestRegressorBindings(TestCase):
             phi[4*k-3:4*k] = Y.mass * Y.lever
 
         static_com_ref = pin.centerOfMass(model,data_ref,q)
-        static_com = staticRegressor * phi
+        static_com = data.staticRegressor * phi
 
         self.assertApprox(static_com, static_com_ref)
 
