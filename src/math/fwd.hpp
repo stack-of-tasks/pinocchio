@@ -8,7 +8,7 @@
 #include "pinocchio/fwd.hpp"
 #include <math.h>
 #include <boost/math/constants/constants.hpp>
-#include "pinocchio/math/sincos.hpp"
+
 
 namespace boost
 {
