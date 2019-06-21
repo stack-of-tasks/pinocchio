@@ -322,4 +322,37 @@ namespace pinocchio
   
 } // namespace pinocchio
 
+#include "pinocchio/utils/static-if.hpp"
+
+namespace pinocchio
+{
+  namespace internal
+  {
+//    template<typename if_type, typename Scalar, typename else_type>
+//    struct traits<if_then_else_impl<if_type,::casadi::Matrix<Scalar>,else_type> >
+//    {
+//      typedef ::casadi::Matrix<Scalar> ReturnType;
+//    };
+//
+//    template<typename if_type, typename Scalar, typename then_type>
+//    struct traits<if_then_else_impl<if_type,then_type,::casadi::Matrix<Scalar>> >
+//    {
+//      typedef ::casadi::Matrix<Scalar> ReturnType;
+//    };
+    
+    template<typename Scalar, typename then_type, typename else_type>
+    struct if_then_else_impl<::casadi::Matrix<Scalar>,then_type,else_type>
+    {
+      typedef typename traits<if_then_else_impl>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const ::casadi::Matrix<Scalar> & condition,
+                                   const then_type & then_value,
+                                   const else_type & else_value)
+      {
+        return ReturnType::if_else(condition,then_value,else_value);
+      }
+    };
+  }
+}
+
 #endif // #ifndef __pinocchio_math_casadi_hpp__
