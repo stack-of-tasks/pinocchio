@@ -49,6 +49,9 @@ namespace pinocchio
   const Scalar PI()
   { return boost::math::constants::pi<Scalar>(); }
   
+  /// \brief Foward declaration of TaylorSeriesExpansion.
+  template<typename Scalar> struct TaylorSeriesExpansion;
+  
   namespace math
   {
     
