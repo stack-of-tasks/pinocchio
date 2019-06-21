@@ -69,19 +69,20 @@ namespace pinocchio
     }
   }
 
-  template<typename MotionVelocity, typename MotionAcceleration>
-  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a)
+  template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
+  inline void
+  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a, const Eigen::MatrixBase<OutputType> & regressor)
   {
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(OutputType, params, 6, 10);
+
     typedef typename MotionVelocity::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
 
     typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     typedef typename Symmetric3::SkewSquare SkewSquare;
-    typedef Eigen::Matrix<Scalar,6,10,Options> ReturnType;
     using ::pinocchio::details::bigL;
 
-    ReturnType res;
+    Eigen::MatrixBase<OutputType> & res = const_cast< Eigen::MatrixBase<OutputType> & >(regressor);
 
     res.template block<3,1>(MotionVelocity::LINEAR,0) = a.linear() + v.angular().cross(v.linear());
     const Eigen::Matrix<Scalar, 3, 1, Options> & acc = res.template block<3,1>(MotionVelocity::LINEAR,0);
@@ -93,12 +94,23 @@ namespace pinocchio
     res.template block<3,1>(MotionVelocity::ANGULAR,0).setZero();
     skew(-acc, res.template block<3,3>(MotionVelocity::ANGULAR,1));
     res.template block<3,6>(MotionVelocity::ANGULAR,4) = bigL(a.angular()) + cross(v.angular(), bigL(v.angular()));
+  }
 
+  template<typename MotionVelocity, typename MotionAcceleration>
+  inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
+  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a)
+  {
+    typedef typename MotionVelocity::Scalar Scalar;
+    enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
+    typedef Eigen::Matrix<Scalar,6,10,Options> ReturnType;
+
+    ReturnType res;
+    bodyRegressor(v,a,res);
     return res;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,6,10,Options>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
   jointBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      JointIndex jointId)
@@ -107,11 +119,12 @@ namespace pinocchio
 
     PINOCCHIO_UNUSED_VARIABLE(model);
 
-    return bodyRegressor(data.v[jointId], data.a_gf[jointId]);
+    bodyRegressor(data.v[jointId], data.a_gf[jointId], data.bodyRegressor);
+    return data.bodyRegressor;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,6,10,Options>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
   frameBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      FrameIndex frameId)
@@ -122,16 +135,13 @@ namespace pinocchio
     typedef typename Model::Frame Frame;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::SE3 SE3;
-    typedef typename Model::Motion Motion;
 
     const Frame & frame = model.frames[frameId];
     const JointIndex & parent = frame.parent;
     const SE3 & placement = frame.placement;
 
-    const Motion v  = placement.actInv(data.v[parent]);
-    const Motion a  = placement.actInv(data.a_gf[parent]);
-
-    return bodyRegressor(v, a);
+    bodyRegressor(placement.actInv(data.v[parent]), placement.actInv(data.a_gf[parent]), data.bodyRegressor);
+    return data.bodyRegressor;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -140,11 +150,11 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType BodyRegressorType;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const JointIndex,
-                                  Eigen::Matrix<Scalar,6,10,Options> &
+                                  const JointIndex
                                   > ArgsType;
     
     template<typename JointModel>
@@ -152,18 +162,17 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const JointIndex col_idx,
-                     Eigen::Matrix<Scalar,6,10,Options> & A)
+                     const JointIndex col_idx)
     {
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
       
-      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(int(col_idx)-1),jmodel.nv(),10) = jdata.S().transpose()*A;
+      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(int(col_idx)-1),jmodel.nv(),10) = jdata.S().transpose()*data.bodyRegressor;
       
       if(parent>0)
-          forceSet::se3Action(data.liMi[i],A,A);
+          forceSet::se3Action(data.liMi[i],data.bodyRegressor,data.bodyRegressor);
     }
   };
 
@@ -193,12 +202,11 @@ namespace pinocchio
     }
 
     typedef JointTorqueRegressorBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-    Eigen::Matrix<Scalar,6,10,Options> jointRegressor;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
-      jointRegressor = jointBodyRegressor(model,data,i);
+      jointBodyRegressor(model,data,i);
 
-      typename Pass2::ArgsType arg2(model,data,i,jointRegressor);
+      typename Pass2::ArgsType arg2(model,data,i);
       for(JointIndex j=i; j>0; j = model.parents[j])
       {
         Pass2::run(model.joints[j],data.joints[j],

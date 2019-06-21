@@ -71,6 +71,20 @@ namespace pinocchio
   ///
   /// \param[in] v Velocity of the rigid body
   /// \param[in] a Acceleration of the rigid body
+  /// \param[out] regressor The resulting regressor of the body.
+  ///
+  template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
+  inline void
+  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a, const Eigen::MatrixBase<OutputType> & regressor);
+
+  ///
+  /// \brief Computes the regressor for the dynamic parameters of a single rigid body.
+  ///
+  /// The result is such that
+  /// \f$ I a + v \times I v = bodyRegressor(v,a) * I.toDynamicParameters() \f$
+  ///
+  /// \param[in] v Velocity of the rigid body
+  /// \param[in] a Acceleration of the rigid body
   ///
   /// \return The regressor of the body.
   ///
@@ -79,7 +93,8 @@ namespace pinocchio
   bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a);
 
   ///
-  /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given joint.
+  /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given joint,
+  ///        puts the result in data.bodyRegressor and returns it.
   ///
   /// This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.
   ///
@@ -94,13 +109,14 @@ namespace pinocchio
   /// \return The regressor of the body.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,6,10,Options>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
   jointBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      JointIndex jointId);
 
   ///
-  /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given frame.
+  /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given frame,
+  ///        puts the result in data.bodyRegressor and returns it.
   ///
   /// This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.
   ///
@@ -115,7 +131,7 @@ namespace pinocchio
   /// \return The regressor of the body.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,6,10,Options>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
   frameBodyRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      FrameIndex frameId);
@@ -140,6 +156,8 @@ namespace pinocchio
   /// \param[in] a The joint acceleration vector (dim model.nv).
   ///
   /// \return The joint torque regressor of the system.
+  ///
+  /// \warning This function writes temporary information in data.bodyRegressor. This means if you have valuable data in it it will be overwritten.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
