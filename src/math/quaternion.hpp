@@ -27,7 +27,7 @@ namespace pinocchio
     {
       typedef typename D1::Scalar Scalar;
       const Scalar innerprod = q1.dot(q2);
-      Scalar theta = acos(innerprod);
+      Scalar theta = math::acos(innerprod);
       static const Scalar PI_value = PI<Scalar>();
       
       if(innerprod < 0)
