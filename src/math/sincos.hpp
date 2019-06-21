@@ -6,14 +6,13 @@
 #ifndef __math_sincos_hpp__
 #define __math_sincos_hpp__
 
-#include "pinocchio/fwd.hpp"
 #include <boost/type_traits.hpp>
 #include <cmath>
 
 namespace pinocchio
 {
   /// Forward declaration
-  template<typename Scalar,bool value = boost::is_floating_point<Scalar>::value> struct SINCOSAlgo;
+  template<typename Scalar, bool value = boost::is_floating_point<Scalar>::value> struct SINCOSAlgo;
   
   ///
   /// \brief Computes sin/cos values of a given input scalar.
