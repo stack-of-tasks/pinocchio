@@ -2,9 +2,9 @@
 
 ## Geometry
 
-A rigid body system is an assembly of different parts which are joints, rigid bodies and forces. A joint connect two differents bodies and gather all kinematics relations between those two bodies. The joints can create movements or follow t but in any case, they are at the centre of the movement. The movement is described by breaking it down into three parts, rotations, translations or both.
+A rigid body system is an assembly of different parts which are joints, rigid bodies and forces. A joint connect two differents bodies and gather all kinematics relations between those two bodies, allowing the creation of a relative displacement between the two bodies. This displacement is described by breaking it down into three parts, rotations, translations or the compositions of a rotation and a translation.
 
-In robotic, the rotation matrices described above form a set called, the **Special Orthogonal** group \f$ SO \f$. There are two groups within the latter, the one that gathers the 3 by 3 square matrices is the group \f$ So(3) \f$. It takes account all rotations in the three-dimensionnal space. The second group is useful if you focus essentially on a single rotation, for example for a flat movement. it gathers the square matrices of size 2 by 2, it is the group \f$ SO(2) \f$. 
+In robotic, the rotation matrices described above form a set called, the so-called **Special Orthogonal** group \f$ SO \f$. There are two groups within the latter which interest us as for now: the one that gathers the 3x3 square matrices is the group \f$ SO(3) \f$. It takes account all rotations in the 3-dimensionnal space. The second group is useful if you focus essentially on a single rotation, for example for a flat movement. It gathers the square matrices of size 2 by 2, it is the group \f$ SO(2) \f$. 
 
 The set that brings together all the homogeneous transformations matrices is the **Special Euclidean** group \f$ SE \f$. As with the rotation matrices, there are two differents groups, \f$ SE(3) \f$ which brings together movements in physical space and \f$ SE(2) \f$ useful for flat movements. 
 
@@ -50,7 +50,7 @@ Determining the matrix corresponding to a rotation is not immediate, so that ver
 
 ### Cartesian product
 
-Of course the cartesian product is essential for analysis and description of the movement in our euclidean space. But here, it's specific to the lie algebra, this is different from the cartesian product which define our space. 
+Of course the cartesian product is essential for analysis and description of the movement in our Euclidean space. But here, it's specific to the lie algebra, this is different from the cartesian product which define our space. 
 The cartesian product can also be used to create a specific space by associating spaces related to the lie algebra as \f$ SE \f$ and \f$ SO \f$ groups. 
 
 For example let's consider a robot on wheels like Tiago, it just can moved rolling on the ground, it is possible to assimilate the ground as a plan. And the robot can rotated around the z-axis so we have to deal with a \f$ SE(2) \f$ object. Then we add to it a articulated arm with four revolute joints spread out his arm, each has one degree of freedom of rotation so they are \f$ SO(2) \f$ objects. To deal with this set we use the cartesian product related to the lie algebra and we get a new space in which we are able to manage all trajectories the robot and his arm can have.
