@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -9,6 +9,7 @@
 #include <Eigen/Geometry>
 
 #include "pinocchio/fwd.hpp"
+#include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/math/taylor-expansion.hpp"
@@ -234,7 +235,8 @@ namespace pinocchio
     Vector3 w(log3(R,t));
     Jlog3(t,w,Jlog);
   }
-
+  
+  ///
   /// \brief Exp: se3 -> SE3.
   ///
   /// Return the integral of the input twist during time 1.
@@ -252,38 +254,37 @@ namespace pinocchio
 
     typedef SE3Tpl<Scalar,Options> SE3;
     
-    const typename MotionDerived::ConstAngularType & w = nu.angular();
-    const typename MotionDerived::ConstLinearType & v = nu.linear();
-    
-    const Scalar t2 = w.squaredNorm();
-    
     SE3 res;
     typename SE3::LinearType & trans = res.translation();
     typename SE3::AngularType & rot = res.rotation();
     
-    Scalar alpha_wxv, alpha_v, alpha_w, diagonal_term;
-    const Scalar t = math::sqrt(t2);
-    if(t < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      // Taylor expansion
-      alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
-      alpha_v = Scalar(1) - t2/6;
-      alpha_w = (Scalar(1)/Scalar(6) - t2/120)*w.dot(v);
-      diagonal_term = Scalar(1) - t2/2;
-    }
-    else
-    {
-      Scalar ct,st; SINCOS(t,&st,&ct);
-      const Scalar inv_t2 = Scalar(1)/t2;
-      alpha_wxv = (Scalar(1) - ct)*inv_t2;
-      alpha_v = (st)/t;
-      alpha_w = (Scalar(1) - alpha_v)*inv_t2 * w.dot(v);
-      diagonal_term = ct;
-    }
+    const typename MotionDerived::ConstAngularType & w = nu.angular();
+    const typename MotionDerived::ConstLinearType & v = nu.linear();
     
-    // Common operations
+    Scalar alpha_wxv, alpha_v, alpha_w, diagonal_term;
+    const Scalar t2 = w.squaredNorm();
+    const Scalar t = math::sqrt(t2);
+    Scalar ct,st; SINCOS(t,&st,&ct);
+    const Scalar inv_t2 = Scalar(1)/t2;
+    
+    alpha_wxv = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                       Scalar(1)/Scalar(2) - t2/24,
+                                       (Scalar(1) - ct)*inv_t2);
+    
+    alpha_v = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                     Scalar(1) - t2/6,
+                                     (st)/t);
+    
+    alpha_w = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                     (Scalar(1)/Scalar(6) - t2/120),
+                                     (Scalar(1) - alpha_v)*inv_t2);
+    
+    diagonal_term = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                           Scalar(1) - t2/2,
+                                           ct);
+    
     // Linear
-    trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+    trans.noalias() = (alpha_v*v + (alpha_w*w.dot(v))*w + alpha_wxv*w.cross(v));
     
     // Rotational
     rot.noalias() = alpha_wxv * w * w.transpose();
