@@ -15,7 +15,13 @@ To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do
 Or we can just consider one rotation instead of two. For example, in a landmark link to the robot itself, we consider the starting position as the origine of this landmark.  
 
 So let's consider a cube in the 3-dimensional space.
-![Rotation of a cube around its diagonal](rotation_resize.gif)
+
+
+![A rotation around its diagonal](cube_rotation.gif) 
+
+
+![Position and Landmark](cube-rotation_picture.jpg)
+
 
 We want to determine the image of a vector \f$ \overrightarrow{v} \f$ by a \f$ 120° \f$ rotation (\f$ \frac{2\pi}{3}) \f$ around the big diagonal of the cube, let's call it \f$ \overrightarrow{r} \f$. We have to use a passage through quaternion. We have\f$ \overrightarrow{v} = \overrightarrow{i} + \overrightarrow{k} = \begin{pmatrix} 1 \\ 0 \\ 1 \end{pmatrix} \f$ and \f$ \overrightarrow{r} = \overrightarrow{i} + \overrightarrow{j} + \overrightarrow{k} = \begin{pmatrix} 1 \\ 1 \\ 1 \end{pmatrix} \f$
 
