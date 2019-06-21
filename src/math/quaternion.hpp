@@ -6,7 +6,10 @@
 #define __pinocchio_math_quaternion_hpp__
 
 #include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/comparison-operators.hpp"
 #include "pinocchio/math/sincos.hpp"
+#include <boost/type_traits.hpp>
+
 #include <Eigen/Geometry>
 
 namespace pinocchio
@@ -82,14 +85,15 @@ namespace pinocchio
       const Scalar N2 = q.squaredNorm();
 #ifndef NDEBUG
       const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
-      assert(math::fabs(N2-1.) <= epsilon);
+      typedef apply_op_if<less_than_or_equal_to_op,boost::is_floating_point<Scalar>::value,true> static_leq;
+      assert(static_leq::op(math::fabs(N2-1.), epsilon));
 #endif
       const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
       const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
 #ifndef NDEBUG
       const Scalar M = Scalar(3) * math::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
-      assert(math::fabs(q.norm() - Scalar(1)) <=
-             math::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision()));
+      assert(static_leq::op(math::fabs(q.norm() - Scalar(1)),
+                            math::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision())));
 #endif
     }
     
