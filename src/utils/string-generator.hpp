@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_string_generator_hpp__
-#define __pinocchio_string_generator_hpp__
+#ifndef __pinocchio_utils_string_generator_hpp__
+#define __pinocchio_utils_string_generator_hpp__
 
 #include <string>
 #include <cstdlib>
@@ -32,4 +32,4 @@ namespace pinocchio
   }
 }
 
-#endif // __pinocchio_string_generator_hpp__
+#endif // __pinocchio_utils_string_generator_hpp__
