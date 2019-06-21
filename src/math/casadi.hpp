@@ -259,9 +259,8 @@ namespace pinocchio
         typedef ::casadi::Matrix<_Scalar> Scalar;
         template<typename Matrix3, typename QuaternionDerived>
         static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
-                               const Matrix3 & a_mat)
+                               const Matrix3 & mat)
         {
-          const typename Eigen::internal::nested_eval<Matrix3,2>::type mat(a_mat);
           typedef typename Eigen::internal::traits<QuaternionDerived>::Coefficients QuatCoefficients;
           
           typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(QuatCoefficients) QuatCoefficientsPlainType;

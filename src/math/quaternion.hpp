@@ -207,9 +207,8 @@ namespace pinocchio
       {
         template<typename Matrix3, typename QuaternionDerived>
         static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
-                               const Matrix3 & a_mat)
+                               const Matrix3 & mat)
         {
-          const typename Eigen::internal::nested_eval<Matrix3,2>::type mat(a_mat);
           using pinocchio::math::sqrt;
           
           Scalar t = mat.trace();
