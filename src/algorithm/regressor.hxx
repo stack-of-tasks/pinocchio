@@ -9,7 +9,6 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/symmetric3.hpp"
-#include "pinocchio/algorithm/rnea.hxx"
 
 namespace pinocchio
 {
@@ -144,6 +143,49 @@ namespace pinocchio
     return data.bodyRegressor;
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  struct JointTorqueRegressorForwardStep
+  : public fusion::JointVisitorBase< JointTorqueRegressorForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType1 &,
+                                  const TangentVectorType2 &
+                                  > ArgsType;
+
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & a)
+    {
+      typedef typename Model::JointIndex JointIndex;
+
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
+
+      data.liMi[i] = model.jointPlacements[i]*jdata.M();
+
+      data.v[i] = jdata.v();
+      if(parent>0)
+        data.v[i] += data.liMi[i].actInv(data.v[parent]);
+
+      data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(a);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
+    }
+
+  };
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct JointTorqueRegressorBackwardStep
   : public fusion::JointVisitorBase< JointTorqueRegressorBackwardStep<Scalar,Options,JointCollectionTpl> >
@@ -193,7 +235,7 @@ namespace pinocchio
     data.a_gf[0] = -model.gravity;
     data.jointTorqueRegressor.setZero();
 
-    typedef RneaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
+    typedef JointTorqueRegressorForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
     typename Pass1::ArgsType arg1(model,data,q.derived(),v.derived(),a.derived());
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
