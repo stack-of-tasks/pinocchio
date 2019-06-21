@@ -6,6 +6,7 @@
 #define __pinocchio_math_quaternion_hpp__
 
 #include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/sincos.hpp"
 #include <Eigen/Geometry>
 
 namespace pinocchio
