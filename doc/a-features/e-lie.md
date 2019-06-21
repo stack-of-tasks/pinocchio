@@ -116,10 +116,10 @@ To compute \f$ \delta_u \f$ using Pinocchio we need to transform \f$ R_{pose_s} 
 
 \code
   float s = 0.5f / sqrtf(trace+ 1.0f);
-  q.w = 0.25f / s;
   q.x = ( R[2][1] - R[1][2] ) * s;
   q.y = ( R[0][2] - R[2][0] ) * s;
   q.z = ( R[1][0] - R[0][1] ) * s;
+  q.w = 0.25f / s;
 \endcode
 
 The quaternions components are :
@@ -139,7 +139,7 @@ The quaternions components are :
     0.800103
   \endcode
 
-For each pose we have now a mathematical object with seven components. As for the \f$ SE(2) \f$ example we compute \f$ \delta_u \f$ using :
+For each pose we have now a mathematical object with seven components and both are normalized. As for the \f$ SE(2) \f$ example we compute \f$ \delta_u \f$ using :
 
 \code
   pose_s(0) = 1.0; pose_s(1) = 1.0;
@@ -164,6 +164,7 @@ The difference lies in the tangent space of \f$ SE(3)\f$ and is representend by 
   0.86792
 \endcode
 
+The three first values are linear and the three last are velocities.
 
 To verify it is the good solution, we integrate :
 
@@ -199,19 +200,19 @@ A possibility is to use the \f$ \delta_{theta} \f$ method by using quaternions. 
 Let's consider the previous example, we can interpolate trajectory using :
 \code
   SpecialEuclideanOperationTpl<3,Scalar,Options>::ConfigVector_t pole;
-  aSE3.interpolate(pose_s,pose_g,2.0f, pole);
+  aSE3.interpolate(pose_s,pose_g,0.5f, pole);
   std::cout << pole << std::endl;
 \endcode
 
-The output is :
+The output correspond to the middle of the trajectory and is :
 \code
-  3.69572
-  6.96909
-  1.92584
-  -0.59841
-  0.390343
-  0.581891
-  -0.38851
+  2.7486
+  1.4025
+  2.22461
+  -0.316431
+  0.247581
+  0.787859
+  0.466748
 \endcode
 
 
