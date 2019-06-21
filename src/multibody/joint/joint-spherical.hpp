@@ -20,21 +20,18 @@ namespace pinocchio
   template<typename Scalar, int Options = 0> struct MotionSphericalTpl;
   typedef MotionSphericalTpl<double> MotionSpherical;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionSphericalTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionSphericalTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionSphericalTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionSphericalTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionSphericalTpl<_Scalar,_Options> >
   {
@@ -298,16 +295,13 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
-  namespace internal
-  {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-  }
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointSphericalTpl;
   

@@ -55,20 +55,20 @@ namespace pinocchio
       static_cast<const Derived*>(this)->disp_impl(os);
     }
     
-    typename internal::SE3GroupAction<Derived>::ReturnType
+    typename SE3GroupAction<Derived>::ReturnType
     operator*(const Derived & m2) const
     { return derived().__mult__(m2); }
     
     /// ay = aXb.act(by)
     template<typename D>
-    typename internal::SE3GroupAction<D>::ReturnType
+    typename SE3GroupAction<D>::ReturnType
     act(const D & d) const
     {
       return derived().act_impl(d);
     }
     
     /// by = aXb.actInv(ay)
-    template<typename D> typename internal::SE3GroupAction<D>::ReturnType
+    template<typename D> typename SE3GroupAction<D>::ReturnType
     actInv(const D & d) const
     {
       return derived().actInv_impl(d);

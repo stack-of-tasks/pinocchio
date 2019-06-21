@@ -19,21 +19,18 @@ namespace pinocchio
   template<typename Scalar, int Options=0> struct MotionPrismaticUnalignedTpl;
   typedef MotionPrismaticUnalignedTpl<double> MotionPrismaticUnaligned;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionPrismaticUnalignedTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionPrismaticUnalignedTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionPrismaticUnalignedTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionPrismaticUnalignedTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionPrismaticUnalignedTpl<_Scalar,_Options> >
   {
@@ -308,17 +305,14 @@ namespace pinocchio
   }
 
   
-  namespace internal
-  {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar,Options>,MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar,Options>,MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
+
   template<typename Scalar, int Options> struct JointPrismaticUnalignedTpl;
   
   template<typename _Scalar, int _Options>

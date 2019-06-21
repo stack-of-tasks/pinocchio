@@ -8,21 +8,18 @@
 namespace pinocchio
 {
   
-  namespace internal
+  template<typename Derived>
+  struct SE3GroupAction< ForceDense<Derived> >
   {
-    template<typename Derived>
-    struct SE3GroupAction< ForceDense<Derived> >
-    {
-      typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
-    };
-    
-    template<typename Derived, typename MotionDerived>
-    struct MotionAlgebraAction< ForceDense<Derived>, MotionDerived >
-    {
-      typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
-    };
-  }
+    typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
+  };
   
+  template<typename Derived, typename MotionDerived>
+  struct MotionAlgebraAction< ForceDense<Derived>, MotionDerived >
+  {
+    typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
+  };
+
   template<typename Derived>
   class ForceDense : public ForceBase<Derived>
   {

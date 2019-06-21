@@ -18,21 +18,18 @@ namespace pinocchio
   
   template<typename Scalar, int Options, int _axis> struct MotionPrismaticTpl;
   
-  namespace internal
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< MotionPrismaticTpl<Scalar,Options,axis> >
   {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< MotionPrismaticTpl<Scalar,Options,axis> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, int axis, typename MotionDerived>
-    struct MotionAlgebraAction< MotionPrismaticTpl<Scalar,Options,axis>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, int axis, typename MotionDerived>
+  struct MotionAlgebraAction< MotionPrismaticTpl<Scalar,Options,axis>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options, int _axis>
   struct traits < MotionPrismaticTpl<_Scalar,_Options,_axis> >
   {
@@ -184,13 +181,10 @@ namespace pinocchio
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
   }; // traits TransformPrismaticTpl
   
-  namespace internal
-  {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< TransformPrismaticTpl<Scalar,Options,axis> >
-    { typedef typename traits <TransformPrismaticTpl<Scalar,Options,axis> >::PlainType ReturnType; };
-  }
-  
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< TransformPrismaticTpl<Scalar,Options,axis> >
+  { typedef typename traits <TransformPrismaticTpl<Scalar,Options,axis> >::PlainType ReturnType; };
+
   template<typename _Scalar, int _Options, int axis>
   struct TransformPrismaticTpl : SE3Base< TransformPrismaticTpl<_Scalar,_Options,axis> >
   {
@@ -218,10 +212,10 @@ namespace pinocchio
     operator PlainType() const { return plain(); }
     
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<TransformPrismaticTpl>::ReturnType
+    typename SE3GroupAction<TransformPrismaticTpl>::ReturnType
     se3action(const SE3Tpl<S2,O2> & m) const
     {
-      typedef typename internal::SE3GroupAction<TransformPrismaticTpl>::ReturnType ReturnType;
+      typedef typename SE3GroupAction<TransformPrismaticTpl>::ReturnType ReturnType;
       ReturnType res(m);
       res.translation()[axis] += m_displacement;
       
@@ -386,17 +380,14 @@ namespace pinocchio
     return Y.derived().col(Inertia::LINEAR + axis);
   }
 
-  namespace internal 
-  {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< ConstraintPrismatic<Scalar,Options,axis> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-    
-    template<typename Scalar, int Options, int axis, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintPrismatic<Scalar,Options,axis>, MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< ConstraintPrismatic<Scalar,Options,axis> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
+  template<typename Scalar, int Options, int axis, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintPrismatic<Scalar,Options,axis>, MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
+
   template<typename _Scalar, int _Options, int _axis>
   struct JointPrismaticTpl
   {

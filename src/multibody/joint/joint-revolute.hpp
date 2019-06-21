@@ -18,20 +18,17 @@ namespace pinocchio
 
   template<typename Scalar, int Options, int axis> struct MotionRevoluteTpl;
   
-  namespace internal
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< MotionRevoluteTpl<Scalar,Options,axis> >
   {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< MotionRevoluteTpl<Scalar,Options,axis> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, int axis, typename MotionDerived>
-    struct MotionAlgebraAction< MotionRevoluteTpl<Scalar,Options,axis>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+  
+  template<typename Scalar, int Options, int axis, typename MotionDerived>
+  struct MotionAlgebraAction< MotionRevoluteTpl<Scalar,Options,axis>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< MotionRevoluteTpl<_Scalar,_Options,axis> >
@@ -80,13 +77,10 @@ namespace pinocchio
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
   }; // traits TransformRevoluteTpl
   
-  namespace internal
-  {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< TransformRevoluteTpl<Scalar,Options,axis> >
-    { typedef typename traits <TransformRevoluteTpl<Scalar,Options,axis> >::PlainType ReturnType; };
-  }
-  
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< TransformRevoluteTpl<Scalar,Options,axis> >
+  { typedef typename traits <TransformRevoluteTpl<Scalar,Options,axis> >::PlainType ReturnType; };
+
   template<typename _Scalar, int _Options, int axis>
   struct TransformRevoluteTpl : SE3Base< TransformRevoluteTpl<_Scalar,_Options,axis> >
   {
@@ -109,10 +103,10 @@ namespace pinocchio
     operator PlainType() const { return plain(); }
     
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType
+    typename SE3GroupAction<TransformRevoluteTpl>::ReturnType
     se3action(const SE3Tpl<S2,O2> & m) const
     {
-      typedef typename internal::SE3GroupAction<TransformRevoluteTpl>::ReturnType ReturnType;
+      typedef typename SE3GroupAction<TransformRevoluteTpl>::ReturnType ReturnType;
       ReturnType res;
       switch(axis)
       {
@@ -311,16 +305,13 @@ namespace pinocchio
 
   template<typename Scalar, int Options, int axis> struct ConstraintRevoluteTpl;
   
-  namespace internal
-  {
-    template<typename Scalar, int Options, int axis>
-    struct SE3GroupAction< ConstraintRevoluteTpl<Scalar,Options,axis> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-    
-    template<typename Scalar, int Options, int axis, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintRevoluteTpl<Scalar,Options,axis>, MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options, int axis>
+  struct SE3GroupAction< ConstraintRevoluteTpl<Scalar,Options,axis> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
+  
+  template<typename Scalar, int Options, int axis, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintRevoluteTpl<Scalar,Options,axis>, MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< ConstraintRevoluteTpl<_Scalar,_Options,axis> >
@@ -354,10 +345,10 @@ namespace pinocchio
     { return JointMotion(v[0]); }
 
     template<typename S1, int O1>
-    typename internal::SE3GroupAction<ConstraintRevoluteTpl>::ReturnType
+    typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType
     se3Action(const SE3Tpl<S1,O1> & m) const
     {
-      typedef typename internal::SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
+      typedef typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
       ReturnType res;
       res.template head<3>() = m.translation().cross(m.rotation().col(axis));
       res.template tail<3>() = m.rotation().col(axis);
@@ -403,10 +394,10 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    typename internal::MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType
+    typename MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typedef typename internal::MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType ReturnType;
+      typedef typename MotionAlgebraAction<ConstraintRevoluteTpl,MotionDerived>::ReturnType ReturnType;
       ReturnType res;
       MotionRef<ReturnType> v(res);
       v = m.cross(Axis());

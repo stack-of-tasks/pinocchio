@@ -30,17 +30,14 @@ namespace pinocchio
     
   }; // traits ConstraintTpl
   
-  namespace internal
-  {
-    template<int Dim, typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
-    
-    template<int Dim, typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options>, MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
-  }
+  template<int Dim, typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
   
+  template<int Dim, typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options>, MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
+
   template<int _Dim, typename _Scalar, int _Options>
   struct ConstraintTpl
   : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >

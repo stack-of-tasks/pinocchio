@@ -34,11 +34,8 @@ namespace pinocchio
 {
 
   /* Type returned by the "se3Action" and "se3ActionInverse" functions. */
-  namespace internal 
-  {
-    template<typename D>
-    struct SE3GroupAction { typedef D ReturnType; };
-  }
+  template<typename D>
+  struct SE3GroupAction { typedef D ReturnType; };
 
 } // namespace pinocchio
 

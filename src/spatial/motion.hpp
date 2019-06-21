@@ -36,14 +36,11 @@ MOTION_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
 namespace pinocchio
 {
-  namespace internal
-  {
-    ///
-    /// \brief Return type of the ation of a Motion onto an object of type D
-    ///
-    template<typename D, typename MotionDerived>
-    struct MotionAlgebraAction { typedef D ReturnType; };
-  }
+  ///
+  /// \brief Return type of the ation of a Motion onto an object of type D
+  ///
+  template<typename D, typename MotionDerived>
+  struct MotionAlgebraAction { typedef D ReturnType; };
 
 } // namespace pinocchio
 

@@ -18,20 +18,17 @@ namespace pinocchio
   template<typename Scalar, int Options=0> struct MotionRevoluteUnalignedTpl;
   typedef MotionRevoluteUnalignedTpl<double> MotionRevoluteUnaligned;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionRevoluteUnalignedTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionRevoluteUnalignedTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionRevoluteUnalignedTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionRevoluteUnalignedTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
 
   template<typename _Scalar, int _Options>
   struct traits< MotionRevoluteUnalignedTpl<_Scalar,_Options> >
@@ -327,16 +324,13 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis;
   }
   
-  namespace internal
-  {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintRevoluteUnalignedTpl<Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options>  ReturnType; };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintRevoluteUnalignedTpl<Scalar,Options>,MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintRevoluteUnalignedTpl<Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options>  ReturnType; };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintRevoluteUnalignedTpl<Scalar,Options>,MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options> struct JointRevoluteUnalignedTpl;
   

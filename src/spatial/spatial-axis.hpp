@@ -14,13 +14,10 @@ namespace pinocchio
 {
   template<int axis> struct SpatialAxis;
   
-  namespace internal
-  {
-    template<int axis, typename MotionDerived>
-    struct MotionAlgebraAction<SpatialAxis<axis>, MotionDerived>
-    { typedef typename MotionDerived::MotionPlain ReturnType; };
-  }
-  
+  template<int axis, typename MotionDerived>
+  struct MotionAlgebraAction<SpatialAxis<axis>, MotionDerived>
+  { typedef typename MotionDerived::MotionPlain ReturnType; };
+
   template<int _axis>
   struct SpatialAxis //: MotionBase< SpatialAxis<_axis> >
   {

@@ -34,20 +34,16 @@ namespace pinocchio
 
   }; // traits MotionRef
   
-  namespace internal
+  template<typename Vector6ArgType>
+  struct SE3GroupAction< MotionRef<Vector6ArgType> >
   {
-    template<typename Vector6ArgType>
-    struct SE3GroupAction< MotionRef<Vector6ArgType> >
-    {
-      typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
-    };
-    
-    template<typename Vector6ArgType, typename MotionDerived>
-    struct MotionAlgebraAction< MotionRef<Vector6ArgType>, MotionDerived >
-    { typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType; };
+    typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+  };
   
-  }
-  
+  template<typename Vector6ArgType, typename MotionDerived>
+  struct MotionAlgebraAction< MotionRef<Vector6ArgType>, MotionDerived >
+  { typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType; };
+
   template<typename Vector6ArgType>
   class MotionRef : public MotionDense< MotionRef<Vector6ArgType> >
   {

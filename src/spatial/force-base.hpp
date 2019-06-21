@@ -169,7 +169,7 @@ namespace pinocchio
      * @return     an expression of the force expressed in the new coordinates
      */
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<Derived>::ReturnType
+    typename SE3GroupAction<Derived>::ReturnType
     se3Action(const SE3Tpl<S2,O2> & m) const
     { return derived().se3Action_impl(m); }
     
@@ -185,12 +185,12 @@ namespace pinocchio
      * @return     an expression of the force expressed in the new coordinates
      */
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<Derived>::ReturnType
+    typename SE3GroupAction<Derived>::ReturnType
     se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     { return derived().se3ActionInverse_impl(m); }
     
     template<typename M1>
-    typename internal::MotionAlgebraAction<Derived,M1>::ReturnType
+    typename MotionAlgebraAction<Derived,M1>::ReturnType
     motionAction(const MotionDense<M1> & v) const
     {
       return derived().motionAction(v.derived());

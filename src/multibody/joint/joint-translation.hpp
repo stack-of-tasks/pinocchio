@@ -19,21 +19,18 @@ namespace pinocchio
   template<typename Scalar, int Options=0> struct MotionTranslationTpl;
   typedef MotionTranslationTpl<double> MotionTranslation;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionTranslationTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionTranslationTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionTranslationTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionTranslationTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionTranslationTpl<_Scalar,_Options> >
   {
@@ -189,13 +186,10 @@ namespace pinocchio
     typedef typename traits<PlainType>::HomogeneousMatrixType HomogeneousMatrixType;
   }; // traits TransformTranslationTpl
   
-  namespace internal
-  {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< TransformTranslationTpl<Scalar,Options> >
-    { typedef typename traits <TransformTranslationTpl<Scalar,Options> >::PlainType ReturnType; };
-  }
-  
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< TransformTranslationTpl<Scalar,Options> >
+  { typedef typename traits <TransformTranslationTpl<Scalar,Options> >::PlainType ReturnType; };
+
   template<typename _Scalar, int _Options>
   struct TransformTranslationTpl
   : SE3Base< TransformTranslationTpl<_Scalar,_Options> >
@@ -223,10 +217,10 @@ namespace pinocchio
     operator PlainType() const { return plain(); }
     
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<TransformTranslationTpl>::ReturnType
+    typename SE3GroupAction<TransformTranslationTpl>::ReturnType
     se3action(const SE3Tpl<S2,O2> & m) const
     {
-      typedef typename internal::SE3GroupAction<TransformTranslationTpl>::ReturnType ReturnType;
+      typedef typename SE3GroupAction<TransformTranslationTpl>::ReturnType ReturnType;
       ReturnType res(m);
       res.translation() += translation();
       
@@ -376,18 +370,14 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Constraint::LINEAR);
   }
   
-  namespace internal
-  {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintTranslationTpl<S1,O1> >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintTranslationTpl<S1,O1>,MotionDerived >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-  }
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintTranslationTpl<S1,O1> >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   
-  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintTranslationTpl<S1,O1>,MotionDerived >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
+
   template<typename Scalar, int Options> struct JointTranslationTpl;
   
   template<typename _Scalar, int _Options>

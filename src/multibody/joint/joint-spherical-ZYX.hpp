@@ -178,24 +178,21 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
   }
 
-  namespace internal
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintSphericalZYXTpl<S1,O1> >
   {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintSphericalZYXTpl<S1,O1> >
-    {
-//      typedef const typename Eigen::ProductReturnType<
-//      Eigen::Matrix <double,6,3,0>,
-//      Eigen::Matrix <double,3,3,0>
-//      >::Type Type;
-      typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
-    };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintSphericalZYXTpl<S1,O1>, MotionDerived >
-    {
-      typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
-    };
-  }
+    //      typedef const typename Eigen::ProductReturnType<
+    //      Eigen::Matrix <double,6,3,0>,
+    //      Eigen::Matrix <double,3,3,0>
+    //      >::Type Type;
+    typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
+  };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintSphericalZYXTpl<S1,O1>, MotionDerived >
+  {
+    typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
+  };
 
   template<typename Scalar, int Options> struct JointSphericalZYXTpl;
   

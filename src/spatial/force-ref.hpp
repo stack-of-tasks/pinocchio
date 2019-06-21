@@ -34,8 +34,6 @@ namespace pinocchio
     
   }; // traits ForceRef
   
-  namespace internal
-  {
     template<typename Vector6ArgType>
     struct SE3GroupAction< ForceRef<Vector6ArgType> >
     {
@@ -47,8 +45,7 @@ namespace pinocchio
     {
       typedef typename traits< ForceRef<Vector6ArgType> >::ForcePlain ReturnType;
     };
-  }
-  
+
   template<typename Vector6ArgType>
   class ForceRef : public ForceDense< ForceRef<Vector6ArgType> >
   {
