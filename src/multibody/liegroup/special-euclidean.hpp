@@ -9,6 +9,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
@@ -471,14 +472,23 @@ namespace pinocchio
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       ConstQuaternionMap_t quat(q.derived().template tail<4>().data());
       QuaternionMap_t res_quat (out.template tail<4>().data());
+      
+      using internal::if_then_else;
 
       SE3 M0 (quat.matrix(), q.derived().template head<3>());
       MotionRef<const Velocity_t> mref_v(v.derived());
       SE3 M1 (M0 * exp6(mref_v));
 
       out.template head<3>() = M1.translation();
-      if(res_quat.dot(quat) < 0) res_quat.coeffs() *= -1.;
       quaternion::assignQuaternion(res_quat,M1.rotation()); // required by CasADi
+      const Scalar dot_product = res_quat.dot(quat);
+      for(Eigen::DenseIndex k = 0; k < 4; ++k)
+      {
+        res_quat.coeffs().coeffRef(k) = if_then_else(dot_product < 0,
+                                                     -res_quat.coeffs().coeff(k),
+                                                      res_quat.coeffs().coeff(k));
+      }
+    
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
       // It is then safer to re-normalized after converting M1.rotation to quaternion.
       quaternion::firstOrderNormalize(res_quat);
