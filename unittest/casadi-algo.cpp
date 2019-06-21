@@ -2,6 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
+#include "pinocchio/math/casadi.hpp"
+
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -10,8 +12,6 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
-
-#include <casadi/casadi.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
