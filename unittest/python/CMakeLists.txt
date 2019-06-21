@@ -3,6 +3,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_data
   bindings_com
   bindings_com_velocity_derivatives
+  bindings_regressor
   bindings_dynamics
   bindings_force
   bindings_frame

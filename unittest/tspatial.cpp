@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
     BOOST_CHECK(I.ivx(v).isApprox(M_ref));
   }
   
-  // Text variation against vxI - Ivx operator
+  // Test variation against vxI - Ivx operator
   {
     typedef Inertia::Matrix6 Matrix6;
     Inertia I(Inertia::Random());
@@ -555,7 +555,30 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
     
     BOOST_CHECK(M3.isApprox(Ivariation));
   }
-  
+
+  // Test dynamic parameters
+  {
+    Inertia I(Inertia::Random());
+
+    Inertia::Vector10 v = I.toDynamicParameters();
+
+    BOOST_CHECK_CLOSE(v[0], I.mass(), 1e-12);
+
+    BOOST_CHECK(v.segment<3>(1).isApprox(I.mass()*I.lever()));
+
+    Eigen::Matrix3d I_o = I.inertia() + I.mass()*skew(I.lever()).transpose()*skew(I.lever());
+    Eigen::Matrix3d I_ov;
+    I_ov << v[4], v[5], v[7],
+            v[5], v[6], v[8],
+            v[7], v[8], v[9];
+
+    BOOST_CHECK(I_o.isApprox(I_ov));
+
+    Inertia I2 = Inertia::FromDynamicParameters(v);
+    BOOST_CHECK(I2.isApprox(I));
+
+  }
+
 }
 
 BOOST_AUTO_TEST_CASE(cast_inertia)

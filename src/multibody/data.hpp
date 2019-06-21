@@ -70,7 +70,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef Eigen::Matrix<Scalar,6,6,Eigen::RowMajor | Options> RowMatrix6;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor | Options> RowMatrixXs;
-    
+
+    /// \brief The type of the body regressor
+    typedef Eigen::Matrix<Scalar,6,10,Options> BodyRegressorType;
+
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
@@ -325,8 +328,14 @@ namespace pinocchio
     /// \brief Lagrange Multipliers corresponding to the contact impulses in pinocchio::impulseDynamics.
     VectorXs impulse_c;
     
-    // data related to regressor
+    // data related to static regressor
     Matrix3x staticRegressor;
+
+    /// body regressor
+    BodyRegressorType bodyRegressor;
+
+    // data related to joint torque regressor
+    MatrixXs jointTorqueRegressor;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
