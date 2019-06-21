@@ -261,43 +261,36 @@ namespace pinocchio
     typename SE3::LinearType & trans = res.translation();
     typename SE3::AngularType & rot = res.rotation();
     
+    Scalar alpha_wxv, alpha_v, alpha_w, diagonal_term;
     const Scalar t = math::sqrt(t2);
     if(t < TaylorSeriesExpansion<Scalar>::template precision<3>())
     {
       // Taylor expansion
-      const Scalar alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
-      const Scalar alpha_v = Scalar(1) - t2/6;
-      const Scalar alpha_w = (Scalar(1)/Scalar(6) - t2/120)*w.dot(v);
-      
-      // Linear
-      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
-      
-      // Rotational
-      rot.noalias() = alpha_wxv * w * w.transpose();
-      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
-      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
-      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
-      rot.diagonal().array() += Scalar(1) - t2/2;
+      alpha_wxv = Scalar(1)/Scalar(2) - t2/24;
+      alpha_v = Scalar(1) - t2/6;
+      alpha_w = (Scalar(1)/Scalar(6) - t2/120)*w.dot(v);
+      diagonal_term = Scalar(1) - t2/2;
     }
     else
     {
       Scalar ct,st; SINCOS(t,&st,&ct);
-      
       const Scalar inv_t2 = Scalar(1)/t2;
-      const Scalar alpha_wxv = (Scalar(1) - ct)*inv_t2;
-      const Scalar alpha_v = (st)/t;
-      const Scalar alpha_w = (Scalar(1) - alpha_v)*inv_t2 * w.dot(v);
-      
-      // Linear
-      trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
-      
-      // Rotational
-      rot.noalias() = alpha_wxv * w * w.transpose();
-      rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
-      rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
-      rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
-      rot.diagonal().array() += ct;
+      alpha_wxv = (Scalar(1) - ct)*inv_t2;
+      alpha_v = (st)/t;
+      alpha_w = (Scalar(1) - alpha_v)*inv_t2 * w.dot(v);
+      diagonal_term = ct;
     }
+    
+    // Common operations
+    // Linear
+    trans.noalias() = (alpha_v*v + alpha_w*w + alpha_wxv*w.cross(v));
+    
+    // Rotational
+    rot.noalias() = alpha_wxv * w * w.transpose();
+    rot.coeffRef(0,1) -= alpha_v * w[2]; rot.coeffRef(1,0) += alpha_v * w[2];
+    rot.coeffRef(0,2) += alpha_v * w[1]; rot.coeffRef(2,0) -= alpha_v * w[1];
+    rot.coeffRef(1,2) -= alpha_v * w[0]; rot.coeffRef(2,1) += alpha_v * w[0];
+    rot.diagonal().array() += diagonal_term;
     
     return res;
   }
