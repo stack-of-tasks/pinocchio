@@ -271,7 +271,8 @@ namespace pinocchio
     /** Returns the representation of the matrix as a vector of dynamic parameters.
     * The parameters are given as
     * \f$ v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T \f$
-    * where \f$ I = I_C + mS^T(c)S(c) \f$ and \f$ I_C \f$ has its origin at the barycenter.
+    * where \f$ c \f$ is the center of mass, \f$ I = I_C + mS^T(c)S(c) \f$ and \f$ I_C \f$ has its origin at the barycenter
+    * and \f$ S(c) \f$ is the the skew matrix representation of the cross product operator.
     */
     Vector10 toDynamicParameters() const
     {

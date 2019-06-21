@@ -81,11 +81,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,10,Options> ReturnType;
     using ::pinocchio::details::bigL;
 
-    Eigen::Matrix<Scalar, 3, 1, Options> acc = a.linear() + v.angular().cross(v.linear());
-
     ReturnType res;
 
-    res.template block<3,1>(MotionVelocity::LINEAR,0) = acc;
+    res.template block<3,1>(MotionVelocity::LINEAR,0) = a.linear() + v.angular().cross(v.linear());
+    const Eigen::Matrix<Scalar, 3, 1, Options> & acc = res.template block<3,1>(MotionVelocity::LINEAR,0);
     res.template block<3,3>(MotionVelocity::LINEAR,1) = Symmetric3(SkewSquare(v.angular())).matrix();
     addSkew(a.angular(), res.template block<3,3>(MotionVelocity::LINEAR,1));
 

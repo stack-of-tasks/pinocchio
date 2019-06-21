@@ -15,6 +15,11 @@ namespace pinocchio
   /// \brief Computes the static regressor that links the center of mass positions of all the links
   ///        to the center of mass of the complete model according to the current configuration of the robot.
   ///
+  /// The result is stored in `data.staticRegressor` and it corresponds to a matrix \f$ Y \f$ such that
+  /// \f$ c = Y(q,\dot{q},\ddot{q})\tilde{\pi} \f$
+  /// where \f$ \tilde{\pi} = (\tilde{\pi}_1^T\ \dots\ \tilde{\pi}_n^T)^T \f$ and
+  /// \f$ \tilde{\pi}_i = \text{model.inertias[i].toDynamicParameters().head<4>()} \f$
+  ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
@@ -79,7 +84,7 @@ namespace pinocchio
   /// This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.
   ///
   /// The result is such that
-  /// \f$ f = jointBodyRegressor(model,data,jointId) * I.toDynamicParameters() \f$
+  /// \f$ f = \text{jointBodyRegressor(model,data,jointId) * I.toDynamicParameters()} \f$
   /// where \f$ f \f$ is the net force acting on the body, including gravity
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -100,7 +105,7 @@ namespace pinocchio
   /// This algorithm assumes RNEA has been run to compute the acceleration and gravitational effects.
   ///
   /// The result is such that
-  /// \f$ f = frameBodyRegressor(model,data,frameId) * I.toDynamicParameters() \f$
+  /// \f$ f = \text{frameBodyRegressor(model,data,frameId) * I.toDynamicParameters()} \f$
   /// where \f$ f \f$ is the net force acting on the body, including gravity
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -115,31 +120,35 @@ namespace pinocchio
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      FrameIndex frameId);
 
-    ///
-    /// \brief Computes the joint torque regressor that links the joint torque
-    ///        to the dynamic parameters of each link according to the current the robot motion.
-    ///
-    /// \tparam JointCollection Collection of Joint types.
-    /// \tparam ConfigVectorType Type of the joint configuration vector.
-    /// \tparam TangentVectorType1 Type of the joint velocity vector.
-    /// \tparam TangentVectorType2 Type of the joint acceleration vector.
-    ///
-    /// \param[in] model The model structure of the rigid body system.
-    /// \param[in] data The data structure of the rigid body system.
-    /// \param[in] q The joint configuration vector (dim model.nq).
-    /// \param[in] v The joint velocity vector (dim model.nv).
-    /// \param[in] a The joint acceleration vector (dim model.nv).
-    ///
-    /// \return The joint torque regressor of the system.
-    ///
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-    inline typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
-    computeJointTorqueRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const Eigen::MatrixBase<ConfigVectorType> & q,
-                                const Eigen::MatrixBase<TangentVectorType1> & v,
-                                const Eigen::MatrixBase<TangentVectorType2> & a);
-  
+  ///
+  /// \brief Computes the joint torque regressor that links the joint torque
+  ///        to the dynamic parameters of each link according to the current the robot motion.
+  ///
+  /// The result is stored in `data.jointTorqueRegressor` and it corresponds to a matrix \f$ Y \f$ such that
+  /// \f$ \tau = Y(q,\dot{q},\ddot{q})\pi \f$
+  /// where \f$ \pi = (\pi_1^T\ \dots\ \pi_n^T)^T \f$ and \f$ \pi_i = \text{model.inertias[i].toDynamicParameters()} \f$
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  /// \param[in] a The joint acceleration vector (dim model.nv).
+  ///
+  /// \return The joint torque regressor of the system.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  computeJointTorqueRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                              const Eigen::MatrixBase<ConfigVectorType> & q,
+                              const Eigen::MatrixBase<TangentVectorType1> & v,
+                              const Eigen::MatrixBase<TangentVectorType2> & a);
+
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
