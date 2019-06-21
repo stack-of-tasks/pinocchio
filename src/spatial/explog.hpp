@@ -79,7 +79,7 @@ namespace pinocchio
   log3(const Eigen::MatrixBase<Matrix3Like> & R,
        typename Matrix3Like::Scalar & theta)
   {
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
 
     typedef typename Matrix3Like::Scalar Scalar;
     typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
@@ -88,9 +88,9 @@ namespace pinocchio
     
     Vector3 res;
     const Scalar tr = R.trace();
-    if (tr > Scalar(3))       theta = 0; // acos((3-1)/2)
-    else if (tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
-    else                      theta = acos((tr - Scalar(1))/Scalar(2));
+    if(tr > Scalar(3))       theta = 0; // acos((3-1)/2)
+    else if(tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
+    else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
     assert(theta == theta && "theta contains some NaN"); // theta != NaN
     
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
