@@ -28,6 +28,11 @@ namespace pinocchio
   ///
   template<class C> struct traits {};
   
+  namespace internal
+  {
+    template<typename T> struct traits {};
+  }
+  
   ///
   /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.
   ///        This class should be specialized for each types.
