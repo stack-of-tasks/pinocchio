@@ -41,34 +41,27 @@ namespace pinocchio
     typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
   };
 
-  template<typename Vector6ArgType>
-  struct SE3GroupAction< MotionRef<Vector6ArgType> >
-  {
-    typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
-  };
-  
   template<typename Vector6ArgType, typename MotionDerived>
   struct MotionAlgebraAction< MotionRef<Vector6ArgType>, MotionDerived >
   {
     typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
   };
   
-  template<typename Vector6ArgType, typename Scalar>
-  struct RHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
+  namespace internal
   {
-    typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
-  };
+    template<typename Vector6ArgType, typename Scalar>
+    struct RHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
+    {
+      typedef typename pinocchio::traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+    };
+    
+    template<typename Vector6ArgType, typename Scalar>
+    struct LHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
+    {
+      typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+    };
+  }
   
-  template<typename Vector6ArgType, typename Scalar>
-  struct LHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
-  {
-    typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
-  };
-  
-  template<typename Vector6ArgType, typename MotionDerived>
-  struct MotionAlgebraAction< MotionRef<Vector6ArgType>, MotionDerived >
-  { typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType; };
-
   template<typename Vector6ArgType>
   class MotionRef : public MotionDense< MotionRef<Vector6ArgType> >
   {

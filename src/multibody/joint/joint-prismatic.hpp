@@ -259,21 +259,20 @@ namespace pinocchio
     typedef const DenseBase ConstMatrixReturnType;
   }; // traits ConstraintRevolute
   
-<<<<<<< HEAD
   template<typename Scalar, int Options, int axis>
-  struct SE3GroupAction< ConstraintPrismatic<Scalar,Options,axis> >
+  struct SE3GroupAction< ConstraintPrismaticTpl<Scalar,Options,axis> >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintPrismatic<Scalar,Options,axis>, MotionDerived >
+  struct MotionAlgebraAction< ConstraintPrismaticTpl<Scalar,Options,axis>, MotionDerived >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options, int axis, typename ForceDerived>
-  struct ConstraintForceOp< ConstraintPrismatic<Scalar,Options,axis>, ForceDerived>
+  struct ConstraintForceOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceDerived>
   { typedef typename ForceDense<ForceDerived>::ConstLinearType::template ConstFixedBlockXpr<1,1>::Type ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
-  struct ConstraintForceSetOp< ConstraintPrismatic<Scalar,Options,axis>, ForceSet>
+  struct ConstraintForceSetOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceSet>
   { typedef typename Eigen::MatrixBase<ForceSet>::ConstRowXpr ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
@@ -297,10 +296,10 @@ namespace pinocchio
     }
 
     template<typename S2, int O2>
-    typename SE3GroupAction<ConstraintPrismatic>::ReturnType
+    typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType
     se3Action(const SE3Tpl<S2,O2> & m) const
     { 
-      typename SE3GroupAction<ConstraintPrismatic>::ReturnType res;
+      typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v.linear() = m.rotation().col(axis);
       v.angular().setZero();
@@ -315,13 +314,13 @@ namespace pinocchio
       TransposeConst(const ConstraintPrismaticTpl & ref) : ref(ref) {}
 
       template<typename ForceDerived>
-      typename ConstraintForceOp<ConstraintPrismatic,ForceDerived>::ReturnType
+      typename ConstraintForceOp<ConstraintPrismaticTpl,ForceDerived>::ReturnType
       operator* (const ForceDense<ForceDerived> & f) const
       { return f.linear().template segment<1>(axis); }
 
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename Derived>
-      typename ConstraintForceSetOp<ConstraintPrismatic,Derived>::ReturnType
+      typename ConstraintForceSetOp<ConstraintPrismaticTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F )
       {
         assert(F.rows()==6);
@@ -346,10 +345,10 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    typename MotionAlgebraAction<ConstraintPrismatic,MotionDerived>::ReturnType
+    typename MotionAlgebraAction<ConstraintPrismaticTpl,MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typename MotionAlgebraAction<ConstraintPrismatic,MotionDerived>::ReturnType res;
+      typename MotionAlgebraAction<ConstraintPrismaticTpl,MotionDerived>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v = m.cross(Axis());
       return res;

@@ -188,24 +188,24 @@ namespace pinocchio
   }; // traits ConstraintPrismaticUnalignedTpl
   
   template<typename Scalar, int Options>
-  struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar,Options> >
+  struct SE3GroupAction< ConstraintPrismaticUnalignedTpl<Scalar,Options> >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
   template<typename Scalar, int Options, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar,Options>,MotionDerived >
+  struct MotionAlgebraAction< ConstraintPrismaticUnalignedTpl<Scalar,Options>,MotionDerived >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options, typename ForceDerived>
-  struct ConstraintForceOp< ConstraintPrismaticUnaligned<Scalar,Options>, ForceDerived>
+  struct ConstraintForceOp< ConstraintPrismaticUnalignedTpl<Scalar,Options>, ForceDerived>
   {
     typedef typename traits< ConstraintRevoluteUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
     typedef Eigen::Matrix<typename PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<ForceDerived>::ConstAngularType),1,1,Options> ReturnType;
   };
   
   template<typename Scalar, int Options, typename ForceSet>
-  struct ConstraintForceSetOp< ConstraintPrismaticUnaligned<Scalar,Options>, ForceSet>
+  struct ConstraintForceSetOp< ConstraintPrismaticUnalignedTpl<Scalar,Options>, ForceSet>
   {
-    typedef typename traits< ConstraintPrismaticUnaligned<Scalar,Options> >::Vector3 Vector3;
+    typedef typename traits< ConstraintPrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
     typedef typename MatrixMatrixProduct<Eigen::Transpose<const Vector3>,
     typename Eigen::MatrixBase<const ForceSet>::template NRowsBlockXpr<3>::Type
     >::type ReturnType;
@@ -253,10 +253,10 @@ namespace pinocchio
       TransposeConst(const ConstraintPrismaticUnalignedTpl & ref) : ref(ref) {}
       
       template<typename ForceDerived>
-      typename ConstraintForceOp<ConstraintPrismaticUnaligned,ForceDerived>::ReturnType
+      typename ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType
       operator* (const ForceDense<ForceDerived> & f) const
       {
-        typedef typename ConstraintForceOp<ConstraintPrismaticUnaligned,ForceDerived>::ReturnType ReturnType;
+        typedef typename ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType ReturnType;
         ReturnType res;
         res[0] = ref.axis.dot(f.linear());
         return res;
@@ -264,7 +264,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename ForceSet>
-      typename ConstraintForceSetOp<ConstraintPrismaticUnaligned,ForceSet>::ReturnType
+      typename ConstraintForceSetOp<ConstraintPrismaticUnalignedTpl,ForceSet>::ReturnType
       operator*(const Eigen::MatrixBase<ForceSet> & F)
       {
         EIGEN_STATIC_ASSERT(ForceSet::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)

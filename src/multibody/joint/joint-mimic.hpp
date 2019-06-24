@@ -29,36 +29,32 @@ namespace pinocchio
     typedef typename traits<Constraint>::ConstMatrixReturnType ConstMatrixReturnType;
   }; // traits ScaledConstraint
   
-  namespace internal
-  {
-    template<class Constraint>
-    struct SE3GroupAction< ScaledConstraint<Constraint> >
-    { typedef typename SE3GroupAction<Constraint>::ReturnType ReturnType; };
-    
-    template<class Constraint, typename MotionDerived>
-    struct MotionAlgebraAction< ScaledConstraint<Constraint>, MotionDerived >
-    { typedef typename MotionAlgebraAction<Constraint,MotionDerived>::ReturnType ReturnType; };
-    
-    template<class Constraint, typename ForceDerived>
-    struct ConstraintForceOp< ScaledConstraint<Constraint>, ForceDerived>
-    {
-      typedef typename Constraint::Scalar Scalar;
-      typedef typename ConstraintForceOp<Constraint,ForceDerived>::ReturnType OriginalReturnType;
-      
-      typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type IdealReturnType;
-      typedef Eigen::Matrix<Scalar,IdealReturnType::RowsAtCompileTime,IdealReturnType::ColsAtCompileTime,Constraint::Options> ReturnType;
-    };
-    
-    template<class Constraint, typename ForceSet>
-    struct ConstraintForceSetOp< ScaledConstraint<Constraint>, ForceSet>
-    {
-      typedef typename Constraint::Scalar Scalar;
-      typedef typename ConstraintForceSetOp<Constraint,ForceSet>::ReturnType OriginalReturnType;
-      typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
-    };
-    
-  }
+  template<class Constraint>
+  struct SE3GroupAction< ScaledConstraint<Constraint> >
+  { typedef typename SE3GroupAction<Constraint>::ReturnType ReturnType; };
   
+  template<class Constraint, typename MotionDerived>
+  struct MotionAlgebraAction< ScaledConstraint<Constraint>, MotionDerived >
+  { typedef typename MotionAlgebraAction<Constraint,MotionDerived>::ReturnType ReturnType; };
+  
+  template<class Constraint, typename ForceDerived>
+  struct ConstraintForceOp< ScaledConstraint<Constraint>, ForceDerived>
+  {
+    typedef typename Constraint::Scalar Scalar;
+    typedef typename ConstraintForceOp<Constraint,ForceDerived>::ReturnType OriginalReturnType;
+    
+    typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type IdealReturnType;
+    typedef Eigen::Matrix<Scalar,IdealReturnType::RowsAtCompileTime,IdealReturnType::ColsAtCompileTime,Constraint::Options> ReturnType;
+  };
+  
+  template<class Constraint, typename ForceSet>
+  struct ConstraintForceSetOp< ScaledConstraint<Constraint>, ForceSet>
+  {
+    typedef typename Constraint::Scalar Scalar;
+    typedef typename ConstraintForceSetOp<Constraint,ForceSet>::ReturnType OriginalReturnType;
+    typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
+  };
+    
   template<class Constraint>
   struct ScaledConstraint
   : ConstraintBase< ScaledConstraint<Constraint> >
@@ -70,7 +66,7 @@ namespace pinocchio
     typedef ConstraintBase<ScaledConstraint> Base;
     using Base::nv;
     
-    typedef typename internal::SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
+    typedef typename SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
     
     ScaledConstraint() {}
     
@@ -111,17 +107,17 @@ namespace pinocchio
       TransposeConst(const ScaledConstraint & ref) : ref(ref) {}
       
       template<typename Derived>
-      typename internal::ConstraintForceOp<ScaledConstraint,Derived>::ReturnType
+      typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
         // TODO: I don't know why, but we should a dense a return type, otherwise it failes at the evaluation level;
-        typedef typename internal::ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
+        typedef typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
         return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
       }
       
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
       template<typename Derived>
-      typename internal::ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType
+      typename ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
         return ref.m_scaling_factor * (ref.m_constraint.transpose() * F);
@@ -138,10 +134,10 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    typename internal::MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType
+    typename MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typedef typename internal::MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType ReturnType;
+      typedef typename MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType ReturnType;
       ReturnType res = m_scaling_factor * m_constraint.motionAction(m);
       return res;
     }
