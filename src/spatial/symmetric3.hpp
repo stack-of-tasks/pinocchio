@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2014-2017 CNRS
+// Copyright (c) 2014-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_symmetric3_hpp__
 #define __pinocchio_symmetric3_hpp__
 
 #include "pinocchio/macros.hpp"
+#include "pinocchio/math/matrix.hpp"
 
 namespace pinocchio
 {
@@ -412,7 +413,7 @@ namespace pinocchio
     Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-      assert( (R.transpose()*R).isApprox(Matrix3::Identity()) );
+      assert(isUnitary(R.transpose()*R) && "R is not a Unitary matrix");
 
       Symmetric3Tpl Sres;
       

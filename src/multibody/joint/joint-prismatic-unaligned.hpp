@@ -19,21 +19,18 @@ namespace pinocchio
   template<typename Scalar, int Options=0> struct MotionPrismaticUnalignedTpl;
   typedef MotionPrismaticUnalignedTpl<double> MotionPrismaticUnaligned;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionPrismaticUnalignedTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionPrismaticUnalignedTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionPrismaticUnalignedTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionPrismaticUnalignedTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionPrismaticUnalignedTpl<_Scalar,_Options> >
   {
@@ -176,7 +173,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismaticUnaligned)
     
-    enum { NV = 1, Options = _Options };
+    enum { NV = 1 };
     
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
 
@@ -308,17 +305,14 @@ namespace pinocchio
   }
 
   
-  namespace internal
-  {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar,Options>,MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintPrismaticUnaligned<Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintPrismaticUnaligned<Scalar,Options>,MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
+
   template<typename Scalar, int Options> struct JointPrismaticUnalignedTpl;
   
   template<typename _Scalar, int _Options>
@@ -411,11 +405,13 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,3,1,_Options> Vector3;
     
     JointModelPrismaticUnalignedTpl() {}
-    JointModelPrismaticUnalignedTpl(Scalar x, Scalar y, Scalar z)
+    JointModelPrismaticUnalignedTpl(const Scalar & x,
+                                    const Scalar & y,
+                                    const Scalar & z)
     : axis(x,y,z)
     {
       axis.normalize();
-      assert(axis.isUnitary() && "Translation axis is not unitary");
+      assert(isUnitary(axis) && "Translation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -423,7 +419,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(axis.isUnitary() && "Translation axis is not unitary");
+      assert(isUnitary(axis) && "Translation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }

@@ -1,11 +1,16 @@
 //
-// Copyright (c) 2016,2018 CNRS, INRIA
+// Copyright (c) 2016-2019 CNRS, INRIA
 //
 
-#ifndef __math_quaternion_hpp__
-#define __math_quaternion_hpp__
+#ifndef __pinocchio_math_quaternion_hpp__
+#define __pinocchio_math_quaternion_hpp__
 
 #include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/comparison-operators.hpp"
+#include "pinocchio/math/sincos.hpp"
+#include <boost/type_traits.hpp>
+
+#include <Eigen/Geometry>
 
 namespace pinocchio
 {
@@ -26,7 +31,7 @@ namespace pinocchio
     {
       typedef typename D1::Scalar Scalar;
       const Scalar innerprod = q1.dot(q2);
-      Scalar theta = acos(innerprod);
+      Scalar theta = math::acos(innerprod);
       static const Scalar PI_value = PI<Scalar>();
       
       if(innerprod < 0)
@@ -80,14 +85,15 @@ namespace pinocchio
       const Scalar N2 = q.squaredNorm();
 #ifndef NDEBUG
       const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
-      assert(math::fabs(N2-1.) <= epsilon);
+      typedef apply_op_if<less_than_or_equal_to_op,boost::is_floating_point<Scalar>::value,true> static_leq;
+      assert(static_leq::op(math::fabs(N2-1.), epsilon));
 #endif
       const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
       const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
 #ifndef NDEBUG
       const Scalar M = Scalar(3) * math::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
-      assert(math::fabs(q.norm() - Scalar(1)) <=
-             std::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision()));
+      assert(static_leq::op(math::fabs(q.norm() - Scalar(1)),
+                            math::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision())));
 #endif
     }
     
@@ -105,7 +111,7 @@ namespace pinocchio
       const Scalar mult1 = sqrt(Scalar(1)-u1);
       const Scalar mult2 = sqrt(u1);
       
-      const Scalar PI_value = PI<Scalar>();
+      static const Scalar PI_value = PI<Scalar>();
       Scalar s2,c2; SINCOS(Scalar(2)*PI_value*u2,&s2,&c2);
       Scalar s3,c3; SINCOS(Scalar(2)*PI_value*u3,&s3,&c3);
       
@@ -154,5 +160,93 @@ namespace pinocchio
   {
     quaternion::uniformRandom(q);
   }
+  
+  namespace quaternion
+  {
+    namespace internal
+    {
+      
+      template<Eigen::DenseIndex i>
+      struct quaternionbase_assign_impl_if_t_negative
+      {
+        template<typename Scalar, typename Matrix3, typename QuaternionDerived>
+        static inline void run(Scalar t,
+                               Eigen::QuaternionBase<QuaternionDerived> & q,
+                               const Matrix3 & mat)
+        {
+          using pinocchio::math::sqrt;
+          
+          Eigen::DenseIndex j = (i+1)%3;
+          Eigen::DenseIndex k = (j+1)%3;
+          
+          t = sqrt(mat.coeff(i,i)-mat.coeff(j,j)-mat.coeff(k,k) + Scalar(1.0));
+          q.coeffs().coeffRef(i) = Scalar(0.5) * t;
+          t = Scalar(0.5)/t;
+          q.w() = (mat.coeff(k,j)-mat.coeff(j,k))*t;
+          q.coeffs().coeffRef(j) = (mat.coeff(j,i)+mat.coeff(i,j))*t;
+          q.coeffs().coeffRef(k) = (mat.coeff(k,i)+mat.coeff(i,k))*t;
+        }
+      };
+      
+      struct quaternionbase_assign_impl_if_t_positive
+      {
+        template<typename Scalar, typename Matrix3, typename QuaternionDerived>
+        static inline void run(Scalar t, 
+                               Eigen::QuaternionBase<QuaternionDerived> & q,
+                               const Matrix3 & mat)
+        {
+          using pinocchio::math::sqrt;
+          
+          t = sqrt(t + Scalar(1.0));
+          q.w() = Scalar(0.5)*t;
+          t = Scalar(0.5)/t;
+          q.x() = (mat.coeff(2,1) - mat.coeff(1,2)) * t;
+          q.y() = (mat.coeff(0,2) - mat.coeff(2,0)) * t;
+          q.z() = (mat.coeff(1,0) - mat.coeff(0,1)) * t;
+        }
+      };
+      
+      template<typename Scalar>
+      struct quaternionbase_assign_impl
+      {
+        template<typename Matrix3, typename QuaternionDerived>
+        static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
+                               const Matrix3 & mat)
+        {
+          using pinocchio::math::sqrt;
+          
+          Scalar t = mat.trace();
+          if (t > Scalar(0))
+            quaternionbase_assign_impl_if_t_positive::run(t,q,mat);
+          else
+          {
+            Eigen::DenseIndex i = 0;
+            if (mat.coeff(1,1) > mat.coeff(0,0))
+              i = 1;
+            if (mat.coeff(2,2) > mat.coeff(i,i))
+              i = 2;
+              
+            if(i==0)
+              quaternionbase_assign_impl_if_t_negative<0>::run(t,q,mat);
+            else if(i==1)
+              quaternionbase_assign_impl_if_t_negative<1>::run(t,q,mat);
+            else
+              quaternionbase_assign_impl_if_t_negative<2>::run(t,q,mat);
+          }
+        }
+      };
+      
+    } // namespace internal
+    
+    template<typename D, typename Matrix3>
+    void assignQuaternion(Eigen::QuaternionBase<D> & quat,
+                          const Eigen::MatrixBase<Matrix3> & R)
+    {
+      internal::quaternionbase_assign_impl<typename Matrix3::Scalar>::run(PINOCCHIO_EIGEN_CONST_CAST(D,quat),
+                                                                          R.derived());
+    }
+      
+  } // namespace quaternion
+
 }
-#endif //#ifndef __math_quaternion_hpp__
+#endif //#ifndef __pinocchio_math_quaternion_hpp__

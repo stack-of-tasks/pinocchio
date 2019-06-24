@@ -10,20 +10,17 @@
 namespace pinocchio
 {
   
-  namespace internal
+  template<typename Derived>
+  struct SE3GroupAction< MotionDense<Derived> >
   {
-    template<typename Derived>
-    struct SE3GroupAction< MotionDense<Derived> >
-    {
-      typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
-    };
-    
-    template<typename Derived, typename MotionDerived>
-    struct MotionAlgebraAction< MotionDense<Derived>, MotionDerived >
-    {
-      typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
-    };
-  }
+    typedef typename SE3GroupAction< Derived >::ReturnType ReturnType;
+  };
+  
+  template<typename Derived, typename MotionDerived>
+  struct MotionAlgebraAction< MotionDense<Derived>, MotionDerived >
+  {
+    typedef typename MotionAlgebraAction< Derived, MotionDerived >::ReturnType ReturnType;
+  };
 
   template<typename Derived>
   class MotionDense : public MotionBase<Derived>
@@ -140,7 +137,7 @@ namespace pinocchio
     { return phi.linear().dot(linear()) + phi.angular().dot(angular()); }
     
     template<typename D>
-    typename internal::MotionAlgebraAction<D,Derived>::ReturnType cross_impl(const D & d) const
+    typename MotionAlgebraAction<D,Derived>::ReturnType cross_impl(const D & d) const
     {
       return d.motionAction(derived());
     }

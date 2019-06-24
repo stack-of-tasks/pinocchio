@@ -14,6 +14,7 @@
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -46,7 +47,7 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalZYXTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     
     ConstraintSphericalZYXTpl() {}
@@ -177,24 +178,21 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
   }
 
-  namespace internal
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintSphericalZYXTpl<S1,O1> >
   {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintSphericalZYXTpl<S1,O1> >
-    {
-//      typedef const typename Eigen::ProductReturnType<
-//      Eigen::Matrix <double,6,3,0>,
-//      Eigen::Matrix <double,3,3,0>
-//      >::Type Type;
-      typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
-    };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintSphericalZYXTpl<S1,O1>, MotionDerived >
-    {
-      typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
-    };
-  }
+    //      typedef const typename Eigen::ProductReturnType<
+    //      Eigen::Matrix <double,6,3,0>,
+    //      Eigen::Matrix <double,3,3,0>
+    //      >::Type Type;
+    typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
+  };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintSphericalZYXTpl<S1,O1>, MotionDerived >
+  {
+    typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
+  };
 
   template<typename Scalar, int Options> struct JointSphericalZYXTpl;
   
@@ -346,14 +344,17 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
       data.StU.noalias() = data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.StU.llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.StU.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;
       

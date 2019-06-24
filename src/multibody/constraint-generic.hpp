@@ -30,17 +30,14 @@ namespace pinocchio
     
   }; // traits ConstraintTpl
   
-  namespace internal
-  {
-    template<int Dim, typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
-    
-    template<int Dim, typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options>, MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
-  }
+  template<int Dim, typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintTpl<Dim,Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
   
+  template<int Dim, typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintTpl<Dim,Scalar,Options>, MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,Dim> ReturnType; };
+
   template<int _Dim, typename _Scalar, int _Options>
   struct ConstraintTpl
   : public ConstraintBase< ConstraintTpl<_Dim,_Scalar,_Options> >
@@ -52,7 +49,7 @@ namespace pinocchio
     friend class ConstraintBase<ConstraintTpl>;
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintTpl)
     
-    enum { NV = _Dim, Options = _Options };
+    enum { NV = _Dim };
     
     using Base::nv;
     
@@ -127,14 +124,14 @@ namespace pinocchio
       
     }
     
-    DenseBase se3Action(const SE3 & m) const
+    DenseBase se3Action(const SE3Tpl<Scalar,Options> & m) const
     {
       DenseBase res(6,nv());
       motionSet::se3Action(m,S,res);
       return res;
     }
     
-    DenseBase se3ActionInverse(const SE3 & m) const
+    DenseBase se3ActionInverse(const SE3Tpl<Scalar,Options> & m) const
     {
       DenseBase res(6,nv());
       motionSet::se3ActionInverse(m,S,res);

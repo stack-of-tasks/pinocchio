@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -18,20 +18,17 @@ namespace pinocchio
   template<typename Scalar, int Options=0> struct MotionRevoluteUnalignedTpl;
   typedef MotionRevoluteUnalignedTpl<double> MotionRevoluteUnaligned;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionRevoluteUnalignedTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionRevoluteUnalignedTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionRevoluteUnalignedTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionRevoluteUnalignedTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
 
   template<typename _Scalar, int _Options>
   struct traits< MotionRevoluteUnalignedTpl<_Scalar,_Options> >
@@ -190,7 +187,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintRevoluteUnalignedTpl)
     
-    enum { NV = 1, Options = _Options };
+    enum { NV = 1 };
     
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     
@@ -327,16 +324,13 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis;
   }
   
-  namespace internal
-  {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< ConstraintRevoluteUnalignedTpl<Scalar,Options> >
-    { typedef Eigen::Matrix<Scalar,6,1,Options>  ReturnType; };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintRevoluteUnalignedTpl<Scalar,Options>,MotionDerived >
-    { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
-  }
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< ConstraintRevoluteUnalignedTpl<Scalar,Options> >
+  { typedef Eigen::Matrix<Scalar,6,1,Options>  ReturnType; };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintRevoluteUnalignedTpl<Scalar,Options>,MotionDerived >
+  { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options> struct JointRevoluteUnalignedTpl;
   
@@ -431,11 +425,13 @@ namespace pinocchio
     
     JointModelRevoluteUnalignedTpl() {}
     
-    JointModelRevoluteUnalignedTpl(const Scalar & x, const Scalar & y, const Scalar & z)
+    JointModelRevoluteUnalignedTpl(const Scalar & x,
+                                   const Scalar & y,
+                                   const Scalar & z)
     : axis(x,y,z)
     {
       axis.normalize();
-      assert(axis.isUnitary() && "Rotation axis is not unitary");
+      assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -443,7 +439,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(axis.isUnitary() && "Rotation axis is not unitary");
+      assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }

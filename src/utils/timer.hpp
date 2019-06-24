@@ -1,6 +1,9 @@
 //
-// Copyright (c) 2015,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
+
+#ifndef __pinocchio_utils_timer_hpp__
+#define __pinocchio_utils_timer_hpp__
 
 #include <sys/time.h>
 #include <iostream>
@@ -52,3 +55,4 @@ struct PinocchioTicToc
   }
 };
 
+#endif // ifndef __pinocchio_utils_timer_hpp__

@@ -9,21 +9,17 @@
 namespace pinocchio
 {
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
   {
-    
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
-    {
-      typedef BiasZeroTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< BiasZeroTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef BiasZeroTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+  };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< BiasZeroTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+  };
 
   template<typename _Scalar, int _Options>
   struct traits< BiasZeroTpl<_Scalar,_Options> >

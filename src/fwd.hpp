@@ -1,11 +1,11 @@
 //
-// Copyright (c) 2018 CNRS INRIA
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_fwd_hpp__
 #define __pinocchio_fwd_hpp__
 
-// Forward declaration of main pinocchio namespace
+// Forward declaration of the main pinocchio namespace
 namespace pinocchio {}
 
 #include "pinocchio/macros.hpp"
@@ -15,9 +15,9 @@ namespace pinocchio {}
 
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"
-#else
-#include <Eigen/Dense>
 #endif
+
+#include <Eigen/Dense>
 
 #include "pinocchio/eigen-macros.hpp"
 
@@ -27,6 +27,11 @@ namespace pinocchio
   /// \brief Common traits structure to fully define base classes for CRTP.
   ///
   template<class C> struct traits {};
+  
+  namespace internal
+  {
+    template<typename T> struct traits {};
+  }
   
   ///
   /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.

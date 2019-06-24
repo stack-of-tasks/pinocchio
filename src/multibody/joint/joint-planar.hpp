@@ -19,21 +19,18 @@ namespace pinocchio
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
   typedef MotionPlanarTpl<double> MotionPlanar;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionPlanarTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionPlanarTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionPlanarTpl<_Scalar,_Options> >
   {
@@ -207,7 +204,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPlanarTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
 
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const
@@ -344,16 +341,13 @@ namespace pinocchio
     return IS;
   }
   
-  namespace internal
-  {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintPlanarTpl<S1,O1> >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintPlanarTpl<S1,O1>,MotionDerived >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-  }
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintPlanarTpl<S1,O1> >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintPlanarTpl<S1,O1>,MotionDerived >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointPlanarTpl;
   
@@ -478,7 +472,9 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.template leftCols<2>() = I.template leftCols<2>();
       data.U.template rightCols<1>() = I.template rightCols<1>();
@@ -487,13 +483,14 @@ namespace pinocchio
       data.StU.template rightCols<1>() = data.U.template bottomRows<1>();
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.StU.llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.StU.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;
       
-      if (update_I)
-        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
     
     static std::string classname() { return std::string("JointModelPlanar");}

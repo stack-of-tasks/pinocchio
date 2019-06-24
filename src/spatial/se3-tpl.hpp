@@ -168,14 +168,14 @@ namespace pinocchio
     
     /// ay = aXb.act(by)
     template<typename D>
-    typename internal::SE3GroupAction<D>::ReturnType
+    typename SE3GroupAction<D>::ReturnType
     act_impl(const D & d) const
     {
       return d.se3Action(*this);
     }
     
     /// by = aXb.actInv(ay)
-    template<typename D> typename internal::SE3GroupAction<D>::ReturnType
+    template<typename D> typename SE3GroupAction<D>::ReturnType
     actInv_impl(const D & d) const
     {
       return d.se3ActionInverse(*this);

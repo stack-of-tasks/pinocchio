@@ -1,13 +1,15 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <cppad/cppad.hpp>
-#include <cppad/example/cppad_eigen.hpp>
 #include <cppad/speed/det_by_minor.hpp>
 #include <Eigen/Dense>
+
+#include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/cppad.hpp"
 
 #include <iostream>
 
@@ -197,5 +199,14 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ad_value = -1.;
     abs(ad_value);
   }
+
+BOOST_AUTO_TEST_CASE(test_atan2)
+{
+  CppAD::AD<double> theta,x,y;
+  x = pinocchio::math::cos(theta); y = pinocchio::math::sin(theta);
+  
+  pinocchio::math::atan2(y,x);
+  
+}
 
 BOOST_AUTO_TEST_SUITE_END()

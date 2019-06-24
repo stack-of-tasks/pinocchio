@@ -155,11 +155,8 @@ namespace pinocchio
 
   typedef ForceSetTpl<double,0> ForceSet;
 
-  namespace internal 
-  {
-    template<>
-    struct SE3GroupAction<ForceSet::Block>    { typedef ForceSet ReturnType; };
-  }
+  template<>
+  struct SE3GroupAction<ForceSet::Block> { typedef ForceSet ReturnType; };
 
 
 } // namespace pinocchio

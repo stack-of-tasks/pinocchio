@@ -13,6 +13,7 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -44,7 +45,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintIdentityTpl)
     
-    enum { NV = 6, Options = _Options };
+    enum { NV = 6 };
     
     template<typename Vector6Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector6Like> & vj) const
@@ -54,7 +55,7 @@ namespace pinocchio
     }
     
     template<typename S1, int O1>
-    typename SE3::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
+    typename SE3Tpl<S1,O1>::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
     { return m.toActionMatrix(); }
     
     int nv_impl() const { return NV; }
@@ -112,16 +113,13 @@ namespace pinocchio
     return Y.derived();
   }
   
-  namespace internal
-  {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
-    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
-    { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
-  }
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
+  { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
+  { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
 
   template<typename Scalar, int Options> struct JointFreeFlyerTpl;
 
@@ -269,11 +267,16 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I;
-      data.Dinv.setIdentity();
-      I.llt().solveInPlace(data.Dinv);
+      
+      // compute inverse
+//      data.Dinv.setIdentity();
+//      I.llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(I,data.Dinv);
       
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).setZero();

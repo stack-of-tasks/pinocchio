@@ -63,7 +63,7 @@ namespace pinocchio
     { return derived().__div__(alpha); }
     
     template<typename OtherSpatialType>
-    typename internal::MotionAlgebraAction<OtherSpatialType,Derived>::ReturnType
+    typename MotionAlgebraAction<OtherSpatialType,Derived>::ReturnType
     cross(const OtherSpatialType & d) const
     {
       return derived().cross_impl(d);
@@ -73,12 +73,12 @@ namespace pinocchio
     { return derived().isApprox_impl(other, prec);}
     
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<Derived>::ReturnType
+    typename SE3GroupAction<Derived>::ReturnType
     se3Action(const SE3Tpl<S2,O2> & m) const
     { return derived().se3Action_impl(m); }
     
     template<typename S2, int O2>
-    typename internal::SE3GroupAction<Derived>::ReturnType
+    typename SE3GroupAction<Derived>::ReturnType
     se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     { return derived().se3ActionInverse_impl(m); }
     

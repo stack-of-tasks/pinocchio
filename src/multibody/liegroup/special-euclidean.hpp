@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_special_euclidean_operation_hpp__
@@ -7,8 +7,9 @@
 
 #include <limits>
 
-#include <pinocchio/macros.hpp>
+#include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
@@ -64,18 +65,23 @@ namespace pinocchio
       typedef typename Matrix2Like::Scalar Scalar;
       const Scalar omega = v(2);
       Scalar cv,sv; SINCOS(omega, &sv, &cv);
-      const_cast<Matrix2Like &>(R.derived()) << cv, -sv, sv, cv;
+      PINOCCHIO_EIGEN_CONST_CAST(Matrix2Like,R) << cv, -sv, sv, cv;
+      using internal::if_then_else;
 
-      if (math::fabs(omega) > 1e-14)
       {
         typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) vcross(-v(1), v(0));
+        vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).noalias() = vcross - R * vcross;
+        Scalar omega_abs = math::fabs(omega);
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(omega_abs > 1e-14,
+                                                                             vcross.coeff(0),
+                                                                             v.coeff(0));
+        
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(omega_abs > 1e-14,
+                                                                             vcross.coeff(1),
+                                                                             v.coeff(1));
       }
-      else
-      {
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t) = v.template head<2>();
-      }
+      
     }
 
     template<typename Matrix2Like, typename Vector2Like, typename Matrix3Like>
@@ -471,14 +477,23 @@ namespace pinocchio
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       ConstQuaternionMap_t quat(q.derived().template tail<4>().data());
       QuaternionMap_t res_quat (out.template tail<4>().data());
+      
+      using internal::if_then_else;
 
       SE3 M0 (quat.matrix(), q.derived().template head<3>());
       MotionRef<const Velocity_t> mref_v(v.derived());
       SE3 M1 (M0 * exp6(mref_v));
 
       out.template head<3>() = M1.translation();
-      res_quat = M1.rotation();
-      if(res_quat.dot(quat) < 0) res_quat.coeffs() *= -1.;
+      quaternion::assignQuaternion(res_quat,M1.rotation()); // required by CasADi
+      const Scalar dot_product = res_quat.dot(quat);
+      for(Eigen::DenseIndex k = 0; k < 4; ++k)
+      {
+        res_quat.coeffs().coeffRef(k) = if_then_else(dot_product < 0,
+                                                     -res_quat.coeffs().coeff(k),
+                                                      res_quat.coeffs().coeff(k));
+      }
+    
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
       // It is then safer to re-normalized after converting M1.rotation to quaternion.
       quaternion::firstOrderNormalize(res_quat);
@@ -514,7 +529,7 @@ namespace pinocchio
 //      std::cout << "Jlog\n" << Jlog << std::endl;
       
 //      if(quat_map.w() >= 0.) // comes from the log3 for quaternions which may change the sign.
-      if(quat_map.coeffs()[3] >= 0.) // comes from the log3 for quaternions which may change the sign.
+      if(quat_map.coeffs()[3] >= Scalar(0)) // comes from the log3 for quaternions which may change the sign.
         PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = Jexp3QuatCoeffWise * Jlog;
       else
         PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J).template bottomRightCorner<4,3>().noalias() = -Jexp3QuatCoeffWise * Jlog;

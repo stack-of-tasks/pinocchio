@@ -39,6 +39,7 @@ ENDMACRO(ADD_PINOCCHIO_UNIT_TEST)
 
 # Math components
 ADD_PINOCCHIO_UNIT_TEST(sincos eigen3)
+ADD_PINOCCHIO_UNIT_TEST(quaternion eigen3)
 
 # Pinocchio features
 ADD_PINOCCHIO_UNIT_TEST(tspatial eigen3)
@@ -121,21 +122,34 @@ ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives eigen3)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives eigen3)
 
 # Automatic differentiation
-IF(CPPAD_FOUND)
+IF(CPPAD_FOUND AND BUILD_WITH_AUTODIFF_SUPPORT)
   ADD_PINOCCHIO_UNIT_TEST(cppad-basic "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-spatial "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-joints "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-algo "eigen3;cppad")
   ADD_PINOCCHIO_UNIT_TEST(cppad-algo-derivatives "eigen3;cppad")
 
-  IF(CPPADCG_FOUND)
+  IF(CPPADCG_FOUND AND BUILD_WITH_CODEGEN_SUPPORT)
     ADD_PINOCCHIO_UNIT_TEST(cppadcg-basic "eigen3;cppadcg")
     SET_PROPERTY(TARGET cppadcg-basic PROPERTY CXX_STANDARD 11)
     TARGET_LINK_LIBRARIES(cppadcg-basic ${CMAKE_DL_LIBS})
     ADD_PINOCCHIO_UNIT_TEST(cppadcg-algo "eigen3;cppadcg")
     SET_PROPERTY(TARGET cppadcg-algo PROPERTY CXX_STANDARD 11)
     TARGET_LINK_LIBRARIES(cppadcg-algo ${CMAKE_DL_LIBS})
-  ENDIF(CPPADCG_FOUND)
+  ENDIF(CPPADCG_FOUND AND BUILD_WITH_CODEGEN_SUPPORT)
 
-ENDIF(CPPAD_FOUND)
+ENDIF(CPPAD_FOUND AND BUILD_WITH_AUTODIFF_SUPPORT)
+
+IF(CASADI_FOUND AND BUILD_WITH_CASADI_SUPPORT)
+  ADD_PINOCCHIO_UNIT_TEST(casadi-basic "eigen3;casadi")
+  SET_PROPERTY(TARGET casadi-basic PROPERTY CXX_STANDARD 11)
+  ADD_PINOCCHIO_UNIT_TEST(casadi-spatial "eigen3;casadi")
+  SET_PROPERTY(TARGET casadi-spatial PROPERTY CXX_STANDARD 11)
+  ADD_PINOCCHIO_UNIT_TEST(casadi-joints "eigen3;casadi")
+  SET_PROPERTY(TARGET casadi-joints PROPERTY CXX_STANDARD 11)
+  ADD_PINOCCHIO_UNIT_TEST(casadi-algo "eigen3;casadi")
+  SET_PROPERTY(TARGET casadi-algo PROPERTY CXX_STANDARD 11)
+  ADD_PINOCCHIO_UNIT_TEST(casadi-algo-derivatives "eigen3;casadi")
+  SET_PROPERTY(TARGET casadi-algo-derivatives PROPERTY CXX_STANDARD 11)
+ENDIF(CASADI_FOUND AND BUILD_WITH_CASADI_SUPPORT)
 

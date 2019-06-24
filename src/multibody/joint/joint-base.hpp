@@ -399,7 +399,6 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
               const Eigen::MatrixBase<TangentVectorType> & vs) const
     {
       derived().calc(data,qs.derived(),vs.derived());
-      
     }
     
     template<typename Matrix6Type>
@@ -429,9 +428,11 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     int  idx_v_impl() const { return i_v; }
     JointIndex id_impl() const { return i_id; }
 
-    void setIndexes(JointIndex id, int q, int v) { derived().setIndexes_impl(id, q, v); }
+    void setIndexes(JointIndex id, int q, int v)
+    { derived().setIndexes_impl(id, q, v); }
     
-    void setIndexes_impl(JointIndex id,int q,int v) { i_id = id, i_q = q; i_v = v; }
+    void setIndexes_impl(JointIndex id,int q,int v)
+    { i_id = id, i_q = q; i_v = v; }
     
     void disp(std::ostream & os) const
     {
@@ -468,7 +469,8 @@ struct CastType< NewScalar, JointModelTpl<Scalar,Options> > \
     { return !(derived() == other.derived()); }
     
     template <class OtherDerived>
-    bool isEqual(const JointModelBase<OtherDerived> &) const { return false; }
+    bool isEqual(const JointModelBase<OtherDerived> &) const
+    { return false; }
     
     bool isEqual(const JointModelBase<Derived> & other) const
     {

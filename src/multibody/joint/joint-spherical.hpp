@@ -12,6 +12,7 @@
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
+#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -19,21 +20,18 @@ namespace pinocchio
   template<typename Scalar, int Options = 0> struct MotionSphericalTpl;
   typedef MotionSphericalTpl<double> MotionSpherical;
   
-  namespace internal
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< MotionSphericalTpl<Scalar,Options> >
   {
-    template<typename Scalar, int Options>
-    struct SE3GroupAction< MotionSphericalTpl<Scalar,Options> >
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-    
-    template<typename Scalar, int Options, typename MotionDerived>
-    struct MotionAlgebraAction< MotionSphericalTpl<Scalar,Options>, MotionDerived>
-    {
-      typedef MotionTpl<Scalar,Options> ReturnType;
-    };
-  }
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
   
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< MotionSphericalTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef MotionTpl<Scalar,Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options>
   struct traits< MotionSphericalTpl<_Scalar,_Options> >
   {
@@ -201,7 +199,7 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalTpl)
     
-    enum { NV = 3, Options = _Options };
+    enum { NV = 3 };
     
     int nv_impl() const { return NV; }
     
@@ -297,16 +295,13 @@ namespace pinocchio
     return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
-  namespace internal
-  {
-    template<typename S1, int O1>
-    struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-    
-    template<typename S1, int O1, typename MotionDerived>
-    struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
-    { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
-  }
+  template<typename S1, int O1>
+  struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
+  
+  template<typename S1, int O1, typename MotionDerived>
+  struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
+  { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointSphericalTpl;
   
@@ -448,13 +443,16 @@ namespace pinocchio
     }
     
     template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
       
       // compute inverse
-      data.Dinv.setIdentity();
-      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
+//      data.Dinv.setIdentity();
+//      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::ANGULAR),data.Dinv);
       
       data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
       data.UDinv.template middleRows<3>(Inertia::LINEAR).noalias() = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
