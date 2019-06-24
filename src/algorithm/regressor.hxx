@@ -52,6 +52,7 @@ namespace pinocchio
 
   namespace details {
     // auxiliary function for bodyRegressor: bigL(omega)*I.toDynamicParameters().tail<6>() = I.inertia() * omega
+/*
     template<typename Vector3Like>
     inline Eigen::Matrix<typename Vector3Like::Scalar,3,6,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     bigL(const Eigen::MatrixBase<Vector3Like> & omega)
@@ -66,6 +67,31 @@ namespace pinocchio
            Scalar(0), Scalar(0), Scalar(0),  omega[0],  omega[1],  omega[2];
       return L;
     }
+*/
+
+    // auxiliary function for bodyRegressor: res += bigL(omega)
+    template<typename Vector3Like, typename OutputType>
+    inline void
+    addBigL(const Eigen::MatrixBase<Vector3Like> & omega, const Eigen::MatrixBase<OutputType> & out)
+    {
+      OutputType & res = PINOCCHIO_EIGEN_CONST_CAST(OutputType, out);
+      res(0,0)+=omega[0]; res(0,1)+=omega[1]; res(0,3)+=omega[2];
+      res(1,1)+=omega[0]; res(1,2)+=omega[1]; res(1,4)+=omega[2];
+      res(2,3)+=omega[0]; res(2,4)+=omega[1]; res(2,5)+=omega[2];
+    }
+
+    // auxiliary function for bodyRegressor: res = cross(omega,bigL(omega))
+    template<typename Vector3Like, typename OutputType>
+    inline void
+    crossBigL(const Eigen::MatrixBase<Vector3Like> & v, const Eigen::MatrixBase<OutputType> & out)
+    {
+      typedef typename Vector3Like::Scalar Scalar;
+      OutputType & res = PINOCCHIO_EIGEN_CONST_CAST(OutputType, out);
+
+      res <<  Scalar(0),          -v[2]*v[0], -v[2]*v[1],           v[1]*v[0], v[1]*v[1]-v[2]*v[2],  v[2]*v[1],
+              v[2]*v[0],           v[2]*v[1],  Scalar(0), v[2]*v[2]-v[0]*v[0],          -v[1]*v[0], -v[2]*v[0],
+             -v[1]*v[0], v[0]*v[0]-v[1]*v[1],  v[1]*v[0],          -v[2]*v[1],           v[2]*v[0],  Scalar(0);
+    }
   }
 
   template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
@@ -79,12 +105,13 @@ namespace pinocchio
 
     typedef Symmetric3Tpl<Scalar,Options> Symmetric3;
     typedef typename Symmetric3::SkewSquare SkewSquare;
-    using ::pinocchio::details::bigL;
+    using ::pinocchio::details::crossBigL;
+    using ::pinocchio::details::addBigL;
 
-    Eigen::MatrixBase<OutputType> & res = const_cast< Eigen::MatrixBase<OutputType> & >(regressor);
+    OutputType & res = PINOCCHIO_EIGEN_CONST_CAST(OutputType, regressor);
 
     res.template block<3,1>(MotionVelocity::LINEAR,0) = a.linear() + v.angular().cross(v.linear());
-    const Eigen::Matrix<Scalar, 3, 1, Options> & acc = res.template block<3,1>(MotionVelocity::LINEAR,0);
+    const Eigen::Block<OutputType,3,1> & acc = res.template block<3,1>(MotionVelocity::LINEAR,0);
     res.template block<3,3>(MotionVelocity::LINEAR,1) = Symmetric3(SkewSquare(v.angular())).matrix();
     addSkew(a.angular(), res.template block<3,3>(MotionVelocity::LINEAR,1));
 
@@ -92,7 +119,9 @@ namespace pinocchio
 
     res.template block<3,1>(MotionVelocity::ANGULAR,0).setZero();
     skew(-acc, res.template block<3,3>(MotionVelocity::ANGULAR,1));
-    res.template block<3,6>(MotionVelocity::ANGULAR,4) = bigL(a.angular()) + cross(v.angular(), bigL(v.angular()));
+    // res.template block<3,6>(MotionVelocity::ANGULAR,4) = bigL(a.angular()) + cross(v.angular(), bigL(v.angular()));
+    crossBigL(v.angular(), res.template block<3,6>(MotionVelocity::ANGULAR,4));
+    addBigL(a.angular(), res.template block<3,6>(MotionVelocity::ANGULAR,4));
   }
 
   template<typename MotionVelocity, typename MotionAcceleration>
