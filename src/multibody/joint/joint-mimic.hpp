@@ -52,7 +52,8 @@ namespace pinocchio
   {
     typedef typename Constraint::Scalar Scalar;
     typedef typename ConstraintForceSetOp<Constraint,ForceSet>::ReturnType OriginalReturnType;
-    typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type ReturnType;
+    typedef typename ScalarMatrixProduct<Scalar,OriginalReturnType>::type IdealReturnType;
+    typedef Eigen::Matrix<Scalar,Constraint::NV,ForceSet::ColsAtCompileTime,Constraint::Options | Eigen::RowMajor> ReturnType;
   };
     
   template<class Constraint>
@@ -120,7 +121,8 @@ namespace pinocchio
       typename ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        return ref.m_scaling_factor * (ref.m_constraint.transpose() * F);
+        typedef typename ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType ReturnType;
+        return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * F));
       }
       
     }; // struct TransposeConst
