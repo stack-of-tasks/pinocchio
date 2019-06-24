@@ -269,7 +269,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, int axis, typename ForceDerived>
   struct ConstraintForceOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceDerived>
-  { typedef typename ForceDense<ForceDerived>::ConstLinearType::template ConstFixedBlockXpr<1,1>::Type ReturnType; };
+  { typedef typename ForceDense<ForceDerived>::ConstLinearType::template ConstFixedSegmentReturnType<1>::Type ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
   struct ConstraintForceSetOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceSet>

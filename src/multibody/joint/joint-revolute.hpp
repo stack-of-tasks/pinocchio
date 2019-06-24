@@ -323,7 +323,7 @@ namespace pinocchio
     
   template<typename Scalar, int Options, int axis, typename ForceDerived>
   struct ConstraintForceOp< ConstraintRevoluteTpl<Scalar,Options,axis>, ForceDerived>
-  { typedef typename ForceDense<ForceDerived>::ConstAngularType::template ConstFixedBlockXpr<1,1>::Type ReturnType; };
+  { typedef typename ForceDense<ForceDerived>::ConstAngularType::template ConstFixedSegmentReturnType<1>::Type ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
   struct ConstraintForceSetOp< ConstraintRevoluteTpl<Scalar,Options,axis>, ForceSet>
