@@ -183,10 +183,6 @@ namespace pinocchio
     {
       derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
-    
-    JointIndex i_id; // ID of the joint in the multibody list.
-    int i_q;    // Index of the joint configuration in the joint configuration vector.
-    int i_v;    // Index of the joint velocity in the joint velocity vector.
 
     int     nv()    const { return derived().nv_impl(); }
     int     nq()    const { return derived().nq_impl(); }
@@ -387,6 +383,11 @@ namespace pinocchio
       i_v = clone.i_v;
       return *this;
     }
+    
+    // data
+    JointIndex i_id; // ID of the joint in the multibody list.
+    int i_q;    // Index of the joint configuration in the joint configuration vector.
+    int i_v;    // Index of the joint velocity in the joint velocity vector.
 
   }; // struct JointModelBase
 
