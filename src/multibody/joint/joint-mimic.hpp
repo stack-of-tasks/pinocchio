@@ -384,7 +384,8 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs.head(nq()),m_scaling,m_offset,jdata.q_transform);
+      AffineTransform::run(qs.head(m_jmodel_ref.nq()),
+                           m_scaling,m_offset,jdata.q_transform);
       m_jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
     }
     
@@ -396,8 +397,9 @@ namespace pinocchio
     {
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
-      AffineTransform::run(qs.head(nq()),m_scaling,m_offset,jdata.q_transform);
-      jdata.v_transform.noalias() = m_scaling * vs.head(nv());
+      AffineTransform::run(qs.head(m_jmodel_ref.nq()),
+                           m_scaling,m_offset,jdata.q_transform);
+      jdata.v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
       m_jmodel_ref.calc(jdata.jdata_ref,
                         jdata.q_transform,
                         jdata.v_transform);
