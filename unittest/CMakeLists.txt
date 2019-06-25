@@ -41,6 +41,7 @@ ENDMACRO(ADD_PINOCCHIO_UNIT_TEST)
 ADD_PINOCCHIO_UNIT_TEST(eigen-basic-op eigen3)
 ADD_PINOCCHIO_UNIT_TEST(sincos eigen3)
 ADD_PINOCCHIO_UNIT_TEST(quaternion eigen3)
+ADD_PINOCCHIO_UNIT_TEST(rotation eigen3)
 
 # Pinocchio features
 ADD_PINOCCHIO_UNIT_TEST(tspatial eigen3)
