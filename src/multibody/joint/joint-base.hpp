@@ -184,12 +184,12 @@ namespace pinocchio
       derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
     }
 
-    int     nv()    const { return derived().nv_impl(); }
-    int     nq()    const { return derived().nq_impl(); }
+    int nv()    const { return derived().nv_impl(); }
+    int nq()    const { return derived().nq_impl(); }
     
     // Default _impl methods are reimplemented by dynamic-size joints.
-    int     nv_impl() const { return NV; }
-    int     nq_impl() const { return NQ; }
+    int  nv_impl() const { return NV; }
+    int  nq_impl() const { return NQ; }
     
     int  idx_q() const { return derived().idx_q_impl(); }
     int  idx_v() const { return derived().idx_v_impl(); }
