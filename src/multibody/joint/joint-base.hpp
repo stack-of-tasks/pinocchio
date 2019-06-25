@@ -278,84 +278,84 @@ namespace pinocchio
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
     jointVelocitySelector(const Eigen::MatrixBase<D> & a) const
-    { return derived().jointVelocitySelector_impl(a); }
+    { return derived().jointVelocitySelector_impl(a.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::ConstType 
     jointVelocitySelector_impl(const Eigen::MatrixBase<D> & a) const
-    { return SizeDepType<NV>::segment(a,idx_v(),nv()); }
+    { return SizeDepType<NV>::segment(a.derived(),idx_v(),nv()); }
     
     // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
-    jointVelocitySelector(Eigen::MatrixBase<D>& a) const
-    { return derived().jointVelocitySelector_impl(a); }
+    jointVelocitySelector(Eigen::MatrixBase<D> & a) const
+    { return derived().jointVelocitySelector_impl(a.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template SegmentReturn<D>::Type 
     jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
-    { return SizeDepType<NV>::segment(a,idx_v(),nv()); }
+    { return SizeDepType<NV>::segment(a.derived(),idx_v(),nv()); }
 
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols(const Eigen::MatrixBase<D>& A) const
-    { return derived().jointCols_impl(A); }
+    { return derived().jointCols_impl(A.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols_impl(const Eigen::MatrixBase<D>& A) const
-    { return SizeDepType<NV>::middleCols(A,idx_v(),nv()); }
+    { return SizeDepType<NV>::middleCols(A.derived(),idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols(Eigen::MatrixBase<D>& A) const
-    { return derived().jointCols_impl(A); }
+    { return derived().jointCols_impl(A.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols_impl(Eigen::MatrixBase<D> & A) const
-    { return SizeDepType<NV>::middleCols(A,idx_v(),nv()); }
+    { return SizeDepType<NV>::middleCols(A.derived(),idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
     jointRows(const Eigen::MatrixBase<D> & A) const
-    { return derived().jointRows_impl(A); }
+    { return derived().jointRows_impl(A.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
     jointRows_impl(const Eigen::MatrixBase<D> & A) const
-    { return SizeDepType<NV>::middleRows(A,idx_v(),nv()); }
+    { return SizeDepType<NV>::middleRows(A.derived(),idx_v(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows(Eigen::MatrixBase<D> & A) const
-    { return derived().jointRows_impl(A); }
+    { return derived().jointRows_impl(A.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows_impl(Eigen::MatrixBase<D> & A) const
-    { return SizeDepType<NV>::middleRows(A,idx_v(),nv()); }
+    { return SizeDepType<NV>::middleRows(A.derived(),idx_v(),nv()); }
     
     /// \brief Returns a block of dimension nv()xnv() located at position idx_v(),idx_v() in the matrix Mat
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock(const Eigen::MatrixBase<D> & Mat) const
-    { return derived().jointBlock_impl(Mat); }
+    { return derived().jointBlock_impl(Mat.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
-    { return SizeDepType<NV>::block(Mat,idx_v(),idx_v(),nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat.derived(),idx_v(),idx_v(),nv(),nv()); }
     
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointBlock(Eigen::MatrixBase<D> & Mat) const
-    { return derived().jointBlock_impl(Mat); }
+    { return derived().jointBlock_impl(Mat.derived()); }
     
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointBlock_impl(Eigen::MatrixBase<D> & Mat) const
-    { return SizeDepType<NV>::block(Mat,idx_v(),idx_v(),nv(),nv()); }
+    { return SizeDepType<NV>::block(Mat.derived(),idx_v(),idx_v(),nv(),nv()); }
 
   protected:
 
