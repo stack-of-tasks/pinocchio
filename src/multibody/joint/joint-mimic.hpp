@@ -359,10 +359,9 @@ namespace pinocchio
     Base & base() { return *static_cast<Base*>(this); }
     const Base & base() const { return *static_cast<const Base*>(this); }
     
-    inline int nq_impl() const { return m_jmodel_ref.nq(); }
-    inline int nv_impl() const { return m_jmodel_ref.nv(); }
+    inline int nq_impl() const { return 0; }
+    inline int nv_impl() const { return 0; }
     
-    inline JointIndex id_impl() const { return m_jmodel_ref.id(); }
     inline int idx_q_impl() const { return m_jmodel_ref.idx_q(); }
     inline int idx_v_impl() const { return m_jmodel_ref.idx_v(); }
     
