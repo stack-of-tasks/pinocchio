@@ -296,6 +296,8 @@ namespace pinocchio
     jointVelocitySelector_impl(Eigen::MatrixBase<D> & a) const
     { return SizeDepType<NV>::segment(a.derived(),idx_v(),nv()); }
 
+    /* Acces to dedicated columns in a ForceSet or MotionSet matrix.*/
+    // Const access
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::ConstType 
     jointCols(const Eigen::MatrixBase<D>& A) const
@@ -306,6 +308,7 @@ namespace pinocchio
     jointCols_impl(const Eigen::MatrixBase<D>& A) const
     { return SizeDepType<NV>::middleCols(A.derived(),idx_v(),nv()); }
     
+    // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template ColsReturn<D>::Type 
     jointCols(Eigen::MatrixBase<D>& A) const
@@ -316,6 +319,8 @@ namespace pinocchio
     jointCols_impl(Eigen::MatrixBase<D> & A) const
     { return SizeDepType<NV>::middleCols(A.derived(),idx_v(),nv()); }
     
+    /* Acces to dedicated rows in a matrix.*/
+    // Const access
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::ConstType
     jointRows(const Eigen::MatrixBase<D> & A) const
@@ -326,6 +331,7 @@ namespace pinocchio
     jointRows_impl(const Eigen::MatrixBase<D> & A) const
     { return SizeDepType<NV>::middleRows(A.derived(),idx_v(),nv()); }
     
+    // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template RowsReturn<D>::Type
     jointRows(Eigen::MatrixBase<D> & A) const
@@ -337,6 +343,7 @@ namespace pinocchio
     { return SizeDepType<NV>::middleRows(A.derived(),idx_v(),nv()); }
     
     /// \brief Returns a block of dimension nv()xnv() located at position idx_v(),idx_v() in the matrix Mat
+    // Const access
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::ConstType
     jointBlock(const Eigen::MatrixBase<D> & Mat) const
@@ -347,6 +354,7 @@ namespace pinocchio
     jointBlock_impl(const Eigen::MatrixBase<D> & Mat) const
     { return SizeDepType<NV>::block(Mat.derived(),idx_v(),idx_v(),nv(),nv()); }
     
+    // Non-const access
     template<typename D>
     typename SizeDepType<NV>::template BlockReturn<D>::Type
     jointBlock(Eigen::MatrixBase<D> & Mat) const
