@@ -68,6 +68,20 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
                             , 1e-12));
 }
 
+template<typename JointModel, typename ConstraintDerived>
+void test_nv_against_jmodel(const JointModelBase<JointModel> & jmodel,
+                            const ConstraintBase<ConstraintDerived> & constraint)
+{
+  BOOST_CHECK(constraint.nv() == jmodel.nv());
+}
+
+template<typename JointModel, typename ConstraintDerived>
+void test_nv_against_jmodel(const JointModelMimic<JointModel> & jmodel,
+                            const ConstraintBase<ConstraintDerived> & constraint)
+{
+  BOOST_CHECK(constraint.nv() == jmodel.jmodel().nv());
+}
+
 template<typename JointModel>
 void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 {
@@ -80,12 +94,12 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 
   ConstraintType constraint(jdata.S);
   
-  BOOST_CHECK(constraint.nv() == jmodel.nv());
+  test_nv_against_jmodel(jmodel.derived(),constraint);
   BOOST_CHECK(constraint.cols() == constraint.nv());
   BOOST_CHECK(constraint.rows() == 6);
   
   typedef typename JointModel::TangentVector_t TangentVector_t;
-  TangentVector_t v = TangentVector_t::Random(jmodel.nv());
+  TangentVector_t v = TangentVector_t::Random(constraint.nv());
 
   typename ConstraintType::DenseBase constraint_mat = constraint.matrix();
   Motion m = constraint * v;
