@@ -53,6 +53,17 @@ namespace Eigen
         return static_cast<Scalar>(x);
       }
     };
+  
+#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
+    template<typename Scalar, bool IsInteger>
+    struct significant_decimals_default_impl<::casadi::Matrix<Scalar>,IsInteger>
+    {
+      static inline int run()
+      {
+        return std::numeric_limits<Scalar>::digits10;
+      }
+    };
+#endif
   }
 }
 
