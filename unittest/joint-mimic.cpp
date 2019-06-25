@@ -149,14 +149,12 @@ void test_joint_mimic(const JointModelBase<JointModel> & jmodel)
   JointModelMimicType jmodel_mimic(jmodel.derived(),scaling_factor,offset);
   JointDataMimicType jdata_mimic = jmodel_mimic.createData();
   
-  BOOST_CHECK(jmodel_mimic.nq() == jmodel.nq());
-  BOOST_CHECK(jmodel_mimic.nv() == jmodel.nv());
+  BOOST_CHECK(jmodel_mimic.nq() == 0);
+  BOOST_CHECK(jmodel_mimic.nv() == 0);
   
-  BOOST_CHECK(jmodel_mimic.id() == jmodel.id());
   BOOST_CHECK(jmodel_mimic.idx_q() == jmodel.idx_q());
   BOOST_CHECK(jmodel_mimic.idx_v() == jmodel.idx_v());
   
-  BOOST_CHECK(jmodel_mimic.id() == 0);
   BOOST_CHECK(jmodel_mimic.idx_q() == 0);
   BOOST_CHECK(jmodel_mimic.idx_v() == 0);
   
