@@ -55,12 +55,38 @@ namespace boost
       template <class Archive, typename Derived>
       void serialize(Archive & ar,
                      pinocchio::JointModelBase<Derived> & joint,
-                     const unsigned int /*version*/)
+                     const unsigned int version)
       {
-        ar & make_nvp("i_id",joint.i_id);
-        ar & make_nvp("i_q",joint.i_q);
-        ar & make_nvp("i_v",joint.i_v);
+        split_free(ar, joint, version);
       }
+    }
+    
+    template<class Archive, typename Derived>
+    void save(Archive & ar,
+              const pinocchio::JointModelBase<Derived> & joint,
+              const unsigned int /*version*/)
+    {
+      const pinocchio::JointIndex i_id = joint.id();
+      const int i_q = joint.idx_q(), i_v = joint.idx_v();
+      
+      ar & make_nvp("i_id",i_id);
+      ar & make_nvp("i_q",i_q);
+      ar & make_nvp("i_v",i_v);
+    }
+    
+    template<class Archive, typename Derived>
+    void load(Archive & ar,
+              pinocchio::JointModelBase<Derived> & joint,
+              const unsigned int /*version*/)
+    {
+      pinocchio::JointIndex i_id;
+      int i_q, i_v;
+      
+      ar & make_nvp("i_id",i_id);
+      ar & make_nvp("i_q",i_q);
+      ar & make_nvp("i_v",i_v);
+      
+      joint.setIndexes(i_id,i_q,i_v);
     }
     
     template <class Archive, typename Scalar, int Options, int axis>
