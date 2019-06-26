@@ -18,22 +18,21 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   typedef typename LieGroup<JointModel>::type LieGroupType;
 
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
-  Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
-  Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
+  Eigen::VectorXd q1, q2;
+  Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv()));
   Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   bool update_I = false;
 
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
 
-  jmodel.calc(jdata.derived(), q1, q1_dot);
+  jmodel.calc(jdata.derived(), q1, v1);
   jmodel.calc_aba(jdata.derived(), Ia, update_I);
 
   pinocchio::JointModel jma(jmodel);
   pinocchio::JointData jda(jdata.derived());
 
-  jma.calc(jda, q1, q1_dot);
+  jma.calc(jda, q1, v1);
   jma.calc_aba(jda, Ia, update_I);
 
   std::string error_prefix("JointModel on " + jma.shortname());
