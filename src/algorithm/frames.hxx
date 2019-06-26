@@ -20,19 +20,17 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
     typedef typename Model::FrameIndex FrameIndex;
     typedef typename Model::JointIndex JointIndex;
     
     // The following for loop starts by index 1 because the first frame is fixed
     // and corresponds to the universe.s
-    for (FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
+    for(FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
       const JointIndex & parent = frame.parent;
-      if (frame.placement.isIdentity())
-        data.oMf[i] = data.oMi[parent];
-      else
-        data.oMf[i] = data.oMi[parent]*frame.placement;
+      data.oMf[i] = data.oMi[parent]*frame.placement;
     }
   }
   
@@ -48,10 +46,8 @@ namespace pinocchio
     const typename Model::Frame & frame = model.frames[frame_id];
     const typename Model::JointIndex & parent = frame.parent;
     
-    if (frame.placement.isIdentity())
-      data.oMf[frame_id] = data.oMi[parent];
-    else
-      data.oMf[frame_id] = data.oMi[parent]*frame.placement;
+    data.oMf[frame_id] = data.oMi[parent]*frame.placement;
+    
     return data.oMf[frame_id];
   }
 
@@ -218,7 +214,6 @@ namespace pinocchio
       return;
     }    
   }
-  
 
 } // namespace pinocchio
 
