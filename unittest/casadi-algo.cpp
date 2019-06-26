@@ -5,6 +5,7 @@
 #include "pinocchio/math/casadi.hpp"
 
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -136,6 +137,55 @@ BOOST_AUTO_TEST_CASE(test_jacobian)
   J_world_mat = Eigen::Map<Data::Matrix6x>(J_world_vec.data(),6,model.nv);
   BOOST_CHECK(jacobian_world.isApprox(J_world_mat));
 }
+  
+  BOOST_AUTO_TEST_CASE(test_fk)
+  {
+    typedef double Scalar;
+    typedef casadi::SX ADScalar;
+    
+    typedef pinocchio::ModelTpl<Scalar> Model;
+    typedef Model::Data Data;
+    
+    typedef pinocchio::ModelTpl<ADScalar> ADModel;
+    typedef ADModel::Data ADData;
+    
+    Model model;
+    pinocchio::buildModels::humanoidRandom(model);
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill(1.);
+    Data data(model);
+    
+    typedef Model::ConfigVectorType ConfigVector;
+    typedef Model::TangentVectorType TangentVector;
+    ConfigVector q(model.nq);
+    q = pinocchio::randomConfiguration(model);
+    TangentVector v(TangentVector::Random(model.nv));
+    TangentVector a(TangentVector::Random(model.nv));
+    
+    pinocchio::forwardKinematics(model,data,q);
+    
+    typedef ADModel::ConfigVectorType ConfigVectorAD;
+    typedef ADModel::TangentVectorType TangentVectorAD;
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+    
+    casadi::SX cs_q = casadi::SX::sym("q", model.nq);
+    ConfigVectorAD q_ad(model.nq);
+    pinocchio::casadi::copy(cs_q,q_ad);
+    
+    casadi::SX cs_v = casadi::SX::sym("v", model.nv);
+    TangentVectorAD v_ad(model.nv);
+    pinocchio::casadi::copy(cs_v,v_ad);
+    
+    casadi::SX cs_a = casadi::SX::sym("a", model.nv);
+    TangentVectorAD a_ad(model.nv);
+    pinocchio::casadi::copy(cs_a,a_ad);
+    
+    pinocchio::forwardKinematics(ad_model, ad_data, q_ad, v_ad, a_ad);
+    pinocchio::updateGlobalPlacements(ad_model, ad_data);
+    pinocchio::updateFramePlacements(ad_model, ad_data);
+//    typedef pinocchio::MotionTpl<ADScalar> MotionAD;
+  }
   
 BOOST_AUTO_TEST_CASE(test_rnea)
 {
