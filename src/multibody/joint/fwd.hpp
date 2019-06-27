@@ -30,7 +30,9 @@ namespace pinocchio
   typedef JointDataRevoluteUnalignedTpl<double> JointDataRevoluteUnaligned;
 
   template<typename Scalar, int Options = 0> struct JointModelRevoluteUnboundedUnalignedTpl;
+  typedef JointModelRevoluteUnboundedUnalignedTpl<double> JointModelRevoluteUnboundedUnaligned;
   template<typename Scalar, int Options = 0> struct JointDataRevoluteUnboundedUnalignedTpl;
+  typedef JointDataRevoluteUnboundedUnalignedTpl<double> JointDataRevoluteUnboundedUnaligned;
   
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
