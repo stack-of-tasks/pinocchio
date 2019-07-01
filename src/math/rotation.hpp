@@ -6,6 +6,7 @@
 #define __pinocchio_math_rotation_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include "pinocchio/math/matrix.hpp"
 #include <Eigen/Core>
 
 namespace pinocchio
@@ -24,7 +25,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     
-    assert(axis.isUnitary() && "The axis is not unitary.");
+    assert(isUnitary(axis) && "The axis is not unitary.");
     
     Matrix3 & res_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,res);
     Vector3 sin_axis  = sin_value * axis;
