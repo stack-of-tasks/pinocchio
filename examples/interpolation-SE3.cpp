@@ -22,3 +22,4 @@ int main ()
     std::cout << pole_u << std::endl;
     return 0;
 }
+

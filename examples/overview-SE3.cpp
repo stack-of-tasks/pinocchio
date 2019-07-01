@@ -1,8 +1,6 @@
 #include <iostream>
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
-
-
 using namespace pinocchio;
 int main ()
 { 
@@ -29,3 +27,4 @@ int main ()
 
     return 0;
 }
+
