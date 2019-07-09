@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -10,14 +10,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
-#include "pinocchio/multibody/joint/joint-revolute.hpp"
-#include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
-#include "pinocchio/multibody/joint/joint-revolute-unbounded.hpp"
-#include "pinocchio/multibody/joint/joint-spherical.hpp"
-#include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic.hpp"
-#include "pinocchio/multibody/joint/joint-prismatic-unaligned.hpp"
-#include "pinocchio/multibody/joint/joint-translation.hpp"
+#include "pinocchio/multibody/joint/joints.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -142,6 +135,84 @@ BOOST_AUTO_TEST_CASE(vsRX)
   BOOST_CHECK(jacobianRX.isApprox(jacobianRevoluteUnaligned));
 }
 BOOST_AUTO_TEST_SUITE_END ()
+  
+BOOST_AUTO_TEST_SUITE(JointRevoluteUnboundedUnaligned)
+  
+  BOOST_AUTO_TEST_CASE(vsRUX)
+  {
+    using namespace pinocchio;
+    typedef SE3::Vector3 Vector3;
+    typedef SE3::Matrix3 Matrix3;
+    
+    Vector3 axis;
+    axis << 1.0, 0.0, 0.0;
+    
+    Model modelRUX, modelRevoluteUboundedUnaligned;
+    
+    Inertia inertia (1., Vector3 (0.5, 0., 0.0), Matrix3::Identity ());
+    SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
+    
+    JointModelRevoluteUnboundedUnaligned joint_model_RUU(axis);
+    typedef traits< JointRevoluteUnboundedUnalignedTpl<double> >::TangentVector_t TangentVector;
+    
+    addJointAndBody(modelRUX,JointModelRUBX(),0,pos,"rux",inertia);
+    addJointAndBody(modelRevoluteUboundedUnaligned,joint_model_RUU,0,pos,"revolute-unbounded-unaligned",inertia);
+    
+    Data dataRUX(modelRUX);
+    Data dataRevoluteUnboundedUnaligned(modelRevoluteUboundedUnaligned);
+    
+    Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRUX.nq);
+    TangentVector v = TangentVector::Ones (modelRUX.nv);
+    Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRUX.nv);
+    Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUboundedUnaligned.nv);
+    Eigen::VectorXd aRX = Eigen::VectorXd::Ones (modelRUX.nv);
+    Eigen::VectorXd aRevoluteUnaligned(aRX);
+    
+    forwardKinematics(modelRUX, dataRUX, q, v);
+    forwardKinematics(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q, v);
+    
+    computeAllTerms(modelRUX, dataRUX, q, v);
+    computeAllTerms(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q, v);
+    
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.oMi[1].isApprox(dataRUX.oMi[1]));
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.liMi[1].isApprox(dataRUX.liMi[1]));
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.Ycrb[1].matrix().isApprox(dataRUX.Ycrb[1].matrix()));
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.f[1].toVector().isApprox(dataRUX.f[1].toVector()));
+    
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.nle.isApprox(dataRUX.nle));
+    BOOST_CHECK(dataRevoluteUnboundedUnaligned.com[0].isApprox(dataRUX.com[0]));
+    
+    // InverseDynamics == rnea
+    tauRX = rnea(modelRUX, dataRUX, q, v, aRX);
+    tauRevoluteUnaligned = rnea(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q, v, aRevoluteUnaligned);
+    
+    BOOST_CHECK(tauRX.isApprox(tauRevoluteUnaligned));
+    
+    // ForwardDynamics == aba
+    Eigen::VectorXd aAbaRX = aba(modelRUX, dataRUX, q, v, tauRX);
+    Eigen::VectorXd aAbaRevoluteUnaligned = aba(modelRevoluteUboundedUnaligned,dataRevoluteUnboundedUnaligned, q, v, tauRevoluteUnaligned);
+    
+    BOOST_CHECK(aAbaRX.isApprox(aAbaRevoluteUnaligned));
+    
+    // CRBA
+    crba(modelRUX, dataRUX,q);
+    crba(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q);
+    
+    BOOST_CHECK(dataRUX.M.isApprox(dataRevoluteUnboundedUnaligned.M));
+    
+    // Jacobian
+    Data::Matrix6x jacobianRUX;jacobianRUX.resize(6,1); jacobianRUX.setZero();
+    Data::Matrix6x jacobianRevoluteUnboundedUnaligned;
+    jacobianRevoluteUnboundedUnaligned.resize(6,1); jacobianRevoluteUnboundedUnaligned.setZero();
+    
+    computeJointJacobians(modelRUX, dataRUX, q);
+    computeJointJacobians(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, q);
+    getJointJacobian(modelRUX, dataRUX, 1, LOCAL, jacobianRUX);
+    getJointJacobian(modelRevoluteUboundedUnaligned, dataRevoluteUnboundedUnaligned, 1, LOCAL, jacobianRevoluteUnboundedUnaligned);
+    
+    BOOST_CHECK(jacobianRUX.isApprox(jacobianRevoluteUnboundedUnaligned));
+  }
+  BOOST_AUTO_TEST_SUITE_END ()
 
 BOOST_AUTO_TEST_SUITE (JointPrismaticUnaligned)
   
@@ -1242,9 +1313,20 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     template<typename Scalar, int Options>
     void operator()(const JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
     {
-      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModelRevoluteUnaligned;
-      typedef typename JointModelRevoluteUnaligned::Vector3 Vector3;
-      JointModelRevoluteUnaligned jmodel(Vector3::Random().normalized());
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      jmodel.setIndexes(0,0,0);
+      
+      test(jmodel);
+    }
+    
+    template<typename Scalar, int Options>
+    void operator()(const JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> & ) const
+    {
+      typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
       jmodel.setIndexes(0,0,0);
       
       test(jmodel);
@@ -1253,9 +1335,9 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     template<typename Scalar, int Options>
     void operator()(const JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
     {
-      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelPrismaticUnaligned;
-      typedef typename JointModelPrismaticUnaligned::Vector3 Vector3;
-      JointModelPrismaticUnaligned jmodel(Vector3::Random().normalized());
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
       jmodel.setIndexes(0,0,0);
       
       test(jmodel);
