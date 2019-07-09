@@ -8,13 +8,14 @@
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/math/rotation.hpp"
+#include "pinocchio/math/matrix.hpp"
 
 #include "pinocchio/multibody/joint/joint-revolute-unaligned.hpp"
 
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options> struct JointRevoluteUnboundedUnalignedTpl;
+  template<typename Scalar, int Options = 0> struct JointRevoluteUnboundedUnalignedTpl;
   
   template<typename _Scalar, int _Options>
   struct traits< JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> >
@@ -25,6 +26,10 @@ namespace pinocchio
     };
     typedef _Scalar Scalar;
     enum { Options = _Options };
+    
+    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
+    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
     typedef JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDataDerived;
     typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModelDerived;
     typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
@@ -32,17 +37,13 @@ namespace pinocchio
     typedef MotionRevoluteUnalignedTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-
+    
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-
+    
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-    
-    typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
-    typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
-    
   };
 
   template<typename Scalar, int Options>
@@ -97,7 +98,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
     
     typedef JointModelBase<JointModelRevoluteUnboundedUnalignedTpl> Base;
@@ -169,7 +170,7 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I) -= data.UDinv * data.U.transpose();
     }
     
-    static std::string classname() { return std::string("JointModelRevoluteUnaligned"); }
+    static std::string classname() { return std::string("JointModelRevoluteUnboundedUnaligned"); }
     std::string shortname() const { return classname(); }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
