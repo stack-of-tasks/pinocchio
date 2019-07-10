@@ -96,9 +96,11 @@ namespace pinocchio
 
   template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
   inline void
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a, const Eigen::MatrixBase<OutputType> & regressor)
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a,
+                const Eigen::MatrixBase<OutputType> & regressor)
   {
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(OutputType, params, 6, 10);
+    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(OutputType, regressor, 6, 10);
 
     typedef typename MotionVelocity::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
