@@ -5,8 +5,8 @@
 #ifndef __pinocchio_python_algorithm_hpp__
 #define __pinocchio_python_algorithm_hpp__
 
-#include <boost/python.hpp>
 #include "pinocchio/bindings/python/fwd.hpp"
+#include <boost/python.hpp>
 
 namespace pinocchio
 {

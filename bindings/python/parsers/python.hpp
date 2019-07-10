@@ -1,13 +1,13 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_pythonparser_hpp__
-#define __pinocchio_pythonparser_hpp__
-
-#include <boost/python.hpp>
+#ifndef __pinocchio_python_parser_python_hpp__
+#define __pinocchio_python_parser_python_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+
+#include <boost/python.hpp>
 
 namespace pinocchio
 {
@@ -24,10 +24,12 @@ namespace pinocchio
     /// \returns The model constructed by the Python script.
     ///
     // TODO: look inside the context of Python and find an occurence of object Model
-    Model buildModel(const std::string & filename, const std::string & var_name = "model", bool verbose = false);
+    Model buildModel(const std::string & filename,
+                     const std::string & var_name = "model",
+                     bool verbose = false);
     
   } // namespace python
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_pythonparser_hpp__
+#endif // ifndef __pinocchio_python_parser_python_hpp__

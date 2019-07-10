@@ -5,6 +5,8 @@
 #ifndef __pinocchio_python_utils_list_hpp__
 #define __pinocchio_python_utils_list_hpp__
 
+#include "pinocchio/bindings/python/fwd.hpp"
+
 #include <boost/python.hpp>
 #include <vector>
 
