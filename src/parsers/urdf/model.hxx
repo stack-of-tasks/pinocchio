@@ -355,13 +355,13 @@ namespace pinocchio
                   typename SE3::Vector3 joint_axis((Scalar)joint->axis.x,(Scalar)joint->axis.y,(Scalar)joint->axis.z);
                   joint_info << " unaligned along (" << joint_axis.transpose() << ")";
 
-                  typedef typename JointCollection::JointModelRevoluteUnaligned::ConfigVector_t ConfigVector_t;
+                  typedef typename JointCollection::JointModelRevoluteUnboundedUnaligned::ConfigVector_t ConfigVector_t;
 
                   const Scalar infty = std::numeric_limits<Scalar>::infinity();
                   ConfigVector_t lower_position(ConfigVector_t::Constant(-infty));
                   ConfigVector_t upper_position(ConfigVector_t::Constant(infty));
 
-                  addJointAndBody(model, typename JointCollection::JointModelRevoluteUnaligned(joint_axis.normalized()),
+                  addJointAndBody(model, typename JointCollection::JointModelRevoluteUnboundedUnaligned(joint_axis.normalized()),
                                   parentFrameId,jointPlacement,joint->name,
                                   Y,link->name,
                                   max_effort,max_velocity,

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_fwd_hpp__
@@ -29,6 +29,11 @@ namespace pinocchio
   template<typename Scalar, int Options = 0> struct JointDataRevoluteUnalignedTpl;
   typedef JointDataRevoluteUnalignedTpl<double> JointDataRevoluteUnaligned;
 
+  template<typename Scalar, int Options = 0> struct JointModelRevoluteUnboundedUnalignedTpl;
+  typedef JointModelRevoluteUnboundedUnalignedTpl<double> JointModelRevoluteUnboundedUnaligned;
+  template<typename Scalar, int Options = 0> struct JointDataRevoluteUnboundedUnalignedTpl;
+  typedef JointDataRevoluteUnboundedUnalignedTpl<double> JointDataRevoluteUnboundedUnaligned;
+  
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
 

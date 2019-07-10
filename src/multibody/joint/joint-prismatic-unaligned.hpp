@@ -198,7 +198,7 @@ namespace pinocchio
   template<typename Scalar, int Options, typename ForceDerived>
   struct ConstraintForceOp< ConstraintPrismaticUnalignedTpl<Scalar,Options>, ForceDerived>
   {
-    typedef typename traits< ConstraintRevoluteUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
+    typedef typename traits< ConstraintPrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
     typedef Eigen::Matrix<typename PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<ForceDerived>::ConstAngularType),1,1,Options> ReturnType;
   };
   

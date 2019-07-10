@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_lie_group_hpp__
@@ -53,6 +53,12 @@ namespace pinocchio
   
   template<typename Scalar, int Options, int axis>
   struct LieGroupMap::operation<JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
+  {
+    typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
+  };
+  
+  template<typename Scalar, int Options>
+  struct LieGroupMap::operation<JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
   {
     typedef SpecialOrthogonalOperationTpl<2,Scalar,Options> type;
   };

@@ -182,6 +182,17 @@ namespace boost
     
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
+                   pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> & joint,
+                   const unsigned int version)
+    {
+      typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointType;
+      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType> >(joint));
+      fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
+      ar & make_nvp("axis",joint.axis);
+    }
+    
+    template <class Archive, typename Scalar, int Options>
+    void serialize(Archive & ar,
                    pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> & joint,
                    const unsigned int version)
     {

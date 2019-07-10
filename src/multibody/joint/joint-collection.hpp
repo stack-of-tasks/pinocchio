@@ -37,6 +37,9 @@ namespace pinocchio
     typedef JointModelRevoluteUnboundedTpl<Scalar,Options,1> JointModelRUBY;
     typedef JointModelRevoluteUnboundedTpl<Scalar,Options,2> JointModelRUBZ;
     
+    // Joint Revolute Unbounded Unaligned
+    typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModelRevoluteUnboundedUnaligned;
+    
     // Joint Prismatic
     typedef JointModelPrismaticTpl<Scalar,Options,0> JointModelPX;
     typedef JointModelPrismaticTpl<Scalar,Options,1> JointModelPY;
@@ -74,6 +77,7 @@ namespace pinocchio
     , JointModelPrismaticUnaligned
     , JointModelTranslation
     , JointModelRUBX, JointModelRUBY, JointModelRUBZ
+    , JointModelRevoluteUnboundedUnaligned
     , boost::recursive_wrapper<JointModelComposite>
     > JointModelVariant;
    
@@ -89,6 +93,9 @@ namespace pinocchio
     
     // Joint Revolute Unaligned
     typedef JointDataRevoluteUnalignedTpl<Scalar,Options> JointDataRevoluteUnaligned;
+    
+    // Joint Revolute Unaligned
+    typedef JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDataRevoluteUnboundedUnaligned;
     
     // Joint Revolute UBounded
     typedef JointDataRevoluteUnboundedTpl<Scalar,Options,0> JointDataRUBX;
@@ -132,6 +139,7 @@ namespace pinocchio
     , JointDataPrismaticUnaligned
     , JointDataTranslation
     , JointDataRUBX, JointDataRUBY, JointDataRUBZ
+    , JointDataRevoluteUnboundedUnaligned
     , boost::recursive_wrapper<JointDataComposite>
     > JointDataVariant;
 

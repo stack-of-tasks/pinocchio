@@ -85,6 +85,21 @@ struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
 };
 
 template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
 struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
 {
   typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
@@ -166,17 +181,18 @@ struct FiniteDiffJoint
     typedef JointDataBase<typename JointModel::JointDataDerived> DataBaseType;
     DataBaseType & jdata = static_cast<DataBaseType &>(jdata_);
     
-    CV q(jmodel.nq()); LieGroupType().random(q);
+    CV q = LieGroupType().random();
     jmodel.calc(jdata.derived(),q);
     SE3 M_ref(jdata.M());
     
-    CV q_int(jmodel.nq());
-    TV v(jmodel.nv()); v.setZero();
+    CV q_int(q);
+    const Eigen::DenseIndex nv = jdata.S().nv();
+    TV v(nv); v.setZero();
     double eps = 1e-8;
     
-    Eigen::Matrix<double,6,JointModel::NV> S(6,jmodel.nv()), S_ref(jdata.S().matrix());
+    Eigen::Matrix<double,6,JointModel::NV> S(6,nv), S_ref(jdata.S().matrix());
     
-    for(int k=0;k<jmodel.nv();++k)
+    for(int k=0;k<nv;++k)
     {
       v[k] = eps;
       q_int = LieGroupType().integrate(q,v);
