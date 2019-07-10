@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #include "pinocchio/fwd.hpp"
@@ -122,6 +122,17 @@ struct TestADOnJoints
   }
   
   template<typename Scalar, int Options>
+  void operator()(const pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> & ) const
+  {
+    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    jmodel.setIndexes(0,0,0);
+    
+    test(jmodel);
+  }
+  
+  template<typename Scalar, int Options>
   void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
   {
     typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
@@ -141,6 +152,13 @@ struct TestADOnJoints
     jmodel.setIndexes(0,0,0);
     
     test(jmodel);
+  }
+ 
+  // TODO: implement it
+  template<typename JointModel_>
+  void operator()(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/) const
+  {
+    /* do nothing */
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollection>

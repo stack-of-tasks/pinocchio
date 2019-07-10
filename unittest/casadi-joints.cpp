@@ -267,6 +267,11 @@ struct TestADOnJoints
     test(jmodel);
   }
   
+  // TODO: get the nq and nv quantity from LieGroups
+  template<typename JointModel_>
+  static void test(const pinocchio::JointModelMimic<JointModel_> & /*jmodel*/)
+  { /* do nothing */ }
+  
   template<typename JointModel>
   static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
   {
