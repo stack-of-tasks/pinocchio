@@ -13,6 +13,8 @@ namespace pinocchio {}
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"
 
+#include "pinocchio/container/boost-container-limits.hpp"
+
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
 #include "pinocchio/math/cppad.hpp"
 #endif
