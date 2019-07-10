@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 CNRS
+// Copyright (c) 2015-2019 CNRS, INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -42,15 +42,18 @@ namespace pinocchio
     typedef Vector3 LinearType;
     typedef const Vector3 ConstLinearType;
     typedef Motion MotionPlain;
+    typedef MotionPlain PlainReturnType;
     
   }; // traits BiasZeroTpl
   
   template<typename Scalar, int Options>
-  struct BiasZeroTpl : public MotionBase< BiasZeroTpl<Scalar,Options> >
+  struct BiasZeroTpl
+  : public MotionBase< BiasZeroTpl<Scalar,Options> >
   {
     typedef typename traits<BiasZeroTpl>::MotionPlain MotionPlain;
+    typedef typename traits<BiasZeroTpl>::PlainReturnType PlainReturnType;
     
-//    operator MotionPlain () const { return MotionPlain::Zero(); }
+    static PlainReturnType plain() { return MotionPlain::Zero(); }
     
     template<typename D2>
     static bool isEqual_impl(const MotionDense<D2> & other)

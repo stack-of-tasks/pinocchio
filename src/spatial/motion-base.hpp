@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -31,6 +31,9 @@ namespace pinocchio
     void linear(const Eigen::MatrixBase<V3Like> & v)
     { derived().linear_impl(v.derived()); }
     
+    operator PlainReturnType() const { return derived().plain(); }
+    PlainReturnType plain() const { return derived().plain(); }
+    
     ToVectorConstReturnType toVector() const { return derived().toVector_impl(); }
     ToVectorReturnType toVector() { return derived().toVector_impl(); }
     operator Vector6() const { return toVector(); }
@@ -56,10 +59,12 @@ namespace pinocchio
     Derived & operator-=(const MotionBase<Derived> & v) { return derived().__mequ__(v.derived()); }
     
     template<typename OtherScalar>
-    MotionPlain operator*(const OtherScalar & alpha) const
+    typename internal::RHSScalarMultiplication<Derived,OtherScalar>::ReturnType
+    operator*(const OtherScalar & alpha) const
     { return derived().__mult__(alpha); }
+    
     template<typename OtherScalar>
-    MotionPlain operator/(const OtherScalar & alpha) const
+    Derived operator/(const OtherScalar & alpha) const
     { return derived().__div__(alpha); }
     
     template<typename OtherSpatialType>
@@ -93,6 +98,14 @@ namespace pinocchio
     }
     
   }; // class MotionBase
+  
+  template<typename MotionDerived>
+  typename internal::RHSScalarMultiplication<MotionDerived,typename MotionDerived::Scalar>::ReturnType
+  operator*(const typename MotionDerived::Scalar & alpha,
+            const MotionBase<MotionDerived> & motion)
+  {
+    return motion*alpha;
+  }
   
 } // namespace pinocchio
 

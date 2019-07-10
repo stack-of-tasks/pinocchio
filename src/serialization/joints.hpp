@@ -55,12 +55,38 @@ namespace boost
       template <class Archive, typename Derived>
       void serialize(Archive & ar,
                      pinocchio::JointModelBase<Derived> & joint,
-                     const unsigned int /*version*/)
+                     const unsigned int version)
       {
-        ar & make_nvp("i_id",joint.i_id);
-        ar & make_nvp("i_q",joint.i_q);
-        ar & make_nvp("i_v",joint.i_v);
+        split_free(ar, joint, version);
       }
+    }
+    
+    template<class Archive, typename Derived>
+    void save(Archive & ar,
+              const pinocchio::JointModelBase<Derived> & joint,
+              const unsigned int /*version*/)
+    {
+      const pinocchio::JointIndex i_id = joint.id();
+      const int i_q = joint.idx_q(), i_v = joint.idx_v();
+      
+      ar & make_nvp("i_id",i_id);
+      ar & make_nvp("i_q",i_q);
+      ar & make_nvp("i_v",i_v);
+    }
+    
+    template<class Archive, typename Derived>
+    void load(Archive & ar,
+              pinocchio::JointModelBase<Derived> & joint,
+              const unsigned int /*version*/)
+    {
+      pinocchio::JointIndex i_id;
+      int i_q, i_v;
+      
+      ar & make_nvp("i_id",i_id);
+      ar & make_nvp("i_q",i_q);
+      ar & make_nvp("i_v",i_v);
+      
+      joint.setIndexes(i_id,i_q,i_v);
     }
     
     template <class Archive, typename Scalar, int Options, int axis>
@@ -188,6 +214,20 @@ namespace boost
       
       typedef typename JointCollectionTpl<Scalar,Options>::JointModelVariant JointModelVariant;
       ar & make_nvp("base_variant",base_object<JointModelVariant>(joint));
+    }
+    
+    template <class Archive, typename JointModel>
+    void serialize(Archive & ar,
+                   pinocchio::JointModelMimic<JointModel> & joint,
+                   const unsigned int version)
+    {
+      typedef pinocchio::JointModelMimic<JointModel> JointType;
+      //      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType> >(joint));
+      fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
+      
+      ar & make_nvp("jmodel",joint.jmodel());
+      ar & make_nvp("scaling",joint.scaling());
+      ar & make_nvp("offset",joint.offset());
     }
     
   }

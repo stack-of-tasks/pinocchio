@@ -15,5 +15,6 @@
 #include "pinocchio/multibody/joint/joint-spherical-ZYX.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
+#include "pinocchio/multibody/joint/joint-mimic.hpp"
 
 #endif // ifndef __pinocchio_joint_joints_hpp__

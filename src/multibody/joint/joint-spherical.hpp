@@ -12,7 +12,6 @@
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
-#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -48,6 +47,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -55,7 +55,8 @@ namespace pinocchio
   }; // traits MotionSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct MotionSphericalTpl : MotionBase< MotionSphericalTpl<_Scalar,_Options> >
+  struct MotionSphericalTpl
+  : MotionBase< MotionSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -71,10 +72,10 @@ namespace pinocchio
     Vector3 & operator() () { return w; }
     const Vector3 & operator() () const { return w; }
 
-//    operator MotionPlain() const
-//    {
-//      return MotionPlain(MotionPlain::Vector3::Zero(), w);
-//    }
+    inline PlainReturnType plain() const
+    {
+      return PlainReturnType(PlainReturnType::Vector3::Zero(), w);
+    }
     
     template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & other) const
@@ -199,6 +200,8 @@ namespace pinocchio
     
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalTpl)
     
+    ConstraintSphericalTpl() {}
+    
     enum { NV = 3 };
     
     int nv_impl() const { return NV; }
@@ -320,8 +323,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -347,7 +349,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
 
     Constraint_t S;
@@ -355,8 +357,6 @@ namespace pinocchio
     Motion_t v;
     Bias_t c;
 
-    F_t F;
-    
     // [ABA] specific data
     U_t U;
     D_t Dinv;
@@ -377,7 +377,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointModelBase<JointModelSphericalTpl> Base;
     using Base::id;

@@ -26,6 +26,7 @@ namespace pinocchio
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
     typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) DataRefType;
     typedef DataRefType ToVectorReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) ConstDataRefType;
@@ -39,11 +40,28 @@ namespace pinocchio
   {
     typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
   };
-  
+
   template<typename Vector6ArgType, typename MotionDerived>
   struct MotionAlgebraAction< MotionRef<Vector6ArgType>, MotionDerived >
-  { typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType; };
-
+  {
+    typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+  };
+  
+  namespace internal
+  {
+    template<typename Vector6ArgType, typename Scalar>
+    struct RHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
+    {
+      typedef typename pinocchio::traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+    };
+    
+    template<typename Vector6ArgType, typename Scalar>
+    struct LHSScalarMultiplication< MotionRef<Vector6ArgType>, Scalar >
+    {
+      typedef typename traits< MotionRef<Vector6ArgType> >::MotionPlain ReturnType;
+    };
+  }
+  
   template<typename Vector6ArgType>
   class MotionRef : public MotionDense< MotionRef<Vector6ArgType> >
   {
@@ -133,6 +151,8 @@ namespace pinocchio
     { return MotionPlain(alpha*m_ref); }
     
     MotionRef & ref() { return *this; }
+    
+    inline PlainReturnType plain() const { return PlainReturnType(m_ref); }
 
   protected:
     DataRefType m_ref;
@@ -194,6 +214,8 @@ namespace pinocchio
     { return MotionPlain(alpha*m_ref); }
     
     const MotionRef & ref() const { return *this; }
+
+    inline PlainReturnType plain() const { return PlainReturnType(m_ref); }
     
   protected:
     DataRefType m_ref;

@@ -47,6 +47,7 @@ namespace pinocchio
     typedef const Vector3 ConstLinearType;
     typedef Matrix6 ActionMatrixType;
     typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
     enum {
       LINEAR = 0,
       ANGULAR = 3
@@ -54,7 +55,8 @@ namespace pinocchio
   }; // traits MotionPlanarTpl
 
   template<typename _Scalar, int _Options>
-  struct MotionPlanarTpl : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
+  struct MotionPlanarTpl
+  : MotionBase< MotionPlanarTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
@@ -75,11 +77,11 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
     }
 
-//    operator MotionPlain() const
-//    {
-//      return MotionPlain(typename MotionPlain::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-//                         typename MotionPlain::Vector3(Scalar(0),Scalar(0),m_theta_dot));
-//    }
+    inline PlainReturnType plain() const
+    {
+      return PlainReturnType(typename PlainReturnType::Vector3(m_x_dot,m_y_dot,Scalar(0)),
+                             typename PlainReturnType::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+    }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
@@ -199,12 +201,15 @@ namespace pinocchio
   }; // struct traits ConstraintPlanarTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintPlanarTpl : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
+  struct ConstraintPlanarTpl
+  : ConstraintBase< ConstraintPlanarTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPlanarTpl)
     
     enum { NV = 3 };
+    
+    ConstraintPlanarTpl() {};
 
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & vj) const
@@ -366,8 +371,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPlanarTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -389,7 +393,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
@@ -397,8 +401,6 @@ namespace pinocchio
     Motion_t v;
     Bias_t c;
 
-    F_t F; // TODO if not used anymore, clean F_t
-    
     // [ABA] specific data
     U_t U;
     D_t Dinv;
@@ -420,7 +422,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointModelBase<JointModelPlanarTpl> Base;
     using Base::id;

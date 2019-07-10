@@ -14,7 +14,6 @@
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
-#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -75,7 +74,7 @@ namespace pinocchio
       ConstraintTranspose(const ConstraintSphericalZYXTpl & ref) : ref(ref) {}
       
       template<typename Derived>
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       Eigen::Transpose<const Matrix3>,
       Eigen::Block<const typename ForceDense<Derived>::Vector6,3,1>
       >::type
@@ -86,7 +85,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename D>
-      const typename MatrixProduct<
+      const typename MatrixMatrixProduct<
       typename Eigen::Transpose<const Matrix3>,
       typename Eigen::MatrixBase<const D>::template NRowsBlockXpr<3>::Type
       >::type
@@ -167,7 +166,7 @@ namespace pinocchio
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
   //  inline Eigen::Matrix<double,6,3>
   template<typename Matrix6Like, typename S2, int O2>
-  const typename MatrixProduct<
+  const typename MatrixMatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
   typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
   >::type
@@ -211,8 +210,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef MotionSphericalTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -237,7 +235,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
@@ -245,8 +243,6 @@ namespace pinocchio
     Motion_t v;
     Bias_t c;
 
-    F_t F;
-    
     // [ABA] specific data
     U_t U;
     D_t Dinv;
@@ -267,7 +263,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointModelBase<JointModelSphericalZYXTpl> Base;
     using Base::id;

@@ -23,6 +23,7 @@ typedef TYPENAME traits<Derived>::ConstAngularType ConstAngularType; \
 typedef TYPENAME traits<Derived>::ConstLinearType ConstLinearType; \
 typedef TYPENAME traits<Derived>::ActionMatrixType ActionMatrixType; \
 typedef TYPENAME traits<Derived>::MotionPlain MotionPlain; \
+typedef TYPENAME traits<Derived>::PlainReturnType PlainReturnType; \
 enum {  \
 LINEAR = traits<Derived>::LINEAR,  \
 ANGULAR = traits<Derived>::ANGULAR \

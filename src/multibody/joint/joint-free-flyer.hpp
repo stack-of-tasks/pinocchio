@@ -13,7 +13,6 @@
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
-#include "pinocchio/multibody/joint/joint-common-operations.hpp"
 
 namespace pinocchio
 {
@@ -138,8 +137,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
     typedef BiasZeroTpl<Scalar,Options> Bias_t;
-    typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
-    
+
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
@@ -164,7 +162,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
     Constraint_t S;
@@ -172,8 +170,6 @@ namespace pinocchio
     Motion_t v;
     Bias_t c;
 
-    F_t F; // TODO if not used anymore, clean F_t
-    
     // [ABA] specific data
     U_t U;
     D_t Dinv;
@@ -193,7 +189,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointModelBase<JointModelFreeFlyerTpl> Base;
     using Base::id;

@@ -18,12 +18,38 @@ namespace pinocchio
   }
 
   template<typename M1, typename M2>
-  struct MatrixProduct
+  struct MatrixMatrixProduct
   {
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
     typedef typename Eigen::Product<M1,M2> type;
 #else
     typedef typename Eigen::ProductReturnType<M1,M2>::Type type;
+#endif
+  };
+  
+  template<typename Scalar, typename Matrix>
+  struct ScalarMatrixProduct
+  {
+#if EIGEN_VERSION_AT_LEAST(3,3,0)
+    typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<Scalar,typename Eigen::internal::traits<Matrix>::Scalar>,
+    const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type, const Matrix> type;
+#elif EIGEN_VERSION_AT_LEAST(3,2,90)
+    typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
+#else
+    typedef const Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
+#endif
+  };
+  
+  template<typename Matrix, typename Scalar>
+  struct MatrixScalarProduct
+  {
+#if EIGEN_VERSION_AT_LEAST(3,3,0)
+    typedef Eigen::CwiseBinaryOp<EIGEN_CAT(EIGEN_CAT(Eigen::internal::scalar_,product),_op)<typename Eigen::internal::traits<Matrix>::Scalar,Scalar>,
+    const Matrix, const typename Eigen::internal::plain_constant_type<Matrix,Scalar>::type> type;
+#elif EIGEN_VERSION_AT_LEAST(3,2,90)
+    typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
+#else
+    typedef const Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Scalar>, const Matrix> type;
 #endif
   };
   

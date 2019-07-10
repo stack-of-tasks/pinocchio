@@ -38,7 +38,6 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
 
-    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> F_t;
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
@@ -75,7 +74,7 @@ namespace pinocchio
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
     typedef JointDataBase<JointDataTpl> Base;
     
-    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
 
     typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
@@ -135,7 +134,7 @@ namespace pinocchio
     
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
 
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_USE_INDEXES;
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;

@@ -30,6 +30,20 @@
 namespace pinocchio
 {
   
+  /// \brief Return type of the Constraint::Transpose * Force operation
+  template<class ConstraintDerived, typename Force>
+  struct ConstraintForceOp
+  {
+    typedef ReturnTypeNotDefined ReturnType;
+  };
+  
+  /// \brief Return type of the Constraint::Transpose * ForceSet operation
+  template<class ConstraintDerived, typename ForceSet>
+  struct ConstraintForceSetOp
+  {
+    typedef ReturnTypeNotDefined ReturnType;
+  };
+
   template<class Derived>
   class ConstraintBase
   {
@@ -50,6 +64,9 @@ namespace pinocchio
     ConstMatrixReturnType matrix() const  { return derived().matrix_impl(); }
     
     int nv() const { return derived().nv_impl(); }
+    
+    static int rows() { return 6; }
+    int cols() const { return nv(); }
     
     template<class OtherDerived>
     bool isApprox(const ConstraintBase<OtherDerived> & other,
@@ -81,9 +98,28 @@ namespace pinocchio
     {
       return derived().motionAction(v);
     }
-    
 
   }; // class ConstraintBase
+  
+  /// \brief Operation Y * S used in the CRBA algorithm for instance
+  template<typename Scalar, int Options, typename ConstraintDerived>
+  typename MultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::ReturnType
+  operator*(const InertiaTpl<Scalar,Options> & Y,
+            const ConstraintBase<ConstraintDerived> & constraint)
+  {
+    return impl::LhsMultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::run(Y,
+                                                                                        constraint.derived());
+  }
+  
+  /// \brief Operation Y_matrix * S used in the ABA algorithm for instance
+  template<typename MatrixDerived, typename ConstraintDerived>
+  typename MultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::ReturnType
+  operator*(const Eigen::MatrixBase<MatrixDerived> & Y,
+            const ConstraintBase<ConstraintDerived> & constraint)
+  {
+    return impl::LhsMultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::run(Y.derived(),
+                                                                                              constraint.derived());
+  }
 
 } // namespace pinocchio
 

@@ -136,67 +136,143 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
       BOOST_CHECK(std::fabs(Sref_mat(i,j) - (double)res_S[0](i,j)) <= Eigen::NumTraits<double>::dummy_precision());
   }
 }
+  
+template<typename JointModel_> struct init;
+  
+template<typename JointModel_>
+  struct init
+{
+  static JointModel_ run()
+  {
+    JointModel_ jmodel;
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+  
+  static std::string name()
+  {
+    return "default " + JointModel_::classname();
+  }
+};
+  
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
+  
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+  {
+    typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+    
+    static JointModel run()
+    {
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      JointModel jmodel((JointModelRX()));
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollection>
+  struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+  {
+    typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+    
+    static JointModel run()
+    {
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+      typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+      JointModel jmodel((JointModelRX()));
+      jmodel.addJoint(JointModelRY());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
+  
+  template<typename JointModel_>
+  struct init<pinocchio::JointModelMimic<JointModel_> >
+  {
+    typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+    
+    static JointModel run()
+    {
+      JointModel_ jmodel_ref = init<JointModel_>::run();
+      
+      JointModel jmodel(jmodel_ref,1.,0.);
+      
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
 
 struct TestADOnJoints
 {
-  template<typename JointModel>
-  void operator()(const pinocchio::JointModelBase<JointModel> &) const
+  template<typename JointModel_>
+  void operator()(const pinocchio::JointModelBase<JointModel_> &) const
   {
-    JointModel jmodel;
+    JointModel_ jmodel = init<JointModel_>::run();
     jmodel.setIndexes(0,0,0);
-    
-    test(jmodel);
-  }
-  
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> & ) const
-  {
-    typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0,0,0);
-    
-    test(jmodel);
-  }
-  
-  template<typename Scalar, int Options>
-  void operator()(const pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> & ) const
-  {
-    typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
-    typedef typename JointModel::Vector3 Vector3;
-    JointModel jmodel(Vector3::Random().normalized());
-    jmodel.setIndexes(0,0,0);
-    
-    test(jmodel);
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollection>
-  void operator()(const pinocchio::JointModelTpl<Scalar,Options,JointCollection> & ) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
-    typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.setIndexes(0,0,0);
-    
-    test(jmodel);
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollection>
-  void operator()(const pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> & ) const
-  {
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
-    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
-    typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
-    JointModel jmodel((JointModelRX()));
-    jmodel.addJoint(JointModelRY());
-    jmodel.setIndexes(0,0,0);
-    
     test(jmodel);
   }
   
   template<typename JointModel>
   static void test(const pinocchio::JointModelBase<JointModel> & jmodel)
   {
+    std::cout << "--" << std::endl;
+    std::cout << "jmodel: " << jmodel.shortname() << std::endl;
+    
     typedef casadi::SX AD_double;
 
     typedef pinocchio::SE3Tpl<AD_double> SE3AD;
@@ -226,12 +302,12 @@ struct TestADOnJoints
     pinocchio::JointDataBase<JointDataAD> & jdata_ad_base = jdata_ad;
     
     ConfigVector q(jmodel.nq());
+
     ConfigVector lb(ConfigVector::Constant(jmodel.nq(),-1.));
     ConfigVector ub(ConfigVector::Constant(jmodel.nq(),1.));
     
     typedef pinocchio::RandomConfigurationStep<pinocchio::LieGroupMap,ConfigVector,ConfigVector,ConfigVector> RandomConfigAlgo;
     RandomConfigAlgo::run(jmodel.derived(),typename RandomConfigAlgo::ArgsType(q,lb,ub));
-
     
     casadi::SX cs_q = casadi::SX::sym("q", jmodel.nq());
     ConfigVectorAD q_ad(jmodel.nq());
@@ -320,6 +396,8 @@ struct TestADOnJoints
       for(Eigen::DenseIndex j = 0; i < Sref.nv(); ++i)
         BOOST_CHECK(std::fabs(Sref_mat(i,j) - (double)res_S[0](i,j)) <= Eigen::NumTraits<double>::dummy_precision());
     }
+    
+    std::cout << "--" << std::endl << std::endl;
   }
 };
 

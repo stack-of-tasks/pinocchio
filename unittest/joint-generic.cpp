@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
@@ -12,27 +12,27 @@
 using namespace pinocchio;
 
 template <typename JointModel>
-void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDerived & jdata)
+void test_joint_methods(JointModelBase<JointModel> & jmodel,
+                        JointDataBase<typename JointModel::JointDataDerived> & jdata)
 {
   typedef typename LieGroup<JointModel>::type LieGroupType;
 
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
-  Eigen::VectorXd q1(Eigen::VectorXd::Random (jmodel.nq()));
-  Eigen::VectorXd q1_dot(Eigen::VectorXd::Random (jmodel.nv()));
-  Eigen::VectorXd q2(Eigen::VectorXd::Random (jmodel.nq()));
-  pinocchio::Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
+  Eigen::VectorXd q1, q2;
+  Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv()));
+  Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   bool update_I = false;
 
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
 
-  jmodel.calc(jdata, q1, q1_dot);
-  jmodel.calc_aba(jdata, Ia, update_I);
+  jmodel.calc(jdata.derived(), q1, v1);
+  jmodel.calc_aba(jdata.derived(), Ia, update_I);
 
   pinocchio::JointModel jma(jmodel);
-  pinocchio::JointData jda(jdata);
+  pinocchio::JointData jda(jdata.derived());
 
-  jma.calc(jda, q1, q1_dot);
+  jma.calc(jda, q1, v1);
   jma.calc_aba(jda, Ia, update_I);
 
   std::string error_prefix("JointModel on " + jma.shortname());
@@ -43,22 +43,22 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
   BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
   BOOST_CHECK_MESSAGE(jmodel.id() == jma.id() ,std::string(error_prefix + " - JointId "));
 
-  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S.matrix()),std::string(error_prefix + " - ConstraintXd "));
-  BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M)),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
-  BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (pinocchio::Motion(jdata.v))),std::string(error_prefix + " - Joint motions "));
-  BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c),std::string(error_prefix + " - Joint bias "));
+  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S().matrix()),std::string(error_prefix + " - ConstraintXd "));
+  BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M())),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
+  BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (pinocchio::Motion(jdata.v()))),std::string(error_prefix + " - Joint motions "));
+  BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c()),std::string(error_prefix + " - Joint bias "));
 
-  BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
-  BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox(jdata.Dinv),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
-  BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox(jdata.UDinv),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
+  BOOST_CHECK_MESSAGE((jda.U()).isApprox(jdata.U()),std::string(error_prefix + " - Joint U inertia matrix decomposition "));
+  BOOST_CHECK_MESSAGE((jda.Dinv()).isApprox(jdata.Dinv()),std::string(error_prefix + " - Joint DInv inertia matrix decomposition "));
+  BOOST_CHECK_MESSAGE((jda.UDinv()).isApprox(jdata.UDinv()),std::string(error_prefix + " - Joint UDInv inertia matrix decomposition "));
 
   // Test vxS
   typedef typename JointModel::Constraint_t Constraint_t;
   typedef typename Constraint_t::DenseBase ConstraintDense;
 
   Motion v(Motion::Random());
-  ConstraintDense vxS(v.cross(jdata.S));
-  ConstraintDense vxS_ref = v.toActionMatrix() * jdata.S.matrix();
+  ConstraintDense vxS(v.cross(jdata.S()));
+  ConstraintDense vxS_ref = v.toActionMatrix() * jdata.S().matrix();
 
   BOOST_CHECK_MESSAGE(vxS.isApprox(vxS_ref),std::string(error_prefix + "- Joint vxS operation "));
 
@@ -66,57 +66,119 @@ void test_joint_methods(JointModel & jmodel, typename JointModel::JointDataDeriv
   const Inertia Isparse(Inertia::Random());
   const Inertia::Matrix6 Idense(Isparse.matrix());
 
-  const ConstraintDense IsparseS = Isparse * jdata.S;
-  const ConstraintDense IdenseS = Idense * jdata.S;
+  const ConstraintDense IsparseS = Isparse * jdata.S();
+  const ConstraintDense IdenseS = Idense * jdata.S();
 
   BOOST_CHECK_MESSAGE(IdenseS.isApprox(IsparseS),std::string(error_prefix + "- Joint YS operation "));
 
 }
 
+template<typename JointModel_> struct init;
+
+template<typename JointModel_>
+struct init
+{
+  static JointModel_ run()
+  {
+    JointModel_ jmodel;
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    JointModel jmodel((JointModelRX()));
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+    JointModel jmodel((JointModelRX()));
+    jmodel.addJoint(JointModelRY());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename JointModel_>
+struct init<pinocchio::JointModelMimic<JointModel_> >
+{
+  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  
+  static JointModel run()
+  {
+    JointModel_ jmodel_ref = init<JointModel_>::run();
+    
+    JointModel jmodel(jmodel_ref,1.,0.);
+    jmodel.setIndexes(0,0,0);
+    
+    return jmodel;
+  }
+};
+
 struct TestJoint{
 
-  template <typename T>
-  void operator()(const T ) const
+  template <typename JointModel>
+  void operator()(const JointModelBase<JointModel> & ) const
   {
-    T jmodel;
+    JointModel jmodel = init<JointModel>::run();
     jmodel.setIndexes(0,0,0);
-    typename T::JointDataDerived jdata = jmodel.createData();
+    typename JointModel::JointDataDerived jdata = jmodel.createData();
 
     test_joint_methods(jmodel, jdata);
   }
-
+  
   void operator()(const pinocchio::JointModelComposite & ) const
   {
-    // pinocchio::JointModelComposite jmodel(2);
-    // jmodel.addJointModel(pinocchio::JointModelRX());
-    // jmodel.addJointModel(pinocchio::JointModelRY());
-
-    pinocchio::JointModelComposite jmodel((pinocchio::JointModelRX()));
-    jmodel.addJoint(pinocchio::JointModelRY());
-    jmodel.setIndexes(0,0,0);
-
-    pinocchio::JointModelComposite::JointDataDerived jdata = jmodel.createData();
-
-    // TODO: fixme when LieGroups will be implemented for JointModelComposite
-//    test_joint_methods(jmodel, jdata);
-  }
-
-  void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
-  {
-    pinocchio::JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-    pinocchio::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
-
-    test_joint_methods(jmodel, jdata);
-  }
-
-  void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
-  {
-    pinocchio::JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-    pinocchio::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
-
-    test_joint_methods(jmodel, jdata);
+    
   }
 
 };
@@ -153,7 +215,6 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
     
-    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> F_t;
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
@@ -173,7 +234,7 @@ namespace pinocchio
     typedef typename JointCollection::JointModelVariant VariantBase;
     typedef typename JointCollection::JointModelVariant JointModelVariant;
     
-    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE;
+    PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     JointModelTest(const JointModelVariant & jmodel)
     : VariantBase(jmodel)
