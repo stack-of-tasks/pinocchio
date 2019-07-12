@@ -51,7 +51,7 @@ ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
-OPTION (BUILD_UNIT_TESTS "Build the unitary tests" ON)
+OPTION (BUILD_UNIT_TESTS "Build the unitary tests" OFF)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
