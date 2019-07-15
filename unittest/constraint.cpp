@@ -294,6 +294,11 @@ struct TestJointConstraint
     test_constraint_operations(jmodel);
   }
   
+  void operator()(const JointModelComposite &) const
+  {
+    /* TODO: test JointModelComposite */
+  }
+  
 };
 
 BOOST_AUTO_TEST_CASE(test_joint_constraint_operations)
