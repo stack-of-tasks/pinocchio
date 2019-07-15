@@ -172,42 +172,124 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   
 }
 
+template<typename JointModel_> struct init;
+
+template<typename JointModel_>
+struct init
+{
+  static JointModel_ run()
+  {
+    JointModel_ jmodel;
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    JointModel jmodel((JointModelRX()));
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, template<typename,int> class JointCollection>
+struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
+{
+  typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
+  
+  static JointModel run()
+  {
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
+    typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,2> JointModelRZ;
+    
+    JointModel jmodel(JointModelRX(),SE3::Random());
+    jmodel.addJoint(JointModelRY(),SE3::Random());
+    jmodel.addJoint(JointModelRZ(),SE3::Random());
+    
+    jmodel.setIndexes(0,0,0);
+    
+    return jmodel;
+  }
+};
+
+template<typename JointModel_>
+struct init<pinocchio::JointModelMimic<JointModel_> >
+{
+  typedef pinocchio::JointModelMimic<JointModel_> JointModel;
+  
+  static JointModel run()
+  {
+    JointModel_ jmodel_ref = init<JointModel_>::run();
+    
+    JointModel jmodel(jmodel_ref,1.,0.);
+    jmodel.setIndexes(0,0,0);
+    
+    return jmodel;
+  }
+};
+
 struct TestJointConstraint
 {
   
   template <typename JointModel>
   void operator()(const JointModelBase<JointModel> &) const
   {
-    JointModel jmodel;
+    JointModel jmodel = init<JointModel>::run();
     jmodel.setIndexes(0,0,0);
-    
-    test_constraint_operations(jmodel);
-  }
-  
-  void operator()(const JointModelBase<JointModelRevoluteUnaligned> &) const
-  {
-    JointModelRevoluteUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-    
-    test_constraint_operations(jmodel);
-  }
-  
-  void operator()(const JointModelBase<JointModelPrismaticUnaligned> &) const
-  {
-    JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
-    jmodel.setIndexes(0,0,0);
-    
-    test_constraint_operations(jmodel);
-  }
-  
-  void operator()(const JointModelBase<JointModelComposite> &) const
-  {
-    JointModelComposite jmodel;
-    jmodel.setIndexes(0,0,0);
-    
-    jmodel.addJoint(JointModelRX(),SE3::Random());
-    jmodel.addJoint(JointModelRY(),SE3::Random());
-    jmodel.addJoint(JointModelRZ(),SE3::Random());
     
     test_constraint_operations(jmodel);
   }
