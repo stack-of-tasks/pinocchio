@@ -16,6 +16,7 @@ env:
     - DO_CPPCHECK_ON_BRANCH=""
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
     - BUILDTYPE=MinSizeRel
+    - BUILD_WITH_CATKIN_SUPPORT=false
 
 notifications:
 email:
