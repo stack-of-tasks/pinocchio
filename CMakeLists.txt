@@ -17,7 +17,7 @@ INCLUDE(cmake/ide.cmake)
 INCLUDE(cmake/test.cmake)
 
 SET(PROJECT_NAME pinocchio)
-SET(PROJECT_DESCRIPTION "Rigid multi body dynamics algorithms")
+SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
 SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" ON)
