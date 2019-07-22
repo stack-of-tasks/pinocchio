@@ -573,7 +573,7 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
     {
-      Config_t& qout_ = (const_cast< Eigen::MatrixBase<Config_t>& >(qout)).derived();
+      Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       qout_.template tail<4>().normalize();
     }
 

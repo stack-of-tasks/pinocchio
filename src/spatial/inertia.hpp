@@ -405,10 +405,12 @@ namespace pinocchio
     }
     
     template<typename M6>
-    static void vxi_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    static void vxi_impl(const Motion & v,
+                         const InertiaTpl & I,
+                         const Eigen::MatrixBase<M6> & Iout)
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
-      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+      M6 & Iout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,Iout);
 
       // Block 1,1
       alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));
@@ -438,10 +440,12 @@ namespace pinocchio
     }
     
     template<typename M6>
-    static void ivx_impl(const Motion & v, const InertiaTpl & I, const Eigen::MatrixBase<M6> & Iout)
+    static void ivx_impl(const Motion & v,
+                         const InertiaTpl & I,
+                         const Eigen::MatrixBase<M6> & Iout)
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6,6,6);
-      M6 & Iout_ = const_cast<Eigen::MatrixBase<M6> &>(Iout).derived();
+      M6 & Iout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,Iout);
       
       // Block 1,1
       alphaSkew(I.mass(),v.angular(),Iout_.template block<3,3>(LINEAR,LINEAR));

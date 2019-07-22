@@ -102,7 +102,7 @@ namespace pinocchio
       static void run(const Eigen::MatrixBase<MatrixIn> & m_in,
                       const Eigen::MatrixBase<MatrixOut> & dest)
       {
-        MatrixOut & dest_ = const_cast<MatrixOut &>(dest.derived());
+        MatrixOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixOut,dest);
         dest_.noalias() = m_in.inverse();
       }
     };
@@ -113,7 +113,7 @@ namespace pinocchio
   inline void inverse(const Eigen::MatrixBase<MatrixIn> & m_in,
                       const Eigen::MatrixBase<MatrixOut> & dest)
   {
-    MatrixOut & dest_ = const_cast<MatrixOut &>(dest.derived());
+    MatrixOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixOut,dest);
     internal::CallCorrectMatrixInverseAccordingToScalar<typename MatrixIn::Scalar>::run(m_in,dest_);
   }
 

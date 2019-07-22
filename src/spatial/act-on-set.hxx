@@ -40,7 +40,7 @@ namespace pinocchio
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
-        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        ForceRefOnMatRet fout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF));
         
         switch(Op)
         {
@@ -72,7 +72,7 @@ namespace pinocchio
       for(int col=0;col<jF.cols();++col)
       {
         typename MatRet::ColXpr jFc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF).col(col);
         forceSet::se3Action<Op>(m,iF.col(col),jFc);
       }
     }
@@ -124,7 +124,7 @@ namespace pinocchio
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
-        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        ForceRefOnMatRet fout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF));
 
         run(v,fin,fout);
       }
@@ -139,7 +139,7 @@ namespace pinocchio
       for(int col=0;col<jF.cols();++col)
       {
         typename MatRet::ColXpr jFc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF).col(col);
         forceSet::motionAction<Op>(v,iF.col(col),jFc);
       }
     }
@@ -173,7 +173,7 @@ namespace pinocchio
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         ForceRefOnMat fin(iF.derived());
-        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        ForceRefOnMatRet fout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF));
         
         switch(Op)
         {
@@ -206,7 +206,7 @@ namespace pinocchio
       for(int col=0;col<jF.cols();++col)
       {
         typename MatRet::ColXpr jFc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF).col(col);
         forceSet::se3ActionInverse<Op>(m,iF.col(col),jFc);
       }
     }
@@ -295,7 +295,7 @@ namespace pinocchio
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
-        MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        MotionRefOnMatRet mout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV));
         
         switch(Op)
         {
@@ -327,7 +327,7 @@ namespace pinocchio
       for(int col=0;col<jV.cols();++col)
       {
         typename MatRet::ColXpr jVc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV).col(col);
         motionSet::se3Action<Op>(m,iV.col(col),jVc);
       }
     }
@@ -352,7 +352,7 @@ namespace pinocchio
       for(int col=0;col<jV.cols();++col)
       {
         typename MatRet::ColXpr jVc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV).col(col);
         motionSet::motionAction<Op>(v,iV.col(col),jVc);
       }
     }
@@ -371,7 +371,7 @@ namespace pinocchio
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
-        MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        MotionRefOnMatRet mout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV));
         
         switch(Op)
         {
@@ -420,7 +420,7 @@ namespace pinocchio
         typedef MotionRef<MatRet> MotionRefOnMatRet;
         
         MotionRefOnMat min(iV.derived());
-        MotionRefOnMatRet mout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        MotionRefOnMatRet mout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV));
         
         switch(Op)
         {
@@ -452,7 +452,7 @@ namespace pinocchio
       for(int col=0;col<jV.cols();++col)
       {
         typename MatRet::ColXpr jVc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV).col(col);
         motionSet::se3ActionInverse<Op>(m,iV.col(col),jVc);
       }
     }
@@ -477,7 +477,7 @@ namespace pinocchio
       for(int col=0;col<jV.cols();++col)
       {
         typename MatRet::ColXpr jVc
-        = const_cast<Eigen::MatrixBase<MatRet> &>(jV).col(col);
+        = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV).col(col);
         motionSet::inertiaAction<Op>(I,iV.col(col),jVc);
       }
     }
@@ -495,7 +495,7 @@ namespace pinocchio
         typedef MotionRef<const Mat> MotionRefOnMat;
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         MotionRefOnMat min(iV.derived());
-        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jV).derived());
+        ForceRefOnMatRet fout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jV));
        
         switch(Op)
         {
@@ -525,7 +525,7 @@ namespace pinocchio
         for(int col=0;col<jF.cols();++col)
         {
           typename MatRet::ColXpr jFc
-          = const_cast<Eigen::MatrixBase<MatRet> &>(jF).col(col);
+          = PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF).col(col);
           motionSet::act<Op>(iV.col(col),f,jFc);
         }
       }
@@ -548,7 +548,7 @@ namespace pinocchio
         typedef ForceRef<MatRet> ForceRefOnMatRet;
         
         MotionRefOnMat vin(iV.derived());
-        ForceRefOnMatRet fout(const_cast<Eigen::MatrixBase<MatRet> &>(jF).derived());
+        ForceRefOnMatRet fout(PINOCCHIO_EIGEN_CONST_CAST(MatRet,jF));
         ForceSetMotionAction<Op,MotionRefOnMat,Mat,MatRet,1>::run(vin,f,fout);
       }
       
