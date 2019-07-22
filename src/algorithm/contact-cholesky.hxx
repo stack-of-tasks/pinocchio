@@ -22,6 +22,8 @@ namespace pinocchio
     {
       typedef container::aligned_vector< ContactInfoTpl<S1,O1> > ContactInfoVector;
       
+      nv = model.nv;
+      
       Eigen::DenseIndex num_total_constraints = 0;
       for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
           it != contact_infos.end();
@@ -31,18 +33,28 @@ namespace pinocchio
         num_total_constraints += it->dim();
       }
       
-      const Eigen::DenseIndex total_dim = model.nv + num_total_constraints;
+      const Eigen::DenseIndex total_dim = nv + num_total_constraints;
       
       // Compute first parents_fromRow for all the joints.
       // This code is very similar to the code of Data::computeParents_fromRow,
       // but shifted with a value corresponding to the number of constraints.
       parents_fromRow.resize(total_dim);
-      parents_fromRow.head(num_total_constraints).fill(-1);
-      
-      nvSubtree_fromRow.resize(total_dim);
       parents_fromRow.fill(-1);
       
-      for(JointIndex joint_id=1;joint_id<(JointIndex)(model.njoints);joint_id++)
+      nv_subtree_fromRow.resize(total_dim);
+      
+      last_child.resize(model.njoints);
+      last_child.fill(-1);
+      for(long joint_id = model.njoints-1; joint_id >= 0; --joint_id)
+      {
+        const JointIndex & parent = model.parents[(size_t)joint_id];
+        if(last_child[joint_id] == -1)
+          last_child[joint_id] = joint_id;
+        last_child[(Eigen::DenseIndex)parent] = std::max(last_child[joint_id],
+                                                         last_child[(Eigen::DenseIndex)parent]);
+      }
+      
+      for(JointIndex joint_id = 1;joint_id < (JointIndex)(model.njoints);joint_id++)
       {
         const JointIndex & parent = model.parents[joint_id];
         
@@ -57,10 +69,18 @@ namespace pinocchio
         else
           parents_fromRow[idx_vj+num_total_constraints] = -1;
         
+        nv_subtree_fromRow[idx_vj+num_total_constraints]
+        = model.joints[(size_t)last_child[(Eigen::DenseIndex)joint_id]].idx_v()
+        + model.joints[(size_t)last_child[(Eigen::DenseIndex)joint_id]].nv()
+        - idx_vj;
+
         for(int row=1;row<nvj;++row)
+        {
           parents_fromRow[idx_vj+num_total_constraints+row] = idx_vj + row - 1 + num_total_constraints;
+          nv_subtree_fromRow[idx_vj+num_total_constraints+row] = nv_subtree_fromRow[idx_vj+num_total_constraints]-row;
+        }
       }
-      
+     
       // Allocate and fill sparsity indexes
       extented_parents_fromRow.resize(contact_infos.size(),BooleanVector::Constant(total_dim,false));
       for(size_t ee_id = 0; ee_id < extented_parents_fromRow.size(); ++ee_id)
@@ -97,17 +117,17 @@ namespace pinocchio
       assert(model.check(data) && "data is not consistent with model.");
       
       const Eigen::DenseIndex total_dim = dim();
-      const Eigen::DenseIndex total_constraints_dim = total_dim - model.nv;
+      const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
       
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       const typename Data::MatrixXs & M = data.M;
       
       const size_t num_ee = contact_infos.size();
-      for(Eigen::DenseIndex j=model.nv-1;j>=0;--j)
+      for(Eigen::DenseIndex j=nv-1;j>=0;--j)
       {
         // Classic Cholesky decomposition related to the mass matrix
         const Eigen::DenseIndex jj = total_constraints_dim + j; // shifted index
-        const Eigen::DenseIndex NVT = data.nvSubtree_fromRow[(size_t)j]-1;
+        const Eigen::DenseIndex NVT = nv_subtree_fromRow[j]-1;
         typename Vector::SegmentReturnType DUt_partial = DUt.head(NVT);
         
         if(NVT)
@@ -118,7 +138,7 @@ namespace pinocchio
         assert(D[jj] != 0. && "The diagonal element is equal to zero.");
         Dinv[jj] = Scalar(1)/D[jj];
         
-        for(Eigen::DenseIndex _i = data.parents_fromRow[(size_t)j]; _i >= 0; _i = data.parents_fromRow[(size_t)_i])
+        for(Eigen::DenseIndex _i = parents_fromRow[j]; _i >= 0; _i = parents_fromRow[_i])
         {
           const Eigen::DenseIndex _ii = _i + total_constraints_dim;
           U(_ii,jj) = (M(_i,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];

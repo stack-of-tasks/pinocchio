@@ -36,6 +36,10 @@ namespace pinocchio
       
       const IndexVector & getParents_fromRow() const
       { return this->parents_fromRow; }
+      const IndexVector & getLastChild() const
+      { return this->last_child; }
+      const IndexVector & getNvSubtree_fromRow() const
+      { return this->nv_subtree_fromRow; }
       const std::vector<BooleanVector> & getExtented_parents_fromRow() const
       { return this->extented_parents_fromRow; }
     };
@@ -89,7 +93,19 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   ContactCholeskyDecompositionAccessor access(contact_chol_decomposition);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
     BOOST_CHECK(access.getParents_fromRow()[k] == data.parents_fromRow[(size_t)k]);
+  }
+    
+  for(Eigen::DenseIndex k = 0; k < model.njoints; ++k)
+  {
+    BOOST_CHECK(access.getLastChild()[k] == data.lastChild[(size_t)k]);
+  }
+  
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    BOOST_CHECK(access.getNvSubtree_fromRow()[k] == data.nvSubtree_fromRow[(size_t)k]);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)

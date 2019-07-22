@@ -61,8 +61,15 @@ namespace pinocchio
     protected:
       
       IndexVector parents_fromRow;
+      IndexVector nv_subtree_fromRow;
+      /// \brief Last child of the given joint index
+      IndexVector last_child;
+      
       std::vector<BooleanVector> extented_parents_fromRow;
       Vector DUt; // temporary containing the results of D * U^t
+      
+      /// \brief Dimension of the tangent of the configuration space of the model
+      Eigen::DenseIndex nv;
       
     };
     
