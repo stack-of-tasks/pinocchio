@@ -173,13 +173,13 @@ namespace pinocchio
         typename Vector::SegmentReturnType DUt_partial = DUt.head(slice_dim);
         DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
         
-        D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt);
+        D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
         assert(D[j] != 0. && "The diagonal element is equal to zero.");
         Dinv[j] = Scalar(1)/D[j];
         
         for(Eigen::DenseIndex _i = j-1; _i >= 0; _i--)
         {
-          U(_i,j) = -U.row(_i).segment(j+1,slice_dim).dot(DUt) * Dinv[j];
+          U(_i,j) = -U.row(_i).segment(j+1,slice_dim).dot(DUt_partial) * Dinv[j];
         }
       }
     }
