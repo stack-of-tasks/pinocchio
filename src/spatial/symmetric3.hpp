@@ -237,7 +237,7 @@ namespace pinocchio
       const typename Vector3::RealScalar & v1 = v[1];
       const typename Vector3::RealScalar & v2 = v[2];
       
-      Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+      Matrix3 & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,M);
       M_(0,0) = d * v1 - b * v2;
       M_(1,0) = a * v2 - d * v0;
       M_(2,0) = b * v0 - a * v1;
@@ -297,7 +297,7 @@ namespace pinocchio
       const typename Vector3::RealScalar & v1 = v[1];
       const typename Vector3::RealScalar & v2 = v[2];
       
-      Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+      Matrix3 & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,M);
       M_(0,0) = b * v2 - d * v1;
       M_(1,0) = c * v2 - e * v1;
       M_(2,0) = e * v2 - f * v1;
@@ -345,7 +345,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3in,Vector3);
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(V3out,Vector3);
       
-      Eigen::MatrixBase<V3out> & vout_ = const_cast<Eigen::MatrixBase<V3out>&>(vout);
+      V3out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3out,vout);
       
       vout_[0] = S3.m_data(0) * vin[0] + S3.m_data(1) * vin[1] + S3.m_data(3) * vin[2];
       vout_[1] = S3.m_data(1) * vin[0] + S3.m_data(2) * vin[1] + S3.m_data(4) * vin[2];

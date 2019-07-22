@@ -78,7 +78,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = 0.; vout_[1] = -vin[2]; vout_[2] = vin[1];
   }
   
@@ -89,7 +89,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = vin[2]; vout_[1] = 0.; vout_[2] = -vin[0];
   }
   
@@ -100,7 +100,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = -vin[1]; vout_[1] = vin[0]; vout_[2] = 0.;
   }
   
@@ -112,7 +112,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = 0.; vout_[1] = -s*vin[2]; vout_[2] = s*vin[1];
   }
   
@@ -124,7 +124,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = s*vin[2]; vout_[1] = 0.; vout_[2] = -s*vin[0];
   }
   
@@ -136,7 +136,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_in,3)
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V3_out,3)
-    V3_out & vout_ = const_cast<Eigen::MatrixBase<V3_out> &>(vout).derived();
+    V3_out & vout_ = PINOCCHIO_EIGEN_CONST_CAST(V3_out,vout);
     vout_[0] = -s*vin[1]; vout_[1] = s*vin[0]; vout_[2] = 0.;
   }
  

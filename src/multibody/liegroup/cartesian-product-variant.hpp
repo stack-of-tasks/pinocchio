@@ -98,7 +98,7 @@ namespace pinocchio
       assert(v.size() == m_nv);
       assert(qout.size() == m_nq);
      
-      ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
+      ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       Index id_q = 0, id_v = 0;
       for(size_t k = 0; k < liegroups.size(); ++k)
       {

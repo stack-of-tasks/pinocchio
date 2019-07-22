@@ -121,7 +121,7 @@ namespace pinocchio
                      const bool & update_I
                      )
     {
-      Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
+      Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
       jmodel.calc_aba(jdata.derived(),I_,update_I);
     }
 
@@ -135,7 +135,7 @@ namespace pinocchio
   {
     typedef JointCalcAbaVisitor<Matrix6Type> Algo;
     
-    Matrix6Type & I_ = const_cast<Matrix6Type &>(I.derived());
+    Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
     Algo::run(jmodel, jdata, typename Algo::ArgsType(I_, update_I) );
   }
   

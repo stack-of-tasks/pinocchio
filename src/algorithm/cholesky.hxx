@@ -268,7 +268,7 @@ namespace pinocchio
                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<Mat> & m)
     {
-      Mat & m_ = const_cast<Eigen::MatrixBase<Mat> &>(m).derived();
+      Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::Utiv<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
       return m_.derived();
     }
@@ -331,7 +331,7 @@ namespace pinocchio
                 const Eigen::MatrixBase<Mat> & min,
                 const Eigen::MatrixBase<MatRes> & mout)
     {
-      MatRes & mout_ = const_cast<Eigen::MatrixBase<MatRes> &>(mout).derived();
+      MatRes & mout_ = PINOCCHIO_EIGEN_CONST_CAST(MatRes,mout);
       internal::Mv<Mat,MatRes,Mat::ColsAtCompileTime>::run(model,data,min.derived(),mout_);
       return mout_.derived();
     }

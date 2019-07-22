@@ -134,7 +134,7 @@ namespace pinocchio
                      const Eigen::MatrixBase<Tangent_t>  & v,
                      const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
-      ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
+      ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       lg.integrate(Eigen::Ref<const typename LieGroupDerived::ConfigVector_t>(q),
                    Eigen::Ref<const typename LieGroupDerived::TangentVector_t>(v),
                    Eigen::Ref<typename LieGroupDerived::ConfigVector_t>(qout_));
@@ -156,8 +156,8 @@ namespace pinocchio
     assert(v.size() == nv(lg));
     assert(qout.size() == nq(lg));
     
-    ConfigOut_t & qout_ = const_cast< ConfigOut_t& >(qout.derived());
-    Operation::run(lg,typename Operation::ArgsType(q.derived(),v.derived(),qout_.derived()));
+    ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
+    Operation::run(lg,typename Operation::ArgsType(q.derived(),v.derived(),qout_));
   }
 }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_axis_hpp__
@@ -104,7 +104,8 @@ namespace pinocchio
   inline void SpatialAxis<axis>::cross(const MotionDense<Derived1> & min,
                                        const MotionDense<Derived2> & mout)
   {
-    Derived2 & mout_ = const_cast<MotionDense<Derived2> &>(mout).derived();
+    Derived2 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(Derived2,mout);
+    
     if((LINEAR == 0 && axis<3) || (LINEAR == 3 && axis >= 3))
     {
       mout_.angular().setZero();
@@ -122,7 +123,8 @@ namespace pinocchio
   inline void SpatialAxis<axis>::cross(const ForceDense<Derived1> & fin,
                                        const ForceDense<Derived2> & fout)
   {
-    Derived2 & fout_ = const_cast<ForceDense<Derived2> &>(fout).derived();
+    Derived2 & fout_ = PINOCCHIO_EIGEN_CONST_CAST(Derived2,fout);
+    
     if((LINEAR == 0 && axis<3) || (LINEAR == 3 && axis >= 3))
     {
       fout_.linear().setZero();

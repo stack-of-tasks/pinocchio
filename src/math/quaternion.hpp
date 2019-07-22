@@ -89,7 +89,7 @@ namespace pinocchio
       assert(static_leq::op(math::fabs(N2-1.), epsilon));
 #endif
       const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
-      const_cast <Eigen::QuaternionBase<D> &> (q).coeffs() *= alpha;
+      PINOCCHIO_EIGEN_CONST_CAST(D,q).coeffs() *= alpha;
 #ifndef NDEBUG
       const Scalar M = Scalar(3) * math::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
       assert(static_leq::op(math::fabs(q.norm() - Scalar(1)),

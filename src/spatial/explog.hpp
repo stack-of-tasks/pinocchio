@@ -153,7 +153,7 @@ namespace pinocchio
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, r   , 3, 1);
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jexp, 3, 3);
 
-    Matrix3Like & Jout = const_cast<Matrix3Like &>(Jexp.derived());
+    Matrix3Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jexp);
     typedef typename Matrix3Like::Scalar Scalar;
 
     Scalar n2 = r.squaredNorm(),a,b,c;
@@ -193,7 +193,7 @@ namespace pinocchio
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like,  log, 3, 1);
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jlog, 3, 3);
 
-    Matrix3Like & Jout = const_cast<Matrix3Like &>(Jlog.derived());
+    Matrix3Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog);
 
     if (theta < TaylorSeriesExpansion<Scalar>::template precision<3>())
     {
@@ -382,7 +382,7 @@ namespace pinocchio
     typedef typename MotionDerived::Scalar Scalar;
     typedef typename MotionDerived::Vector3 Vector3;
     typedef Eigen::Matrix<Scalar, 3, 3, Vector3::Options> Matrix3;
-    Matrix6Like & Jout = const_cast<Matrix6Like &> (Jexp.derived());
+    Matrix6Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jexp);
 
     const typename MotionDerived::ConstLinearType  & v = nu.linear();
     const typename MotionDerived::ConstAngularType & w = nu.angular();
@@ -454,7 +454,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef typename SE3::Vector3 Vector3;
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
-    Matrix6Like & value = const_cast<Matrix6Like &> (Jlog.derived());
+    Matrix6Like & value = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog);
 
     typename SE3::ConstAngularRef R = M.rotation();
     typename SE3::ConstLinearRef p = M.translation();

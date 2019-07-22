@@ -163,7 +163,7 @@ namespace pinocchio
     {
       typedef typename MatrixDerived::Scalar SX;
       
-      MatrixDerived & eig_mat_ = const_cast<MatrixDerived &>(eig_mat.derived());
+      MatrixDerived & eig_mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixDerived,eig_mat);
       for (Eigen::Index i = 0; i < eig_mat.rows(); ++i)
         for (Eigen::Index j = 0; j < eig_mat.cols(); ++j)
           eig_mat_(i, j) = SX::sym(name + "_" + std::to_string(i) + "_" + std::to_string(j));
@@ -191,7 +191,7 @@ namespace pinocchio
         
         SX cs_mat_inv = SX::inv(cs_mat);
         
-        MatrixOut & dest_ = const_cast<MatrixOut &>(dest.derived());
+        MatrixOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixOut,dest);
         casadi::copy(cs_mat_inv,dest_);
       }
 

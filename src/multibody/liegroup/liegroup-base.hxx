@@ -282,12 +282,12 @@ namespace pinocchio {
       const Scalar& u,
       const Eigen::MatrixBase<ConfigOut_t>& qout) const
   {
-    if     (u == 0) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q0;
-    else if(u == 1) const_cast<Eigen::MatrixBase<ConfigOut_t>&>(qout) = q1;
+    if     (u == 0) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q0;
+    else if(u == 1) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q1;
     else 
     {
       TangentVector_t vdiff(u * difference(q0, q1));
-      integrate(q0, vdiff, qout);
+      integrate(q0, vdiff, PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout));
     }
   }
 

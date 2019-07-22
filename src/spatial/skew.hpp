@@ -24,7 +24,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     
-    Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+    Matrix3 & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,M);
     typedef typename Matrix3::RealScalar Scalar;
     
     M_(0,0) = Scalar(0);  M_(0,1) = -v[2];      M_(0,2) = v[1];
@@ -86,7 +86,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     assert((M + M.transpose()).isMuchSmallerThan(M));
     
-    Vector3 & v_ = const_cast<Eigen::MatrixBase<Vector3> &>(v).derived();
+    Vector3 & v_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3,v);
     typedef typename Vector3::RealScalar Scalar;
     
     v_[0] = Scalar(0.5) * (M(2,1) - M(1,2));
@@ -128,7 +128,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     
-    Matrix3 & M_ = const_cast<Eigen::MatrixBase<Matrix3> &>(M).derived();
+    Matrix3 & M_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,M);
     typedef typename Matrix3::RealScalar RealScalar;
     
     M_(0,0) = RealScalar(0);  M_(0,1) = -v[2] * alpha;  M_(0,2) = v[1] * alpha;
@@ -171,7 +171,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(V2,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     
-    Matrix3 & C_ = const_cast<Eigen::MatrixBase<Matrix3> &>(C).derived();
+    Matrix3 & C_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,C);
     typedef typename Matrix3::RealScalar Scalar;
 
     C_.noalias() = v*u.transpose();
@@ -216,7 +216,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT(Matrix3xIn::RowsAtCompileTime==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
     EIGEN_STATIC_ASSERT(Matrix3xOut::RowsAtCompileTime==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);
     
-    Matrix3xOut & Mout_ = const_cast<Eigen::MatrixBase<Matrix3xOut> &>(Mout).derived();
+    Matrix3xOut & Mout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,Mout);
     
     Mout_.row(0) = v[1]*Min.row(2) - v[2]*Min.row(1);
     Mout_.row(1) = v[2]*Min.row(0) - v[0]*Min.row(2);

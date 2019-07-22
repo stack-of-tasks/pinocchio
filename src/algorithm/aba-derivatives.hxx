@@ -323,7 +323,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<Min> & J,
                                const Eigen::MatrixBase<Mout> & F)
     {
-      Mout & F_ = const_cast<Mout &>(F.derived());
+      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
       motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
