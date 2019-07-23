@@ -154,7 +154,7 @@ namespace pinocchio
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & Uiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-              const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -172,7 +172,7 @@ namespace pinocchio
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & Utiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -188,7 +188,7 @@ namespace pinocchio
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & v);
     
     ///
