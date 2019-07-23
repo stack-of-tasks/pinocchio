@@ -162,18 +162,18 @@ namespace pinocchio
             switch(cinfo.type)
             {
               case CONTACT_3D:
-                for(int _i = 0; _i < 3; _i++)
+                for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                 {
                   const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(3-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                  U(_ii,jj) = (data.J(contact_dim<CONTACT_3D>::value-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
 
               case CONTACT_6D:
-                for(int _i = 0; _i < 6; _i++)
+                for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
                 {
                   const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(6-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                  U(_ii,jj) = (data.J(contact_dim<CONTACT_6D>::value-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
 

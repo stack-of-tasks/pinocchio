@@ -20,6 +20,24 @@ namespace pinocchio
     CONTACT_UNDEFINED     /// \brief The default contact is undefined
   };
   
+  template<ContactType contact_type>
+  struct contact_dim
+  {
+    enum { value = -1 };
+  };
+  
+  template<>
+  struct contact_dim<CONTACT_3D>
+  {
+    enum { value  = 3 };
+  };
+  
+  template<>
+  struct contact_dim<CONTACT_6D>
+  {
+    enum { value  = 6 };
+  };
+  
   /// \brief Contact info data structure containg all the required info to
   template<typename _Scalar, int _Options>
   struct ContactInfoTpl
@@ -109,9 +127,9 @@ namespace pinocchio
       switch(type)
       {
         case CONTACT_3D:
-          return 3;
+          return contact_dim<CONTACT_3D>::value;
         case CONTACT_6D:
-          return 6;
+          return contact_dim<CONTACT_6D>::value;
         default:
           return -1;
       }
