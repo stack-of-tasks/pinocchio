@@ -249,6 +249,21 @@ namespace pinocchio
       template<typename MatrixType>
       void inverse(const Eigen::MatrixBase<MatrixType> & res) const;
       
+      template<typename MatrixLike>
+      void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
+      template<typename MatrixLike>
+      void Uv(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
+      template<typename MatrixLike>
+      void Utv(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
+      template<typename MatrixLike>
+      void Uiv(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
+      template<typename MatrixLike>
+      void Utiv(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
       // data
       Vector D, Dinv;
       RowMatrix U;

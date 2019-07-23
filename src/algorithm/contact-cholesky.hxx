@@ -251,7 +251,7 @@ namespace pinocchio
         if(num_ee == 0)
           continue;
 
-        int current_row = (int)total_constraints_dim - 1;
+        Eigen::DenseIndex current_row = total_constraints_dim - 1;
         for(size_t k = 0; k < num_ee; ++k)
         {
           size_t ee_id = num_ee - k - 1; // start from the last end effector
