@@ -127,36 +127,36 @@ namespace pinocchio
       {
         // Classic Cholesky decomposition related to the mass matrix
         const Eigen::DenseIndex jj = total_constraints_dim + j; // shifted index
-        const Eigen::DenseIndex NVT = nv_subtree_fromRow[j]-1;
+        const Eigen::DenseIndex NVT = nv_subtree_fromRow[jj]-1;
         typename Vector::SegmentReturnType DUt_partial = DUt.head(NVT);
         
         if(NVT)
           DUt_partial.noalias() = U.row(jj).segment(jj+1,NVT).transpose()
           .cwiseProduct(D.segment(jj+1,NVT));
-        
+
         D[jj] = M(j,j) - U.row(jj).segment(jj+1,NVT).dot(DUt_partial);
         assert(D[jj] != 0. && "The diagonal element is equal to zero.");
         Dinv[jj] = Scalar(1)/D[jj];
         
-        for(Eigen::DenseIndex _i = parents_fromRow[j]; _i >= 0; _i = parents_fromRow[_i])
+        for(Eigen::DenseIndex _ii = parents_fromRow[jj]; _ii >= total_constraints_dim; _ii = parents_fromRow[_ii])
         {
-          const Eigen::DenseIndex _ii = _i + total_constraints_dim;
+          const Eigen::DenseIndex _i = _ii - total_constraints_dim;
           U(_ii,jj) = (M(_i,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
         }
         
         // Constraint handling
         if(num_ee == 0)
           continue;
-        
+
         int current_row = (int)total_constraints_dim - 1;
         for(size_t k = 0; k < num_ee; ++k)
         {
           size_t ee_id = num_ee - k - 1; // start from the last end effector
-          
+
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
           const ContactInfo & cinfo = contact_infos[ee_id];
           const Eigen::DenseIndex constraint_dim = cinfo.dim();
-          
+
           if(indexes[jj])
           {
             switch(cinfo.type)
@@ -168,7 +168,7 @@ namespace pinocchio
                   U(_ii,jj) = (data.J(3-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
-                
+
               case CONTACT_6D:
                 for(int _i = 0; _i < 6; _i++)
                 {
@@ -176,27 +176,27 @@ namespace pinocchio
                   U(_ii,jj) = (data.J(6-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
-                
+
               default:
                 assert(false && "Must never happened");
             }
-            
+
           }
           current_row -= constraint_dim;
         }
-        
+
       }
-      
+
       for(Eigen::DenseIndex j = total_constraints_dim-1; j>=0; --j)
       {
         const Eigen::DenseIndex slice_dim = total_dim - j - 1;
         typename Vector::SegmentReturnType DUt_partial = DUt.head(slice_dim);
         DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
-        
+
         D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
         assert(D[j] != 0. && "The diagonal element is equal to zero.");
         Dinv[j] = Scalar(1)/D[j];
-        
+
         for(Eigen::DenseIndex _i = j-1; _i >= 0; _i--)
         {
           U(_i,j) = -U.row(_i).segment(j+1,slice_dim).dot(DUt_partial) * Dinv[j];
