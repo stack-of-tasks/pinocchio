@@ -11,7 +11,7 @@ namespace pinocchio
 {
   namespace python
   {
-    
+
     BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassUpdate_overload,jacobianCenterOfMass,3,4)
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassNoUpdate_overload,jacobianCenterOfMass,2,3)
@@ -24,7 +24,7 @@ namespace pinocchio
     {
       return centerOfMass(model,data,q,computeSubtreeComs);
     }
-    
+
     static SE3::Vector3
     com_1_proxy(const Model& model,
                 Data & data,
@@ -34,7 +34,7 @@ namespace pinocchio
     {
       return centerOfMass(model,data,q,v,computeSubtreeComs);
     }
-    
+
     static SE3::Vector3
     com_2_proxy(const Model & model,
                 Data & data,
@@ -63,6 +63,29 @@ namespace pinocchio
       centerOfMass(model,data,computeSubtreeComs);
     }
 
+    static Data::Matrix3x
+    jacobian_subtree_com_kinematics_proxy(const Model & model,
+                                          Data & data,
+                                          const Eigen::VectorXd & q,
+                                          Model::JointIndex jointId)
+    {
+      Data::Matrix3x J(3,model.nv); J.setZero();
+      jacobianSubtreeCenterOfMass(model, data, q, jointId, J);
+
+      return J;
+    }
+
+    static Data::Matrix3x
+    jacobian_subtree_com_proxy(const Model & model,
+                               Data & data,
+                               Model::JointIndex jointId)
+    {
+      Data::Matrix3x J(3,model.nv); J.setZero();
+      jacobianSubtreeCenterOfMass(model, data, jointId, J);
+
+      return J;
+    }
+
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_0_overload, com_0_proxy, 3, 4)
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_1_overload, com_1_proxy, 4, 5)
@@ -72,11 +95,11 @@ namespace pinocchio
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_level_overload, com_level_proxy, 3, 4)
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_default_overload, com_default_proxy, 2, 3)
-    
+
     void exposeCOM()
     {
       using namespace Eigen;
-      
+
       bp::def("computeTotalMass",
               (double (*)(const Model &))&computeTotalMass<double,0,JointCollectionDefaultTpl>,
               bp::args("Model"),
@@ -163,7 +186,23 @@ namespace pinocchio
                        "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"),
               "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
               bp::return_value_policy<bp::return_by_value>()]);
+
+      bp::def("getSubtreeCoMJacobian",jacobian_subtree_com_kinematics_proxy,
+              bp::args("Model, the model of the kinematic tree",
+                       "Data, the data associated to the model where the results are stored",
+                       "Joint configuration q (size Model::nq)",
+                       "Joint ID, the index of the joint."),
+              "Computes the jacobian of the CoM of the given subtree in the world frame, according to the given joint configuration.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("getSubtreeCoMJacobian",jacobian_subtree_com_proxy,
+              bp::args("Model, the model of the kinematic tree",
+                       "Data, the data associated to the model where the results are stored",
+                       "Joint ID, the index of the joint."),
+              "Computes the jacobian of the CoM of the given subtree in the world frame, according to the given entries in data.",
+              bp::return_value_policy<bp::return_by_value>());
+
     }
-    
+
   } // namespace python
 } // namespace pinocchio

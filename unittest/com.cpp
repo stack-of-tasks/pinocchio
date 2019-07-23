@@ -5,7 +5,9 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/utils/timer.hpp"
@@ -31,9 +33,9 @@ BOOST_AUTO_TEST_CASE ( test_com )
   q.middleRows<4> (3).normalize();
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
-  
+
   crba(model,data,q);
-  
+
 
 	/* Test COM against CRBA*/
   Vector3d com = centerOfMass(model,data,q);
@@ -53,7 +55,7 @@ BOOST_AUTO_TEST_CASE ( test_com )
   model.gravity.setZero();
   centerOfMass(model,data,q,v,a);
   nonLinearEffects(model, data, q, v);
-  
+
   pinocchio::SE3::Vector3 acom_from_nle (data.nle.head <3> ()/data.mass[0]);
   BOOST_CHECK((data.liMi[1].rotation() * acom_from_nle).isApprox(data.acom[0], 1e-12));
 
@@ -63,8 +65,8 @@ BOOST_AUTO_TEST_CASE ( test_com )
 
   /* Test CoM velocity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
-  
-  
+
+
   centerOfMass(model,data,q,v);
   /* Test CoM velocity againt jacobianCenterOfMass */
   BOOST_CHECK((Jcom * v).isApprox(data.vcom[0], 1e-12));
@@ -143,14 +145,14 @@ BOOST_AUTO_TEST_CASE ( test_subtree_masses )
 //  pinocchio::Data data(model);
 //
 //  long flag = BOOST_BINARY(1111);
-//  PinocchioTicToc timer(PinocchioTicToc::US); 
+//  PinocchioTicToc timer(PinocchioTicToc::US);
 //  #ifdef NDEBUG
 //    #ifdef _INTENSE_TESTING_
 //      const size_t NBT = 1000*1000;
 //    #else
 //      const size_t NBT = 10;
 //    #endif
-//  #else 
+//  #else
 //    const size_t NBT = 1;
 //    std::cout << "(the time score in debug mode is not relevant)  " ;
 //  #endif
@@ -180,7 +182,7 @@ BOOST_AUTO_TEST_CASE ( test_subtree_masses )
 //    if(verbose) std::cout << "Without sub-tree =\t";
 //    timer.toc(std::cout,NBT);
 //  }
-//  
+//
 //  if( flag >> 2 & 1 )
 //  {
 //    timer.tic();
@@ -192,5 +194,27 @@ BOOST_AUTO_TEST_CASE ( test_subtree_masses )
 //    timer.toc(std::cout,NBT);
 //  }
 //}
+
+BOOST_AUTO_TEST_CASE ( test_subtree_com_jacobian )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model);
+  VectorXd q = pinocchio::randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  computeAllTerms(model, data, q, v);
+
+  // Get subtree jacobian and check that it is consistent with com velocity
+  for (JointIndex i = 0; i < model.njoints; i++)
+  {
+    SE3::Vector3 subtreeComVelocityInWorld = data.oMi[i].rotation() * data.vcom[i];
+    Data::Matrix3x Jcom(3, model.nv); Jcom.fill(0);
+    jacobianSubtreeCenterOfMass(model, data, i, Jcom);
+    BOOST_CHECK((Jcom * v).isApprox(subtreeComVelocityInWorld, 1e-12));
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END ()
