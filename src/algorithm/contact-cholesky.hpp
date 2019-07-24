@@ -14,7 +14,12 @@ namespace pinocchio
   namespace cholesky
   {
     ///
-    /// \brief Contact cholesky decomposition
+    /// \brief Contact Cholesky decomposition structure. This structure allows
+    ///        to compute in a efficient and parsimonious way the Cholesky decomposition
+    ///        of the KKT matrix related to the contact dynamics.
+    ///        Such a decomposition is usefull when computing both the forward dynamics in contact
+    ///        or the related analytical derivatives.
+    ///
     ///
     /// \tparam _Scalar Scalar type.
     /// \tparam _Options Alignment Options of the Eigen objects contained in the data structure.
@@ -45,6 +50,18 @@ namespace pinocchio
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                     const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos);
       
+      ///
+      /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
+      ///        related to the system mass matrix and the Jacobians of the contact patches contained in
+      ///        the vector of ContactInfo named contact_infos.
+      ///
+      /// \param[in] model Model of the dynamical system
+      /// \param[in] data Data related to model containing the computed mass matrix and the Jacobian of the kinematic tree
+      /// \param[in] contact_infos Vector containing the contact information (which frame is in contact and the type of contact: ponctual, 6D rigid, etc.)
+      /// \param[in] mu Regularization factor allowing to enforce the definite propertie of the KKT matrix.
+      ///
+      /// \remarks The system mass matrix and the Jacobians of the kinematic tree should have been computed first. This can be achieved by calling pinocchio::crba.
+      ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                    const DataTpl<S1,O1,JointCollectionTpl> & data,
