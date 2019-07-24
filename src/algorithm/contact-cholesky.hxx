@@ -390,7 +390,20 @@ namespace pinocchio
     template<typename Scalar, int Options>
     template<typename MatrixLike>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
-    solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const
+    solveInPlace(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      Uiv(vec_);
+      vec_.array() *= Dinv.array();
+      Utiv(vec_);
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Uv(const Eigen::MatrixBase<VectorLike> & vec) const
     {
       MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
       
