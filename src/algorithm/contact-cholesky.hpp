@@ -13,6 +13,13 @@ namespace pinocchio
   
   namespace cholesky
   {
+    // Forward declaration of algo
+    namespace details
+    {
+      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+      struct UvAlgo;
+    }
+    
     ///
     /// \brief Contact Cholesky decomposition structure. This structure allows
     ///        to compute in a efficient and parsimonious way the Cholesky decomposition
@@ -74,6 +81,9 @@ namespace pinocchio
       // data
       Vector D, Dinv;
       Matrix U;
+      
+      template<typename MatrixLike, int ColsAtCompileTime>
+      friend struct details::UvAlgo;
       
     protected:
       

@@ -109,6 +109,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   // Test basic operation
   VectorXd v_in(VectorXd::Random(model.nv));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
   
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -118,6 +119,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
   
+  MatrixXd Uv_mat_op_res(mat_in), Uv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Uv(Uv_mat_op_res);
+  pinocchio::cholesky::Uv(model,data_ref,Uv_mat_op_ref);
+  
+  BOOST_CHECK(Uv_mat_op_res.isApprox(Uv_mat_op_ref));
+
   // Test Utv
   VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
   
@@ -257,6 +265,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   
   // Test basic operation
   VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
 
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -265,6 +274,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   Uv_op_ref.noalias() = contact_chol_decomposition.U * v_in;
 
   BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  MatrixXd Uv_mat_op_res(mat_in), Uv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Uv(Uv_mat_op_res);
+  Uv_mat_op_ref.noalias() = contact_chol_decomposition.U * mat_in;
+  
+  BOOST_CHECK(Uv_mat_op_res.isApprox(Uv_mat_op_ref));
   
   // Test Utv
   VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
@@ -384,6 +400,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   
   // Test basic operation
   VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
   
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -392,6 +409,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   Uv_op_ref.noalias() = contact_chol_decomposition.U * v_in;
   
   BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  MatrixXd Uv_mat_op_res(mat_in), Uv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Uv(Uv_mat_op_res);
+  Uv_mat_op_ref.noalias() = contact_chol_decomposition.U * mat_in;
+  
+  BOOST_CHECK(Uv_mat_op_res.isApprox(Uv_mat_op_ref));
   
   // Test Utv
   VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
