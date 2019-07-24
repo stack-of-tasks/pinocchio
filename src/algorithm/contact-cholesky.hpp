@@ -21,6 +21,9 @@ namespace pinocchio
       
       template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
       struct UtvAlgo;
+      
+      template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
+      struct UivAlgo;
     }
     
     ///
@@ -90,6 +93,9 @@ namespace pinocchio
       
       template<typename MatrixLike, int ColsAtCompileTime>
       friend struct details::UtvAlgo;
+      
+      template<typename MatrixLike, int ColsAtCompileTime>
+      friend struct details::UivAlgo;
       
     protected:
       
