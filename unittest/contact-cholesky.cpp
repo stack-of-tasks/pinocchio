@@ -106,6 +106,50 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   {
     BOOST_CHECK(access.getNvSubtree_fromRow()[k] == data.nvSubtree_fromRow[(size_t)k]);
   }
+  
+  // Test basic operation
+  VectorXd v_in(VectorXd::Random(model.nv));
+  
+  // Test Uv
+  VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
+  
+  contact_chol_decomposition.Uv(Uv_op_res);
+  pinocchio::cholesky::Uv(model,data_ref,Uv_op_ref);
+  
+  BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  // Test Utv
+  VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utv(Utv_op_res);
+  pinocchio::cholesky::Utv(model,data_ref,Utv_op_ref);
+  
+  BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
+  
+  // Test Uiv
+  VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Uiv(Uiv_op_res);
+  pinocchio::cholesky::Uiv(model,data_ref,Uiv_op_ref);
+
+  BOOST_CHECK(Uiv_op_res.isApprox(Uiv_op_ref));
+  
+  // Test Utiv
+  VectorXd Utiv_op_res(v_in), Utiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utiv(Utiv_op_res);
+  pinocchio::cholesky::Utiv(model,data_ref,Utiv_op_ref);
+  
+  BOOST_CHECK(Utiv_op_res.isApprox(Utiv_op_ref));
+  
+  // SolveInPlace
+  VectorXd sol(v_in);
+  contact_chol_decomposition.solveInPlace(sol);
+  
+  VectorXd sol_ref(data.M.inverse()*v_in);
+  
+  BOOST_CHECK(sol.isApprox(sol_ref));
+  
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
@@ -210,6 +254,49 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   * contact_chol_decomposition_mu.U.transpose();
   
   BOOST_CHECK(H_recomposed_mu.isApprox(H_mu));
+  
+  // Test basic operation
+  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
+
+  // Test Uv
+  VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
+
+  contact_chol_decomposition.Uv(Uv_op_res);
+  Uv_op_ref.noalias() = contact_chol_decomposition.U * v_in;
+
+  BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  // Test Utv
+  VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utv(Utv_op_res);
+  Utv_op_ref.noalias() = contact_chol_decomposition.U.transpose() * v_in;
+  
+  BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
+  
+  // Test Uiv
+  VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Uiv(Uiv_op_res);
+  Uiv_op_ref.noalias() = contact_chol_decomposition.U.inverse() * v_in;
+  
+  BOOST_CHECK(Uiv_op_res.isApprox(Uiv_op_ref));
+  
+  // Test Utiv
+  VectorXd Utiv_op_res(v_in), Utiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utiv(Utiv_op_res);
+  Utiv_op_ref.noalias() = contact_chol_decomposition.U.inverse().transpose() * v_in;
+  
+  BOOST_CHECK(Utiv_op_res.isApprox(Utiv_op_ref));
+  
+  // SolveInPlace
+  VectorXd sol(v_in);
+  contact_chol_decomposition.solveInPlace(sol);
+  
+  VectorXd sol_ref(H.inverse()*v_in);
+  
+  BOOST_CHECK(sol.isApprox(sol_ref));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
@@ -294,6 +381,49 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  // Test basic operation
+  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
+  
+  // Test Uv
+  VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
+  
+  contact_chol_decomposition.Uv(Uv_op_res);
+  Uv_op_ref.noalias() = contact_chol_decomposition.U * v_in;
+  
+  BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  // Test Utv
+  VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utv(Utv_op_res);
+  Utv_op_ref.noalias() = contact_chol_decomposition.U.transpose() * v_in;
+  
+  BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
+  
+  // Test Uiv
+  VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Uiv(Uiv_op_res);
+  Uiv_op_ref.noalias() = contact_chol_decomposition.U.inverse() * v_in;
+  
+  BOOST_CHECK(Uiv_op_res.isApprox(Uiv_op_ref));
+  
+  // Test Utiv
+  VectorXd Utiv_op_res(v_in), Utiv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utiv(Utiv_op_res);
+  Utiv_op_ref.noalias() = contact_chol_decomposition.U.inverse().transpose() * v_in;
+  
+  BOOST_CHECK(Utiv_op_res.isApprox(Utiv_op_ref));
+  
+  // SolveInPlace
+  VectorXd sol(v_in);
+  contact_chol_decomposition.solveInPlace(sol);
+  
+  VectorXd sol_ref(H.inverse()*v_in);
+  
+  BOOST_CHECK(sol.isApprox(sol_ref));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

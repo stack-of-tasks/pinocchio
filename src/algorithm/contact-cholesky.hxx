@@ -204,6 +204,109 @@ namespace pinocchio
       }
     }
     
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    solveInPlace(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      Uiv(vec_);
+      vec_.array() *= Dinv.array();
+      Utiv(vec_);
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Uv(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      assert(vec.size() == dim() && "The input vector is of wrong size");
+      const Eigen::DenseIndex num_total_constraints = dim() - nv;
+      
+      // TODO: exploit the Sparsity pattern of the first rows of U
+      for(Eigen::DenseIndex k = 0; k < num_total_constraints; ++k)
+      {
+        const Eigen::DenseIndex slice_dim = dim() - k - 1;
+        vec_[k] += U.row(k).tail(slice_dim).dot(vec_.tail(slice_dim));
+      }
+
+      for(Eigen::DenseIndex k = num_total_constraints; k <= dim()-2; ++k)
+        vec_[k] += U.row(k).segment(k+1,nv_subtree_fromRow[k]-1).dot(vec_.segment(k+1,nv_subtree_fromRow[k]-1));
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Utv(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      assert(vec.size() == dim() && "The input vector is of wrong size");
+      const Eigen::DenseIndex num_total_constraints = dim() - nv;
+      
+      for(Eigen::DenseIndex k = dim()-2; k >= num_total_constraints; --k)
+        vec_.segment(k+1,nv_subtree_fromRow[k]-1) += U.row(k).segment(k+1,nv_subtree_fromRow[k]-1).transpose()*vec_[k];
+      
+      // TODO: exploit the Sparsity pattern of the first rows of U
+      for(Eigen::DenseIndex k = num_total_constraints-1; k >=0; --k)
+      {
+        const Eigen::DenseIndex slice_dim = dim() - k - 1;
+        vec_.tail(slice_dim) += U.row(k).tail(slice_dim).transpose()*vec_[k];
+      }
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Uiv(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      assert(vec.size() == dim() && "The input vector is of wrong size");
+      
+      const Eigen::DenseIndex num_total_constraints = dim() - nv;
+      for(Eigen::DenseIndex k = dim()-2; k >= num_total_constraints; --k)
+        vec_[k] -= U.row(k).segment(k+1,nv_subtree_fromRow[k]-1).dot(vec_.segment(k+1,nv_subtree_fromRow[k]-1));
+      
+      // TODO: exploit the Sparsity pattern of the first rows of U
+      for(Eigen::DenseIndex k = num_total_constraints-1; k >=0; --k)
+      {
+        const Eigen::DenseIndex slice_dim = dim() - k - 1;
+        vec_[k] -= U.row(k).tail(slice_dim).dot(vec_.tail(slice_dim));
+      }
+      
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Utiv(const Eigen::MatrixBase<VectorLike> & vec) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+      
+      assert(vec.size() == dim() && "The input vector is of wrong size");
+      const Eigen::DenseIndex num_total_constraints = dim() - nv;
+      
+      // TODO: exploit the Sparsity pattern of the first rows of U
+      for(Eigen::DenseIndex k = 0; k < num_total_constraints; ++k)
+      {
+        const Eigen::DenseIndex slice_dim = dim() - k - 1;
+        vec_.tail(slice_dim) -= U.row(k).tail(slice_dim).transpose() * vec_[k];
+      }
+      
+      for(Eigen::DenseIndex k = num_total_constraints; k <= dim()-2; ++k)
+        vec_.segment(k+1,nv_subtree_fromRow[k]-1) -= U.row(k).segment(k+1,nv_subtree_fromRow[k]-1).transpose() * vec_[k];
+      
+    }
+    
   } // namespace cholesky
 }
 
