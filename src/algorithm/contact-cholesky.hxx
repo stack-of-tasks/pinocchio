@@ -259,7 +259,7 @@ namespace pinocchio
             vec_[k] += chol.U.row(k).segment(k+1,chol.nv_subtree_fromRow[k]-1).dot(vec_.segment(k+1,chol.nv_subtree_fromRow[k]-1));
         }
       };
-    }
+    } // namespace details
     
     template<typename Scalar, int Options>
     template<typename MatrixLike>
@@ -270,26 +270,58 @@ namespace pinocchio
                                        PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
     }
     
-    template<typename Scalar, int Options>
-    template<typename VectorLike>
-    void ContactCholeskyDecompositionTpl<Scalar,Options>::
-    Utv(const Eigen::MatrixBase<VectorLike> & vec) const
+    namespace details
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
-      VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
-      
-      assert(vec.size() == dim() && "The input vector is of wrong size");
-      const Eigen::DenseIndex num_total_constraints = dim() - nv;
-      
-      for(Eigen::DenseIndex k = dim()-2; k >= num_total_constraints; --k)
-        vec_.segment(k+1,nv_subtree_fromRow[k]-1) += U.row(k).segment(k+1,nv_subtree_fromRow[k]-1).transpose()*vec_[k];
-      
-      // TODO: exploit the Sparsity pattern of the first rows of U
-      for(Eigen::DenseIndex k = num_total_constraints-1; k >=0; --k)
+      template<typename MatrixLike, int ColsAtCompileTime>
+      struct UtvAlgo
       {
-        const Eigen::DenseIndex slice_dim = dim() - k - 1;
-        vec_.tail(slice_dim) += U.row(k).tail(slice_dim).transpose()*vec_[k];
-      }
+        template<typename Scalar, int Options>
+        static void run(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                        const Eigen::MatrixBase<MatrixLike> & mat)
+        {
+          MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
+          
+          assert(mat.rows() == chol.dim() && "The input matrix is of wrong size");
+          
+          for(Eigen::DenseIndex col_id = 0; col_id < mat_.cols(); ++col_id)
+            UtvAlgo<typename MatrixLike::ColXpr>::run(chol,mat_.col(col_id));
+        }
+      };
+      
+      template<typename VectorLike>
+      struct UtvAlgo<VectorLike,1>
+      {
+        template<typename Scalar, int Options>
+        static void run(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                        const Eigen::MatrixBase<VectorLike> & vec)
+        {
+          EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+          VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+          
+          assert(vec.size() == chol.dim() && "The input vector is of wrong size");
+          const Eigen::DenseIndex num_total_constraints = chol.dim() - chol.nv;
+          
+          for(Eigen::DenseIndex k = chol.dim()-2; k >= num_total_constraints; --k)
+            vec_.segment(k+1,chol.nv_subtree_fromRow[k]-1)
+            += chol.U.row(k).segment(k+1,chol.nv_subtree_fromRow[k]-1).transpose()*vec_[k];
+          
+          // TODO: exploit the Sparsity pattern of the first rows of U
+          for(Eigen::DenseIndex k = num_total_constraints-1; k >=0; --k)
+          {
+            const Eigen::DenseIndex slice_dim = chol.dim() - k - 1;
+            vec_.tail(slice_dim) += chol.U.row(k).tail(slice_dim).transpose()*vec_[k];
+          }
+        }
+      };
+    } // namespace details
+    
+    template<typename Scalar, int Options>
+    template<typename MatrixLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    Utv(const Eigen::MatrixBase<MatrixLike> & mat) const
+    {
+      details::UtvAlgo<MatrixLike>::run(*this,
+                                        PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
     }
     
     template<typename Scalar, int Options>

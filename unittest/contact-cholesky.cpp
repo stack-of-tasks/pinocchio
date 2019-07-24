@@ -134,6 +134,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
   
+  MatrixXd Utv_mat_op_res(mat_in), Utv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Utv(Utv_mat_op_res);
+  pinocchio::cholesky::Utv(model,data_ref,Utv_mat_op_ref);
+  
+  BOOST_CHECK(Utv_mat_op_res.isApprox(Utv_mat_op_ref));
+  
   // Test Uiv
   VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
   
@@ -290,6 +297,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   
   BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
   
+  MatrixXd Utv_mat_op_res(mat_in), Utv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Utv(Utv_mat_op_res);
+  Utv_mat_op_ref.noalias() = contact_chol_decomposition.U.transpose() * mat_in;
+  
+  BOOST_CHECK(Utv_mat_op_res.isApprox(Utv_mat_op_ref));
+  
   // Test Uiv
   VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
   
@@ -424,6 +438,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   Utv_op_ref.noalias() = contact_chol_decomposition.U.transpose() * v_in;
   
   BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
+  
+  MatrixXd Utv_mat_op_res(mat_in), Utv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Utv(Utv_mat_op_res);
+  Utv_mat_op_ref.noalias() = contact_chol_decomposition.U.transpose() * mat_in;
+  
+  BOOST_CHECK(Utv_mat_op_res.isApprox(Utv_mat_op_ref));
   
   // Test Uiv
   VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
