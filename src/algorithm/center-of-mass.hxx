@@ -339,48 +339,51 @@ namespace pinocchio
     return data.Jcom;
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
   inline void
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
-                              const JointIndex & parentJointIdIn,
-                              typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x & JacobianOut)
+                              const JointIndex & rootSubtreeId,
+                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut)
   {
     forwardKinematics(model, data, q);
-    jacobianSubtreeCenterOfMass(model, data, parentJointIdIn, JacobianOut);
+    jacobianSubtreeCenterOfMass(model, data, rootSubtreeId, JacobianOut);
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
   inline void
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const JointIndex & parentJointIdIn,
-                              typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x & JacobianOut)
+                              const JointIndex & rootSubtreeId,
+                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut)
   {
     typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x Matrix6x;
     assert(model.check(data) && "data is not consistent with model.");
-    assert((parentJointIdIn < model.njoints) && "Invalid joint id.");
+    assert((rootSubtreeId < model.njoints) && "Invalid joint id.");
 
-    if (parentJointIdIn == 0)
+    Eigen::MatrixBase<Matrix3xLike> & Jacobian = const_cast<Eigen::MatrixBase<Matrix3xLike>& >(JacobianOut);
+
+    if (rootSubtreeId == 0)
     {
       // Joint 0 is universe: this means that the user is asking for the entier model CoM jacobian.
-      JacobianOut = jacobianCenterOfMass(model, data);
+      Jacobian = jacobianCenterOfMass(model, data);
     }
     else
     {
       // Iterate over all bodies of subtree.
-      for (JointIndex id : model.subtrees[parentJointIdIn])
+      for (int i = 0; i < model.subtrees[rootSubtreeId].size(); i++)
       {
+        JointIndex id = model.subtrees[rootSubtreeId][i];
         // Get joint jacobian in world.
         Matrix6x jointJacobian = Matrix6x::Zero(6, model.nv);
         getJointJacobian(model, data, id, ReferenceFrame::LOCAL, jointJacobian);
 
         // Add jacobian of selected body com.
-        JacobianOut += model.inertias[id].mass() * data.oMi[id].rotation() * (
+        Jacobian += model.inertias[id].mass() * data.oMi[id].rotation() * (
           jointJacobian.template topRows<3>() - skew(model.inertias[id].lever()) * jointJacobian.template bottomRows<3>());
       }
-      JacobianOut /= data.mass[parentJointIdIn];
+      Jacobian /= data.mass[rootSubtreeId];
     }
   }
 
