@@ -202,15 +202,16 @@ namespace pinocchio
   /* --- JACOBIAN ---------------------------------------------------------- */
   /* --- JACOBIAN ---------------------------------------------------------- */
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3x>
   struct JacobianCenterOfMassBackwardStep
-  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
     typedef boost::fusion::vector<const Model &,
                                   Data &,
+                                  const Eigen::MatrixBase<Matrix3x> &,
                                   const bool &
                                   > ArgsType;
 
@@ -219,6 +220,7 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
+                     const Eigen::MatrixBase<Matrix3x> & Jcom,
                      const bool & computeSubtreeComs)
     {
       const JointIndex & i      = (JointIndex) jmodel.id();
@@ -229,15 +231,17 @@ namespace pinocchio
 
       typedef typename Data::Matrix6x Matrix6x;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      
+      Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x,Jcom);
 
       ColBlock Jcols = jmodel.jointCols(data.J);
       Jcols = data.oMi[i].act(jdata.S());
-
+      
       for(Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
       {
-        jmodel.jointCols(data.Jcom).col(col_id)
+        jmodel.jointCols(Jcom_).col(col_id)
         = data.mass[i] * Jcols.col(col_id).template segment<3>(Motion::LINEAR)
-        - data.com[i].cross(Jcols.col(col_id).template segment<3>(Motion::ANGULAR)) ;
+        - data.com[i].cross(Jcols.col(col_id).template segment<3>(Motion::ANGULAR));
       }
 
       if(computeSubtreeComs)
@@ -284,7 +288,8 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
     typedef typename Model::JointIndex JointIndex;
-
+    
+    typedef typename Data::Matrix3x Matrix3x;
     typedef typename Data::SE3 SE3;
     typedef typename Data::Inertia Inertia;
 
@@ -301,11 +306,11 @@ namespace pinocchio
     }
 
     // Backward step
-    typedef JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> Pass2;
     for(JointIndex i= (JointIndex) (model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data,computeSubtreeComs));
+                 typename Pass2::ArgsType(model,data,data.Jcom,computeSubtreeComs));
     }
 
     data.com[0] /= data.mass[0];
