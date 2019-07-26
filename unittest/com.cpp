@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE ( test_subtree_com_jacobian )
   computeAllTerms(model, data, q, v);
 
   // Get subtree jacobian and check that it is consistent with com velocity
-  for (JointIndex i = 0; i < model.njoints; i++)
+  for (JointIndex i = 0; i < (JointIndex)model.njoints; i++)
   {
     SE3::Vector3 subtreeComVelocityInWorld = data.oMi[i].rotation() * data.vcom[i];
     Data::Matrix3x Jcom(3, model.nv); Jcom.fill(0);

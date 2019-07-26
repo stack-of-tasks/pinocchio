@@ -360,7 +360,7 @@ namespace pinocchio
   {
     typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x Matrix6x;
     assert(model.check(data) && "data is not consistent with model.");
-    assert((rootSubtreeId < model.njoints) && "Invalid joint id.");
+    assert(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
 
     Eigen::MatrixBase<Matrix3xLike> & Jacobian = const_cast<Eigen::MatrixBase<Matrix3xLike>& >(JacobianOut);
 
@@ -371,13 +371,13 @@ namespace pinocchio
     }
     else
     {
-      // Iterate over all bodies of subtree.
-      for (int i = 0; i < model.subtrees[rootSubtreeId].size(); i++)
+      // Iterates over all the joints of the subtree.
+      for(size_t i = 0; i < model.subtrees[rootSubtreeId].size(); i++)
       {
-        JointIndex id = model.subtrees[rootSubtreeId][i];
+        const JointIndex id = model.subtrees[rootSubtreeId][i];
         // Get joint jacobian in world.
         Matrix6x jointJacobian = Matrix6x::Zero(6, model.nv);
-        getJointJacobian(model, data, id, ReferenceFrame::LOCAL, jointJacobian);
+        getJointJacobian(model, data, id, LOCAL, jointJacobian);
 
         // Add jacobian of selected body com.
         Jacobian += model.inertias[id].mass() * data.oMi[id].rotation() * (

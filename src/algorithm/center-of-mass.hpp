@@ -232,7 +232,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] rootSubtreeId Index of the parent joint supporting the subtree.
-  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
   inline void
@@ -240,7 +240,7 @@ namespace pinocchio
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const JointIndex & rootSubtreeId,
-                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut);
+                              const Eigen::MatrixBase<Matrix3xLike> & res);
 
   ///
   /// \brief Computes the jacobian of the center of mass of the given subtree according to the current value stored in data.
@@ -252,14 +252,14 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rootSubtreeId Index of the parent joint supporting the subtree.
-  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
   inline void
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const JointIndex & rootSubtreeId,
-                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut);
+                              const Eigen::MatrixBase<Matrix3xLike> & res);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the mass matrix. Use the following methods to access them. In that case,
