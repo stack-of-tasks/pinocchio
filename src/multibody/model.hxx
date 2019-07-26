@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -268,6 +268,9 @@ namespace pinocchio
   {
     for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])
       subtrees[parent].push_back(joint_id);
+    
+    // Also add joint_id to the universe
+    subtrees[0].push_back(joint_id);
   }
 
 } // namespace pinocchio
