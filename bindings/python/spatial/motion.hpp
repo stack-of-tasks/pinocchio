@@ -53,7 +53,7 @@ namespace pinocchio
       enum { Options = traits<Motion>::Options };
       
       typedef typename Motion::Scalar Scalar;
-      typedef ForceTpl<Scalar,traits<Motion>::Options> Force;
+      typedef ForceTpl<Scalar,Options> Force;
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
 
@@ -105,7 +105,10 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
         .def(bp::self -= bp::self)
+#pragma GCC diagnostic pop
         .def(-bp::self)
         .def(bp::self ^ bp::self)
         .def(bp::self ^ Force())
