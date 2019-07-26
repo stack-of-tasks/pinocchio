@@ -49,7 +49,7 @@ namespace pinocchio
     struct ForcePythonVisitor
     : public boost::python::def_visitor< ForcePythonVisitor<Force> >
     {
-      enum { Options = traits<Motion>::Options };
+      enum { Options = traits<Force>::Options };
       
       typedef typename Force::Vector6 Vector6;
       typedef typename Force::Vector3 Vector3;
