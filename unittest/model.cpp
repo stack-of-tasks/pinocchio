@@ -24,7 +24,21 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     BOOST_CHECK(subtree.size()==6);
     
     for(size_t i=1; i<subtree.size();++i)
+    {
       BOOST_CHECK(model.parents[subtree[i]]==subtree[i-1]);
+    }
+      
+    // Check that i starts subtree[i]
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      BOOST_CHECK(model.subtrees[joint_id][0] == joint_id);
+    }
+    
+    // Check that subtree[0] contains all joint ids
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      BOOST_CHECK(model.subtrees[0][joint_id-1] == joint_id);
+    }
   }
 
   BOOST_AUTO_TEST_CASE(comparison)
