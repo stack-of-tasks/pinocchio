@@ -85,6 +85,17 @@ namespace pinocchio
 
       return J;
     }
+    
+    static Data::Matrix3x
+    get_jacobian_subtree_com_proxy(const Model & model,
+                                   Data & data,
+                                   Model::JointIndex jointId)
+    {
+      Data::Matrix3x J(3,model.nv); J.setZero();
+      getJacobianSubtreeCenterOfMass(model, data, jointId, J);
+      
+      return J;
+    }
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_0_overload, com_0_proxy, 3, 4)
 
@@ -187,20 +198,24 @@ namespace pinocchio
               "Computes the jacobian of the center of mass, puts the result in Data and return it.")[
               bp::return_value_policy<bp::return_by_value>()]);
 
-      bp::def("getSubtreeCoMJacobian",jacobian_subtree_com_kinematics_proxy,
+      bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_kinematics_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint configuration q (size Model::nq)",
-                       "Joint ID, the index of the joint."),
-              "Computes the jacobian of the CoM of the given subtree in the world frame, according to the given joint configuration.",
-              bp::return_value_policy<bp::return_by_value>());
+                       "Subtree roor ID, the index of the subtree root joint."),
+              "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given joint configuration.");
 
-      bp::def("getSubtreeCoMJacobian",jacobian_subtree_com_proxy,
+      bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
-                       "Joint ID, the index of the joint."),
-              "Computes the jacobian of the CoM of the given subtree in the world frame, according to the given entries in data.",
-              bp::return_value_policy<bp::return_by_value>());
+                       "Subtree roor ID, the index of the subtree root joint."),
+              "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data.");
+      
+      bp::def("getJacobianSubtreeCenterOfMass",get_jacobian_subtree_com_proxy,
+              bp::args("Model, the model of the kinematic tree",
+                       "Data, the data associated to the model where the results are stored",
+                       "Subtree roor ID, the index of the subtree root joint."),
+              "Get the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data. It assumes that jacobianCenterOfMass has been called first.");
 
     }
 
