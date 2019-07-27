@@ -391,7 +391,6 @@ namespace pinocchio
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
     typedef typename Data::SE3 SE3;
-    typedef typename Data::Motion Motion;
     typedef typename Data::Inertia Inertia;
     
     typedef typename Model::IndexVector IndexVector;
