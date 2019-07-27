@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_center_of_mass_hpp__
@@ -11,14 +11,17 @@
 namespace pinocchio
 {
 
+  ///
   /// \brief Compute the total mass of the model and return it.
   ///
   /// \param[in] model The model structure of the rigid body system.
   ///
   /// \return Total mass of the model.
+  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
+  ///
   /// \brief Compute the total mass of the model, put it in data.mass[0] and return it.
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -28,16 +31,19 @@ namespace pinocchio
   /// If you need the whole data.mass vector to be computed, use computeSubtreeMasses
   ///
   /// \return Total mass of the model.
+  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
+  ///
   /// \brief Compute the mass of each kinematic subtree and store it in data.mass. The element mass[0] corresponds to the total mass of the model.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
   /// \note If you are only interested in knowing the total mass of the model, computeTotalMass will probably be slightly faster.
+  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data);
@@ -143,7 +149,7 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
+  /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees, expressed in the local coordinate frame of each joint.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -164,7 +170,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees.
+  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees, expressed in the world coordinate frame.
   /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
@@ -189,7 +195,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees.
+  /// \param[in] computeSubtreeComs If true, the algorithm also computes the centers of mass of the subtrees, expressed in the world coordinate frame.
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
@@ -211,7 +217,7 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees.
+  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees, expressed in the world coordinate frame.
   ///
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
@@ -222,17 +228,18 @@ namespace pinocchio
                        const bool computeSubtreeComs = true);
 
   ///
-  /// \brief Computes the jacobian of the center of mass of the given subtree according to a particular joint configuration.
+  /// \brief Computes the Jacobian of the center of mass of the given subtree according to a particular joint configuration.
   ///        In addition, the algorithm also computes the Jacobian of all the joints (\sa pinocchio::computeJointJacobians).
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam Matrix3xLike Type of the output Jacobian matrix.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] rootSubtreeId Index of the parent joint supporting the subtree.
-  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
   inline void
@@ -243,16 +250,16 @@ namespace pinocchio
                               const Eigen::MatrixBase<Matrix3xLike> & res);
 
   ///
-  /// \brief Computes the jacobian of the center of mass of the given subtree according to the current value stored in data.
+  /// \brief Computes the Jacobian of the center of mass of the given subtree according to the current value stored in data.
   ///        It assumes that forwardKinematics has been called first.
   ///
   /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam Matrix3xLike Type of the output Jacobian matrix.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rootSubtreeId Index of the parent joint supporting the subtree.
-  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
   inline void
@@ -262,13 +269,15 @@ namespace pinocchio
                               const Eigen::MatrixBase<Matrix3xLike> & res);
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
-   * the mass matrix. Use the following methods to access them. In that case,
+   * the joint space mass matrix (data.M).
+   * Use the following function to infer them directly. In that case,
    * the COM subtrees (also easily available from CRBA data) are not
    * explicitely set. Use data.Ycrb[i].lever() to get them. */
   ///
   /// \brief Extracts the center of mass position from the joint space inertia matrix (also called the mass matrix).
   ///
   /// \tparam JointCollection Collection of Joint types.
+  /// \tparam Matrix3xLike Type of the output Jacobian matrix.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
