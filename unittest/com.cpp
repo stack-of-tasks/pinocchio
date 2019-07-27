@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -195,25 +195,78 @@ BOOST_AUTO_TEST_CASE ( test_subtree_masses )
 //  }
 //}
 
-BOOST_AUTO_TEST_CASE ( test_subtree_com_jacobian )
+BOOST_AUTO_TEST_CASE(test_subtree_com_jacobian)
 {
   using namespace Eigen;
   using namespace pinocchio;
 
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
-  pinocchio::Data data(model);
+  Model model;
+  buildModels::humanoidRandom(model);
+  Data data(model);
+  
+  model.upperPositionLimit.head<3>().fill(1000);
+  model.lowerPositionLimit.head<3>() = -model.upperPositionLimit.head<3>();
   VectorXd q = pinocchio::randomConfiguration(model);
   VectorXd v = VectorXd::Random(model.nv);
-  computeAllTerms(model, data, q, v);
+  
+  Data data_ref(model);
+  jacobianCenterOfMass(model,data_ref,q,true);
+  
+  centerOfMass(model, data, q, v);
+  Data::Matrix3x Jcom(3,model.nv); Jcom.setZero();
+  jacobianSubtreeCenterOfMass(model, data, 0, Jcom);
+  
+  BOOST_CHECK(Jcom.isApprox(data_ref.Jcom));
 
-  // Get subtree jacobian and check that it is consistent with com velocity
-  for (JointIndex i = 0; i < (JointIndex)model.njoints; i++)
+  centerOfMass(model, data_ref, q, v, true);
+  computeJointJacobians(model, data_ref, q);
+  Data::Matrix3x Jcom_extracted(3,model.nv), Jcom_fd(3,model.nv);
+  Data data_extracted(model), data_fd(model);
+  const double eps = 1e-8;
+  jacobianCenterOfMass(model,data_extracted,q);
+  
+  // Get subtree jacobian and check that it is consistent with the com velocity
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; joint_id++)
   {
-    SE3::Vector3 subtreeComVelocityInWorld = data.oMi[i].rotation() * data.vcom[i];
-    Data::Matrix3x Jcom(3, model.nv); Jcom.fill(0);
-    jacobianSubtreeCenterOfMass(model, data, i, Jcom);
-    BOOST_CHECK((Jcom * v).isApprox(subtreeComVelocityInWorld, 1e-12));
+    SE3::Vector3 subtreeComVelocityInWorld_ref = data_ref.oMi[joint_id].rotation() * data_ref.vcom[joint_id];
+    Jcom.setZero();
+    data.J.setZero();
+    jacobianSubtreeCenterOfMass(model, data, joint_id, Jcom);
+    
+    BOOST_CHECK(data.J.middleCols(model.joints[joint_id].idx_v(),data.nvSubtree[joint_id]).isApprox(data_ref.J.middleCols(model.joints[joint_id].idx_v(),data.nvSubtree[joint_id])));
+    SE3::Vector3 subtreeComVelocityInWorld = Jcom * v;
+    
+    Jcom_extracted.setZero();
+    getJacobianSubtreeCenterOfMass(model,data_extracted,joint_id,Jcom_extracted);
+    
+    // Check with finite differences
+    Eigen::VectorXd v_plus(model.nv); v_plus.setZero();
+    centerOfMass(model,data_fd,q);
+    const SE3::Vector3 com = data_fd.oMi[joint_id].act(data_fd.com[joint_id]);
+    Jcom_fd.setZero();
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+    {
+      v_plus[k] = eps;
+      Eigen::VectorXd q_plus = integrate(model,q,v_plus);
+      centerOfMass(model,data_fd,q_plus);
+      const SE3::Vector3 com_plus = data_fd.oMi[joint_id].act(data_fd.com[joint_id]);
+      Jcom_fd.col(k) = (com_plus - com)/eps;
+      v_plus[k] = 0.;
+    }
+    
+//    Eigen::VectorXd q_plus = integrate(model,q,v*eps);
+//    centerOfMass(model,data_fd,q_plus);
+//    const SE3::Vector3 com_plus = data_fd.oMi[joint_id].act(data_fd.com[joint_id]);
+//    
+//    const SE3::Vector3 vcom_subtree_fd = (com_plus - com)/eps;
+
+    BOOST_CHECK(Jcom.isApprox(Jcom_fd,sqrt(eps)));
+    BOOST_CHECK(Jcom_extracted.isApprox(Jcom_fd,sqrt(eps)));
+    BOOST_CHECK(Jcom_extracted.isApprox(Jcom));
+    
+    BOOST_CHECK(std::fabs(data.mass[joint_id] - data_ref.mass[joint_id]) <= 1e-12);
+    BOOST_CHECK(data.com[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.com[joint_id])));
+    BOOST_CHECK(subtreeComVelocityInWorld.isApprox(subtreeComVelocityInWorld_ref));
   }
 }
 
