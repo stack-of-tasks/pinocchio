@@ -273,7 +273,7 @@ namespace pinocchio
   ///        It assumes that pinocchio::jacobianCenterOfMass has been called first with computeSubtreeComs equals to true.
   ///
   /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam Matrix3xLike Type of the output Jacobian matrix.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.

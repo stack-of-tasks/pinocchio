@@ -202,19 +202,19 @@ namespace pinocchio
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint configuration q (size Model::nq)",
-                       "Subtree roor ID, the index of the subtree root joint."),
+                       "Subtree root ID, the index of the subtree root joint."),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given joint configuration.");
 
       bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
-                       "Subtree roor ID, the index of the subtree root joint."),
+                       "Subtree root ID, the index of the subtree root joint."),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data.");
       
       bp::def("getJacobianSubtreeCenterOfMass",get_jacobian_subtree_com_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
-                       "Subtree roor ID, the index of the subtree root joint."),
+                       "Subtree root ID, the index of the subtree root joint."),
               "Get the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data. It assumes that jacobianCenterOfMass has been called first.");
 
     }
