@@ -451,20 +451,43 @@ namespace pinocchio
                  typename Pass3::ArgsType(model,data,rootSubtreeId,Jcom_subtree));
     }
   }
-    {
-      // Iterates over all the joints of the subtree.
-      for(size_t i = 0; i < model.subtrees[rootSubtreeId].size(); i++)
-      {
-        const JointIndex id = model.subtrees[rootSubtreeId][i];
-        // Get joint jacobian in world.
-        Matrix6x jointJacobian = Matrix6x::Zero(6, model.nv);
-        getJointJacobian(model, data, id, LOCAL, jointJacobian);
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
+  inline void
+  getJacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const JointIndex & rootSubtreeId,
+                                 const Eigen::MatrixBase<Matrix3xLike> & res)
+  {
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-        // Add jacobian of selected body com.
-        Jacobian += model.inertias[id].mass() * data.oMi[id].rotation() * (
-          jointJacobian.template topRows<3>() - skew(model.inertias[id].lever()) * jointJacobian.template bottomRows<3>());
-      }
-      Jacobian /= data.mass[rootSubtreeId];
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
+    assert(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
+    
+    Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
+    
+    if(rootSubtreeId == 0)
+    {
+      Jcom_subtree = data.Jcom;
+      return;
+    }
+    
+    const int idx_v = model.joints[rootSubtreeId].idx_v();
+    const int nv_subtree = data.nvSubtree[rootSubtreeId];
+    
+    const Scalar mass_ratio = data.mass[0] / data.mass[rootSubtreeId];
+    Jcom_subtree.middleCols(idx_v,nv_subtree)
+    = mass_ratio * data.Jcom.middleCols(idx_v,nv_subtree);
+
+    const typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
+
+    for(int parent = data.parents_fromRow[(size_t)idx_v];
+        parent >= 0;
+        parent = data.parents_fromRow[(size_t)parent])
+    {
+      typename Data::Matrix6x::ConstColXpr Jcol = data.J.col(parent);
+      Jcom_subtree.col(parent).noalias() = Jcol.template segment<3>(Motion::LINEAR) - com_subtree.cross(Jcol.template segment<3>(Motion::ANGULAR));
     }
   }
 

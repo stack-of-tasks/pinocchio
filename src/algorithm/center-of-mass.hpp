@@ -267,6 +267,26 @@ namespace pinocchio
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const JointIndex & rootSubtreeId,
                               const Eigen::MatrixBase<Matrix3xLike> & res);
+  
+  ///
+  /// \brief Retrieves the Jacobian of the center of mass of the given subtree according to the current value stored in data.
+  ///        It assumes that pinocchio::jacobianCenterOfMass has been called first with computeSubtreeComs equals to true.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] rootSubtreeId Index of the parent joint supporting the subtree.
+  /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
+  inline void
+  getJacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const JointIndex & rootSubtreeId,
+                                 const Eigen::MatrixBase<Matrix3xLike> & res);
+
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the joint space mass matrix (data.M).
