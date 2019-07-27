@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_center_of_mass_hxx__
@@ -318,6 +318,49 @@ namespace pinocchio
 
     return data.Jcom;
   }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3x>
+  struct JacobianSubtreeCenterOfMassBackwardStep
+  : public fusion::JointVisitorBase< JacobianSubtreeCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+    Data &,
+    const JointIndex &,
+    const Eigen::MatrixBase<Matrix3x> &
+    > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const JointIndex & subtree_root_id,
+                     const Eigen::MatrixBase<Matrix3x> & Jcom)
+    {
+      PINOCCHIO_UNUSED_VARIABLE(model);
+      
+      const JointIndex & i      = (JointIndex) jmodel.id();
+      
+      typedef typename Data::Matrix6x Matrix6x;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      
+      Matrix3x & Jcom_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3x,Jcom);
+      
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      Jcols = data.oMi[i].act(jdata.S());
+      
+      for(Eigen::DenseIndex col_id = 0; col_id < jmodel.nv(); ++col_id)
+      {
+        jmodel.jointCols(Jcom_).col(col_id)
+        = Jcols.col(col_id).template segment<3>(Motion::LINEAR)
+        - data.com[subtree_root_id].cross(Jcols.col(col_id).template segment<3>(Motion::ANGULAR));
+      }
+    }
+    
+  };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
   inline void
@@ -325,10 +368,10 @@ namespace pinocchio
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const JointIndex & rootSubtreeId,
-                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut)
+                              const Eigen::MatrixBase<Matrix3xLike> & res)
   {
     forwardKinematics(model, data, q);
-    jacobianSubtreeCenterOfMass(model, data, rootSubtreeId, JacobianOut);
+    jacobianSubtreeCenterOfMass(model, data, rootSubtreeId, res);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
@@ -336,20 +379,78 @@ namespace pinocchio
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const JointIndex & rootSubtreeId,
-                              const Eigen::MatrixBase<Matrix3xLike> & JacobianOut)
+                              const Eigen::MatrixBase<Matrix3xLike> & res)
   {
-    typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x Matrix6x;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    
     assert(model.check(data) && "data is not consistent with model.");
-    assert(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
+    assert((int)rootSubtreeId < model.njoints && "Invalid joint id.");
+    assert(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
 
-    Eigen::MatrixBase<Matrix3xLike> & Jacobian = const_cast<Eigen::MatrixBase<Matrix3xLike>& >(JacobianOut);
-
-    if (rootSubtreeId == 0)
+    Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
+    
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
+    typedef typename Data::Inertia Inertia;
+    
+    typedef typename Model::IndexVector IndexVector;
+    const IndexVector & subtree = model.subtrees[rootSubtreeId];
+    
+    const bool computeSubtreeComs = true;
+    
+    if(rootSubtreeId == 0)
     {
-      // Joint 0 is universe: this means that the user is asking for the entier model CoM jacobian.
-      Jacobian = jacobianCenterOfMass(model, data);
+      data.mass[0] = 0;
+      data.com[0].setZero();
     }
-    else
+    
+    for(size_t k = 0; k < subtree.size(); ++k)
+    {
+      const JointIndex joint_id = subtree[k];
+      const typename Inertia::Scalar & mass = model.inertias[joint_id].mass();
+      const typename SE3::Vector3 & lever = model.inertias[joint_id].lever();
+      
+      data.mass[joint_id] = mass;
+      data.com[joint_id] = mass*data.oMi[joint_id].act(lever);
+    }
+    
+    // Backward step
+    typedef JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xLike> Pass2;
+    for(Eigen::DenseIndex k = (Eigen::DenseIndex)subtree.size() - 1; k >= 0; --k)
+    {
+      const JointIndex joint_id = subtree[(size_t)k];
+      Pass2::run(model.joints[joint_id],data.joints[joint_id],
+                 typename Pass2::ArgsType(model,data,Jcom_subtree,computeSubtreeComs));
+    }
+    
+    assert(data.mass[rootSubtreeId] > 0. && "The mass of the subtree is not positive.");
+    const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
+    typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
+    if(not computeSubtreeComs)
+      com_subtree *= mass_inv_subtree;
+
+    if(rootSubtreeId == 0)
+    {
+      Jcom_subtree *= mass_inv_subtree;
+      return; // skip the rest
+    }
+
+    const int idx_v = model.joints[rootSubtreeId].idx_v();
+    const int nv_subtree = data.nvSubtree[rootSubtreeId];
+
+    Jcom_subtree.middleCols(idx_v,nv_subtree) *= mass_inv_subtree;
+    
+    // Second backward step
+    typedef JacobianSubtreeCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xLike> Pass3;
+    for(JointIndex parent = model.parents[rootSubtreeId];
+        parent > 0;
+        parent = model.parents[parent])
+    {
+      Pass3::run(model.joints[parent],data.joints[parent],
+                 typename Pass3::ArgsType(model,data,rootSubtreeId,Jcom_subtree));
+    }
+  }
     {
       // Iterates over all the joints of the subtree.
       for(size_t i = 0; i < model.subtrees[rootSubtreeId].size(); i++)
