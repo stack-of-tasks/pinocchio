@@ -12,6 +12,8 @@
   ::pinocchio::container::aligned_vector<Type>
 //  std::vector<Type,Eigen::aligned_allocator<Type> >
 
+#define PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(T) std::vector<T,Eigen::aligned_allocator<T> >
+
 namespace pinocchio
 {
   namespace container
