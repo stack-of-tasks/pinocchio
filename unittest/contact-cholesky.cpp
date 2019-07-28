@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
   ContactCholeskyDecomposition contact_chol_decomposition;
-  const container::aligned_vector<ContactInfo> contact_info_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_info_empty;
   contact_chol_decomposition.allocate(model,contact_info_empty);
   
   BOOST_CHECK(contact_chol_decomposition.D.size() == model.nv);
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  container::aligned_vector<ContactInfo> contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
   ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF));
   contact_infos.push_back(ci_RF);
   ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF));
@@ -387,7 +387,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  container::aligned_vector<ContactInfo> contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
   ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF));
   contact_infos.push_back(ci_RF);
   ContactInfo ci_LF(CONTACT_3D,model.getFrameId(LF));

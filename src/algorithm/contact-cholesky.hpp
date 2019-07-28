@@ -62,9 +62,9 @@ namespace pinocchio
       ///
       /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U.
       ///
-      template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                    const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos);
+                    const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos);
       
       ///
       /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
@@ -78,10 +78,10 @@ namespace pinocchio
       ///
       /// \remarks The system mass matrix and the Jacobians of the kinematic tree should have been computed first. This can be achieved by calling pinocchio::crba.
       ///
-      template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                    const DataTpl<S1,O1,JointCollectionTpl> & data,
-                   const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos,
+                   const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos,
                    const S1 mu = 0.);
       
       /// \brief Size of the decomposition

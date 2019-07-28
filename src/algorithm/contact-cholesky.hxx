@@ -14,13 +14,13 @@ namespace pinocchio
   {
     
     template<typename Scalar, int Options>
-    template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
     void
     ContactCholeskyDecompositionTpl<Scalar,Options>::
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-             const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos)
+             const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos)
     {
-      typedef container::aligned_vector< ContactInfoTpl<S1,O1> > ContactInfoVector;
+      typedef std::vector<ContactInfoTpl<S1,O1>,Allocator> ContactInfoVector;
       
       nv = model.nv;
       
@@ -106,11 +106,11 @@ namespace pinocchio
     }
     
     template<typename Scalar, int Options>
-    template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
             const DataTpl<S1,O1,JointCollectionTpl> & data,
-            const container::aligned_vector< ContactInfoTpl<S1,O1> > & contact_infos,
+            const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos,
             const S1 mu)
     {
       typedef ContactInfoTpl<S1,O1> ContactInfo;
