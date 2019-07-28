@@ -10,8 +10,6 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-#include <iostream>
-
 namespace pinocchio
 {
 

@@ -7,7 +7,6 @@
 
 #include "pinocchio/parsers/urdf.hpp"
 
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <boost/shared_ptr.hpp>
