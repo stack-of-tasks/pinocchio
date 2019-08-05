@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
   BOOST_AUTO_TEST_CASE(append)
   {
-    Model manipulator, humanoid, model;
-    GeometryModel geomManipulator, geomHumanoid, geomModel;
+    Model manipulator, humanoid;
+    GeometryModel geomManipulator, geomHumanoid;
 
     buildModels::manipulator(manipulator);
     buildModels::manipulatorGeometries(manipulator, geomManipulator);
@@ -96,7 +96,20 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     //TODO fix inertia of the base
     manipulator.inertias[0].setRandom();
     SE3 aMb = SE3::Random();
-    int fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
+
+    // First append a model to the universe frame.
+    Model model1;
+    GeometryModel geomModel1;
+    int fid = 0;
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
+        SE3::Identity(), model1, geomModel1);
+
+    BOOST_TEST_MESSAGE(model1);
+
+    // Second, append a model to a moving frame.
+    Model model;
+    GeometryModel geomModel;
+    fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
           humanoid.getJointId("humanoid/chest2_joint"),
           humanoid.getFrameId("humanoid/chest2_joint"), aMb,
           OP_FRAME));
