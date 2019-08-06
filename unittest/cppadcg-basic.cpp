@@ -1,8 +1,8 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include <boost/variant.hpp> // to avoid C99 warnings
+#include "pinocchio/math/cppadcg.hpp"
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -123,13 +123,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     CGScalar cg_value; cg_value = -1.;
     ADScalar ad_value; ad_value = -1.;
     ADFloat ad_float; ad_float = -1.;
-    Eigen::numext::abs<ADScalar>(ad_value);
     abs(ad_value);
     abs(ad_float);
     abs(cg_value);
     
     CPPAD_TESTVECTOR(ADScalar) ad_x(3);
-    Eigen::numext::abs<CGScalar>(cg_value);
     CGJointModelPrismaticUnaligned cg_jmodel_prismatic(axis.cast<CGScalar>());
     
     pinocchio::Model model;
