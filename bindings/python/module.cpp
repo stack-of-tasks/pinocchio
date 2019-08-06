@@ -4,6 +4,8 @@
 //
 
 #include <eigenpy/eigenpy.hpp>
+
+#include <Eigen/Geometry>
 #include <eigenpy/geometry.hpp>
 
 #include "pinocchio/bindings/python/fwd.hpp"
