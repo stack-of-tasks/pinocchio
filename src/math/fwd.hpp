@@ -9,30 +9,6 @@
 #include <math.h>
 #include <boost/math/constants/constants.hpp>
 
-
-namespace boost
-{
-  namespace math
-  {
-    namespace constants
-    {
-      namespace detail
-      {
-        
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-        template<typename Scalar>
-        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
-        
-#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-        template<typename Scalar>
-        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {};
-#endif
-#endif
-      }
-    }
-  }
-}
-
 namespace pinocchio
 {
   ///
