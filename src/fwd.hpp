@@ -22,6 +22,8 @@ namespace pinocchio {}
 #include "pinocchio/core/binary-op.hpp"
 #include "pinocchio/core/unary-op.hpp"
 
+#include <cstddef> // std::size_t
+
 namespace pinocchio
 {
   ///
