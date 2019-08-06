@@ -267,6 +267,13 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     // Check second call to cholesky::computeMinv
     cholesky::computeMinv(model,data,Minv);
     BOOST_CHECK(Minv.isApprox(Minv_ref));
+    
+    // Call the second signature of cholesky::computeMinv
+    Data data_bis(model);
+    crba(model,data_bis,q);
+    cholesky::decompose(model,data_bis);
+    cholesky::computeMinv(model,data_bis);
+    BOOST_CHECK(data_bis.Minv.isApprox(Minv_ref));
   }
 
 BOOST_AUTO_TEST_SUITE_END ()

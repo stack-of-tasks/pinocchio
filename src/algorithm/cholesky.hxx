@@ -471,6 +471,7 @@ namespace pinocchio
         for( int k=last_col;k>=0;--k )
         {
           int nvt_max = std::min(col,nvt[(size_t)k]-1);
+          v_[k] = -U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
         v_.head(col+1).array() *= data.Dinv.head(col+1).array();
