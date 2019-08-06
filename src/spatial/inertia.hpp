@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -171,7 +171,7 @@ namespace pinocchio
     {
       assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
       mass() = I6(LINEAR, LINEAR);
-      const Matrix3 & mc_cross = I6.template block <3,3> (ANGULAR,LINEAR);
+      const Matrix3 & mc_cross = I6.template block <3,3>(ANGULAR,LINEAR);
       lever() = unSkew(mc_cross);
       lever() /= mass();
       
@@ -199,21 +199,24 @@ namespace pinocchio
     // Initializers
     static InertiaTpl Zero() 
     {
-      return InertiaTpl(0., 
+      return InertiaTpl(Scalar(0),
                         Vector3::Zero(), 
                         Symmetric3::Zero());
     }
     
-    void setZero() { mass() = 0.; lever().setZero(); inertia().setZero(); }
+    void setZero() { mass() = Scalar(0); lever().setZero(); inertia().setZero(); }
 
     static InertiaTpl Identity() 
     {
-      return InertiaTpl(1., 
+      return InertiaTpl(Scalar(1),
                         Vector3::Zero(), 
                         Symmetric3::Identity());
     }
     
-    void setIdentity () { mass() = 1.; lever().setZero(); inertia().setIdentity(); }
+    void setIdentity ()
+    {
+      mass() = Scalar(1); lever().setZero(); inertia().setIdentity();
+    }
 
     static InertiaTpl Random()
     {
@@ -223,30 +226,32 @@ namespace pinocchio
                         Symmetric3::RandomPositive());
     }
 
-    static InertiaTpl FromEllipsoid(
-        const Scalar m, const Scalar x, const Scalar y, const Scalar z)
+    static InertiaTpl FromEllipsoid(const Scalar m, const Scalar x,
+                                    const Scalar y, const Scalar z)
     {
-      Scalar a = m * (y*y + z*z) / 5;
-      Scalar b = m * (x*x + z*z) / 5;
-      Scalar c = m * (y*y + x*x) / 5;
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
+      Scalar a = m * (y*y + z*z) / Scalar(5);
+      Scalar b = m * (x*x + z*z) / Scalar(5);
+      Scalar c = m * (y*y + x*x) / Scalar(5);
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                       Scalar(0), Scalar(0), c));
     }
 
-    static InertiaTpl FromCylinder(
-        const Scalar m, const Scalar r, const Scalar l)
+    static InertiaTpl FromCylinder(const Scalar m, const Scalar r, const Scalar l)
     {
-      Scalar a = m * (r*r / 4 + l*l / 12);
-      Scalar c = m * (r*r / 2);
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, a, 0, 0, c));
+      Scalar a = m * (r*r / Scalar(4) + l*l / Scalar(12));
+      Scalar c = m * (r*r / Scalar(2));
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), a,
+                                                       Scalar(0), Scalar(0), c));
     }
 
-    static InertiaTpl FromBox(
-        const Scalar m, const Scalar x, const Scalar y, const Scalar z)
+    static InertiaTpl FromBox(const Scalar m, const Scalar x,
+                              const Scalar y, const Scalar z)
     {
-      Scalar a = m * (y*y + z*z) / 12;
-      Scalar b = m * (x*x + z*z) / 12;
-      Scalar c = m * (y*y + x*x) / 12;
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a, 0, b, 0, 0, c));
+      Scalar a = m * (y*y + z*z) / Scalar(12);
+      Scalar b = m * (x*x + z*z) / Scalar(12);
+      Scalar c = m * (y*y + x*x) / Scalar(12);
+      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                       Scalar(0), Scalar(0), c));
     }
 
     void setRandom()
@@ -308,7 +313,7 @@ namespace pinocchio
     // Arithmetic operators
     InertiaTpl & __equl__(const InertiaTpl & clone)
     {
-      mass()=clone.mass(); lever()=clone.lever(); inertia()=clone.inertia();
+      mass() = clone.mass(); lever() = clone.lever(); inertia() = clone.inertia();
       return *this;
     }
 
@@ -334,7 +339,7 @@ namespace pinocchio
        */
 
       const Scalar & mab = mass()+Yb.mass();
-      const Scalar mab_inv = 1./mab;
+      const Scalar mab_inv = Scalar(1)/mab;
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
                         (mass()*lever()+Yb.mass()*Yb.lever())*mab_inv,
@@ -375,7 +380,7 @@ namespace pinocchio
     Scalar vtiv_impl(const Motion & v) const
     {
       const Vector3 cxw (lever().cross(v.angular()));
-      Scalar res = mass() * (v.linear().squaredNorm() - 2.*v.linear().dot(cxw));
+      Scalar res = mass() * (v.linear().squaredNorm() - Scalar(2)*v.linear().dot(cxw));
       const Vector3 mcxcxw (-mass()*lever().cross(cxw));
       res += v.angular().dot(mcxcxw);
       res += inertia().vtiv(v.angular());

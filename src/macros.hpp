@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS INRIA
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_macros_hpp__
@@ -7,6 +7,14 @@
 
 #if __cplusplus >= 201103L
   #define PINOCCHIO_WITH_CXX11_SUPPORT
+#endif
+
+#if __cplusplus >= 201403L
+  #define PINOCCHIO_WITH_CXX14_SUPPORT
+#endif
+
+#if __cplusplus >= 201703L
+  #define PINOCCHIO_WITH_CXX17_SUPPORT
 #endif
 
 #define PINOCCHIO_STRING_LITERAL(string) #string

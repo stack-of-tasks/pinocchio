@@ -15,11 +15,7 @@ namespace pinocchio {}
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-#include "pinocchio/math/cppad.hpp"
-#endif
-
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 #include "pinocchio/eigen-macros.hpp"
 

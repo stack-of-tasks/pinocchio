@@ -1,8 +1,9 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/math/cppad.hpp"
+
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/explog.hpp"

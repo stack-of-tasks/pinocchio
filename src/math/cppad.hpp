@@ -1,9 +1,11 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_ccpad_hpp__
 #define __pinocchio_math_ccpad_hpp__
+
+#include "pinocchio/math/fwd.hpp"
 
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
@@ -11,15 +13,31 @@
 //#include <cppad/example/cppad_eigen.hpp>
 
 #ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
-#define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
+  #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
 
-#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
+#ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
   #include "pinocchio/math/cppadcg.hpp" // already include <Eigen/Dense>
 #else
   #include <cppad/cppad.hpp>
-  #include <Eigen/Dense>
 #endif
+
+#include <Eigen/Core>
+
+namespace boost
+{
+  namespace math
+  {
+    namespace constants
+    {
+      namespace detail
+      {
+        template<typename Scalar>
+        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
+      }
+    }
+  }
+}
 
 namespace Eigen
 {
@@ -38,7 +56,7 @@ namespace Eigen
       }
     };
   }
-}
+} //namespace Eigen
 
 /// Source from #include <cppad/example/cppad_eigen.hpp>
 namespace Eigen
@@ -92,7 +110,7 @@ namespace Eigen
     static int digits10(void)
     {  return CppAD::numeric_limits< CppAD::AD<Base> >::digits10; }
   };
-}
+} // namespace Eigen
 
 /// Source from #include <cppad/example/cppad_eigen.hpp>
 namespace CppAD
@@ -108,6 +126,16 @@ namespace CppAD
   {  return CppAD::AD<Base>(0.); }
   template <class Base> AD<Base> abs2(const AD<Base>& x)
   {  return x * x; }
-}
+} // namespace CppAD
+
+namespace pinocchio
+{
+  template<typename Scalar>
+  struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
+  {
+    typedef TaylorSeriesExpansion<Scalar> Base;
+    using Base::precision;
+  };
+} // namespace pinocchio
 
 #endif // #ifndef __pinocchio_math_ccpad_hpp__

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 INRIA
+// Copyright (c) 2018-2019 INRIA
 //
 
 #ifndef __pinocchio_math_taylor_expansion_hpp__
@@ -33,28 +33,7 @@ namespace pinocchio
       return value;
     }
   }; // struct TaylorSeriesExpansion
-  
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-  
-  template<typename Scalar>
-  struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
-  {
-    typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
-  };
-  
-#if defined(PINOCCHIO_WITH_CPPADCG_SUPPORT) && defined(PINOCCHIO_WITH_CXX11_SUPPORT)
-  
-  template<typename Scalar>
-  struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> > : TaylorSeriesExpansion<Scalar>
-  {
-    typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
-  };
-  
-#endif
-#endif
-  
+
 }
 
 #endif // ifndef __pinocchio_math_taylor_expansion_hpp__

@@ -1,8 +1,9 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/math/cppad.hpp"
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 

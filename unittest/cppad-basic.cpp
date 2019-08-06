@@ -4,12 +4,8 @@
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
-#include <cppad/cppad.hpp>
-#include <cppad/speed/det_by_minor.hpp>
-#include <Eigen/Dense>
-
-#include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/cppad.hpp"
+#include <cppad/speed/det_by_minor.hpp>
 
 #include <iostream>
 

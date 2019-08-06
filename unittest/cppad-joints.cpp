@@ -2,7 +2,8 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/math/cppad.hpp"
+
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
