@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_jacobian_hxx__
@@ -114,46 +114,53 @@ namespace pinocchio
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex jointId,
                                const ReferenceFrame rf,
-                               const Eigen::MatrixBase<Matrix6Like> & J)
+                               const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert( J.rows() == 6 );
     assert( J.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Data::Matrix6x::ConstColXpr M6xColXpr;
     
-    Matrix6Like & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J);
+    Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
     
     const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
+    for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
     {
-      if(rf == WORLD)
+      typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+      const MotionRef<ConstColXprIn> v_in(data.J.col(j));
+      
+      typedef typename Matrix6xLike::ColXpr ColXprOut;
+      MotionRef<ColXprOut> v_out(J_.col(j));
+      
+      switch(rf)
       {
-        J_.col(j) = data.J.col(j);
-      }
-      else if (rf == LOCAL_WORLD_ALIGNED)
-      {
-        J_.col(j) = data.J.col(j);
-        J_.col(j).template segment<3>(Motion::LINEAR) -= oMjoint.translation().cross(data.J.col(j).template segment<3>(Motion::ANGULAR));
-      }
-      else
-      {
-        const MotionRef<M6xColXpr> mref(data.J.col(j).derived());
-        J_.col(j) = oMjoint.actInv(mref).toVector();
+        case WORLD:
+          v_out = v_in;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          v_out = v_in;
+          v_out.linear() -= oMjoint.translation().cross(v_in.angular());
+          break;
+        case LOCAL:
+          v_out = oMjoint.actInv(v_in);
+          break;
+        default:
+          assert(false && "must never happened");
+          break;
       }
     }
   }
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   struct JointJacobianForwardStep
-  : public fusion::JointVisitorBase< JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> >
+  : public fusion::JointVisitorBase< JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -161,7 +168,7 @@ namespace pinocchio
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const ConfigVectorType &,
-                                  Matrix6Like &
+                                  Matrix6xLike &
                                   > ArgsType;
     
     template<typename JointModel>
@@ -170,7 +177,7 @@ namespace pinocchio
                      const Model & model,
                      Data & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
-                     const Eigen::MatrixBase<Matrix6Like> & J)
+                     const Eigen::MatrixBase<Matrix6xLike> & J)
     {
       typedef typename Model::JointIndex JointIndex;
       const JointIndex & i = jmodel.id();
@@ -181,18 +188,18 @@ namespace pinocchio
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
       
-      Matrix6Like & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J);
-      jmodel.jointCols(J_) = data.iMf[i].inverse().act(jdata.S()); // TODO: use MotionRef
+      Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
+      jmodel.jointCols(J_) = data.iMf[i].inverse().act(jdata.S()); // TODO: overload actInv
     }
   
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   inline void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const JointIndex jointId,
-                            const Eigen::MatrixBase<Matrix6Like> & J)
+                            const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(q.size() == model.nq && "The configuration vector is not of right size");
@@ -201,11 +208,11 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     data.iMf[jointId].setIdentity();
-    typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> Pass;
+    typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> Pass;
     for(JointIndex i=jointId; i>0; i=model.parents[i])
     {
       Pass::run(model.joints[i],data.joints[i],
-                typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
+                typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J)));
     }
   }
   
@@ -292,12 +299,12 @@ namespace pinocchio
     return data.dJ;
   }
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                             const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                             const JointIndex jointId,
                                             const ReferenceFrame rf,
-                                            const Eigen::MatrixBase<Matrix6Like> & dJ)
+                                            const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
     assert( dJ.rows() == 6 );
     assert( dJ.cols() == model.nv );
@@ -305,14 +312,20 @@ namespace pinocchio
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    Matrix6Like & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,dJ);
+    Matrix6xLike & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ);
     
     const typename Data::SE3 & oMjoint = data.oMi[jointId];
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+    for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
     {
-      if(rf == WORLD)   dJ_.col(j) = data.dJ.col(j);
-      else              dJ_.col(j) = oMjoint.actInv(Motion(data.dJ.col(j))).toVector(); // TODO: use MotionRef
+      typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+      const MotionRef<ConstColXprIn> v_in(data.dJ.col(j));
+      
+      typedef typename Matrix6xLike::ColXpr ColXprOut;
+      MotionRef<ColXprOut> v_out(dJ_.col(j));
+      
+      if(rf == WORLD)   v_out = v_in;
+      else              v_out = oMjoint.actInv(v_in).toVector();
     }
   }
   

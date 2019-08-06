@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_frames_hxx__
@@ -132,14 +132,18 @@ namespace pinocchio
       
       for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
+        typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+        const MotionRef<ConstColXprIn> v_in(data.J.col(j));
+        
+        typedef typename Matrix6xLike::ColXpr ColXprOut;
+        MotionRef<ColXprOut> v_out(J_.col(j));
+        
         if (rf == LOCAL) 
+          v_out = oMframe.actInv(v_in);
+        else
         {
-          J_.col(j) = oMframe.actInv(Motion(data.J.col(j))).toVector(); // TODO: use MotionRef
-        } 
-        else 
-        {
-          J_.col(j) = data.J.col(j);
-          J_.col(j).template segment<3>(Motion::LINEAR) -= oMframe.translation().cross(J_.col(j).template segment<3>(Motion::ANGULAR));
+          v_out = v_in;
+          v_out.linear() -= oMframe.translation().cross(v_in.angular());
         }
       }
     }
@@ -161,6 +165,7 @@ namespace pinocchio
     const Frame & frame = model.frames[frameId];
     const JointIndex & jointId = frame.parent;
     data.iMf[jointId] = frame.placement;
+    
     typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6Like> Pass;
     for(JointIndex i=jointId; i>0; i=model.parents[i])
     {
@@ -201,16 +206,23 @@ namespace pinocchio
       return;
     }
     
-    if (rf == LOCAL)
+    if(rf == LOCAL)
     {
       Matrix6xLike & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ);
       const SE3 & oMframe = data.oMf[frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       
-      for(int j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
+      for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t) j])
       {
-        dJ_.col(j) = oMframe.actInv(Motion(data.dJ.col(j))).toVector();
+        typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+        const MotionRef<ConstColXprIn> v_in(data.dJ.col(j));
+        
+        typedef typename Matrix6xLike::ColXpr ColXprOut;
+        MotionRef<ColXprOut> v_out(dJ_.col(j));
+        
+        v_out = oMframe.actInv(v_in);
       }
+      
       return;
     }    
   }
