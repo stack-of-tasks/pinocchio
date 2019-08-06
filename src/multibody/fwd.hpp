@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fwd_hpp__
@@ -7,7 +7,6 @@
 
 #include "pinocchio/fwd.hpp"
 
-# include <cstddef> // std::size_t
 #include "pinocchio/multibody/joint/fwd.hpp"
 
 namespace pinocchio

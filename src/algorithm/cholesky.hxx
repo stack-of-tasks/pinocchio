@@ -456,7 +456,7 @@ namespace pinocchio
         
         PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
-        assert(col < model.nv);
+        assert(col < model.nv && col >= 0);
         assert(v.size() == model.nv);
         
         typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
