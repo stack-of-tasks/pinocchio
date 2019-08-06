@@ -192,7 +192,7 @@ namespace pinocchio
                 const Eigen::MatrixBase<Mat> & v);
     
     ///
-    /// \brief PComputes the inverse of the joint inertia matrix M from its Cholesky factorization.
+    /// \brief Computes the inverse of the joint space inertia matrix M from its Cholesky factorization.
     ///
     /// \tparam JointCollection Collection of Joint types.
     ///
