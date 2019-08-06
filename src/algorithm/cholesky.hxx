@@ -457,7 +457,7 @@ namespace pinocchio
         PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
         assert(col < model.nv);
-        assert(v.rows() == model.nv);
+        assert(v.size() == model.nv);
         
         typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
         
@@ -466,11 +466,12 @@ namespace pinocchio
         Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
         
         const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
+        v_.tail(model.nv - col - 1).setZero();
         v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
           int nvt_max = std::min(col,nvt[(size_t)k]-1);
-          v_[k] -= U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
+          v_[k] = -U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
         v_.head(col+1).array() *= data.Dinv.head(col+1).array();

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_cholesky_hpp__
@@ -192,7 +192,7 @@ namespace pinocchio
                 const Eigen::MatrixBase<Mat> & v);
     
     ///
-    /// \brief PComputes the inverse of the joint inertia matrix M from its Cholesky factorization.
+    /// \brief Computes the inverse of the joint space inertia matrix M from its Cholesky factorization.
     ///
     /// \tparam JointCollection Collection of Joint types.
     ///
@@ -206,6 +206,25 @@ namespace pinocchio
     Mat & computeMinv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       const Eigen::MatrixBase<Mat> & Minv);
+    
+    ///
+    /// \brief Computes the inverse of the joint space inertia matrix M from its Cholesky factorization.
+    ///        The results is then directly stored in data.Minv.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    ///
+    /// \return A reference to the result data.Minv.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+    computeMinv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                DataTpl<Scalar,Options,JointCollectionTpl> & data)
+    {
+      return computeMinv(model,data,data.Minv);
+    }
     
   } // namespace cholesky  
 } // namespace pinocchio 
