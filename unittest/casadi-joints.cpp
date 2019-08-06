@@ -141,24 +141,44 @@ template<typename JointModel_> struct init;
   
 template<typename JointModel_>
   struct init
-{
-  static JointModel_ run()
   {
-    JointModel_ jmodel;
-    jmodel.setIndexes(0,0,0);
-    return jmodel;
-  }
-  
-  static std::string name()
-  {
-    return "default " + JointModel_::classname();
-  }
-};
+    static JointModel_ run()
+    {
+      JointModel_ jmodel;
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return "default " + JointModel_::classname();
+    }
+  };
   
   template<typename Scalar, int Options>
   struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
   {
     typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+    
+    static std::string name()
+    {
+      return JointModel::classname();
+    }
+  };
+  
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
     
     static JointModel run()
     {
