@@ -263,6 +263,10 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     cholesky::computeMinv(model,data,Minv);
     
     BOOST_CHECK(Minv.isApprox(Minv_ref));
+    
+    // Check second call to cholesky::computeMinv
+    cholesky::computeMinv(model,data,Minv);
+    BOOST_CHECK(Minv.isApprox(Minv_ref));
   }
 
 BOOST_AUTO_TEST_SUITE_END ()
