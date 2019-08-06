@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 /*
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
   crba(model,data,q);
   
 
-  long flag = BOOST_BINARY(1000101);
+  long flag = BOOST_BINARY(1111111);
   PinocchioTicToc timer(PinocchioTicToc::US); 
   #ifdef NDEBUG
     #ifdef _INTENSE_TESTING_
