@@ -2,7 +2,7 @@
 // Copyright (c) 2019 INRIA
 //
 
-#include "pinocchio/math/casadi.hpp"
+#include "pinocchio/autodiff/casadi.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"

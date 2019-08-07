@@ -237,6 +237,8 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/serialization")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff")
+
 SET(HEADERS_)
 FOREACH(header ${HEADERS})
   STRING(REGEX REPLACE "${PROJECT_SOURCE_DIR}/src/" "" header ${header})

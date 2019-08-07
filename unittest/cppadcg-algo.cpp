@@ -2,7 +2,7 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include "pinocchio/math/cppadcg.hpp"
+#include "pinocchio/codegen/cppadcg.hpp"
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"

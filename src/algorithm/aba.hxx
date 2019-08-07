@@ -6,7 +6,7 @@
 #define __pinocchio_aba_hxx__
 
 #ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-  #include "pinocchio/math/cppad.hpp"
+  #include "pinocchio/autodiff/cppad.hpp"
 #endif
 
 #include "pinocchio/spatial/act-on-set.hpp"
