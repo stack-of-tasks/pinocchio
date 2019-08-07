@@ -19,9 +19,15 @@
 
 #define PINOCCHIO_STRING_LITERAL(string) #string
 
-/// \remarks The following two macros should be adapted for WIN32
-#define PINOCCHIO_PRAGMA_MESSAGE(the_message) PINOCCHIO_STRING_LITERAL(message(the_message))
-#define PINOCCHIO_PRAGMA_MESSAGE_CALL(the_message) _Pragma(PINOCCHIO_PRAGMA_MESSAGE(the_message))
+// For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
+#if defined(__GNUC__) || defined(__clang__)
+  #define PINOCCHIO_PRAGMA(x) _Pragma(#x)
+  #define PINOCCHIO_PRAGMA_MESSAGE(the_message) PINOCCHIO_PRAGMA(GCC message #the_message)
+  #define PINOCCHIO_PRAGMA_WARNING(the_message) PINOCCHIO_PRAGMA(GCC warning #the_message)
+  #define PINOCCHIO_PRAGMA_DEPRECATED(the_message) PINOCCHIO_PRAGMA_WARNING(Deprecated: #the_message)
+  #define PINOCCHIO_PRAGMA_DEPRECATED_HEADER(old_header,new_header) \
+          PINOCCHIO_PRAGMA_WARNING(Deprecated header file: #old_header has been replaced by #new_header.\n Please use #new_header instead of #old_header.)
+#endif
 
 /// \brief Macro to check the current Pinocchio version against a version provided by x.y.z
 #define PINOCCHIO_VERSION_AT_LEAST(x,y,z) \

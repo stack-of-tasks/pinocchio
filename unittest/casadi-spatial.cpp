@@ -3,7 +3,7 @@
 //
 
 
-#include <pinocchio/math/casadi.hpp>
+#include <pinocchio/autodiff/casadi.hpp>
 #include <pinocchio/math/quaternion.hpp>
 #include <pinocchio/spatial/se3.hpp>
 #include <pinocchio/spatial/motion.hpp>
