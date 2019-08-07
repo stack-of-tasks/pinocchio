@@ -2,7 +2,9 @@
 // Copyright (c) 2016-2019 CNRS INRIA
 //
 
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -104,6 +106,9 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
         SE3::Identity(), model1, geomModel1);
 
+    Data data1 (model1);
+    BOOST_CHECK(model1.check(data1));
+
     BOOST_TEST_MESSAGE(model1);
 
     // Second, append a model to a moving frame.
@@ -120,6 +125,9 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
         SE3::Identity(), model, geomModel);
 
     BOOST_TEST_MESSAGE(model);
+
+    Data data (model);
+    BOOST_CHECK(model.check(data));
 
     // Check the model
     BOOST_CHECK_EQUAL(model.getJointId("humanoid/chest2_joint"),
