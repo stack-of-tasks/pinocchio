@@ -2,7 +2,9 @@
 // Copyright (c) 2016-2019 CNRS INRIA
 //
 
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -68,8 +70,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
   BOOST_AUTO_TEST_CASE(append)
   {
-    Model manipulator, humanoid, model;
-    GeometryModel geomManipulator, geomHumanoid, geomModel;
+    Model manipulator, humanoid;
+    GeometryModel geomManipulator, geomHumanoid;
 
     buildModels::manipulator(manipulator);
     buildModels::manipulatorGeometries(manipulator, geomManipulator);
@@ -96,7 +98,23 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     //TODO fix inertia of the base
     manipulator.inertias[0].setRandom();
     SE3 aMb = SE3::Random();
-    int fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
+
+    // First append a model to the universe frame.
+    Model model1;
+    GeometryModel geomModel1;
+    int fid = 0;
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
+        SE3::Identity(), model1, geomModel1);
+
+    Data data1 (model1);
+    BOOST_CHECK(model1.check(data1));
+
+    BOOST_TEST_MESSAGE(model1);
+
+    // Second, append a model to a moving frame.
+    Model model;
+    GeometryModel geomModel;
+    fid = humanoid.addFrame (Frame ("humanoid/add_manipulator", 
           humanoid.getJointId("humanoid/chest2_joint"),
           humanoid.getFrameId("humanoid/chest2_joint"), aMb,
           OP_FRAME));
@@ -107,6 +125,9 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
         SE3::Identity(), model, geomModel);
 
     BOOST_TEST_MESSAGE(model);
+
+    Data data (model);
+    BOOST_CHECK(model.check(data));
 
     // Check the model
     BOOST_CHECK_EQUAL(model.getJointId("humanoid/chest2_joint"),
