@@ -14,6 +14,7 @@ INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ide.cmake)
+INCLUDE(cmake/apple.cmake)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
@@ -22,18 +23,8 @@ SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
-IF(APPLE)
-  SET(CMAKE_MACOSX_RPATH TRUE)
-  SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-  SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
-  if("${isSystemDir}" STREQUAL "-1")
-     set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-  endif("${isSystemDir}" STREQUAL "-1")
-ENDIF(APPLE)
+# If needed, fix CMake policy for APPLE systems
+APPLY_DEFAULT_APPLE_CONFIGURATION()
 
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
