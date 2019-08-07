@@ -16,8 +16,8 @@
   #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
 
-#include <Eigen/Core>
 #include <cppad/cppad.hpp>
+#include <Eigen/Dense>
 
 namespace boost
 {
