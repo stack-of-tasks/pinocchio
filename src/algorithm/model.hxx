@@ -30,6 +30,9 @@ namespace pinocchio
       for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid) {
         Frame frame = modelAB.frames[fid];
         if (frame.parent == 0) {
+          assert (!model.existFrame(frame.name, frame.type)
+              && "The two models have conflicting frame names.");
+
           frame.parent = jid;
           if (frame.previousFrame != 0) {
             frame.previousFrame = model.getFrameId (
@@ -85,6 +88,9 @@ namespace pinocchio
         // otherwise, get the parent from modelAB.
         if (modelAB.parents[jmodel.id()] > 0)
           parentId = model.getJointId(modelAB.names[modelAB.parents[jmodel.id()]]);
+        assert (!model.existJointName(modelAB.names[jmodel.id()])
+            && "The two models have conflicting joint names.");
+
         JointIndex jid = model.addJoint (
             parentId,
             jmodel,
@@ -101,6 +107,9 @@ namespace pinocchio
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid) {
           FrameTpl<Scalar, Options> frame = modelAB.frames[fid];
           if (frame.parent == jmodel.id()) {
+            assert (!model.existFrame(frame.name, frame.type)
+                && "The two models have conflicting frame names.");
+
             frame.parent = jid;
             assert (frame.previousFrame > 0 || frame.type == JOINT);
             if (frame.previousFrame != 0) {
