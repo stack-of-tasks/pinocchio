@@ -2,11 +2,11 @@
 // Copyright (c) 2019 INRIA
 //
 
-#include <boost/variant.hpp> // to avoid C99 warnings
-
 #include <pinocchio/math/rotation.hpp>
 #include <pinocchio/math/sincos.hpp>
 #include <Eigen/Geometry>
+
+#include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>

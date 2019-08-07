@@ -1,14 +1,14 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#include "utils/macros.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include "pinocchio/spatial/explog.hpp"
+#include "utils/macros.hpp"
 
 using namespace pinocchio;
 

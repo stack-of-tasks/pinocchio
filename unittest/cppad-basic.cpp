@@ -2,10 +2,10 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include <boost/variant.hpp> // to avoid C99 warnings
-
 #include "pinocchio/math/cppad.hpp"
 #include <cppad/speed/det_by_minor.hpp>
+
+#include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <iostream>
 

@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#include <boost/python.hpp>
 #include "pinocchio/bindings/python/spatial/explog.hpp"
+#include <boost/python.hpp>
 
 namespace pinocchio
 {

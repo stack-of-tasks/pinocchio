@@ -1,10 +1,11 @@
 //
 // Copyright (c) 2019 INRIA
 //
-#include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <pinocchio/math/casadi.hpp>
 #include <Eigen/Dense>
+
+#include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>

@@ -170,9 +170,16 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 
 SET(BOOST_COMPONENTS ${BOOST_REQUIERED_COMPONENTS} ${BOOST_OPTIONAL_COMPONENTS} ${BOOST_BUILD_COMPONENTS})
 SEARCH_FOR_BOOST()
+# Enforce the preprocessed version of boost::list and boost::vector
+# This information is redundant with the content of include/pinocchio/container/boost-container-limits.hpp
+# but it avoids any compilation issue.
+ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
+ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
 # Variable containing all the cflags definition relative to optional dependencies
 SET(CFLAGS_DEPENDENCIES)
+LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
+LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_VECTOR_SIZE=30")
 
 # Path to boost headers
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
