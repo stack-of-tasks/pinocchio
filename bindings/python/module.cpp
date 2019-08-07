@@ -3,11 +3,6 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#include <eigenpy/eigenpy.hpp>
-
-#include <Eigen/Geometry>
-#include <eigenpy/geometry.hpp>
-
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/utils/version.hpp"
@@ -15,6 +10,11 @@
 #include "pinocchio/bindings/python/utils/dependencies.hpp"
 #include "pinocchio/bindings/python/utils/conversions.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+
+#include <eigenpy/eigenpy.hpp>
+
+#include <Eigen/Geometry>
+#include <eigenpy/geometry.hpp>
 
 namespace bp = boost::python;
 using namespace pinocchio::python;

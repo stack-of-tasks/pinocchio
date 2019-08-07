@@ -1,11 +1,11 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#include "utils/macros.hpp"
-
-#include <pinocchio/macros.hpp>
+#include <pinocchio/fwd.hpp>
 #include <pinocchio/utils/version.hpp>
+
+#include "utils/macros.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
