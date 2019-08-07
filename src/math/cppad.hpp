@@ -16,13 +16,8 @@
   #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
 
-#ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
-  #include "pinocchio/math/cppadcg.hpp" // already include <Eigen/Dense>
-#else
-  #include <cppad/cppad.hpp>
-#endif
-
 #include <Eigen/Core>
+#include <cppad/cppad.hpp>
 
 namespace boost
 {
