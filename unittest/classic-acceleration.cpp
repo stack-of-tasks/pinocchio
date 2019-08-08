@@ -17,7 +17,7 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE(test_data_copy)
+BOOST_AUTO_TEST_CASE(test_classic_acceleration)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -43,6 +43,9 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
 
   for(int k = 0; k < num_tests; ++k)
   {
+    q = randomConfiguration(model);
+    v = VectorXd::Random(model.nv);
+    
     forwardKinematics(model,data,q,v,a);
     const SE3 RF_world_transf = SE3(data.oMi[RF_joint_id].rotation(),SE3::Vector3::Zero());
     
@@ -56,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_data_copy)
     BOOST_CHECK(classic_acc_other_signature.isApprox(classic_acc));
     
     // Computes with finite differences
-    const double eps = 1e-6;
+    const double eps = 1e-5;
     const double eps2 = eps * eps;
     forwardKinematics(model,data_ref,q);
     const SE3::Vector3 pos = data_ref.oMi[RF_joint_id].translation();
