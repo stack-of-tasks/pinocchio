@@ -4,9 +4,9 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-green.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
 [![Coverage report](https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/)
-[![Conda Download](https://anaconda.org/conda-forge/pinocchio/badges/downloads.svg)](https://anaconda.org/conda-forge/pinocchio)
-[![Conda Install](https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg)](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio)
-
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/downloads.svg)](https://anaconda.org/conda-forge/pinocchio)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/version.svg)](https://anaconda.org/conda-forge/pinocchio)
+[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg)](https://conda.anaconda.org/conda-forge)
 
 
 **Pinocchio** instantiates the state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
