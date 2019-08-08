@@ -116,6 +116,7 @@ The following people have been involved in the development of **Pinocchio**:
 - [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 - [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
+- [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
 
