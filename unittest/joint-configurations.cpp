@@ -12,20 +12,6 @@
 
 using namespace pinocchio;
 
-bool configurations_are_equals(const Eigen::VectorXd & conf1, const Eigen::VectorXd & conf2)
-{
-  long size = conf1.size();
-  if ( ! conf1.segment<3>(0).isApprox(conf2.segment<3>(0)) )
-    return false;
-  if( ! quaternion::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(3)), Eigen::Quaterniond(conf2.segment<4>(3))))
-    return false;
-  if( ! quaternion::defineSameRotation(Eigen::Quaterniond(conf1.segment<4>(7)), Eigen::Quaterniond(conf2.segment<4>(7))))
-    return false;
-  if ( ! conf1.segment(11, size-11).isApprox(conf2.segment(11, size-11)) )
-    return false;
-  return true;
-}
-
 template<typename D>
 void addJointAndBody(Model & model, const JointModelBase<D> & jmodel, const Model::JointIndex parent_id, const SE3 & joint_placement, const std::string & name, const Inertia & Y)
 {
