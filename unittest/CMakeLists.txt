@@ -102,7 +102,6 @@ ADD_PINOCCHIO_UNIT_TEST(joint-composite)
 ADD_PINOCCHIO_UNIT_TEST(joint-mimic)
 
 # Main corpus
-<<<<<<< HEAD
 ADD_PINOCCHIO_UNIT_TEST(model)
 ADD_PINOCCHIO_UNIT_TEST(data)
 ADD_PINOCCHIO_UNIT_TEST(constraint)
