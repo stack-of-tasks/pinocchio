@@ -368,8 +368,8 @@ namespace pinocchio
     {
       typedef typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
       ReturnType res;
-      res.template head<3>() = m.translation().cross(m.rotation().col(axis));
-      res.template tail<3>() = m.rotation().col(axis);
+      res.template segment<3>(LINEAR) = m.translation().cross(m.rotation().col(axis));
+      res.template segment<3>(ANGULAR) = m.rotation().col(axis);
       return res;
     }
 
