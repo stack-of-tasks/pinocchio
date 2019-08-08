@@ -9,7 +9,12 @@
 import pinocchio as pin
 import numpy as np
 import os
-from future.builtins import input
+
+try:
+    # Python 2
+    input = raw_input
+except NameError:
+    pass
 
 from pinocchio.visualize import MeshcatVisualizer
 

@@ -11,6 +11,12 @@ import pinocchio as pin
 from pinocchio.visualize import *
 import os
 
+try:
+    # Python 2
+    input = raw_input
+except NameError:
+    pass
+
 VISUALIZER = None
 # VISUALIZER = GepettoVisualizer
 # VISUALIZER = MeshcatVisualizer
@@ -41,4 +47,4 @@ if VISUALIZER:
         display.loadViewerModel("pinocchio")
     display.display(q0)
 
-raw_input("Press enter to exit.")
+input("Press enter to exit.")

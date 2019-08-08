@@ -12,6 +12,12 @@ from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import *
 import os
 
+try:
+    # Python 2
+    input = raw_input
+except NameError:
+    pass
+
 VISUALIZER = None
 # VISUALIZER = GepettoVisualizer
 # VISUALIZER = MeshcatVisualizer
@@ -46,4 +52,4 @@ if VISUALIZER:
         robot.loadViewerModel("pinocchio")
     robot.display(q0)
 
-raw_input("Press enter to exit.")
+input("Press enter to exit.")

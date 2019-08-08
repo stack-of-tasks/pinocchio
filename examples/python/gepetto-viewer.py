@@ -8,9 +8,14 @@
 import pinocchio as pin
 import numpy as np
 import os
-from future.builtins import input
 
 from pinocchio.visualize import GepettoVisualizer
+
+try:
+    # Python 2
+    input = raw_input
+except NameError:
+    pass
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
