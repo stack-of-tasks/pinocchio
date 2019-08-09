@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -65,6 +65,9 @@ namespace pinocchio
         .add_property("homogeneous",&SE3::toHomogeneousMatrix,"Returns the homegeneous matrix of *this (acting on SE3).")
         .add_property("action",&SE3::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
         .add_property("dualAction",&SE3::toDualActionMatrix,"Returns the dual action matrix of *this (acting on Force).")
+        .add_property("actionInverse",&SE3::toActionMatrixInverse,
+                      "Returns the inverse of the action matrix of *this (acting on Motion).\n"
+                      "This is equivalent to do m.inverse().action")
         
         .def("setIdentity",&SE3PythonVisitor::setIdentity,"Set *this to the identity placement.")
         .def("setRandom",&SE3PythonVisitor::setRandom,"Set *this to a random placement.")
