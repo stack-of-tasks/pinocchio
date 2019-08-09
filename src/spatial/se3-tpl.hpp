@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -8,6 +8,7 @@
 
 #include <Eigen/Geometry>
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/spatial/cartesian-axis.hpp"
 
 namespace pinocchio
 {
@@ -139,6 +140,29 @@ namespace pinocchio
       B.col(0) = trans.cross(rot.col(0));
       B.col(1) = trans.cross(rot.col(1));
       B.col(2) = trans.cross(rot.col(2));
+      return M;
+    }
+    
+    ActionMatrixType toActionMatrixInverse_impl() const
+    {
+      typedef Eigen::Block<ActionMatrixType,3,3> Block3;
+      ActionMatrixType M;
+      M.template block<3,3>(ANGULAR,ANGULAR)
+      = M.template block<3,3>(LINEAR,LINEAR) = rot.transpose();
+      Block3 C = M.template block<3,3>(ANGULAR,LINEAR); // used as temporary
+      Block3 B = M.template block<3,3>(LINEAR,ANGULAR);
+      
+#define PINOCCHIO_INTERNAL_COMPUTATION(axis_id,v3_in,v3_out,R,res) \
+  CartesianAxis<axis_id>::cross(v3_in,v3_out); \
+  res.col(axis_id).noalias() = R.transpose() * v3_out;
+      
+      PINOCCHIO_INTERNAL_COMPUTATION(0,trans,C.col(0),rot,B);
+      PINOCCHIO_INTERNAL_COMPUTATION(1,trans,C.col(0),rot,B);
+      PINOCCHIO_INTERNAL_COMPUTATION(2,trans,C.col(0),rot,B);
+      
+#undef PINOCCHIO_INTERNAL_COMPUTATION
+      
+      C.setZero();
       return M;
     }
     

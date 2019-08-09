@@ -26,6 +26,8 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   typedef SE3::ActionMatrixType ActionMatrixType;
   typedef SE3::Vector3 Vector3;
   typedef Eigen::Matrix<double,4,1> Vector4;
+  
+  const SE3 identity = SE3::Identity();
 
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
@@ -60,11 +62,16 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   ActionMatrixType bXa = amb.inverse();
   BOOST_CHECK(bXa.isApprox(aXb.inverse(), 1e-12));
   
+  ActionMatrixType X_identity = identity.toActionMatrix();
+  BOOST_CHECK(X_identity.isIdentity());
+  
+  ActionMatrixType X_identity_inverse = identity.toActionMatrixInverse();
+  BOOST_CHECK(X_identity_inverse.isIdentity());
+  
   // Test dual action matrix
   BOOST_CHECK(aXb.inverse().transpose().isApprox(amb.toDualActionMatrix(),1e-12));
 
   // Test isIdentity
-  SE3 identity = SE3::Identity();
   BOOST_CHECK(identity.isIdentity());
   
   // Test isApprox
