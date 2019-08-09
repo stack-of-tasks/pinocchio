@@ -46,7 +46,7 @@ namespace pinocchio
         const int idx_v = model.m_idx_v[i] - model.m_idx_v[0];
 
         data.iMlast[i] = data.pjMi[i] * data.iMlast[succ];
-        data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].inverse().act(jdata.S()); // TODO: avoid computing inverse
+        data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].actInv(jdata.S());
       }
 
     }
@@ -112,7 +112,7 @@ namespace pinocchio
         const int idx_v = model.m_idx_v[i] - model.m_idx_v[0];
 
         data.iMlast[i] = data.pjMi[i] * data.iMlast[succ];
-        data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].inverse().act(jdata.S()); // TODO: avoid computing inverse
+        data.S.matrix().middleCols(idx_v,model.m_nvs[i]) = data.iMlast[succ].actInv(jdata.S());
 
         typename JointModelComposite::Motion v_tmp = data.iMlast[succ].actInv(jdata.v());
 

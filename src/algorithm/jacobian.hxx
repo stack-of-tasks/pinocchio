@@ -189,7 +189,7 @@ namespace pinocchio
       data.iMf[parent] = data.liMi[i]*data.iMf[i];
       
       Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
-      jmodel.jointCols(J_) = data.iMf[i].inverse().act(jdata.S()); // TODO: overload actInv
+      jmodel.jointCols(J_) = data.iMf[i].actInv(jdata.S());
     }
   
   };
