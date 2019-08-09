@@ -6,6 +6,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/force-set.hpp"
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include "utils/macros.hpp"
 
@@ -68,6 +69,20 @@ BOOST_AUTO_TEST_CASE ( test_ConstraintRX )
                             , 1e-12));
 }
 
+template<typename JointModel>
+void test_jmodel_nq_against_nq_ref(const JointModelBase<JointModel> & jmodel,
+                                   const int & nq_ref)
+{
+  BOOST_CHECK(jmodel.nq() == nq_ref);
+}
+
+template<typename JointModel>
+void test_jmodel_nq_against_nq_ref(const JointModelMimic<JointModel> & jmodel,
+                                   const int & nq_ref)
+{
+  BOOST_CHECK(jmodel.jmodel().nq() == nq_ref);
+}
+
 template<typename JointModel, typename ConstraintDerived>
 void test_nv_against_jmodel(const JointModelBase<JointModel> & jmodel,
                             const ConstraintBase<ConstraintDerived> & constraint)
@@ -82,6 +97,33 @@ void test_nv_against_jmodel(const JointModelMimic<JointModel> & jmodel,
   BOOST_CHECK(constraint.nv() == jmodel.jmodel().nv());
 }
 
+template<class JointModel>
+struct buildModel
+{
+  static Model run(const JointModelBase<JointModel> & jmodel)
+  {
+    Model model;
+    model.addJoint(0,jmodel,SE3::Identity(),"joint");
+    
+    return model;
+  }
+};
+
+template<class JointModel>
+struct buildModel< JointModelMimic<JointModel> >
+{
+  typedef JointModelMimic<JointModel> JointModel_;
+  
+  static Model run(const JointModel_ & jmodel)
+  {
+    Model model;
+    model.addJoint(0,jmodel.jmodel(),SE3::Identity(),"joint");
+    model.addJoint(0,jmodel,SE3::Identity(),"joint_mimic");
+    
+    return model;
+  }
+};
+
 template<typename JointModel>
 void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 {
@@ -91,6 +133,20 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   typedef Eigen::Matrix<typename JointModel::Scalar,6,Eigen::Dynamic> Matrix6x;
   
   JointData jdata = jmodel.createData();
+  typedef typename JointModel::ConfigVector_t ConfigVector_t;
+  ConfigVector_t q(jmodel.nq());
+  
+  // We need to use a model here in order to call the randomConfiguration to init q.
+  Model model = buildModel<JointModel>::run(jmodel.derived());
+  
+  test_jmodel_nq_against_nq_ref(jmodel.derived(),model.nq);
+  
+  q = randomConfiguration(model,
+                          ConfigVector_t::Constant(model.nq,-1.),
+                          ConfigVector_t::Constant(model.nq, 1.));
+  
+  // By calling jmodel.calc, we then have jdata.S which is initialized with non NaN quantities
+  jmodel.calc(jdata,q);
 
   ConstraintType constraint(jdata.S);
   
@@ -326,13 +382,8 @@ struct TestJointConstraint
   {
     JointModel jmodel = init<JointModel>::run();
     jmodel.setIndexes(0,0,0);
-    
+
     test_constraint_operations(jmodel);
-  }
-  
-  void operator()(const JointModelComposite &) const
-  {
-    /* TODO: test JointModelComposite */
   }
   
 };
