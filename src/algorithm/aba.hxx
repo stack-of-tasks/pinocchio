@@ -135,10 +135,9 @@ namespace pinocchio
         
         typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
         
-        const SE3 Minv = M.inverse();
         typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());
-        typename SE3::ActionMatrixType action_matrix(Minv.toActionMatrix());
-        ReturnType intermediate_result(dual_action_matrix*I);
+        typename SE3::ActionMatrixType action_matrix(M.toActionMatrixInverse());
+        ReturnType intermediate_result = dual_action_matrix*I;
         ReturnType res = intermediate_result*action_matrix;
         return res;
       }

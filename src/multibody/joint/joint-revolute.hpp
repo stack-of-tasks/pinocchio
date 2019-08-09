@@ -361,15 +361,27 @@ namespace pinocchio
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     { return JointMotion(v[0]); }
-
+    
     template<typename S1, int O1>
     typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType
     se3Action(const SE3Tpl<S1,O1> & m) const
     {
       typedef typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
       ReturnType res;
-      res.template head<3>() = m.translation().cross(m.rotation().col(axis));
-      res.template tail<3>() = m.rotation().col(axis);
+      res.template segment<3>(LINEAR) = m.translation().cross(m.rotation().col(axis));
+      res.template segment<3>(ANGULAR) = m.rotation().col(axis);
+      return res;
+    }
+    
+    template<typename S1, int O1>
+    typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      typedef typename SE3GroupAction<ConstraintRevoluteTpl>::ReturnType ReturnType;
+      typedef typename Axis::CartesianAxis3 CartesianAxis3;
+      ReturnType res;
+      res.template segment<3>(LINEAR).noalias() = m.rotation().transpose()*CartesianAxis3::cross(m.translation());
+      res.template segment<3>(ANGULAR) = m.rotation().transpose().col(axis);
       return res;
     }
 

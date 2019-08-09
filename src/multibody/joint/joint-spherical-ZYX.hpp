@@ -121,10 +121,32 @@ namespace pinocchio
       //        return (X_subspace * S_minimal).eval();
       
       Eigen::Matrix<Scalar,6,3,Options> result;
+      
+      // ANGULAR
       result.template middleRows<3>(ANGULAR).noalias() = m.rotation () * S_minimal;
-      for(int k = 0; k < 3; ++k)
-        result.template middleRows<3>(LINEAR).col(k) =
-        m.translation().cross(result.template middleRows<3>(Motion::ANGULAR).col(k));
+      
+      // LINEAR
+      cross(m.translation(),
+            result.template middleRows<3>(Motion::ANGULAR),
+            result.template middleRows<3>(LINEAR));
+   
+      return result;
+    }
+    
+    template<typename S1, int O1>
+    Eigen::Matrix<Scalar,6,3,Options>
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      Eigen::Matrix<Scalar,6,3,Options> result;
+      
+      // LINEAR
+      cross(m.translation(),
+            S_minimal,
+            result.template middleRows<3>(ANGULAR));
+      result.template middleRows<3>(LINEAR).noalias() = -m.rotation().transpose() * result.template middleRows<3>(ANGULAR);
+      
+      // ANGULAR
+      result.template middleRows<3>(ANGULAR).noalias() = m.rotation().transpose() * S_minimal;
       
       return result;
     }

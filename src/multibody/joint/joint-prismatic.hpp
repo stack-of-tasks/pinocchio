@@ -305,6 +305,17 @@ namespace pinocchio
       v.angular().setZero();
       return res;
     }
+    
+    template<typename S2, int O2>
+    typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType
+    se3ActionInverse(const SE3Tpl<S2,O2> & m) const
+    {
+      typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType res;
+      MotionRef<DenseBase> v(res);
+      v.linear() = m.rotation().transpose().col(axis);
+      v.angular().setZero();
+      return res;
+    }
 
     int nv_impl() const { return NV; }
 

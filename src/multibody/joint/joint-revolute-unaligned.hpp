@@ -261,6 +261,18 @@ namespace pinocchio
       return res;
     }
     
+    template<typename S1, int O1>
+    typename SE3GroupAction<ConstraintRevoluteUnalignedTpl>::ReturnType
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      typedef typename SE3GroupAction<ConstraintRevoluteUnalignedTpl>::ReturnType ReturnType;
+      
+      ReturnType res;
+      res.template segment<3>(ANGULAR).noalias() = m.rotation().transpose() * axis;
+      res.template segment<3>(LINEAR).noalias() = -m.rotation().transpose() * m.translation().cross(axis);
+      return res;
+    }
+    
     int nv_impl() const { return NV; }
     
     struct TransposeConst

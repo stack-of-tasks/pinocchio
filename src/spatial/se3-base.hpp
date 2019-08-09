@@ -47,6 +47,11 @@ namespace pinocchio
     }
     operator ActionMatrixType() const { return toActionMatrix(); }
     
+    ActionMatrixType toActionMatrixInverse() const
+    {
+      return derived().toActionMatrixInverse_impl();
+    }
+    
     ActionMatrixType toDualActionMatrix() const
     { return derived().toDualActionMatrix_impl(); }
     

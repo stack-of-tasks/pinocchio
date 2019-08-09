@@ -70,6 +70,7 @@ namespace pinocchio
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
+    assert(joint_model.nq() >= joint_model.nv());
 
     assert(max_effort.size() == joint_model.nv()
            && max_velocity.size() == joint_model.nv()
@@ -89,30 +90,30 @@ namespace pinocchio
     nq += joint_model.nq();
     nv += joint_model.nv();
 
-    // Optimal efficiency here would be using the static-dim bottomRows, while specifying the dimension in argument in the case where D::NV is Eigen::Dynamic.
-    // However, this option is not compiling in Travis (why?).
-    // As efficiency of ModelTpl::addJoint is not critical, the dynamic bottomRows is used here.
-    effortLimit.conservativeResize(nv);
-    jmodel.jointVelocitySelector(effortLimit) = max_effort;
-    velocityLimit.conservativeResize(nv);
-    jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
-    lowerPositionLimit.conservativeResize(nq);
-    jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
-    upperPositionLimit.conservativeResize(nq);
-    jmodel.jointConfigSelector(upperPositionLimit) = max_config;
-    
-    /// TODO: remove this pragma when neutralConfiguration will be removed
+    if(joint_model.nq() > 0 && joint_model.nv() > 0)
+    {
+      effortLimit.conservativeResize(nv);
+      jmodel.jointVelocitySelector(effortLimit) = max_effort;
+      velocityLimit.conservativeResize(nv);
+      jmodel.jointVelocitySelector(velocityLimit) = max_velocity;
+      lowerPositionLimit.conservativeResize(nq);
+      jmodel.jointConfigSelector(lowerPositionLimit) = min_config;
+      upperPositionLimit.conservativeResize(nq);
+      jmodel.jointConfigSelector(upperPositionLimit) = max_config;
+      
+      /// TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    neutralConfiguration.conservativeResize(nq);
-    typedef NeutralStep<LieGroupMap,ConfigVectorType> NeutralVisitor;
-    NeutralStepAlgo<NeutralVisitor,JointModelDerived>::run(jmodel,neutralConfiguration);
+      neutralConfiguration.conservativeResize(nq);
+      typedef NeutralStep<LieGroupMap,ConfigVectorType> NeutralVisitor;
+      NeutralStepAlgo<NeutralVisitor,JointModelDerived>::run(jmodel,neutralConfiguration);
 #pragma GCC diagnostic pop
-
-    rotorInertia.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorInertia).setZero();
-    rotorGearRatio.conservativeResize(nv);
-    jmodel.jointVelocitySelector(rotorGearRatio).setZero();
+      
+      rotorInertia.conservativeResize(nv);
+      jmodel.jointVelocitySelector(rotorInertia).setZero();
+      rotorGearRatio.conservativeResize(nv);
+      jmodel.jointVelocitySelector(rotorGearRatio).setZero();
+    }
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
