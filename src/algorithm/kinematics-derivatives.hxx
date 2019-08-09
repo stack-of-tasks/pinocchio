@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_derivatives_hxx__
@@ -372,6 +372,27 @@ namespace pinocchio
     // Set Zero to temporary spatial variables
     data.ov[0].setZero();
     data.oa[0].setZero();
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
+  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex jointId,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
+                                              const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
+  {
+    getJointAccelerationDerivatives(model,data,
+                                    jointId,rf,
+                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
+                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_dv),
+                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
+    
+    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
   }
 
 } // namespace pinocchio
