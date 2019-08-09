@@ -318,8 +318,18 @@ namespace pinocchio
     Eigen::Matrix<S1,6,3,O1> se3Action(const SE3Tpl<S1,O1> & m) const
     {
       Eigen::Matrix<S1,6,3,O1> M;
-      M.template middleRows<3>(LINEAR) = m.rotation ();
-      M.template middleRows<3>(ANGULAR).setZero ();
+      M.template middleRows<3>(LINEAR) = m.rotation();
+      M.template middleRows<3>(ANGULAR).setZero();
+      
+      return M;
+    }
+    
+    template<typename S1, int O1>
+    Eigen::Matrix<S1,6,3,O1> se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      Eigen::Matrix<S1,6,3,O1> M;
+      M.template middleRows<3>(LINEAR) = m.rotation().transpose();
+      M.template middleRows<3>(ANGULAR).setZero();
       
       return M;
     }

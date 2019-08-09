@@ -266,12 +266,32 @@ namespace pinocchio
     DenseBase se3Action(const SE3Tpl<S1,O1> & m) const
     {
       DenseBase X_subspace;
+      
+      // LINEAR
       X_subspace.template block <3,2>(Motion::LINEAR, 0) = m.rotation ().template leftCols <2> ();
       X_subspace.template block <3,1>(Motion::LINEAR, 2) = m.translation().cross(m.rotation ().template rightCols<1>());
 
+      // ANGULAR
       X_subspace.template block <3,2>(Motion::ANGULAR, 0).setZero ();
       X_subspace.template block <3,1>(Motion::ANGULAR, 2) = m.rotation ().template rightCols<1>();
 
+      return X_subspace;
+    }
+    
+    template<typename S1, int O1>
+    DenseBase se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      DenseBase X_subspace;
+      
+      // LINEAR
+      X_subspace.template block <3,2>(Motion::LINEAR, 0) = m.rotation().transpose().template leftCols <2>();
+      X_subspace.template block <3,1>(Motion::ANGULAR,2) = m.rotation().transpose() * m.translation(); // tmp variable
+      X_subspace.template block <3,1>(Motion::LINEAR, 2) = -X_subspace.template block <3,1>(Motion::ANGULAR,2).cross(m.rotation().transpose().template rightCols<1>());
+      
+      // ANGULAR
+      X_subspace.template block <3,2>(Motion::ANGULAR, 0).setZero();
+      X_subspace.template block <3,1>(Motion::ANGULAR, 2) = m.rotation().transpose().template rightCols<1>();
+      
       return X_subspace;
     }
 

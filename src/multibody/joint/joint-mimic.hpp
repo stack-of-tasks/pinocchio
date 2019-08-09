@@ -100,6 +100,14 @@ namespace pinocchio
       return m_scaling_factor * res;
     }
     
+    template<typename S1, int O1>
+    SE3ActionReturnType
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      SE3ActionReturnType res = m_constraint.se3ActionInverse(m);
+      return m_scaling_factor * res;
+    }
+    
     int nv_impl() const { return m_constraint.nv(); }
     
     struct TransposeConst

@@ -244,9 +244,24 @@ namespace pinocchio
     Eigen::Matrix<S1,6,3,O1> se3Action(const SE3Tpl<S1,O1> & m) const
     {
       Eigen::Matrix<S1,6,3,O1> X_subspace;
-      cross(m.translation(),m.rotation(),X_subspace.template block<3,3>(LINEAR,0));
-      X_subspace.template block<3,3>(ANGULAR,0) = m.rotation();
+      cross(m.translation(),m.rotation(),X_subspace.template middleRows<3>(LINEAR));
+      X_subspace.template middleRows<3>(ANGULAR) = m.rotation();
 
+      return X_subspace;
+    }
+    
+    template<typename S1, int O1>
+    Eigen::Matrix<S1,6,3,O1> se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      Eigen::Matrix<S1,6,3,O1> X_subspace;
+      AxisX::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(0));
+      AxisY::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(1));
+      AxisZ::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(2));
+      
+      X_subspace.template middleRows<3>(LINEAR).noalias()
+      = m.rotation().transpose() * X_subspace.template middleRows<3>(ANGULAR);
+      X_subspace.template middleRows<3>(ANGULAR) = m.rotation().transpose();
+      
       return X_subspace;
     }
     

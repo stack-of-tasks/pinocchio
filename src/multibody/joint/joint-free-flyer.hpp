@@ -54,8 +54,19 @@ namespace pinocchio
     }
     
     template<typename S1, int O1>
-    typename SE3Tpl<S1,O1>::ActionMatrixType se3Action(const SE3Tpl<S1,O1> & m) const
-    { return m.toActionMatrix(); }
+    typename SE3Tpl<S1,O1>::ActionMatrixType
+    se3Action(const SE3Tpl<S1,O1> & m) const
+    {
+      return m.toActionMatrix();
+      
+    }
+    
+    template<typename S1, int O1>
+    typename SE3Tpl<S1,O1>::ActionMatrixType
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      return m.toActionMatrixInverse();
+    }
     
     int nv_impl() const { return NV; }
     

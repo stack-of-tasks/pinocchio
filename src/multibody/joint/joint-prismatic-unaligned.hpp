@@ -237,11 +237,24 @@ namespace pinocchio
     }
     
     template<typename S1, int O1>
-    DenseBase se3Action(const SE3Tpl<S1,O1> & m) const
+    typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType
+    se3Action(const SE3Tpl<S1,O1> & m) const
     {
-      DenseBase res;
-      res.template head<3>().noalias() = m.rotation()*axis;
-      res.template tail<3>().setZero();
+      typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
+      MotionRef<DenseBase> v(res);
+      v.linear().noalias() = m.rotation()*axis;
+      v.angular().setZero();
+      return res;
+    }
+    
+    template<typename S1, int O1>
+    typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType
+    se3ActionInverse(const SE3Tpl<S1,O1> & m) const
+    {
+      typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
+      MotionRef<DenseBase> v(res);
+      v.linear().noalias() = m.rotation().transpose()*axis;
+      v.angular().setZero();
       return res;
     }
     
