@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_derivatives_hpp__
@@ -47,8 +47,8 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
-  /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
-  /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
