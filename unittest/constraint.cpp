@@ -107,6 +107,7 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   
   BOOST_CHECK(m.isApprox(m_ref));
 
+  // Test SE3 action
   {
     SE3 M = SE3::Random();
     typename ConstraintType::DenseBase S = M.act(constraint);
@@ -122,7 +123,42 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
 
     BOOST_CHECK(S.isApprox(S_ref));
   }
-
+  
+  // Test SE3 action inverse
+  {
+    SE3 M = SE3::Random();
+    typename ConstraintType::DenseBase S = M.actInv(constraint);
+    typename ConstraintType::DenseBase S_ref(6,constraint.nv());
+    
+    for(Eigen::DenseIndex k = 0; k < constraint.nv(); ++k)
+    {
+      typedef typename ConstraintType::DenseBase::ColXpr Vector6Like;
+      MotionRef<Vector6Like> m_in(constraint_mat.col(k)), m_out(S_ref.col(k));
+      
+      m_out = M.actInv(m_in);
+    }
+    
+    BOOST_CHECK(S.isApprox(S_ref));
+  }
+  
+  // Test SE3 action and SE3 action inverse
+  {
+    const SE3 M = SE3::Random();
+    const SE3 Minv = M.inverse();
+    
+    typename ConstraintType::DenseBase S1_vice = M.actInv(constraint);
+    typename ConstraintType::DenseBase S2_vice = Minv.act(constraint);
+    
+    BOOST_CHECK(S1_vice.isApprox(S2_vice));
+    
+    typename ConstraintType::DenseBase S1_versa = M.act(constraint);
+    typename ConstraintType::DenseBase S2_versa = Minv.actInv(constraint);
+    
+    BOOST_CHECK(S1_versa.isApprox(S2_versa));
+    
+  }
+  
+  // Test Motion action
   {
     Motion v = Motion::Random();
     
