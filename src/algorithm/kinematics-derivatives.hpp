@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_derivatives_hpp__
@@ -47,8 +47,8 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
-  /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
-  /// \param[out] partial_dq Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -88,6 +88,40 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
                                               const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
                                               const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da);
+  
+  ///
+  /// \brief Computes the partial derivaties of the spatial acceleration of a given with respect to
+  ///        the joint configuration, velocity and acceleration.
+  ///        You must first call computForwardKinematicsDerivatives before calling this function.
+  ///        It is important to notice that a direct outcome (for free) of this algo is v_partial_dq and v_partial_dv which is equal to a_partial_da.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam Matrix6xOut1 Matrix6x containing the partial derivatives of the spatial velocity with respect to the joint configuration vector.
+  /// \tparam Matrix6xOut2 Matrix6x containing the partial derivatives of the spatial velocity with respect to the joint velocity vector.
+  /// \tparam Matrix6xOut2 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint configuration vector.
+  /// \tparam Matrix6xOut3 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint velocity vector.
+  /// \tparam Matrix6xOut4 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] jointId Index of the joint in model.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed.
+  /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
+  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex jointId,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
+                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
+                                              const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
  
 
