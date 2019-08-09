@@ -4,8 +4,8 @@ Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-green.svg)](https://opensource.org/licenses/BSD-2-Clause)
 [![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
 [![Coverage report](https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/downloads.svg)](https://anaconda.org/conda-forge/pinocchio)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/version.svg)](https://anaconda.org/conda-forge/pinocchio)
+[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pinocchio.svg)](https://anaconda.org/conda-forge/pinocchio)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/pinocchio.svg)](https://anaconda.org/conda-forge/pinocchio)
 [![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg)](https://conda.anaconda.org/conda-forge)
 
 
