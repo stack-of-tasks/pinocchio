@@ -43,7 +43,7 @@ template<typename JointModel_> struct init;
 template<typename JointModel_>
 struct init
 {
-  static JointModel_ run()
+  static JointModel_ run(const pinocchio::Model &/* model*/)
   {
     JointModel_ jmodel;
     return jmodel;
@@ -55,7 +55,7 @@ struct init<pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> >
 {
   typedef pinocchio::JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model &/* model*/)
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
@@ -69,7 +69,7 @@ struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
 {
   typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model &/* model*/)
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
@@ -83,7 +83,7 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
 {
   typedef pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model &/* model*/)
   {
     typedef typename JointModel::Vector3 Vector3;
     JointModel jmodel(Vector3::Random().normalized());
@@ -97,7 +97,7 @@ struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
 {
   typedef pinocchio::JointModelTpl<Scalar,Options,JointCollection> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model &/* model*/)
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
     JointModel jmodel((JointModelRX()));
@@ -111,7 +111,7 @@ struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
 {
   typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model &/* model*/)
   {
     typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,0> JointModelRX;
     typedef pinocchio::JointModelRevoluteTpl<Scalar,Options,1> JointModelRY;
@@ -130,11 +130,12 @@ struct init<pinocchio::JointModelMimic<JointModel_> >
 {
   typedef pinocchio::JointModelMimic<JointModel_> JointModel;
   
-  static JointModel run()
+  static JointModel run(const pinocchio::Model & model)
   {
-    JointModel_ jmodel_ref = init<JointModel_>::run();
+    const pinocchio::JointIndex joint_id = model.getJointId(JointModel_::classname());
+    std::cout << "joint_id: " << joint_id << std::endl;
     
-    JointModel jmodel(jmodel_ref,1.,0.);
+    JointModel jmodel(boost::get<JointModel_>(model.joints[joint_id]),1.,0.);
     
     return jmodel;
   }
@@ -147,7 +148,7 @@ struct AppendJointToModel
   template<typename JointModel>
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
   {
-    JointModel jmodel = init<JointModel>::run();
+    JointModel jmodel = init<JointModel>::run(model);
     model.addJoint(model.joints.size()-1,jmodel,
                    pinocchio::SE3::Random(),jmodel.classname());
   }
