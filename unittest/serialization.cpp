@@ -229,4 +229,45 @@ BOOST_AUTO_TEST_CASE(test_model_serialization)
   generic_test(model,TEST_SERIALIZATION_FOLDER"/Model","Model");
 }
 
+BOOST_AUTO_TEST_CASE(test_throw_extension)
+{
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  const std::string & fake_filename = "this_is_a_fake_filename";
+  
+  {
+    const std::string complete_filename = fake_filename + ".txt";
+    BOOST_REQUIRE_THROW(loadFromText(model,complete_filename),
+                        std::invalid_argument);
+  }
+  
+  saveToText(model,TEST_SERIALIZATION_FOLDER"/model.txt");
+  saveToXML(model,TEST_SERIALIZATION_FOLDER"/model.xml","model");
+  saveToBinary(model,TEST_SERIALIZATION_FOLDER"/model.bin");
+  
+  {
+    const std::string complete_filename = fake_filename + ".txte";
+  
+    BOOST_REQUIRE_THROW(loadFromText(model,complete_filename),
+                        std::invalid_argument);
+  }
+  
+  {
+    const std::string complete_filename = fake_filename + ".xmle";
+    BOOST_REQUIRE_THROW(loadFromXML(model,complete_filename,"model"),
+                        std::invalid_argument);
+  }
+  
+  {
+    const std::string complete_filename = fake_filename + ".bine";
+    BOOST_REQUIRE_THROW(loadFromBinary(model,complete_filename),
+                        std::invalid_argument);
+  }
+  
+  
+}
+
 BOOST_AUTO_TEST_SUITE_END()
