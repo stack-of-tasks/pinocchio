@@ -83,6 +83,9 @@ namespace pinocchio
     JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
     jmodel.setIndexes(idx,nq,nv);
     
+    assert(jmodel.idx_q() >= 0);
+    assert(jmodel.idx_v() >= 0);
+
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
     jointPlacements.push_back(joint_placement);
