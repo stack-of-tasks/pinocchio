@@ -6,7 +6,7 @@
 #define __pinocchio_container_boost_container_limits_hpp__
 
 #if defined(BOOST_MPL_LIST_HPP_INCLUDED) || defined(BOOST_MPL_VECTOR_HPP_INCLUDED)
-  # error "You should include pinocchio before boost (e.g. #include pinocchio/fwd.hpp)"
+  # error "You should include pinocchio before boost (e.g. #include <pinocchio/fwd.hpp>)"
 #endif
 
 #define PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE_DEFAULT 30
