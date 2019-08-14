@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2019 CNRS
 #
 
 from . import libpinocchio_pywrap as pin
@@ -224,7 +224,7 @@ class RobotWrapper(object):
 
     def getViewerNodeName(self, geometry_object, geometry_type):
         """For each geometry object, returns the corresponding name of the node in the display."""
-        return disp.getViewerNodeName(geometry_object, geometry_type)
+        return self.viz.getViewerNodeName(geometry_object, geometry_type)
 
     def initViewer(self, *args, **kwargs):
         """Init the viewer"""
