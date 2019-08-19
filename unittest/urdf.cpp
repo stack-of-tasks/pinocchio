@@ -9,6 +9,10 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#include <hpp/fcl/collision_object.h>
+#endif // PINOCCHIO_WITH_HPP_FCL
+
 #include <boost/test/unit_test.hpp>
 
 #include <urdf_parser/urdf_parser.h>
@@ -32,11 +36,31 @@ BOOST_AUTO_TEST_CASE ( build_model )
 BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, model);
 
-  BOOST_CHECK(model.nq == 29);
+  BOOST_CHECK_EQUAL(model.nq, 29);
+
+  // Check that parsing collision_checking works.
+  pinocchio::GeometryModel geomModel;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
+  BOOST_CHECK_EQUAL(geomModel.ngeoms, 2);
+#ifdef PINOCCHIO_WITH_HPP_FCL
+# if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
+      ( HPP_FCL_MINOR_VERSION>1 || ( HPP_FCL_MINOR_VERSION==1 && \
+                                     HPP_FCL_PATCH_VERSION>3))))
+#  define PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+#endif
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].fcl->getNodeType(), hpp::fcl::GEOM_CAPSULE);
+#ifdef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].fcl->getNodeType(), hpp::fcl::GEOM_CONVEX);
+#undef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+#else
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].fcl->getObjectType(), hpp::fcl::OT_BVH);
+#endif // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+#endif // PINOCCHIO_WITH_HPP_FCL
   
   pinocchio::Model model_ff;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_ff);

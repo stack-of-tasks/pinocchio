@@ -17,10 +17,16 @@
         <cylinder radius="1" length="1"/>
       </geometry>
     </collision>
+    <collision name="box">
+      <geometry>
+        <mesh filename="package://simple_humanoid_description/box.stl" />
+      </geometry>
+    </collision>
     <collision_checking>
       <!--- This tells to pinocchio to replace the cylinder called "test"
            by a capsule with the same radius and length -->
       <capsule name="test"/>
+      <convex name="box"/>
     </collision_checking>
   </link>
 
