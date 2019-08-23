@@ -233,7 +233,7 @@ namespace pinocchio
 
     Scalar t;
     Vector3 w(log3(R,t));
-    Jlog3(t,w,Jlog);
+    Jlog3(t,w,PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like2,Jlog));
   }
   
   ///

@@ -6,6 +6,7 @@
 #define __pinocchio_spatial_explog_quaternion_hpp__
 
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
@@ -188,7 +189,7 @@ namespace pinocchio
       
       Scalar t;
       Vector3 w(log3(quat,t));
-      pinocchio::Jlog3(t,w,Jlog);
+      pinocchio::Jlog3(t,w,PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog));
     }
   } // namespace quaternion
 }
