@@ -6,6 +6,7 @@
 #define __pinocchio_spatial_explog_quaternion_hpp__
 
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
