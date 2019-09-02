@@ -351,6 +351,4 @@ namespace pinocchio
     
 }
 
-#include "pinocchio/algorithm/contact-cholesky.hxx"
-
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_hpp__

@@ -5,6 +5,7 @@
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
 #define __pinocchio_algorithm_contact_cholesky_hxx__
 
+#include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
 #include <algorithm>
@@ -203,6 +204,7 @@ namespace pinocchio
       const Eigen::DenseIndex total_dim = size();
       const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
       
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       const typename Data::MatrixXs & M = data.M;
       
@@ -252,9 +254,10 @@ namespace pinocchio
           continue;
 
         Eigen::DenseIndex current_row = total_constraints_dim - 1;
+        
         for(size_t k = 0; k < num_ee; ++k)
         {
-          size_t ee_id = num_ee - k - 1; // start from the last end effector
+          const size_t ee_id = num_ee - k - 1; // start from the last end effector
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
           const RigidContactModel & cmodel = contact_models[ee_id];
