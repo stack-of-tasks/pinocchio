@@ -24,7 +24,7 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     // The following for loop starts by index 1 because the first frame is fixed
-    // and corresponds to the universe.s
+    // and corresponds to the universe.
     for(FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
