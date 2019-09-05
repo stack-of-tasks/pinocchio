@@ -368,6 +368,18 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   sol_mat_ref.noalias() = H.inverse() * mat_in;
   
   BOOST_CHECK(sol_mat.isApprox(sol_mat_ref));
+  
+  // Check matrix
+  MatrixXd mat1;
+  contact_chol_decomposition.matrix(mat1);
+  BOOST_CHECK(mat1.isApprox(H));
+  
+  MatrixXd mat2(constraint_dim+model.nv,constraint_dim+model.nv);
+  contact_chol_decomposition.matrix(mat2.middleCols(0,constraint_dim+model.nv));
+  BOOST_CHECK(mat2.isApprox(H));
+  
+  MatrixXd mat3 = contact_chol_decomposition.matrix();
+  BOOST_CHECK(mat3.isApprox(H));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
@@ -531,6 +543,18 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   sol_mat_ref.noalias() = H.inverse() * mat_in;
   
   BOOST_CHECK(sol_mat.isApprox(sol_mat_ref));
+  
+  // Check matrix
+  MatrixXd mat1;
+  contact_chol_decomposition.matrix(mat1);
+  BOOST_CHECK(mat1.isApprox(H));
+  
+  MatrixXd mat2(constraint_dim+model.nv,constraint_dim+model.nv);
+  contact_chol_decomposition.matrix(mat2.middleCols(0,constraint_dim+model.nv));
+  BOOST_CHECK(mat2.isApprox(H));
+  
+  MatrixXd mat3 = contact_chol_decomposition.matrix();
+  BOOST_CHECK(mat3.isApprox(H));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -430,6 +430,24 @@ namespace pinocchio
                                          PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
     }
     
+    template<typename Scalar, int Options>
+    typename ContactCholeskyDecompositionTpl<Scalar,Options>::Matrix
+    ContactCholeskyDecompositionTpl<Scalar,Options>::matrix() const
+    {
+      Matrix res(dim(),dim());
+      matrix(res);
+      return res;
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename MatrixType>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    matrix(const Eigen::MatrixBase<MatrixType> & res) const
+    {
+      MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
+      res_.noalias() = U * D.asDiagonal() * U.transpose();
+    }
+    
   } // namespace cholesky
 }
 
