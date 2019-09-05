@@ -2,11 +2,13 @@
 // Copyright (c) 2018 INRIA
 //
 
-#ifndef __pinocchio_dynamics_hpp__
-#define __pinocchio_dynamics_hpp__
+#ifndef __pinocchio_algorithm_dynamics_hpp__
+#define __pinocchio_algorithm_dynamics_hpp__
 
-#pragma message("The file pinocchio/algorithm/dynamics.hpp is now deprecated. Please use pinocchio/algorithm/contact-dynamics.hpp instead.")
+#include "pinocchio/macros.hpp"
 
 #include "pinocchio/algorithm/contact-dynamics.hpp"
+PINOCCHIO_PRAGMA_DEPRECATED_HEADER(pinocchio/algorithm/dynamics.hpp,pinocchio/algorithm/contact-dynamics.hpp)
 
-#endif // ifndef __pinocchio_dynamics_hpp__
+
+#endif // ifndef __pinocchio_algorithm_dynamics_hpp__
