@@ -37,7 +37,7 @@ namespace pinocchio
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::SE3 &
   updateFramePlacement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex & frame_id)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
