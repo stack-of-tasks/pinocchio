@@ -32,14 +32,14 @@ BOOST_AUTO_TEST_CASE(contact_info)
   SE3 M(SE3::Random());
   ContactInfo ci2(CONTACT_3D,0,M);
   BOOST_CHECK(ci2.type == CONTACT_3D);
-  BOOST_CHECK(ci2.parent == 0);
+  BOOST_CHECK(ci2.frame_id == 0);
   BOOST_CHECK(ci2.placement.isApprox(M));
   BOOST_CHECK(ci2.dim() == 3);
   
   // Check contructor with two arguments
   ContactInfo ci2prime(CONTACT_3D,0);
   BOOST_CHECK(ci2prime.type == CONTACT_3D);
-  BOOST_CHECK(ci2prime.parent == 0);
+  BOOST_CHECK(ci2prime.frame_id == 0);
   BOOST_CHECK(ci2prime.placement.isIdentity());
   BOOST_CHECK(ci2prime.dim() == 3);
   
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(contact_info)
   // Check complete constructor 6D
   ContactInfo ci4(CONTACT_6D,0,SE3::Identity());
   BOOST_CHECK(ci4.type == CONTACT_6D);
-  BOOST_CHECK(ci4.parent == 0);
+  BOOST_CHECK(ci4.frame_id == 0);
   BOOST_CHECK(ci4.placement.isIdentity());
   BOOST_CHECK(ci4.dim() == 6);
 }

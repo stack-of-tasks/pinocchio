@@ -53,7 +53,7 @@ namespace pinocchio
     ContactType type;
     
     /// \brief Index of the parent Frame in the model tree.
-    FrameIndex parent;
+    FrameIndex frame_id;
     
     /// \brief Relative placement with respect to the parent frame.
     SE3 placement;
@@ -61,22 +61,25 @@ namespace pinocchio
     /// \brief Default constructor.
     ContactInfoTpl()
     : type(CONTACT_UNDEFINED)
-    , parent(std::numeric_limits<FrameIndex>::max())
+    , frame_id(std::numeric_limits<FrameIndex>::max())
+    , reference_frame(WORLD)
     {}
     
     ///
     /// \brief Contructor with from a given type, parent and placement.
     ///
     /// \param[in] type Type of the contact.
-    /// \param[in] parent Index of the parent Frame in the model tree.
-    /// \param[in] placement Placement of the contact with respect to the parent Frame".
+    /// \param[in] frame_id Index of the parent Frame in the model tree.
+    /// \param[in] placement Placement of the contact with respect to the parent Frame.
+    /// \param[in] reference_frame Placement of the contact with respect to the parent Frame.
     ///
     template<typename S2, int O2>
     ContactInfoTpl(const ContactType type,
-                   const FrameIndex parent,
-                   const SE3Tpl<S2,O2> & placement)
+                   const FrameIndex frame_id,
+                   const SE3Tpl<S2,O2> & placement,
+                   const ReferenceFrame & reference_frame = WORLD)
     : type(type)
-    , parent(parent)
+    , frame_id(frame_id)
     , placement(placement)
     {}
     
@@ -84,12 +87,13 @@ namespace pinocchio
     /// \brief Contructor with from a given type, parent and placement.
     ///
     /// \param[in] type Type of the contact.
-    /// \param[in] parent Index of the parent Frame in the model tree.
+    /// \param[in] frame_id Index of the parent Frame in the model tree.
     ///
     ContactInfoTpl(const ContactType type,
-                   const FrameIndex parent)
+                   const FrameIndex frame_id,
+                   const ReferenceFrame & reference_frame = WORLD)
     : type(type)
-    , parent(parent)
+    , frame_id(frame_id)
     , placement(SE3::Identity())
     {}
     
@@ -105,8 +109,9 @@ namespace pinocchio
     {
       return
          type == other.type
-      && parent == other.parent
-      && placement == other.placement;
+      && frame_id == other.frame_id
+      && placement == other.placement
+      && reference_frame == other.reference_frame;
     }
     
     ///
