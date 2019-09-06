@@ -37,7 +37,7 @@ namespace pinocchio
               "Contructor with from a given type, parent and placement."))
         
         .add_property("type",&ContactInfo::type,"Type of the contact.")
-        .add_property("parent",&ContactInfo::parent,"Index of the parent Frame in the model tree.")
+        .add_property("frame_id",&ContactInfo::frame_id,"Index of the parent Frame in the model tree.")
         .add_property("placement",&ContactInfo::placement,"Placement of the contact with respect to the parent Frame.")
         
         .def("dim", &ContactInfo::dim)
