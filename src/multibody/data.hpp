@@ -16,6 +16,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
+#include "pinocchio/algorithm/contact-cholesky.hpp"
 
 #include "pinocchio/serialization/serializable.hpp"
 
