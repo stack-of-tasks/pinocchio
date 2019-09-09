@@ -7,9 +7,8 @@
 
 #include "pinocchio/spatial/classic-acceleration.hpp"
 
-#include "pinocchio/algorithm/compute-all-terms.hpp"
-#include "pinocchio/algorithm/cholesky.hpp"
-#include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/spatial/classic-acceleration.hpp"
+
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
@@ -112,7 +111,6 @@ namespace pinocchio
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {

@@ -321,6 +321,25 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
   }
   
+  data.M.triangularView<Eigen::StrictlyLower>() =
+  data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  Data data_ag(model);
+  ccrba(model,data_ag,q,v);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.M.isApprox(data_ref.M));
+  BOOST_CHECK(data.Ag.isApprox(data_ag.Ag));
+  BOOST_CHECK(data.nle.isApprox(data_ref.nle));
+  
+  for(Model::JointIndex k = 1; k < model.joints.size(); ++k)
+  {
+    BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
+    BOOST_CHECK(data.liMi[k].isApprox(data_ref.liMi[k]));
+    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
+  }
+  
   // Check that the decomposition is correct
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
   Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
