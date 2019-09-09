@@ -64,11 +64,19 @@ BOOST_AUTO_TEST_CASE(test_ccrba)
   Eigen::VectorXd q = randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd::Ones(model.nv);
   
-  crba(model,data_ref,q);
+  pinocchio::deprecated::crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
   data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
   
-  pinocchio::SE3 cMo (pinocchio::SE3::Matrix3::Identity(), -getComFromCrba(model, data_ref));
+  pinocchio::Data data_ref_other(model);
+  pinocchio::crba(model,data_ref_other,q);
+  data_ref_other.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref_other.M.transpose().triangularView<Eigen::StrictlyLower>();
+  BOOST_CHECK(data_ref_other.M.isApprox(data_ref.M));
+  
+  pinocchio::SE3 cMo(pinocchio::SE3::Matrix3::Identity(), -data_ref.Ycrb[0].lever());
+  BOOST_CHECK(data_ref.Ycrb[0].isApprox(data_ref_other.oYcrb[0]));
   
   ccrba(model, data, q, v);
   BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
@@ -124,11 +132,12 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
   const Eigen::VectorXd g = rnea(model,data_ref,q,0*v,0*a);
   rnea(model,data_ref,q,v,a);
   
-  crba(model,data_ref,q);
+  pinocchio::deprecated::crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   SE3 cMo(SE3::Identity());
-  cMo.translation() = -getComFromCrba(model, data_ref);
+  data_ref.Ycrb[0] = data_ref.liMi[1].act(data_ref.Ycrb[1]);
+  cMo.translation() = -data_ref.Ycrb[0].lever();
   
   SE3 oM1 (data_ref.liMi[1]);
   SE3 cM1 (cMo * oM1);
@@ -143,6 +152,7 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
   
   centerOfMass(model,data_ref,q,v,a);
+  BOOST_CHECK(data_ref.com[0].isApprox(data_ref.Ycrb[0].lever()));
   BOOST_CHECK(data_ref.vcom[0].isApprox(data.hg.linear()/data_ref.M(0,0)));
   BOOST_CHECK(data_ref.vcom[0].isApprox(data.vcom[0]));
   BOOST_CHECK(data_ref.acom[0].isApprox(hdot_ref.linear()/data_ref.M(0,0)));
@@ -163,8 +173,8 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
     q_plus = integrate(model,q,alpha*v);
     
     forwardKinematics(model,data_ref,q);
-    crba(model,data_ref,q);
-    crba(model,data_ref_plus,q_plus);
+    pinocchio::deprecated::crba(model,data_ref,q);
+    pinocchio::deprecated::crba(model,data_ref_plus,q_plus);
     forwardKinematics(model,data_ref_plus,q_plus);
     dccrba(model,data,q,v);
     
@@ -182,7 +192,7 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
     SE3 oMc_ref(SE3::Identity());
     oMc_ref.translation() = data_ref.com[0];
     const Data::Matrix6x Ag_ref = oMc_ref.toDualActionMatrix() * data_ref.Ag;
-    crba(model,data_ref,q);
+    pinocchio::deprecated::crba(model,data_ref,q);
     const Data::Matrix6x Ag_ref_from_M = data_ref.oMi[1].toDualActionMatrix() * data_ref.M.topRows<6>();
     
     const double alpha = 1e-8;
@@ -192,7 +202,7 @@ BOOST_AUTO_TEST_CASE(test_dccrb)
     SE3 oMc_ref_plus(SE3::Identity());
     oMc_ref_plus.translation() = data_ref.com[0];
     const Data::Matrix6x Ag_plus_ref = oMc_ref_plus.toDualActionMatrix() * data_ref.Ag;
-    crba(model,data_ref,q_plus);
+    pinocchio::deprecated::crba(model,data_ref,q_plus);
     const Data::Matrix6x Ag_plus_ref_from_M = data_ref.oMi[1].toDualActionMatrix() * data_ref.M.topRows<6>();
     const Data::Matrix6x dAg_ref = (Ag_plus_ref - Ag_ref)/alpha;
     const Data::Matrix6x dAg_ref_from_M = (Ag_plus_ref_from_M - Ag_ref_from_M)/alpha;
