@@ -77,7 +77,6 @@ namespace pinocchio
 
       // Update frame placement
       iMcontact = frame.placement * contact_info.placement;
-//      data.oMf[frame_id] = data.oMi[frame.parent] * frame.placement;
       oMcontact = oMi * iMcontact;
 
       classicAcceleration(data.v[joint_id],
@@ -147,7 +146,6 @@ namespace pinocchio
       current_row_id += contact_dim;
     }
     
-//    std::cout << "contact_vector_solution:\n" << contact_vector_solution.head(12).transpose() << std::endl;
     // Solve the system
     contact_chol.solveInPlace(contact_vector_solution);
     
