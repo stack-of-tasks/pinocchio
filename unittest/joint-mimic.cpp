@@ -254,4 +254,21 @@ BOOST_AUTO_TEST_CASE(test_transform_linear_revolute)
   BOOST_CHECK(q1 == ConfigVectorType(math::cos(offset),math::sin(offset)));
 }
 
+BOOST_AUTO_TEST_CASE(test_joint_generic_cast)
+{
+  JointModelRX jmodel_ref;
+  jmodel_ref.setIndexes(1,2,3);
+  
+  JointModelMimic<JointModelRX> jmodel(jmodel_ref,2.,1.);
+  jmodel.setIndexes(1,-1,-1);
+  
+  BOOST_CHECK(jmodel.id() == jmodel_ref.id());
+  BOOST_CHECK(jmodel.idx_q() == jmodel_ref.idx_q());
+  BOOST_CHECK(jmodel.idx_v() == jmodel_ref.idx_v());
+  
+  JointModel jmodel_generic(jmodel);
+  jmodel_generic.setIndexes(1,-2,-2);
+  
+  BOOST_CHECK(jmodel_generic.id() == jmodel_ref.id());
+}
 BOOST_AUTO_TEST_SUITE_END()
