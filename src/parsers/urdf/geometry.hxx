@@ -73,6 +73,24 @@ namespace pinocchio
           
           return false;
         }
+
+        bool isMeshConvex (const std::string & linkName,
+                           const std::string & geomName) const
+        {
+          LinkMap_t::const_iterator _link = links_.find(linkName);
+          assert (_link != links_.end());
+          const ptree& link = _link->second;
+          if (link.count ("collision_checking") == 0)
+            return false;
+          BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
+            if (cc.first == "convex") {
+              std::string name = cc.second.get<std::string>("<xmlattr>.name");
+              if (geomName == name) return true;
+            }
+          } // BOOST_FOREACH
+          
+          return false;
+        }
         
         // For standard URDF tags
         ::urdf::ModelInterfaceSharedPtr urdf_;
@@ -93,7 +111,13 @@ namespace pinocchio
         mesh->scale.z;
       }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL      
+#ifdef PINOCCHIO_WITH_HPP_FCL
+# if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
+      ( HPP_FCL_MINOR_VERSION>1 || ( HPP_FCL_MINOR_VERSION==1 && \
+                                     HPP_FCL_PATCH_VERSION>3))))
+#  define PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+# endif
+
       /**
        * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
        *             for it in specified package directories
@@ -138,7 +162,17 @@ namespace pinocchio
           retrieveMeshScale(urdf_mesh, meshScale);
           
           // Create FCL mesh by parsing Collada file.
+#ifdef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+          hpp::fcl::BVHModelPtr_t bvh = meshLoader->load (meshPath, scale);
+          bool convex = tree.isMeshConvex (linkName, geomName);
+          if (convex) {
+            bvh->buildConvexRepresentation (false);
+            geometry = bvh->convex;
+          } else
+            geometry = bvh;
+#else
           geometry = meshLoader->load (meshPath, scale);
+#endif
         }
 
         // Handle the case where collision geometry is a cylinder
@@ -475,4 +509,8 @@ namespace pinocchio
   } // namespace urdf
 } // namespace pinocchio
             
+#ifdef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+# undef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+#endif
+
 #endif // ifndef __pinocchio_multibody_parsers_urdf_geometry_hxx__
