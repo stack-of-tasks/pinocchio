@@ -134,7 +134,7 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
   
   JointData jdata = jmodel.createData();
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
-  ConfigVector_t q(jmodel.nq());
+  ConfigVector_t q;
   
   // We need to use a model here in order to call the randomConfiguration to init q.
   Model model = buildModel<JointModel>::run(jmodel.derived());
