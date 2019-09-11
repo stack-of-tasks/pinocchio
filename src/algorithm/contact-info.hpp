@@ -2,8 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
-#ifndef __pinocchio_contact_info_hpp__
-#define __pinocchio_contact_info_hpp__
+#ifndef __pinocchio_algorithm_contact_info_hpp__
+#define __pinocchio_algorithm_contact_info_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -146,4 +146,4 @@ namespace pinocchio
   typedef ContactInfoTpl<double,0> ContactInfo;
 }
 
-#endif // ifndef __pinocchio_contact_info_hpp__
+#endif // ifndef __pinocchio_algorithm_contact_info_hpp__

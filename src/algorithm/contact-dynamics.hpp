@@ -2,8 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
-#ifndef __pinocchio_contact_dynamics_hpp__
-#define __pinocchio_contact_dynamics_hpp__
+#ifndef __pinocchio_algorithm_contact_dynamics_hpp__
+#define __pinocchio_algorithm_contact_dynamics_hpp__
 
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
@@ -71,4 +71,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/contact-dynamics.hxx"
 
-#endif // ifndef __pinocchio_contact_dynamics_hpp__
+#endif // ifndef __pinocchio_algorithm_contact_dynamics_hpp__
