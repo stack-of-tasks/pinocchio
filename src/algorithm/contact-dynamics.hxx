@@ -7,8 +7,6 @@
 
 #include "pinocchio/spatial/classic-acceleration.hpp"
 
-#include "pinocchio/spatial/classic-acceleration.hpp"
-
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
