@@ -163,6 +163,35 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
 }
 
+BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data1(model), data2(model);
+  
+  const std::string RF = "rleg6_joint";
+  //  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact info
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos_6D;
+  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  contact_infos_6D.push_back(ci_RF);
+  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_infos_6D.push_back(ci_LF);
+  
+  initContactDynamics(model,data1,contact_infos_empty);
+  initContactDynamics(model,data1,contact_infos_6D);
+  
+  initContactDynamics(model,data2,contact_infos_6D);
+  initContactDynamics(model,data2,contact_infos_empty);
+}
+
 BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
 {
   using namespace Eigen;
