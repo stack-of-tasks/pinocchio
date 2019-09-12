@@ -82,10 +82,12 @@ namespace pinocchio
       }
      
       // Allocate and fill sparsity indexes
-      extented_parents_fromRow.resize(contact_infos.size(),BooleanVector::Constant(total_dim,false));
+      static const bool default_sparsity_value = false;
+      extented_parents_fromRow.resize(contact_infos.size(),BooleanVector::Constant(total_dim,default_sparsity_value));
       for(size_t ee_id = 0; ee_id < extented_parents_fromRow.size(); ++ee_id)
       {
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
+        indexes.resize(total_dim); indexes.fill(default_sparsity_value);
         const JointIndex joint_id = model.frames[contact_infos[ee_id].frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
         
