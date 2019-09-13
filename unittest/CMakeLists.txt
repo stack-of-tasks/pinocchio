@@ -133,6 +133,7 @@ ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 
 # Multiprecision arithmetic
