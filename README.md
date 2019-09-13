@@ -27,7 +27,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
    - cache friendly,
    - automatic code generation support.
 
-**Pinocchio** implements rigid body dynamics algorithms:
+**Pinocchio** is versatile, implementing basic and more advanced rigid body dynamics algorithms:
 
    - forward kinematics and its analytical derivatives,
    - forward/inverse dynamics and their analytical derivatives,
@@ -36,11 +36,11 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 **Pinocchio** is flexible:
 
    - header only,
-   - C++11 compliant.
+   - C++11/14/17/20 compliant.
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
-**Pinocchio** is supported on Mac Os X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+**Pinocchio** is supported on Mac OS X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Ongoing developments
 
