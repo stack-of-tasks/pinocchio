@@ -283,7 +283,6 @@ BOOST_AUTO_TEST_CASE(test_multiple_calls)
   
   BOOST_CHECK(data1.dFdq.isApprox(data2.dFdq));
   BOOST_CHECK(data1.dFdv.isApprox(data2.dFdv));
-  BOOST_CHECK(data1.dFda.isApprox(data2.dFda));
   
   BOOST_CHECK(data1.dtau_dq.isApprox(data2.dtau_dq));
   BOOST_CHECK(data1.dtau_dv.isApprox(data2.dtau_dv));
