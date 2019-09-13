@@ -60,7 +60,28 @@ namespace pinocchio
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
       
       ///
+      /// \brief Default constructor
+      ///
+      ContactCholeskyDecompositionTpl() {}
+      
+      ///
+      /// \brief Constructor from a model and a collection of ContactInfo objects.
+      ///
+      /// \param[in] model Model of the kinematic tree
+      /// \param[in] contact_infos Vector of ContactInfo objects containing the contact information
+      ///
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
+      ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model,
+                                      const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos)
+      {
+        allocate(model,contact_infos);
+      }
+      
+      ///
       /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U.
+      ///
+      /// \param[in] model Model of the kinematic tree
+      /// \param[in] contact_infos Vector of ContactInfo objects containing the contact information
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
