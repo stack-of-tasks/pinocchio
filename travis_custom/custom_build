@@ -15,6 +15,7 @@ fi
 export CMAKE_ADDITIONAL_OPTIONS="${CMAKE_ADDITIONAL_OPTIONS} -DDISABLE_DEPRECATED_MACRO_WARNING=\"ON\""
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/openrobots/lib"
+export MAKEFLAGS="-j2"
 
 # Setup environment variables.
 ./.travis/run ../.travis/build
