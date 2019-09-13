@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(frame_basic)
   }
   
   std::ostringstream os;
-  os << Frame() << std::endl;
+  os << Frame("toto",0,0,SE3::Random(),OP_FRAME) << std::endl;
   BOOST_CHECK(!os.str().empty());
 }
 
