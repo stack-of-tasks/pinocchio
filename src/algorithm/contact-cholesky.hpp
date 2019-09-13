@@ -111,6 +111,9 @@ namespace pinocchio
       template<typename MatrixLike>
       void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const;
       
+      template<typename MatrixLike>
+      Matrix solve(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
       ///@{
       /// \brief Vectorwize operations
       template<typename MatrixLike>

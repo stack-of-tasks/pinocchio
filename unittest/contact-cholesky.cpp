@@ -185,6 +185,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   MatrixXd sol_mat_ref(data.M.inverse()*mat_in);
   
   BOOST_CHECK(sol_mat.isApprox(sol_mat_ref));
+  
+  // solve
+  MatrixXd sol_copy_mat = contact_chol_decomposition.solve(mat_in);
+  BOOST_CHECK(sol_copy_mat.isApprox(sol_mat));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
@@ -369,6 +373,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   
   BOOST_CHECK(sol_mat.isApprox(sol_mat_ref));
   
+  // solve
+  MatrixXd sol_copy_mat = contact_chol_decomposition.solve(mat_in);
+  BOOST_CHECK(sol_copy_mat.isApprox(sol_mat));
+  
   // Check matrix
   MatrixXd mat1;
   contact_chol_decomposition.matrix(mat1);
@@ -543,6 +551,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   sol_mat_ref.noalias() = H.inverse() * mat_in;
   
   BOOST_CHECK(sol_mat.isApprox(sol_mat_ref));
+  
+  // solve
+  MatrixXd sol_copy_mat = contact_chol_decomposition.solve(mat_in);
+  BOOST_CHECK(sol_copy_mat.isApprox(sol_mat));
   
   // Check matrix
   MatrixXd mat1;
