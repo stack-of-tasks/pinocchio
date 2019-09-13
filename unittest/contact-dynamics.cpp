@@ -292,8 +292,10 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
   getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
+  J_LF.setZero();
   getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
