@@ -29,11 +29,13 @@ branches:
 
 jobs:
   include:
-    - dist: xenial
+    - dist: bionic
       env: BUILD_WITH_COLLISION_SUPPORT=OFF
     - dist: trusty 
       env: BUILD_WITH_COLLISION_SUPPORT=ON
     - dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
+    - dist: bionic
       env: BUILD_WITH_COLLISION_SUPPORT=ON
 
 allow_failures:
@@ -45,7 +47,7 @@ install:
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT}"
   - sudo free -m -t
-  - travis_wait 50 ./.travis/run ../travis_custom/custom_build
+  - travis_wait 60 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
 after_success:
   - ./.travis/run after_success
