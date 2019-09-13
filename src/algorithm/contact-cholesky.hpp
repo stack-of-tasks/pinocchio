@@ -108,6 +108,12 @@ namespace pinocchio
       /// \brief Size of the decomposition
       Eigen::DenseIndex dim() const { return D.size(); }
       
+      /// \brief Computes the total dimension of the constraints contained in the Cholesky factorization
+      Eigen::DenseIndex constraintDim() const
+      {
+        return dim() - nv;
+      }
+      
       template<typename MatrixLike>
       void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const;
       
