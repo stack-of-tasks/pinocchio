@@ -145,6 +145,100 @@ BOOST_AUTO_TEST_CASE ( test_classic_derivatives )
   
   BOOST_CHECK(da_da.middleRows<3>(Motion::LINEAR).isApprox(da_da_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
   
+  // LOCAL
+  
+  Data::Matrix6x
+  da_dq_local_fd(6,model.nv),
+  da_dv_local_fd(6,model.nv),
+  da_da_local_fd(6,model.nv);
+  
+  Data::Matrix6x
+  da_dq_local(6,model.nv),
+  da_dv_local(6,model.nv),
+  da_da_local(6,model.nv);
+  
+  Data::Matrix6x
+  v_partial_dq_local(Data::Matrix6x::Zero(6,model.nv)),
+  a_partial_dq_local(Data::Matrix6x::Zero(6,model.nv)),
+  a_partial_dv_local(Data::Matrix6x::Zero(6,model.nv)),
+  a_partial_da_local(Data::Matrix6x::Zero(6,model.nv));
+  const Data::Matrix6x & v_partial_dv_local = a_partial_da_local;
+  
+  getJointAccelerationDerivatives(model,data,RF_id,LOCAL,
+                                  v_partial_dq_local,
+                                  a_partial_dq_local,
+                                  a_partial_dv_local,
+                                  a_partial_da_local);
+  
+  // LOCAL: position
+  
+  da_dq_local.middleRows<3>(Motion::LINEAR)
+  = a_partial_dq_local.middleRows<3>(Motion::LINEAR)
+  - v_partial_dq_local.middleRows<3>(Motion::LINEAR).colwise().cross(v_local_RF.angular())
+  + v_partial_dq_local.middleRows<3>(Motion::ANGULAR).colwise().cross(v_local_RF.linear());
+  
+  const Motion::Vector3 acc_RF_local = classicAcceleration(v_local_RF,a_local_RF);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] = eps;
+    q_plus = integrate(model,q,v_eps);
+    forwardKinematics(model,data_fd,q_plus,v,a);
+    
+    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
+    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
+    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
+    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
+                                                                  a_local_RF_plus);
+    da_dq_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
+    
+    v_eps[k] = 0;
+  }
+  
+  BOOST_CHECK(da_dq_local.middleRows<3>(Motion::LINEAR).isApprox(da_dq_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
+  
+  // LOCAL: velocity
+  
+  da_dv_local.middleRows<3>(Motion::LINEAR)
+  = a_partial_dv_local.middleRows<3>(Motion::LINEAR)
+  - v_partial_dv_local.middleRows<3>(Motion::LINEAR).colwise().cross(v_local_RF.angular())
+  + v_partial_dv_local.middleRows<3>(Motion::ANGULAR).colwise().cross(v_local_RF.linear());
+  
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus = v;
+    v_plus[k] += eps;
+    forwardKinematics(model,data_fd,q,v_plus,a);
+    
+    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
+    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
+    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
+    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
+                                                                  a_local_RF_plus);
+    da_dv_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
+  }
+  
+  BOOST_CHECK(da_dv_local.middleRows<3>(Motion::LINEAR).isApprox(da_dv_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
+  
+  // LOCAL: acceleration
+  
+  da_da_local.middleRows<3>(Motion::LINEAR)
+  = a_partial_da_local.middleRows<3>(Motion::LINEAR);
+  
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    a_plus = a;
+    a_plus[k] += eps;
+    forwardKinematics(model,data_fd,q,v,a_plus);
+    
+    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
+    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
+    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
+    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
+                                                                  a_local_RF_plus);
+    da_da_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
+  }
+  
+  BOOST_CHECK(da_da_local.middleRows<3>(Motion::LINEAR).isApprox(da_da_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
