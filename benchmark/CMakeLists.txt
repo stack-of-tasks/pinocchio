@@ -79,3 +79,7 @@ ENDIF(URDFDOM_FOUND AND HPP_FCL_FOUND)
 # timings-jacobian
 #
 ADD_BENCH(timings-jacobian TRUE)
+
+# timings-contact-dynamics
+#
+ADD_BENCH(timings-contact-dynamics TRUE)
