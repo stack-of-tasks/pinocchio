@@ -20,7 +20,8 @@ namespace pinocchio
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
              const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos)
     {
-      typedef std::vector<ContactInfoTpl<S1,O1>,Allocator> ContactInfoVector;
+      typedef ContactInfoTpl<S1,O1> ContactInfo;
+      typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
       
       nv = model.nv;
       
@@ -80,6 +81,26 @@ namespace pinocchio
           nv_subtree_fromRow[idx_vj+num_total_constraints+row] = nv_subtree_fromRow[idx_vj+num_total_constraints]-row;
         }
       }
+      
+      // Fill nv_subtree_fromRow for constraints
+      Eigen::DenseIndex row_id = 0;
+      for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+          it != contact_infos.end();
+          ++it)
+      {
+        const ContactInfo & cinfo = *it;
+        const FrameIndex frame_id = cinfo.frame_id;
+        const JointIndex joint_id = model.frames[frame_id].parent;
+        const typename Model::JointModel & joint = model.joints[joint_id];
+        
+        const Eigen::DenseIndex nv = joint.idx_v() + joint.nv();
+        for(Eigen::DenseIndex k = 0; k < cinfo.dim(); ++k)
+        {
+          nv_subtree_fromRow[row_id] = nv + (num_total_constraints - row_id);
+          row_id++;
+        }
+      }
+      assert(row_id == num_total_constraints);
      
       // Allocate and fill sparsity indexes
       static const bool default_sparsity_value = false;
@@ -88,7 +109,9 @@ namespace pinocchio
       {
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
         indexes.resize(total_dim); indexes.fill(default_sparsity_value);
-        const JointIndex joint_id = model.frames[contact_infos[ee_id].frame_id].parent;
+        
+        const FrameIndex frame_id = contact_infos[ee_id].frame_id;
+        const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
         
         Eigen::DenseIndex current_id = joint.idx_v() + joint.nv() - 1 + num_total_constraints;
