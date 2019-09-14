@@ -274,6 +274,13 @@ namespace pinocchio
       template<typename MatrixType>
       void matrix(const Eigen::MatrixBase<MatrixType> & res) const;
       
+      /// \brief Returns the inverse matrix resulting from the decomposition
+      Matrix inverse() const;
+      
+      /// \brief Fill the input matrix with the inverse matrix resulting from the decomposition
+      template<typename MatrixType>
+      void inverse(const Eigen::MatrixBase<MatrixType> & res) const;
+      
       // data
       Vector D, Dinv;
       RowMatrix U;
