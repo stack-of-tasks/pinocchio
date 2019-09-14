@@ -13,6 +13,9 @@ namespace pinocchio
   
   namespace cholesky
   {
+    // Forward declaration of ContactCholeskyDecompositionTpl
+    template<typename Scalar, int Options> struct ContactCholeskyDecompositionTpl;
+    
     // Forward declaration of algo
     namespace details
     {
@@ -27,6 +30,11 @@ namespace pinocchio
       
       template<typename MatrixLike, int ColsAtCompileTime = MatrixLike::ColsAtCompileTime>
       struct UtivAlgo;
+      
+      template<typename Scalar, int Options, typename VectorLike>
+      VectorLike & inverseAlgo(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                               const Eigen::DenseIndex col,
+                               const Eigen::MatrixBase<VectorLike> & vec);
     }
     
     ///
@@ -55,6 +63,7 @@ namespace pinocchio
       
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix) RowMatrix;
       typedef ContactInfoTpl<Scalar,Options> ContactInfo;
       typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
@@ -142,9 +151,16 @@ namespace pinocchio
       template<typename MatrixType>
       void matrix(const Eigen::MatrixBase<MatrixType> & res) const;
       
+      /// \brief Returns the inverse matrix resulting from the decomposition
+      Matrix inverse() const;
+      
+      /// \brief Fill the input matrix with the inverse matrix resulting from the decomposition
+      template<typename MatrixType>
+      void inverse(const Eigen::MatrixBase<MatrixType> & res) const;
+      
       // data
       Vector D, Dinv;
-      Matrix U;
+      RowMatrix U;
       
       ///@{
       /// \brief Friend algorithms
@@ -159,6 +175,11 @@ namespace pinocchio
       
       template<typename MatrixLike, int ColsAtCompileTime>
       friend struct details::UtivAlgo;
+      
+      template<typename Scalar, int Options, typename VectorLike>
+      friend VectorLike & details::inverseAlgo(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                                               const Eigen::DenseIndex col,
+                                               const Eigen::MatrixBase<VectorLike> & vec);
       ///@}
     protected:
       

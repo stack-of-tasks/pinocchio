@@ -7,6 +7,8 @@
 
 #include "pinocchio/algorithm/check.hpp"
 
+#include <algorithm>
+
 namespace pinocchio
 {
   
@@ -545,6 +547,74 @@ namespace pinocchio
     {
       MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
       res_.noalias() = U * D.asDiagonal() * U.transpose();
+    }
+    
+    template<typename Scalar, int Options>
+    typename ContactCholeskyDecompositionTpl<Scalar,Options>::Matrix
+    ContactCholeskyDecompositionTpl<Scalar,Options>::inverse() const
+    {
+      Matrix res(dim(),dim());
+      inverse(res);
+      return res;
+    }
+    
+    namespace details
+    {
+  
+      template<typename Scalar, int Options, typename VectorLike>
+      EIGEN_DONT_INLINE
+      VectorLike & inverseAlgo(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
+                               const Eigen::DenseIndex col,
+                               const Eigen::MatrixBase<VectorLike> & vec)
+      {
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
+        
+        typedef ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+        
+        const Eigen::DenseIndex & chol_dim = chol.dim();
+//        const Eigen::DenseIndex & chol_constraint_dim = chol.constraintDim();
+        const Eigen::DenseIndex chol_constraint_dim = 0;
+        assert(col < chol_dim && col >= 0);
+        assert(vec.size() == chol_dim);
+        
+        const typename ContactCholeskyDecomposition::IndexVector & nvt = chol.nv_subtree_fromRow;
+        VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+        
+        const Eigen::DenseIndex last_col = std::min(col-1,chol_dim-2); // You can start from nv-2 (no child in nv-1)
+        vec_[col] = 1.;
+        vec_.tail(chol_dim - col - 1).setZero();
+
+        // TODO: exploit the sparsity pattern of the first rows of U
+        for(Eigen::DenseIndex k = last_col; k >= chol_constraint_dim; --k)
+        {
+          const Eigen::DenseIndex nvt_max = std::min(col,nvt[k]-1);
+          vec_[k] = -chol.U.row(k).segment(k+1,nvt_max).dot(vec_.segment(k+1,nvt_max));
+        }
+       
+        vec_.head(col+1).array() *= chol.Dinv.head(col+1).array();
+
+        for(Eigen::DenseIndex k = chol_constraint_dim; k < chol_dim-1; ++k) // You can stop one step before nv.
+        {
+          const Eigen::DenseIndex nvt_max = nvt[k]-1;
+          vec_.segment(k+1,nvt_max) -= chol.U.row(k).segment(k+1,nvt_max).transpose() * vec_[k];
+        }
+        
+        return vec_;
+      }
+    } // namespace details
+    
+    template<typename Scalar, int Options>
+    template<typename MatrixType>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    inverse(const Eigen::MatrixBase<MatrixType> & res) const
+    {
+      assert(res.rows() == dim());
+      assert(res.cols() == dim());
+      
+      MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
+      
+      for(Eigen::DenseIndex col_id = 0; col_id < dim(); ++col_id)
+        details::inverseAlgo(*this,col_id,res_.col(col_id));
     }
     
   } // namespace cholesky
