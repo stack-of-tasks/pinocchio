@@ -321,6 +321,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
   }
   
+  BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
+  
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
@@ -456,6 +458,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  
+  BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
