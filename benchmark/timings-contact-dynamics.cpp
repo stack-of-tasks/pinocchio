@@ -108,7 +108,7 @@ int main(int argc, const char ** argv)
   {
     aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
-  std::cout << "ABA= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA = \t\t"; timer.toc(std::cout,NBT);
   
   double total_time = 0;
   SMOOTH(NBT)
@@ -132,6 +132,19 @@ int main(int argc, const char ** argv)
   std::cout << "contactCholesky {} = \t\t" << (total_time/NBT)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
+  total_time = 0;
+  MatrixXd H_inverse(contact_chol_empty.dim(),contact_chol_empty.dim());
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+    contact_chol_empty.compute(model,data,contact_infos_empty);
+    timer.tic();
+    contact_chol_empty.inverse(H_inverse);
+    total_time += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "contactCholeskyInverse {} = \t\t" << (total_time/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  
   initContactDynamics(model,data,contact_infos_empty);
   timer.tic();
   SMOOTH(NBT)
@@ -149,6 +162,46 @@ int main(int argc, const char ** argv)
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactCholesky {6D} = \t\t" << (total_time/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  
+  total_time = 0;
+  H_inverse.resize(contact_chol_6D.dim(),contact_chol_6D.dim());
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+    contact_chol_6D.compute(model,data,contact_infos_6D);
+    timer.tic();
+    contact_chol_6D.inverse(H_inverse);
+    total_time += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "contactCholeskyInverse {6D} = \t\t" << (total_time/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  
+  MatrixXd J(contact_chol_6D.constraintDim(),model.nv);
+  J.setZero();
+  MatrixXd MJtJ_inv(model.nv+contact_chol_6D.constraintDim(),
+                    model.nv+contact_chol_6D.constraintDim());
+  MJtJ_inv.setZero();
+  
+  VectorXd gamma(contact_chol_6D.constraintDim());
+  gamma.setZero();
+  
+  total_time = 0;
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+    timer.tic();
+    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
+    total_time += timer.toc(timer.DEFAULT_UNIT);
+    
+    forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
+    
+    timer.tic();
+    cholesky::decompose(model,data);
+    getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
+    total_time += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "KKTContactDynamicMatrixInverse {6D} = \t\t" << (total_time/NBT)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
   initContactDynamics(model,data,contact_infos_6D);
@@ -170,10 +223,27 @@ int main(int argc, const char ** argv)
   std::cout << "contactCholesky {6D,6D} = \t\t" << (total_time/NBT)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
-  MatrixXd J(12,model.nv); J.setZero();
-  MatrixXd MJtJ_inv(model.nv+12,model.nv+12); MJtJ_inv.setZero();
+  total_time = 0;
+  H_inverse.resize(contact_chol_6D6D.dim(),contact_chol_6D6D.dim());
+  SMOOTH(NBT)
+  {
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+    contact_chol_6D6D.compute(model,data,contact_infos_6D6D);
+    timer.tic();
+    contact_chol_6D6D.inverse(H_inverse);
+    total_time += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "contactCholeskyInverse {6D,6D} = \t\t" << (total_time/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
-  VectorXd gamma(12); gamma.setZero();
+  J.resize(contact_chol_6D6D.constraintDim(),model.nv);
+  J.setZero();
+  MJtJ_inv.resize(model.nv+contact_chol_6D6D.constraintDim(),
+                  model.nv+contact_chol_6D6D.constraintDim());
+  MJtJ_inv.setZero();
+  
+  gamma.resize(contact_chol_6D6D.constraintDim());
+  gamma.setZero();
   
   total_time = 0;
   SMOOTH(NBT)
