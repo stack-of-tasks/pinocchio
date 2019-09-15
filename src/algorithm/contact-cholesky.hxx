@@ -128,6 +128,50 @@ namespace pinocchio
         indexes[current_id] = true;
       }
       
+      // Fill the sparsity pattern for each Row of the Cholesky decomposition (matrix U)
+      static const Slice default_slice_value(1,1);
+      static const SliceVector default_slice_vector(1,default_slice_value);
+
+      rowise_sparsity_pattern.clear();
+      rowise_sparsity_pattern.resize((size_t)num_total_constraints,default_slice_vector);
+      row_id = 0; size_t ee_id = 0;
+      for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+          it != contact_infos.end();
+          ++it, ++ee_id)
+      {
+        const ContactInfo & cinfo = *it;
+        const BooleanVector & indexes = extented_parents_fromRow[ee_id];
+        const Eigen::DenseIndex contact_dim = cinfo.dim();
+
+        for(Eigen::DenseIndex k = 0; k < contact_dim; ++k)
+        {
+          SliceVector & slice_vector = rowise_sparsity_pattern[(size_t)row_id];
+          slice_vector.clear();
+          slice_vector.push_back(Slice(row_id,num_total_constraints-row_id));
+          
+          bool previous_index_was_true = true;
+          for(Eigen::DenseIndex indexes_id = num_total_constraints;
+              indexes_id < total_dim;
+              ++indexes_id)
+          {
+            if(indexes[indexes_id])
+            {
+              if(previous_index_was_true) // no discontinuity
+                slice_vector.back().size++;
+              else // discontinuity; need to create a new slice
+              {
+                const Slice new_slice(indexes_id,1);
+                slice_vector.push_back(new_slice);
+              }
+            }
+
+            previous_index_was_true = indexes[indexes_id];
+          }
+
+          row_id++;
+        }
+      }
+      
       // Allocate memory
       D.resize(total_dim); Dinv.resize(total_dim);
       U.resize(total_dim,total_dim);
@@ -575,6 +619,9 @@ namespace pinocchio
         EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
         
         typedef ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+        typedef typename ContactCholeskyDecomposition::SliceVector SliceVector;
+        typedef typename ContactCholeskyDecomposition::Slice Slice;
+        typedef typename ContactCholeskyDecomposition::RowMatrix RowMatrix;
         
         const Eigen::DenseIndex & chol_dim = chol.dim();
 //        const Eigen::DenseIndex & chol_constraint_dim = chol.constraintDim();
