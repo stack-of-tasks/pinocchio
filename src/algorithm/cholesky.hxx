@@ -446,13 +446,13 @@ namespace pinocchio
     
     namespace internal
     {
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
-      Mat & Miunit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const int col,
-                   const Eigen::MatrixBase<Mat> & v)
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLike>
+      VectorLike & Miunit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const int col,
+                          const Eigen::MatrixBase<VectorLike> & v)
       {
-        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
         
         PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
@@ -463,14 +463,14 @@ namespace pinocchio
         
         const typename Data::MatrixXs & U = data.U;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
-        Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
+        VectorLike & v_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,v);
         
         const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
         v_.tail(model.nv - col - 1).setZero();
         v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
-          int nvt_max = std::min(col,nvt[(size_t)k]-1);
+          const int nvt_max = std::min(col,nvt[(size_t)k]-1);
           v_[k] = -U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
@@ -478,7 +478,7 @@ namespace pinocchio
         
         for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
         {
-          int nvt_max = nvt[(size_t)k]-1;
+          const int nvt_max = nvt[(size_t)k]-1;
           v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
         }
         
