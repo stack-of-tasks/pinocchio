@@ -36,6 +36,8 @@ namespace pinocchio
         num_total_constraints += it->dim();
       }
       
+      oMc.resize(contact_infos.size());
+      
       const Eigen::DenseIndex total_dim = nv + num_total_constraints;
       
       // Compute first parents_fromRow for all the joints.
@@ -112,7 +114,8 @@ namespace pinocchio
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
         indexes.resize(total_dim); indexes.fill(default_sparsity_value);
         
-        const FrameIndex frame_id = contact_infos[ee_id].frame_id;
+        const ContactInfo & cinfo = contact_infos[ee_id];
+        const FrameIndex frame_id = cinfo.frame_id;
         const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
         
@@ -154,15 +157,17 @@ namespace pinocchio
       // Update frame placements if needed
       for(size_t f = 0; f < num_ee; ++f)
       {
-        if(contact_infos[f].reference_frame == WORLD) continue; // skip useless computations
+        const ContactInfo & cinfo = contact_infos[f];
+        if(cinfo.reference_frame == WORLD) continue; // skip useless computations
         
-        const typename Model::FrameIndex & parent_frame_id = contact_infos[f].frame_id;
-        const typename Model::Frame & frame = model.frames[parent_frame_id];
-        typename Data::SE3 & oMf = data.oMf[parent_frame_id];
+        const typename Model::FrameIndex & frame_id = cinfo.frame_id;
+        const typename Model::Frame & frame = model.frames[frame_id];
+        typename Data::SE3 & oMf = data.oMf[frame_id];
         
-        const typename Model::JointIndex & parent_joint_id = model.frames[parent_frame_id].parent;
+        const typename Model::JointIndex & joint_id = model.frames[frame_id].parent;
         
-        oMf = data.oMi[parent_joint_id] * frame.placement;
+        oMf = data.oMi[joint_id] * frame.placement;
+        oMc[f] = oMf * cinfo.placement;
       }
       
       // Core
@@ -240,8 +245,7 @@ namespace pinocchio
                 ColXpr Jcol = data.J.col(j);
                 MotionRef<ColXpr> Jcol_motion(Jcol);
                 
-                const typename Data::SE3 & oMf = data.oMf[cinfo.frame_id];
-                Motion Jcol_local(oMf.actInv(Jcol_motion));
+                Motion Jcol_local(oMc[ee_id].actInv(Jcol_motion));
                 
                 switch(cinfo.type)
                 {
@@ -256,9 +260,10 @@ namespace pinocchio
                 ColXpr Jcol = data.J.col(j);
                 MotionRef<ColXpr> Jcol_motion(Jcol);
                 
-                const typename Data::SE3 & oMf = data.oMf[cinfo.frame_id];
+                // Contact frame placement wrt world
                 Motion Jcol_local_world_aligned(Jcol_motion);
-                Jcol_local_world_aligned.linear() -= oMf.translation().cross(Jcol_local_world_aligned.angular());
+                Jcol_local_world_aligned.linear()
+                -= oMc[ee_id].translation().cross(Jcol_local_world_aligned.angular());
                 
                 switch(cinfo.type)
                 {

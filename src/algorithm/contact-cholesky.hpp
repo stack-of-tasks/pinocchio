@@ -194,6 +194,10 @@ namespace pinocchio
       /// \brief Dimension of the tangent of the configuration space of the model
       Eigen::DenseIndex nv;
       
+    private:
+      typedef SE3Tpl<Scalar,Options> SE3;
+      typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SE3) oMc;
+      
     };
     
     typedef ContactCholeskyDecompositionTpl<double,0> ContactCholeskyDecomposition;
