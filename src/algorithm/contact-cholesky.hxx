@@ -637,7 +637,7 @@ namespace pinocchio
         // TODO: exploit the sparsity pattern of the first rows of U
         for(Eigen::DenseIndex k = last_col; k >= 0; --k)
         {
-          const Eigen::DenseIndex nvt_max = std::min(col,nvt[k]-1);
+          const Eigen::DenseIndex nvt_max = std::min(col-k,nvt[k]-1);
           const typename RowMatrix::ConstRowXpr U_row = chol.U.row(k);
           vec_[k] = -U_row.segment(k+1,nvt_max).dot(vec_.segment(k+1,nvt_max));
 //          if(k >= chol_constraint_dim)
