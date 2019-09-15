@@ -624,8 +624,6 @@ namespace pinocchio
         typedef typename ContactCholeskyDecomposition::RowMatrix RowMatrix;
         
         const Eigen::DenseIndex & chol_dim = chol.dim();
-//        const Eigen::DenseIndex & chol_constraint_dim = chol.constraintDim();
-        const Eigen::DenseIndex chol_constraint_dim = 0;
         assert(col < chol_dim && col >= 0);
         assert(vec.size() == chol_dim);
         
@@ -637,15 +635,42 @@ namespace pinocchio
         vec_.tail(chol_dim - col - 1).setZero();
 
         // TODO: exploit the sparsity pattern of the first rows of U
-        for(Eigen::DenseIndex k = last_col; k >= chol_constraint_dim; --k)
+        for(Eigen::DenseIndex k = last_col; k >= 0; --k)
         {
           const Eigen::DenseIndex nvt_max = std::min(col,nvt[k]-1);
-          vec_[k] = -chol.U.row(k).segment(k+1,nvt_max).dot(vec_.segment(k+1,nvt_max));
+          const typename RowMatrix::ConstRowXpr U_row = chol.U.row(k);
+          vec_[k] = -U_row.segment(k+1,nvt_max).dot(vec_.segment(k+1,nvt_max));
+//          if(k >= chol_constraint_dim)
+//          {
+//            vec_[k] = -U_row.segment(k+1,nvt_max).dot(vec_.segment(k+1,nvt_max));
+//          }
+//          else
+//          {
+//            const SliceVector & slice_vector = chol.rowise_sparsity_pattern[(size_t)k];
+//
+//            const Slice & slice_0 = slice_vector[0];
+//            assert(slice_0.first_index == k);
+//            Eigen::DenseIndex last_index1 = slice_0.first_index + slice_0.size;
+//            const Eigen::DenseIndex last_index2 = k + nvt_max;
+//            Eigen::DenseIndex slice_dim = std::min(last_index1,last_index2) - k;
+//            vec_[k] = -U_row.segment(slice_0.first_index+1,slice_dim-1).dot(vec_.segment(slice_0.first_index+1,slice_dim-1));
+//
+//            typename SliceVector::const_iterator slice_it = slice_vector.begin()++;
+//            for(;slice_it != slice_vector.end(); ++slice_it)
+//            {
+//              const Slice & slice = *slice_it;
+//              last_index1 = slice.first_index + slice.size;
+//              slice_dim = std::min(last_index1,last_index2+1) - slice.first_index;
+//              if(slice_dim <= 0) break;
+//
+//              vec_[k] -= U_row.segment(slice.first_index,slice_dim).dot(vec_.segment(slice.first_index,slice_dim));
+//            }
+//          }
         }
-       
+
         vec_.head(col+1).array() *= chol.Dinv.head(col+1).array();
 
-        for(Eigen::DenseIndex k = chol_constraint_dim; k < chol_dim-1; ++k) // You can stop one step before nv.
+        for(Eigen::DenseIndex k = 0; k < chol_dim-1; ++k) // You can stop one step before nv.
         {
           const Eigen::DenseIndex nvt_max = nvt[k]-1;
           vec_.segment(k+1,nvt_max) -= chol.U.row(k).segment(k+1,nvt_max).transpose() * vec_[k];
