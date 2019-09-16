@@ -66,8 +66,8 @@ A bunch of useful functions are packaged in the utils of pinocchio.
 from pinocchio.utils import *
 eye(6)                      # Return a 6x6 identity matrix
 zero(6)                     # Return a zero 6x1 vector
-zero([6, 4])                # Return az zero 6x4
-matrix rand(6)              # Random 6x1 vector
+zero([6, 4])                # Return az zero 6x4 matrix
+rand(6)                     # Random 6x1 vector
 isapprox(zero(6), rand(6))  # Test epsilon equality
 mprint(rand([6, 6]))        # Matlab-style print
 skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
@@ -80,10 +80,10 @@ Specific classes are defined to represent objects of \f$SE(3)\f$, \f$se(3)\f$ an
 the class `SE3`.
 
 ```py
-import pinocchio as se3
+import pinocchio as pin
 R = eye(3); p = zero(3)
-M0 = se3.SE3(R, p)
-M = se3.SE3.Random()
+M0 = pin.SE3(R, p)
+M = pin.SE3.Random()
 M.translation = p; M.rotation = R
 ```
 
@@ -92,8 +92,8 @@ class `Motion`.
 
 ```py
 v = zero(3); w = zero(3)
-nu0 = se3.Motion(v, w)
-nu = se3.Motion.Random()
+nu0 = pin.Motion(v, w)
+nu = pin.Motion.Random()
 nu.linear = v; nu.angular = w
 ```
 
@@ -102,8 +102,8 @@ class `Force`.
 
 ```py
 f = zero(3); tau = zero(3)
-phi0 = se3.Force(f, tau)
-phi = se3.Force.Random()
+phi0 = pin.Force(f, tau)
+phi = pin.Force.Random()
 phi.linear = f; phi.angular = tau
 ```
 
@@ -127,11 +127,9 @@ of pinocchio (available in the homedir of the VBox).
 
 ```py
 from pinocchio.robot_wrapper import RobotWrapper
-from os.path import join
 
-PKG = '/opt/openrobots/share'
-URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
-robot = RobotWrapper(URDF, [PKG])
+URDF = '/opt/openrobots/share/ur5_description/urdf/ur5_gripper.urdf'
+robot = RobotWrapper.BuildFromURDF(URDF)
 ```
 
 The code of the RobotWrapper class is in
@@ -160,7 +158,7 @@ and are available in the correponding class dictionnary.
 
 ```py
 for name, function in robot.model.__class__.__dict__.items():
-    print(" \*\*\*\* ", name, ": ", function.__doc__)
+    print(' **** %s: %s' % (name, function.__doc__))
 ```
 
 Similarly, the robot data are available in `robot.data`. All the variables
@@ -183,7 +181,7 @@ idx = robot.index('wrist_3_joint')
 
 # Compute and get the placement of joint number idx
 
-placement = robot.position(q, idx)
+placement = robot.placement(q, idx)
 # Be carreful, Python always returns references to values.
 # You can often .copy() the object to avoid side effects
 # Only get the placement
@@ -202,7 +200,7 @@ to functions in some python shortcuts, also available in RomeoWrapper:
 q = zero(robot.nq)
 v = rand(robot.nv)
 robot.com(q)  # Compute the robot center of mass.
-robot.position(q, 3)  # Compute the placement of joint 3
+robot.placement(q, 3)  # Compute the placement of joint 3
 ```
 
 ### Display the robot
@@ -223,7 +221,7 @@ In a python terminal you can now load the visual model of the robot in
 the viewer:
 
 ```py
-robot.initDisplay(loadModel=True)
+robot.initViewer(loadModel=True)
 ```
 
 This will flush the robot model inside the GUI. The argument
@@ -240,7 +238,7 @@ You can access the visual object composing the robot model by
 ```py
 visualObj = robot.visual_model.geometryObjects[4]  # 3D object representing the robot forarm
 visualName = visualObj.name                        # Name associated to this object
-visualRef = robot.getViewerNodeNames(visualObj)    # Viewer reference (string) representing this object
+visualRef = robot.getViewerNodeName(visualObj, pin.GeometryType.VISUAL)    # Viewer reference (string) representing this object
 ```
 
 Moving one object
@@ -283,7 +281,7 @@ Then decide by any mean you want a configuration of the robot so that
 the end effector is touching the sphere.
 
 At the reference position you built, the end effector placement can be
-obtained by `robot.position(q, 6)`. Only the translation part of the
+obtained by `robot.placement(q, 6)`. Only the translation part of the
 placement has been selected. The rotation is free.
 
 *Optional* Say now that the object is a rectangle and not a sphere.
