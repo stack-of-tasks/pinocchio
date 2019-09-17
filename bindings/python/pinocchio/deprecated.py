@@ -224,9 +224,16 @@ def impulseDynamics(model, data, q = None, *args):
         return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
       else:
         return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
+    else:
+      r_coeff = args[2]
+      inv_damping = args[3]
+      return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
   else:
-    r_coeff = args[2]
-    inv_damping = args[3]
+    r_coeff = 0.
+    inv_damping = 0.
+    if args:
+      if len(args) >= 3:
+        r_coeff = args[2]
     return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
     
 impulseDynamics.__doc__ =  (

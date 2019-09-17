@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE (test_KKTMatrix)
   //Check Impulse Dynamics
   const double r_coeff = 1.;
   VectorXd v_before = VectorXd::Ones(model.nv);
-  pinocchio::impulseDynamics(model, data, q, v_before, J, 0., r_coeff);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   MJtJ << data.M, J.transpose(),
     J, Eigen::MatrixXd::Zero(12, 12);
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Eigen::MatrixXd H(J.transpose());
   
-  pinocchio::impulseDynamics(model, data, q, v_before, J, 0., r_coeff);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
