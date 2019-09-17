@@ -24,21 +24,27 @@ namespace pinocchio
     }
     
     BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics_proxy, 7, 9)
-
-    // TODO: overloading impulseDynamics directly, as done for forwardDynamics, was apparently not working (it crashed for 5 arguments)
-    // Therefore, it was necessary to resort to a proxy
+    
     static const Eigen::VectorXd impulseDynamics_proxy(const Model & model,
                                                        Data & data,
                                                        const Eigen::VectorXd & q,
                                                        const Eigen::VectorXd & v_before,
                                                        const Eigen::MatrixXd & J,
-                                                       const double r_coeff = 0.0,
-                                                       const bool updateKinematics = true)
+                                                       const double r_coeff,
+                                                       const double inv_damping)
     {
-      return impulseDynamics(model, data, q, v_before, J, r_coeff, updateKinematics);
+      return impulseDynamics(model, data, q, v_before, J, r_coeff, inv_damping);
     }
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
+    
+    static const Eigen::VectorXd impulseDynamics_proxy_no_q(const Model & model,
+                                                            Data & data,
+                                                            const Eigen::VectorXd & v_before,
+                                                            const Eigen::MatrixXd & J,
+                                                            const double r_coeff,
+                                                            const double inv_damping)
+    {
+      return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
+    }
 
     static const Eigen::MatrixXd getKKTContactDynamicMatrixInverse_proxy(const Model & model,
                                                                          Data & data,
@@ -70,15 +76,25 @@ namespace pinocchio
 
       bp::def("impulseDynamics",
               &impulseDynamics_proxy,
-              impulseDynamics_overloads(
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
-                       "Update kinematics (if true, it updates only the joint space inertia matrix)"),
-              "Solve the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
-              ));
+                       "Damping factor when J is rank deficient."
+                       ),
+              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              );
+      
+      bp::def("impulseDynamics",
+              &impulseDynamics_proxy_no_q,
+              bp::args("Model","Data",
+                       "Joint velocity before impact v_before (size Model::nv)",
+                       "Contact Jacobian J (size nb_constraint * Model::nv)",
+                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
+                       "Damping factor when J is rank deficient."),
+              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              );
       
       bp::def("getKKTContactDynamicMatrixInverse",getKKTContactDynamicMatrixInverse_proxy,
               bp::args("Model","Data",

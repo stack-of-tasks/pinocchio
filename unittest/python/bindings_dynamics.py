@@ -61,23 +61,26 @@ class TestDynamicsBindings(TestCase):
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics6(self):
-        vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,inv_damping)
+        vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,r_coeff)
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics7(self):
-        vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,inv_damping,update_kinematics)
+        vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,r_coeff,inv_damping)
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
     def test_impulseDynamics567(self):
         data5 = self.data
         data6 = self.model.createData()
         data7 = self.model.createData()
+        data8 = self.model.createData()
         vnext5 = pin.impulseDynamics(self.model,data5,self.q,self.v,self.J)
-        vnext6 = pin.impulseDynamics(self.model,data6,self.q,self.v,self.J,inv_damping)
-        vnext7 = pin.impulseDynamics(self.model,data7,self.q,self.v,self.J,inv_damping,update_kinematics)
+        vnext6 = pin.impulseDynamics(self.model,data6,self.q,self.v,self.J,r_coeff)
+        vnext7 = pin.impulseDynamics(self.model,data7,self.q,self.v,self.J,r_coeff,inv_damping)
+        vnext7_previous = pin.impulseDynamics(self.model,data8,self.q,self.v,self.J,r_coeff,True)
         self.assertTrue((vnext5==vnext6).all())
         self.assertTrue((vnext5==vnext7).all())
         self.assertTrue((vnext6==vnext7).all())
+        self.assertTrue((vnext7_previous==vnext7).all())
 
 if __name__ == '__main__':
     unittest.main()

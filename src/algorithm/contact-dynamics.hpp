@@ -35,7 +35,7 @@ namespace pinocchio
   /// \param[in] tau The joint torque vector (dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] gamma The drift of the constraints (dim nb_constraints).
-  /// \param[in] inv_damping Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.    
+  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   /// \param[in] updateKinematics If true, the algorithm calls first pinocchio::computeAllTerms. Otherwise, it uses the current dynamic values stored in data. \\
   ///            \note A hint: 1e-12 as the damping factor gave good result in the particular case of redundancy in contact constraints on the two feet.
   ///
@@ -91,7 +91,7 @@ namespace pinocchio
   /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
   /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
-  /// \param[in] updateKinematics If true, the algorithm calls first pinocchio::crba. Otherwise, it uses the current mass matrix value stored in data.
+  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
@@ -102,8 +102,73 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar r_coeff = 0,
-                  const bool updateKinematics = true);
+                  const Scalar r_coeff = 0.,
+                  const Scalar inv_damping = 0.);
+
+  ///
+  /// \brief Compute the impulse dynamics with contact constraints.
+  /// \note It computes the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\
+  ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
+  ///       where \f$ \dot{q}^{-} \f$ is the generalized velocity before impact,
+  ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam ConstraintMatrixType Type of the constraint matrix.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
+  /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
+  /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
+  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
+  ///
+  /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<TangentVectorType> & v_before,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Scalar r_coeff = 0.,
+                  const Scalar inv_damping = 0.);
+  
+  ///
+  /// \brief Compute the impulse dynamics with contact constraints.
+  /// \note It computes the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\
+  ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
+  ///       where \f$ \dot{q}^{-} \f$ is the generalized velocity before impact,
+  ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  /// \tparam ConstraintMatrixType Type of the constraint matrix.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
+  /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
+  /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
+  /// \param[in] updateKinematics If true, the algorithm calls first pinocchio::crba. Otherwise, it uses the current mass matrix value stored in data.
+  ///
+  /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  PINOCCHIO_DEPRECATED
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v_before,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Scalar r_coeff,
+                  const bool updateKinematics);
   
 } // namespace pinocchio
 
