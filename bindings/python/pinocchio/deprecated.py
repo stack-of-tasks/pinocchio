@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018 CNRS INRIA
+# Copyright (c) 2018-2019 CNRS INRIA
 #
 
 ## In this file, are reported some deprecated functions that are still maintained until the next important future releases ##
@@ -195,3 +195,42 @@ def log6FromSE3(transform):
 @deprecated("This function will be removed in future releases of Pinocchio. You can use log or log6.")
 def log6FromMatrix(matrix4):
   return pin.log6(matrix4)
+
+@deprecated("This function has been renamed getJointJacobian and will be removed in future releases of Pinocchio. Please change for new getJointJacobian function.")
+def getJacobian(model,data,jointId,local):
+  if local:
+    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.LOCAL)
+  else:
+    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.WORLD)
+
+# This function is only deprecated when using a specific signature. Therefore, it needs special care
+# Marked as deprecated on 16 Sept 2019
+def impactDynamics(model, data, q = None, *args):
+  v_before = args[0]
+  J = args[1]
+
+  if q is None:
+    inv_damping = args[2]
+    r_coeff = args[3]
+    return pin.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
+  elif len(args)==4:
+    if type(args[3]) is bool:
+      message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
+                 "Please change for the new signature of impactDynamics(model,data,[q],v_before,J,inv_damping,r_coeff).")
+      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+      inv_damping = 0.
+      r_coeff = args[2]
+      if(args[3])
+        return pîn.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+      else:
+        return pîn.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
+  else:
+    inv_damping = args[2]
+    r_coeff = args[3]
+    return pîn.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+    
+impactDynamics.__doc__ =  (
+  pin.impactDynamics.__doc__
+  + '\n\nimpactDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity before impact v_before (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (float)Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact), (bool)updateKinematics) -> object :'
+  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
+)
