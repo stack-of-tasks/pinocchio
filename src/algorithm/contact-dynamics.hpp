@@ -90,8 +90,8 @@ namespace pinocchio
   /// \param[in] q The joint configuration (vector dim model.nq).
   /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
-  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
+  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
@@ -102,9 +102,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar inv_damping,
-                  const Scalar r_coeff);
-  
+                  const Scalar r_coeff = 0.,
+                  const Scalar inv_damping = 0.);
+
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
   /// \note It computes the following problem: <BR>
@@ -122,8 +122,8 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] v_before The joint velocity before impact (vector dim model.nv).
   /// \param[in] J The Jacobian of the constraints (dim nb_constraints*model.nv).
-  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   /// \param[in] r_coeff The coefficient of restitution. Must be in [0;1].
+  /// \param[in] inv_damping Damping factor for Cholesky decomposition of JMinvJt. Set to zero if constraints are full rank.
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
@@ -133,8 +133,8 @@ namespace pinocchio
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar inv_damping,
-                  const Scalar r_coeff);
+                  const Scalar r_coeff = 0.,
+                  const Scalar inv_damping = 0.);
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
@@ -167,8 +167,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar r_coeff = 0,
-                  const bool updateKinematics = true);
+                  const Scalar r_coeff,
+                  const bool updateKinematics);
   
 } // namespace pinocchio
 

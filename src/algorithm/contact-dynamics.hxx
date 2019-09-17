@@ -109,15 +109,15 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar inv_damping,
-                  const Scalar r_coeff)
+                  const Scalar r_coeff,
+                  const Scalar inv_damping)
   {
     assert(q.size() == model.nq);
     
     // Compute the mass matrix
     crba(model, data, q);
     
-    return impulseDynamics(model,data,v_before,J,inv_damping,r_coeff);
+    return impulseDynamics(model,data,v_before,J,r_coeff,inv_damping);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType, typename ConstraintMatrixType>
@@ -126,8 +126,8 @@ namespace pinocchio
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar inv_damping,
-                  const Scalar r_coeff)
+                  const Scalar r_coeff,
+                  const Scalar inv_damping)
   {
     assert(v_before.size() == model.nv);
     assert(J.cols() == model.nv);
@@ -175,9 +175,9 @@ namespace pinocchio
                   const bool updateKinematics)
   {
     if(updateKinematics)
-      return impulseDynamics(model,data,q,v_before,J,Scalar(0),r_coeff);
+      return impulseDynamics(model,data,q,v_before,J,r_coeff,Scalar(0));
     else
-      return impulseDynamics(model,data,v_before,J,Scalar(0),r_coeff);
+      return impulseDynamics(model,data,v_before,J,r_coeff,Scalar(0));
   }
 } // namespace pinocchio
 

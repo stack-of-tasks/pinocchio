@@ -23,7 +23,7 @@ StdVect_Force = deprecated("Please use StdVec_Force")(pin.StdVec_Force)
 StdVect_Motion = deprecated("Please use StdVec_Motion")(pin.StdVec_Motion)
 
 @deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
-def impactDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
+def impulseDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
   return pin.impulseDynamics(model, data, q, v_before, J, r_coeff, update_kinematics)
 
 @deprecated("This function has been deprecated. Please use buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
@@ -205,32 +205,32 @@ def getJacobian(model,data,jointId,local):
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 16 Sept 2019
-def impactDynamics(model, data, q = None, *args):
+def impulseDynamics(model, data, q = None, *args):
   v_before = args[0]
   J = args[1]
 
   if q is None:
-    inv_damping = args[2]
-    r_coeff = args[3]
-    return pin.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
+    r_coeff = args[2]
+    inv_damping = args[3]
+    return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
   elif len(args)==4:
     if type(args[3]) is bool:
       message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature of impactDynamics(model,data,[q],v_before,J,inv_damping,r_coeff).")
+                 "Please change for the new signature of impulseDynamics(model,data,[q],v_before,J,r_coeff,inv_damping).")
       _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
       inv_damping = 0.
       r_coeff = args[2]
       if(args[3]):
-        return pin.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+        return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
       else:
-        return pin.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
+        return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
   else:
-    inv_damping = args[2]
-    r_coeff = args[3]
-    return pin.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+    r_coeff = args[2]
+    inv_damping = args[3]
+    return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
     
-impactDynamics.__doc__ =  (
-  pin.impactDynamics.__doc__
-  + '\n\nimpactDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity before impact v_before (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (float)Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact), (bool)updateKinematics) -> object :'
+impulseDynamics.__doc__ =  (
+  pin.impulseDynamics.__doc__
+  + '\n\nimpulseDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity before impact v_before (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (float)Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact), (bool)updateKinematics) -> object :'
   + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )

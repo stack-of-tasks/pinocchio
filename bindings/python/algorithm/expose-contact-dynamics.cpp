@@ -30,20 +30,20 @@ namespace pinocchio
                                                        const Eigen::VectorXd & q,
                                                        const Eigen::VectorXd & v_before,
                                                        const Eigen::MatrixXd & J,
-                                                       const double inv_damping,
-                                                       const double r_coeff)
+                                                       const double r_coeff,
+                                                       const double inv_damping)
     {
-      return impulseDynamics(model, data, q, v_before, J, inv_damping, r_coeff);
+      return impulseDynamics(model, data, q, v_before, J, r_coeff, inv_damping);
     }
     
     static const Eigen::VectorXd impulseDynamics_proxy_no_q(const Model & model,
                                                             Data & data,
                                                             const Eigen::VectorXd & v_before,
                                                             const Eigen::MatrixXd & J,
-                                                            const double inv_damping,
-                                                            const double r_coeff)
+                                                            const double r_coeff,
+                                                            const double inv_damping)
     {
-      return impulseDynamics(model, data, v_before, J, inv_damping, r_coeff);
+      return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
     }
 
     static const Eigen::MatrixXd getKKTContactDynamicMatrixInverse_proxy(const Model & model,
@@ -80,8 +80,9 @@ namespace pinocchio
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Damping factor when J is rank deficient.",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)"),
+                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
+                       "Damping factor when J is rank deficient."
+                       ),
               "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
               );
       
@@ -90,8 +91,8 @@ namespace pinocchio
               bp::args("Model","Data",
                        "Joint velocity before impact v_before (size Model::nv)",
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Damping factor when J is rank deficient.",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)"),
+                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
+                       "Damping factor when J is rank deficient."),
               "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
               );
       
