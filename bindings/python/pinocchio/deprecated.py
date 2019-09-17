@@ -114,7 +114,7 @@ frameJacobian.__doc__ =  (
 def jacobian(model,data,q,jointId,local,update_kinematics):
   rf = pin.ReferenceFrame.LOCAL if local else pin.ReferenceFrame.WORLD
   if update_kinematics:
-      computeJointJacobians(model,data,q)
+      pin.computeJointJacobians(model,data,q)
   return pin.getJointJacobian(model,data,jointId,rf)
 
 @deprecated("This function has been renamed getJointJacobian and will be removed in future releases of Pinocchio. Please change for new getJointJacobian function.")
