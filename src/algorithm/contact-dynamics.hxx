@@ -109,10 +109,26 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar r_coeff,
-                  const bool updateKinematics)
+                  const Scalar inv_damping,
+                  const Scalar r_coeff)
   {
     assert(q.size() == model.nq);
+    
+    // Compute the mass matrix
+    crba(model, data, q);
+    
+    return impulseDynamics(model,data,v_before,J,inv_damping,r_coeff);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType, typename ConstraintMatrixType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<TangentVectorType> & v_before,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Scalar inv_damping,
+                  const Scalar r_coeff)
+  {
     assert(v_before.size() == model.nv);
     assert(J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
@@ -121,10 +137,6 @@ namespace pinocchio
     
     typename Data::VectorXs & impulse_c = data.impulse_c;
     typename Data::TangentVectorType & dq_after = data.dq_after;
-    
-    // Compute the mass matrix
-    if (updateKinematics)
-      crba(model, data, q);
     
     // Compute the UDUt decomposition of data.M
     cholesky::decompose(model, data);
@@ -135,6 +147,8 @@ namespace pinocchio
     for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+    
+    data.JMinvJt.diagonal().array() += inv_damping;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers related to the contact impulses
@@ -147,6 +161,23 @@ namespace pinocchio
     dq_after += v_before;
     
     return dq_after;
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  PINOCCHIO_DEPRECATED
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v_before,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Scalar r_coeff,
+                  const bool updateKinematics)
+  {
+    if(updateKinematics)
+      return impulseDynamics(model,data,q,v_before,J,Scalar(0),r_coeff);
+    else
+      return impulseDynamics(model,data,v_before,J,Scalar(0),r_coeff);
   }
 } // namespace pinocchio
 
