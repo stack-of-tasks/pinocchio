@@ -24,21 +24,6 @@ namespace pinocchio
     }
     
     BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics_proxy, 7, 9)
-
-//    // TODO: overloading impulseDynamics directly, as done for forwardDynamics, was apparently not working (it crashed for 5 arguments)
-//    // Therefore, it was necessary to resort to a proxy
-//    static const Eigen::VectorXd impulseDynamics_proxy(const Model & model,
-//                                                       Data & data,
-//                                                       const Eigen::VectorXd & q,
-//                                                       const Eigen::VectorXd & v_before,
-//                                                       const Eigen::MatrixXd & J,
-//                                                       const double r_coeff = 0.0,
-//                                                       const bool updateKinematics = true)
-//    {
-//      return impulseDynamics(model, data, q, v_before, J, r_coeff, updateKinematics);
-//    }
-//
-//    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
     
     static const Eigen::VectorXd impulseDynamics_proxy(const Model & model,
                                                        Data & data,

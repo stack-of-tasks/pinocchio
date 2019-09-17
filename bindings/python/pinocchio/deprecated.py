@@ -220,14 +220,14 @@ def impactDynamics(model, data, q = None, *args):
       _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
       inv_damping = 0.
       r_coeff = args[2]
-      if(args[3])
-        return pîn.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+      if(args[3]):
+        return pin.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
       else:
-        return pîn.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
+        return pin.impactDynamics(model,data,v_before,J,inv_damping,r_coeff)
   else:
     inv_damping = args[2]
     r_coeff = args[3]
-    return pîn.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
+    return pin.impactDynamics(model,data,q,v_before,J,inv_damping,r_coeff)
     
 impactDynamics.__doc__ =  (
   pin.impactDynamics.__doc__
