@@ -76,7 +76,7 @@ namespace pinocchio
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
                                     const Eigen::MatrixBase<TangentVectorType1> & v,
                                     const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > fext,
+                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
                                     const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
@@ -139,7 +139,7 @@ namespace pinocchio
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
                                     const Eigen::MatrixBase<TangentVectorType1> & v,
                                     const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > fext)
+                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
   {
     computeABADerivatives(model,data,q,v,tau,fext,
                           data.ddq_dq,data.ddq_dv,data.Minv);
