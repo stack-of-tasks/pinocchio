@@ -110,7 +110,7 @@ namespace pinocchio
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a,
-                         const container::aligned_vector< ForceTpl<Scalar,Options> > fext,
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
                          const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
                          const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
                          const Eigen::MatrixBase<MatrixType3> & rnea_partial_da);
@@ -177,7 +177,7 @@ namespace pinocchio
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a,
-                         const container::aligned_vector< ForceTpl<Scalar,Options> > fext)
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
   {
     computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),fext,
                            data.dtau_dq, data.dtau_dv, data.M);
