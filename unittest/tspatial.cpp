@@ -295,6 +295,11 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   Vector6 bf_vec = bf;
   Vector6 bf2_vec = bf2;
   
+  // std::stringstream
+  std::stringstream ss;
+  ss << bf << std::endl;
+  BOOST_CHECK(!ss.str().empty());
+  
   // Test .+.
   Vector6 bfPbf2_vec = bf+bf2;
   BOOST_CHECK(bfPbf2_vec.isApprox(bf_vec+bf2_vec, 1e-12));
@@ -315,7 +320,6 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   Force bf4(bf2_vec);
   BOOST_CHECK(bf4.toVector().isApprox(bf2_vec, 1e-12));
 
-
   // Test action
   ActionMatrixType aXb = amb;
   BOOST_CHECK(amb.act(bf).toVector().isApprox(aXb.inverse().transpose()*bf_vec, 1e-12));
@@ -334,9 +338,16 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   // ensure that (vxv.toVector().isMuchSmallerThan(bf.toVector()));
   
   // Test isApprox
-  const double eps = 1e-6;
+  
   BOOST_CHECK(bf == bf);
+  bf.setRandom();
+  bf2.setZero();
+  BOOST_CHECK(bf == bf);
+  BOOST_CHECK(bf != bf2);
   BOOST_CHECK(bf.isApprox(bf));
+  BOOST_CHECK(!bf.isApprox(bf2));
+  
+  const double eps = 1e-6;
   Force bf_approx(bf);
   bf_approx.linear()[0] += eps/2.;
   BOOST_CHECK(bf_approx.isApprox(bf,eps));
@@ -357,6 +368,14 @@ BOOST_AUTO_TEST_CASE ( test_Force )
     Forcef a_float = a.cast<float>();
     BOOST_CHECK(a_float.isApprox(a.cast<float>()));
   }
+  
+  // Test scalar multiplication
+  const double alpha = 1.5;
+  Force b(Force::Random());
+  Force alpha_f = alpha * b;
+  Force f_alpha = b * alpha;
+  
+  BOOST_CHECK(alpha_f == f_alpha);
 }
 
 BOOST_AUTO_TEST_CASE (test_force_ref)
