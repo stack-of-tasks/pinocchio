@@ -82,6 +82,13 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   SE3f::Matrix3 rot_float(amb.rotation().cast<float>());
   SE3f amb_float = amb.cast<float>();
   BOOST_CHECK(amb_float.isApprox(amb.cast<float>()));
+  
+  // Test actInv
+  const SE3 M = SE3::Random();
+  const SE3 Minv = M.inverse();
+  
+  BOOST_CHECK(M.actInv(Minv).isIdentity());
+  BOOST_CHECK(M.actInv(identity).isApprox(Minv));
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
