@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(Jexp3_quat_fd)
   
   // Arount zero
   w.setZero();
-  w.fill(1e-4);
+  w.fill(1e-6);
   quaternion::exp3(w,quat);
   quaternion::Jexp3CoeffWise(w,Jexp3);
   for(int i = 0; i < 3; ++i)

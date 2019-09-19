@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS INRIA
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_force_ref_hpp__
@@ -56,6 +56,8 @@ namespace pinocchio
     FORCE_TYPEDEF_TPL(ForceRef);
     
     using Base::operator=;
+    using Base::operator==;
+    using Base::operator!=;
     
     ForceRef(typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) f_like)
     : m_ref(f_like)
