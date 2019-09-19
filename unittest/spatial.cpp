@@ -208,6 +208,7 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   BOOST_CHECK(avxw.toVector().isApprox(amb.act(bvxw).toVector()));
   
   // Test isApprox
+  bv.toVector().setOnes();
   const double eps = 1e-6;
   BOOST_CHECK(bv == bv);
   BOOST_CHECK(bv.isApprox(bv));
