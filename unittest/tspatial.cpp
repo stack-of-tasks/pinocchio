@@ -103,13 +103,27 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
 
   Motion bv = Motion::Random();
   Motion bv2 = Motion::Random();
+  
+  typedef MotionBase<Motion> Base;
 
   Vector6 bv_vec = bv;
   Vector6 bv2_vec = bv2;
   
+  // std::stringstream
+  std::stringstream ss;
+  ss << bv << std::endl;
+  BOOST_CHECK(!ss.str().empty());
+  
   // Test .+.
   Vector6 bvPbv2_vec = bv+bv2;
   BOOST_CHECK(bvPbv2_vec.isApprox(bv_vec+bv2_vec, 1e-12));
+  
+  Motion bplus = (Base)bv + (Base)bv2;
+  BOOST_CHECK((bv+bv2).isApprox(bplus, 1e-12));
+  
+  // Test == and !=
+  BOOST_CHECK(bv == bv);
+  BOOST_CHECK(!(bv != bv));
 
   // Test -.
   Vector6 Mbv_vec = -bv;
@@ -126,6 +140,14 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   // Test scalar*M6
   Motion twicebv(2.*bv);
   BOOST_CHECK(twicebv.isApprox(Motion(2.*bv.toVector())));
+  
+  // Test M6*scalar
+  Motion bvtwice(bv*2.);
+  BOOST_CHECK(bvtwice.isApprox(twicebv));
+  
+  // Test M6/scalar
+  Motion bvdividedbytwo(bvtwice/2.);
+  BOOST_CHECK(bvdividedbytwo.isApprox(bv));
 
   // Test constructor from V6
   Motion bv4(bv2_vec);
