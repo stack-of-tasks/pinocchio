@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   const SE3 M = SE3::Random();
   const SE3 Minv = M.inverse();
   
-  BOOST_CHECK(M.actInv(Minv).isIdentity());
+  BOOST_CHECK(Minv.actInv(Minv).isIdentity());
   BOOST_CHECK(M.actInv(identity).isApprox(Minv));
 }
 
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Vector6 bvPbv2_vec = bv+bv2;
   BOOST_CHECK(bvPbv2_vec.isApprox(bv_vec+bv2_vec));
   
-  Motion bplus = (Base)bv + (Base)bv2;
-  BOOST_CHECK((bv+bv2).isApprox(bplus, 1e-12));
+  Motion bplus = static_cast<Base &>(bv) + static_cast<Base &>(bv2);
+  BOOST_CHECK((bv+bv2).isApprox(bplus));
   
   // Test == and !=
   BOOST_CHECK(bv == bv);
