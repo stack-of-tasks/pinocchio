@@ -242,10 +242,11 @@ namespace pinocchio
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
       
-      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(int(col_idx)-1),jmodel.nv(),10) = jdata.S().transpose()*data.bodyRegressor;
+      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(Eigen::DenseIndex(col_idx)-1),
+                                      jmodel.nv(),10) = jdata.S().transpose()*data.bodyRegressor;
       
       if(parent>0)
-          forceSet::se3Action(data.liMi[i],data.bodyRegressor,data.bodyRegressor);
+        forceSet::se3Action(data.liMi[i],data.bodyRegressor,data.bodyRegressor);
     }
   };
 
