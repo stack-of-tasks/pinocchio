@@ -227,7 +227,7 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const JointIndex
+                                  const JointIndex &
                                   > ArgsType;
     
     template<typename JointModel>
@@ -235,17 +235,18 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const JointIndex col_idx)
+                     const JointIndex & col_idx)
     {
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
       
-      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(int(col_idx)-1),jmodel.nv(),10) = jdata.S().transpose()*data.bodyRegressor;
+      data.jointTorqueRegressor.block(jmodel.idx_v(),10*(Eigen::DenseIndex(col_idx)-1),
+                                      jmodel.nv(),10) = jdata.S().transpose()*data.bodyRegressor;
       
       if(parent>0)
-          forceSet::se3Action(data.liMi[i],data.bodyRegressor,data.bodyRegressor);
+        forceSet::se3Action(data.liMi[i],data.bodyRegressor,data.bodyRegressor);
     }
   };
 
