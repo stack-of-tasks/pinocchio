@@ -227,7 +227,7 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const JointIndex
+                                  const JointIndex &
                                   > ArgsType;
     
     template<typename JointModel>
@@ -235,7 +235,7 @@ namespace pinocchio
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const JointIndex col_idx)
+                     const JointIndex & col_idx)
     {
       typedef typename Model::JointIndex JointIndex;
       
