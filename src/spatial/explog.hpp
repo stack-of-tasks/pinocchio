@@ -453,7 +453,6 @@ namespace pinocchio
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef typename SE3::Vector3 Vector3;
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & value = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog);
 
     typename SE3::ConstAngularRef R = M.rotation();
@@ -465,7 +464,7 @@ namespace pinocchio
     // value is decomposed as following:
     // value = [ A, B;
     //           C, D ]
-    typedef Eigen::Block<Matrix6Like,3,3,Matrix6Like::IsRowMajor> Block33;
+    typedef Eigen::Block<Matrix6Like,3,3> Block33;
     Block33 A = value.template topLeftCorner<3,3>();
     Block33 B = value.template topRightCorner<3,3>();
     Block33 C = value.template bottomLeftCorner<3,3>();

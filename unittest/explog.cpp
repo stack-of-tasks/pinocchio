@@ -335,19 +335,24 @@ BOOST_AUTO_TEST_CASE(Jexplog6)
   Motion v(Motion::Random());
   
   SE3 M (exp6(v));
-  SE3::Matrix6 Jexp, Jlog;
-  Jexp6 (v, Jexp);
-  Jlog6 (M, Jlog);
+  {
+    Eigen::Matrix<double, 6, 6, Eigen::RowMajor> Jexp, Jlog;
+    Jexp6 (v, Jexp);
+    Jlog6 (M, Jlog);
 
-  BOOST_CHECK((Jlog * Jexp).isIdentity());
+    BOOST_CHECK((Jlog * Jexp).isIdentity());
+  }
 
   M.setRandom();
   
   v = log6(M);
-  Jlog6 (M, Jlog);
-  Jexp6 (v, Jexp);
+  {
+    Eigen::Matrix<double, 6, 6> Jexp, Jlog;
+    Jlog6 (M, Jlog);
+    Jexp6 (v, Jexp);
 
-  BOOST_CHECK((Jexp * Jlog).isIdentity());
+    BOOST_CHECK((Jexp * Jlog).isIdentity());
+  }
 }
 
 BOOST_AUTO_TEST_CASE (test_basic)
