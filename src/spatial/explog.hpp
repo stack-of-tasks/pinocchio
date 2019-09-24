@@ -465,7 +465,7 @@ namespace pinocchio
     // value is decomposed as following:
     // value = [ A, B;
     //           C, D ]
-    typedef Eigen::Block<Matrix6Like,3,3,Matrix6Like::IsRowMajor> Block33;
+    typedef Eigen::Block<Matrix6Like,3,3> Block33;
     Block33 A = value.template topLeftCorner<3,3>();
     Block33 B = value.template topRightCorner<3,3>();
     Block33 C = value.template bottomLeftCorner<3,3>();
