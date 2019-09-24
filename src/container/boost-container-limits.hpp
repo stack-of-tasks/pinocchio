@@ -21,10 +21,6 @@
   #ifndef BOOST_MPL_LIMIT_LIST_SIZE
     #define BOOST_MPL_LIMIT_LIST_SIZE PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE
   #endif
-
-  #ifndef BOOST_MPL_LIMIT_VECTOR_SIZE
-    #define BOOST_MPL_LIMIT_VECTOR_SIZE PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE
-  #endif
 #endif // ifndef PINOCCHIO_WITH_CXX11_SUPPORT
 
 #endif // ifndef __pinocchio_container_boost_container_limits_hpp__
