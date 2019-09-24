@@ -1,11 +1,12 @@
 ##
-## Copyright (c) 2018-2019 CNRS
+## Copyright (c) 2018-2019 CNRS INRIA
 ##
 
 # NOTE: this example needs gepetto-gui to be installed
 # usage: launch gepetto-gui and then run this test
 
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 import numpy as np
 import os
 

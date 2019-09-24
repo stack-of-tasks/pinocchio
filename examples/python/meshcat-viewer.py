@@ -1,5 +1,5 @@
 ##
-## Copyright (c) 2019 CNRS
+## Copyright (c) 2019 CNRS INRIA
 ##
 
 # This examples shows how to load and move a robot in meshcat.
@@ -7,6 +7,7 @@
 # pip install --user meshcat
 
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 import numpy as np
 import os
 

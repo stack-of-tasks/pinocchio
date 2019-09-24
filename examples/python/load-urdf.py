@@ -8,6 +8,7 @@
 ##
 
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 from pinocchio.visualize import *
 import os
 

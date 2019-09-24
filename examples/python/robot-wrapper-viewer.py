@@ -1,5 +1,5 @@
 ##
-## Copyright (c) 2018-2019 CNRS
+## Copyright (c) 2018-2019 CNRS INRIA
 ##
 
 ##
@@ -8,6 +8,7 @@
 ##
 
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import *
 import os
