@@ -453,7 +453,6 @@ namespace pinocchio
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef typename SE3::Vector3 Vector3;
-    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     Matrix6Like & value = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog);
 
     typename SE3::ConstAngularRef R = M.rotation();
