@@ -5,6 +5,8 @@
 #ifndef __pinocchio_container_boost_container_limits_hpp__
 #define __pinocchio_container_boost_container_limits_hpp__
 
+#include "pinocchio/macros.hpp"
+
 #ifndef PINOCCHIO_WITH_CXX11_SUPPORT
   #if defined(BOOST_MPL_LIST_HPP_INCLUDED) || defined(BOOST_MPL_VECTOR_HPP_INCLUDED)
     # error "You should include pinocchio before boost (e.g. #include <pinocchio/fwd.hpp>)"
