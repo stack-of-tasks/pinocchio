@@ -675,3 +675,9 @@ MATHJAX_RELPATH        = MathJax/
 # the tag USE_MATHJAX is set to YES.
 
 MATHJAX_FORMAT         = SVG
+
+#---------------------------------------------------------------------------
+# Aliases
+#---------------------------------------------------------------------------
+
+ALIASES += "cheatsheet=\xrefitem cheatsheet \"Remarkable identity\" \"Cheat sheet\""

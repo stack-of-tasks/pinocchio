@@ -16,6 +16,10 @@
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
       "check " #Va ".isApprox(" #Vb ") failed "                                \
       "[\n" << (Va).transpose() << "\n!=\n" << (Vb).transpose() << "\n]")
+#define EIGEN_MATRIX_IS_APPROX(Va, Vb, precision)                              \
+  BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
+      "check " #Va ".isApprox(" #Vb ") failed "                                \
+      "[\n" << (Va) << "\n!=\n" << (Vb) << "\n]")
 
 using namespace pinocchio;
 
@@ -28,7 +32,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   typedef double Scalar;
   
   const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
-  IFVERBOSE std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
+  BOOST_TEST_MESSAGE ("Testing Joint over " << jmodel.shortname());
   typedef typename T::ConfigVector_t  ConfigVector_t;
   typedef typename T::TangentVector_t TangentVector_t;
   
@@ -176,7 +180,7 @@ struct LieGroup_Jdifference{
     typedef typename T::Scalar Scalar;
 
     T lg;
-    IFVERBOSE std::cout << lg.name() << std::endl;
+    BOOST_TEST_MESSAGE (lg.name());
     ConfigVector_t q[2], q_dv[2];
     q[0] = lg.random();
     q[1] = lg.random();
@@ -190,7 +194,7 @@ struct LieGroup_Jdifference{
 
     const Scalar eps = 1e-6;
     for (int k = 0; k < 2; ++k) {
-      IFVERBOSE std::cout << "Checking J" << k << '\n' << J[k] << std::endl;
+      BOOST_TEST_MESSAGE ("Checking J" << k << '\n' << J[k]);
       q_dv[0] = q[0];
       q_dv[1] = q[1];
       // Check J[k]
@@ -207,6 +211,36 @@ struct LieGroup_Jdifference{
         dv[i] = 0;
       }
     }
+
+    specificTests(lg);
+  }
+
+  template <typename T>
+  void specificTests(const T ) const
+  {}
+
+  template <typename Scalar, int Options>
+  void specificTests(const SpecialEuclideanOperationTpl<3,Scalar,Options>) const
+  {
+    typedef SE3Tpl<Scalar> SE3;
+    typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LG_t;
+    typedef typename LG_t::ConfigVector_t ConfigVector_t;
+    typedef typename LG_t::JacobianMatrix_t JacobianMatrix_t;
+
+    LG_t lg;
+
+    ConfigVector_t q[2];
+    q[0] = lg.random();
+    q[1] = lg.random();
+    JacobianMatrix_t J[2];
+
+    lg.template dDifference<ARG0> (q[0], q[1], J[0]);
+    lg.template dDifference<ARG1> (q[0], q[1], J[1]);
+
+    SE3 om0 (typename SE3::Quaternion (q[0].template tail<4>()).matrix(), q[0].template head<3>()),
+        om1 (typename SE3::Quaternion (q[1].template tail<4>()).matrix(), q[1].template head<3>()),
+        _1m2 (om1.actInv (om0)) ;
+    EIGEN_MATRIX_IS_APPROX (J[1] * _1m2.toActionMatrix(), - J[0], 1e-8);
   }
 };
 
@@ -269,7 +303,7 @@ struct LieGroup_JintegrateJdifference{
     typedef typename T::JacobianMatrix_t JacobianMatrix_t;
 
     T lg;
-    IFVERBOSE std::cout << lg.name() << std::endl;
+    BOOST_TEST_MESSAGE (lg.name());
     ConfigVector_t qa, qb (lg.nq());
     qa = lg.random();
     TangentVector_t v (lg.nv());
@@ -304,7 +338,7 @@ struct LieGroup_JintegrateCoeffWise
     ConfigVector_t q = lg.random();
     TangentVector_t dv(TangentVector_t::Zero(lg.nv()));
     
-//    std::cout << "name: " << lg.name() << std::endl;
+    BOOST_TEST_MESSAGE (lg.name());
     typedef Eigen::Matrix<Scalar,T::NQ,T::NV> JacobianCoeffs;
     JacobianCoeffs Jintegrate(JacobianCoeffs::Zero(lg.nq(),lg.nv()));
     lg.integrateCoeffWiseJacobian(q,Jintegrate);
@@ -321,9 +355,7 @@ struct LieGroup_JintegrateCoeffWise
       dv[i] = 0;
     }
 
-    BOOST_CHECK(Jintegrate.isApprox(Jintegrate_fd,sqrt(eps)));
-//    std::cout << "Jintegrate\n" << Jintegrate << std::endl;
-//    std::cout << "Jintegrate_fd\n" << Jintegrate_fd << std::endl;
+    EIGEN_MATRIX_IS_APPROX(Jintegrate, Jintegrate_fd, sqrt(eps));
   }
 };
 
