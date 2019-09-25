@@ -1,5 +1,6 @@
 import unittest
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 from pinocchio.utils import np, zero
 
 from test_case import TestCase

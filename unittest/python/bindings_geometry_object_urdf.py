@@ -1,5 +1,6 @@
 import unittest
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 import os
 
 @unittest.skipUnless(pin.WITH_URDFDOM_SUPPORT(),"Needs URDFDOM")

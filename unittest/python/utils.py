@@ -3,6 +3,7 @@ from math import sqrt
 
 import numpy as np
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 from pinocchio.utils import cross, isapprox
 
 from test_case import TestCase

@@ -2,6 +2,9 @@ import unittest
 from math import pi
 
 import numpy as np
+import pinocchio as pin
+pin.switchToNumpyMatrix()
+
 from pinocchio.rpy import matrixToRpy, npToTuple, rotate, rpyToMatrix
 
 from test_case import TestCase
