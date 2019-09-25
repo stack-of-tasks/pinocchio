@@ -10,15 +10,17 @@ namespace pinocchio
 {
   /** The rigid transform aMb can be seen in two ways:
    *
-   * - given a point p expressed in frame B by its coordinate vector Bp, aMb
-   * computes its coordinates in frame A by Ap = aMb Bp.
-   * - aMb displaces a solid S centered at frame A into the solid centered in
-   * B. In particular, the origin of A is displaced at the origin of B: $^aM_b
-   * ^aA = ^aB$.
+   * - given a point p expressed in frame B by its coordinate vector \f$ ^bp \f$, \f$ ^aM_b \f$
+   * computes its coordinates in frame A by \f$ ^ap = {}^aM_b {}^bp \f$.
+   * - \f$ ^aM_b \f$ displaces a solid S centered at frame A into the solid centered in
+   * B. In particular, the origin of A is displaced at the origin of B:
+   * \f$^aM_b {}^aA = {}^aB \f$.
    
    * The rigid displacement is stored as a rotation matrix and translation vector by:
-   * aMb (x) =  aRb*x + aAB
-   * where aAB is the vector from origin A to origin B expressed in coordinates A.
+   * \f$ ^aM_b x = {}^aR_b x + {}^aAB \f$
+   * where \f$^aAB\f$ is the vector from origin A to origin B expressed in coordinates A.
+   *
+   * \cheatsheet \f$ {}^aM_c = {}^aM_b {}^bM_c \f$
    */
   template<class Derived>
   struct SE3Base
@@ -41,12 +43,21 @@ namespace pinocchio
     }
     operator HomogeneousMatrixType() const { return toHomogeneousMatrix(); }
     
+    /**
+     * @brief The action matrix \f$ {}^aX_b \f$ of \f$ {}^aM_b \f$.
+     *
+     * \cheatsheet \f$ {}^a\nu_c = {}^aX_b {}^b\nu_c \f$
+     */
     ActionMatrixType toActionMatrix() const
     {
       return derived().toActionMatrix_impl();
     }
     operator ActionMatrixType() const { return toActionMatrix(); }
     
+    /**
+     * @brief The action matrix \f$ {}^bX_a \f$ of \f$ {}^aM_b \f$.
+     * \sa toActionMatrix()
+     */
     ActionMatrixType toActionMatrixInverse() const
     {
       return derived().toActionMatrixInverse_impl();

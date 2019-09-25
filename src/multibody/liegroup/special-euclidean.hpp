@@ -439,6 +439,7 @@ namespace pinocchio
                * SE3(p1.matrix(), q1.derived().template head<3>())).toVector();
     }
 
+    /// \cheatsheet \f$ \frac{\partial\ominus}{\partial q_1} {}^1X_0 = - \frac{\partial\ominus}{\partial q_0} \f$
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
