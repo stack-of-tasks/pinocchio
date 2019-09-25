@@ -207,6 +207,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[in]  q1    the terminal configuration vector.
      *
      * @param[out] v     the corresponding velocity.
+     *
+     * \cheatsheet \f$ q_1 \ominus q_0 = - \left( q_0 \ominus q_1 \right) \f$
      */
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     void difference(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -224,6 +226,14 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[out] J     the Jacobian of the difference operation.
      *
+     * \warning because \f$ q_1 \ominus q_0 = - \left( q_0 \ominus q_1 \right) \f$,
+     * you may be tempted to write
+     * \f$ \frac{\partial\ominus}{\partial q_1} = - \frac{\partial\ominus}{\partial q_0} \f$.
+     * This is **false** in the general case because
+     * \f$ \frac{\partial\ominus}{\partial q_i} \f$ expects an input velocity relative to frame i.
+     * See SpecialEuclideanOperationTpl<3,_Scalar,_Options>::dDifference_impl.
+     *
+     * \cheatsheet \f$ \frac{\partial\ominus}{\partial q_1} \frac{\partial\oplus}{\partial v} = I \f$
      */
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -279,6 +289,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q0    Configuration 0
      * @param[in]  q1    Configuration 1
+     *
+     * \cheatsheet \f$ q_1 \equiv  q_0 \oplus \left( q_1 \ominus q_0 \right) \f$ (\f$\equiv\f$ means equivalent, not equal).
      */
     template <class ConfigL_t, class ConfigR_t>
     bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
