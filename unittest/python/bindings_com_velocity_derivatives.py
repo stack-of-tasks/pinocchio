@@ -1,5 +1,6 @@
 import unittest
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 from pinocchio.utils import *
 from numpy.linalg import norm
 

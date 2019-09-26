@@ -1,5 +1,6 @@
 import unittest
 import pinocchio as pin
+pin.switchToNumpyMatrix()
 import numpy as np
 
 @unittest.skipUnless(pin.WITH_FCL_SUPPORT(),"Needs FCL")
