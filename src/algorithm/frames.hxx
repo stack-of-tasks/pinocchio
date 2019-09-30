@@ -160,6 +160,7 @@ namespace pinocchio
     assert(q.size() == model.nq && "The configuration vector is not of right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
     typedef typename Model::JointIndex JointIndex;
 
     const Frame & frame = model.frames[frameId];
