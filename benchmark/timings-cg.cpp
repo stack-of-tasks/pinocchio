@@ -2,6 +2,8 @@
 // Copyright (c) 2018 CNRS
 //
 
+#include "pinocchio/codegen/cppadcg.hpp"
+
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
