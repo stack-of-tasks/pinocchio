@@ -185,6 +185,18 @@ namespace pinocchio
     Jout.noalias() += c * r * r.transpose();
   }
 
+  /** \brief Derivative of log3
+   *
+   *  \param[in] theta the angle value.
+   *  \param[in] log the output of log3.
+   *  \param[out] Jlog the jacobian
+   *
+   *  \f[ Jlog = \frac{\theta \sin(\theta)}{2 (1 - \cos(\theta))} I_3
+   *             + \frac{1}{2} \hat{\log}
+   *             + (\frac{1}{\theta^2} - \frac{\sin(\theta)}{2\theta(1-\cos(\theta))}) \log \log^T
+   *  \f]
+   *  \note the inputs must be such that \f$ \theta = ||\log|| \f$
+   */
   template<typename Scalar, typename Vector3Like, typename Matrix3Like>
   void Jlog3(const Scalar & theta,
              const Eigen::MatrixBase<Vector3Like> & log,
@@ -221,6 +233,18 @@ namespace pinocchio
     }
   }
 
+  /** \brief Derivative of log3
+   *
+   *  \param[in] R the rotation matrix.
+   *  \param[out] Jlog the jacobian
+   *
+   *  Equivalent to
+   *  \code
+   *  double theta;
+   *  Vector3 log = pinocchio::log3 (R, theta);
+   *  pinocchio::Jlog3 (theta, log, Jlog);
+   *  \endcode
+   */
   template<typename Matrix3Like1, typename Matrix3Like2>
   void Jlog3(const Eigen::MatrixBase<Matrix3Like1> & R,
              const Eigen::MatrixBase<Matrix3Like2> & Jlog)

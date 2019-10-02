@@ -46,6 +46,11 @@ namespace pinocchio
     /**
      * @brief The action matrix \f$ {}^aX_b \f$ of \f$ {}^aM_b \f$.
      *
+     * With \f$ {}^aM_b = \left( \begin{array}{cc} R & t \\ 0 & 1 \\ \end{array} \right) \f$,
+     * \f[
+     * {}^aX_b = \left( \begin{array}{cc} R & \hat{t} R \\ 0 & R \\ \end{array} \right)
+     * \f]
+     *
      * \cheatsheet \f$ {}^a\nu_c = {}^aX_b {}^b\nu_c \f$
      */
     ActionMatrixType toActionMatrix() const
