@@ -6,6 +6,8 @@
 #define __pinocchio_multibody_joint_joint_common_operations_hpp__
 
 #include "pinocchio/macros.hpp"
+#include "pinocchio/math/matrix.hpp"
+
 #include <boost/type_traits.hpp>
 
 namespace pinocchio

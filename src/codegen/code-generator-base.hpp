@@ -5,6 +5,8 @@
 #ifndef __pinocchio_utils_code_generator_base_hpp__
 #define __pinocchio_utils_code_generator_base_hpp__
 
+#include "pinocchio/codegen/cppadcg.hpp"
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
