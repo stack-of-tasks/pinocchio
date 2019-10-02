@@ -1,0 +1,42 @@
+name: C/C++ CI of Pinocchio
+
+on: [push,pull_request]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-18.04,ubuntu-16.04] 
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Register robotpkg
+      run: | 
+        sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
+        sudo apt-key adv --fetch-keys http://robotpkg.openrobots.org/packages/debian/robotpkg.key
+    - name: Set and install dependencies
+      run: |
+        sudo rm -rf /usr/local/share/boost/1.69.0
+        export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl"
+        sudo apt-get update -qq
+        sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
+    - name: Run cmake
+      run: |
+        git submodule update --init
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
+        export PATH=$PATH:/opt/openrobots/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
+        export MAKEFLAGS="-j2"
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON
+        make
+        make build_tests
+        make test
+        sudo make install
+        sudo make uninstall
