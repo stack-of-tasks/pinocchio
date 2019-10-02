@@ -316,7 +316,7 @@ namespace pinocchio
 
   /// \brief Log: SE3 -> se3.
   ///
-  /// Pseudo-inverse of exp from SE3 -> { v,w \in se3, ||w|| < 2pi }.
+  /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
   ///
   /// \param[in] M The rigid transformation.
   ///
@@ -355,9 +355,9 @@ namespace pinocchio
 
   /// \brief Log: SE3 -> se3.
   ///
-  /// Pseudo-inverse of exp from SE3 -> { v,w \in se3, ||w|| < 2pi }.
+  /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
   ///
-  /// \param[in] R The rigid transformation represented as an homogenous matrix.
+  /// \param[in] M The rigid transformation represented as an homogenous matrix.
   ///
   /// \return The twist associated to the rigid transformation during time 1.
   ///
