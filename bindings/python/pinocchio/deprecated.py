@@ -205,39 +205,54 @@ def getJacobian(model,data,jointId,local):
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 16 Sept 2019
-def impulseDynamics(model, data, q = None, *args):
-  v_before = args[0]
-  J = args[1]
-
-  if q is None:
-    r_coeff = args[2]
-    inv_damping = args[3]
-    return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
-  elif len(args)==4:
-    if type(args[3]) is bool:
-      message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature of impulseDynamics(model,data,[q],v_before,J,r_coeff,inv_damping).")
-      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      inv_damping = 0.
-      r_coeff = args[2]
-      if(args[3]):
-        return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
-      else:
-        return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
-    else:
-      r_coeff = args[2]
-      inv_damping = args[3]
-      return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
-  else:
-    r_coeff = 0.
+def impulseDynamics(model, data, *args):
+  if len(args)==5 and type(args[4]) is bool:
+    message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
+               "Please change for the new signature of impulseDynamics(model,data[,q],v_before,J[,r_coeff[,inv_damping]]).")
+    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+    q = args[0]
+    v_before = args[1]
+    J = args[2]
+    r_coeff = args[3]
+    updateKinematics = args[4]
     inv_damping = 0.
-    if args:
-      if len(args) >= 3:
-        r_coeff = args[2]
-    return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
-    
+    if updateKinematics:
+      return pin.impulseDynamics(model,data,q,v_before,J,r_coeff,inv_damping)
+    else:
+      return pin.impulseDynamics(model,data,v_before,J,r_coeff,inv_damping)
+
+  return pin.impulseDynamics(model, data, *args)
+
 impulseDynamics.__doc__ =  (
   pin.impulseDynamics.__doc__
   + '\n\nimpulseDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity before impact v_before (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (float)Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact), (bool)updateKinematics) -> object :'
   + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
+
+# This function is only deprecated when using a specific signature. Therefore, it needs special care
+# Marked as deprecated on 2 Oct 2019
+def forwardDynamics(model, data, *args):
+  if len(args)==7 and type(args[6]) is bool:
+    message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
+               "Please change for the new signature of forwardDynamics(model,data[,q],v,tau,J,gamma[,inv_damping]).")
+    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+    q = args[0]
+    v = args[1]
+    tau = args[2]
+    J = args[3]
+    gamma = args[4]
+    inv_damping = args[5]
+    updateKinematics = args[6]
+    if updateKinematics:
+      return pin.forwardDynamics(model,data,q,v,tau,J,gamma,inv_damping)
+    else:
+      return pin.forwardDynamics(model,data,tau,J,gamma,inv_damping)
+
+  return pin.forwardDynamics(model, data, *args)
+
+forwardDynamics.__doc__ = (
+  pin.forwardDynamics.__doc__
+  + '\n\nforwardDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity v (size Model::nv), (object)Joint torque tau (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (object)Contact drift gamma (size nb_constraint), (float)(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank, (bool)Update kinematics) -> object :'
++ '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
+)
+

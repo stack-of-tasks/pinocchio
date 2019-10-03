@@ -15,21 +15,16 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
   typename ConstraintMatrixType, typename DriftVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
+                  const Eigen::MatrixBase<TangentVectorType> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar inv_damping,
-                  const bool updateKinematics)
+                  const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
-    assert(v.size() == model.nv);
     assert(tau.size() == model.nv);
     assert(J.cols() == model.nv);
     assert(J.rows() == gamma.size());
@@ -39,9 +34,6 @@ namespace pinocchio
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::VectorXs & lambda_c = data.lambda_c;
-    
-    if (updateKinematics)
-      computeAllTerms(model, data, q, v);
     
     // Compute the UDUt decomposition of data.M
     cholesky::decompose(model, data);
@@ -73,7 +65,27 @@ namespace pinocchio
     
     return a;
   }
-  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename ConstraintMatrixType, typename DriftVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType1> & v,
+                  const Eigen::MatrixBase<TangentVectorType2> & tau,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Eigen::MatrixBase<DriftVectorType> & gamma,
+                  const Scalar inv_damping)
+  {
+    assert(q.size() == model.nq);
+    assert(v.size() == model.nv);
+
+    computeAllTerms(model, data, q, v);
+
+    return forwardDynamics(model,data,tau,J,gamma,inv_damping);
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -161,23 +173,6 @@ namespace pinocchio
     dq_after += v_before;
     
     return dq_after;
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
-  PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType> & v_before,
-                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Scalar r_coeff,
-                  const bool updateKinematics)
-  {
-    if(updateKinematics)
-      return impulseDynamics(model,data,q,v_before,J,r_coeff,Scalar(0));
-    else
-      return impulseDynamics(model,data,v_before,J,r_coeff,Scalar(0));
   }
 } // namespace pinocchio
 
