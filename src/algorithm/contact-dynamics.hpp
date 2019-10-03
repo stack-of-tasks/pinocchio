@@ -12,7 +12,7 @@ namespace pinocchio
 {
 
   ///
-  /// \brief Compute the forward dynamics with contact constraints.
+  /// \brief Compute the forward dynamics with contact constraints. Internally, pinocchio::computeAllTerms is called.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
@@ -53,7 +53,7 @@ namespace pinocchio
                   const Scalar inv_damping = 0.);
 
   ///
-  /// \brief Compute the forward dynamics with contact constraints, assuming pinocchio::computeAllTerms has been called
+  /// \brief Compute the forward dynamics with contact constraints, assuming pinocchio::computeAllTerms has been called.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
@@ -163,7 +163,7 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv);
   
   ///
-  /// \brief Compute the impulse dynamics with contact constraints.
+  /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
@@ -196,7 +196,7 @@ namespace pinocchio
                   const Scalar inv_damping = 0.);
 
   ///
-  /// \brief Compute the impulse dynamics with contact constraints.
+  /// \brief Compute the impulse dynamics with contact constraints, assuming pinocchio::crba has been called.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>

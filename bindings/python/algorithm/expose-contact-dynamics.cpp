@@ -85,7 +85,8 @@ namespace pinocchio
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
                        "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c"
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
+              " Internally, pinocchio.computeAllTerms is called."
               ));
 
       bp::def("forwardDynamics",
@@ -96,7 +97,8 @@ namespace pinocchio
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Contact drift gamma (size nb_constraint)",
                        "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c"
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
+              " Assumes pinocchio.computeAllTerms has been called."
               ));
 
       bp::def("impulseDynamics",
@@ -109,7 +111,8 @@ namespace pinocchio
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Damping factor when J is rank deficient."
                        ),
-              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
+              " Internally, pinocchio.crba is called."
               ));
       
       bp::def("impulseDynamics",
@@ -120,7 +123,8 @@ namespace pinocchio
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Damping factor when J is rank deficient."),
-              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c"
+              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
+              " Assumes pinocchio.crba has been called."
               ));
       
       bp::def("getKKTContactDynamicMatrixInverse",getKKTContactDynamicMatrixInverse_proxy,
