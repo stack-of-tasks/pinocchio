@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   
   Eigen::MatrixXd H(J.transpose());
   
-  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE (test_KKTMatrix)
   Eigen::MatrixXd H(J.transpose());
   
   //Check Forward Dynamics
-  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.,true);
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   Eigen::MatrixXd MJtJ(model.nv+12, model.nv+12);
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   Eigen::VectorXd gamma (VectorXd::Ones(12));
 
   // Forward Dynamics with damping
-  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12,true);
+  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 1e-12);
 
   // Matrix Definitions
   Eigen::MatrixXd H(J.transpose());
@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   PinocchioTicToc timer(PinocchioTicToc::US); timer.tic();
   SMOOTH(NBT)
   {
-    pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0., true);
+    pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, 0.);
   }
   timer.toc(std::cout,NBT);
   
