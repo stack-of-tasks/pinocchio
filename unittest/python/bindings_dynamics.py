@@ -5,6 +5,8 @@ pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero
 import numpy as np
 
+import warnings
+
 # common quantities for all tests.
 # They correspond to the default values of the arguments, and they need to stay this way
 r_coeff = 0.0
@@ -57,31 +59,77 @@ class TestDynamicsBindings(TestCase):
         self.assertTrue((ddq7==ddq9).all())
         self.assertTrue((ddq8==ddq9).all())
 
-    def test_impulseDynamics5(self):
+    def test_impulseDynamics_default(self):
+        data_no_q = self.model.createData()
+
         vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J)
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
-    def test_impulseDynamics6(self):
+        pin.crba(self.model,data_no_q,self.q)
+        vnext_no_q = pin.impulseDynamics(self.model,data_no_q,self.v0,self.J)
+        self.assertLess(np.linalg.norm(vnext_no_q), self.tolerance)
+
+        self.assertApprox(vnext, vnext_no_q)
+
+    def test_impulseDynamics_r(self):
+        data_no_q = self.model.createData()
+
         vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,r_coeff)
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
-    def test_impulseDynamics7(self):
+        pin.crba(self.model,data_no_q,self.q)
+        vnext_no_q = pin.impulseDynamics(self.model,data_no_q,self.v0,self.J,r_coeff)
+        self.assertLess(np.linalg.norm(vnext_no_q), self.tolerance)
+
+        self.assertApprox(vnext, vnext_no_q)
+
+    def test_impulseDynamics_rd(self):
+        data_no_q = self.model.createData()
+
         vnext = pin.impulseDynamics(self.model,self.data,self.q,self.v0,self.J,r_coeff,inv_damping)
         self.assertLess(np.linalg.norm(vnext), self.tolerance)
 
-    def test_impulseDynamics567(self):
+        pin.crba(self.model,data_no_q,self.q)
+        vnext_no_q = pin.impulseDynamics(self.model,data_no_q,self.v0,self.J,r_coeff,inv_damping)
+        self.assertLess(np.linalg.norm(vnext_no_q), self.tolerance)
+
+        self.assertApprox(vnext, vnext_no_q)
+
+    def test_impulseDynamics_q(self):
         data5 = self.data
         data6 = self.model.createData()
         data7 = self.model.createData()
-        data8 = self.model.createData()
+        data7_deprecated = self.model.createData()
         vnext5 = pin.impulseDynamics(self.model,data5,self.q,self.v,self.J)
         vnext6 = pin.impulseDynamics(self.model,data6,self.q,self.v,self.J,r_coeff)
         vnext7 = pin.impulseDynamics(self.model,data7,self.q,self.v,self.J,r_coeff,inv_damping)
-        vnext7_previous = pin.impulseDynamics(self.model,data8,self.q,self.v,self.J,r_coeff,True)
+        with warnings.catch_warnings(record=True) as warning_list:
+            vnext7_deprecated = pin.impulseDynamics(self.model,data7_deprecated,self.q,self.v,self.J,r_coeff,True)
+            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
         self.assertTrue((vnext5==vnext6).all())
         self.assertTrue((vnext5==vnext7).all())
         self.assertTrue((vnext6==vnext7).all())
-        self.assertTrue((vnext7_previous==vnext7).all())
+        self.assertTrue((vnext7_deprecated==vnext7).all())
+
+    def test_impulseDynamics_no_q(self):
+        data4 = self.data
+        data5 = self.model.createData()
+        data6 = self.model.createData()
+        data7_deprecated = self.model.createData()
+        pin.crba(self.model,data4,self.q)
+        pin.crba(self.model,data5,self.q)
+        pin.crba(self.model,data6,self.q)
+        pin.crba(self.model,data7_deprecated,self.q)
+        vnext4 = pin.impulseDynamics(self.model,data4,self.v,self.J)
+        vnext5 = pin.impulseDynamics(self.model,data5,self.v,self.J,r_coeff)
+        vnext6 = pin.impulseDynamics(self.model,data6,self.v,self.J,r_coeff,inv_damping)
+        with warnings.catch_warnings(record=True) as warning_list:
+            vnext7_deprecated = pin.impulseDynamics(self.model,data7_deprecated,self.q,self.v,self.J,r_coeff,False)
+            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
+        self.assertTrue((vnext4==vnext5).all())
+        self.assertTrue((vnext4==vnext6).all())
+        self.assertTrue((vnext5==vnext6).all())
+        self.assertTrue((vnext7_deprecated==vnext6).all())
 
 if __name__ == '__main__':
     unittest.main()
