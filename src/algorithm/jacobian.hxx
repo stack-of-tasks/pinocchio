@@ -314,21 +314,58 @@ namespace pinocchio
     
     Matrix6xLike & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ);
     
-    const typename Data::SE3 & oMjoint = data.oMi[jointId];
+    
+
+    typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
+    typedef const MotionRef<ConstColXprIn> MotionIn;
+
+    typedef typename Matrix6xLike::ColXpr ColXprOut;
+    typedef MotionRef<ColXprOut> MotionOut;
+    
     int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+    switch(rf)
     {
-      typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
-      const MotionRef<ConstColXprIn> v_in(data.dJ.col(j));
-      
-      typedef typename Matrix6xLike::ColXpr ColXprOut;
-      MotionRef<ColXprOut> v_out(dJ_.col(j));
-      
-      if(rf == WORLD)   v_out = v_in;
-      else              v_out = oMjoint.actInv(v_in).toVector();
+      case WORLD:
+      {
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+        {
+          MotionIn v_in(data.dJ.col(j));
+          MotionOut v_out(dJ_.col(j));
+
+          v_out = v_in;
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED:
+      {
+        const typename Data::SE3 & oMjoint = data.oMi[jointId];
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+        {
+          MotionIn v_in(data.dJ.col(j));
+          MotionOut v_out(dJ_.col(j));
+          
+          v_out = v_in;
+          v_out.linear() -= oMjoint.translation().cross(v_in.angular());
+        }
+        break;
+      }
+      case LOCAL:
+      {
+        const typename Data::SE3 & oMjoint = data.oMi[jointId];
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+        {
+          MotionIn v_in(data.dJ.col(j));
+          MotionOut v_out(dJ_.col(j));
+          
+          v_out = oMjoint.actInv(v_in).toVector();
+        }
+        break;
+      }
+      default:
+        assert(false && "must never happened");
+        break;
     }
   }
-  
   
 } // namespace pinocchio
 
