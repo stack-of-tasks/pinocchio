@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   Data::Matrix6x J(6,model.nv); J.fill(0.);
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
-  // Regarding to the world origin
+  // Regarding to the WORLD origin
   getJointJacobian(model,data,idx,WORLD,J);
   getJointJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
@@ -105,8 +105,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   const Motion & a_ref = data_ref.oMi[idx].act(data_ref.a[idx]);
   BOOST_CHECK(a_idx.isApprox(a_ref));
   
-  
-  // Regarding to the local frame
+  // Regarding to the LOCAL frame
   getJointJacobian(model,data,idx,LOCAL,J);
   getJointJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
@@ -116,7 +115,20 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   a_idx = (Motion::Vector6)(J*a + dJ*v);
   BOOST_CHECK(a_idx.isApprox(data_ref.a[idx]));
   
-  // compare to finite differencies
+  // Regarding to the LOCAL_WORLD_ALIGNED frame
+  getJointJacobian(model,data,idx,LOCAL_WORLD_ALIGNED,J);
+  getJointJacobianTimeVariation(model,data,idx,LOCAL_WORLD_ALIGNED,dJ);
+  
+  Data::SE3 worldMlocal = data.oMi[idx];
+  worldMlocal.translation().setZero();
+  
+  v_idx = (Motion::Vector6)(J*v);
+  BOOST_CHECK(v_idx.isApprox(worldMlocal.act(data_ref.v[idx])));
+  
+  a_idx = (Motion::Vector6)(J*a + dJ*v);
+  BOOST_CHECK(a_idx.isApprox(worldMlocal.act(data_ref.a[idx])));
+  
+  // compare to finite differencies : WORLD
   {
     Data data_ref(model), data_ref_plus(model);
     
@@ -141,9 +153,35 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
     
     BOOST_CHECK(dJ.isApprox(dJ_ref,sqrt(alpha)));
   }
+  
+  // compare to finite differencies : LOCAL
+  {
+    Data data_ref(model), data_ref_plus(model);
+    
+    const double alpha = 1e-8;
+    Eigen::VectorXd q_plus(model.nq);
+    q_plus = integrate(model,q,alpha*v);
+    
+    Data::Matrix6x J_ref(6,model.nv); J_ref.fill(0.);
+    computeJointJacobians(model,data_ref,q);
+    getJointJacobian(model,data_ref,idx,LOCAL,J_ref);
+    
+    Data::Matrix6x J_ref_plus(6,model.nv); J_ref_plus.fill(0.);
+    computeJointJacobians(model,data_ref_plus,q_plus);
+    getJointJacobian(model,data_ref_plus,idx,LOCAL,J_ref_plus);
+    
+    const Data::SE3 M_plus = data_ref.oMi[idx].inverse()*data_ref_plus.oMi[idx];
+    
+    Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.fill(0.);
+    dJ_ref = (M_plus.toActionMatrix()*J_ref_plus - J_ref)/alpha;
+    
+    computeJointJacobiansTimeVariation(model,data,q,v);
+    Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
+    getJointJacobianTimeVariation(model,data,idx,LOCAL,dJ);
+    
+    BOOST_CHECK(dJ.isApprox(dJ_ref,sqrt(alpha)));
+  }
 }
-
-
 
 BOOST_AUTO_TEST_CASE ( test_timings )
 {
@@ -229,4 +267,3 @@ BOOST_AUTO_TEST_CASE ( test_timings )
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
-
