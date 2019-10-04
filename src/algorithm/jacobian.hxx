@@ -111,6 +111,78 @@ namespace pinocchio
     return data.J;
   }
   
+  namespace details
+  {
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLikeIn, typename Matrix6xLikeOut>
+    void translateJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex jointId,
+                                const ReferenceFrame rf,
+                                const Eigen::MatrixBase<Matrix6xLikeIn> & Jin,
+                                const Eigen::MatrixBase<Matrix6xLikeOut> & Jout)
+    {
+      assert(Jin.rows() == 6);
+      assert(Jin.cols() == model.nv);
+      
+      assert(Jout.rows() == 6);
+      assert(Jout.cols() == model.nv);
+      
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      
+      Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut,Jout);
+
+      typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
+      typedef const MotionRef<ConstColXprIn> MotionIn;
+
+      typedef typename Matrix6xLikeOut::ColXpr ColXprOut;
+      typedef MotionRef<ColXprOut> MotionOut;
+      
+      int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
+      switch(rf)
+      {
+        case WORLD:
+        {
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            MotionIn v_in(Jin.col(j));
+            MotionOut v_out(Jout_.col(j));
+
+            v_out = v_in;
+          }
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED:
+        {
+          const typename Data::SE3 & oMjoint = data.oMi[jointId];
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            MotionIn v_in(Jin.col(j));
+            MotionOut v_out(Jout_.col(j));
+            
+            v_out = v_in;
+            v_out.linear() -= oMjoint.translation().cross(v_in.angular());
+          }
+          break;
+        }
+        case LOCAL:
+        {
+          const typename Data::SE3 & oMjoint = data.oMi[jointId];
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            MotionIn v_in(Jin.col(j));
+            MotionOut v_out(Jout_.col(j));
+            
+            v_out = oMjoint.actInv(v_in);
+          }
+          break;
+        }
+        default:
+          assert(false && "must never happened");
+          break;
+      }
+    }
+  }
+
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
@@ -121,41 +193,10 @@ namespace pinocchio
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    assert( J.rows() == 6 );
-    assert( J.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
-    
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
-    
-    const typename Data::SE3 & oMjoint = data.oMi[jointId];
-    int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(Model::Index)j])
-    {
-      typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
-      const MotionRef<ConstColXprIn> v_in(data.J.col(j));
-      
-      typedef typename Matrix6xLike::ColXpr ColXprOut;
-      MotionRef<ColXprOut> v_out(J_.col(j));
-      
-      switch(rf)
-      {
-        case WORLD:
-          v_out = v_in;
-          break;
-        case LOCAL_WORLD_ALIGNED:
-          v_out = v_in;
-          v_out.linear() -= oMjoint.translation().cross(v_in.angular());
-          break;
-        case LOCAL:
-          v_out = oMjoint.actInv(v_in);
-          break;
-        default:
-          assert(false && "must never happened");
-          break;
-      }
-    }
+
+    details::translateJointJacobian(model,data,jointId,rf,
+                                    data.J,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
@@ -306,65 +347,10 @@ namespace pinocchio
                                             const ReferenceFrame rf,
                                             const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
-    assert( dJ.rows() == 6 );
-    assert( dJ.cols() == model.nv );
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    Matrix6xLike & dJ_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ);
-    
-    
-
-    typedef typename Data::Matrix6x::ConstColXpr ConstColXprIn;
-    typedef const MotionRef<ConstColXprIn> MotionIn;
-
-    typedef typename Matrix6xLike::ColXpr ColXprOut;
-    typedef MotionRef<ColXprOut> MotionOut;
-    
-    int colRef = nv(model.joints[jointId])+idx_v(model.joints[jointId])-1;
-    switch(rf)
-    {
-      case WORLD:
-      {
-        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-        {
-          MotionIn v_in(data.dJ.col(j));
-          MotionOut v_out(dJ_.col(j));
-
-          v_out = v_in;
-        }
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED:
-      {
-        const typename Data::SE3 & oMjoint = data.oMi[jointId];
-        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-        {
-          MotionIn v_in(data.dJ.col(j));
-          MotionOut v_out(dJ_.col(j));
-          
-          v_out = v_in;
-          v_out.linear() -= oMjoint.translation().cross(v_in.angular());
-        }
-        break;
-      }
-      case LOCAL:
-      {
-        const typename Data::SE3 & oMjoint = data.oMi[jointId];
-        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-        {
-          MotionIn v_in(data.dJ.col(j));
-          MotionOut v_out(dJ_.col(j));
-          
-          v_out = oMjoint.actInv(v_in).toVector();
-        }
-        break;
-      }
-      default:
-        assert(false && "must never happened");
-        break;
-    }
+    details::translateJointJacobian(model,data,jointId,rf,
+                                    data.dJ,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));
   }
   
 } // namespace pinocchio
