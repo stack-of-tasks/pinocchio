@@ -122,6 +122,11 @@ namespace pinocchio
     subtrees.push_back(IndexVector(1));
     subtrees[idx][0] = idx;
     addJointIndexToParentSubtrees(idx);
+    
+    // Init and add joint index to the supports
+    supports.push_back(supports[parent]);
+    supports[idx].push_back(idx);
+    
     return idx;
   }
 
