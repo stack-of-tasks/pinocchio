@@ -230,6 +230,7 @@ namespace pinocchio
 
     /// \brief Index of the last child (for CRBA)
     std::vector<int> lastChild;
+    
     /// \brief Dimension of the subtree motion space (for CRBA)
     std::vector<int> nvSubtree;
 
@@ -247,6 +248,10 @@ namespace pinocchio
     
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
+    
+    /// \brief Each element of this vector corresponds to the ordered list of indexes belonging to the supporting tree of the
+    ///        given index at the row level. It may be helpful to retrieve the sparsity pattern through it.
+    std::vector< std::vector<int> > supports_fromRow;
     
     /// \brief Subtree of the current row index (used in Cholesky Decomposition).
     std::vector<int> nvSubtree_fromRow;
@@ -347,6 +352,7 @@ namespace pinocchio
   private:
     void computeLastChild(const Model & model);
     void computeParents_fromRow(const Model & model);
+    void computeSupports_fromRow(const Model & model);
 
   };
 

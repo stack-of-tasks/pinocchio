@@ -68,6 +68,7 @@ namespace pinocchio
   , Dinv(model.nv)
   , tmp(model.nv)
   , parents_fromRow((std::size_t)model.nv)
+  , supports_fromRow((std::size_t)model.nv)
   , nvSubtree_fromRow((std::size_t)model.nv)
   , J(6,model.nv)
   , dJ(6,model.nv)
@@ -106,13 +107,14 @@ namespace pinocchio
     { Fcrb[i].resize(6,model.nv); }
     
     computeLastChild(model);
-    
+
     /* Init for Coriolis */
     C.setZero();
 
     /* Init for Cholesky */
     U.setIdentity();
     computeParents_fromRow(model);
+    computeSupports_fromRow(model);
 
     /* Init Jacobian */
     J.setZero();
@@ -176,6 +178,36 @@ namespace pinocchio
       {
         parents_fromRow[(Index)(idx_vj+row)] = idx_vj+row-1;
         nvSubtree_fromRow[(Index)(idx_vj+row)] = nvSubtree[joint]-row;
+      }
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void DataTpl<Scalar,Options,JointCollectionTpl>
+  ::computeSupports_fromRow(const Model & model)
+  {
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex joint_id = 1;
+        joint_id < (JointIndex)(model.njoints);
+        joint_id++)
+    {
+      const int nvj    = nv   (model.joints[joint_id]);
+      const int idx_vj = idx_v(model.joints[joint_id]);
+      
+      assert(idx_vj >= 0 && idx_vj < model.nv);
+      
+      const int parent_fromRow = parents_fromRow[(size_t)idx_vj];
+      
+      if(parent_fromRow >= 0)
+        supports_fromRow[(size_t)idx_vj] = supports_fromRow[(size_t)parent_fromRow];
+      
+      supports_fromRow[(size_t)idx_vj].push_back(idx_vj);
+      
+      for(int row = 1; row < nvj; ++row)
+      {
+        supports_fromRow[(size_t)(idx_vj+row)] = supports_fromRow[(size_t)(idx_vj+row-1)];
+        supports_fromRow[(size_t)(idx_vj+row)].push_back(idx_vj+row);
       }
     }
   }
