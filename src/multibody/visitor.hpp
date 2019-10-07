@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -51,7 +51,7 @@ namespace pinocchio
                             JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
                             ArgsTmp args)
       {
-        InternalVisitor<JointModelTpl<Scalar,Options,JointCollectionTpl>,ArgsTmp> visitor(jdata,args);
+        InternalVisitorModelAndData<JointModelTpl<Scalar,Options,JointCollectionTpl>,ArgsTmp> visitor(jdata,args);
         return boost::apply_visitor(visitor,jmodel);
       }
       
@@ -59,16 +59,16 @@ namespace pinocchio
       static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                             JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
       {
-        InternalVisitor<JointModelTpl<Scalar,Options,JointCollectionTpl>,NoArg> visitor(jdata);
+        InternalVisitorModelAndData<JointModelTpl<Scalar,Options,JointCollectionTpl>,NoArg> visitor(jdata);
         return boost::apply_visitor(visitor,jmodel);
       }
       
       template<typename JointModelDerived, typename ArgsTmp>
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
-                            typename JointModelBase<JointModelDerived>::JointDataDerived  & jdata,
+                            typename JointModelBase<JointModelDerived>::JointDataDerived & jdata,
                             ArgsTmp args)
       {
-        InternalVisitor<JointModelDerived,ArgsTmp> visitor(jdata,args);
+        InternalVisitorModelAndData<JointModelDerived,ArgsTmp> visitor(jdata,args);
         return visitor(jmodel.derived());
       }
       
@@ -76,7 +76,7 @@ namespace pinocchio
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
                             typename JointModelBase<JointModelDerived>::JointDataDerived & jdata)
       {
-        InternalVisitor<JointModelDerived,NoArg> visitor(jdata);
+        InternalVisitorModelAndData<JointModelDerived,NoArg> visitor(jdata);
         return visitor(jmodel.derived());
       }
       
@@ -84,14 +84,14 @@ namespace pinocchio
       static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                             ArgsTmp args)
       {
-        ModelOnlyInternalVisitor<ArgsTmp> visitor(args);
+        InternalVisitorModel<ArgsTmp> visitor(args);
         return boost::apply_visitor(visitor,jmodel);
       }
       
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       static ReturnType run(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
       {
-        ModelOnlyInternalVisitor<NoArg> visitor;
+        InternalVisitorModel<NoArg> visitor;
         return boost::apply_visitor(visitor,jmodel);
       }
       
@@ -99,26 +99,26 @@ namespace pinocchio
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel,
                             ArgsTmp args)
       {
-        ModelOnlyInternalVisitor<ArgsTmp> visitor(args);
+        InternalVisitorModel<ArgsTmp> visitor(args);
         return visitor(jmodel.derived());
       }
       
       template<typename JointModelDerived>
       static ReturnType run(const JointModelBase<JointModelDerived> & jmodel)
       {
-        ModelOnlyInternalVisitor<NoArg> visitor;
+        InternalVisitorModel<NoArg> visitor;
         return visitor(jmodel.derived());
       }
       
     private:
       
       template<typename JointModel, typename ArgType>
-      struct InternalVisitor
+      struct InternalVisitorModelAndData
       : public boost::static_visitor<ReturnType>
       {
         typedef typename JointModel::JointDataDerived JointData;
         
-        InternalVisitor(JointData & jdata, ArgType args)
+        InternalVisitorModelAndData(JointData & jdata, ArgType args)
         : jdata(jdata), args(args)
         {}
         
@@ -138,12 +138,12 @@ namespace pinocchio
       };
       
       template<typename JointModel>
-      struct InternalVisitor<JointModel,NoArg>
+      struct InternalVisitorModelAndData<JointModel,NoArg>
       : public boost::static_visitor<ReturnType>
       {
         typedef typename JointModel::JointDataDerived JointData;
         
-        InternalVisitor(JointData & jdata)
+        InternalVisitorModelAndData(JointData & jdata)
         : jdata(jdata)
         {}
         
@@ -160,9 +160,9 @@ namespace pinocchio
       };
       
       template<typename ArgType, typename Dummy = void>
-      struct ModelOnlyInternalVisitor : public boost::static_visitor<ReturnType>
+      struct InternalVisitorModel : public boost::static_visitor<ReturnType>
       {
-        ModelOnlyInternalVisitor(ArgType args)
+        InternalVisitorModel(ArgType args)
         : args(args)
         {}
         
@@ -180,10 +180,10 @@ namespace pinocchio
       };
       
       template<typename Dummy>
-      struct ModelOnlyInternalVisitor<NoArg,Dummy>
+      struct InternalVisitorModel<NoArg,Dummy>
       : public boost::static_visitor<ReturnType>
       {
-        ModelOnlyInternalVisitor() {}
+        InternalVisitorModel() {}
 
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
