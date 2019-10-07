@@ -63,6 +63,7 @@ namespace pinocchio
   , Fcrb((std::size_t)model.njoints)
   , lastChild((std::size_t)model.njoints)
   , nvSubtree((std::size_t)model.njoints)
+  , starting_subspace_idx_fromRow((std::size_t)model.nv)
   , U(model.nv,model.nv)
   , D(model.nv)
   , Dinv(model.nv)
@@ -170,14 +171,16 @@ namespace pinocchio
       
       assert(idx_vj >= 0 && idx_vj < model.nv);
       
-      if(parent>0) parents_fromRow[(Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-      else         parents_fromRow[(Index)idx_vj] = -1;
-      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
+      if(parent>0) parents_fromRow[(size_t)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
+      else         parents_fromRow[(size_t)idx_vj] = -1;
+      nvSubtree_fromRow[(size_t)idx_vj] = nvSubtree[joint];
       
+      starting_subspace_idx_fromRow[(size_t)idx_vj] = idx_vj;
       for(int row=1;row<nvj;++row)
       {
-        parents_fromRow[(Index)(idx_vj+row)] = idx_vj+row-1;
-        nvSubtree_fromRow[(Index)(idx_vj+row)] = nvSubtree[joint]-row;
+        parents_fromRow[(size_t)(idx_vj+row)] = idx_vj+row-1;
+        nvSubtree_fromRow[(size_t)(idx_vj+row)] = nvSubtree[joint]-row;
+        starting_subspace_idx_fromRow[(size_t)(idx_vj+row)] = idx_vj;
       }
     }
   }

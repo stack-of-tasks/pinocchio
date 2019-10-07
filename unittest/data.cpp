@@ -13,6 +13,24 @@ using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
+
+  BOOST_AUTO_TEST_CASE(test_data_starting_subspace_idx_fromRow)
+   {
+     Model model;
+     buildModels::humanoidRandom(model);
+     
+     Data data(model);
+     
+     for(Model::JointIndex joint_id = 1; joint_id < (Model::JointIndex)model.njoints; ++joint_id)
+     {
+       const int nv_joint = model.joints[joint_id].nv();
+       const int idx_joint = model.joints[joint_id].idx_v();
+       
+       for(int k = 0; k < nv_joint; ++k)
+         BOOST_CHECK(data.starting_subspace_idx_fromRow[(size_t)(idx_joint+k)] == idx_joint);
+     }
+   }
+
   BOOST_AUTO_TEST_CASE(test_data_supports_fromRow)
   {
     Model model;

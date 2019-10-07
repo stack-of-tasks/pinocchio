@@ -233,6 +233,9 @@ namespace pinocchio
     
     /// \brief Dimension of the subtree motion space (for CRBA)
     std::vector<int> nvSubtree;
+    
+    /// \brief Starting index of the Joint motion subspace
+    std::vector<int> starting_subspace_idx_fromRow;
 
     /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a Cholesky Decomposition.
     MatrixXs U;
