@@ -14,7 +14,7 @@ using namespace pinocchio;
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 
-  BOOST_AUTO_TEST_CASE(test_data_starting_subspace_idx_fromRow)
+  BOOST_AUTO_TEST_CASE(test_data_idx_v_fromRow)
    {
      Model model;
      buildModels::humanoidRandom(model);
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
        const int idx_joint = model.joints[joint_id].idx_v();
        
        for(int k = 0; k < nv_joint; ++k)
-         BOOST_CHECK(data.starting_subspace_idx_fromRow[(size_t)(idx_joint+k)] == idx_joint);
+         BOOST_CHECK(data.idx_v_fromRow[(size_t)(idx_joint+k)] == idx_joint);
      }
    }
 
