@@ -126,7 +126,7 @@ namespace pinocchio
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
           return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::append2(boost::ref(jmodel),
+                            bf::append2(boost::ref(jmodel.derived()),
                                         boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata)),
                                         args));
         }
@@ -151,7 +151,7 @@ namespace pinocchio
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
           return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::make_vector(boost::ref(jmodel),
+                            bf::make_vector(boost::ref(jmodel.derived()),
                                             boost::ref(boost::get<typename JointModelBase<JointModelDerived>::JointDataDerived >(jdata)))
                             );
         }
@@ -170,7 +170,7 @@ namespace pinocchio
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
           return bf::invoke(&JointVisitorDerived::template algo<JointModelDerived>,
-                            bf::append(boost::ref(jmodel),
+                            bf::append(boost::ref(jmodel.derived()),
                                        args));
         }
         
@@ -188,7 +188,7 @@ namespace pinocchio
         template<typename JointModelDerived>
         ReturnType operator()(const JointModelBase<JointModelDerived> & jmodel) const
         {
-          return JointVisitorDerived::template algo<JointModelDerived>(jmodel);
+          return JointVisitorDerived::template algo<JointModelDerived>(jmodel.derived());
         }
       };
       
