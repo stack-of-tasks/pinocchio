@@ -1,12 +1,10 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
@@ -17,6 +15,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -26,6 +25,45 @@
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
+
+namespace pinocchio
+{
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStep
+  : fusion::JointVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef fusion::NoArg ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> &,
+                     JointDataBase<typename JointModel::JointDataDerived> &
+                     )
+    { // do nothing
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStep<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],
+                data.joints[i]
+                );
+    }
+  }
+}
+
 
 int main(int argc, const char ** argv)
 {

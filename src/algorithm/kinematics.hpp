@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_hpp__
@@ -10,19 +10,6 @@
 
 namespace pinocchio
 {
-  ///
-  /// \brief Browse through the kinematic structure with a void step.
-  ///
-  /// \note This void step allows to quantify the time spent in the rollout.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
   /// \brief Update the global placement of the joints oMi according to the relative
