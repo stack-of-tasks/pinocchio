@@ -52,6 +52,13 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   .value("LOCAL",::pinocchio::LOCAL)
   .value("LOCAL_WORLD_ALIGNED",::pinocchio::LOCAL_WORLD_ALIGNED)
   ;
+  
+  bp::enum_< ::pinocchio::ArgumentPosition>("ArgumentPosition")
+  .value("ARG0",::pinocchio::ARG0)
+  .value("ARG1",::pinocchio::ARG1)
+  .value("ARG2",::pinocchio::ARG2)
+  .value("ARG3",::pinocchio::ARG3)
+  ;
 
   exposeModel();
   exposeFrame();
