@@ -14,7 +14,7 @@
 namespace bf = boost::fusion;
 
 struct SimpleVisitor
-: public pinocchio::fusion::JointVisitorBase<SimpleVisitor>
+: public pinocchio::fusion::JointUnaryVisitorBase<SimpleVisitor>
 {
 
   typedef bf::vector<const pinocchio::Model &,

@@ -30,7 +30,7 @@ namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct EmptyForwardStep
-  : fusion::JointVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
+  : fusion::JointUnaryVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

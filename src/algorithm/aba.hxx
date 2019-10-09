@@ -19,7 +19,7 @@ namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct AbaForwardStep1
-  : public fusion::JointVisitorBase< AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -147,7 +147,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaBackwardStep
-  : public fusion::JointVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -187,7 +187,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct AbaForwardStep2
-  : public fusion::JointVisitorBase< AbaForwardStep2<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< AbaForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -305,7 +305,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ComputeMinverseForwardStep1
-  : public fusion::JointVisitorBase< ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -346,7 +346,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseBackwardStep
-  : public fusion::JointVisitorBase< ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -409,7 +409,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseForwardStep2
-  : public fusion::JointVisitorBase< ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

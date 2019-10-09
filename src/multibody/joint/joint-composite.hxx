@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_composite_hxx__
@@ -12,7 +12,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType>
   struct JointCompositeCalcZeroOrderStep
-  : fusion::JointVisitorBase< JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : fusion::JointUnaryVisitorBase< JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelComposite;
     typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataComposite;
@@ -74,7 +74,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct JointCompositeCalcFirstOrderStep
-  : public fusion::JointVisitorBase< JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
     typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelComposite;
     typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataComposite;

@@ -43,7 +43,7 @@ namespace pinocchio
    */
   template<typename ConfigVectorType>
   struct JointCalcZeroOrderVisitor
-  : fusion::JointVisitorBase< JointCalcZeroOrderVisitor<ConfigVectorType> >
+  : fusion::JointUnaryVisitorBase< JointCalcZeroOrderVisitor<ConfigVectorType> >
   {
     typedef boost::fusion::vector<const ConfigVectorType &> ArgsType;
 
@@ -73,7 +73,7 @@ namespace pinocchio
    */
   template<typename ConfigVectorType, typename TangentVectorType>
   struct JointCalcFirstOrderVisitor
-  : fusion::JointVisitorBase< JointCalcFirstOrderVisitor<ConfigVectorType,TangentVectorType> >
+  : fusion::JointUnaryVisitorBase< JointCalcFirstOrderVisitor<ConfigVectorType,TangentVectorType> >
   {
     typedef boost::fusion::vector<const ConfigVectorType &,
                                   const TangentVectorType &> ArgsType;
@@ -108,7 +108,7 @@ namespace pinocchio
   
   template<typename Matrix6Type>
   struct JointCalcAbaVisitor
-  : fusion::JointVisitorBase< JointCalcAbaVisitor<Matrix6Type> >
+  : fusion::JointUnaryVisitorBase< JointCalcAbaVisitor<Matrix6Type> >
   {
     
     typedef boost::fusion::vector<Matrix6Type &,
@@ -281,7 +281,7 @@ namespace pinocchio
   
   template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct JointCastVisitor
-  : fusion::JointVisitorBase< JointCastVisitor<NewScalar,Scalar,Options,JointCollectionTpl>, typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type >
+  : fusion::JointUnaryVisitorBase< JointCastVisitor<NewScalar,Scalar,Options,JointCollectionTpl>, typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type >
   {
     typedef fusion::NoArg ArgsType;
     

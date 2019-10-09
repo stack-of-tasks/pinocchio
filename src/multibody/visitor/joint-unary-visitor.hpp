@@ -19,7 +19,7 @@ namespace pinocchio
     typedef boost::blank NoArg;
     
     template<typename JointVisitorDerived, typename ReturnType = void>
-    struct JointVisitorBase
+    struct JointUnaryVisitorBase
     {
       
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ArgsTmp>
@@ -169,7 +169,7 @@ namespace pinocchio
         }
       };
       
-    }; // struct JointVisitorBase
+    }; // struct JointUnaryVisitorBase
     
   } // namespace fusion
 } // namespace pinocchio
