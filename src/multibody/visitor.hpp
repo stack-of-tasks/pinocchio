@@ -8,7 +8,7 @@
 
 #define BOOST_FUSION_INVOKE_MAX_ARITY 10
 
-#include <boost/variant.hpp>
+#include <boost/variant/static_visitor.hpp>
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
 
@@ -160,7 +160,8 @@ namespace pinocchio
       };
       
       template<typename ArgType, typename Dummy = void>
-      struct InternalVisitorModel : public boost::static_visitor<ReturnType>
+      struct InternalVisitorModel
+      : public boost::static_visitor<ReturnType>
       {
         InternalVisitorModel(ArgType args)
         : args(args)
