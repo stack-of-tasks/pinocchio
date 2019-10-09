@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_visitor_hpp__
-#define __pinocchio_visitor_hpp__
+#ifndef __pinocchio_multibody_visitor_hpp__
+#define __pinocchio_multibody_visitor_hpp__
 
 #define BOOST_FUSION_INVOKE_MAX_ARITY 10
 
@@ -198,4 +198,4 @@ namespace pinocchio
   } // namespace fusion
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_visitor_hpp__
+#endif // ifndef __pinocchio_multibody_visitor_hpp__
