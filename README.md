@@ -66,7 +66,7 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 ## Tutorials
 
 **Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
-The content of the tutorials are described [here](http://projects.laas.fr/gepetto/index.php/Teach/Supaero2018) and the source code of these tutorials is located [here](https://github.com/stack-of-tasks/pinocchio-tutorials).
+The content of the tutorials are described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
 
 ## Citing Pinocchio
 
