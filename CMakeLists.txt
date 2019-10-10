@@ -5,6 +5,12 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+SET(PROJECT_NAME pinocchio)
+SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
+SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
+SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
+
+PROJECT(${PROJECT_NAME} CXX)
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
@@ -16,11 +22,6 @@ INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ide.cmake)
 INCLUDE(cmake/apple.cmake)
 
-SET(PROJECT_NAME pinocchio)
-SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
-SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
-SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
-
 SET(DOXYGEN_USE_MATHJAX YES)
 
 # If needed, fix CMake policy for APPLE systems
@@ -29,8 +30,6 @@ APPLY_DEFAULT_APPLE_CONFIGURATION()
 # Disable -Werror on Unix for now.
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
-
-SETUP_PROJECT()
 
 IF(WIN32)
   SET(LINK copy_if_different)
@@ -278,5 +277,3 @@ PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_REQUIERED_COMPONENTS})
 FOREACH(cflags ${CFLAGS_DEPENDENCIES})
   PKG_CONFIG_APPEND_CFLAGS(${cflags})
 ENDFOREACH(cflags ${CFLAGS_DEPENDENCIES})
-
-SETUP_PROJECT_FINALIZE()
