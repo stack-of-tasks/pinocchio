@@ -10,6 +10,10 @@ SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynami
 SET(PROJECT_URL "http://github.com/stack-of-tasks/pinocchio")
 SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 
+# Disable -Werror on Unix for now.
+SET(CXX_DISABLE_WERROR True)
+SET(CMAKE_VERBOSE_MAKEFILE True)
+
 PROJECT(${PROJECT_NAME} CXX)
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/base.cmake")
@@ -27,10 +31,6 @@ SET(DOXYGEN_USE_MATHJAX YES)
 
 # If needed, fix CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
-
-# Disable -Werror on Unix for now.
-SET(CXX_DISABLE_WERROR True)
-SET(CMAKE_VERBOSE_MAKEFILE True)
 
 IF(WIN32)
   SET(LINK copy_if_different)
