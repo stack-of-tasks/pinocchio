@@ -21,6 +21,7 @@ INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ide.cmake)
 INCLUDE(cmake/apple.cmake)
+INCLUDE(cmake/post-project.cmake)
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
