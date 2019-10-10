@@ -14,18 +14,17 @@ SET(PROJECT_CUSTOM_HEADER_EXTENSION "hpp")
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
+INCLUDE(cmake/base.cmake)
 PROJECT(${PROJECT_NAME} CXX)
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${PROJECT_SOURCE_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
 ENDIF()
 
-INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ide.cmake)
 INCLUDE(cmake/apple.cmake)
-INCLUDE(cmake/post-project.cmake)
 
 SET(DOXYGEN_USE_MATHJAX YES)
 
