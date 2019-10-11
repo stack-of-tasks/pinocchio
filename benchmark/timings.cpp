@@ -29,8 +29,8 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct EmptyForwardStep
-  : fusion::JointUnaryVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
+  struct EmptyForwardStepUnaryVisit
+  : fusion::JointUnaryVisitorBase< EmptyForwardStepUnaryVisit<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -47,19 +47,17 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  inline void emptyForwardPassUnaryVisit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-    typedef EmptyForwardStep<Scalar,Options,JointCollectionTpl> Algo;
+    typedef EmptyForwardStepUnaryVisit<Scalar,Options,JointCollectionTpl> Algo;
     
     for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
     {
-      Algo::run(model.joints[i],
-                data.joints[i]
-                );
+      Algo::run(model.joints[i],data.joints[i]);
     }
   }
 }
@@ -250,7 +248,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    emptyForwardPass(model,data);
+    emptyForwardPassUnaryVisit(model,data);
   }
   std::cout << "Empty Forward Pass = \t"; timer.toc(std::cout,NBT);
   
