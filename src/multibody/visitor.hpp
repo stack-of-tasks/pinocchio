@@ -7,5 +7,6 @@
 #define __pinocchio_multibody_visitor_hpp__
 
 #include "pinocchio/multibody/visitor/joint-unary-visitor.hpp"
+#include "pinocchio/multibody/visitor/joint-binary-visitor.hpp"
 
 #endif // ifndef __pinocchio_multibody_visitor_hpp__
