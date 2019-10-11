@@ -1,5 +1,5 @@
 # 
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2019 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 
@@ -43,6 +43,8 @@ IF(UNIX)
     ADD_HEADER_GROUP(HEADERS)
     ADD_SOURCE_GROUP(${PROJECT_NAME}_SOURCES)
 
-    INSTALL(TARGETS ${PROJECT_NAME} DESTINATION lib)
+    INSTALL(TARGETS ${PROJECT_NAME} 
+            EXPORT ${TARGETS_EXPORT_NAME}
+            DESTINATION lib)
 ENDIF(UNIX)
 
