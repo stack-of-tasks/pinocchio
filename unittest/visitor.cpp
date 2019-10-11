@@ -167,6 +167,8 @@ struct SimpleBinaryVisitor4
     BOOST_CHECK(!jmodel2.shortname().empty());
     std::cout << "joint1 name: " << jmodel1.shortname() << std::endl;
     std::cout << "joint2 name: " << jmodel2.shortname() << std::endl;
+    std::cout << "jdata1 name: " << jdata1.classname() << std::endl;
+    std::cout << "jdata2 name: " << jdata2.classname() << std::endl;
   }
 };
 
