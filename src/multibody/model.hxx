@@ -83,17 +83,23 @@ namespace pinocchio
     JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
     jmodel.setIndexes(idx,nq,nv);
     
-    assert(jmodel.idx_q() >= 0);
-    assert(jmodel.idx_v() >= 0);
+    const int joint_nq = jmodel.nq();
+    const int joint_idx_q = jmodel.idx_q();
+    const int joint_nv = jmodel.nv();
+    const int joint_idx_v = jmodel.idx_v();
+    
+    assert(joint_idx_q >= 0);
+    assert(joint_idx_v >= 0);
 
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
     jointPlacements.push_back(joint_placement);
     names          .push_back(joint_name);
-    nq += joint_model.nq();
-    nv += joint_model.nv();
+    
+    nq += joint_nq; nqs.push_back(joint_nq); idx_qs.push_back(joint_idx_q);
+    nv += joint_nv; nvs.push_back(joint_nv); idx_vs.push_back(joint_idx_v);
 
-    if(joint_model.nq() > 0 && joint_model.nv() > 0)
+    if(joint_nq > 0 && joint_nv > 0)
     {
       effortLimit.conservativeResize(nv);
       jmodel.jointVelocitySelector(effortLimit) = max_effort;
@@ -104,7 +110,7 @@ namespace pinocchio
       upperPositionLimit.conservativeResize(nq);
       jmodel.jointConfigSelector(upperPositionLimit) = max_config;
       
-      /// TODO: remove this pragma when neutralConfiguration will be removed
+      // TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       neutralConfiguration.conservativeResize(nq);

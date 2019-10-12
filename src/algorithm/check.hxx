@@ -127,6 +127,16 @@ namespace pinocchio
     CHECK_DATA( (int)data.parents_fromRow.size()   == model.nv );
     CHECK_DATA( (int)data.nvSubtree_fromRow.size() == model.nv );
 
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      const typename Model::JointModel & jmodel = model.joints[joint_id];
+      
+      CHECK_DATA(model.nqs[joint_id] == jmodel.nq());
+      CHECK_DATA(model.idx_qs[joint_id] == jmodel.idx_q());
+      CHECK_DATA(model.nvs[joint_id] == jmodel.nv());
+      CHECK_DATA(model.idx_vs[joint_id] == jmodel.idx_v());
+    }
+    
     for( JointIndex j=1;int(j)<model.njoints;++j )
     {
       JointIndex c = (JointIndex)data.lastChild[j];

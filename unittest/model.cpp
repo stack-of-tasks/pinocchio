@@ -67,6 +67,24 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     }
   }
 
+  BOOST_AUTO_TEST_CASE(test_model_subspace_dimensions)
+  {
+    Model model;
+    buildModels::humanoidRandom(model);
+
+    // Check that i ends supports[i]
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      const Model::JointModel & jmodel = model.joints[joint_id];
+      
+      BOOST_CHECK(model.nqs[joint_id] == jmodel.nq());
+      BOOST_CHECK(model.idx_qs[joint_id] == jmodel.idx_q());
+      
+      BOOST_CHECK(model.nvs[joint_id] == jmodel.nv());
+      BOOST_CHECK(model.idx_vs[joint_id] == jmodel.idx_v());
+    }
+  }
+
   BOOST_AUTO_TEST_CASE(comparison)
   {
     Model model;
