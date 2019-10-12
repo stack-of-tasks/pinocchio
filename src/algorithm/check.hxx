@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_check_hxx__
@@ -128,27 +128,27 @@ namespace pinocchio
     CHECK_DATA( (int)data.nvSubtree_fromRow.size() == model.nv );
 
     for( JointIndex j=1;int(j)<model.njoints;++j )
+    {
+      JointIndex c = (JointIndex)data.lastChild[j];
+      CHECK_DATA((int)c<model.njoints);
+      int nv=model.joints[j].nv();
+      for( JointIndex d=j+1;d<=c;++d ) // explore all descendant
       {
-        JointIndex c = (JointIndex)data.lastChild[j];
-        CHECK_DATA((int)c<model.njoints);
-        int nv=model.joints[j].nv();
-        for( JointIndex d=j+1;d<=c;++d ) // explore all descendant
-          {
-            CHECK_DATA( model.parents[d]>=j );
-            nv+=model.joints[d].nv();
-          }
-        CHECK_DATA(nv==data.nvSubtree[j]);
-        
-        for( JointIndex d=c+1;(int)d<model.njoints;++d)
-          CHECK_DATA( (model.parents[d]<j)||(model.parents[d]>c) );
-
-        int row = model.joints[j].idx_v();
-        CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
-        
-        const JointModel & jparent = model.joints[model.parents[j]];
-        if(row==0) { CHECK_DATA(data.parents_fromRow[(size_t)row]==-1); }
-        else       { CHECK_DATA(jparent.idx_v()+jparent.nv()-1 == data.parents_fromRow[(size_t)row]); }
+        CHECK_DATA( model.parents[d]>=j );
+        nv+=model.joints[d].nv();
       }
+      CHECK_DATA(nv==data.nvSubtree[j]);
+      
+      for( JointIndex d=c+1;(int)d<model.njoints;++d)
+        CHECK_DATA( (model.parents[d]<j)||(model.parents[d]>c) );
+      
+      int row = model.joints[j].idx_v();
+      CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
+      
+      const JointModel & jparent = model.joints[model.parents[j]];
+      if(row==0) { CHECK_DATA(data.parents_fromRow[(size_t)row]==-1); }
+      else       { CHECK_DATA(jparent.idx_v()+jparent.nv()-1 == data.parents_fromRow[(size_t)row]); }
+    }
 
 #undef CHECK_DATA
     return true;
