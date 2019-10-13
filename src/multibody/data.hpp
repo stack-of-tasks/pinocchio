@@ -235,7 +235,7 @@ namespace pinocchio
     std::vector<int> nvSubtree;
     
     /// \brief Starting index of the Joint motion subspace
-    std::vector<int> idx_v_fromRow;
+    std::vector<int> start_idx_v_fromRow;
 
     /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a Cholesky Decomposition.
     MatrixXs U;
