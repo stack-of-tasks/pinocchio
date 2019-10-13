@@ -27,7 +27,10 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
        const int idx_joint = model.joints[joint_id].idx_v();
        
        for(int k = 0; k < nv_joint; ++k)
+       {
          BOOST_CHECK(data.start_idx_v_fromRow[(size_t)(idx_joint+k)] == idx_joint);
+         BOOST_CHECK(data.end_idx_v_fromRow[(size_t)(idx_joint+k)] == idx_joint+nv_joint-1);
+       }
      }
    }
 

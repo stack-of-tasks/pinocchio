@@ -64,6 +64,7 @@ namespace pinocchio
   , lastChild((std::size_t)model.njoints)
   , nvSubtree((std::size_t)model.njoints)
   , start_idx_v_fromRow((std::size_t)model.nv)
+  , end_idx_v_fromRow((std::size_t)model.nv)
   , U(model.nv,model.nv)
   , D(model.nv)
   , Dinv(model.nv)
@@ -176,11 +177,13 @@ namespace pinocchio
       nvSubtree_fromRow[(size_t)idx_vj] = nvSubtree[joint];
       
       start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
+      end_idx_v_fromRow[(size_t)idx_vj] = idx_vj+nvj-1;
       for(int row=1;row<nvj;++row)
       {
         parents_fromRow[(size_t)(idx_vj+row)] = idx_vj+row-1;
         nvSubtree_fromRow[(size_t)(idx_vj+row)] = nvSubtree[joint]-row;
         start_idx_v_fromRow[(size_t)(idx_vj+row)] = start_idx_v_fromRow[(size_t)idx_vj];
+        end_idx_v_fromRow[(size_t)(idx_vj+row)] = end_idx_v_fromRow[(size_t)idx_vj];
       }
     }
   }
