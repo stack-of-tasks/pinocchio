@@ -8,6 +8,12 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
+#include "pinocchio/algorithm/jacobian.hpp"
+
+//#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+#include <unsupported/Eigen/CXX11/Tensor>
+//#endif
+
 namespace pinocchio
 {
   
@@ -124,6 +130,52 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
  
+//#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+  ///
+  /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
+  ///        kinematic Hessian. This function assumes that the joint Jacobians (a.k.a data.J) has been computed first. \See computeJointJacobians
+  ///        for such a function.
+  ///
+  /// \tparam Scalar Scalar type of the kinematic model.
+  /// \tparam Options Alignement options of the kinematic model.
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \remarks This function is also related to \see getJointKinematicHessian.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void
+  computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
+  ///
+  /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
+  ///        kinematic Hessian.
+  ///
+  /// \tparam Scalar Scalar type of the kinematic model.
+  /// \tparam Options Alignement options of the kinematic model.
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration (vector dim model.nq).
+  ///
+  /// \remarks This function is also related to \see getJointKinematicHessian.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline void
+  computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    computeJointJacobians(model,data,q);
+    computeJointKinematicHessians(model,data);
+  }
+
+//#endif
 
 } // namespace pinocchio 
 
