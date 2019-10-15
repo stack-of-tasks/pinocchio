@@ -129,7 +129,6 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
                                               const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
- 
 //#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
   ///
   /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
@@ -173,6 +172,68 @@ namespace pinocchio
   {
     computeJointJacobians(model,data,q);
     computeJointKinematicHessians(model,data);
+  }
+
+  ///
+  /// \brief Retrieves the kinematic Hessian of a given joint according to the values aleardy computed by computeJointKinematicHessians
+  ///        and stored in data. While the kinematic Jacobian of a given joint frame corresponds to the first order derivative of the placement variation with
+  ///        respect to \f$ q \f$, the kinematic Hessian corresponds to the second order derivation of placement variation, which in turns also corresponds
+  ///        to the first order derivative of the kinematic Jacobian. The frame in which the kinematic Hessian is precised by the input argument rf.
+  ///
+  /// \tparam Scalar Scalar type of the kinematic model.
+  /// \tparam Options Alignement options of the kinematic model.
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint in model.
+  /// \param[in] rf Reference frame with respect to which the derivative of the Jacobian is expressed
+  /// \param[out] kinematic_hessian Second order derivative of the joint placement w.r.t. \f$ q \f$ expressed in the frame given by rf.
+  ///
+  /// \remarks This function is also related to \see computeJointKinematicHessians. kinematic_hessian has to be initialized with zero when calling this function
+  ///          for the first time and there is no dynamic memory allocation.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void
+  getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Model::JointIndex joint_id,
+                           const ReferenceFrame rf,
+                           Eigen::Tensor<Scalar,3,Options> & kinematic_hessian);
+
+  ///
+  /// \brief Retrieves the kinematic Hessian of a given joint according to the values aleardy computed by computeJointKinematicHessians
+  ///        and stored in data. While the kinematic Jacobian of a given joint frame corresponds to the first order derivative of the placement variation with
+  ///        respect to \f$ q \f$, the kinematic Hessian corresponds to the second order derivation of placement variation, which in turns also corresponds
+  ///        to the first order derivative of the kinematic Jacobian.
+  ///
+  /// \tparam Scalar Scalar type of the kinematic model.
+  /// \tparam Options Alignement options of the kinematic model.
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint in model.
+  /// \param[in] rf Reference frame with respect to which the derivative of the Jacobian is expressed.
+  ///
+  /// \returns The kinematic Hessian of the joint provided by its joint_id and expressed in the frame precised by the variable rf.
+  ///
+  /// \remarks This function is also related to \see computeJointKinematicHessians. This function will proceed to some dynamic memory allocation for the return type.
+  ///          Please refer to getJointKinematicHessian for a version without dynamic memory allocation.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Eigen::Tensor<Scalar,3,Options>
+  getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Model::JointIndex joint_id,
+                           const ReferenceFrame rf)
+  {
+    typedef Eigen::Tensor<Scalar,3,Options> ReturnType;
+    ReturnType res(6,model.nv,model.nv); res.setZero();
+    getJointKinematicHessian(model,data,joint_id,rf,res);
+    return res;
   }
 
 //#endif

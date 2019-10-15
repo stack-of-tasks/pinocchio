@@ -501,6 +501,223 @@ namespace pinocchio
       }
     }
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void
+  getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const JointIndex joint_id,
+                           const ReferenceFrame rf,
+                           Eigen::Tensor<Scalar,3,Options> & kinematic_hessian)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(joint_id < model.joints.size() && joint_id > 0 && "joint_id is outside the valid index for a joint in model.joints");
+    
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
+    
+    const typename Data::Matrix6x & J = data.J;
+    const typename Data::Tensor3 & kinematic_hessians = data.kinematic_hessians;
+    
+    // Allocate memory
+    assert(kinematic_hessian.dimension(0) == 6 && "The result tensor is not of the right dimension.");
+    assert(kinematic_hessian.dimension(1) == model.nv && "The result tensor is not of the right dimension.");
+    assert(kinematic_hessian.dimension(2) == model.nv && "The result tensor is not of the right dimension.");
+    
+    const int idx_vj = model.joints[joint_id].idx_v();
+    const int nvj = model.joints[joint_id].nv();
+    const Eigen::DenseIndex slice_matrix_size = 6 * model.nv;
+    
+    typedef std::vector<int> IndexVector;
+    const Eigen::DenseIndex last_idx = idx_vj+nvj-1;
+    const std::vector<int> & supporting_indexes = data.supports_fromRow[(size_t)(last_idx)]; // until the last element of the joint size (nvj)
+    
+    typedef Eigen::Map<typename Motion::Vector6> MapVector6;
+    typedef MotionRef<MapVector6> MotionOut;
+    typedef Eigen::Map<const typename Motion::Vector6> ConstMapVector6;
+    typedef MotionRef<ConstMapVector6> MotionIn;
+    
+    switch(rf)
+    {
+      case WORLD:
+      {
+        for(size_t i = 0; i < supporting_indexes.size(); ++i)
+        {
+          const Eigen::DenseIndex outer_row_id = supporting_indexes[i];
+          
+          // Take into account parent indexes of the current joint motion subspace
+          for(int subspace_idx = data.start_idx_v_fromRow[(size_t)outer_row_id];
+              subspace_idx < outer_row_id; ++subspace_idx)
+          {
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + subspace_idx * 6);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + subspace_idx * 6);
+            
+            vec_out = vec_in;
+          }
+          
+          for(size_t j = i+1; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            
+            vec_out = vec_in;
+          }
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED:
+      {
+        typedef MotionRef<const typename Data::Matrix6x::ConstColXpr> MotionColRef;
+        const SE3 & oMlast = data.oMi[joint_id];
+        
+        for(size_t i = 0; i < supporting_indexes.size(); ++i)
+        {
+          const Eigen::DenseIndex outer_row_id = supporting_indexes[i];
+          const MotionColRef S1(J.col(outer_row_id));
+          
+          for(size_t j = 0; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            if(inner_row_id >= data.start_idx_v_fromRow[(size_t)outer_row_id]) break;
+            
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out.linear() = -(S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular());
+          }
+          
+          // Take into account parent indexes of the current joint motion subspace
+          for(int inner_row_id = data.start_idx_v_fromRow[(size_t)outer_row_id];
+              inner_row_id < outer_row_id; ++inner_row_id)
+          {
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            vec_out = vec_in;
+            m_out.linear() -= (S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular()) + oMlast.translation().cross(S1xS2.angular());
+          }
+          
+          // case: outer_row_id == inner_row_id
+          {
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + outer_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out.linear() = -(S1.linear() - oMlast.translation().cross(S1.angular())).cross(S1.angular());
+          }
+          
+          for(size_t j = i+1; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            vec_out = vec_in;
+            m_out.linear() -= (S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular()) + oMlast.translation().cross(S1xS2.angular());
+          }
+        }
+        break;
+      }
+      case LOCAL:
+      {
+        const SE3 & oMlast = data.oMi[joint_id];
+        
+        for(IndexVector::const_reverse_iterator rit = supporting_indexes.rbegin();
+            rit != supporting_indexes.rend(); ++rit)
+        {
+          const Eigen::DenseIndex outer_row_id = *rit;
+          
+          // This corresponds to the joint connected to the world, we can skip
+          if(data.parents_fromRow[(size_t)data.start_idx_v_fromRow[(size_t)outer_row_id]] < 0)
+            continue;
+          
+          // Take into account current joint motion subspace
+          for(int subspace_idx = data.end_idx_v_fromRow[(size_t)outer_row_id];
+              subspace_idx > outer_row_id; --subspace_idx)
+          {
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + subspace_idx * slice_matrix_size
+                                   + outer_row_id * 6);
+            MotionIn m_in(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + subspace_idx * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out = oMlast.actInv(m_in);
+          }
+          
+          IndexVector::const_reverse_iterator inner_rit = rit;
+          for(++inner_rit;
+              inner_rit != supporting_indexes.rend(); ++inner_rit)
+          {
+            const Eigen::DenseIndex inner_row_id = *inner_rit;
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                    + inner_row_id * slice_matrix_size
+                                    + outer_row_id * 6);
+            
+            MotionIn m_in(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out = oMlast.actInv(m_in);
+          }
+        }
+        
+        break;
+      }
+      default:
+        assert(false && "must never happened");
+        break;
+    }
+  }
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_kinematics_derivatives_hxx__
