@@ -119,7 +119,11 @@ namespace pinocchio
     CHECK_DATA( data.torque_residual.size() == model.nv );
     CHECK_DATA( data.dq_after.size() == model.nv );
     //CHECK_DATA( data.impulse_c.size()== model.nv );
-
+    
+    CHECK_DATA( data.kinematic_hessians.dimension(0) == 6);
+    CHECK_DATA( data.kinematic_hessians.dimension(1) == model.nv);
+    CHECK_DATA( data.kinematic_hessians.dimension(2) == model.nv);
+    
     CHECK_DATA( (int)data.oMf.size()      == model.nframes );
 
     CHECK_DATA( (int)data.lastChild.size()         == model.njoints );
