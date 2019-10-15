@@ -96,10 +96,11 @@ namespace pinocchio
   , impulse_c()
   , staticRegressor(3,4*(model.njoints-1))
   , jointTorqueRegressor(model.nv,10*(model.njoints-1))
+  , kinematic_hessians(6,model.nv,model.nv)
   {
     typedef typename Model::JointIndex JointIndex;
     
-    /* Create data strcture associated to the joints */
+    /* Create data structure associated to the joints */
     for(JointIndex i=0;i<(JointIndex)(model.njoints);++i)
       joints.push_back(CreateJointData<Scalar,Options,JointCollectionTpl>::run(model.joints[i]));
 
@@ -137,6 +138,8 @@ namespace pinocchio
     
     Yaba[0].setZero();
     Ycrb[0].setZero();
+    
+    kinematic_hessians.setZero();
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
