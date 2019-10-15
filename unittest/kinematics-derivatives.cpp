@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -477,6 +477,179 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
   }
   
   
+}
+
+BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  
+  Data data(model), data_ref(model), data_plus(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  const Model::JointIndex joint_id = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  
+  computeJointJacobians(model,data,q);
+  computeJointKinematicHessians(model,data);
+  
+  Data data2(model);
+  computeJointKinematicHessians(model,data2,q);
+  BOOST_CHECK(data2.J.isApprox(data.J));
+  
+  const Eigen::DenseIndex matrix_offset = 6 * model.nv;
+  
+  for(int k = 0; k < model.nv; ++k)
+  {
+    Eigen::Map<Data::Matrix6x> dJ(data.kinematic_hessians.data() + k*matrix_offset,6,model.nv);
+    Eigen::Map<Data::Matrix6x> dJ2(data2.kinematic_hessians.data() + k*matrix_offset,6,model.nv);
+    
+    BOOST_CHECK(dJ2.isApprox(dJ));
+  }
+  
+  for(int i = 0; i < model.nv; ++i)
+  {
+    for(int j = i; j < model.nv; ++j)
+    {
+      bool j_is_children_of_i = false;
+      for(int parent = j; parent >= 0; parent = data.parents_fromRow[(size_t)parent])
+      {
+        if(parent == i)
+        {
+          j_is_children_of_i = true;
+          break;
+        }
+      }
+      
+      if(j_is_children_of_i)
+      {
+        if(i==j)
+        {
+          Eigen::Map<Data::Motion::Vector6> SixSi(  data.kinematic_hessians.data()
+                                                  + i * matrix_offset
+                                                  + i * 6);
+          BOOST_CHECK(SixSi.isZero());
+        }
+        else
+        {
+          Eigen::Map<Data::Motion::Vector6> SixSj(  data.kinematic_hessians.data()
+                                                  + i * matrix_offset
+                                                  + j * 6);
+          
+          Eigen::Map<Data::Motion::Vector6> SjxSi(  data.kinematic_hessians.data()
+                                                  + j * matrix_offset
+                                                  + i * 6);
+          
+          BOOST_CHECK(SixSj.isApprox(-SjxSi));
+        }
+      }
+      else
+      {
+        Eigen::Map<Data::Motion::Vector6> SixSj(  data.kinematic_hessians.data()
+                                                + i * matrix_offset
+                                                + j * 6);
+        
+        Eigen::Map<Data::Motion::Vector6> SjxSi(  data.kinematic_hessians.data()
+                                                + j * matrix_offset
+                                                + i * 6);
+        
+        BOOST_CHECK(SixSj.isZero());
+        BOOST_CHECK(SjxSi.isZero());
+      }
+    }
+  }
+  
+  const double eps = 1e-8;
+  Data::Matrix6x J_ref(6,model.nv), J_plus(6,model.nv);
+  J_ref.setZero(); J_plus.setZero();
+  
+  computeJointJacobians(model,data_ref,q);
+  VectorXd v_plus(VectorXd::Zero(model.nv));
+  
+  const Eigen::DenseIndex outer_offset = model.nv * 6;
+  
+  // WORLD
+  getJointJacobian(model,data_ref,joint_id,WORLD,J_ref);
+  Data::Tensor3 kinematic_hessian_world = getJointKinematicHessian(model,data,joint_id,WORLD);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] = eps;
+    const VectorXd q_plus = integrate(model,q,v_plus);
+    computeJointJacobians(model,data_plus,q_plus);
+    J_plus.setZero();
+    getJointJacobian(model,data_plus,joint_id,WORLD,J_plus);
+    
+    Data::Matrix6x dJ_dq_ref = (J_plus - J_ref)/eps;
+    Eigen::Map<Data::Matrix6x> dJ_dq(kinematic_hessian_world.data() + k * outer_offset,6,model.nv);
+    
+//    std::cout << "k: " << k << std::endl;
+//    std::cout << "dJ_dq:\n" << dJ_dq << std::endl;
+//    std::cout << "dJ_dq_ref:\n" << dJ_dq_ref << std::endl;
+    BOOST_CHECK((dJ_dq_ref-dJ_dq).isZero(sqrt(eps)));
+    v_plus[k] = 0.;
+  }
+    
+  // LOCAL_WORLD_ALIGNED
+  computeJointJacobians(model,data_ref,q);
+  getJointJacobian(model,data_ref,joint_id,LOCAL_WORLD_ALIGNED,J_ref);
+  Data::Tensor3 kinematic_hessian_local_world_aligned = getJointKinematicHessian(model,data,joint_id,LOCAL_WORLD_ALIGNED);
+  Data::Matrix3x dt_last_fd(3,model.nv);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] = eps;
+    const VectorXd q_plus = integrate(model,q,v_plus);
+    computeJointJacobians(model,data_plus,q_plus);
+    J_plus.setZero();
+    getJointJacobian(model,data_plus,joint_id,LOCAL_WORLD_ALIGNED,J_plus);
+    
+    SE3 tMt_plus = data_ref.oMi[joint_id].inverse() * data_plus.oMi[joint_id];
+    tMt_plus.rotation().setIdentity();
+    
+    dt_last_fd.col(k) = (data_plus.oMi[joint_id].translation() - data_ref.oMi[joint_id].translation())/eps;
+    
+    Data::Matrix6x dJ_dq_ref = (J_plus - J_ref)/eps;
+    Eigen::Map<Data::Matrix6x> dJ_dq(kinematic_hessian_local_world_aligned.data() + k * outer_offset,6,model.nv);
+
+//    std::cout << "k: " << k << std::endl;
+//    std::cout << "dJ_dq:\n" << dJ_dq << std::endl;
+//    std::cout << "dJ_dq_ref:\n" << dJ_dq_ref << std::endl;
+    BOOST_CHECK((dJ_dq_ref-dJ_dq).isZero(sqrt(eps)));
+    v_plus[k] = 0.;
+  }
+  
+  Data::Matrix6x J_world(6,model.nv); J_world.setZero();
+  getJointJacobian(model,data_ref,joint_id,LOCAL_WORLD_ALIGNED,J_world);
+  
+  BOOST_CHECK(dt_last_fd.isApprox(J_world.topRows<3>(),sqrt(eps)));
+  
+  // LOCAL
+  computeJointJacobians(model,data_ref,q);
+  getJointJacobian(model,data_ref,joint_id,LOCAL,J_ref);
+  Data::Tensor3 kinematic_hessian_local = getJointKinematicHessian(model,data,joint_id,LOCAL);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] = eps;
+    const VectorXd q_plus = integrate(model,q,v_plus);
+    computeJointJacobians(model,data_plus,q_plus);
+    J_plus.setZero();
+    getJointJacobian(model,data_plus,joint_id,LOCAL,J_plus);
+    
+//    const SE3 tMt_plus = data_ref.oMi[joint_id].inverse() * data_plus.oMi[joint_id];
+ 
+    Data::Matrix6x dJ_dq_ref = (J_plus - J_ref)/eps;
+    Eigen::Map<Data::Matrix6x> dJ_dq(kinematic_hessian_local.data() + k * outer_offset,6,model.nv);
+    
+//    std::cout << "k: " << k << std::endl;
+//    std::cout << "dJ_dq:\n" << dJ_dq << std::endl;
+//    std::cout << "dJ_dq_ref:\n" << dJ_dq_ref << std::endl;
+    BOOST_CHECK((dJ_dq_ref-dJ_dq).isZero(sqrt(eps)));
+    v_plus[k] = 0.;
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
