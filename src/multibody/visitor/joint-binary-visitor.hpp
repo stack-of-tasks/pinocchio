@@ -18,6 +18,11 @@ namespace pinocchio
     
     typedef boost::blank NoArg;
     
+    ///
+    /// \brief Base structure for \b Binary  visitation of two JointModels.
+    ///        This structure provides runners to call the right visitor according to the number of arguments.
+    ///        This should be used when deriving new rigid body algorithms.
+    ///
     template<typename JointVisitorDerived, typename ReturnType = void>
     struct JointBinaryVisitorBase
     {
