@@ -30,7 +30,7 @@ namespace pinocchio
     typedef DataRefType ToVectorReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) ConstDataRefType;
     typedef ConstDataRefType ToVectorConstReturnType;
-    typedef MotionRef<Vector6ArgType> ForceRefType;
+    typedef ForceRef<Vector6ArgType> ForceRefType;
     
   }; // traits ForceRef
   
