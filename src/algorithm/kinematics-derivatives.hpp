@@ -104,9 +104,9 @@ namespace pinocchio
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xOut1 Matrix6x containing the partial derivatives of the spatial velocity with respect to the joint configuration vector.
   /// \tparam Matrix6xOut2 Matrix6x containing the partial derivatives of the spatial velocity with respect to the joint velocity vector.
-  /// \tparam Matrix6xOut2 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint configuration vector.
-  /// \tparam Matrix6xOut3 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint velocity vector.
-  /// \tparam Matrix6xOut4 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint acceleration vector.
+  /// \tparam Matrix6xOut3 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint configuration vector.
+  /// \tparam Matrix6xOut4 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint velocity vector.
+  /// \tparam Matrix6xOut5 Matrix6x containing the partial derivatives of the spatial acceleration with respect to the joint acceleration vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
