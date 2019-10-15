@@ -167,8 +167,19 @@ namespace pinocchio
           return JointVisitorDerived::template algo<JointModelDerived>(jmodel.derived());
         }
       };
-      
     }; // struct JointUnaryVisitorBase
+    
+    ///
+    /// \brief This helper structure is now deprecated and has been replaced by JointUnaryVisitorBase.
+    ///
+    template<typename JointVisitorDerived, typename ReturnType = void>
+    PINOCCHIO_DEPRECATED
+    struct JointVisitorBase
+    : JointUnaryVisitorBase<JointVisitorDerived,ReturnType>
+    {
+      typedef JointUnaryVisitorBase<JointVisitorDerived,ReturnType> Base;
+      using Base::run;
+    };
     
   } // namespace fusion
 } // namespace pinocchio
