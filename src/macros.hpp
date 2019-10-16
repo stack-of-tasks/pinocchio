@@ -21,9 +21,9 @@
 
 #include <exception>
 
+/// \brief Macro to check an assert-like condition and throw a runtime error exception (with a message) if violated.
 #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Wrong argument size"); }
-#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond, message) if (!(cond)) { throw std::runtime_error(message); }
-// #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) void(0);
+#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(cond, message) if (!(cond)) { throw std::runtime_error(message); }
 
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
 #if defined(__GNUC__) || defined(__clang__)
