@@ -104,7 +104,7 @@ namespace pinocchio
                            const int LEVEL,
                            const bool computeSubtreeComs)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(LEVEL >= 0);
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -194,7 +194,7 @@ namespace pinocchio
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
 
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -282,7 +282,7 @@ namespace pinocchio
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const bool computeSubtreeComs)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -384,7 +384,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT((int)rootSubtreeId < model.njoints && "Invalid joint id.");
     TEST_NEW_ASSERT(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
 
@@ -460,7 +460,7 @@ namespace pinocchio
   {
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
     TEST_NEW_ASSERT(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
     
@@ -496,7 +496,7 @@ namespace pinocchio
                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::SE3 SE3;

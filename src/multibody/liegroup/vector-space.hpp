@@ -148,7 +148,7 @@ namespace pinocchio
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;
-          // TEST_NEW_ASSERT(false && "non bounded limit. Cannot uniformly sample joint revolute");
+          assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
           throw std::range_error(error.str());
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;

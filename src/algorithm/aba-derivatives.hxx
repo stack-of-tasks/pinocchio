@@ -348,7 +348,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(aba_partial_dv.rows() == model.nv);
     TEST_NEW_ASSERT(aba_partial_dtau.cols() == model.nv);
     TEST_NEW_ASSERT(aba_partial_dtau.rows() == model.nv);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -418,7 +418,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(aba_partial_dv.rows() == model.nv);
     TEST_NEW_ASSERT(aba_partial_dtau.cols() == model.nv);
     TEST_NEW_ASSERT(aba_partial_dtau.rows() == model.nv);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     

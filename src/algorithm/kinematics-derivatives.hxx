@@ -85,7 +85,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
     TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -188,7 +188,7 @@ namespace pinocchio
     
     TEST_NEW_ASSERT(v_partial_dq.cols() ==  model.nv);
     TEST_NEW_ASSERT(v_partial_dv.cols() ==  model.nv);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -350,7 +350,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(a_partial_dq.cols() ==  model.nv);
     TEST_NEW_ASSERT(a_partial_dv.cols() ==  model.nv);
     TEST_NEW_ASSERT(a_partial_da.cols() ==  model.nv);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

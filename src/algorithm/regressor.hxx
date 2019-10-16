@@ -19,7 +19,7 @@ namespace pinocchio
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq);
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -145,7 +145,7 @@ namespace pinocchio
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      JointIndex jointId)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     PINOCCHIO_UNUSED_VARIABLE(model);
 
@@ -159,7 +159,7 @@ namespace pinocchio
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      FrameIndex frameId)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
@@ -258,7 +258,7 @@ namespace pinocchio
                               const Eigen::MatrixBase<TangentVectorType1> & v,
                               const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq);
     TEST_NEW_ASSERT(v.size() == model.nv);
     TEST_NEW_ASSERT(a.size() == model.nv);

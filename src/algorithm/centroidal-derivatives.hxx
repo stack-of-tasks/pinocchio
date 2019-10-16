@@ -238,7 +238,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(dhdot_dv.rows() == 6);
     TEST_NEW_ASSERT(dhdot_da.cols() == model.nv);
     TEST_NEW_ASSERT(dhdot_da.rows() == 6);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -363,7 +363,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(dhdot_dv.rows() == 6);
     TEST_NEW_ASSERT(dhdot_da.cols() == model.nv);
     TEST_NEW_ASSERT(dhdot_da.rows() == 6);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

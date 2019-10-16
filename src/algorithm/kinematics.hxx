@@ -33,7 +33,7 @@ namespace pinocchio
   inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef EmptyForwardStep<Scalar,Options,JointCollectionTpl> Algo;
@@ -50,7 +50,7 @@ namespace pinocchio
   inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -106,7 +106,7 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -169,7 +169,7 @@ namespace pinocchio
   {
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -239,7 +239,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
     TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     

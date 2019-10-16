@@ -53,7 +53,7 @@ namespace pinocchio
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -96,7 +96,7 @@ namespace pinocchio
   computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -193,7 +193,7 @@ namespace pinocchio
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     details::translateJointJacobian(model,data,jointId,rf,
                                     data.J,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
@@ -242,7 +242,7 @@ namespace pinocchio
                             const JointIndex jointId,
                             const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -323,7 +323,7 @@ namespace pinocchio
                                      const Eigen::MatrixBase<ConfigVectorType> & q,
                                      const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
     
@@ -347,7 +347,7 @@ namespace pinocchio
                                             const ReferenceFrame rf,
                                             const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     details::translateJointJacobian(model,data,jointId,rf,
                                     data.dJ,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));

@@ -17,7 +17,7 @@ namespace pinocchio
   inline void updateFramePlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                     DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
@@ -40,7 +40,7 @@ namespace pinocchio
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     const typename Model::Frame & frame = model.frames[frame_id];
@@ -64,7 +64,7 @@ namespace pinocchio
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     forwardKinematics(model, data, q);
     updateFramePlacements(model, data);
@@ -76,7 +76,7 @@ namespace pinocchio
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
 
@@ -91,7 +91,7 @@ namespace pinocchio
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     
@@ -110,7 +110,7 @@ namespace pinocchio
     TEST_NEW_ASSERT(J.rows() == 6);
     TEST_NEW_ASSERT(J.cols() == model.nv);
     TEST_NEW_ASSERT(data.J.cols() == model.nv);
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -156,7 +156,7 @@ namespace pinocchio
                             const FrameIndex frameId,
                             const Eigen::MatrixBase<Matrix6Like> & J)
   {
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -193,7 +193,7 @@ namespace pinocchio
   {
     TEST_NEW_ASSERT( dJ.rows() == data.dJ.rows() );
     TEST_NEW_ASSERT( dJ.cols() == data.dJ.cols() );    
-    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
