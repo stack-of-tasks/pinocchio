@@ -10,10 +10,6 @@
 
 #include "pinocchio/algorithm/jacobian.hpp"
 
-//#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-#include <unsupported/Eigen/CXX11/Tensor>
-//#endif
-
 namespace pinocchio
 {
   
@@ -129,7 +125,6 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
                                               const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
-//#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
   ///
   /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
   ///        kinematic Hessian. This function assumes that the joint Jacobians (a.k.a data.J) has been computed first. \See computeJointJacobians
@@ -235,8 +230,6 @@ namespace pinocchio
     getJointKinematicHessian(model,data,joint_id,rf,res);
     return res;
   }
-
-//#endif
 
 } // namespace pinocchio 
 
