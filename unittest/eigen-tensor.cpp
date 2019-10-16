@@ -2,25 +2,19 @@
 // Copyright (c) 2019 INRIA
 //
 
-#include <Eigen/Core>
-
+#include "pinocchio/math/tensor.hpp"
 #include "pinocchio/multibody/model.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-  #include <unsupported/Eigen/CXX11/Tensor>
-#endif
-
 #include <iostream>
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
 BOOST_AUTO_TEST_CASE(test_emulate_tensors)
 {
-  typedef Eigen::Tensor<double,3> Tensor;
+  typedef pinocchio::Tensor<double,3> Tensor;
   
   const Eigen::DenseIndex x_dim = 6, y_dim = 20, z_dim = 20;
   Tensor tensor1(x_dim,y_dim,z_dim);
@@ -45,6 +39,5 @@ BOOST_AUTO_TEST_CASE(test_emulate_tensors)
     }
   }
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
