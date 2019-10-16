@@ -58,8 +58,8 @@ namespace pinocchio
   inline void JointModelCompositeTpl<Scalar,Options,JointCollectionTpl>::
   calc(JointDataDerived & data, const Eigen::MatrixBase<ConfigVectorType> & qs) const
   {
-    TEST_NEW_ASSERT(joints.size() > 0);
-    TEST_NEW_ASSERT(data.joints.size() == joints.size());
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(joints.size() > 0);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(data.joints.size() == joints.size());
     
     typedef JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Algo;
 
@@ -133,8 +133,8 @@ namespace pinocchio
          const Eigen::MatrixBase<ConfigVectorType> & qs,
          const Eigen::MatrixBase<TangentVectorType> & vs) const
   {
-    TEST_NEW_ASSERT(joints.size() > 0);
-    TEST_NEW_ASSERT(jdata.joints.size() == joints.size());
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(joints.size() > 0);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(jdata.joints.size() == joints.size());
     
     typedef JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Algo;
 

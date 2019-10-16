@@ -298,7 +298,7 @@ namespace pinocchio
       const typename SizeDepType<3>::RowsReturn<MatrixDerived>::ConstType
       operator*(const Eigen::MatrixBase<MatrixDerived> & F) const
       {
-        TEST_NEW_ASSERT(F.rows()==6);
+        PINOCCHIO_ASSERT_THROW_AT_RUNTIME(F.rows()==6);
         return F.derived().template middleRows<3>(LINEAR);
       }
       

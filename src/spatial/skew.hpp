@@ -84,7 +84,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
-    TEST_NEW_ASSERT((M + M.transpose()).isMuchSmallerThan(M));
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME((M + M.transpose()).isMuchSmallerThan(M));
     
     Vector3 & v_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3,v);
     typedef typename Vector3::RealScalar Scalar;

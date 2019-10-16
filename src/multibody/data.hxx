@@ -166,7 +166,7 @@ namespace pinocchio
       const int nvj    = nv   (model.joints[joint]);
       const int idx_vj = idx_v(model.joints[joint]);
       
-      TEST_NEW_ASSERT(idx_vj >= 0 && idx_vj < model.nv);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(idx_vj >= 0 && idx_vj < model.nv);
       
       if(parent>0) parents_fromRow[(Index)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
       else         parents_fromRow[(Index)idx_vj] = -1;

@@ -63,7 +63,7 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut,Data::Matrix3x);
     
-    TEST_NEW_ASSERT(vcom_partial_dq.cols() ==  model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(vcom_partial_dq.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

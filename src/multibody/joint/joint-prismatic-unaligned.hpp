@@ -471,7 +471,7 @@ namespace pinocchio
     : axis(x,y,z)
     {
       axis.normalize();
-      TEST_NEW_ASSERT(isUnitary(axis) && "Translation axis is not unitary");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(isUnitary(axis) && "Translation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -479,7 +479,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      TEST_NEW_ASSERT(isUnitary(axis) && "Translation axis is not unitary");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(isUnitary(axis) && "Translation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }

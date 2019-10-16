@@ -38,7 +38,7 @@ namespace pinocchio
     VectorSpaceOperationTpl(int size = boost::static_signed_max<0,Dim>::value)
     : size_(size)
     {
-      TEST_NEW_ASSERT(size_.value() >= 0);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(size_.value() >= 0);
     }
 
     /// Constructor
@@ -46,7 +46,7 @@ namespace pinocchio
     VectorSpaceOperationTpl(const VectorSpaceOperationTpl & other)
     : Base(), size_(other.size_.value())
     {
-      TEST_NEW_ASSERT(size_.value() >= 0);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(size_.value() >= 0);
     }
 
     Index nq () const

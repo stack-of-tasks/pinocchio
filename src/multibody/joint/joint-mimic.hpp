@@ -87,7 +87,7 @@ namespace pinocchio
     template<typename VectorLike>
     JointMotion __mult__(const Eigen::MatrixBase<VectorLike> & v) const
     {
-      TEST_NEW_ASSERT(v.size() == nv());
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == nv());
       JointMotion jm = m_constraint * v;
       return jm * m_scaling_factor;
     }

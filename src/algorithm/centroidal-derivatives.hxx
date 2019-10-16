@@ -199,7 +199,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6xLikeOut,6,Eigen::Dynamic)
 
-      TEST_NEW_ASSERT(Fin.cols() == Fout.cols() && "Fin and Fout do not have the same number of columns");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(Fin.cols() == Fout.cols() && "Fin and Fout do not have the same number of columns");
 
       for(Eigen::DenseIndex k = 0; k < Fin.cols(); ++k)
       {
@@ -227,17 +227,17 @@ namespace pinocchio
                                        const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                        const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
   {
-    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
-    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
-    TEST_NEW_ASSERT(a.size() == model.nv && "The joint acceleration vector is not of right size");
-    TEST_NEW_ASSERT(dh_dq.cols() == model.nv);
-    TEST_NEW_ASSERT(dh_dq.rows() == 6);
-    TEST_NEW_ASSERT(dhdot_dq.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_dq.rows() == 6);
-    TEST_NEW_ASSERT(dhdot_dv.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_dv.rows() == 6);
-    TEST_NEW_ASSERT(dhdot_da.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_da.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dh_dq.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dh_dq.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dq.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dq.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dv.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dv.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_da.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_da.rows() == 6);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -357,12 +357,12 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                    const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
   {
-    TEST_NEW_ASSERT(dhdot_dq.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_dq.rows() == 6);
-    TEST_NEW_ASSERT(dhdot_dv.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_dv.rows() == 6);
-    TEST_NEW_ASSERT(dhdot_da.cols() == model.nv);
-    TEST_NEW_ASSERT(dhdot_da.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dq.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dq.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dv.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dv.rows() == 6);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_da.cols() == model.nv);
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_da.rows() == 6);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

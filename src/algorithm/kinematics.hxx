@@ -105,7 +105,7 @@ namespace pinocchio
                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -167,8 +167,8 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
-    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The velocity vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -236,9 +236,9 @@ namespace pinocchio
                                 const Eigen::MatrixBase<TangentVectorType1> & v,
                                 const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
-    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
-    TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a.size() == model.nv && "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;

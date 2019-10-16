@@ -178,7 +178,7 @@ namespace pinocchio
        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -206,7 +206,7 @@ namespace pinocchio
               const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     

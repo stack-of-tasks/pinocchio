@@ -51,8 +51,8 @@ namespace pinocchio
     template<typename V1,typename V2>
     ForceTpl(const Eigen::MatrixBase<V1> & v, const Eigen::MatrixBase<V2> & w)
     {
-      TEST_NEW_ASSERT(v.size() == 3);
-      TEST_NEW_ASSERT(w.size() == 3);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == 3);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(w.size() == 3);
       linear() = v; angular() = w;
     }
     
@@ -61,7 +61,7 @@ namespace pinocchio
     : m_data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
-      TEST_NEW_ASSERT(v.size() == 6);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == 6);
     }
     
     template<int O2>

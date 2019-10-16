@@ -87,7 +87,7 @@ namespace pinocchio
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
-      TEST_NEW_ASSERT(v_like.size() == 6);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v_like.size() == 6);
     }
     
     ToVectorConstReturnType toVector_impl() const { return m_ref; }
@@ -183,7 +183,7 @@ namespace pinocchio
     {
       EIGEN_STATIC_ASSERT(Vector6ArgType::ColsAtCompileTime == 1,
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
-      TEST_NEW_ASSERT(v_like.size() == 6);
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v_like.size() == 6);
     }
     
     ToVectorConstReturnType toVector_impl() const { return m_ref; }

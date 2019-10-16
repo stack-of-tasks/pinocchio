@@ -23,8 +23,8 @@
 #include <cassert>
 
 #undef assert
-#define TEST_NEW_ASSERT(cond) if (!(cond)) { throw std::runtime_error("sad"); }
-// #define TEST_NEW_ASSERT(cond) void(0);
+#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Wrong argument size"); }
+// #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) void(0);
 
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
 #if defined(__GNUC__) || defined(__clang__)
@@ -65,7 +65,7 @@ namespace pinocchio
   EIGEN_STATIC_ASSERT(   (type::RowsAtCompileTime == Eigen::Dynamic || type::RowsAtCompileTime == nrows) \
                       && (type::ColsAtCompileTime == Eigen::Dynamic || type::ColsAtCompileTime == ncols),\
                       THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);    \
-  TEST_NEW_ASSERT(M.rows()==nrows && M.cols()==ncols);
+  PINOCCHIO_ASSERT_THROW_AT_RUNTIME(M.rows()==nrows && M.cols()==ncols);
 
 /// Static assertion.
 /// \param condition a boolean convertible expression

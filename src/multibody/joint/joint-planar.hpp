@@ -239,7 +239,7 @@ namespace pinocchio
       {
         typedef typename Eigen::MatrixBase<Derived>::Scalar Scalar;
         typedef Eigen::Matrix<Scalar, 3, Derived::ColsAtCompileTime> MatrixReturnType;
-        TEST_NEW_ASSERT(F.rows()==6);
+        PINOCCHIO_ASSERT_THROW_AT_RUNTIME(F.rows()==6);
 
         MatrixReturnType result(3, F.cols ());
         result.template topRows<2>() = F.template topRows<2>();
