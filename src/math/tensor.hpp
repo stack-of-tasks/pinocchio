@@ -123,6 +123,41 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT(5 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
     }
     
+    EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const Scalar& operator()(Index i0) const
+    {
+      EIGEN_STATIC_ASSERT(1 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
+      return m_storage.coeff(i0);
+    }
+    
+    EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const Scalar& operator()(Index i0, Index i1) const
+    {
+      EIGEN_STATIC_ASSERT(2 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
+      return m_storage.coeff(i0 + i1 * m_dimensions[0]);
+    }
+    
+    EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const Scalar& operator()(Index i0, Index i1, Index i2) const
+    {
+      EIGEN_STATIC_ASSERT(3 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
+      return m_storage.coeff(i0 + i1 * m_dimensions[0] + i2 * m_dimensions[1] * m_dimensions[0]);
+    }
+    
+    EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const Scalar& operator()(Index i0, Index i1, Index i2, Index i3) const
+    {
+      EIGEN_STATIC_ASSERT(4 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
+      return coeff(i0 + i1 * m_dimensions[0] + i2 * m_dimensions[1] * m_dimensions[0] + i3 * m_dimensions[2] * m_dimensions[1] * m_dimensions[0]);
+    }
+    
+    EIGEN_DEVICE_FUNC
+    EIGEN_STRONG_INLINE const Scalar& operator()(Index i0, Index i1, Index i2, Index i3, Index i4) const
+    {
+      EIGEN_STATIC_ASSERT(5 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
+      return coeff(i0 + i1 * m_dimensions[0] + i2 * m_dimensions[1] * m_dimensions[0] + i3 * m_dimensions[2] * m_dimensions[1] * m_dimensions[0] + i4 * m_dimensions[3] * m_dimensions[2] * m_dimensions[1] * m_dimensions[0]);
+    }
+    
   protected:
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> StorageType;
