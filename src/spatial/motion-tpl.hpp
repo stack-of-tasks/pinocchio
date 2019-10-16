@@ -59,8 +59,8 @@ namespace pinocchio
     template<typename V1,typename V2>
     MotionTpl(const Eigen::MatrixBase<V1> & v, const Eigen::MatrixBase<V2> & w)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == 3);
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(w.size() == 3);
+      assert(v.size() == 3);
+      assert(w.size() == 3);
       linear() = v; angular() = w;
     }
     
@@ -69,7 +69,7 @@ namespace pinocchio
     : m_data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == 6);
+      assert(v.size() == 6);
     }
     
     template<int O2>

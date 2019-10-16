@@ -54,7 +54,7 @@ namespace pinocchio
             fout -= m.act(fin);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -108,7 +108,7 @@ namespace pinocchio
             fout -= v.cross(fin);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -187,7 +187,7 @@ namespace pinocchio
             fout -= m.actInv(fin);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -309,7 +309,7 @@ namespace pinocchio
             mout -= m.act(min);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -385,7 +385,7 @@ namespace pinocchio
             mout -= v.cross(min);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -434,7 +434,7 @@ namespace pinocchio
             mout -= m.actInv(min);
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }
@@ -509,7 +509,7 @@ namespace pinocchio
             fout -= I*min;
             break;
           default:
-            PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "Wrong Op requesed value");
+            assert(false && "Wrong Op requesed value");
             break;
         }
       }

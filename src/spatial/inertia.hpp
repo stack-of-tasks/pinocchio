@@ -169,7 +169,7 @@ namespace pinocchio
     
     InertiaTpl(const Matrix6 & I6)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME((I6 - I6.transpose()).isMuchSmallerThan(I6));
+      assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
       mass() = I6(LINEAR, LINEAR);
       const Matrix3 & mc_cross = I6.template block <3,3>(ANGULAR,LINEAR);
       lever() = unSkew(mc_cross);

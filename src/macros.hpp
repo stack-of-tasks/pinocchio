@@ -20,10 +20,9 @@
 #define PINOCCHIO_STRING_LITERAL(string) #string
 
 #include <exception>
-#include <cassert>
 
-#undef assert
 #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Wrong argument size"); }
+#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond, message) if (!(cond)) { throw std::runtime_error(message); }
 // #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) void(0);
 
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
