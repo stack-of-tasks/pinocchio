@@ -9,12 +9,15 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
-#include <unsupported/Eigen/CXX11/Tensor>
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+  #include <unsupported/Eigen/CXX11/Tensor>
+#endif
 
 #include <iostream>
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
 BOOST_AUTO_TEST_CASE(test_emulate_tensors)
 {
   typedef Eigen::Tensor<double,3> Tensor;
@@ -42,5 +45,6 @@ BOOST_AUTO_TEST_CASE(test_emulate_tensors)
     }
   }
 }
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()
