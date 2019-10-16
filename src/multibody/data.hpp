@@ -6,6 +6,8 @@
 #ifndef __pinocchio_data_hpp__
 #define __pinocchio_data_hpp__
 
+#include "pinocchio/math/tensor.hpp"
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -17,7 +19,6 @@
 
 #include <iostream>
 #include <Eigen/Cholesky>
-#include <unsupported/Eigen/CXX11/Tensor>
 
 namespace pinocchio
 {
@@ -76,7 +77,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,10,Options> BodyRegressorType;
     
     /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
-    typedef Eigen::Tensor<Scalar,3,Options> Tensor3;
+    typedef Tensor<Scalar,3,Options> Tensor3x;
 
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
@@ -352,7 +353,7 @@ namespace pinocchio
     MatrixXs jointTorqueRegressor;
     
     /// \brief Tensor containing the kinematic Hessian of all the joints.
-    Tensor3 kinematic_hessians;
+    Tensor3x kinematic_hessians;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

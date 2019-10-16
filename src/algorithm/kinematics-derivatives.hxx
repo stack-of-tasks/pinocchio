@@ -412,7 +412,7 @@ namespace pinocchio
     typedef MotionRef<MapVector6> MotionOut;
     
     const typename Data::Matrix6x & J = data.J;
-    typename Data::Tensor3 & kinematic_hessians = data.kinematic_hessians;
+    typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
     const Eigen::DenseIndex slice_matrix_size = 6 * model.nv;
     
     for(size_t joint_id = 1; joint_id < (size_t)model.njoints; ++joint_id)
@@ -508,7 +508,7 @@ namespace pinocchio
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const JointIndex joint_id,
                            const ReferenceFrame rf,
-                           Eigen::Tensor<Scalar,3,Options> & kinematic_hessian)
+                           Tensor<Scalar,3,Options> & kinematic_hessian)
   {
     assert(model.check(data) && "data is not consistent with model.");
     assert(joint_id < model.joints.size() && joint_id > 0 && "joint_id is outside the valid index for a joint in model.joints");
@@ -518,7 +518,7 @@ namespace pinocchio
     typedef typename Data::Motion Motion;
     
     const typename Data::Matrix6x & J = data.J;
-    const typename Data::Tensor3 & kinematic_hessians = data.kinematic_hessians;
+    const typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
     
     // Allocate memory
     assert(kinematic_hessian.dimension(0) == 6 && "The result tensor is not of the right dimension.");

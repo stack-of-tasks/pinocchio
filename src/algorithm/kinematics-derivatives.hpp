@@ -200,7 +200,7 @@ namespace pinocchio
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Model::JointIndex joint_id,
                            const ReferenceFrame rf,
-                           Eigen::Tensor<Scalar,3,Options> & kinematic_hessian);
+                           Tensor<Scalar,3,Options> & kinematic_hessian);
 
   ///
   /// \brief Retrieves the kinematic Hessian of a given joint according to the values aleardy computed by computeJointKinematicHessians
@@ -224,13 +224,13 @@ namespace pinocchio
   ///          Please refer to getJointKinematicHessian for a version without dynamic memory allocation.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Tensor<Scalar,3,Options>
+  inline Tensor<Scalar,3,Options>
   getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Model::JointIndex joint_id,
                            const ReferenceFrame rf)
   {
-    typedef Eigen::Tensor<Scalar,3,Options> ReturnType;
+    typedef Tensor<Scalar,3,Options> ReturnType;
     ReturnType res(6,model.nv,model.nv); res.setZero();
     getJointKinematicHessian(model,data,joint_id,rf,res);
     return res;
