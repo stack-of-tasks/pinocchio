@@ -27,7 +27,7 @@ namespace pinocchio
               Eigen::QuaternionBase<QuaternionLike> & quat_out)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(v.size() == 3);
+      TEST_NEW_ASSERT(v.size() == 3);
       
       typedef typename Vector3Like::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options };
@@ -147,7 +147,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<Matrix43Like> & Jexp)
     {
 //      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix43Like,4,3);
-      assert(Jexp.rows() == 4 && Jexp.cols() == 3 && "Jexp does have the right size.");
+      TEST_NEW_ASSERT(Jexp.rows() == 4 && Jexp.cols() == 3 && "Jexp does have the right size.");
       Matrix43Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix43Like,Jexp);
       
       typedef typename Vector3Like::Scalar Scalar;

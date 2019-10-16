@@ -185,7 +185,7 @@ namespace pinocchio
               if (joint_id != model.joints.size()) // != model.njoints
               {
                 const JointModel & joint = model.joints[joint_id];
-                assert(joint.nv()==1);
+                TEST_NEW_ASSERT(joint.nv()==1);
                 model.rotorInertia(joint.idx_v()) = rotor_mass;
                 model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
               }
@@ -198,7 +198,7 @@ namespace pinocchio
           return true; 
         }
       }
-      assert(false && "no rotor params found in the srdf file");  
+      TEST_NEW_ASSERT(false && "no rotor params found in the srdf file");  
       return false; // warning : uninitialized vector is returned
     }
     

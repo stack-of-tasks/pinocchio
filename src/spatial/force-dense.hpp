@@ -63,7 +63,7 @@ namespace pinocchio
     template<typename V6>
     Derived & operator=(const Eigen::MatrixBase<V6> & v)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6); assert(v.size() == 6);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6); TEST_NEW_ASSERT(v.size() == 6);
       linear() = v.template segment<3>(LINEAR);
       angular() = v.template segment<3>(ANGULAR);
       return derived();

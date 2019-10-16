@@ -49,7 +49,7 @@ namespace pinocchio
     
     for(JointIndex jid=1; jid<(JointIndex)model.njoints; ++jid)
       {
-        assert(LEVEL>=0);
+        TEST_NEW_ASSERT(LEVEL>=0);
 
         dest.oMi[jid]      = origin.oMi [jid];
         if(LEVEL>=1) 

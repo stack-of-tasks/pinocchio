@@ -332,7 +332,7 @@ namespace pinocchio
           }
           FrameIndex frame_id = model.getFrameId(link_name, BODY);
           SE3 body_placement = model.frames[frame_id].placement;
-          assert(model.frames[frame_id].type == BODY);
+          TEST_NEW_ASSERT(model.frames[frame_id].type == BODY);
 
           std::size_t objectId = 0;
           for (typename VectorSharedT::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)

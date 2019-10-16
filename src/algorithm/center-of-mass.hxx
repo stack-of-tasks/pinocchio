@@ -104,8 +104,8 @@ namespace pinocchio
                            const int LEVEL,
                            const bool computeSubtreeComs)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(LEVEL >= 0);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(LEVEL >= 0);
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -194,7 +194,7 @@ namespace pinocchio
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
 
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
   }
 
@@ -282,7 +282,7 @@ namespace pinocchio
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const bool computeSubtreeComs)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -384,9 +384,9 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     
-    assert(model.check(data) && "data is not consistent with model.");
-    assert((int)rootSubtreeId < model.njoints && "Invalid joint id.");
-    assert(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT((int)rootSubtreeId < model.njoints && "Invalid joint id.");
+    TEST_NEW_ASSERT(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
 
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
@@ -423,7 +423,7 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data,Jcom_subtree,computeSubtreeComs));
     }
     
-    assert(data.mass[rootSubtreeId] > 0. && "The mass of the subtree is not positive.");
+    TEST_NEW_ASSERT(data.mass[rootSubtreeId] > 0. && "The mass of the subtree is not positive.");
     const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
     typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
     if(not computeSubtreeComs)
@@ -460,9 +460,9 @@ namespace pinocchio
   {
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
-    assert(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(((int)rootSubtreeId < model.njoints) && "Invalid joint id.");
+    TEST_NEW_ASSERT(res.rows() == 3 && res.cols() == model.nv && "the resulting matrix does not have the right size.");
     
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
@@ -496,7 +496,7 @@ namespace pinocchio
                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
 
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::SE3 SE3;

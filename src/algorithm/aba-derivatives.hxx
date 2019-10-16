@@ -309,7 +309,7 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      TEST_NEW_ASSERT(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
@@ -339,16 +339,16 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
-    assert(aba_partial_dq.cols() == model.nv);
-    assert(aba_partial_dq.rows() == model.nv);
-    assert(aba_partial_dv.cols() == model.nv);
-    assert(aba_partial_dv.rows() == model.nv);
-    assert(aba_partial_dtau.cols() == model.nv);
-    assert(aba_partial_dtau.rows() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    TEST_NEW_ASSERT(aba_partial_dq.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dq.rows() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dv.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dv.rows() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dtau.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dtau.rows() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -408,17 +408,17 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
-    assert(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
-    assert(aba_partial_dq.cols() == model.nv);
-    assert(aba_partial_dq.rows() == model.nv);
-    assert(aba_partial_dv.cols() == model.nv);
-    assert(aba_partial_dv.rows() == model.nv);
-    assert(aba_partial_dtau.cols() == model.nv);
-    assert(aba_partial_dtau.rows() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    TEST_NEW_ASSERT(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
+    TEST_NEW_ASSERT(aba_partial_dq.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dq.rows() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dv.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dv.rows() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dtau.cols() == model.nv);
+    TEST_NEW_ASSERT(aba_partial_dtau.rows() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     

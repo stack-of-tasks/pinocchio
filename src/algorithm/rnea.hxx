@@ -100,10 +100,10 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(v.size() == model.nv && "The velocity vector is not of right size");
-    assert(a.size() == model.nv && "The acceleration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
+    TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -139,11 +139,11 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType2> & a,
        const container::aligned_vector<ForceDerived> & fext)
   {
-    assert(fext.size() == model.joints.size());
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(v.size() == model.nv && "The velocity vector is not of right size");
-    assert(a.size() == model.nv && "The acceleration vector is not of right size");
+    TEST_NEW_ASSERT(fext.size() == model.joints.size());
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
+    TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -245,9 +245,9 @@ namespace pinocchio
                    const Eigen::MatrixBase<ConfigVectorType> & q,
                    const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(v.size() == model.nv && "The velocity vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -339,8 +339,8 @@ namespace pinocchio
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -484,9 +484,9 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq);
-    assert(v.size() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq);
+    TEST_NEW_ASSERT(v.size() == model.nv);
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

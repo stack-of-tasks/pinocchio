@@ -222,10 +222,10 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(tau.size() == model.nv && "The joint acceleration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -267,10 +267,10 @@ namespace pinocchio
       const container::aligned_vector<ForceDerived> & fext)
 
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(tau.size() == model.nv && "The joint acceleration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -456,8 +456,8 @@ namespace pinocchio
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     data.Minv.template triangularView<Eigen::Upper>().setZero();

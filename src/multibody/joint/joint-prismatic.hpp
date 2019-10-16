@@ -291,7 +291,7 @@ namespace pinocchio
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
-      assert(v.size() == 1);
+      TEST_NEW_ASSERT(v.size() == 1);
       return JointMotion(v[0]);
     }
 
@@ -334,7 +334,7 @@ namespace pinocchio
       typename ConstraintForceSetOp<ConstraintPrismaticTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F )
       {
-        assert(F.rows()==6);
+        TEST_NEW_ASSERT(F.rows()==6);
         return F.row(LINEAR+axis);
       }
 

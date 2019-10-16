@@ -25,10 +25,10 @@ namespace pinocchio
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
                   const Scalar inv_damping)
   {
-    assert(tau.size() == model.nv);
-    assert(J.cols() == model.nv);
-    assert(J.rows() == gamma.size());
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(tau.size() == model.nv);
+    TEST_NEW_ASSERT(J.cols() == model.nv);
+    TEST_NEW_ASSERT(J.rows() == gamma.size());
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
@@ -78,8 +78,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
                   const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
-    assert(v.size() == model.nv);
+    TEST_NEW_ASSERT(q.size() == model.nq);
+    TEST_NEW_ASSERT(v.size() == model.nv);
 
     computeAllTerms(model, data, q, v);
 
@@ -94,8 +94,8 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv)
   {
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    assert(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
-    assert(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
+    TEST_NEW_ASSERT(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
+    TEST_NEW_ASSERT(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
     const typename Data::MatrixXs::Index& nc = data.JMinvJt.cols();
     
     KKTMatrixType& MJtJ_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,MJtJ_inv);
@@ -124,7 +124,7 @@ namespace pinocchio
                   const Scalar r_coeff,
                   const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
+    TEST_NEW_ASSERT(q.size() == model.nq);
     
     // Compute the mass matrix
     crba(model, data, q);
@@ -141,9 +141,9 @@ namespace pinocchio
                   const Scalar r_coeff,
                   const Scalar inv_damping)
   {
-    assert(v_before.size() == model.nv);
-    assert(J.cols() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(v_before.size() == model.nv);
+    TEST_NEW_ASSERT(J.cols() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     

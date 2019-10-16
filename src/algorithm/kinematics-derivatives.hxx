@@ -82,10 +82,10 @@ namespace pinocchio
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(v.size() == model.nv && "The velocity vector is not of right size");
-    assert(a.size() == model.nv && "The acceleration vector is not of right size");
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
+    TEST_NEW_ASSERT(a.size() == model.nv && "The acceleration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -186,9 +186,9 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
     
-    assert(v_partial_dq.cols() ==  model.nv);
-    assert(v_partial_dv.cols() ==  model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(v_partial_dq.cols() ==  model.nv);
+    TEST_NEW_ASSERT(v_partial_dv.cols() ==  model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -346,11 +346,11 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Data::Matrix6x);
     
-    assert(v_partial_dq.cols() ==  model.nv);
-    assert(a_partial_dq.cols() ==  model.nv);
-    assert(a_partial_dv.cols() ==  model.nv);
-    assert(a_partial_da.cols() ==  model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(v_partial_dq.cols() ==  model.nv);
+    TEST_NEW_ASSERT(a_partial_dq.cols() ==  model.nv);
+    TEST_NEW_ASSERT(a_partial_dv.cols() ==  model.nv);
+    TEST_NEW_ASSERT(a_partial_da.cols() ==  model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

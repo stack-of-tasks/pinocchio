@@ -134,7 +134,7 @@ namespace pinocchio
         }
         default:
         {
-          assert(false && "must nerver happened");
+          TEST_NEW_ASSERT(false && "must nerver happened");
           break;
         }
       }
@@ -183,7 +183,7 @@ namespace pinocchio
         }
         default:
         {
-          assert(false && "must nerver happened");
+          TEST_NEW_ASSERT(false && "must nerver happened");
           break;
         }
       }
@@ -402,7 +402,7 @@ namespace pinocchio
       typename ConstraintForceSetOp<ConstraintRevoluteTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        assert(F.rows()==6);
+        TEST_NEW_ASSERT(F.rows()==6);
         return F.row(ANGULAR + axis);
       }
     }; // struct TransposeConst

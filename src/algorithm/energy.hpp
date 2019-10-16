@@ -70,9 +70,9 @@ namespace pinocchio
                 const Eigen::MatrixBase<TangentVectorType> & v,
                 const bool update_kinematics)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(v.size() == model.nv && "The velocity vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The velocity vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -97,8 +97,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const bool update_kinematics)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

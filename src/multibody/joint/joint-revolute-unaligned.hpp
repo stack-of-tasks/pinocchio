@@ -494,7 +494,7 @@ namespace pinocchio
     : axis(x,y,z)
     {
       axis.normalize();
-      assert(isUnitary(axis) && "Rotation axis is not unitary");
+      TEST_NEW_ASSERT(isUnitary(axis) && "Rotation axis is not unitary");
     }
     
     template<typename Vector3Like>
@@ -502,7 +502,7 @@ namespace pinocchio
     : axis(axis)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      assert(isUnitary(axis) && "Rotation axis is not unitary");
+      TEST_NEW_ASSERT(isUnitary(axis) && "Rotation axis is not unitary");
     }
 
     JointDataDerived createData() const { return JointDataDerived(axis); }

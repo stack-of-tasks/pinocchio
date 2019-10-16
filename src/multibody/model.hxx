@@ -67,12 +67,12 @@ namespace pinocchio
                                                         const VectorXs & max_config
                                                         )
   {
-    assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
+    TEST_NEW_ASSERT( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
-    assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
-    assert(joint_model.nq() >= joint_model.nv());
+    TEST_NEW_ASSERT((joint_model.nq()>=0) && (joint_model.nv()>=0));
+    TEST_NEW_ASSERT(joint_model.nq() >= joint_model.nv());
 
-    assert(max_effort.size() == joint_model.nv()
+    TEST_NEW_ASSERT(max_effort.size() == joint_model.nv()
            && max_velocity.size() == joint_model.nv()
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
@@ -83,8 +83,8 @@ namespace pinocchio
     JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
     jmodel.setIndexes(idx,nq,nv);
     
-    assert(jmodel.idx_q() >= 0);
-    assert(jmodel.idx_v() >= 0);
+    TEST_NEW_ASSERT(jmodel.idx_q() >= 0);
+    TEST_NEW_ASSERT(jmodel.idx_v() >= 0);
 
     inertias       .push_back(Inertia::Zero());
     parents        .push_back(parent);
@@ -153,7 +153,7 @@ namespace pinocchio
       // type is FIXED_JOINT
       fidx = (int)getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert((size_t)fidx < frames.size() && "Frame index out of bound");
+    TEST_NEW_ASSERT((size_t)fidx < frames.size() && "Frame index out of bound");
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
   }
@@ -181,7 +181,7 @@ namespace pinocchio
       // type is FIXED_JOINT
       previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert((size_t)previousFrame < frames.size() && "Frame index out of bound");
+    TEST_NEW_ASSERT((size_t)previousFrame < frames.size() && "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
@@ -207,7 +207,7 @@ namespace pinocchio
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
-    assert((res<INT_MAX) && "Id superior to int range. Should never happen.");
+    TEST_NEW_ASSERT((res<INT_MAX) && "Id superior to int range. Should never happen.");
     return ModelTpl::JointIndex(res);
   }
   
@@ -223,7 +223,7 @@ namespace pinocchio
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   getJointName(const JointIndex index) const
   {
-    assert( index < (ModelTpl::JointIndex)joints.size() );
+    TEST_NEW_ASSERT( index < (ModelTpl::JointIndex)joints.size() );
     return names[index];
   }
 
@@ -236,8 +236,8 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    assert(it != frames.end() && "Frame not found");
-    assert((std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())
+    TEST_NEW_ASSERT(it != frames.end() && "Frame not found");
+    TEST_NEW_ASSERT((std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())
         && "Several frames match the filter");
     return FrameIndex(it - frames.begin());
   }

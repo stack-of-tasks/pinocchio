@@ -91,7 +91,7 @@ namespace pinocchio
     if(tr > Scalar(3))       theta = 0; // acos((3-1)/2)
     else if(tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
     else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
-    assert(theta == theta && "theta contains some NaN"); // theta != NaN
+    TEST_NEW_ASSERT(theta == theta && "theta contains some NaN"); // theta != NaN
     
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
     if (theta < PI_value - 1e-2)

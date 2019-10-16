@@ -32,7 +32,7 @@ namespace pinocchio
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
     {
       EIGEN_STATIC_ASSERT(N==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
-      assert( (I-I.transpose()).isMuchSmallerThan(I) );
+      TEST_NEW_ASSERT( (I-I.transpose()).isMuchSmallerThan(I) );
       m_data(0) = I(0,0);
       m_data(1) = I(1,0); m_data(2) = I(1,1);
       m_data(3) = I(2,0); m_data(4) = I(2,1); m_data(5) = I(2,2);
@@ -379,7 +379,7 @@ namespace pinocchio
 
     Symmetric3Tpl operator-(const Matrix3 &S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      TEST_NEW_ASSERT( (S-S.transpose()).isMuchSmallerThan(S) );
       return Symmetric3Tpl( m_data(0)-S(0,0),
 			    m_data(1)-S(1,0), m_data(2)-S(1,1),
 			    m_data(3)-S(2,0), m_data(4)-S(2,1), m_data(5)-S(2,2) );
@@ -387,7 +387,7 @@ namespace pinocchio
 
     Symmetric3Tpl operator+(const Matrix3 &S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      TEST_NEW_ASSERT( (S-S.transpose()).isMuchSmallerThan(S) );
       return Symmetric3Tpl( m_data(0)+S(0,0),
 			    m_data(1)+S(1,0), m_data(2)+S(1,1),
 			    m_data(3)+S(2,0), m_data(4)+S(2,1), m_data(5)+S(2,2) );
@@ -413,7 +413,7 @@ namespace pinocchio
     Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-      assert(isUnitary(R.transpose()*R) && "R is not a Unitary matrix");
+      TEST_NEW_ASSERT(isUnitary(R.transpose()*R) && "R is not a Unitary matrix");
 
       Symmetric3Tpl Sres;
       

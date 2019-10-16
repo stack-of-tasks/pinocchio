@@ -94,9 +94,9 @@ namespace pinocchio
                         const Eigen::MatrixBase<Velocity_t> & v,
                         const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
-      assert(q.size() == m_nq);
-      assert(v.size() == m_nv);
-      assert(qout.size() == m_nq);
+      TEST_NEW_ASSERT(q.size() == m_nq);
+      TEST_NEW_ASSERT(v.size() == m_nv);
+      TEST_NEW_ASSERT(qout.size() == m_nq);
      
       ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
       Index id_q = 0, id_v = 0;

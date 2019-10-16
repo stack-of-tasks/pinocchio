@@ -111,7 +111,7 @@ namespace pinocchio
     void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
                                          const Eigen::MatrixBase<Jacobian_t> & J) const
     {
-      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      TEST_NEW_ASSERT(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       Jacobian_t & J_ = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
       J_.topRightCorner(lg1_.nq(),lg2_.nv()).setZero();
       J_.bottomLeftCorner(lg2_.nq(),lg1_.nv()).setZero();

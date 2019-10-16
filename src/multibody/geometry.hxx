@@ -42,9 +42,9 @@ namespace pinocchio
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+    TEST_NEW_ASSERT( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].type == pinocchio::BODY)  );
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+    TEST_NEW_ASSERT( //TODO: reenable when relevant (object.parentFrame == -1) ||
            (model.frames[object.parentFrame].parent == object.parentJoint) );
     
     GeomIndex idx = (GeomIndex) (ngeoms ++);
@@ -82,7 +82,7 @@ namespace pinocchio
 
   inline const std::string& GeometryModel::getGeometryName(const GeomIndex index) const
   {
-    assert( index < (GeomIndex)geometryObjects.size() );
+    TEST_NEW_ASSERT( index < (GeomIndex)geometryObjects.size() );
     return geometryObjects[index].name;
   }
 
@@ -168,7 +168,7 @@ namespace pinocchio
   
   inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    TEST_NEW_ASSERT( (pair.first < ngeoms) && (pair.second < ngeoms) );
     if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
   
@@ -189,7 +189,7 @@ namespace pinocchio
   
   inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    TEST_NEW_ASSERT( (pair.first < ngeoms) && (pair.second < ngeoms) );
 
     CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
                                                  collisionPairs.end(),
@@ -217,19 +217,19 @@ namespace pinocchio
 
   inline void GeometryData::activateCollisionPair(const PairIndex pairId,const bool flag)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    TEST_NEW_ASSERT( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = flag;
   }
   
   inline void GeometryData::activateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    TEST_NEW_ASSERT( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = true;
   }
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    TEST_NEW_ASSERT( pairId < activeCollisionPairs.size() );
     activeCollisionPairs[pairId] = false;
   }
 

@@ -34,7 +34,7 @@ namespace pinocchio
         typedef typename Model::Frame Frame;
         typedef typename Model::FrameIndex FrameIndex;
         
-        assert(link && link->getParent());
+        TEST_NEW_ASSERT(link && link->getParent());
         
         FrameIndex id;
         if (!link->getParent()->parent_joint)
@@ -204,7 +204,7 @@ namespace pinocchio
 
         if(joint) // if the link is not the root of the tree
         {
-          assert(link->getParent());
+          TEST_NEW_ASSERT(link->getParent());
 
           const std::string & joint_name = joint->name;
           const std::string & link_name = link->name;
@@ -294,7 +294,7 @@ namespace pinocchio
                   break;
                 }
                 default:
-                  assert(false && "The axis type of the revolute joint is of wrong type.");
+                  TEST_NEW_ASSERT(false && "The axis type of the revolute joint is of wrong type.");
                   break;
               }
               break;
@@ -370,7 +370,7 @@ namespace pinocchio
                 }
 
                 default:
-                  assert(false && "The axis type of the revolute joint is of wrong type.");
+                  TEST_NEW_ASSERT(false && "The axis type of the revolute joint is of wrong type.");
                   break;
               }
               break;
@@ -441,7 +441,7 @@ namespace pinocchio
                 }
 
                 default:
-                  assert(false && "The axis type of the prismatic joint is of wrong type.");
+                  TEST_NEW_ASSERT(false && "The axis type of the prismatic joint is of wrong type.");
                   break;
               }
               break;
@@ -695,7 +695,7 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
     {
-      assert(urdfTree);
+      TEST_NEW_ASSERT(urdfTree);
       model.name = urdfTree->getName();
       ParseRootTreeVisitor<Scalar,Options,JointCollectionTpl>::run(urdfTree->getRoot(),model,root_joint,verbose);
       return model;
@@ -707,7 +707,7 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
     {
-      assert(urdfTree);
+      TEST_NEW_ASSERT(urdfTree);
       model.name = urdfTree->getName();
       details::parseRootTree(urdfTree->getRoot(),model,verbose);
       return model;

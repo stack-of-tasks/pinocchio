@@ -256,7 +256,7 @@ namespace pinocchio
         }
       }
       
-      assert(it_Y == Base::getOutputDimension());
+      TEST_NEW_ASSERT(it_Y == Base::getOutputDimension());
       
       ad_fun.Dependent(ad_X,ad_Y);
       ad_fun.optimize("no_compare_op");
@@ -281,7 +281,7 @@ namespace pinocchio
         }
       }
       
-      assert(it_Y == Base::getOutputDimension());
+      TEST_NEW_ASSERT(it_Y == Base::getOutputDimension());
     }
     
   protected:
@@ -343,7 +343,7 @@ namespace pinocchio
         }
       }
       
-      assert(it_Y == Base::getOutputDimension());
+      TEST_NEW_ASSERT(it_Y == Base::getOutputDimension());
       
       ad_fun.Dependent(ad_X,ad_Y);
       ad_fun.optimize("no_compare_op");
@@ -438,7 +438,7 @@ namespace pinocchio
                                   ad_q,ad_v,ad_a,
                                   ad_dtau_dq,ad_dtau_dv,ad_dtau_da);
       
-      assert(ad_Y.size() == Base::getOutputDimension());
+      TEST_NEW_ASSERT(ad_Y.size() == Base::getOutputDimension());
       
       Eigen::DenseIndex it_Y = 0;
       Eigen::Map<RowADMatrixXs>(ad_Y.data()+it_Y,ad_model.nv,ad_model.nv) = ad_dtau_dq;
@@ -547,7 +547,7 @@ namespace pinocchio
                                  ad_q,ad_v,ad_tau,
                                  ad_dddq_dq,ad_dddq_dv,ad_dddq_dtau);
       
-      assert(ad_Y.size() == Base::getOutputDimension());
+      TEST_NEW_ASSERT(ad_Y.size() == Base::getOutputDimension());
       
       Eigen::DenseIndex it_Y = 0;
       Eigen::Map<RowADMatrixXs>(ad_Y.data()+it_Y,ad_model.nv,ad_model.nv) = ad_dddq_dq;

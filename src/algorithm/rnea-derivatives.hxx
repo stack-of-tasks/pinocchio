@@ -127,10 +127,10 @@ namespace pinocchio
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
                                        const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
   {
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
-    assert(gravity_partial_dq.cols() == model.nv);
-    assert(gravity_partial_dq.rows() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The configuration vector is not of right size");
+    TEST_NEW_ASSERT(gravity_partial_dq.cols() == model.nv);
+    TEST_NEW_ASSERT(gravity_partial_dq.rows() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -351,7 +351,7 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      TEST_NEW_ASSERT(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
@@ -382,16 +382,16 @@ namespace pinocchio
                          const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
                          const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
   {
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(a.size() == model.nv && "The joint acceleration vector is not of right size");
-    assert(rnea_partial_dq.cols() == model.nv);
-    assert(rnea_partial_dq.rows() == model.nv);
-    assert(rnea_partial_dv.cols() == model.nv);
-    assert(rnea_partial_dv.rows() == model.nv);
-    assert(rnea_partial_da.cols() == model.nv);
-    assert(rnea_partial_da.rows() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    TEST_NEW_ASSERT(rnea_partial_dq.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dq.rows() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dv.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dv.rows() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_da.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_da.rows() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -429,17 +429,17 @@ namespace pinocchio
                          const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
                          const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
   {
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(a.size() == model.nv && "The joint acceleration vector is not of right size");
-    assert(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
-    assert(rnea_partial_dq.cols() == model.nv);
-    assert(rnea_partial_dq.rows() == model.nv);
-    assert(rnea_partial_dv.cols() == model.nv);
-    assert(rnea_partial_dv.rows() == model.nv);
-    assert(rnea_partial_da.cols() == model.nv);
-    assert(rnea_partial_da.rows() == model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
+    TEST_NEW_ASSERT(q.size() == model.nq && "The joint configuration vector is not of right size");
+    TEST_NEW_ASSERT(v.size() == model.nv && "The joint velocity vector is not of right size");
+    TEST_NEW_ASSERT(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    TEST_NEW_ASSERT(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
+    TEST_NEW_ASSERT(rnea_partial_dq.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dq.rows() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dv.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_dv.rows() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_da.cols() == model.nv);
+    TEST_NEW_ASSERT(rnea_partial_da.rows() == model.nv);
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

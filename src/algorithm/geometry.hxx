@@ -19,7 +19,7 @@ namespace pinocchio
                                        GeometryData & geomData,
                                        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     forwardKinematics(model, data, q);
     updateGeometryPlacements(model, data, geomModel, geomData);
@@ -32,7 +32,7 @@ namespace pinocchio
                                        GeometryData & geomData)
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)
     {
@@ -54,12 +54,12 @@ namespace pinocchio
                                GeometryData & geomData,
                                const PairIndex & pairId)
   {
-    assert( pairId < geomModel.collisionPairs.size() );
+    TEST_NEW_ASSERT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    assert( pairId      < geomData.collisionResults.size() );
-    assert( pair.first  < geomData.collisionObjects.size() );
-    assert( pair.second < geomData.collisionObjects.size() );
+    TEST_NEW_ASSERT( pairId      < geomData.collisionResults.size() );
+    TEST_NEW_ASSERT( pair.first  < geomData.collisionObjects.size() );
+    TEST_NEW_ASSERT( pair.second < geomData.collisionObjects.size() );
 
     fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
     collisionResult.clear();
@@ -100,7 +100,7 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     
     updateGeometryPlacements(model, data, geomModel, geomData, q);
     
@@ -115,12 +115,12 @@ namespace pinocchio
                                                GeometryData & geomData,
                                                const PairIndex & pairId)
   {
-    assert( pairId < geomModel.collisionPairs.size() );
+    TEST_NEW_ASSERT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    assert( pairId      < geomData.distanceResults.size() );
-    assert( pair.first  < geomData.collisionObjects.size() );
-    assert( pair.second < geomData.collisionObjects.size() );
+    TEST_NEW_ASSERT( pairId      < geomData.distanceResults.size() );
+    TEST_NEW_ASSERT( pair.first  < geomData.collisionObjects.size() );
+    TEST_NEW_ASSERT( pair.second < geomData.collisionObjects.size() );
 
     geomData.distanceResults[pairId].clear();
     fcl::distance ( &geomData.collisionObjects[pair.first],
@@ -180,7 +180,7 @@ namespace pinocchio
                                       const GeometryModel & geomModel,
                                       GeometryData & geomData)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     updateGeometryPlacements(model,data,geomModel,geomData);
     return computeDistances(geomModel,geomData);
   }
@@ -192,7 +192,7 @@ namespace pinocchio
                                       GeometryData & geomData,
                                       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     updateGeometryPlacements(model, data, geomModel, geomData, q);
     return computeDistances(geomModel,geomData);
   }
@@ -206,7 +206,7 @@ namespace pinocchio
                                       const Eigen::VectorXd & q
                                       )
   {
-    assert(model.check(data) && "data is not consistent with model.");
+    // TEST_NEW_ASSERT(model.check(data) && "data is not consistent with model.");
     updateGeometryPlacements (model, data, geomModel, geomData, q);
     return computeDistances<ComputeShortest>(geomModel,geomData);
   }
