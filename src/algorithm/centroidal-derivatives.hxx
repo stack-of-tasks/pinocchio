@@ -199,7 +199,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6xLikeOut,6,Eigen::Dynamic)
 
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(Fin.cols() == Fout.cols() && "Fin and Fout do not have the same number of columns");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(Fin.cols() == Fout.cols(), "Fin and Fout do not have the same number of columns");
 
       for(Eigen::DenseIndex k = 0; k < Fin.cols(); ++k)
       {
@@ -227,9 +227,9 @@ namespace pinocchio
                                        const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
                                        const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The joint configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a.size() == model.nv && "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(a.size() == model.nv, "The joint acceleration vector is not of right size");
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dh_dq.cols() == model.nv);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dh_dq.rows() == 6);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dhdot_dq.cols() == model.nv);

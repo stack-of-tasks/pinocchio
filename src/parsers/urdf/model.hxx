@@ -294,7 +294,7 @@ namespace pinocchio
                   break;
                 }
                 default:
-                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "The axis type of the revolute joint is of wrong type.");
+                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "The axis type of the revolute joint is of wrong type.");
                   break;
               }
               break;
@@ -370,7 +370,7 @@ namespace pinocchio
                 }
 
                 default:
-                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "The axis type of the revolute joint is of wrong type.");
+                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "The axis type of the revolute joint is of wrong type.");
                   break;
               }
               break;
@@ -441,7 +441,7 @@ namespace pinocchio
                 }
 
                 default:
-                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "The axis type of the prismatic joint is of wrong type.");
+                  PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "The axis type of the prismatic joint is of wrong type.");
                   break;
               }
               break;

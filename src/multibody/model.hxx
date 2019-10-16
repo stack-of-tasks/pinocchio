@@ -153,7 +153,7 @@ namespace pinocchio
       // type is FIXED_JOINT
       fidx = (int)getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
     }
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME((size_t)fidx < frames.size() && "Frame index out of bound");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE((size_t)fidx < frames.size(), "Frame index out of bound");
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
   }
@@ -181,7 +181,7 @@ namespace pinocchio
       // type is FIXED_JOINT
       previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME((size_t)previousFrame < frames.size() && "Frame index out of bound");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE((size_t)previousFrame < frames.size(), "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
@@ -207,7 +207,7 @@ namespace pinocchio
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME((res<INT_MAX) && "Id superior to int range. Should never happen.");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE((res<INT_MAX), "Id superior to int range. Should never happen.");
     return ModelTpl::JointIndex(res);
   }
   
@@ -236,7 +236,7 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(it != frames.end() && "Frame not found");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(it != frames.end(), "Frame not found");
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME((std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())
         && "Several frames match the filter");
     return FrameIndex(it - frames.begin());

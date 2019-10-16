@@ -26,9 +26,9 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v,
             const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == model.nq && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(qout.size() == model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -50,9 +50,9 @@ namespace pinocchio
               const Scalar & u,
               const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q0.size() == model.nq && "The first configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q1.size() == model.nq && "The second configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == model.nq && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q0.size() == model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q1.size() == model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(qout.size() == model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -73,9 +73,9 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
              const Eigen::MatrixBase<ReturnType> & dvout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q0.size() == model.nq && "The first configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q1.size() == model.nq && "The second configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(dvout.size() == model.nv && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q0.size() == model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q1.size() == model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(dvout.size() == model.nv, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -96,9 +96,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                   const Eigen::MatrixBase<ReturnType> & out)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q0.size() == model.nq && "The first configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q1.size() == model.nq && "The second configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(out.size() == (model.njoints-1) && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q0.size() == model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q1.size() == model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(out.size() == (model.njoints-1), "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -119,9 +119,9 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
                       const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(lowerLimits.size() == model.nq && "The lower limits vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(upperLimits.size() == model.nq && "The upper limits vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == model.nq && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(lowerLimits.size() == model.nq, "The lower limits vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(upperLimits.size() == model.nq, "The upper limits vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(qout.size() == model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -139,7 +139,7 @@ namespace pinocchio
   void
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == model.nq && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(qout.size() == model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -159,10 +159,10 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.rows() == model.nv && "The output argument is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.cols() == model.nv && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(J.rows() == model.nv, "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(J.cols() == model.nv, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -181,8 +181,8 @@ namespace pinocchio
                      const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                      const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q0.size() == model.nq && "The first configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q1.size() == model.nq && "The second configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q0.size() == model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q1.size() == model.nq, "The second configuration vector is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -212,7 +212,7 @@ namespace pinocchio
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == model.nq && "The output argument is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(qout.size() == model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -232,9 +232,9 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
                       const Scalar & prec)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q1.size() == model.nq && "The first configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q2.size() == model.nq && "The second configuration vector is not of the right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(prec >= 0 && "The precision is negative");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q1.size() == model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q2.size() == model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(prec >= 0, "The precision is negative");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -258,7 +258,7 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The configuration vector is not of the right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The configuration vector is not of the right size");
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(jacobian.rows() == model.nq && jacobian.cols() == model.nv
            && "The jacobian does not have the right dimension");
 

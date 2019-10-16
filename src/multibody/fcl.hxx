@@ -20,7 +20,7 @@ namespace pinocchio
   inline CollisionPair::CollisionPair(const GeomIndex co1, const GeomIndex co2) 
     : Base(co1,co2)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(co1 != co2 && "The index of collision objects must not be equal.");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(co1 != co2, "The index of collision objects must not be equal.");
   }
 
   inline bool CollisionPair::operator== (const CollisionPair& rhs) const

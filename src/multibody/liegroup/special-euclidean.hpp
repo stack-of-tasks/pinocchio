@@ -272,7 +272,7 @@ namespace pinocchio
     static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
                                                 const Eigen::MatrixBase<Jacobian_t> & J)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(J.rows() == nq() && J.cols() == nv(), "J is not of the right dimension");
       
       Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
       Jout.setZero();
@@ -504,7 +504,7 @@ namespace pinocchio
     static void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
                                                 const Eigen::MatrixBase<Jacobian_t> & J)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(J.rows() == nq() && J.cols() == nv(), "J is not of the right dimension");
       
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;

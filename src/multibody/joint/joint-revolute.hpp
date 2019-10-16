@@ -134,7 +134,7 @@ namespace pinocchio
         }
         default:
         {
-          PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "must nerver happened");
+          PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "must nerver happened");
           break;
         }
       }
@@ -183,7 +183,7 @@ namespace pinocchio
         }
         default:
         {
-          PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false && "must nerver happened");
+          PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "must nerver happened");
           break;
         }
       }

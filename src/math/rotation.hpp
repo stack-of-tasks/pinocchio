@@ -25,7 +25,7 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(isUnitary(axis) && "The axis is not unitary.");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(isUnitary(axis), "The axis is not unitary.");
     
     Matrix3 & res_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,res);
     Vector3 sin_axis  = sin_value * axis;

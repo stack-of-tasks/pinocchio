@@ -309,7 +309,7 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(model.gravity.angular().isZero(), "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
@@ -339,9 +339,9 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The joint configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(tau.size() == model.nv, "The joint acceleration vector is not of right size");
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dq.cols() == model.nv);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dq.rows() == model.nv);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dv.cols() == model.nv);
@@ -408,10 +408,10 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq && "The joint configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv && "The joint velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(tau.size() == model.nv && "The joint acceleration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(fext.size() == (size_t)model.njoints && "The size of the external forces is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(tau.size() == model.nv, "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dq.cols() == model.nv);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dq.rows() == model.nv);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(aba_partial_dv.cols() == model.nv);
