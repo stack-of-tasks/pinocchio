@@ -109,7 +109,7 @@ namespace pinocchio
       template <typename D>
       Block& operator= (const Eigen::MatrixBase<D> & m)
       {
-        eigen_PINOCCHIO_ASSERT_THROW_AT_RUNTIME(D::RowsAtCompileTime == 6);
+        eigen_assert(D::RowsAtCompileTime == 6);
         PINOCCHIO_ASSERT_THROW_AT_RUNTIME(m.cols() == len);
         linear() = m.template topRows<3>();
         angular() = m.template bottomRows<3>();
