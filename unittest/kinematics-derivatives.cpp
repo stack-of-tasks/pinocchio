@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
   
   // WORLD
   getJointJacobian(model,data_ref,joint_id,WORLD,J_ref);
-  Data::Tensor3 kinematic_hessian_world = getJointKinematicHessian(model,data,joint_id,WORLD);
+  Data::Tensor3x kinematic_hessian_world = getJointKinematicHessian(model,data,joint_id,WORLD);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_plus[k] = eps;
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
   // LOCAL_WORLD_ALIGNED
   computeJointJacobians(model,data_ref,q);
   getJointJacobian(model,data_ref,joint_id,LOCAL_WORLD_ALIGNED,J_ref);
-  Data::Tensor3 kinematic_hessian_local_world_aligned = getJointKinematicHessian(model,data,joint_id,LOCAL_WORLD_ALIGNED);
+  Data::Tensor3x kinematic_hessian_local_world_aligned = getJointKinematicHessian(model,data,joint_id,LOCAL_WORLD_ALIGNED);
   Data::Matrix3x dt_last_fd(3,model.nv);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
@@ -630,7 +630,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
   // LOCAL
   computeJointJacobians(model,data_ref,q);
   getJointJacobian(model,data_ref,joint_id,LOCAL,J_ref);
-  Data::Tensor3 kinematic_hessian_local = getJointKinematicHessian(model,data,joint_id,LOCAL);
+  Data::Tensor3x kinematic_hessian_local = getJointKinematicHessian(model,data,joint_id,LOCAL);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
     v_plus[k] = eps;
