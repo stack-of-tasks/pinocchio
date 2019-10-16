@@ -178,8 +178,7 @@ namespace pinocchio
     /// \brief This helper structure is now deprecated and has been replaced by JointUnaryVisitorBase.
     ///
     template<typename JointVisitorDerived, typename ReturnType = void>
-    PINOCCHIO_DEPRECATED
-    struct JointVisitorBase
+    struct PINOCCHIO_DEPRECATED JointVisitorBase
     : JointUnaryVisitorBase<JointVisitorDerived,ReturnType>
     {
       typedef JointUnaryVisitorBase<JointVisitorDerived,ReturnType> Base;
