@@ -11,6 +11,10 @@
   #include <unsupported/Eigen/CXX11/Tensor>
 #endif
 
+#if !EIGEN_VERSION_AT_LEAST(3,2,90)
+  #define EIGEN_DEVICE_FUNC
+#endif
+
 namespace pinocchio
 {
 
@@ -137,5 +141,9 @@ namespace pinocchio
 #endif // ifndef PINOCCHIO_WITH_CXX11_SUPPORT
 
 }
+
+#if !EIGEN_VERSION_AT_LEAST(3,2,90)
+  #undef EIGEN_DEVICE_FUNC
+#endif
 
 #endif // ifndef __pinocchio_math_tensor_hpp__
