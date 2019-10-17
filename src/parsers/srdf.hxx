@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_parser_srdf_hxx__
@@ -286,7 +286,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     struct LoadReferenceConfigurationStep
-    : fusion::JointVisitorBase< LoadReferenceConfigurationStep<Scalar,Options,JointCollectionTpl> >
+    : fusion::JointUnaryVisitorBase< LoadReferenceConfigurationStep<Scalar,Options,JointCollectionTpl> >
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::ConfigVectorType ConfigVectorType;

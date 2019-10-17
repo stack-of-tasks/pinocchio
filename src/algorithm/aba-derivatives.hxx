@@ -14,7 +14,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct ComputeABADerivativesForwardStep1
-  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -70,7 +70,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
   struct ComputeABADerivativesBackwardStep1
-  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType> >
+  : public fusion::JointUnaryVisitorBase< ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -144,7 +144,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
   struct ComputeABADerivativesForwardStep2
-  : public fusion::JointVisitorBase< ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> >
+  : public fusion::JointUnaryVisitorBase< ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -237,7 +237,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeABADerivativesBackwardStep2
-  : public fusion::JointVisitorBase< ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

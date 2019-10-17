@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS INRIA
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_motion_ref_hpp__
@@ -158,6 +158,33 @@ namespace pinocchio
     DataRefType m_ref;
 
   }; // class MotionRef<Vector6Like>
+
+  template<typename Vector6ArgType>
+  struct traits< MotionRef<const Vector6ArgType> >
+  {
+    typedef typename Vector6ArgType::Scalar Scalar;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6ArgType) Vector6;
+    enum {
+      LINEAR = 0,
+      ANGULAR = 3,
+      Options = Vector6::Options
+    };
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef Matrix6 ActionMatrixType;
+    typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstLinearType;
+    typedef typename Vector6ArgType::template ConstFixedSegmentReturnType<3>::Type ConstAngularType;
+    typedef ConstLinearType LinearType;
+    typedef ConstAngularType AngularType;
+    typedef MotionTpl<Scalar,Options> MotionPlain;
+    typedef MotionPlain PlainReturnType;
+    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6ArgType) ConstDataRefType;
+    typedef ConstDataRefType ToVectorConstReturnType;
+    typedef ConstDataRefType DataRefType;
+    typedef DataRefType ToVectorReturnType;
+    typedef MotionRef<const Vector6ArgType> MotionRefType;
+  
+  }; // traits MotionRef<const Vector6ArgType>
   
   template<typename Vector6ArgType>
   class MotionRef<const Vector6ArgType>

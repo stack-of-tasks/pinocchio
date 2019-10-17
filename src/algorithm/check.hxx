@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_check_hxx__
@@ -119,7 +119,11 @@ namespace pinocchio
     CHECK_DATA( data.torque_residual.size() == model.nv );
     CHECK_DATA( data.dq_after.size() == model.nv );
     //CHECK_DATA( data.impulse_c.size()== model.nv );
-
+    
+    CHECK_DATA( data.kinematic_hessians.dimension(0) == 6);
+    CHECK_DATA( data.kinematic_hessians.dimension(1) == model.nv);
+    CHECK_DATA( data.kinematic_hessians.dimension(2) == model.nv);
+    
     CHECK_DATA( (int)data.oMf.size()      == model.nframes );
 
     CHECK_DATA( (int)data.lastChild.size()         == model.njoints );
@@ -127,28 +131,38 @@ namespace pinocchio
     CHECK_DATA( (int)data.parents_fromRow.size()   == model.nv );
     CHECK_DATA( (int)data.nvSubtree_fromRow.size() == model.nv );
 
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    {
+      const typename Model::JointModel & jmodel = model.joints[joint_id];
+      
+      CHECK_DATA(model.nqs[joint_id] == jmodel.nq());
+      CHECK_DATA(model.idx_qs[joint_id] == jmodel.idx_q());
+      CHECK_DATA(model.nvs[joint_id] == jmodel.nv());
+      CHECK_DATA(model.idx_vs[joint_id] == jmodel.idx_v());
+    }
+    
     for( JointIndex j=1;int(j)<model.njoints;++j )
+    {
+      JointIndex c = (JointIndex)data.lastChild[j];
+      CHECK_DATA((int)c<model.njoints);
+      int nv=model.joints[j].nv();
+      for( JointIndex d=j+1;d<=c;++d ) // explore all descendant
       {
-        JointIndex c = (JointIndex)data.lastChild[j];
-        CHECK_DATA((int)c<model.njoints);
-        int nv=model.joints[j].nv();
-        for( JointIndex d=j+1;d<=c;++d ) // explore all descendant
-          {
-            CHECK_DATA( model.parents[d]>=j );
-            nv+=model.joints[d].nv();
-          }
-        CHECK_DATA(nv==data.nvSubtree[j]);
-        
-        for( JointIndex d=c+1;(int)d<model.njoints;++d)
-          CHECK_DATA( (model.parents[d]<j)||(model.parents[d]>c) );
-
-        int row = model.joints[j].idx_v();
-        CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
-        
-        const JointModel & jparent = model.joints[model.parents[j]];
-        if(row==0) { CHECK_DATA(data.parents_fromRow[(size_t)row]==-1); }
-        else       { CHECK_DATA(jparent.idx_v()+jparent.nv()-1 == data.parents_fromRow[(size_t)row]); }
+        CHECK_DATA( model.parents[d]>=j );
+        nv+=model.joints[d].nv();
       }
+      CHECK_DATA(nv==data.nvSubtree[j]);
+      
+      for( JointIndex d=c+1;(int)d<model.njoints;++d)
+        CHECK_DATA( (model.parents[d]<j)||(model.parents[d]>c) );
+      
+      int row = model.joints[j].idx_v();
+      CHECK_DATA(data.nvSubtree[j] == data.nvSubtree_fromRow[(size_t)row]);
+      
+      const JointModel & jparent = model.joints[model.parents[j]];
+      if(row==0) { CHECK_DATA(data.parents_fromRow[(size_t)row]==-1); }
+      else       { CHECK_DATA(jparent.idx_v()+jparent.nv()-1 == data.parents_fromRow[(size_t)row]); }
+    }
 
 #undef CHECK_DATA
     return true;

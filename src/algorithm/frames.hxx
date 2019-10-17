@@ -109,10 +109,10 @@ namespace pinocchio
   {
     assert(J.rows() == 6);
     assert(J.cols() == model.nv);
-    assert(data.J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     

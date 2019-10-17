@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_model_hxx__
@@ -65,7 +65,7 @@ namespace pinocchio
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    struct AppendJointOfModelAlgoTpl : public fusion::JointVisitorBase< AppendJointOfModelAlgoTpl<Scalar,Options,JointCollectionTpl> >
+    struct AppendJointOfModelAlgoTpl : public fusion::JointUnaryVisitorBase< AppendJointOfModelAlgoTpl<Scalar,Options,JointCollectionTpl> >
     {
       typedef boost::fusion::vector<
           const ModelTpl<Scalar,Options,JointCollectionTpl> &,
