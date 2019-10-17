@@ -22,7 +22,7 @@
 #include <exception>
 
 /// \brief Macro to check an assert-like condition and throw a runtime error exception (with a message) if violated.
-#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Wrong argument size"); }
+#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Please check the dimensions of all input arguments."); }
 #define PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(cond, message) if (!(cond)) { throw std::runtime_error(message); }
 
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
