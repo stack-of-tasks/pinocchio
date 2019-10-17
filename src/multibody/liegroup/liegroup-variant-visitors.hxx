@@ -152,9 +152,9 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigOut_t)
     
     typedef LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> Operation;
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == nq(lg));
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == nv(lg));
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(qout.size() == nq(lg));
+    assert(q.size() == nq(lg));
+    assert(v.size() == nv(lg));
+    assert(qout.size() == nq(lg));
     
     ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
     Operation::run(lg,typename Operation::ArgsType(q.derived(),v.derived(),qout_));

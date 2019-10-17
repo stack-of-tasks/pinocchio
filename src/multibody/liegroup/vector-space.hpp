@@ -38,7 +38,7 @@ namespace pinocchio
     VectorSpaceOperationTpl(int size = boost::static_signed_max<0,Dim>::value)
     : size_(size)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     /// Constructor
@@ -46,7 +46,7 @@ namespace pinocchio
     VectorSpaceOperationTpl(const VectorSpaceOperationTpl & other)
     : Base(), size_(other.size_.value())
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(size_.value() >= 0);
+      assert(size_.value() >= 0);
     }
 
     Index nq () const
@@ -148,7 +148,7 @@ namespace pinocchio
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;
-          assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
+          // assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
           throw std::range_error(error.str());
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;

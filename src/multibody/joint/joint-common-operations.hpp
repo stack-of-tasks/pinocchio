@@ -57,7 +57,7 @@ namespace pinocchio
                     const Scalar & offset,
                     const Eigen::MatrixBase<ConfigVectorOut> & dest)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == dest.size());
+      assert(q.size() == dest.size());
       PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorOut,dest).noalias() = scaling * q + ConfigVectorOut::Constant(dest.size(),offset);
     }
   };

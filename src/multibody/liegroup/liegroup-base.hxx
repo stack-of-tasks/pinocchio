@@ -43,7 +43,7 @@ namespace pinocchio {
                                          const Eigen::MatrixBase<JacobianOut_t>& J,
                                          const ArgumentPosition arg) const
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE((arg==ARG0||arg==ARG1), "arg should be either ARG0 or ARG1");
+    assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
     
     switch (arg) {
       case ARG0:

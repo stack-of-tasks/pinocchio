@@ -31,7 +31,7 @@ namespace pinocchio
     { m_f.fill(NAN); m_n.fill(NAN); }
     ForceSetTpl(const Matrix3x & linear, const Matrix3x & angular)
       : size((int)linear.cols()),m_f(linear), m_n(angular)
-    {  PINOCCHIO_ASSERT_THROW_AT_RUNTIME( linear.cols() == angular.cols() ); }
+    {  assert( linear.cols() == angular.cols() ); }
 
     Matrix6x matrix() const
     {
@@ -92,7 +92,7 @@ namespace pinocchio
 
       Block& operator= (const ForceSetTpl & copy)
       {
-	PINOCCHIO_ASSERT_THROW_AT_RUNTIME(copy.size == len);
+	assert(copy.size == len);
 	linear() = copy.linear(); //ref.m_f.block(0,idx,3,len) = copy.m_f;
 	angular() = copy.angular(); //ref.m_n.block(0,idx,3,len) = copy.m_n;
 	return *this;
@@ -100,7 +100,7 @@ namespace pinocchio
 
       Block& operator= (const ForceSetTpl::Block & copy)
       {
-	PINOCCHIO_ASSERT_THROW_AT_RUNTIME(copy.len == len);
+	assert(copy.len == len);
 	linear() = copy.linear(); //ref.m_f.block(0,idx,3,len) = copy.ref.m_f.block(0,copy.idx,3,copy.len);
 	angular() = copy.angular(); //ref.m_n.block(0,idx,3,len) = copy.ref.m_n.block(0,copy.idx,3,copy.len);
 	return *this;
@@ -110,7 +110,7 @@ namespace pinocchio
       Block& operator= (const Eigen::MatrixBase<D> & m)
       {
         eigen_assert(D::RowsAtCompileTime == 6);
-        PINOCCHIO_ASSERT_THROW_AT_RUNTIME(m.cols() == len);
+        assert(m.cols() == len);
         linear() = m.template topRows<3>();
         angular() = m.template bottomRows<3>();
         return *this;

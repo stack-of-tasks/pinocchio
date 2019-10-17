@@ -122,7 +122,7 @@ namespace pinocchio
     template<typename Vector>
     void evalFunction(const Eigen::MatrixBase<Vector> & x)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(build_forward);
+      assert(build_forward);
       
       generatedFun_ptr->ForwardZero(PINOCCHIO_EIGEN_CONST_CAST(Vector,x),y);
     }
@@ -130,7 +130,7 @@ namespace pinocchio
     template<typename Vector>
     void evalJacobian(const Eigen::MatrixBase<Vector> & x)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(build_jacobian);
+      assert(build_jacobian);
       
       CppAD::cg::ArrayView<const Scalar> x_(PINOCCHIO_EIGEN_CONST_CAST(Vector,x).data(),(size_t)x.size());
       CppAD::cg::ArrayView<Scalar> jac_(jac.data(),(size_t)jac.size());
