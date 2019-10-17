@@ -6,6 +6,8 @@
 #ifndef __pinocchio_data_hpp__
 #define __pinocchio_data_hpp__
 
+#include "pinocchio/math/tensor.hpp"
+
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -73,6 +75,9 @@ namespace pinocchio
 
     /// \brief The type of the body regressor
     typedef Eigen::Matrix<Scalar,6,10,Options> BodyRegressorType;
+    
+    /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
+    typedef Tensor<Scalar,3,Options> Tensor3x;
 
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
@@ -230,8 +235,15 @@ namespace pinocchio
 
     /// \brief Index of the last child (for CRBA)
     std::vector<int> lastChild;
+    
     /// \brief Dimension of the subtree motion space (for CRBA)
     std::vector<int> nvSubtree;
+    
+    /// \brief Starting index of the Joint motion subspace
+    std::vector<int> start_idx_v_fromRow;
+    
+    /// \brief End index of the Joint motion subspace
+    std::vector<int> end_idx_v_fromRow;
 
     /// \brief Joint space intertia matrix square root (upper trianglular part) computed with a Cholesky Decomposition.
     MatrixXs U;
@@ -247,6 +259,10 @@ namespace pinocchio
     
     /// \brief First previous non-zero row in M (used in Cholesky Decomposition).
     std::vector<int> parents_fromRow;
+    
+    /// \brief Each element of this vector corresponds to the ordered list of indexes belonging to the supporting tree of the
+    ///        given index at the row level. It may be helpful to retrieve the sparsity pattern through it.
+    std::vector< std::vector<int> > supports_fromRow;
     
     /// \brief Subtree of the current row index (used in Cholesky Decomposition).
     std::vector<int> nvSubtree_fromRow;
@@ -298,7 +314,6 @@ namespace pinocchio
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertial frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
-    
     /// \brief Kinetic energy of the model.
     Scalar kinetic_energy;
     
@@ -328,14 +343,17 @@ namespace pinocchio
     /// \brief Lagrange Multipliers corresponding to the contact impulses in pinocchio::impulseDynamics.
     VectorXs impulse_c;
     
-    // data related to static regressor
+    /// \brief Matrix related to static regressor
     Matrix3x staticRegressor;
 
-    /// body regressor
+    /// \brief Body regressor
     BodyRegressorType bodyRegressor;
 
-    // data related to joint torque regressor
+    /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
+    
+    /// \brief Tensor containing the kinematic Hessian of all the joints.
+    Tensor3x kinematic_hessians;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
@@ -347,6 +365,7 @@ namespace pinocchio
   private:
     void computeLastChild(const Model & model);
     void computeParents_fromRow(const Model & model);
+    void computeSupports_fromRow(const Model & model);
 
   };
 

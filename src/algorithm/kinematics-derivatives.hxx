@@ -13,7 +13,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct ForwardKinematicsDerivativesForwardStep
-  : public fusion::JointVisitorBase< ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointUnaryVisitorBase< ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -103,7 +103,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   struct JointVelocityDerivativesBackwardStep
-  : public fusion::JointVisitorBase< JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> >
+  : public fusion::JointUnaryVisitorBase< JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -209,7 +209,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   struct JointAccelerationDerivativesBackwardStep
-  : public fusion::JointVisitorBase< JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> >
+  : public fusion::JointUnaryVisitorBase< JointAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3,Matrix6xOut4> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -280,14 +280,14 @@ namespace pinocchio
         else
           vtmp = -vlast;
         
-        /// also computes dvec/dq
+        // also computes dvec/dq
         motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
         
         a_partial_dv_cols = v_partial_dq_cols + dJcols;
       }
       else
       {
-       /// also computes dvec/dq
+       // also computes dvec/dq
         if(parent > 0)
         {
           vtmp = oMlast.actInv(data.ov[parent]);
@@ -393,6 +393,329 @@ namespace pinocchio
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
     
     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void
+  computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef MotionRef<const typename Data::Matrix6x::ConstColXpr> MotionIn;
+    
+    typedef typename Data::Motion Motion;
+    typedef Eigen::Map<typename Motion::Vector6> MapVector6;
+    typedef MotionRef<MapVector6> MotionOut;
+    
+    const typename Data::Matrix6x & J = data.J;
+    typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
+    const Eigen::DenseIndex slice_matrix_size = 6 * model.nv;
+    
+    for(size_t joint_id = 1; joint_id < (size_t)model.njoints; ++joint_id)
+    {
+      const std::vector<typename Model::JointIndex> & subtree = model.subtrees[joint_id];
+      const std::vector<typename Model::JointIndex> & support = model.supports[joint_id];
+      
+      const int nv = model.nvs[joint_id];
+      const int idx_v = model.idx_vs[joint_id];
+      
+      for(int joint_row = 0; joint_row < nv; ++joint_row)
+      {
+        const Eigen::DenseIndex outer_row_id = idx_v + joint_row;
+        
+        for(size_t support_id = 0; support_id < support.size()-1; ++support_id)
+        {
+          const typename Model::JointIndex joint_id_support = support[support_id];
+          
+          const int inner_nv = model.nvs[joint_id_support];
+          const int inner_idx_v = model.idx_vs[joint_id_support];
+          for(int inner_joint_row = 0; inner_joint_row < inner_nv; ++inner_joint_row)
+          {
+            const Eigen::DenseIndex inner_row_id = inner_idx_v + inner_joint_row;
+            assert(inner_row_id < outer_row_id);
+
+            MapVector6 motion_vec_in(  kinematic_hessians.data()
+                                     + inner_row_id * slice_matrix_size
+                                     + outer_row_id * 6);
+            MapVector6 motion_vec_out(  kinematic_hessians.data()
+                                      + outer_row_id * slice_matrix_size
+                                      + inner_row_id * 6);
+            
+            motion_vec_out = -motion_vec_in;
+          }
+        }
+        
+        const MotionIn S1(J.col(outer_row_id));
+        
+        // Computations already done
+        for(int inner_joint_row = 0; inner_joint_row < joint_row; ++inner_joint_row)
+        {
+          const Eigen::DenseIndex inner_row_id = idx_v + inner_joint_row;
+          MapVector6 motion_vec_in(  kinematic_hessians.data()
+                                   + inner_row_id * slice_matrix_size
+                                   + outer_row_id * 6);
+          MapVector6 motion_vec_out(  kinematic_hessians.data()
+                                    + outer_row_id * slice_matrix_size
+                                    + inner_row_id * 6);
+          
+          motion_vec_out = -motion_vec_in;
+        }
+        
+        for(int inner_joint_row = joint_row+1; inner_joint_row < nv; ++inner_joint_row)
+        {
+          const Eigen::DenseIndex inner_row_id = idx_v + inner_joint_row;
+          const MotionIn S2(J.col(inner_row_id));
+          
+          MapVector6 motion_vec_out(  kinematic_hessians.data()
+                                    + outer_row_id * slice_matrix_size
+                                    + inner_row_id * 6);
+          MotionOut S1xS2(motion_vec_out);
+          
+          S1xS2 = S1.cross(S2);
+        }
+        
+        for(size_t subtree_id = 1; subtree_id < subtree.size(); ++subtree_id)
+        {
+          const typename Model::JointIndex joint_id_subtree = subtree[subtree_id];
+
+          const int inner_nv = model.nvs[joint_id_subtree];
+          const int inner_idx_v = model.idx_vs[joint_id_subtree];
+          for(int inner_joint_row = 0; inner_joint_row < inner_nv; ++inner_joint_row)
+          {
+            const Eigen::DenseIndex inner_row_id = inner_idx_v + inner_joint_row;
+            assert(inner_row_id > outer_row_id);
+            const MotionIn S2(J.col(inner_row_id));
+            
+            MapVector6 motion_vec_out(  kinematic_hessians.data()
+                                      + outer_row_id * slice_matrix_size
+                                      + inner_row_id * 6);
+            MotionOut S1xS2(motion_vec_out);
+            
+            S1xS2 = S1.cross(S2);
+          }
+        }
+      }
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void
+  getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const JointIndex joint_id,
+                           const ReferenceFrame rf,
+                           Tensor<Scalar,3,Options> & kinematic_hessian)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(joint_id < model.joints.size() && joint_id > 0 && "joint_id is outside the valid index for a joint in model.joints");
+    
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
+    
+    const typename Data::Matrix6x & J = data.J;
+    const typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
+    
+    // Allocate memory
+    assert(kinematic_hessian.dimension(0) == 6 && "The result tensor is not of the right dimension.");
+    assert(kinematic_hessian.dimension(1) == model.nv && "The result tensor is not of the right dimension.");
+    assert(kinematic_hessian.dimension(2) == model.nv && "The result tensor is not of the right dimension.");
+    
+    const int idx_vj = model.joints[joint_id].idx_v();
+    const int nvj = model.joints[joint_id].nv();
+    const Eigen::DenseIndex slice_matrix_size = 6 * model.nv;
+    
+    typedef std::vector<int> IndexVector;
+    const Eigen::DenseIndex last_idx = idx_vj+nvj-1;
+    const std::vector<int> & supporting_indexes = data.supports_fromRow[(size_t)(last_idx)]; // until the last element of the joint size (nvj)
+    
+    typedef Eigen::Map<typename Motion::Vector6> MapVector6;
+    typedef MotionRef<MapVector6> MotionOut;
+    typedef Eigen::Map<const typename Motion::Vector6> ConstMapVector6;
+    typedef MotionRef<ConstMapVector6> MotionIn;
+    
+    switch(rf)
+    {
+      case WORLD:
+      {
+        for(size_t i = 0; i < supporting_indexes.size(); ++i)
+        {
+          const Eigen::DenseIndex outer_row_id = supporting_indexes[i];
+          
+          // Take into account parent indexes of the current joint motion subspace
+          for(int subspace_idx = data.start_idx_v_fromRow[(size_t)outer_row_id];
+              subspace_idx < outer_row_id; ++subspace_idx)
+          {
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + subspace_idx * 6);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + subspace_idx * 6);
+            
+            vec_out = vec_in;
+          }
+          
+          for(size_t j = i+1; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            
+            vec_out = vec_in;
+          }
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED:
+      {
+        typedef MotionRef<const typename Data::Matrix6x::ConstColXpr> MotionColRef;
+        const SE3 & oMlast = data.oMi[joint_id];
+        
+        for(size_t i = 0; i < supporting_indexes.size(); ++i)
+        {
+          const Eigen::DenseIndex outer_row_id = supporting_indexes[i];
+          const MotionColRef S1(J.col(outer_row_id));
+          
+          for(size_t j = 0; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            if(inner_row_id >= data.start_idx_v_fromRow[(size_t)outer_row_id]) break;
+            
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out.linear() = -(S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular());
+          }
+          
+          // Take into account parent indexes of the current joint motion subspace
+          for(int inner_row_id = data.start_idx_v_fromRow[(size_t)outer_row_id];
+              inner_row_id < outer_row_id; ++inner_row_id)
+          {
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            vec_out = vec_in;
+            m_out.linear() -= (S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular()) + oMlast.translation().cross(S1xS2.angular());
+          }
+          
+          // case: outer_row_id == inner_row_id
+          {
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + outer_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out.linear() = -(S1.linear() - oMlast.translation().cross(S1.angular())).cross(S1.angular());
+          }
+          
+          for(size_t j = i+1; j < supporting_indexes.size(); ++j)
+          {
+            const Eigen::DenseIndex inner_row_id = supporting_indexes[j];
+            MotionColRef S2(J.col(inner_row_id));
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + outer_row_id * slice_matrix_size
+                                   + inner_row_id * 6);
+            MotionIn S1xS2(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            vec_out = vec_in;
+            m_out.linear() -= (S1.linear() - oMlast.translation().cross(S1.angular())).cross(S2.angular()) + oMlast.translation().cross(S1xS2.angular());
+          }
+        }
+        break;
+      }
+      case LOCAL:
+      {
+        const SE3 & oMlast = data.oMi[joint_id];
+        
+        for(IndexVector::const_reverse_iterator rit = supporting_indexes.rbegin();
+            rit != supporting_indexes.rend(); ++rit)
+        {
+          const Eigen::DenseIndex outer_row_id = *rit;
+          
+          // This corresponds to the joint connected to the world, we can skip
+          if(data.parents_fromRow[(size_t)data.start_idx_v_fromRow[(size_t)outer_row_id]] < 0)
+            continue;
+          
+          // Take into account current joint motion subspace
+          for(int subspace_idx = data.end_idx_v_fromRow[(size_t)outer_row_id];
+              subspace_idx > outer_row_id; --subspace_idx)
+          {
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                   + subspace_idx * slice_matrix_size
+                                   + outer_row_id * 6);
+            MotionIn m_in(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + subspace_idx * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out = oMlast.actInv(m_in);
+          }
+          
+          IndexVector::const_reverse_iterator inner_rit = rit;
+          for(++inner_rit;
+              inner_rit != supporting_indexes.rend(); ++inner_rit)
+          {
+            const Eigen::DenseIndex inner_row_id = *inner_rit;
+            
+            ConstMapVector6 vec_in(  kinematic_hessians.data()
+                                    + inner_row_id * slice_matrix_size
+                                    + outer_row_id * 6);
+            
+            MotionIn m_in(vec_in);
+            
+            MapVector6 vec_out(  kinematic_hessian.data()
+                               + outer_row_id * slice_matrix_size
+                               + inner_row_id * 6);
+            MotionOut m_out(vec_out);
+            
+            m_out = oMlast.actInv(m_in);
+          }
+        }
+        
+        break;
+      }
+      default:
+        assert(false && "must never happened");
+        break;
+    }
   }
 
 } // namespace pinocchio

@@ -1,12 +1,10 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
@@ -17,6 +15,7 @@
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -26,6 +25,145 @@
 
 #include <Eigen/StdVector>
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
+
+namespace pinocchio
+{
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStepUnaryVisit
+  : fusion::JointUnaryVisitorBase< EmptyForwardStepUnaryVisit<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef fusion::NoArg ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> &,
+                     JointDataBase<typename JointModel::JointDataDerived> &
+                     )
+    { // do nothing
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPassUnaryVisit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStepUnaryVisit<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],data.joints[i]);
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStepUnaryVisitNoData
+  : fusion::JointUnaryVisitorBase< EmptyForwardStepUnaryVisitNoData<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef fusion::NoArg ArgsType;
+    
+    template<typename JointModel>
+    EIGEN_DONT_INLINE
+    static void algo(const JointModelBase<JointModel> &)
+    { // do nothing
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPassUnaryVisitNoData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                               DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(data);
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStepUnaryVisitNoData<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i]);
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStepBinaryVisit
+  : fusion::JointBinaryVisitorBase< EmptyForwardStepBinaryVisit<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef fusion::NoArg ArgsType;
+    
+    template<typename JointModel1, typename JointModel2>
+    EIGEN_DONT_INLINE
+    static void algo(const JointModelBase<JointModel1> &,
+                     const JointModelBase<JointModel2> &,
+                     JointDataBase<typename JointModel1::JointDataDerived> &,
+                     JointDataBase<typename JointModel2::JointDataDerived> &)
+    { // do nothing
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPassBinaryVisit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStepBinaryVisit<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],model.joints[i],
+                data.joints[i],data.joints[i]);
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct EmptyForwardStepBinaryVisitNoData
+  : fusion::JointBinaryVisitorBase< EmptyForwardStepBinaryVisitNoData<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef fusion::NoArg ArgsType;
+    
+    template<typename JointModel1, typename JointModel2>
+    EIGEN_DONT_INLINE
+    static void algo(const JointModelBase<JointModel1> &,
+                     const JointModelBase<JointModel2> &)
+    { // do nothing
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline void emptyForwardPassBinaryVisitNoData(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(data);
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    typedef EmptyForwardStepBinaryVisitNoData<Scalar,Options,JointCollectionTpl> Algo;
+    
+    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i],model.joints[i]);
+    }
+  }
+}
 
 int main(int argc, const char ** argv)
 {
@@ -212,9 +350,30 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    emptyForwardPass(model,data);
+    emptyForwardPassUnaryVisit(model,data);
   }
-  std::cout << "Empty Forward Pass = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Empty Forward Pass Unary visit (no computations) = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    emptyForwardPassUnaryVisitNoData(model,data);
+  }
+  std::cout << "Empty Forward Pass Unary visit No Data (no computations) = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    emptyForwardPassBinaryVisit(model,data);
+  }
+  std::cout << "Empty Forward Pass Binary visit (no computations) = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    emptyForwardPassBinaryVisitNoData(model,data);
+  }
+  std::cout << "Empty Forward Pass Binary visit No Data (no computations) = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)

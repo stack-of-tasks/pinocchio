@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_hxx__
@@ -10,41 +10,6 @@
 
 namespace pinocchio 
 {
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct EmptyForwardStep
-  : fusion::JointVisitorBase< EmptyForwardStep<Scalar,Options,JointCollectionTpl> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    typedef fusion::NoArg ArgsType;
-
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> &,
-                     JointDataBase<typename JointModel::JointDataDerived> &
-                     )
-    { // do nothing
-    }
-    
-  };
- 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void emptyForwardPass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               DataTpl<Scalar,Options,JointCollectionTpl> & data)
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    
-    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-    typedef EmptyForwardStep<Scalar,Options,JointCollectionTpl> Algo;
-    
-    for(JointIndex i=1; i < (JointIndex)model.njoints; ++i)
-    {
-      Algo::run(model.joints[i],
-                data.joints[i]
-                );
-    }
-  }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -68,7 +33,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ForwardKinematicZeroStep
-  : fusion::JointVisitorBase< ForwardKinematicZeroStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : fusion::JointUnaryVisitorBase< ForwardKinematicZeroStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -120,7 +85,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct ForwardKinematicFirstStep
-  : fusion::JointVisitorBase< ForwardKinematicFirstStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  : fusion::JointUnaryVisitorBase< ForwardKinematicFirstStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -185,7 +150,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct ForwardKinematicSecondStep :
-  fusion::JointVisitorBase< ForwardKinematicSecondStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  fusion::JointUnaryVisitorBase< ForwardKinematicSecondStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

@@ -22,7 +22,6 @@
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
 namespace pinocchio
@@ -34,7 +33,8 @@ namespace pinocchio
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
     
-    struct ModelPythonVisitor : public bp::def_visitor< ModelPythonVisitor >
+    struct ModelPythonVisitor
+    : public bp::def_visitor< ModelPythonVisitor >
     {
     public:
       typedef Model::Index Index;
@@ -160,6 +160,11 @@ namespace pinocchio
         
         .def_readwrite("frames",&Model::frames,"Vector of frames contained in the model.")
         
+        .def_readwrite("supports",
+                       &Model::supports,
+                       "Vector of supports. supports[j] corresponds to the list of joints on the path between\n"
+                       "the current *j* to the root of the kinematic tree.")
+        
         .def_readwrite("subtrees",
                        &Model::subtrees,
                        "Vector of subtrees. subtree[j] corresponds to the subtree supported by the joint j.")
@@ -261,7 +266,7 @@ namespace pinocchio
           .def_pickle(PickleMap<std::map<std::string, Eigen::VectorXd> >());
 
         bp::class_<Model>("Model",
-                          "Articulated rigid body model (const)",
+                          "Articulated Rigid Body model",
                           bp::no_init)
         .def(ModelPythonVisitor())
         .def(SerializableVisitor<Model>())

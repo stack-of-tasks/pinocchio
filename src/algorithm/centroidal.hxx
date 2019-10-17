@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_centroidal_hxx__
@@ -22,7 +22,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType>
   struct CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType>
-  : public fusion::JointVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -70,7 +70,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct CentroidalDynamicsForwardStep
-  : public fusion::JointVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointUnaryVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -212,7 +212,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CcrbaBackwardStep
-  : public fusion::JointVisitorBase< CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -292,7 +292,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct DCcrbaBackwardStep
-  : public fusion::JointVisitorBase< DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

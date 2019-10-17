@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS
 //
 
 #ifndef __pinocchio_crba_hxx__
@@ -16,7 +16,7 @@ namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
-  : public fusion::JointVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -46,7 +46,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CrbaBackwardStep
-  : public fusion::JointVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -98,7 +98,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStepMinimal
-  : public fusion::JointVisitorBase< CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -135,7 +135,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CrbaBackwardStepMinimal
-  : public fusion::JointVisitorBase< CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

@@ -94,6 +94,18 @@ namespace pinocchio
     /// \brief Model of joint *i*, encapsulated in a JointModelAccessor.
     JointModelVector joints;
     
+    /// \brief Starting index of the joint *i* in the configuration space
+    std::vector<int> idx_qs;
+    
+    /// \brief Dimension of the joint *i* configuration subspace
+    std::vector<int> nqs;
+    
+    /// \brief Starting index of the joint *i* in the tangent configuration space
+    std::vector<int> idx_vs;
+    
+    /// \brief Dimension of the joint *i* tangent subspace
+    std::vector<int> nvs;
+    
     /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
     std::vector<JointIndex> parents;
 
@@ -128,6 +140,11 @@ namespace pinocchio
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
     
+    /// \brief Vector of supports.
+    /// supports[j] corresponds to the collection of all joints located on the path between body *j*  and the world.
+    /// The last element of supports[j] is the index of the joint *j* itself.
+    std::vector<IndexVector> supports;
+    
     /// \brief Vector of subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint *j*.
     /// The first element of subtree[j] is the index of the joint *j* itself.
@@ -152,8 +169,13 @@ namespace pinocchio
     , inertias(1, Inertia::Zero())
     , jointPlacements(1, SE3::Identity())
     , joints(1)
+    , idx_qs(1,0)
+    , nqs(1,0)
+    , idx_vs(1,0)
+    , nvs(1,0)
     , parents(1, 0)
     , names(1)
+    , supports(1,IndexVector(1,0))
     , subtrees(1)
     , gravity(gravity981,Vector3::Zero())
     {
@@ -181,8 +203,13 @@ namespace pinocchio
       res.gravity = gravity.template cast<NewScalar>();
       res.name = name;
       
-      /// Eigen Vectors
-      /// TODO: remove this pragma when neutralConfiguration will be removed
+      res.idx_qs = idx_qs;
+      res.nqs = nqs;
+      res.idx_vs = idx_vs;
+      res.nvs = nvs;
+      
+      // Eigen Vectors
+      // TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
@@ -203,8 +230,7 @@ namespace pinocchio
         rit++;
       }
         
-
-      /// reserve vectors
+      // reserve vectors
       res.inertias.resize(inertias.size());
       res.jointPlacements.resize(jointPlacements.size());
       res.joints.resize(joints.size());
@@ -244,7 +270,13 @@ namespace pinocchio
       && other.subtrees == subtrees
       && other.gravity == gravity
       && other.name == name;
-
+      
+      res &=
+         other.idx_qs == idx_qs
+      && other.nqs == nqs
+      && other.idx_vs == idx_vs
+      && other.nvs == nvs;
+      
       /// TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -462,7 +494,8 @@ namespace pinocchio
     ///
     /// \return Name of the joint.
     ///
-    PINOCCHIO_DEPRECATED const std::string & getJointName(const JointIndex index) const;
+    PINOCCHIO_DEPRECATED
+    const std::string & getJointName(const JointIndex index) const;
 
     ///
     /// \brief Returns the index of a frame given by its name.
@@ -502,7 +535,7 @@ namespace pinocchio
     ///
     int addFrame(const Frame & frame);
 
-    /// Check the validity of the attributes of Model with respect to the specification of some
+    /// \brief Check the validity of the attributes of Model with respect to the specification of some
     /// algorithms.
     ///
     /// The method is a template so that the checkers can be defined in each algorithms.
@@ -516,7 +549,7 @@ namespace pinocchio
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     inline bool check() const;
     
-    /// Run checkData on data and current model.
+    /// \brief Run checkData on data and current model.
     ///
     /// \param[in] data to be checked wrt *this.
     ///

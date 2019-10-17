@@ -26,17 +26,22 @@ namespace boost
                    const unsigned int /*version*/)
     {
       ar & make_nvp("nq",model.nq);
+      ar & make_nvp("nqs",model.nqs);
+      ar & make_nvp("idx_qs",model.idx_qs);
       ar & make_nvp("nv",model.nv);
+      ar & make_nvp("nvs",model.nvs);
+      ar & make_nvp("idx_vs",model.idx_vs);
       ar & make_nvp("njoints",model.njoints);
       ar & make_nvp("nbodies",model.nbodies);
       ar & make_nvp("nframes",model.nframes);
       ar & make_nvp("parents",model.parents);
       ar & make_nvp("names",model.names);
+      ar & make_nvp("supports",model.supports);
       ar & make_nvp("subtrees",model.subtrees);
       ar & make_nvp("gravity",model.gravity);
       ar & make_nvp("name",model.name);
       
-      /// TODO: remove this pragma when neutralConfiguration will be removed
+      // TODO: remove this pragma when neutralConfiguration will be removed
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
       ar & make_nvp("neutralConfiguration",model.neutralConfiguration);

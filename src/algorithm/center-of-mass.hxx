@@ -204,7 +204,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3x>
   struct JacobianCenterOfMassBackwardStep
-  : public fusion::JointVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
+  : public fusion::JointUnaryVisitorBase< JacobianCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -321,7 +321,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3x>
   struct JacobianSubtreeCenterOfMassBackwardStep
-  : public fusion::JointVisitorBase< JacobianSubtreeCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
+  : public fusion::JointUnaryVisitorBase< JacobianSubtreeCenterOfMassBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3x> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

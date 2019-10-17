@@ -13,7 +13,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename Matrix3xOut>
   struct CoMVelocityDerivativesForwardStep
-    : public fusion::JointVisitorBase< CoMVelocityDerivativesForwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut> >
+    : public fusion::JointUnaryVisitorBase< CoMVelocityDerivativesForwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut> >
   {
     /* Assumes that both computeForwardKinematicsDerivatives and centerOfMass (or
      * equivalent methods like computeAllTerms) have been computed beforehand. */

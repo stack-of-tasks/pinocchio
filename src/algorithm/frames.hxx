@@ -107,12 +107,13 @@ namespace pinocchio
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
+
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.rows() == 6);
     PINOCCHIO_ASSERT_THROW_AT_RUNTIME(J.cols() == model.nv);
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(data.J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS, INRIA
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_lie_group_algo_hxx__
@@ -104,7 +104,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename ConfigVectorOut>
   struct IntegrateStep
-  : public fusion::JointVisitorBase< IntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,ConfigVectorOut> >
+  : public fusion::JointUnaryVisitorBase< IntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,ConfigVectorOut> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
                                   const TangentVectorIn &,
@@ -138,7 +138,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
   struct dIntegrateStep
-  : public fusion::JointVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+  : public fusion::JointUnaryVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
                                   const TangentVectorIn &,
@@ -175,7 +175,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar, typename ConfigVectorOut>
   struct InterpolateStep
-  : public fusion::JointVisitorBase< InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ConfigVectorOut  > >
+  : public fusion::JointUnaryVisitorBase< InterpolateStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar,ConfigVectorOut  > >
   {
     typedef boost::fusion::vector<const ConfigVectorIn1 &,
                                   const ConfigVectorIn2 &,
@@ -212,7 +212,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename TangentVectorOut>
   struct DifferenceStep
-  : public fusion::JointVisitorBase< DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,TangentVectorOut> >
+  : public fusion::JointUnaryVisitorBase< DifferenceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,TangentVectorOut> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn1 &,
                                   const ConfigVectorIn2 &,
@@ -246,7 +246,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename DistanceVectorOut>
   struct SquaredDistanceStep
-  : public fusion::JointVisitorBase<SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,DistanceVectorOut> >
+  : public fusion::JointUnaryVisitorBase<SquaredDistanceStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,DistanceVectorOut> >
   {
     typedef boost::fusion::vector<const JointIndex &,
                                   const ConfigVectorIn1 &,
@@ -281,7 +281,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
   struct SquaredDistanceSumStep
-  : public fusion::JointVisitorBase<SquaredDistanceSumStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
+  : public fusion::JointUnaryVisitorBase<SquaredDistanceSumStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn1 &,
                                   const ConfigVectorIn2 &,
@@ -313,7 +313,7 @@ namespace pinocchio
   
   template<typename LieGroup_t,typename ConfigVectorOut, typename ConfigVectorIn1, typename ConfigVectorIn2>
   struct RandomConfigurationStep
-  : public fusion::JointVisitorBase< RandomConfigurationStep<LieGroup_t,ConfigVectorOut,ConfigVectorIn1,ConfigVectorIn2> >
+  : public fusion::JointUnaryVisitorBase< RandomConfigurationStep<LieGroup_t,ConfigVectorOut,ConfigVectorIn1,ConfigVectorIn2> >
   {
     typedef boost::fusion::vector<ConfigVectorOut &,
                                   const ConfigVectorIn1 &,
@@ -347,7 +347,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorType>
   struct NormalizeStep
-  : public fusion::JointVisitorBase< NormalizeStep<LieGroup_t,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< NormalizeStep<LieGroup_t,ConfigVectorType> >
   {
     typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
@@ -374,7 +374,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>
   struct IsSameConfigurationStep
-  : public fusion::JointVisitorBase< IsSameConfigurationStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
+  : public fusion::JointUnaryVisitorBase< IsSameConfigurationStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> >
   {
     typedef boost::fusion::vector<bool &,
                                   const ConfigVectorIn1 &,
@@ -409,7 +409,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorType>
   struct NeutralStep
-  : public fusion::JointVisitorBase< NeutralStep<LieGroup_t,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< NeutralStep<LieGroup_t,ConfigVectorType> >
   {
     typedef boost::fusion::vector<ConfigVectorType &> ArgsType;
     
@@ -436,7 +436,7 @@ namespace pinocchio
   
   template<typename LieGroup_t, typename ConfigVectorType, typename JacobianMatrix>
   struct IntegrateCoeffWiseJacobianStep
-  : public fusion::JointVisitorBase< IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVectorType,JacobianMatrix> >
+  : public fusion::JointUnaryVisitorBase< IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVectorType,JacobianMatrix> >
   {
     typedef boost::fusion::vector<const ConfigVectorType &, JacobianMatrix &> ArgsType;
     

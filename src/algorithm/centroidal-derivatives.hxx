@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 INRIA
+// Copyright (c) 2018-2019 INRIA
 //
 
 #ifndef __pinocchio_algorithm_centroidal_derivatives_hxx__
@@ -17,7 +17,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct CentroidalDynDerivativesForwardStep
-  : public fusion::JointVisitorBase<CentroidalDynDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointUnaryVisitorBase<CentroidalDynDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -117,7 +117,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CentroidalDynDerivativesBackwardStep
-  : public fusion::JointVisitorBase<CentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase<CentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -293,7 +293,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct GetCentroidalDynDerivativesBackwardStep
-  : public fusion::JointVisitorBase<GetCentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase<GetCentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
