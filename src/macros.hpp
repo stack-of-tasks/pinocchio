@@ -37,7 +37,9 @@
   PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_1(condition) \
-  _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,"Please check the dimensions of all input arguments.")
+  _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,\
+                                    "Please check the dimensions of all input arguments.\n"\
+                                    "The following check has failed: "#condition)
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_0
 
