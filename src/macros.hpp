@@ -42,8 +42,7 @@
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_1(condition) \
   _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,\
-                                    "Please check the dimensions of all input arguments.\n"\
-                                    "The following check has failed: "#condition)
+                                    "The following check on the input argument has failed: "#condition)
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_0
 
