@@ -27,9 +27,13 @@
   #pragma GCC diagnostic ignored "-Wvariadic-macros"
 #endif
 
-/// \brief Generic macro to throw a en exception in Pinocchio with a given input message.
-#define PINOCCHIO_THROW(condition,exception_type,message) \
-  if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
+/// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
+#if !defined(PINOCCHIO_NO_THROW)
+  #define PINOCCHIO_THROW(condition,exception_type,message) \
+    if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
+#else
+  #define PINOCCHIO_THROW(condition,exception_type,message)
+#endif
 
 #define _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(_1, _2, MACRO_NAME, ...) MACRO_NAME
 
