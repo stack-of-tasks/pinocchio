@@ -31,7 +31,7 @@
 #define PINOCCHIO_THROW(condition,exception_type,message) \
   if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
 
-#define _PINOCCHIO_GET_OVERRIDE(_1, _2, MACRO_NAME, ...) MACRO_NAME
+#define _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(_1, _2, MACRO_NAME, ...) MACRO_NAME
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition, message) \
   PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
@@ -43,7 +43,7 @@
 
 /// \brief Macro to check an assert-like condition and throw a std::invalid_argument exception (with a message) if violated.
 #define PINOCCHIO_CHECK_INPUT_ARGUMENT(...) \
-  _PINOCCHIO_GET_OVERRIDE(__VA_ARGS__,_PINOCCHIO_CHECK_INPUT_ARGUMENT_2,\
+  _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(__VA_ARGS__,_PINOCCHIO_CHECK_INPUT_ARGUMENT_2,\
   _PINOCCHIO_CHECK_INPUT_ARGUMENT_1,_PINOCCHIO_CHECK_INPUT_ARGUMENT_0)(__VA_ARGS__)
 
 #if defined(__GNUC__) || defined(__clang__)
