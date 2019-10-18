@@ -92,7 +92,7 @@ namespace pinocchio
                             const std::string & filename,
                             const std::string & tag_name)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(!tag_name.empty());
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(!tag_name.empty());
       
       std::ifstream ifs(filename.c_str());
       if(ifs)
@@ -123,7 +123,7 @@ namespace pinocchio
                           const std::string & filename,
                           const std::string & tag_name)
     {
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(!tag_name.empty());
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(!tag_name.empty());
       
       std::ofstream ofs(filename.c_str());
       if(ofs)

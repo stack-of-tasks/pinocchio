@@ -54,12 +54,12 @@ namespace pinocchio
                                GeometryData & geomData,
                                const PairIndex & pairId)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pairId < geomModel.collisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pairId      < geomData.collisionResults.size() );
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pair.first  < geomData.collisionObjects.size() );
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.collisionResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
 
     fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
     collisionResult.clear();
@@ -115,12 +115,12 @@ namespace pinocchio
                                                GeometryData & geomData,
                                                const PairIndex & pairId)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pairId < geomModel.collisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pairId      < geomData.distanceResults.size() );
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pair.first  < geomData.collisionObjects.size() );
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.distanceResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
 
     geomData.distanceResults[pairId].clear();
     fcl::distance ( &geomData.collisionObjects[pair.first],

@@ -82,9 +82,9 @@ namespace pinocchio
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv, "The velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a.size() == model.nv, "The acceleration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(a.size() == model.nv, "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -186,8 +186,8 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
     
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v_partial_dv.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dv.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -346,10 +346,10 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Data::Matrix6x);
     
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a_partial_dv.cols() ==  model.nv);
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a_partial_da.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dq.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dv.cols() ==  model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_da.cols() ==  model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

@@ -105,7 +105,7 @@ namespace pinocchio
                            const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(LEVEL >= 0);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(LEVEL >= 0);
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -385,8 +385,8 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME((int)rootSubtreeId < model.njoints, "Invalid joint id.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((int)rootSubtreeId < model.njoints, "Invalid joint id.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
 
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
@@ -423,7 +423,7 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data,Jcom_subtree,computeSubtreeComs));
     }
     
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(data.mass[rootSubtreeId] > 0., "The mass of the subtree is not positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(data.mass[rootSubtreeId] > 0., "The mass of the subtree is not positive.");
     const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
     typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
     if(not computeSubtreeComs)
@@ -461,8 +461,8 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(((int)rootSubtreeId < model.njoints), "Invalid joint id.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(((int)rootSubtreeId < model.njoints), "Invalid joint id.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
     
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
