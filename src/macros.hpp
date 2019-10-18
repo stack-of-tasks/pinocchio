@@ -29,7 +29,7 @@
 
 /// \brief Macro to check an assert-like condition and throw a runtime error exception (with a message) if violated.
 #define PINOCCHIO_THROW(condition,exception_type,message) \
-  if (!(condition)) { throw std::runtime_error(PINOCCHIO_STRING_LITERAL(message)); }
+  if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
 
 #define _PINOCCHIO_GET_OVERRIDE(_1, _2, MACRO_NAME, ...) MACRO_NAME
 
