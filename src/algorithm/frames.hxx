@@ -158,7 +158,7 @@ namespace pinocchio
                             const Eigen::MatrixBase<Matrix6Like> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The configuration vector is not of right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;

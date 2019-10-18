@@ -82,9 +82,9 @@ namespace pinocchio
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(a.size() == model.nv, "The acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv, "The velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(a.size() == model.nv, "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

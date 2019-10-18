@@ -198,7 +198,7 @@ namespace pinocchio
           return true; 
         }
       }
-      PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(false, "no rotor params found in the srdf file");  
+      PINOCCHIO_ASSERT_THROW_AT_RUNTIME(false, "no rotor params found in the srdf file");  
       return false; // warning : uninitialized vector is returned
     }
     

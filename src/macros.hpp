@@ -22,9 +22,32 @@
 #include <exception>
 #include <stdexcept>
 
+#if defined(__GNUC__) || defined(__clang__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wvariadic-macros"
+#endif
+
 /// \brief Macro to check an assert-like condition and throw a runtime error exception (with a message) if violated.
-#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(cond) if (!(cond)) { throw std::runtime_error("Please check the dimensions of all input arguments."); }
-#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(cond, message) if (!(cond)) { throw std::runtime_error(message); }
+#define PINOCCHIO_THROW(condition,exception_type,message) \
+  if (!(condition)) { throw std::runtime_error(PINOCCHIO_STRING_LITERAL(message)); }
+
+#define _PINOCCHIO_GET_OVERRIDE(_1, _2, MACRO_NAME, ...) MACRO_NAME
+
+#define _PINOCCHIO_ASSERT_THROW_AT_RUNTIME_2(condition, message) \
+  PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
+
+#define _PINOCCHIO_ASSERT_THROW_AT_RUNTIME_1(condition) \
+  _PINOCCHIO_ASSERT_THROW_AT_RUNTIME_2(condition,"Please check the dimensions of all input arguments.")
+
+#define _PINOCCHIO_ASSERT_THROW_AT_RUNTIME_0
+
+#define PINOCCHIO_ASSERT_THROW_AT_RUNTIME(...) \
+  _PINOCCHIO_GET_OVERRIDE(__VA_ARGS__,_PINOCCHIO_ASSERT_THROW_AT_RUNTIME_2,\
+  _PINOCCHIO_ASSERT_THROW_AT_RUNTIME_1,_PINOCCHIO_ASSERT_THROW_AT_RUNTIME_0)(__VA_ARGS__)
+
+#if defined(__GNUC__) || defined(__clang__)
+  #pragma GCC diagnostic pop
+#endif
 
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
 #if defined(__GNUC__) || defined(__clang__)
@@ -65,7 +88,7 @@ namespace pinocchio
   EIGEN_STATIC_ASSERT(   (type::RowsAtCompileTime == Eigen::Dynamic || type::RowsAtCompileTime == nrows) \
                       && (type::ColsAtCompileTime == Eigen::Dynamic || type::ColsAtCompileTime == ncols),\
                       THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE);    \
-  PINOCCHIO_ASSERT_THROW_AT_RUNTIME(M.rows()==nrows && M.cols()==ncols);
+  assert(M.rows()==nrows && M.cols()==ncols);
 
 /// Static assertion.
 /// \param condition a boolean convertible expression

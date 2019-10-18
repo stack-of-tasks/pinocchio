@@ -223,9 +223,9 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & tau)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(tau.size() == model.nv, "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(tau.size() == model.nv, "The joint acceleration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -268,9 +268,9 @@ namespace pinocchio
 
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(tau.size() == model.nv, "The joint acceleration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(tau.size() == model.nv, "The joint acceleration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -457,7 +457,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_ASSERT_THROW_AT_RUNTIME_WITH_MESSAGE(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_ASSERT_THROW_AT_RUNTIME(q.size() == model.nq, "The joint configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     data.Minv.template triangularView<Eigen::Upper>().setZero();
