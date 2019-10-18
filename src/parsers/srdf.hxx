@@ -198,7 +198,7 @@ namespace pinocchio
           return true; 
         }
       }
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "no rotor params found in the srdf file");  
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "no rotor params found in the SRDF file");  
       return false; // warning : uninitialized vector is returned
     }
     
@@ -278,7 +278,7 @@ namespace pinocchio
         }
       } // BOOST_FOREACH
       
-      if (verbose) std::cout << "no half_sitting configuration found in the srdf file"; // Should we throw something here ?  
+      if (verbose) std::cout << "no half_sitting configuration found in the SRDF file"; // Should we throw something here ?  
       typename Model::ConfigVectorType config (model.nq);
       neutral (model, config);
       return config;
