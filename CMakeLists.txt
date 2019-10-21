@@ -3,7 +3,7 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET(PROJECT_NAME pinocchio)
 SET(PROJECT_DESCRIPTION "A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives")
@@ -20,7 +20,12 @@ IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
 ENDIF()
 
 INCLUDE(cmake/base.cmake)
-PROJECT(${PROJECT_NAME} CXX)
+IF(CMAKE_VERSION VERSION_GREATER "3.0.0")
+  CMAKE_POLICY(SET CMP0048 NEW)
+  PROJECT(${PROJECT_NAME} VERSION ${PROJECT_VERSION_FULL} LANGUAGES CXX)
+ELSE(CMAKE_VERSION VERSION_GREATER "3.0.0")
+  PROJECT(${PROJECT_NAME} CXX)
+ENDIF(CMAKE_VERSION VERSION_GREATER "3.0.0")
 
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/python.cmake)
