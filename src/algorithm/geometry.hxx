@@ -54,12 +54,12 @@ namespace pinocchio
                                GeometryData & geomData,
                                const PairIndex & pairId)
   {
-    assert( pairId < geomModel.collisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    assert( pairId      < geomData.collisionResults.size() );
-    assert( pair.first  < geomData.collisionObjects.size() );
-    assert( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.collisionResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
 
     fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
     collisionResult.clear();
@@ -115,12 +115,12 @@ namespace pinocchio
                                                GeometryData & geomData,
                                                const PairIndex & pairId)
   {
-    assert( pairId < geomModel.collisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
     const CollisionPair & pair = geomModel.collisionPairs[pairId];
 
-    assert( pairId      < geomData.distanceResults.size() );
-    assert( pair.first  < geomData.collisionObjects.size() );
-    assert( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.distanceResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
 
     geomData.distanceResults[pairId].clear();
     fcl::distance ( &geomData.collisionObjects[pair.first],

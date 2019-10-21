@@ -107,8 +107,9 @@ namespace pinocchio
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    assert(J.rows() == 6);
-    assert(J.cols() == model.nv);
+
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == 6);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -157,7 +158,7 @@ namespace pinocchio
                             const Eigen::MatrixBase<Matrix6Like> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Frame Frame;
@@ -191,8 +192,8 @@ namespace pinocchio
                                      const ReferenceFrame rf,
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
-    assert( dJ.rows() == data.dJ.rows() );
-    assert( dJ.cols() == data.dJ.cols() );    
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( dJ.rows() == data.dJ.rows() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( dJ.cols() == data.dJ.cols() );    
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

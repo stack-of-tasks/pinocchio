@@ -25,9 +25,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
                   const Scalar inv_damping)
   {
-    assert(tau.size() == model.nv);
-    assert(J.cols() == model.nv);
-    assert(J.rows() == gamma.size());
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == gamma.size());
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -78,8 +78,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
                   const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
-    assert(v.size() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv);
 
     computeAllTerms(model, data, q, v);
 
@@ -94,8 +94,8 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv)
   {
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    assert(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
-    assert(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
     const typename Data::MatrixXs::Index& nc = data.JMinvJt.cols();
     
     KKTMatrixType& MJtJ_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,MJtJ_inv);
@@ -124,7 +124,7 @@ namespace pinocchio
                   const Scalar r_coeff,
                   const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
     
     // Compute the mass matrix
     crba(model, data, q);
@@ -141,8 +141,8 @@ namespace pinocchio
                   const Scalar r_coeff,
                   const Scalar inv_damping)
   {
-    assert(v_before.size() == model.nv);
-    assert(J.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
