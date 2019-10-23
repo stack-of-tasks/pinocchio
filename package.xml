@@ -20,7 +20,9 @@
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>eigenpy</depend>
-  <depend>hpp-fcl</depend>
+  <!-- The ROS-released HPP-FCL is not yet ready for use with Pinocchio out of the box (old version).
+  Additionally, as BUILD_WITH_COLLISION_SUPPORT is default OFF, the ROS buildfarm would not configure it proper either way. -->
+  <!-- <depend>hpp-fcl</depend> -->
 
   <buildtool_depend>cmake</buildtool_depend>
   <export>
