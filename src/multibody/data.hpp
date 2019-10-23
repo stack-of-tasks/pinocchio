@@ -310,7 +310,7 @@ namespace pinocchio
     /// \brief Vector of subtree mass. In other words, mass[j] is the mass of the subtree supported by joint \f$ j \f$. The element mass[0] corresponds to the total mass of the model.
     std::vector<Scalar> mass;
     
-    /// \brief Jacobien of center of mass.
+    /// \brief Jacobian of center of mass.
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertial frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
