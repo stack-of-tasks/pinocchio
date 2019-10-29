@@ -57,7 +57,7 @@ namespace pinocchio
   ///
   /// \brief Computes the classic acceleration of a given frame B
   ///        knowing the spatial velocity and spatial acceleration of a frame A
-  ///        and the relative placement between these two frames
+  ///        and the relative placement between these two frames.
   ///
   /// \tparam Motion1 type of the input spatial velocity.
   /// \tparam Motion2 type of the input spatial acceleration.
@@ -93,7 +93,7 @@ namespace pinocchio
   ///
   /// \brief Computes the classic acceleration of a given frame B
   ///        knowing the spatial velocity and spatial acceleration of a frame A
-  ///        and the relative placement between these two frames
+  ///        and the relative placement between these two frames.
   ///
   /// \tparam Motion1 type of the input spatial velocity.
   /// \tparam Motion2 type of the input spatial acceleration.
