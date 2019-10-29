@@ -466,8 +466,8 @@ namespace pinocchio
         VectorLike & v_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,v);
         
         const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
+        v_[col] = (typename VectorLike::Scalar)1;
         v_.tail(model.nv - col - 1).setZero();
-        v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
           const int nvt_max = std::min(col,nvt[(size_t)k]-1);
