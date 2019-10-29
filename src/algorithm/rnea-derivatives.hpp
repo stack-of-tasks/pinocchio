@@ -14,7 +14,7 @@ namespace pinocchio
 {
 
   ///
-  /// \brief Computes the derivative of the generalized gravity contribution
+  /// \brief Computes the partial derivative of the generalized gravity contribution
   ///        with respect to the joint configuration.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -26,7 +26,7 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[out] gravity_partial_dq Partial derivative of the generalized gravity vector with respect to the joint configuration.
   ///
-  /// \remark gravity_partial_dq must be first initialized with zeros (gravity_partial_dq.setZero).
+  /// \remarks gravity_partial_dq must be first initialized with zeros (gravity_partial_dq.setZero).
   ///
   /// \sa pinocchio::computeGeneralizedGravity
   ///
@@ -64,7 +64,7 @@ namespace pinocchio
                                  const Eigen::MatrixBase<ReturnMatrixType> & static_torque_partial_dq);
   
   ///
-  /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
+  /// \brief Computes the partial derivatives of the Recursive Newton Euler Algorithms
   ///        with respect to the joint configuration, the joint velocity and the joint acceleration.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -84,7 +84,7 @@ namespace pinocchio
   /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
-  /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
+  /// \remarks rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
   ///         As for pinocchio::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
   /// \sa pinocchio::rnea
@@ -123,7 +123,7 @@ namespace pinocchio
   /// \param[out] rnea_partial_dv Partial derivative of the generalized torque vector with respect to the joint velocity.
   /// \param[out] rnea_partial_da Partial derivative of the generalized torque vector with respect to the joint acceleration.
   ///
-  /// \remark rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
+  /// \remarks rnea_partial_dq, rnea_partial_dv and rnea_partial_da must be first initialized with zeros (rnea_partial_dq.setZero(),etc).
   ///         As for pinocchio::crba, only the upper triangular part of rnea_partial_da is filled.
   ///
   /// \sa pinocchio::rnea
