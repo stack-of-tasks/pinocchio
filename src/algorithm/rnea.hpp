@@ -98,7 +98,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  /// \return The bias terms stored in data.g.
+  /// \return The generalized gravity torque stored in data.g.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
