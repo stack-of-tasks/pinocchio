@@ -47,7 +47,8 @@ namespace pinocchio
         data.oMi[i] = data.liMi[i];
       
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-
+      data.of[i] = data.oYcrb[i] * minus_gravity;
+      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
@@ -66,6 +67,7 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
+                                  typename Data::VectorXs &,
                                   ReturnMatrixType &
                                   > ArgsType;
     
@@ -73,6 +75,7 @@ namespace pinocchio
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
+                     typename Data::VectorXs & g,
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
@@ -82,7 +85,6 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
       
       typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      const Motion & minus_gravity = data.oa_gf[0];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
@@ -96,17 +98,17 @@ namespace pinocchio
       gravity_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      data.of[i] = data.oYcrb[i] * minus_gravity;
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
       lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
       for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
       
-      jmodel.jointVelocitySelector(data.g).noalias() = J_cols.transpose()*data.of[i].toVector();
+      jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
       {
         data.oYcrb[parent] += data.oYcrb[i];
+        data.of[parent] += data.of[i];
       }
     }
     
@@ -149,7 +151,7 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
-                 typename Pass2::ArgsType(model,data,gravity_partial_dq_));
+                 typename Pass2::ArgsType(model,data,data.g,gravity_partial_dq_));
     }
   }
   
