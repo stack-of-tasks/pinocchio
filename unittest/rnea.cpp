@@ -198,6 +198,50 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   
   BOOST_CHECK(g_ref.isApprox(data.g));
 }
+
+BOOST_AUTO_TEST_CASE(test_compute_static_torque)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+
+  Data data_rnea(model);
+  Data data(model);
+
+  VectorXd q = randomConfiguration(model);
+
+  typedef container::aligned_vector<Force> ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+  
+  rnea(model,data_rnea,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv),fext);
+  computeStaticTorque(model,data,q,fext);
+
+  BOOST_CHECK(data_rnea.tau.isApprox(data.tau));
+
+  // Compare with Jcom + Jacobian of joint
+  crba(model,data_rnea,q);
+  Data::Matrix3x Jcom = getJacobianComFromCrba(model,data_rnea);
+  
+  VectorXd static_torque_ref = -data_rnea.mass[0]*Jcom.transpose()*Model::gravity981;
+  computeJointJacobians(model,data_rnea,q);
+  
+  Data::Matrix6x J_local(6,model.nv);
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)(model.njoints); ++joint_id)
+  {
+    J_local.setZero();
+    getJointJacobian(model, data_rnea, joint_id, LOCAL, J_local);
+    static_torque_ref -= J_local.transpose() * fext[joint_id].toVector();
+  }
+
+  BOOST_CHECK(static_torque_ref.isApprox(data.tau));
+}
   
   BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   {
