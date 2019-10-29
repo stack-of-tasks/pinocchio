@@ -291,7 +291,7 @@ namespace pinocchio
       // compute inverse
 //      data.Dinv.setIdentity();
 //      I.llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(I,data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(I.derived(),data.Dinv);
       
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).setZero();
