@@ -47,7 +47,8 @@ namespace pinocchio
         data.oMi[i] = data.liMi[i];
       
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-
+      data.of[i] = data.oYcrb[i] * minus_gravity;
+      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
@@ -66,6 +67,7 @@ namespace pinocchio
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
+                                  typename Data::VectorXs &,
                                   ReturnMatrixType &
                                   > ArgsType;
     
@@ -73,16 +75,15 @@ namespace pinocchio
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
                      Data & data,
+                     typename Data::VectorXs & g,
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::Motion Motion;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
       typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      const Motion & minus_gravity = data.oa_gf[0];
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
@@ -96,17 +97,17 @@ namespace pinocchio
       gravity_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      data.of[i] = data.oYcrb[i] * minus_gravity;
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
       lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
       for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
       
-      jmodel.jointVelocitySelector(data.g).noalias() = J_cols.transpose()*data.of[i].toVector();
+      jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
       {
         data.oYcrb[parent] += data.oYcrb[i];
+        data.of[parent] += data.of[i];
       }
     }
     
@@ -149,7 +150,43 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
-                 typename Pass2::ArgsType(model,data,gravity_partial_dq_));
+                 typename Pass2::ArgsType(model,data,data.g,gravity_partial_dq_));
+    }
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
+  inline void
+  computeStaticTorqueDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                                 const Eigen::MatrixBase<ReturnMatrixType> & static_torque_partial_dq)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(static_torque_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(static_torque_partial_dq.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    data.oa_gf[0] = -model.gravity; // minus_gravity used in the two Passes
+    
+    typedef ComputeGeneralizedGravityDerivativeForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
+      data.of[i] -= data.oMi[i].act(fext[i]);
+    }
+    
+    typedef ComputeGeneralizedGravityDerivativeBackwardStep<Scalar,Options,JointCollectionTpl,ReturnMatrixType> Pass2;
+    ReturnMatrixType & static_torque_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(ReturnMatrixType,static_torque_partial_dq);
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data,data.tau,static_torque_partial_dq_));
     }
   }
   
@@ -469,4 +506,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_rnea_derivatives_hxx__
-

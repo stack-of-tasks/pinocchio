@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_rnea_hpp__
@@ -98,13 +98,37 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  /// \return The bias terms stored in data.g.
+  /// \return The generalized gravity torque stored in data.g.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeGeneralizedGravity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q);
+  
+  ///
+  /// \brief Computes the generalized static torque contribution \f$ g(q) - \sum J(q)^{\top} \f_{\text{ext}} \f$ of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + c(q, \dot{q}) + g(q) = \tau + \sum J(q)^{\top} \f_{\text{ext}} \end{eqnarray} \f$ </CENTER> <BR>.
+  /// This torque vector accouts for the contribution of the gravity and the external forces.
+  ///
+  /// \note This function is equivalent to pinocchio::rnea(model, data, q, 0, 0, fext).
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] fext External forces expressed in the local frame of the joints (dim model.njoints). 
+  ///
+  /// \return The generalized static torque stored in data.tau.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  computeStaticTorque(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
   
   ///
   /// \brief Computes the Coriolis Matrix \f$ C(q,\dot{q}) \f$ of the Lagrangian dynamics:

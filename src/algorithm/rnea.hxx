@@ -314,21 +314,23 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
     typedef boost::fusion::vector<const Model &,
-                                  Data &
+                                  Data &,
+                                  typename Data::VectorXs &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data)
+                     Data & data,
+                     typename Data::VectorXs & g)
     {
       typedef typename Model::JointIndex JointIndex;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      jmodel.jointVelocitySelector(data.g) = jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(g) = jdata.S().transpose()*data.f[i];
       if(parent>0) data.f[(size_t) parent] += data.liMi[i].act(data.f[i]);
     }
   };
@@ -358,10 +360,44 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data));
+                 typename Pass2::ArgsType(model,data,data.g));
     }
     
     return data.g;
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  computeStaticTorque(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    data.a_gf[0] = -model.gravity;
+    
+    typedef ComputeGeneralizedGravityForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
+      data.f[i] -= fext[i];
+    }
+    
+    typedef ComputeGeneralizedGravityBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,data.tau));
+    }
+    
+    return data.tau;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>

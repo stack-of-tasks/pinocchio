@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 /*
@@ -45,11 +45,14 @@ BOOST_AUTO_TEST_CASE ( test_rnea )
 
   pinocchio::Model model; buildModels::humanoidRandom(model);
   
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
   pinocchio::Data data(model);
   data.v[0] = Motion::Zero();
   data.a[0] = -model.gravity;
 
-  VectorXd q = VectorXd::Random(model.nq);
+  VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
 
@@ -75,50 +78,54 @@ BOOST_AUTO_TEST_CASE ( test_nle_vs_rnea )
   using namespace pinocchio;
   
   pinocchio::Model model; buildModels::humanoidRandom(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
   pinocchio::Data data_nle(model);
   pinocchio::Data data_rnea(model);
   
-  VectorXd q (VectorXd::Random(model.nq));
-  VectorXd v (VectorXd::Random(model.nv));
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
   
   VectorXd tau_nle (VectorXd::Zero (model.nv));
   VectorXd tau_rnea (VectorXd::Zero (model.nv));
   
   // -------
-  q.setZero ();
-  v.setZero ();
+  q.tail(model.nq-7).setZero();
+  v.setZero();
   
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
   
-  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  BOOST_CHECK(tau_nle.isApprox(tau_rnea, 1e-12));
   
   // -------
-  q.setZero ();
-  v.setOnes ();
+  q.tail(model.nq-7).setZero();
+  v.setOnes();
   
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
   
-  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  BOOST_CHECK(tau_nle.isApprox(tau_rnea, 1e-12));
   
   // -------
-  q.setOnes ();
-  v.setOnes ();
+  q.tail(model.nq-7).setOnes();
+  v.setOnes();
   
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
   
-  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  BOOST_CHECK(tau_nle.isApprox(tau_rnea, 1e-12));
   
   // -------
-  q.setRandom ();
-  v.setRandom ();
+  q = randomConfiguration(model);
+  v.setRandom();
   
   tau_nle = nonLinearEffects(model,data_nle,q,v);
   tau_rnea = rnea(model,data_rnea,q,v,VectorXd::Zero (model.nv));
   
-  BOOST_CHECK (tau_nle.isApprox(tau_rnea, 1e-12));
+  BOOST_CHECK(tau_nle.isApprox(tau_rnea, 1e-12));
 }
   
 BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
@@ -128,11 +135,14 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   
   Model model;
   buildModels::humanoidRandom(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
   Data data_rnea_fext(model);
   Data data_rnea(model);
   
-  VectorXd q (VectorXd::Random(model.nq));
-  q.segment<4>(3).normalize();
+  VectorXd q = randomConfiguration(model);
   
   VectorXd v (VectorXd::Random(model.nv));
   VectorXd a (VectorXd::Random(model.nv));
@@ -166,11 +176,14 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   
   Model model;
   buildModels::humanoidRandom(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
   Data data_rnea(model);
   Data data(model);
   
-  VectorXd q (VectorXd::Random(model.nq));
-  q.segment<4>(3).normalize();
+  VectorXd q = randomConfiguration(model);
   
   rnea(model,data_rnea,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv));
   computeGeneralizedGravity(model,data,q);
@@ -185,6 +198,50 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
   
   BOOST_CHECK(g_ref.isApprox(data.g));
 }
+
+BOOST_AUTO_TEST_CASE(test_compute_static_torque)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+
+  Data data_rnea(model);
+  Data data(model);
+
+  VectorXd q = randomConfiguration(model);
+
+  typedef container::aligned_vector<Force> ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+  
+  rnea(model,data_rnea,q,VectorXd::Zero(model.nv),VectorXd::Zero(model.nv),fext);
+  computeStaticTorque(model,data,q,fext);
+
+  BOOST_CHECK(data_rnea.tau.isApprox(data.tau));
+
+  // Compare with Jcom + Jacobian of joint
+  crba(model,data_rnea,q);
+  Data::Matrix3x Jcom = getJacobianComFromCrba(model,data_rnea);
+  
+  VectorXd static_torque_ref = -data_rnea.mass[0]*Jcom.transpose()*Model::gravity981;
+  computeJointJacobians(model,data_rnea,q);
+  
+  Data::Matrix6x J_local(6,model.nv);
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)(model.njoints); ++joint_id)
+  {
+    J_local.setZero();
+    getJointJacobian(model, data_rnea, joint_id, LOCAL, J_local);
+    static_torque_ref -= J_local.transpose() * fext[joint_id].toVector();
+  }
+
+  BOOST_CHECK(static_torque_ref.isApprox(data.tau));
+}
   
   BOOST_AUTO_TEST_CASE(test_compute_coriolis)
   {
@@ -195,11 +252,14 @@ BOOST_AUTO_TEST_CASE(test_compute_gravity)
     
     Model model;
     buildModels::humanoidRandom(model);
+    
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill( 1.);
+    
     Data data_ref(model);
     Data data(model);
     
-    VectorXd q (VectorXd::Random(model.nq));
-    q.segment<4>(3).normalize();
+    VectorXd q = randomConfiguration(model);
     
     VectorXd v (VectorXd::Random(model.nv));
     computeCoriolisMatrix(model,data,q,Eigen::VectorXd::Zero(model.nv));

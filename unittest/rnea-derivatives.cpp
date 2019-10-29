@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS, INRIA
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -60,6 +60,54 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
   }
   
   BOOST_CHECK(g_partial_dq.isApprox(g_partial_dq_fd,sqrt(alpha)));
+}
+
+BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives_fext)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model), data_fd(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+
+  typedef container::aligned_vector<Force> ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+  
+  // Check againt non-derivative algo
+  MatrixXd static_vec_partial_dq(model.nv,model.nv); static_vec_partial_dq.setZero();
+  computeStaticTorqueDerivatives(model,data,q,fext,static_vec_partial_dq);
+  
+  VectorXd tau0 = computeStaticTorque(model,data_fd,q,fext);
+  BOOST_CHECK(data.tau.isApprox(tau0));
+  
+  std::cout << "data.tau: " << data.tau.transpose() << std::endl;
+  std::cout << "tau0: " << tau0.transpose() << std::endl;
+
+  MatrixXd static_vec_partial_dq_fd(model.nv,model.nv);
+
+  VectorXd v_eps(Eigen::VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd tau_plus(model.nv);
+  const double alpha = 1e-8;
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    tau_plus = computeStaticTorque(model,data_fd,q_plus,fext);
+    
+    static_vec_partial_dq_fd.col(k) = (tau_plus - tau0)/alpha;
+    v_eps[k] = 0.;
+  }
+  
+  BOOST_CHECK(static_vec_partial_dq.isApprox(static_vec_partial_dq_fd,sqrt(alpha)));
 }
 
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives)

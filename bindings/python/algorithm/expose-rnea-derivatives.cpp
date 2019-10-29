@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS INRIA
+// Copyright (c) 2018-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -18,6 +18,16 @@ namespace pinocchio
       Data::MatrixXs res(model.nv,model.nv);
       res.setZero();
       pinocchio::computeGeneralizedGravityDerivatives(model,data,q,res);
+      return res;
+    }
+    
+    Data::MatrixXs computeStaticTorqueDerivatives(const Model & model, Data & data,
+                                                  const Eigen::VectorXd & q,
+                                                  const ForceAlignedVector & fext)
+    {
+      Data::MatrixXs res(model.nv,model.nv);
+      res.setZero();
+      pinocchio::computeStaticTorqueDerivatives(model,data,q,fext,res);
       return res;
     }
     
@@ -52,7 +62,16 @@ namespace pinocchio
               computeGeneralizedGravityDerivatives,
               bp::args("Model","Data",
                        "q: configuration vector (size model.nq)"),
-              "Computes the derivative of the generalized gravity contribution\n"
+              "Computes the partial derivative of the generalized gravity contribution\n"
+              "with respect to the joint configuration.");
+              
+      bp::def("computeStaticTorqueDerivatives",
+              computeStaticTorqueDerivatives,
+              bp::args("Model: model of the kinematic tree",
+                       "Data: data of the kinematic tree",
+                       "q: configuration vector (size model.nq)",
+                       "fext: vector of external forces expressed in the local frame of the joints (size model.njoints)"),
+              "Computes the partial derivative of the generalized gravity and external forces contributions (a.k.a static torque vector)\n"
               "with respect to the joint configuration.");
       
       bp::def("computeRNEADerivatives",
@@ -61,7 +80,7 @@ namespace pinocchio
                        "q: configuration vector (size model.nq)",
                        "v: velocity vector (size model.nv)",
                        "a: acceleration vector (size model.nv)"),
-              "Computes the RNEA derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "Computes the RNEA partial derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
       
@@ -71,8 +90,8 @@ namespace pinocchio
                        "q: configuration vector (size model.nq)",
                        "v: velocity vector (size model.nv)",
                        "a: acceleration vector (size model.nv)",
-                       "fext: vector external forces (size model.njoints)"),
-              "Computes the RNEA derivatives with external contact foces,\n"
+                       "fext: vector of external forces expressed in the local frame of the joints (size model.njoints)"),
+              "Computes the RNEA partial derivatives with external contact foces,\n"
               "put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
