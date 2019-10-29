@@ -79,7 +79,6 @@ namespace pinocchio
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::Motion Motion;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
@@ -152,6 +151,42 @@ namespace pinocchio
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data,data.g,gravity_partial_dq_));
+    }
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
+  inline void
+  computeStaticTorqueDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                                 const Eigen::MatrixBase<ReturnMatrixType> & static_torque_partial_dq)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(static_torque_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(static_torque_partial_dq.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    data.oa_gf[0] = -model.gravity; // minus_gravity used in the two Passes
+    
+    typedef ComputeGeneralizedGravityDerivativeForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived()));
+      data.of[i] -= data.oMi[i].act(fext[i]);
+    }
+    
+    typedef ComputeGeneralizedGravityDerivativeBackwardStep<Scalar,Options,JointCollectionTpl,ReturnMatrixType> Pass2;
+    ReturnMatrixType & static_torque_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(ReturnMatrixType,static_torque_partial_dq);
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data,data.tau,static_torque_partial_dq_));
     }
   }
   
@@ -471,4 +506,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_rnea_derivatives_hxx__
-
