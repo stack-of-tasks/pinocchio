@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -46,6 +46,14 @@ namespace pinocchio
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the generalized gravity contribution g(q) of the Lagrangian dynamics, put the result in data.g and return it.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("computeStaticTorque",
+              &computeStaticTorque<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("Model","Data",
+                       "Configuration q (size Model::nq)",
+                       "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
+              "Computes the generalized static torque contribution g(q) - J.T f_ext of the Lagrangian dynamics, put the result in data.tau and return it.",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("computeCoriolisMatrix",
