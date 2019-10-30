@@ -10,9 +10,11 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
+#include <Eigen/Cholesky>
+
 namespace pinocchio
 {
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
   typename ConstraintMatrixType, typename DriftVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
@@ -21,18 +23,17 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const ProximalSettingsTpl<Scalar> & prox_settings)
+                  const Scalar inv_damping)
   {
-    assert(tau.size() == model.nv);
-    assert(J.cols() == model.nv);
-    assert(J.rows() == gamma.size());
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == gamma.size());
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::VectorXs & lambda_c = data.lambda_c;
-    typename Data::VectorXs & lambda_c_prox = data.lambda_c_prox;
     
     // Compute the UDUt decomposition of data.M
     cholesky::decompose(model, data);
@@ -49,35 +50,13 @@ namespace pinocchio
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
     
-    const Scalar & mu = prox_settings.mu;
-    assert(mu >= 0. && "mu must be positive");
-    int max_it = prox_settings.max_it;
-    assert(max_it >= 1 && "mu must greater or equal to 1");
-    
-    if(mu == 0.)
-      max_it = 1;
-    else
-      data.JMinvJt.diagonal().array() += mu;
-    
+    data.JMinvJt.diagonal().array() += inv_damping;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
-    lambda_c_prox = Data::VectorXs::Zero(gamma.size());
-    for(int it = 0; it < max_it; ++it)
-    {
-      // Compute the Lagrange Multipliers
-      lambda_c.noalias() = -J*data.torque_residual;
-      lambda_c += -gamma + mu*lambda_c_prox;
-      data.llt_JMinvJt.solveInPlace(lambda_c);
-      
-      data.diff_lambda_c = lambda_c - lambda_c_prox;
-      lambda_c_prox = lambda_c;
-      
-      // Check termination
-      if(max_it > 1)
-        //        std::cout << "data.diff_lambda_c.template lpNorm<Eigen::Infinity>():\n" << data.diff_lambda_c.template lpNorm<Eigen::Infinity>() << std::endl;
-        if(data.diff_lambda_c.template lpNorm<Eigen::Infinity>() <= prox_settings.threshold)
-          break;
-    }
+    // Compute the Lagrange Multipliers
+    lambda_c.noalias() = -J*data.torque_residual;
+    lambda_c -= gamma;
+    data.llt_JMinvJt.solveInPlace(lambda_c);
     
     // Compute the joint acceleration
     a.noalias() = J.transpose() * lambda_c;
@@ -86,22 +65,7 @@ namespace pinocchio
     
     return a;
   }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
-  typename ConstraintMatrixType, typename DriftVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<TangentVectorType> & tau,
-                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar mu)
-  {
-    ProximalSettingsTpl<Scalar> prox_settings;
-    prox_settings.mu = mu;
-    return forwardDynamics(model,data,tau,J,gamma,prox_settings);
-  }
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename ConstraintMatrixType, typename DriftVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
@@ -112,48 +76,16 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const ProximalSettingsTpl<Scalar> & prox_settings)
+                  const Scalar inv_damping)
   {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv);
+
     computeAllTerms(model, data, q, v);
-    return forwardDynamics(model,data,tau,J,gamma,prox_settings);
+
+    return forwardDynamics(model,data,tau,J,gamma,inv_damping);
   }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
-  typename ConstraintMatrixType, typename DriftVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar mu)
-  {
-    computeAllTerms(model, data, q, v);
-    return forwardDynamics(model,data,tau,J,gamma,mu);
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
-  typename ConstraintMatrixType, typename DriftVectorType>
-  PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                  const Eigen::MatrixBase<DriftVectorType> & gamma,
-                  const Scalar mu,
-                  const bool updateKinematics)
-  {
-    if(updateKinematics)
-      return forwardDynamics(model,data,q,v,tau,J,gamma,mu);
-    else
-      return forwardDynamics(model,data,tau,J,gamma,mu);
-  }
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -162,8 +94,8 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv)
   {
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    assert(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
-    assert(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(MJtJ_inv.cols() == data.JMinvJt.cols() + model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(MJtJ_inv.rows() == data.JMinvJt.rows() + model.nv);
     const typename Data::MatrixXs::Index& nc = data.JMinvJt.cols();
     
     KKTMatrixType& MJtJ_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,MJtJ_inv);
@@ -181,7 +113,7 @@ namespace pinocchio
     topLeft.noalias() -= topRight*bottomLeft;
     bottomLeft = topRight.transpose();
   }
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -190,21 +122,33 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType> & v_before,
                   const Eigen::MatrixBase<ConstraintMatrixType> & J,
                   const Scalar r_coeff,
-                  const bool updateKinematics)
+                  const Scalar inv_damping)
   {
-    assert(q.size() == model.nq);
-    assert(v_before.size() == model.nv);
-    assert(J.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
+    
+    // Compute the mass matrix
+    crba(model, data, q);
+    
+    return impulseDynamics(model,data,v_before,J,r_coeff,inv_damping);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType, typename ConstraintMatrixType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const Eigen::MatrixBase<TangentVectorType> & v_before,
+                  const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                  const Scalar r_coeff,
+                  const Scalar inv_damping)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typename Data::VectorXs & impulse_c = data.impulse_c;
     typename Data::TangentVectorType & dq_after = data.dq_after;
-    
-    // Compute the mass matrix
-    if (updateKinematics)
-      crba(model, data, q);
     
     // Compute the UDUt decomposition of data.M
     cholesky::decompose(model, data);
@@ -215,6 +159,8 @@ namespace pinocchio
     for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+    
+    data.JMinvJt.diagonal().array() += inv_damping;
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers related to the contact impulses
