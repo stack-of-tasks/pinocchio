@@ -64,7 +64,7 @@ namespace pinocchio
     static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
     void setIdentity() { m_data << 1, 0, 1, 0, 0, 1; }
 
-    /* Requiered by Inertia::operator== */
+    /* Required by Inertia::operator== */
     bool operator==(const Symmetric3Tpl & other) const
     { return m_data == other.m_data; }
     

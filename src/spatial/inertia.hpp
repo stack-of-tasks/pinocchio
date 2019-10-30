@@ -317,7 +317,7 @@ namespace pinocchio
       return *this;
     }
 
-    // Requiered by std::vector boost::python bindings. 
+    // Required by std::vector boost::python bindings.
     bool isEqual( const InertiaTpl& Y2 ) const
     { 
       return (mass()==Y2.mass()) && (lever()==Y2.lever()) && (inertia()==Y2.inertia());
