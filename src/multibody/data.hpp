@@ -365,6 +365,16 @@ namespace pinocchio
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
     
+    typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+    
+    // Cholesky decomposition of the KKT contact matrix
+    ContactCholeskyDecomposition contact_chol;
+    
+    // Rhs vector when solving the contact dynamics KKT problem
+    VectorXs contact_vector_solution;
+    
+    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Force) contact_forces;
+    
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///
