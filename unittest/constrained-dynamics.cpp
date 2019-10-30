@@ -2,15 +2,16 @@
 // Copyright (c) 2016-2019 CNRS, INRIA
 //
 
-#include <iostream>
-
+#include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
+
+#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -132,7 +133,7 @@ BOOST_AUTO_TEST_CASE (test_KKTMatrix)
   //Check Impulse Dynamics
   const double r_coeff = 1.;
   VectorXd v_before = VectorXd::Ones(model.nv);
-  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, true);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   MJtJ << data.M, J.transpose(),
   J, Eigen::MatrixXd::Zero(12, 12);
@@ -198,48 +199,6 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_damping )
   BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
 }
 
-//BOOST_AUTO_TEST_CASE ( test_FD_with_singularity )
-//{
-//  using namespace Eigen;
-//  using namespace pinocchio;
-//
-//  pinocchio::Model model;
-//  pinocchio::buildModels::humanoidRandom(model,true);
-//  pinocchio::Data data(model);
-//
-//  VectorXd q = VectorXd::Ones(model.nq);
-//  q.segment<4>(3).normalize();
-//
-//  pinocchio::computeJointJacobians(model, data, q);
-//
-//  VectorXd v = VectorXd::Ones(model.nv);
-//  VectorXd tau = VectorXd::Zero(model.nv);
-//
-//  const std::string RF = "rleg6_joint";
-//
-//  Data::Matrix6x J_RF (6, model.nv);
-//  J_RF.setZero();
-//  getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
-//
-//  Eigen::MatrixXd J(12, model.nv);
-//  J.topRows<6> () = J_RF;
-//  J.bottomRows<6> () = J_RF;
-//
-//  Eigen::VectorXd gamma (VectorXd::Ones(12));
-//
-//  ProximalSettings prox_settings(1e-12,1e-8,20);
-//
-//  // Forward Dynamics with damping
-//  pinocchio::forwardDynamics(model, data, q, v, tau, J, gamma, prox_settings);
-//
-//  // Actual Residuals
-//  Eigen::VectorXd constraint_residual (J * data.ddq + gamma);
-//  Eigen::VectorXd dynamics_residual (data.M * data.ddq + data.nle - tau - J.transpose()*data.lambda_c);
-//  BOOST_CHECK(constraint_residual.norm() <= 1e-9);
-//  BOOST_CHECK(dynamics_residual.norm() <= 1e-12);
-//  std::cout << "dynamics_residual: " << dynamics_residual.norm() << std::endl;
-//}
-
 BOOST_AUTO_TEST_CASE ( test_ID )
 {
   using namespace Eigen;
@@ -275,7 +234,7 @@ BOOST_AUTO_TEST_CASE ( test_ID )
   
   Eigen::MatrixXd H(J.transpose());
   
-  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff);
+  pinocchio::impulseDynamics(model, data, q, v_before, J, r_coeff, 0.);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   MatrixXd Minv (data.M.inverse());
@@ -321,9 +280,8 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   std::cout << "(the time score in debug mode is not relevant)  " ;
 #endif // ifndef NDEBUG
   
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill( 1.);
-  VectorXd q = randomConfiguration(model);
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment <4> (3).normalize();
   
   pinocchio::computeJointJacobians(model, data, q);
   
@@ -334,8 +292,10 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
   const std::string LF = "lleg6_joint";
   
   Data::Matrix6x J_RF (6, model.nv);
+  J_RF.setZero();
   getJointJacobian(model, data, model.getJointId(RF), LOCAL, J_RF);
   Data::Matrix6x J_LF (6, model.nv);
+  J_LF.setZero();
   getJointJacobian(model, data, model.getJointId(LF), LOCAL, J_LF);
   
   Eigen::MatrixXd J (12, model.nv);
@@ -359,4 +319,3 @@ BOOST_AUTO_TEST_CASE (timings_fd_llt)
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
-
