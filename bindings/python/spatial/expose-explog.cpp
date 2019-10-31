@@ -39,9 +39,19 @@ namespace pinocchio
               bp::arg("Spatial velocity (Motion)"),
               "Exp: se3 -> SE3. Return the integral of the input"
               " spatial velocity during time 1.");
+              
+      bp::def("exp6",&exp6_proxy<Motion::Vector6>,
+              bp::arg("Spatial velocity (vector 6x1)"),
+              "Exp: se3 -> SE3. Return the integral of the input"
+              " spatial velocity during time 1.");
       
       bp::def("Jexp6",&Jexp6_proxy<double,0>,
               bp::arg("v: Spatial velocity (Motion)"),
+              "Jacobian of exp(v) which maps from the tangent of SE(3) at exp(v) to"
+              " the tangent of SE(3) at Identity.");
+              
+      bp::def("Jexp6",&Jexp6_proxy<Motion::Vector6>,
+              bp::arg("v: Spatial velocity (vector 6x1)"),
               "Jacobian of exp(v) which maps from the tangent of SE(3) at exp(v) to"
               " the tangent of SE(3) at Identity.");
       
