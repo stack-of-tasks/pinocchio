@@ -44,6 +44,13 @@ namespace pinocchio
       return exp6(v);
     }
     
+    template<typename Vector6Like>
+    SE3Tpl<typename Vector6Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+    exp6_proxy(const Vector6Like & vec6)
+    {
+      return exp6(vec6);
+    }
+    
     template<typename Scalar, int Options>
     typename SE3Tpl<Scalar,Options>::Matrix6 Jlog6_proxy(const SE3Tpl<Scalar,Options> & M)
     {
@@ -57,6 +64,17 @@ namespace pinocchio
     Jexp6_proxy(const MotionTpl<Scalar,Options> & v)
     {
       typedef typename MotionTpl<Scalar,Options>::Matrix6 ReturnType;
+      ReturnType res; Jexp6(v,res);
+      return res;
+    }
+    
+    template<typename Vector6Like>
+    Eigen::Matrix<typename Vector6Like::Scalar,6,6,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+    Jexp6_proxy(const Vector6Like & vec6)
+    {
+      typedef MotionRef<const Vector6Like> Motion;
+      Motion v(vec6);
+      typedef typename Motion::Matrix6 ReturnType;
       ReturnType res; Jexp6(v,res);
       return res;
     }
