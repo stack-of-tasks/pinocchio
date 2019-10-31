@@ -94,16 +94,7 @@ namespace pinocchio
     assert(theta == theta && "theta contains some NaN"); // theta != NaN
     
     // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
-    if (theta < PI_value - 1e-2)
-    {
-      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<3>())
-                        ? theta / sin(theta)
-                        : Scalar(1)) / Scalar(2);
-      res(0) = t * (R (2, 1) - R (1, 2));
-      res(1) = t * (R (0, 2) - R (2, 0));
-      res(2) = t * (R (1, 0) - R (0, 1));
-    }
-    else
+    if(theta >= PI_value - 1e-2)
     {
       // 1e-2: A low value is not required since the computation is
       // using explicit formula. However, the precision of this method
@@ -114,7 +105,16 @@ namespace pinocchio
       Vector3 tmp((R.diagonal().array() + cphi) * beta);
       res(0) = (R (2, 1) > R (1, 2) ? Scalar(1) : Scalar(-1)) * (tmp[0] > Scalar(0) ? sqrt(tmp[0]) : Scalar(0));
       res(1) = (R (0, 2) > R (2, 0) ? Scalar(1) : Scalar(-1)) * (tmp[1] > Scalar(0) ? sqrt(tmp[1]) : Scalar(0));
-      res(2) = (R (1, 0) > R (0, 1) ? Scalar(1) : Scalar(-1)) * (tmp[2] > Scalar(0) ? sqrt(tmp[2]) : Scalar(0));
+      res(2) = (R (1, 0) > R (0, 1) ? Scalar(1) : Scalar(-1)) * (tmp[2] > Scalar(0) ? sqrt(tmp[2]) : Scalar(0));    }
+    else
+    {
+      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<3>())
+                        ? theta / sin(theta)
+                        : Scalar(1)) / Scalar(2);
+      res(0) = t * (R (2, 1) - R (1, 2));
+      res(1) = t * (R (0, 2) - R (2, 0));
+      res(2) = t * (R (1, 0) - R (0, 1));
+
     }
     
     return res;
