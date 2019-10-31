@@ -25,9 +25,23 @@ BOOST_AUTO_TEST_CASE(exp)
   SE3::Matrix3 R0 = exp3(SE3::Vector3::Zero());
   BOOST_CHECK(R0.isIdentity());
   
+  // check the NAN case
+  #ifdef NDEBUG
+    Motion::Vector3 vec3_nan(Motion::Vector3::Constant(NAN));
+    SE3::Matrix3 R_nan = exp3(vec3_nan);
+    BOOST_CHECK(R_nan != R_nan);
+  #endif
+  
   M = exp6(v);
   
   BOOST_CHECK(R.isApprox(M.rotation()));
+  
+  // check the NAN case
+  #ifdef NDEBUG
+    Motion::Vector6 vec6_nan(Motion::Vector6::Constant(NAN));
+    SE3 M_nan = exp6(vec6_nan);
+    BOOST_CHECK(M_nan != M_nan);
+  #endif
   
   R = exp3(SE3::Vector3::Zero());
   BOOST_CHECK(R.isIdentity());
@@ -56,12 +70,26 @@ BOOST_AUTO_TEST_CASE(log)
   SE3::Vector3 omega = log3(M.rotation());
   BOOST_CHECK(omega.isZero());
   
+  // check the NAN case
+#ifdef NDEBUG
+  SE3::Matrix3 mat3_nan(SE3::Matrix3::Constant(NAN));
+  SE3::Vector3 omega_nan = log3(mat3_nan);
+  BOOST_CHECK(omega_nan != omega_nan);
+#endif
+  
   M.setRandom();
   M.translation().setZero();
   
   v = log6(M);
   omega = log3(M.rotation());
   BOOST_CHECK(omega.isApprox(v.angular()));
+  
+  // check the NAN case
+  #ifdef NDEBUG
+    SE3::Matrix4 mat4_nan(SE3::Matrix4::Constant(NAN));
+    Motion::Vector6 v_nan = log6(mat4_nan);
+    BOOST_CHECK(v_nan != v_nan);
+  #endif
   
   // Quaternion
   Eigen::Quaterniond quat(SE3::Matrix3::Identity());
