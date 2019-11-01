@@ -5,7 +5,7 @@ sudo: required
 git:
   depth: false
 compiler:
-  - clang
+  - gcc
 env:
   global:
     - secure: "SnIBG/xLIHX3CSvUbqqsX8xTVqIqQ7fFS6HWO6KZQVBsT6yugTwYHbyhNiU531JejYJ/I3ZrDhXfYH3qFZiYxnH1sifvwV+fnTtMXpPN7qPZwIymkjcmm6gJF51e0C7VOfUbvKFv0ngwj+ul21rgZSMuoEvxPK0WxtE3/ZSfn9c="
@@ -29,13 +29,11 @@ branches:
 
 jobs:
   include:
-    - dist: bionic
+    - dist: xenial
       env: BUILD_WITH_COLLISION_SUPPORT=OFF
     - dist: trusty 
       env: BUILD_WITH_COLLISION_SUPPORT=ON
     - dist: xenial
-      env: BUILD_WITH_COLLISION_SUPPORT=ON
-    - dist: bionic
       env: BUILD_WITH_COLLISION_SUPPORT=ON
 
 allow_failures:
