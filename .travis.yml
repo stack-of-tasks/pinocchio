@@ -15,7 +15,7 @@ env:
     - DO_COVERAGE_ON_BRANCH="master;release"
     - DO_CPPCHECK_ON_BRANCH=""
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
-    - BUILDTYPE=MinSizeRel
+    - BUILDTYPE=Release
     - BUILD_WITH_CATKIN_SUPPORT=false
 
 notifications:
