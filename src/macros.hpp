@@ -19,42 +19,6 @@
 
 #define PINOCCHIO_STRING_LITERAL(string) #string
 
-#include <exception>
-#include <stdexcept>
-
-#if defined(__GNUC__) || defined(__clang__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wvariadic-macros"
-#endif
-
-/// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
-#if !defined(PINOCCHIO_NO_THROW)
-  #define PINOCCHIO_THROW(condition,exception_type,message) \
-    if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
-#else
-  #define PINOCCHIO_THROW(condition,exception_type,message)
-#endif
-
-#define _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(_1, _2, MACRO_NAME, ...) MACRO_NAME
-
-#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition, message) \
-  PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
-
-#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_1(condition) \
-  _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,\
-                                    "The following check on the input argument has failed: "#condition)
-
-#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_0
-
-/// \brief Macro to check an assert-like condition and throw a std::invalid_argument exception (with a message) if violated.
-#define PINOCCHIO_CHECK_INPUT_ARGUMENT(...) \
-  _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(__VA_ARGS__,_PINOCCHIO_CHECK_INPUT_ARGUMENT_2,\
-  _PINOCCHIO_CHECK_INPUT_ARGUMENT_1,_PINOCCHIO_CHECK_INPUT_ARGUMENT_0)(__VA_ARGS__)
-
-#if defined(__GNUC__) || defined(__clang__)
-  #pragma GCC diagnostic pop
-#endif
-
 // For more details, visit https://stackoverflow.com/questions/171435/portability-of-warning-preprocessor-directive
 #if defined(__GNUC__) || defined(__clang__)
   #define PINOCCHIO_PRAGMA(x) _Pragma(#x)
@@ -113,5 +77,46 @@ namespace pinocchio
     };
   }
 }
+
+// Handle explicitely the GCC borring warning: 'anonymous variadic macros were introduced in C++11'
+#include <exception>
+#include <stdexcept>
+
+#if defined(__GNUC__)
+  #pragma GCC system_header
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wvariadic-macros"
+#endif
+
+/// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
+#if !defined(PINOCCHIO_NO_THROW)
+  #define PINOCCHIO_THROW(condition,exception_type,message) \
+    if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
+#else
+  #define PINOCCHIO_THROW(condition,exception_type,message)
+#endif
+
+#define _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(_1, _2, MACRO_NAME, ...) MACRO_NAME
+
+#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition, message) \
+  PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
+
+#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_1(condition) \
+  _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,\
+                                    "The following check on the input argument has failed: "#condition)
+
+#define _PINOCCHIO_CHECK_INPUT_ARGUMENT_0
+
+/// \brief Macro to check an assert-like condition and throw a std::invalid_argument exception (with a message) if violated.
+#define PINOCCHIO_CHECK_INPUT_ARGUMENT(...) \
+  _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(__VA_ARGS__,_PINOCCHIO_CHECK_INPUT_ARGUMENT_2,\
+  _PINOCCHIO_CHECK_INPUT_ARGUMENT_1,_PINOCCHIO_CHECK_INPUT_ARGUMENT_0)(__VA_ARGS__)
+
+#if defined(__GNUC__) || defined(__clang__)
+  #pragma GCC diagnostic pop
+#endif
 
 #endif // ifndef __pinocchio_macros_hpp__
