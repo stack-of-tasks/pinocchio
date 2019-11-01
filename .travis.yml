@@ -15,7 +15,7 @@ env:
     - DO_COVERAGE_ON_BRANCH="master;release"
     - DO_CPPCHECK_ON_BRANCH=""
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
-    - BUILDTYPE=MinSizeRel
+    - BUILDTYPE=Release
     - BUILD_WITH_CATKIN_SUPPORT=false
 
 notifications:
@@ -29,13 +29,11 @@ branches:
 
 jobs:
   include:
-    - dist: bionic
+    - dist: xenial
       env: BUILD_WITH_COLLISION_SUPPORT=OFF
     - dist: trusty 
       env: BUILD_WITH_COLLISION_SUPPORT=ON
     - dist: xenial
-      env: BUILD_WITH_COLLISION_SUPPORT=ON
-    - dist: bionic
       env: BUILD_WITH_COLLISION_SUPPORT=ON
 
 allow_failures:
