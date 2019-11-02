@@ -110,14 +110,6 @@ namespace pinocchio
       upperPositionLimit.conservativeResize(nq);
       jmodel.jointConfigSelector(upperPositionLimit) = max_config;
       
-      // TODO: remove this pragma when neutralConfiguration will be removed
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-      neutralConfiguration.conservativeResize(nq);
-      typedef NeutralStep<LieGroupMap,ConfigVectorType> NeutralVisitor;
-      NeutralStepAlgo<NeutralVisitor,JointModelDerived>::run(jmodel,neutralConfiguration);
-#pragma GCC diagnostic pop
-      
       rotorInertia.conservativeResize(nv);
       jmodel.jointVelocitySelector(rotorInertia).setZero();
       rotorGearRatio.conservativeResize(nv);

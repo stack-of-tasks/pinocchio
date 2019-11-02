@@ -111,10 +111,6 @@ namespace pinocchio
 
     /// \brief Name of joint *i*
     std::vector<std::string> names;
-    
-    /// \brief Vector of joint's neutral configurations
-    PINOCCHIO_DEPRECATED
-    ConfigVectorType neutralConfiguration;
 
     /// \brief Map of reference configurations, indexed by user given names.
     ConfigVectorMap referenceConfigurations;
@@ -209,11 +205,6 @@ namespace pinocchio
       res.nvs = nvs;
       
       // Eigen Vectors
-      // TODO: remove this pragma when neutralConfiguration will be removed
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-      res.neutralConfiguration = neutralConfiguration.template cast<NewScalar>();
-#pragma GCC diagnostic pop
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
       res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
       res.effortLimit = effortLimit.template cast<NewScalar>();
@@ -276,16 +267,7 @@ namespace pinocchio
       && other.nqs == nqs
       && other.idx_vs == idx_vs
       && other.nvs == nvs;
-      
-      /// TODO: remove this pragma when neutralConfiguration will be removed
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-      if(other.neutralConfiguration.size() != neutralConfiguration.size())
-        return false;
-      res &= other.neutralConfiguration == neutralConfiguration;
-      if(!res) return res;
-#pragma GCC diagnostic pop
-      
+
       if(other.referenceConfigurations.size() != referenceConfigurations.size())
         return false;
       res &= other.referenceConfigurations == referenceConfigurations;

@@ -41,11 +41,6 @@ namespace boost
       ar & make_nvp("gravity",model.gravity);
       ar & make_nvp("name",model.name);
       
-      // TODO: remove this pragma when neutralConfiguration will be removed
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-      ar & make_nvp("neutralConfiguration",model.neutralConfiguration);
-#pragma GCC diagnostic pop
       ar & make_nvp("referenceConfigurations",model.referenceConfigurations);
       ar & make_nvp("rotorInertia",model.rotorInertia);
       ar & make_nvp("rotorGearRatio",model.rotorGearRatio);

@@ -5,7 +5,7 @@ import pinocchio
 model = pinocchio.buildSampleModelManipulator()
 data = model.createData()
 
-q = model.neutralConfiguration
+q = pinocchio.neutral(model)
 v = pinocchio.utils.zero(model.nv)
 a = pinocchio.utils.zero(model.nv)
 

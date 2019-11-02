@@ -71,33 +71,6 @@ namespace pinocchio
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     ///
-    /// \brief Get the neutral configuration of a given model associated to a SRDF file.
-    ///        It throws if the SRDF file is incorrect.
-    ///
-    /// \param[in] model The Model for which we want the neutral config
-    /// \param[in] filename The complete path to the SRDF file.
-    /// \param[in] verbose Verbosity mode.
-    ///
-    /// \return The neutral configuration as an eigen vector
-    ///
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
-    getNeutralConfiguration(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            const std::string & filename,
-                            const bool verbose = false);
-    
-    /// \copydoc pinocchio::srdf::getNeutralConfiguration
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType
-    getNeutralConfigurationFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    const std::string & filename,
-                                    const bool verbose = false)
-    { return getNeutralConfiguration(model,filename,verbose); }
-
-
-    ///
     /// \brief Get the reference configurations of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
     ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
