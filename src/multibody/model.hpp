@@ -350,9 +350,8 @@ namespace pinocchio
     ///
     /// \sa Model::appendBodyToJoint, Model::addJointFrame
     ///
-    template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent,
-                        const JointModelBase<JointModelDerived> & joint_model,
+                        const JointModel & joint_model,
                         const SE3 & joint_placement,
                         const std::string & joint_name,
                         const VectorXs & max_effort,
@@ -378,12 +377,10 @@ namespace pinocchio
     ///
     /// \sa Model::appendBodyToJoint
     ///
-    template<typename JointModelDerived>
     JointIndex addJoint(const JointIndex parent,
-                        const JointModelBase<JointModelDerived> & joint_model,
+                        const JointModel & joint_model,
                         const SE3 & joint_placement,
-                        const std::string & joint_name
-                        );
+                        const std::string & joint_name);
 
     ///
     /// \brief Add a joint to the frame tree.

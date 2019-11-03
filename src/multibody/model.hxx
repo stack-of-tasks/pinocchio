@@ -55,10 +55,9 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const JointModel & joint_model,
                                                         const SE3 & joint_placement,
                                                         const std::string & joint_name,
                                                         const VectorXs & max_effort,
@@ -80,7 +79,8 @@ namespace pinocchio
     JointIndex idx = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
-    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
+//    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
+    JointModel & jmodel = joints.back();
     jmodel.setIndexes(idx,nq,nv);
     
     const int joint_nq = jmodel.nq();
@@ -129,10 +129,9 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const JointModel & joint_model,
                                                         const SE3 & joint_placement,
                                                         const std::string & joint_name)
   {
