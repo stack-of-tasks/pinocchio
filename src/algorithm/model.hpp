@@ -51,7 +51,7 @@ namespace pinocchio
 
   /**
    *
-   *  \brief Build a reduce model from a given input model and a list of joint to
+   *  \brief Build a reduce model from a given input model and a list of joint to lock.
    *
    *  \param[in] model the input model to reduce.
    *  \param[in] list_of_joints list of joints to lock in the input model.
