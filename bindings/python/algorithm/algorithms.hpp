@@ -29,6 +29,7 @@ namespace pinocchio
     void exposeGeometryAlgo();
     void exposeRegressor();
     void exposeCholesky();
+    void exposeModelAlgo();
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
