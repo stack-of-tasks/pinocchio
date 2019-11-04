@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_model_hpp__
@@ -48,6 +48,23 @@ namespace pinocchio
               const SE3Tpl<Scalar,Options> & aMb,
               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               GeometryModel & geomModel);
+
+  /**
+   *
+   *  \brief Build a reduce model from a given input model and a list of joint to
+   *
+   *  \param[in] model the input model to reduce.
+   *  \param[in] list_of_joints list of joints to lock in the input model.
+   *  \param[in] reference_configuration reference configuration
+   *
+   *  \returns A reduce model of the input model.
+   *
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  ModelTpl<Scalar,Options,JointCollectionTpl>
+  buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    std::vector<JointIndex> list_of_joints_to_lock,
+                    const Eigen::MatrixBase<ConfigVectorType> & reference_configuration);
 
 } // namespace pinocchio
 

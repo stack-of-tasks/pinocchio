@@ -5,6 +5,8 @@
 #ifndef __pinocchio_algorithm_model_hxx__
 #define __pinocchio_algorithm_model_hxx__
 
+#include <algorithm>
+
 namespace pinocchio
 {
   namespace details
@@ -270,6 +272,187 @@ namespace pinocchio
     }
 #endif
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  ModelTpl<Scalar,Options,JointCollectionTpl>
+  buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & input_model,
+                    std::vector<JointIndex> list_of_joints_to_lock,
+                    const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(reference_configuration.size() == input_model.nq,
+                                   "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(list_of_joints_to_lock.size() <= (size_t)input_model.njoints,
+                                   "The number of joints to lock is greater than the total of joints in the reduced_model".);
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointModel JointModel;
+    typedef typename Model::JointData JointData;
+    typedef typename Model::Frame Frame;
+    typedef typename Model::SE3 SE3;
+    
+    Model reduced_model;
+    
+    // Sort indexes
+    std::sort(list_of_joints_to_lock.begin(),list_of_joints_to_lock.end());
+    
+    // Check that they are not two identical elements
+    for(size_t id = 1; id < list_of_joints_to_lock.size(); ++id)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(list_of_joints_to_lock[id-1] < list_of_joints_to_lock[id],
+                                     "The input list_of_joints_to_lock contains two identical indexes.");
+    }
+    
+    // Reserve memory
+    const Eigen::DenseIndex njoints = input_model.njoints - (Eigen::DenseIndex)list_of_joints_to_lock.size();
+    reduced_model.names                 .reserve((size_t)njoints);
+    reduced_model.joints                .reserve((size_t)njoints);
+    reduced_model.jointPlacements       .reserve((size_t)njoints);
+    reduced_model.parents               .reserve((size_t)njoints);
+    reduced_model.inertias              .reserve((size_t)njoints);
+    
+    reduced_model.names[0] = input_model.names[0];
+    reduced_model.joints[0] = input_model.joints[0];
+    reduced_model.jointPlacements[0] = input_model.jointPlacements[0];
+    reduced_model.parents[0] = input_model.parents[0];
+    reduced_model.inertias[0] = input_model.inertias[0];
+    
+    reduced_model.name = input_model.name;
+    reduced_model.gravity = input_model.gravity;
+    
+    size_t current_index_to_lock = 0;
+    
+    for(JointIndex joint_id = 1; joint_id < (JointIndex)input_model.njoints; ++joint_id)
+    {
+      const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : input_model.joints.size();
+      
+      const JointIndex input_parent_joint_index = input_model.parents[joint_id];
+      const std::string & joint_name = input_model.names[joint_id];
+      const JointModel & joint_input_model = input_model.joints[joint_id];
+      
+      // retrieve the closest joint parent in the new kinematic tree
+      const std::string & parent_joint_name = input_model.names[input_parent_joint_index];
+      const bool exist_parent_joint = reduced_model.existJointName(parent_joint_name);
+      
+      const JointIndex reduced_parent_joint_index
+      = exist_parent_joint
+      ? reduced_model.getJointId(parent_joint_name)
+      : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].parent;
+      
+      const SE3 parent_frame_placement
+      = exist_parent_joint
+      ? SE3::Identity()
+      : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].placement;
+      
+      const FrameIndex reduced_previous_frame_index
+      = exist_parent_joint
+      ? 0
+      : reduced_model.getFrameId(parent_joint_name);
+      
+      if(joint_id == joint_id_to_lock)
+      {
+        // the joint should not be added to the Model but aggragated to its parent joint
+
+        // Compute the new placement of the joint with respect to its parent joint in the new kinematic tree.
+        JointData joint_data = joint_input_model.createData();
+        joint_input_model.calc(joint_data,reference_configuration);
+        const SE3 liMi = parent_frame_placement * input_model.jointPlacements[joint_id] * joint_data.M();
+        
+        Frame frame = Frame(joint_name,
+                            reduced_parent_joint_index, reduced_previous_frame_index,
+                            liMi,
+                            FIXED_JOINT);
+        
+        int frame_id = reduced_model.addFrame(frame);
+        assert(frame_id >= 0);
+        reduced_model.frames[(size_t)frame_id].previousFrame = (FrameIndex)frame_id; // a bit weird, but this a solution for missing parent frame
+        
+        // Add the Inertia of the link supported by joint_id
+        reduced_model.appendBodyToJoint(reduced_parent_joint_index,
+                                        input_model.inertias[joint_id],
+                                        frame.placement);
+        
+        current_index_to_lock++;
+      }
+      else
+      {
+        // the joint should be added to the Model as it is
+        JointIndex reduced_joint_id = reduced_model.addJoint(reduced_parent_joint_index,
+                                                             joint_input_model,
+                                                             parent_frame_placement * input_model.jointPlacements[joint_id],
+                                                             joint_name,
+                                                             joint_input_model.jointVelocitySelector(input_model.effortLimit),
+                                                             joint_input_model.jointVelocitySelector(input_model.velocityLimit),
+                                                             joint_input_model.jointConfigSelector(input_model.lowerPositionLimit),
+                                                             joint_input_model.jointConfigSelector(input_model.upperPositionLimit));
+        // Append inertia
+        reduced_model.appendBodyToJoint(reduced_joint_id,
+                                        input_model.inertias[joint_id],
+                                        SE3::Identity());
+      }
+    }
+    
+    // Retrieve and extend the reference configurations
+    typedef typename Model::ConfigVectorMap ConfigVectorMap;
+    for(typename ConfigVectorMap::const_iterator config_it = input_model.referenceConfigurations.begin();
+        config_it != input_model.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & input_config_vector = config_it->second;
+      
+      typename Model::ConfigVectorType reduced_config_vector(reduced_model.nq);
+      for(JointIndex reduced_joint_id = 1;
+          reduced_joint_id < reduced_model.joints.size();
+          ++reduced_joint_id)
+      {
+        const JointIndex input_joint_id = input_model.getJointId(reduced_model.names[reduced_joint_id]);
+        const JointModel & input_joint_model = input_model.joints[input_joint_id];
+        const JointModel & reduced_joint_model = reduced_model.joints[reduced_joint_id];
+        
+        reduced_joint_model.jointConfigSelector(reduced_config_vector) = input_joint_model.jointConfigSelector(input_config_vector);
+      }
+      
+      reduced_model.referenceConfigurations.insert(std::make_pair(config_name, reduced_config_vector));
+    }
+    
+    // Add all frames
+    typename Model::FrameVector::const_iterator frame_it = input_model.frames.begin();
+    for(++frame_it;frame_it != input_model.frames.end(); ++frame_it)
+    {
+      const Frame & input_frame = *frame_it;
+      const std::string & input_joint_name = input_model.names[input_frame.parent];
+      
+      std::vector<JointIndex>::const_iterator joint_id_it = std::find(list_of_joints_to_lock.begin(),
+                                                                      list_of_joints_to_lock.end(),
+                                                                      input_frame.parent);
+      
+      if(joint_id_it != list_of_joints_to_lock.end())
+      {
+        if(   input_frame.type == JOINT
+           && reduced_model.existFrame(input_frame.name)
+           && input_joint_name == input_frame.name)
+          continue; // this means that the Joint is now fixed and has been replaced by a Frame. No need to add a new one.
+        
+        // The joint has been removed and replaced by a Frame
+        const FrameIndex joint_frame_id = reduced_model.getFrameId(input_joint_name);
+        const Frame & joint_frame = reduced_model.frames[joint_frame_id];
+        Frame reduced_frame = input_frame;
+        reduced_frame.placement = joint_frame.placement * input_frame.placement;
+        reduced_frame.parent = joint_frame.parent;
+        reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+        reduced_model.addFrame(reduced_frame);
+      }
+      else
+      {
+        Frame reduced_frame = input_frame;
+        reduced_frame.parent = reduced_model.getJointId(input_model.names[input_frame.parent]);
+        reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+        reduced_model.addFrame(reduced_frame);
+      }
+    }
+    
+    return reduced_model;
+  }
+
 
 } // namespace pinocchio
 
