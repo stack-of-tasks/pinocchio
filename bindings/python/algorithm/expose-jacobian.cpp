@@ -36,9 +36,9 @@ namespace pinocchio
     
     static Data::Matrix6x
     get_jacobian_time_variation_proxy(const Model & model,
-                                  Data & data,
-                                  Model::JointIndex jointId,
-                                  ReferenceFrame rf)
+                                      Data & data,
+                                      Model::JointIndex jointId,
+                                      ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       getJointJacobianTimeVariation(model,data,jointId,rf,dJ);
