@@ -7,3 +7,6 @@
 [submodule "models/romeo"]
 	path = models/romeo
 	url = https://github.com/laas/romeo.git
+[submodule "models/others"]
+	path = models/others
+	url = https://github.com/Gepetto/example-robot-data.git
