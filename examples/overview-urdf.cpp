@@ -1,20 +1,40 @@
-#include "pinocchio/multibody/model.hpp"
+
 #include "pinocchio/parsers/urdf.hpp"
+
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
+#include <iostream>
+
+// PINOCCHIO_MODEL_DIR is defined by the CMake but you can define your own directory here.
+#ifndef PINOCCHIO_MODEL_DIR
+  #define PINOCCHIO_MODEL_DIR "path_to_the_model_dir"
+#endif
+
 int main(int argc, char ** argv)
 {
-  std::string filename = (argc<=1) ? "ur5.urdf" : argv[1];
-  pinocchio::Model model;
-  pinocchio::urdf::buildModel(filename,model);
-  pinocchio::Data data(model);
-  Eigen::VectorXd q = pinocchio::randomConfiguration(model);
-  std::cout << "q = " << q.transpose() << std::endl;
+  using namespace pinocchio;
+  
+  // You should change here to set up your own URDF file or just pass it as an argument of this example.
+  const std::string urdf_filename = (argc<=1) ? PINOCCHIO_MODEL_DIR + std::string("/others/ur_description/urdf/ur5_robot.urdf") : argv[1];
+  
+  // Load the urdf model
+  Model model;
+  pinocchio::urdf::buildModel(urdf_filename,model);
+  
+  // Create data required by the algorithms
+  Data data(model);
+  
+  // Sample a random configuration
+  Eigen::VectorXd q = randomConfiguration(model);
+  std::cout << "q: " << q.transpose() << std::endl;
 
-  pinocchio::forwardKinematics(model,data,q);
+  // Perform the forward kinematics over the kinematic tree
+  forwardKinematics(model,data,q);
 
-  for (int k=0 ; k<model.njoints ; ++k)
-    std::cout << model.names[k] << "\t: "
-              << data.oMi[k].translation().transpose() << std::endl;
+  // Print out the placement of each joint of the kinematic tree
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+    std::cout << model.names[joint_id] << "\t\t: "
+              << data.oMi[joint_id].translation().transpose()
+              << std::endl;
 }

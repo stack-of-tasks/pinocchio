@@ -6,8 +6,8 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
   overview-lie
   overview-SE3
+  overview-urdf
   interpolation-SE3
-  #overview-urdf
   )
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
