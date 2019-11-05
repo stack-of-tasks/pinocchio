@@ -75,6 +75,8 @@ MACRO(TAG_LIBRARY_VERSION target)
   SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
 ENDMACRO(TAG_LIBRARY_VERSION)
 
+SET(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
+
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------

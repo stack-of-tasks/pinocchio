@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( test_000 )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE ( test_000 )
 
 BOOST_AUTO_TEST_CASE( test_0V0 )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( test_0V0 )
 
 BOOST_AUTO_TEST_CASE( test_0VA )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( test_0VA )
 
 BOOST_AUTO_TEST_CASE( test_Q00 )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( test_Q00 )
 
 BOOST_AUTO_TEST_CASE( test_QVA )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
 
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,pinocchio::JointModelFreeFlyer(),model);

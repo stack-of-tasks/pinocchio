@@ -19,9 +19,9 @@ BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo_small.urdf";
-  const string model_dir = PINOCCHIO_SOURCE_DIR"/models/romeo";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/srdf/romeo.srdf";
+  const string model_filename = PINOCCHIO_MODEL_DIR + std::string("/others/romeo_description/urdf/romeo_small.urdf");
+  const string model_dir = PINOCCHIO_MODEL_DIR + std::string("/others");
+  const string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/others/romeo_description/srdf/romeo.srdf");
   
   Model model;
   buildModel(model_filename, model);
@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(readReferenceConfig)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.srdf";
+  const string model_filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.srdf");
   
   Model model;
   buildModel(model_filename, model);
@@ -128,8 +128,8 @@ BOOST_AUTO_TEST_CASE(readRotorParams)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
-  const string model_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
-  const string srdf_filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.srdf";
+  const string model_filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.srdf");
   
   Model model;
   buildModel(model_filename, model);

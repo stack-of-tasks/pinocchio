@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( buildModel )
 {
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_model.py";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_model.py");
 
   #ifndef NDEBUG
    std::cout << "Parse filename \"" << filename << "\"" << std::endl;
