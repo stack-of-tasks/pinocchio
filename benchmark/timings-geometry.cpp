@@ -1,19 +1,8 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/cholesky.hpp"
-#include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -118,5 +107,6 @@ int main()
             << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << " " << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
 #endif // PINOCCHIO_WITH_HPP_FCL
+  
   return 0;
 }
