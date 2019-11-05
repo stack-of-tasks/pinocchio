@@ -8,6 +8,7 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-SE3
   overview-urdf
   interpolation-SE3
+  build-reduced-model
   )
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
