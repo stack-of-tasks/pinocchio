@@ -12,7 +12,7 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_name_get_set(self):
         col = self.collision_model.geometryObjects[0]
-        self.assertTrue(col.name == 'rlegshoulder_object')
+        self.assertTrue(col.name == 'rleg_shoulder_object')
         col.name = 'new_collision_name'
         self.assertTrue(col.name == 'new_collision_name')
 
