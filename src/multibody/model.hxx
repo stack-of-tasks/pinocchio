@@ -167,7 +167,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void ModelTpl<Scalar,Options,JointCollectionTpl>::
-  appendBodyToJoint(const ModelTpl::JointIndex joint_index,
+  appendBodyToJoint(const typename ModelTpl::JointIndex joint_index,
                     const Inertia & Y,
                     const SE3 & body_placement)
   {

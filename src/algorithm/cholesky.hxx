@@ -465,12 +465,12 @@ namespace pinocchio
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
         Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
         
-        const int last_col = std::min(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
+        const int last_col = std::min<int>(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
         v_.tail(model.nv - col - 1).setZero();
         v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
-          int nvt_max = std::min(col,nvt[(size_t)k]-1);
+          int nvt_max = std::min<int>(col,nvt[(size_t)k]-1);
           v_[k] = -U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
