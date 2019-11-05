@@ -138,7 +138,7 @@ namespace pinocchio
           retrieveMeshScale(urdf_mesh, meshScale);
           
           // Create FCL mesh by parsing Collada file.
-          geometry = meshLoader->load (meshPath, scale, fcl::BV_OBBRSS);
+          geometry = meshLoader->load (meshPath, scale);
         }
 
         // Handle the case where collision geometry is a cylinder
