@@ -201,6 +201,12 @@ class RobotWrapper(object):
         else: # use normal signature
             return pin.frameJacobian(self.model, self.data, q, frame_id)
 
+    def rebuildData(self):
+        """Re-build the data objects. Needed if the models were modified.
+        Warning: this will delete any information stored in all data objects."""
+        self.data, self.collision_data, self.visual_data = createDatas(self.model, self.collision_model, self.visual_model)
+        if self.viz is not None:
+            self.viz.rebuildData()
 
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.

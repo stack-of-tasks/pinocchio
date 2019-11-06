@@ -24,6 +24,11 @@ class BaseVisualizer(object):
 
         self.data, self.collision_data, self.visual_data = createDatas(model,collision_model,visual_model)
 
+    def rebuildData(self):
+        """Re-build the data objects. Needed if the models were modified.
+        Warning: this will delete any information stored in all data objects."""
+        self.data, self.collision_data, self.visual_data = createDatas(self.model, self.collision_model, self.visual_model)
+
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
         pass 
