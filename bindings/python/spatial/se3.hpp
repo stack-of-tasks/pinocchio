@@ -35,6 +35,7 @@ namespace pinocchio
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix4 Matrix4;
+      typedef typename SE3::Quaternion Quaternion;
 
     public:
 
@@ -43,8 +44,11 @@ namespace pinocchio
       {
         cl
         .def(bp::init<Matrix3,Vector3>
-             ((bp::arg("Rotation"),bp::arg("translation")),
-              "Initialize from rotation and translation."))
+             ((bp::arg("Rotation matrix"),bp::arg("Translation vector")),
+              "Initialize from a rotation matrix and a translation vector."))
+        .def(bp::init<Quaternion,Vector3>
+             ((bp::arg("Quaternion"),bp::arg("Translation vector")),
+              "Initialize from a quaternion and a translation vector."))
         .def(bp::init<int>((bp::arg("trivial arg (should be 1)")),"Init to identity."))
         .def(bp::init<SE3>((bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
