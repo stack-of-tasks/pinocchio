@@ -5,13 +5,6 @@ pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero
 import numpy as np
 
-# common quantities for all tests.
-# They correspond to the default values of the arguments, and they need to stay this way
-r_coeff = 0.0
-inv_damping = 0.0
-update_kinematics = True
-
-
 class TestComBindings(TestCase):
 
     def setUp(self):

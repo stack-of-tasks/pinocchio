@@ -1,19 +1,8 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/algorithm/rnea.hpp"
-#include "pinocchio/algorithm/cholesky.hpp"
-#include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/center-of-mass.hpp"
-#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -41,9 +30,9 @@ int main()
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
   
-  std::string romeo_filename = PINOCCHIO_SOURCE_DIR"/models/romeo/romeo_description/urdf/romeo.urdf";
+  std::string romeo_filename = PINOCCHIO_MODEL_DIR + std::string("/others/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > package_dirs;
-  std::string romeo_meshDir  = PINOCCHIO_SOURCE_DIR"/models/romeo";
+  std::string romeo_meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others");
   package_dirs.push_back(romeo_meshDir);
 
   pinocchio::Model model;
@@ -118,5 +107,6 @@ int main()
             << " " << PinocchioTicToc::unitName(PinocchioTicToc::US) << " " << geom_model.collisionPairs.size() << " col pairs" << std::endl;
 
 #endif // PINOCCHIO_WITH_HPP_FCL
+  
   return 0;
 }

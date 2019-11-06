@@ -17,6 +17,7 @@ env:
     - DO_INSTALL_DOC_EXCEPT_ON_BRANCH=""
     - BUILDTYPE=Release
     - BUILD_WITH_CATKIN_SUPPORT=false
+    - CTEST_OUTPUT_ON_FAILURE=1
 
 notifications:
 email:

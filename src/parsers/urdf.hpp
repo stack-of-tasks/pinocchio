@@ -11,17 +11,14 @@
 #include "pinocchio/parsers/urdf/types.hpp"
 
 /// \cond
-// Commented because this is needed in function prototypes.
-//#ifdef PINOCCHIO_WITH_HPP_FCL
 namespace hpp
 {
-namespace fcl
-{
-  class MeshLoader;
-  typedef boost::shared_ptr<MeshLoader> MeshLoaderPtr;
+  namespace fcl
+  {
+    class MeshLoader;
+    typedef boost::shared_ptr<MeshLoader> MeshLoaderPtr;
+  }
 }
-}
-//#endif // PINOCCHIO_WITH_HPP_FCL
 /// \endcond
 
 namespace pinocchio
@@ -29,7 +26,7 @@ namespace pinocchio
   namespace urdf
   {
 
-    /// 
+    ///
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree inside
     /// the model given as reference argument.
     ///

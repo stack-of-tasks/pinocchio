@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -344,10 +344,10 @@ namespace pinocchio
       
       details::addManipulator(model,ffidx,
                               SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
-                                  typename  SE3::Vector3(0,-0.2,-.1)),"rleg");
+                                  typename  SE3::Vector3(0,-0.2,-.1)),"rleg_");
       details::addManipulator(model,ffidx,
                               SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
-                                  typename  SE3::Vector3(0, 0.2,-.1)),"lleg");
+                                  typename  SE3::Vector3(0, 0.2,-.1)),"lleg_");
       
       model.jointPlacements[7 ].rotation()
       = details::rotate(M_PI/2,SE3::Vector3::UnitY()); // rotate right foot
@@ -386,10 +386,10 @@ namespace pinocchio
       /* --- Upper Limbs --- */
       details::addManipulator(model,chest,
                               SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
-                                  typename SE3::Vector3(0,-0.3, 1.)),"rarm");
+                                  typename SE3::Vector3(0,-0.3, 1.)),"rarm_");
       details::addManipulator(model,chest,
                               SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
-                                  typename SE3::Vector3(0, 0.3, 1.)),"larm");
+                                  typename SE3::Vector3(0, 0.3, 1.)),"larm_");
     }
     
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -402,10 +402,10 @@ namespace pinocchio
       typedef typename Model::FrameIndex FrameIndex;
       typedef typename Model::SE3 SE3;
       
-      details::addManipulatorGeometries(model,geom,"rleg");
-      details::addManipulatorGeometries(model,geom,"lleg");
-      details::addManipulatorGeometries(model,geom,"rarm");
-      details::addManipulatorGeometries(model,geom,"larm");
+      details::addManipulatorGeometries(model,geom,"rleg_");
+      details::addManipulatorGeometries(model,geom,"lleg_");
+      details::addManipulatorGeometries(model,geom,"rarm_");
+      details::addManipulatorGeometries(model,geom,"larm_");
       
       FrameIndex parentFrame;
       

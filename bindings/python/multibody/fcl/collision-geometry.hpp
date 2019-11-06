@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_fcl_collision_geometry_hpp__
@@ -34,9 +34,7 @@ namespace pinocchio
           .def("getNodeType",&CollisionGeometry::getNodeType,"Get the node type.")
           
           .def("computeLocalAABB",&CollisionGeometry::computeLocalAABB)
-          .def("isFree",&CollisionGeometry::isFree)
-          .def("isUncertain",&CollisionGeometry::isUncertain)
-          
+
           .def_readwrite("aabb_radius",&CollisionGeometry::aabb_radius,"AABB radius")
           ;
         }

@@ -55,10 +55,9 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const JointModel & joint_model,
                                                         const SE3 & joint_placement,
                                                         const std::string & joint_name,
                                                         const VectorXs & max_effort,
@@ -80,7 +79,8 @@ namespace pinocchio
     JointIndex idx = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
-    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
+//    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
+    JointModel & jmodel = joints.back();
     jmodel.setIndexes(idx,nq,nv);
     
     const int joint_nq = jmodel.nq();
@@ -129,10 +129,9 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  template<typename JointModelDerived>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
-                                                        const JointModelBase<JointModelDerived> & joint_model,
+                                                        const JointModel & joint_model,
                                                         const SE3 & joint_placement,
                                                         const std::string & joint_name)
   {
@@ -148,17 +147,21 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
-  addJointFrame(const JointIndex & jidx,
-                int fidx)
+  addJointFrame(const JointIndex & joint_index,
+                int previous_frame_index)
   {
-    if(fidx < 0) {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_index >= 0 && joint_index < joints.size(),
+                                   "The joint index is larger than the number of joints in the model.");
+    if(previous_frame_index < 0)
+    {
       // FIXED_JOINT is required because the parent can be the universe and its
       // type is FIXED_JOINT
-      fidx = (int)getFrameId(names[parents[jidx]], (FrameType)(JOINT | FIXED_JOINT));
+      previous_frame_index = (int)getFrameId(names[parents[joint_index]], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert((size_t)fidx < frames.size() && "Frame index out of bound");
+    assert((size_t)previous_frame_index < frames.size() && "Frame index out of bound");
+    
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
-    return addFrame(Frame(names[jidx],jidx,(FrameIndex)fidx,SE3::Identity(),JOINT));
+    return addFrame(Frame(names[joint_index],joint_index,(FrameIndex)previous_frame_index,SE3::Identity(),JOINT));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

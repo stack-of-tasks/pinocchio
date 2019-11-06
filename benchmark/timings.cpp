@@ -180,7 +180,7 @@ int main(int argc, const char ** argv)
     
   pinocchio::Model model;
 
-  std::string filename = PINOCCHIO_SOURCE_DIR"/models/simple_humanoid.urdf";
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
   if(argc>1) filename = argv[1];
   
   bool with_ff = true;
