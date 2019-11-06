@@ -29,6 +29,12 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   
   const SE3 identity = SE3::Identity();
 
+  typedef SE3::Quaternion Quaternion;
+  typedef SE3::Vector4 Vector4;
+  Quaternion quat(Vector4::Random().normalized());
+
+  SE3 m_from_quat(quat,Vector3::Random());
+
   SE3 amb = SE3::Random();
   SE3 bmc = SE3::Random();
   SE3 amc = amb*bmc;
