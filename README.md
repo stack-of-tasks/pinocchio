@@ -36,7 +36,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 **Pinocchio** is flexible:
 
    - header only,
-   - C++11/14/17/20 compliant.
+   - C++98/03/11/14/17/20 compliant.
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
