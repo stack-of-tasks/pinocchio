@@ -23,21 +23,28 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
-    template<typename T> struct call_isApprox;
+    template<typename T> struct call;
     
     template<typename Scalar, int Options>
-    struct call_isApprox< MotionTpl<Scalar,Options> >
+    struct call< MotionTpl<Scalar,Options> >
     {
       typedef MotionTpl<Scalar,Options> Motion;
       
-      static bool run(const Motion & self, const Motion & other,
-                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      static bool isApprox(const Motion & self, const Motion & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
       {
         return self.isApprox(other,prec);
       }
+      
+      static bool isZero(const Motion & self,
+                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isZero(prec);
+      }
     };
   
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxMotion_overload,call_isApprox<Motion>::run,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxMotion_overload,call<Motion>::isApprox,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Motion>::isZero,1,2)
 
     template<typename Motion>
     struct MotionPythonVisitor
@@ -111,9 +118,14 @@ namespace pinocchio
         .def(bp::self / Scalar())
         
         .def("isApprox",
-             call_isApprox<Motion>::run,
+             call<Motion>::isApprox,
              isApproxMotion_overload(bp::args("other","prec"),
                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
+                                                              
+        .def("isZero",
+             call<Motion>::isZero,
+             isZero_overload(bp::args("prec"),
+                             "Returns true if *this is approximately equal to the zero Motion, within the precision given by prec."))
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")

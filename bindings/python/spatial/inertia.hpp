@@ -22,21 +22,28 @@ namespace pinocchio
   {
     namespace bp = boost::python;
       
-      template<typename T> struct call_isApprox;
+    template<typename T> struct call;
       
-      template<typename Scalar, int Options>
-      struct call_isApprox< InertiaTpl<Scalar,Options> >
+    template<typename Scalar, int Options>
+    struct call< InertiaTpl<Scalar,Options> >
+    {
+      typedef InertiaTpl<Scalar,Options> Inertia;
+      
+      static bool isApprox(const Inertia & self, const Inertia & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
       {
-        typedef InertiaTpl<Scalar,Options> Inertia;
-        
-        static bool run(const Inertia & self, const Inertia & other,
-                        const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
-        {
-          return self.isApprox(other,prec);
-        }
-      };
+        return self.isApprox(other,prec);
+      }
+      
+      static bool isZero(const Inertia & self,
+                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isZero(prec);
+      }
+    };
     
-      BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call_isApprox<Inertia>::run,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call<Inertia>::isApprox,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Inertia>::isZero,1,2)
 
     template<typename Inertia>
     struct InertiaPythonVisitor
@@ -98,9 +105,14 @@ namespace pinocchio
         .def(bp::self != bp::self)
         
         .def("isApprox",
-             call_isApprox<Inertia>::run,
+             call<Inertia>::isApprox,
              isApproxInertia_overload(bp::args("other","prec"),
                                       "Returns true if *this is approximately equal to other, within the precision given by prec."))
+                                                                                                                         
+        .def("isZero",
+             call<Inertia>::isZero,
+             isZero_overload(bp::args("prec"),
+                             "Returns true if *this is approximately equal to the zero Inertia, within the precision given by prec."))
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")

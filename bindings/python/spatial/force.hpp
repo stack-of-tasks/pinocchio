@@ -22,21 +22,28 @@ namespace pinocchio
   {
     namespace bp = boost::python;
   
-    template<typename T> struct call_isApprox;
+    template<typename T> struct call;
   
     template<typename Scalar, int Options>
-    struct call_isApprox< ForceTpl<Scalar,Options> >
+    struct call< ForceTpl<Scalar,Options> >
     {
       typedef ForceTpl<Scalar,Options> Force;
       
-      static bool run(const Force & self, const Force & other,
-                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      static bool isApprox(const Force & self, const Force & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
       {
         return self.isApprox(other,prec);
       }
+      
+      static bool isZero(const Force & self,
+                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isZero(prec);
+      }
     };
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxForce_overload,call_isApprox<Force>::run,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxForce_overload,call<Force>::isApprox,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Force>::isZero,1,2)
 
     template<typename Force>
     struct ForcePythonVisitor
@@ -97,9 +104,14 @@ namespace pinocchio
         .def(bp::self / Scalar())
         
         .def("isApprox",
-             &call_isApprox<Force>::run,
+             &call<Force>::isApprox,
              isApproxForce_overload(bp::args("other","prec"),
                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
+                                                                                           
+        .def("isZero",
+             &call<Force>::isZero,
+             isZero_overload(bp::args("prec"),
+                             "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")

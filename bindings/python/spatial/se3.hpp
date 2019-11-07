@@ -27,21 +27,21 @@ namespace pinocchio
 
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(isIdentity_overload,SE3::isIdentity,0,1)
     
-    template<typename T> struct call_isApprox;
+    template<typename T> struct call;
     
     template<typename Scalar, int Options>
-    struct call_isApprox< SE3Tpl<Scalar,Options> >
+    struct call< SE3Tpl<Scalar,Options> >
     {
       typedef SE3Tpl<Scalar,Options> SE3;
       
-      static bool run(const SE3 & self, const SE3 & other,
-                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      static bool isApprox(const SE3 & self, const SE3 & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
       {
         return self.isApprox(other,prec);
       }
     };
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxSE3_overload,call_isApprox<SE3>::run,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxSE3_overload,call<SE3>::isApprox,2,3)
 
     template<typename SE3>
     struct SE3PythonVisitor
@@ -132,7 +132,7 @@ namespace pinocchio
              bp::args("inertia"), "Returns the result of the inverse of *this onto an Inertia.")
         
         .def("isApprox",
-             call_isApprox<SE3>::run,
+             call<SE3>::isApprox,
              isApproxSE3_overload(bp::args("other","prec"),
                                   "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
