@@ -100,8 +100,11 @@ namespace pinocchio
     void setIdentity() { derived().setIdentity(); }
     void setRandom() { derived().setRandom(); }
     
-    bool isApprox (const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec); }
+    
+    bool isZero(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isZero_impl(prec); }
 
     /// aI = aXb.act(bI)
     Derived_t se3Action(const SE3 & M) const { return derived().se3Action_impl(M); }
@@ -323,14 +326,23 @@ namespace pinocchio
       return (mass()==Y2.mass()) && (lever()==Y2.lever()) && (inertia()==Y2.inertia());
     }
     
-    bool isApprox_impl(const InertiaTpl & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    bool isApprox_impl(const InertiaTpl & other,
+                       const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       using math::fabs;
       return fabs(mass() - other.mass()) <= prec
-      && lever().isApprox(other.lever(),prec)
-      && inertia().isApprox(other.inertia(),prec);
+          && lever().isApprox(other.lever(),prec)
+          && inertia().isApprox(other.inertia(),prec);
     }
-
+    
+    bool isZero_impl(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      using math::fabs;
+      return fabs(mass()) <= prec
+          && lever().isZero(prec)
+          && inertia().isZero(prec);
+    }
+    
     InertiaTpl __plus__(const InertiaTpl & Yb) const
     {
       /* Y_{a+b} = ( m_a+m_b,

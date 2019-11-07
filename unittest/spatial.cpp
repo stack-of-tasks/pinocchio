@@ -127,6 +127,12 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
   Motion bplus = static_cast<Base &>(bv) + static_cast<Base &>(bv2);
   BOOST_CHECK((bv+bv2).isApprox(bplus));
   
+  Motion v_not_zero(Vector6::Ones());
+  BOOST_CHECK(!v_not_zero.isZero());
+  
+  Motion v_zero(Vector6::Zero());
+  BOOST_CHECK(v_zero.isZero());
+  
   // Test == and !=
   BOOST_CHECK(bv == bv);
   BOOST_CHECK(!(bv != bv));
@@ -373,6 +379,12 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   // Force vxv = bf.cross(bf);
   // ensure that (vxv.toVector().isMuchSmallerThan(bf.toVector()));
   
+  Force f_not_zero(Vector6::Ones());
+  BOOST_CHECK(!f_not_zero.isZero());
+  
+  Force f_zero(Vector6::Zero());
+  BOOST_CHECK(f_zero.isZero());
+  
   // Test isApprox
   
   BOOST_CHECK(bf == bf);
@@ -556,6 +568,13 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   // Copy operator
   Inertia aI_copy(aI);
   BOOST_CHECK(aI_copy == aI);
+  
+  // Test isZero
+  Inertia I_not_zero = Inertia::Identity();
+  BOOST_CHECK(!I_not_zero.isZero());
+  
+  Inertia I_zero = Inertia::Zero();
+  BOOST_CHECK(I_zero.isZero());
   
   // Test isApprox
   const double eps = 1e-6;
