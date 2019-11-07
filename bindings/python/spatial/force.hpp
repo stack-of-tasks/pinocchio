@@ -55,8 +55,8 @@ namespace pinocchio
         .def(bp::init<>("Default constructor"))
         .def(bp::init<Vector3,Vector3>
              ((bp::arg("linear"),bp::arg("angular")),
-              "Initialize from linear and angular components (dont mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from a vector 6[f,n]"))
+              "Initialize from linear and angular components of a Wrench vector (don't mix the order)."))
+        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from a vector 6 [force,torque]"))
         .def(bp::init<Force>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
