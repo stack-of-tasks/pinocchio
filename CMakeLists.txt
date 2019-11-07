@@ -227,10 +227,7 @@ ELSE(LUA5_FOUND)
 ENDIF(LUA5_FOUND)
 
 
-LIST(APPEND HEADERS
-     exception.hpp
-     macros.hpp
-     )
+LIST(APPEND HEADERS macros.hpp)
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/core")
