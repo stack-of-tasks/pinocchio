@@ -226,11 +226,7 @@ ELSE(LUA5_FOUND)
     )
 ENDIF(LUA5_FOUND)
 
-
-LIST(APPEND HEADERS
-     exception.hpp
-     macros.hpp
-     )
+LIST(APPEND HEADERS macros.hpp)
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/core")
@@ -260,10 +256,15 @@ FOREACH(header ${HEADERS})
     ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${header})
   INSTALL(FILES ${${PROJECT_NAME}_SOURCE_DIR}/src/${header}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${headerPath}
           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
 ENDFOREACH(header)
 SET(HEADERS ${HEADERS_})
+
+LIST(APPEND HEADERS
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/config.hpp
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/deprecated.hpp
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/warning.hpp)
 
 # --- MAIN LIBRARY -------------------------------------------------------------
 ADD_SUBDIRECTORY(src)
