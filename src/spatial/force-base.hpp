@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -110,6 +110,11 @@ namespace pinocchio
      */
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec); }
+    
+    /** \returns true if the component of the linear and angular part of the Spatial Force are approximately equal to zero, within the precision given by prec.
+     */
+    bool isZero(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isZero_impl(prec); }
     
     /** \brief Copies the Derived Force into *this
      *  \return a reference to *this

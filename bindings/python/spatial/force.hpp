@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -21,10 +21,33 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+  
+    template<typename T> struct call;
+  
+    template<typename Scalar, int Options>
+    struct call< ForceTpl<Scalar,Options> >
+    {
+      typedef ForceTpl<Scalar,Options> Force;
+      
+      static bool isApprox(const Force & self, const Force & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+      
+      static bool isZero(const Force & self,
+                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isZero(prec);
+      }
+    };
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxForce_overload,call<Force>::isApprox,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Force>::isZero,1,2)
 
     template<typename Force>
     struct ForcePythonVisitor
-      : public boost::python::def_visitor< ForcePythonVisitor<Force> >
+    : public boost::python::def_visitor< ForcePythonVisitor<Force> >
     {
       enum { Options = traits<Motion>::Options };
       
@@ -39,8 +62,8 @@ namespace pinocchio
         .def(bp::init<>("Default constructor"))
         .def(bp::init<Vector3,Vector3>
              ((bp::arg("linear"),bp::arg("angular")),
-              "Initialize from linear and angular components (dont mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from a vector 6[f,n]"))
+              "Initialize from linear and angular components of a Wrench vector (don't mix the order)."))
+        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from a vector 6 [force,torque]"))
         .def(bp::init<Force>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
@@ -80,8 +103,15 @@ namespace pinocchio
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
-        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec) const) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             &call<Force>::isApprox,
+             isApproxForce_overload(bp::args("other","prec"),
+                                     "Returns true if *this is approximately equal to other, within the precision given by prec."))
+                                                                                           
+        .def("isZero",
+             &call<Force>::isZero,
+             isZero_overload(bp::args("prec"),
+                             "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -125,10 +155,6 @@ namespace pinocchio
       
       static Vector6 getVector(const Force & self) { return self.toVector(); }
       static void setVector(Force & self, const Vector6 & f) { self = f; }
-      
-      static bool isApprox(const Force & self, const Force & other)
-      { return self.isApprox(other); }
-
     };
     
   } // namespace python

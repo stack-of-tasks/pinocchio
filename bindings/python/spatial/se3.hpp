@@ -26,6 +26,22 @@ namespace pinocchio
     namespace bp = boost::python;
 
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(isIdentity_overload,SE3::isIdentity,0,1)
+    
+    template<typename T> struct call;
+    
+    template<typename Scalar, int Options>
+    struct call< SE3Tpl<Scalar,Options> >
+    {
+      typedef SE3Tpl<Scalar,Options> SE3;
+      
+      static bool isApprox(const SE3 & self, const SE3 & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+    };
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxSE3_overload,call<SE3>::isApprox,2,3)
 
     template<typename SE3>
     struct SE3PythonVisitor
@@ -35,6 +51,7 @@ namespace pinocchio
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix4 Matrix4;
+      typedef typename SE3::Quaternion Quaternion;
 
     public:
 
@@ -43,8 +60,11 @@ namespace pinocchio
       {
         cl
         .def(bp::init<Matrix3,Vector3>
-             ((bp::arg("Rotation"),bp::arg("translation")),
-              "Initialize from rotation and translation."))
+             ((bp::arg("Rotation matrix"),bp::arg("Translation vector")),
+              "Initialize from a rotation matrix and a translation vector."))
+        .def(bp::init<Quaternion,Vector3>
+             ((bp::arg("Quaternion"),bp::arg("Translation vector")),
+              "Initialize from a quaternion and a translation vector."))
         .def(bp::init<int>((bp::arg("trivial arg (should be 1)")),"Init to identity."))
         .def(bp::init<SE3>((bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
@@ -111,10 +131,15 @@ namespace pinocchio
         .def("actInv", (Inertia (SE3::*)(const Inertia &) const) &SE3::actInv,
              bp::args("inertia"), "Returns the result of the inverse of *this onto an Inertia.")
         
-        .def("isApprox",(bool (SE3::*)(const SE3 & other, const Scalar & prec)) &SE3::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (SE3::*)(const SE3 & other)) &SE3::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             call<SE3>::isApprox,
+             isApproxSE3_overload(bp::args("other","prec"),
+                                  "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
-        .def("isIdentity",&SE3::isIdentity,isIdentity_overload(bp::args("prec"),"Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
+        .def("isIdentity",
+             &SE3::isIdentity,
+             isIdentity_overload(bp::args("prec"),
+                                 "Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
         .def(bp::self * bp::self)

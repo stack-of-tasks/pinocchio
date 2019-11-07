@@ -77,6 +77,9 @@ namespace pinocchio
     bool isApprox(const Derived & other, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return derived().isApprox_impl(other, prec);}
     
+    bool isZero(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return derived().isZero_impl(prec);}
+    
     template<typename S2, int O2>
     typename SE3GroupAction<Derived>::ReturnType
     se3Action(const SE3Tpl<S2,O2> & m) const

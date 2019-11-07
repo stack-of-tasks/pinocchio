@@ -75,6 +75,9 @@ namespace pinocchio
                   const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return m_data.isApprox(other.m_data,prec); }
     
+    bool isZero(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    { return m_data.isZero(prec); }
+    
     void fill(const Scalar value) { m_data.fill(value); }
     
     struct SkewSquare

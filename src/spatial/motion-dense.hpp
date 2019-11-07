@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_motion_dense_hpp__
@@ -34,6 +34,7 @@ namespace pinocchio
     using Base::angular;
     using Base::derived;
     using Base::isApprox;
+    using Base::isZero;
 
     Derived & setZero() { linear().setZero(); angular().setZero(); return derived(); }
     Derived & setRandom() { linear().setRandom(); angular().setRandom(); return derived(); }
@@ -159,12 +160,19 @@ namespace pinocchio
     
     template<typename M2>
     bool isApprox(const MotionDense<M2> & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
-    { return derived().isApprox_impl(m2, prec);}
+    {
+      return derived().isApprox_impl(m2, prec);
+    }
     
     template<typename D2>
     bool isApprox_impl(const MotionDense<D2> & m2, const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
       return linear().isApprox(m2.linear(), prec) && angular().isApprox(m2.angular(), prec);
+    }
+    
+    bool isZero_impl(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      return linear().isZero(prec) && angular().isZero(prec);
     }
     
     template<typename S2, int O2, typename D2>

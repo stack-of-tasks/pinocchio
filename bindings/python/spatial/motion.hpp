@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -22,6 +22,29 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+    
+    template<typename T> struct call;
+    
+    template<typename Scalar, int Options>
+    struct call< MotionTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> Motion;
+      
+      static bool isApprox(const Motion & self, const Motion & other,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+      
+      static bool isZero(const Motion & self,
+                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isZero(prec);
+      }
+    };
+  
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxMotion_overload,call<Motion>::isApprox,2,3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Motion>::isZero,1,2)
 
     template<typename Motion>
     struct MotionPythonVisitor
@@ -43,8 +66,8 @@ namespace pinocchio
         .def(bp::init<>("Default constructor"))
         .def(bp::init<Vector3,Vector3>
              ((bp::arg("linear"),bp::arg("angular")),
-              "Initialize from linear and angular components (dont mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector6")),"Init from a vector 6 [v,w]"))
+              "Initialize from linear and angular components of a Motion vector (don(t mix the order)."))
+        .def(bp::init<Vector6>((bp::arg("Vector6")),"Init from a vector 6 [linear velocity, angular velocity]"))
         .def(bp::init<Motion>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
@@ -94,8 +117,15 @@ namespace pinocchio
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
-        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec) const) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             call<Motion>::isApprox,
+             isApproxMotion_overload(bp::args("other","prec"),
+                                     "Returns true if *this is approximately equal to other, within the precision given by prec."))
+                                                              
+        .def("isZero",
+             call<Motion>::isZero,
+             isZero_overload(bp::args("prec"),
+                             "Returns true if *this is approximately equal to the zero Motion, within the precision given by prec."))
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -138,9 +168,6 @@ namespace pinocchio
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
-      
-      static bool isApprox(const Motion & self, const Motion & other)
-      { return self.isApprox(other); }
 
     };
     

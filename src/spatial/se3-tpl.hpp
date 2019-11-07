@@ -55,10 +55,18 @@ namespace pinocchio
     
     SE3Tpl(): rot(), trans() {};
     
+    template<typename QuaternionLike,typename Vector3Like>
+    SE3Tpl(const Eigen::QuaternionBase<QuaternionLike> & quat,
+           const Eigen::MatrixBase<Vector3Like> & trans)
+    : rot(quat.matrix()), trans(trans)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
+    }
+    
     template<typename Matrix3Like,typename Vector3Like>
     SE3Tpl(const Eigen::MatrixBase<Matrix3Like> & R,
-           const Eigen::MatrixBase<Vector3Like> & p)
-    : rot(R), trans(p)
+           const Eigen::MatrixBase<Vector3Like> & trans)
+    : rot(R), trans(trans)
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3)

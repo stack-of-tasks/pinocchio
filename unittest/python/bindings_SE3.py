@@ -18,6 +18,12 @@ class TestSE3Bindings(unittest.TestCase):
         transform.setIdentity()
         self.assertTrue(np.allclose(eye(4), transform.homogeneous))
 
+    def test_constructor(self):
+        M = pin.SE3.Random()
+        quat = pin.Quaternion(M.rotation)
+        M_from_quat = pin.SE3(quat,M.translation)
+        self.assertTrue(M_from_quat.isApprox(M))
+
     def test_get_translation(self):
         transform = pin.SE3.Identity()
         self.assertTrue(np.allclose(transform.translation, zero(3)))
@@ -40,10 +46,13 @@ class TestSE3Bindings(unittest.TestCase):
 
     def test_homogeneous(self):
         amb = pin.SE3.Random()
-        aMb = amb.homogeneous
-        self.assertTrue(np.allclose(aMb[0:3,0:3], amb.rotation))  # top left 33 corner = rotation of amb
-        self.assertTrue(np.allclose(aMb[0:3,3], amb.translation)) # top 3 of last column = translation of amb
-        self.assertTrue(np.allclose(aMb[3,:], [0.,0.,0.,1.]))     # last row = 0 0 0 1
+        H = amb.homogeneous
+        self.assertTrue(np.allclose(H[0:3,0:3], amb.rotation))  # top left 33 corner = rotation of amb
+        self.assertTrue(np.allclose(H[0:3,3], amb.translation)) # top 3 of last column = translation of amb
+        self.assertTrue(np.allclose(H[3,:], [0.,0.,0.,1.]))     # last row = 0 0 0 1
+
+        amb_from_H = pin.SE3(H)
+        self.assertTrue(amb_from_H.isApprox(amb))
 
     def test_action_matrix(self):
         amb = pin.SE3.Random()        
