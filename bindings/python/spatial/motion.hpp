@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -22,6 +22,22 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+    
+    template<typename T> struct call_isApprox;
+    
+    template<typename Scalar, int Options>
+    struct call_isApprox< MotionTpl<Scalar,Options> >
+    {
+      typedef MotionTpl<Scalar,Options> Motion;
+      
+      static bool run(const Motion & self, const Motion & other,
+                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+    };
+  
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxMotion_overload,call_isApprox<Motion>::run,2,3)
 
     template<typename Motion>
     struct MotionPythonVisitor
@@ -94,8 +110,10 @@ namespace pinocchio
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
-        .def("isApprox",(bool (Motion::*)(const Motion & other, const Scalar & prec) const) &Motion::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             call_isApprox<Motion>::run,
+             isApproxMotion_overload(bp::args("other","prec"),
+                                     "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -138,9 +156,6 @@ namespace pinocchio
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
-      
-      static bool isApprox(const Motion & self, const Motion & other)
-      { return self.isApprox(other); }
 
     };
     

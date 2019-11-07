@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -21,10 +21,26 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+  
+    template<typename T> struct call_isApprox;
+  
+    template<typename Scalar, int Options>
+    struct call_isApprox< ForceTpl<Scalar,Options> >
+    {
+      typedef ForceTpl<Scalar,Options> Force;
+      
+      static bool run(const Force & self, const Force & other,
+                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+    };
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxForce_overload,call_isApprox<Force>::run,2,3)
 
     template<typename Force>
     struct ForcePythonVisitor
-      : public boost::python::def_visitor< ForcePythonVisitor<Force> >
+    : public boost::python::def_visitor< ForcePythonVisitor<Force> >
     {
       enum { Options = traits<Motion>::Options };
       
@@ -80,8 +96,10 @@ namespace pinocchio
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
-        .def("isApprox",(bool (Force::*)(const Force & other, const Scalar & prec) const) &Force::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             &call_isApprox<Force>::run,
+             isApproxForce_overload(bp::args("other","prec"),
+                                     "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -125,10 +143,6 @@ namespace pinocchio
       
       static Vector6 getVector(const Force & self) { return self.toVector(); }
       static void setVector(Force & self, const Vector6 & f) { self = f; }
-      
-      static bool isApprox(const Force & self, const Force & other)
-      { return self.isApprox(other); }
-
     };
     
   } // namespace python

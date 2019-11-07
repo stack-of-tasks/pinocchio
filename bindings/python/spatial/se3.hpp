@@ -26,6 +26,22 @@ namespace pinocchio
     namespace bp = boost::python;
 
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(isIdentity_overload,SE3::isIdentity,0,1)
+    
+    template<typename T> struct call_isApprox;
+    
+    template<typename Scalar, int Options>
+    struct call_isApprox< SE3Tpl<Scalar,Options> >
+    {
+      typedef SE3Tpl<Scalar,Options> SE3;
+      
+      static bool run(const SE3 & self, const SE3 & other,
+                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+      {
+        return self.isApprox(other,prec);
+      }
+    };
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxSE3_overload,call_isApprox<SE3>::run,2,3)
 
     template<typename SE3>
     struct SE3PythonVisitor
@@ -115,10 +131,15 @@ namespace pinocchio
         .def("actInv", (Inertia (SE3::*)(const Inertia &) const) &SE3::actInv,
              bp::args("inertia"), "Returns the result of the inverse of *this onto an Inertia.")
         
-        .def("isApprox",(bool (SE3::*)(const SE3 & other, const Scalar & prec)) &SE3::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (SE3::*)(const SE3 & other)) &SE3::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             call_isApprox<SE3>::run,
+             isApproxSE3_overload(bp::args("other","prec"),
+                                  "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
-        .def("isIdentity",&SE3::isIdentity,isIdentity_overload(bp::args("prec"),"Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
+        .def("isIdentity",
+             &SE3::isIdentity,
+             isIdentity_overload(bp::args("prec"),
+                                 "Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
         .def(bp::self * bp::self)

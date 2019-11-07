@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -21,6 +21,22 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+      
+      template<typename T> struct call_isApprox;
+      
+      template<typename Scalar, int Options>
+      struct call_isApprox< InertiaTpl<Scalar,Options> >
+      {
+        typedef InertiaTpl<Scalar,Options> Inertia;
+        
+        static bool run(const Inertia & self, const Inertia & other,
+                        const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
+        {
+          return self.isApprox(other,prec);
+        }
+      };
+    
+      BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call_isApprox<Inertia>::run,2,3)
 
     template<typename Inertia>
     struct InertiaPythonVisitor
@@ -81,8 +97,10 @@ namespace pinocchio
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
-        .def("isApprox",(bool (Inertia::*)(const Inertia & other, const Scalar & prec)) &Inertia::isApprox,bp::args("other","prec"),"Returns true if *this is approximately equal to other, within the precision given by prec.")
-        .def("isApprox",(bool (Inertia::*)(const Inertia & other)) &Inertia::isApprox,bp::args("other"),"Returns true if *this is approximately equal to other.")
+        .def("isApprox",
+             call_isApprox<Inertia>::run,
+             isApproxInertia_overload(bp::args("other","prec"),
+                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
@@ -141,7 +159,10 @@ namespace pinocchio
         symmetric_inertia(2,2);
       }
 
-      static Eigen::VectorXd toDynamicParameters_proxy( const Inertia & self ) { return self.toDynamicParameters(); }
+      static Eigen::VectorXd toDynamicParameters_proxy(const Inertia & self)
+      {
+        return self.toDynamicParameters();
+      }
 
       static Inertia* makeFromMCI(const double & mass,
                                   const Vector3 & lever,
