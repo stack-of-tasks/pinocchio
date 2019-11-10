@@ -142,26 +142,6 @@ def loadRotorParamsFromSrdf(model, filename, verbose):
 def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
   return pin.removeCollisionPairs(model,geomModel,filename,verbose)
 
-# This function is only deprecated when using a specific signature. Therefore, it needs special care
-def jacobianCenterOfMass(model, data, *args):
-  if len(args)==3:
-    message = "This function signature has been deprecated and will be removed in future releases of Pinocchio. Please change for one of the new signatures of the jacobianCenterOfMass function."
-    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-    q = args[0]
-    computeSubtreeComs = args[1]
-    updateKinematics = args[2]
-    if updateKinematics:
-      return pin.jacobianCenterOfMass(model,data,q,computeSubtreeComs)
-    else:
-      return pin.jacobianCenterOfMass(model,data,computeSubtreeComs)
-  else:
-    return pin.jacobianCenterOfMass(model,data,*args)
-jacobianCenterOfMass.__doc__ =  (
-  pin.jacobianCenterOfMass.__doc__
-  + '\n\njacobianCenterOfMass( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (bool)computeSubtreeComs, (bool)updateKinematics) -> object :'
-  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
-)
-
 @deprecated("This function will be removed in future releases of Pinocchio. You can use exp or exp6.")
 def exp6FromMotion(motion):
   return pin.exp6(motion)
