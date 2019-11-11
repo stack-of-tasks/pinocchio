@@ -173,3 +173,8 @@ def computeCentroidalDynamics(model, data, q, v, a = None):
     return pin.computeCentroidalMomentum(model,data,q,v,a)
 
 computeCentroidalDynamics.__doc__ = ( "This function has been renamed computeCentroidalMomentum or computeCentroidalMomentumTimeVariation to either only compute the centroidal momentum quantity or also its time derivative respectively." )
+
+@deprecated("This function has been renamed computeJointJacobian and will be removed in future releases of Pinocchio. Please change for new computeJointJacobian.")
+def jointJacobian(model, data, q, jointId):
+  return computeJointJacobian(model,data,q,jointId)
+  

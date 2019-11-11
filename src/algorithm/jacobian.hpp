@@ -85,12 +85,25 @@ namespace pinocchio
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
   ///
-  /// \remark The result of this function is equivalent to call first computeJointJacobians(model,data,q) and then call getJointJacobian(model,data,jointId,LOCAL,J),
+  /// \remarks The result of this function is equivalent to call first computeJointJacobians(model,data,q) and then call getJointJacobian(model,data,jointId,LOCAL,J),
   ///         but forwardKinematics is not fully computed.
   ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
   ///         to call computeJointJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  inline void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const JointIndex jointId,
+                                   const Eigen::MatrixBase<Matrix6Like> & J);
+  
+  ///
+  /// \brief This function is now deprecated and has been replaced by computeJointJacobian. It will be removed in future releases of Pinocchio.
+  ///
+  /// \copydoc pinocchio::computeJointJacobian
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  PINOCCHIO_DEPRECATED
   inline void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
