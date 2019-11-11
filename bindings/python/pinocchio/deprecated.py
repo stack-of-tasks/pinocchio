@@ -63,14 +63,6 @@ def getNeutralConfiguration(model, filename, verbose):
   pin.loadReferenceConfigurations(model,filename,verbose)
   return model.referenceConfigurations["half_sitting"]
 
-@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new loadRotorParameters function.")
-def loadRotorParamsFromSrdf(model, filename, verbose):
-  return pin.loadRotorParams(model,filename,verbose)
-
-@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new removeCollisionPairs function.")
-def removeCollisionPairsFromSrdf(model, geomModel, filename, verbose):
-  return pin.removeCollisionPairs(model,geomModel,filename,verbose)
-
 @deprecated("This function will be removed in future releases of Pinocchio. You can use exp or exp6.")
 def exp6FromMotion(motion):
   return pin.exp6(motion)
