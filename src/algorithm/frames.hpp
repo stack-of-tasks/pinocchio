@@ -144,11 +144,27 @@ namespace pinocchio
   ///         to call computeJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  inline void computeFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const FrameIndex frameId,
+                                   const Eigen::MatrixBase<Matrix6Like> & J);
+                        
+  ///
+  /// \brief This function is now deprecated and has been renamed computeFrameJacobian. This signature will be removed in future release of Pinocchio.
+  ///
+  /// \copydoc pinocchio::computeFrameJacobian
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  PINOCCHIO_DEPRECATED
   inline void frameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const FrameIndex frameId,
-                            const Eigen::MatrixBase<Matrix6Like> & J);
+                            const Eigen::MatrixBase<Matrix6Like> & J)
+  {
+    computeFrameJacobian(model,data,q,frameId,J);
+  }
   
   ///
   /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
