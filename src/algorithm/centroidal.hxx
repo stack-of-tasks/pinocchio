@@ -116,7 +116,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
-  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const Eigen::MatrixBase<TangentVectorType> & v)
@@ -160,11 +160,11 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
-  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const Eigen::MatrixBase<TangentVectorType1> & v,
-                            const Eigen::MatrixBase<TangentVectorType2> & a)
+  computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                                         const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");

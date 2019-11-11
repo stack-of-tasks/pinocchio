@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_centroidal_hpp__
@@ -13,7 +13,7 @@ namespace pinocchio
 {
   
   ///
-  /// \brief Computes the Centroidal dynamics, a.k.a. the total momenta of the system
+  /// \brief Computes the Centroidal momentum, a.k.a. the total momenta of the system
   ///        expressed around the center of mass.
   ///
   /// \tparam Scalar The scalar type.
@@ -32,12 +32,31 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
-  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const Eigen::MatrixBase<TangentVectorType> & v);
+  
   ///
-  /// \brief Computes the Centroidal dynamics and its time derivatives, a.k.a. the total momenta of the system and its time derivative
+  /// \brief This function has been renamed into computeCentroidalMomentum. This signature will be removed in a future release of Pinocchio.
+  ///        Please consider using this new naming.
+  ///
+  /// \copydoc pinocchio::computeCentroidalMomentum<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType>
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+  typename ConfigVectorType, typename TangentVectorType>
+  PINOCCHIO_DEPRECATED
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    return computeCentroidalMomentum(model,data,q,v);
+  }
+
+  ///
+  /// \brief Computes the Centroidal momemtum and its time derivatives, a.k.a. the total momenta of the system and its time derivative
   ///        expressed around the center of mass.
   ///
   /// \tparam Scalar The scalar type.
@@ -53,17 +72,36 @@ namespace pinocchio
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
   ///
-  /// \returns The centroidal momenta time derivative (stored in data.dhg).
+  /// \returns The centroidal momenta time derivative (stored in data.dhg). The centroidal momemta is stored in data.hg.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                                         const Eigen::MatrixBase<TangentVectorType2> & a);
+
+  ///
+  /// \brief This function has been renamed into computeCentroidalMomentumTimeVariation. This signature will be removed in a future release of Pinocchio.
+  ///        Please consider using this new naming.
+  ///
+  /// \copydoc pinocchio::computeCentroidalMomentumTimeVariation<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2>
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const Eigen::MatrixBase<TangentVectorType1> & v,
-                            const Eigen::MatrixBase<TangentVectorType2> & a);
-  
+                            const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    return computeCentroidalMomentumTimeVariation(model,data,q,v,a);
+  }
+
   ///
   /// \brief Computes the Centroidal Momentum Matrix, the Composite Ridig Body Inertia as well as the centroidal momenta
   ///        according to the current joint configuration and velocity.
