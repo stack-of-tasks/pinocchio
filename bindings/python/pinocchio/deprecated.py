@@ -49,25 +49,6 @@ def framesKinematics(model,data,q=None):
   else:
     pin.framesForwardKinematics(model,data,q)
 
-# This function is only deprecated when using a specific signature. Therefore, it needs special care
-# Marked as deprecated on 19 Feb 2019
-def frameJacobian(model, data, q, frameId, *args):
-  if len(args)==1:
-    message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
-               "Please change for the new signature of frameJacobian or use computeJointJacobian + updateFramePlacements + getFrameJacobian.")
-    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-    rf = args[0]
-    pin.computeJointJacobians(model,data,q)
-    pin.updateFramePlacements(model,data)
-    return pin.getFrameJacobian(model, data, frameId, rf);
-  else:
-    return pin.frameJacobian(model,data,q,frameId)
-frameJacobian.__doc__ =  (
-  pin.frameJacobian.__doc__
-  + '\n\nframeJacobian( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (Index)frameId, ReferenceFrame rf) -> object :'
-  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
-)
-
 @deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new difference function.")
 def differentiate(model,q0,q1):
   return pin.difference(model,q0,q1)
