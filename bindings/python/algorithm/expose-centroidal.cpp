@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -14,21 +14,33 @@ namespace pinocchio
     {
       using namespace Eigen;
 
-      bp::def("computeCentroidalDynamics",
-              &computeCentroidalDynamics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+      bp::def("computeCentroidalMomentum",
+              &computeCentroidalMomentum<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model","Data"),
+              "Computes the Centroidal momentum, a.k.a. the total momentum of the system expressed around the center of mass.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("computeCentroidalMomentum",
+              &computeCentroidalMomentum<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
-              "Computes the Centroidal dynamics, a.k.a. the total momenta of the system expressed around the center of mass.",
+              "Computes the Centroidal momentum, a.k.a. the total momentum of the system expressed around the center of mass.",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("computeCentroidalDynamics",
-              &computeCentroidalDynamics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+      bp::def("computeCentroidalMomentumTimeVariation",
+              &computeCentroidalMomentumTimeVariation<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model","Data"),
+              "Computes the Centroidal momentum and its time derivatives, a.k.a. the total momentum of the system and its time derivative expressed around the center of mass.",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      bp::def("computeCentroidalMomentumTimeVariation",
+              &computeCentroidalMomentumTimeVariation<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
                        "Joint acceleration a (size Model::nv)"),
-              "Computes the Centroidal dynamics and its time derivatives, a.k.a. the total momenta of the system and its time derivative expressed around the center of mass.",
+              "Computes the Centroidal momentum and its time derivatives, a.k.a. the total momentum of the system and its time derivative expressed around the center of mass.",
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("ccrba",

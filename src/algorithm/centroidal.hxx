@@ -15,127 +15,25 @@
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-  typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2 = void>
-  struct CentroidalDynamicsForwardStep;
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename ConfigVectorType, typename TangentVectorType>
-  struct CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType>
-  : public fusion::JointUnaryVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const ConfigVectorType &,
-                                  const TangentVectorType &
-                                  > ArgsType;
-    
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q,
-                     const Eigen::MatrixBase<TangentVectorType> & v)
-    {
-      typedef typename Model::JointIndex JointIndex;
-      
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      const typename Data::Inertia & Y = model.inertias[i];
-      
-      jmodel.calc(jdata.derived(),q.derived(), v.derived());
-      
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-
-      data.mass[i] = Y.mass();
-      data.com[i] = Y.mass() * Y.lever();
-      
-      if(parent > 0)
-      {
-        data.v[i] = data.liMi[i].actInv(data.v[parent]);
-        data.v[i] += jdata.v();
-      }
-      else
-        data.v[i] = jdata.v();
-      
-      data.h[i] = Y * data.v[i];
-    }
-    
-  }; // struct CentroidalDynamicsForwardStep
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  struct CentroidalDynamicsForwardStep
-  : public fusion::JointUnaryVisitorBase< CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    typedef boost::fusion::vector<const Model &,
-    Data &,
-    const ConfigVectorType &,
-    const TangentVectorType1 &,
-    const TangentVectorType2 &
-    > ArgsType;
-    
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q,
-                     const Eigen::MatrixBase<TangentVectorType1> & v,
-                     const Eigen::MatrixBase<TangentVectorType2> & a)
-    {
-      typedef typename Model::JointIndex JointIndex;
-      
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      const typename Data::Inertia & Y = model.inertias[i];
-      
-      // Call the similar algo for centroidal dynamics
-      CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,
-                                    ConfigVectorType,TangentVectorType1>
-      ::algo(jmodel.derived(),jdata.derived(),model,data,
-             q.derived(),v.derived());
-      
-      data.a[i] = jdata.S() * jmodel.jointVelocitySelector(a)
-                + jdata.c() + (data.v[i] ^ jdata.v());
-      if(parent > 0)
-        data.a[i] += data.liMi[i].actInv(data.a[parent]);
-      
-      data.f[i] = Y * data.a[i] + data.v[i].cross(data.h[i]);
-    }
-    
-  }; // struct CentroidalDynamicsForwardStep
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-           typename ConfigVectorType, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
-  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const Eigen::MatrixBase<TangentVectorType> & v)
+  computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,
-                                        ConfigVectorType,TangentVectorType> Pass1;
-    
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      const typename Data::Inertia & Y = model.inertias[i];
+      
+      data.mass[i] = Y.mass();
+      data.com[i] = Y.mass() * Y.lever();
+      
+      data.h[i] = Y * data.v[i];
     }
     
     data.mass[0] = 0.; data.com[0].setZero(); data.h[0].setZero();
@@ -157,31 +55,26 @@ namespace pinocchio
     return data.hg;
   }
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-  typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
-  computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const Eigen::MatrixBase<TangentVectorType1> & v,
-                            const Eigen::MatrixBase<TangentVectorType2> & a)
+  computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a.size() == model.nv, "The acceleration vector is not of right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
 
-    typedef CentroidalDynamicsForwardStep<Scalar,Options,JointCollectionTpl,
-            ConfigVectorType,TangentVectorType1,TangentVectorType2> Pass1;
-
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
-      Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
+      const typename Data::Inertia & Y = model.inertias[i];
+      
+      data.mass[i] = Y.mass();
+      data.com[i] = Y.mass() * Y.lever();
+      
+      data.h[i] = Y * data.v[i];
+      data.f[i] = Y * data.a[i] + data.v[i].cross(data.h[i]);
     }
 
     data.mass[0] = 0.; data.com[0].setZero();
