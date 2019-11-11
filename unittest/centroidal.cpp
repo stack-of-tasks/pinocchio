@@ -238,13 +238,13 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
   }
 }
 
-BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
+BOOST_AUTO_TEST_CASE (test_computeCentroidalMomentum_computeCentroidalMomentumTimeVariation)
 {
   using namespace pinocchio;
   Model model;
   buildModels::humanoidRandom(model);
   addJointAndBody(model,JointModelSpherical(),"larm6_joint","larm7");
-  Data data(model), data_ref(model);
+  Data data(model), data_fk1(model), data_fk2(model), data_ref(model);
   
   model.lowerPositionLimit.head<7>().fill(-1.);
   model.upperPositionLimit.head<7>().fill( 1.);
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
   ccrba(model,data_ref,q,v);
   forwardKinematics(model,data_ref,q,v);
   centerOfMass(model,data_ref,q,v,false);
-  computeCentroidalDynamics(model,data,q,v);
+  computeCentroidalMomentum(model,data,q,v);
   
   BOOST_CHECK(data.mass[0] == data_ref.mass[0]);
   BOOST_CHECK(data.com[0].isApprox(data_ref.com[0]));
@@ -268,7 +268,13 @@ BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
     BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
   }
   
-  computeCentroidalDynamics(model,data,q,v,a);
+  // Check other signature
+  forwardKinematics(model,data_fk1,q,v);
+  computeCentroidalMomentum(model,data_fk1);
+  
+  BOOST_CHECK(data_fk1.hg.isApprox(data.hg));
+  
+  computeCentroidalMomentumTimeVariation(model,data,q,v,a);
   model.gravity.setZero();
   rnea(model,data_ref,q,v,a);
   dccrba(model,data_ref,q,v);
@@ -287,15 +293,22 @@ BOOST_AUTO_TEST_CASE (test_computeCentroidalDynamics)
     BOOST_CHECK(data.f[k].isApprox(data_ref.f[k]));
   }
   
+  // Check other signature
+  forwardKinematics(model,data_fk2,q,v,a);
+  computeCentroidalMomentumTimeVariation(model,data_fk2);
+  
+  BOOST_CHECK(data_fk2.hg.isApprox(data.hg));
+  BOOST_CHECK(data_fk2.dhg.isApprox(data.dhg));
+  
   // Check against finite differences
   Data data_fd(model);
   const double eps = 1e-8;
   Eigen::VectorXd v_plus = v + eps * a;
   Eigen::VectorXd q_plus = integrate(model,q,eps*v);
   
-  const Force hg = computeCentroidalDynamics(model,data_fd,q,v);
+  const Force hg = computeCentroidalMomentum(model,data_fd,q,v);
   const SE3::Vector3 com = data_fd.com[0];
-  const Force hg_plus = computeCentroidalDynamics(model,data_fd,q_plus,v_plus);
+  const Force hg_plus = computeCentroidalMomentum(model,data_fd,q_plus,v_plus);
   const SE3::Vector3 com_plus = data_fd.com[0];
   
   SE3 transform(SE3::Identity());

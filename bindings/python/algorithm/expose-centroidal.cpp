@@ -15,11 +15,23 @@ namespace pinocchio
       using namespace Eigen;
 
       bp::def("computeCentroidalMomentum",
+              &computeCentroidalMomentum<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model","Data"),
+              "Computes the Centroidal momentum, a.k.a. the total momentum of the system expressed around the center of mass.",
+              bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("computeCentroidalMomentum",
               &computeCentroidalMomentum<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
               "Computes the Centroidal momentum, a.k.a. the total momentum of the system expressed around the center of mass.",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      bp::def("computeCentroidalMomentumTimeVariation",
+              &computeCentroidalMomentumTimeVariation<double,0,JointCollectionDefaultTpl>,
+              bp::args("Model","Data"),
+              "Computes the Centroidal momentum and its time derivatives, a.k.a. the total momentum of the system and its time derivative expressed around the center of mass.",
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("computeCentroidalMomentumTimeVariation",

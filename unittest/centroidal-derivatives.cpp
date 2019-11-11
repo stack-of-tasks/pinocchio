@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 INRIA
+// Copyright (c) 2018-2019 INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   }
   BOOST_CHECK(dhdot_da.isApprox(data_ref.Ag));
   
-  pinocchio::computeCentroidalDynamics(model,data_ref,q,v,a);
+  pinocchio::computeCentroidalMomentumTimeVariation(model,data_ref,q,v,a);
   for(size_t k = 1; k < (size_t)model.njoints; ++k)
   {
     BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   pinocchio::Data data_fd(model);
   
   const double eps = 1e-8;
-  const pinocchio::Force dhg = pinocchio::computeCentroidalDynamics(model,data_fd,q,v,a);
+  const pinocchio::Force dhg = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q,v,a);
   const pinocchio::Force hg = data_fd.hg;
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
   const pinocchio::Force::Vector3 com = data_fd.com[0];
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
     q_plus = pinocchio::integrate(model,q,v_eps);
     
     const pinocchio::Force & dhg_plus
-    = pinocchio::computeCentroidalDynamics(model,data_fd,q_plus,v,a);
+    = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q_plus,v,a);
     const pinocchio::Force hg_plus = data_fd.hg;
     const pinocchio::Force::Vector3 com_plus = data_fd.com[0];
     
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
     v_plus[k] += eps;
     
     const pinocchio::Force & dhg_plus
-    = pinocchio::computeCentroidalDynamics(model,data_fd,q,v_plus,a);
+    = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q,v_plus,a);
     dhdot_dv_fd.col(k) = (dhg_plus - dhg).toVector()/eps;
     
     v_plus[k] -= eps;
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
     a_plus[k] += eps;
     
     const pinocchio::Force & dhg_plus
-    = pinocchio::computeCentroidalDynamics(model,data_fd,q,v,a_plus);
+    = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q,v,a_plus);
     dhdot_da_fd.col(k) = (dhg_plus - dhg).toVector()/eps;
     
     a_plus[k] -= eps;

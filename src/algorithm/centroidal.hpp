@@ -11,6 +11,24 @@
 
 namespace pinocchio
 {
+
+  ///
+  /// \brief Computes the Centroidal momentum, a.k.a. the total momenta of the system
+  ///        expressed around the center of mass.
+  ///
+  /// \tparam Scalar The scalar type.
+  /// \tparam Options Eigen Alignment options.
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \returns The centroidal momenta (stored in data.hg).
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
   /// \brief Computes the Centroidal momentum, a.k.a. the total momenta of the system
@@ -35,7 +53,11 @@ namespace pinocchio
   computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const Eigen::MatrixBase<TangentVectorType> & v);
+                            const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    forwardKinematics(model,data,q.derived(),v.derived());
+    return computeCentroidalMomentum(model,data);
+  }
   
   ///
   /// \brief This function has been renamed into computeCentroidalMomentum. This signature will be removed in a future release of Pinocchio.
@@ -54,6 +76,24 @@ namespace pinocchio
   {
     return computeCentroidalMomentum(model,data,q,v);
   }
+
+  ///
+  /// \brief Computes the Centroidal momemtum and its time derivatives, a.k.a. the total momenta of the system and its time derivative
+  ///        expressed around the center of mass.
+  ///
+  /// \tparam Scalar The scalar type.
+  /// \tparam Options Eigen Alignment options.
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \returns The centroidal momenta time derivative (stored in data.dhg). The centroidal momemta is stored in data.hg.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief Computes the Centroidal momemtum and its time derivatives, a.k.a. the total momenta of the system and its time derivative
@@ -81,7 +121,11 @@ namespace pinocchio
                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                          const Eigen::MatrixBase<ConfigVectorType> & q,
                                          const Eigen::MatrixBase<TangentVectorType1> & v,
-                                         const Eigen::MatrixBase<TangentVectorType2> & a);
+                                         const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    forwardKinematics(model,data,q,v,a);
+    return computeCentroidalMomentumTimeVariation(model,data);
+  }
 
   ///
   /// \brief This function has been renamed into computeCentroidalMomentumTimeVariation. This signature will be removed in a future release of Pinocchio.
