@@ -139,30 +139,6 @@ namespace pinocchio
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeDistance for every active pairs of GeometryData.
   ///
-  /// \param[in] ComputeShortest default to true.
-  /// \param[in] model: robot model (const)
-  /// \param[out] data: corresponding data (nonconst) where FK results are stored
-  /// \param[in] geomModel: geometry model (const)
-  /// \param[out] geomData: corresponding geometry data (nonconst) where distances are computed
-  /// \param[in] q: robot configuration.
-  ///
-  /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
-  ///         When ComputeShortest is false, the number of collision pairs.
-  ///
-  /// \note A similar function is available without model, data and q, not recomputing the FK.
-  ///
-  template<bool ComputeShortest>
-  PINOCCHIO_DEPRECATED
-  inline std::size_t computeDistances(const Model & model,
-                                      Data & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData,
-                                      const Eigen::VectorXd & q);
-  
-  ///
-  /// Compute the forward kinematics, update the geometry placements and
-  /// calls computeDistance for every active pairs of GeometryData.
-  ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
