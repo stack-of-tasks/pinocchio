@@ -49,33 +49,6 @@ def framesKinematics(model,data,q=None):
   else:
     pin.framesForwardKinematics(model,data,q)
 
-@deprecated("This function has been renamed computeJointJacobians and will be removed in future releases of Pinocchio. Please change for new computeJointJacobians.")
-def computeJacobians(model,data,q=None):
-  if q is None:
-    return pin.computeJointJacobians(model,data)
-  else:
-    return pin.computeJointJacobians(model,data,q)
-
-# This function is only deprecated when using a specific signature. Therefore, it needs special care
-# Marked as deprecated on 19 Feb 2019
-def jointJacobian(model, data, q, jointId, *args):
-  if len(args)==2:
-    message = ("This function signature has been deprecated and will be removed in future releases of Pinocchio. "
-               "Please change for the new signature of jointJacobian or use computeJointJacobian + getJointJacobian.")
-    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-    rf = args[0]
-    update_kinematics = args[1]
-    if update_kinematics:
-        pin.computeJointJacobians(model,data,q)
-    return pin.getJointJacobian(model,data,jointId,rf)
-  else:
-    return pin.jointJacobian(model,data,q,jointId)
-jointJacobian.__doc__ =  (
-  pin.jointJacobian.__doc__
-  + '\n\njointJacobian( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (Index)jointId, ReferenceFrame rf, (bool)updateKinematics) -> object :'
-  + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
-)
-
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 19 Feb 2019
 def frameJacobian(model, data, q, frameId, *args):
@@ -94,31 +67,6 @@ frameJacobian.__doc__ =  (
   + '\n\nframeJacobian( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (Index)frameId, ReferenceFrame rf) -> object :'
   + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
-
-@deprecated("This function has been renamed jointJacobian and will be removed in future releases of Pinocchio. Please change for new jointJacobian function.")
-def jacobian(model,data,q,jointId,local,update_kinematics):
-  rf = pin.ReferenceFrame.LOCAL if local else pin.ReferenceFrame.WORLD
-  if update_kinematics:
-      pin.computeJointJacobians(model,data,q)
-  return pin.getJointJacobian(model,data,jointId,rf)
-
-@deprecated("This function has been renamed getJointJacobian and will be removed in future releases of Pinocchio. Please change for new getJointJacobian function.")
-def getJacobian(model,data,jointId,local):
-  if local:
-    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.LOCAL)
-  else:
-    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.WORLD)
-
-@deprecated("This function has been renamed computeJacobiansTimeVariation and will be removed in future releases of Pinocchio. Please change for new computeJointJacobiansTimeVariation.")
-def computeJacobiansTimeVariation(model,data,q,v):
-  return pin.computeJointJacobiansTimeVariation(model,data,q,v)
-
-@deprecated("This function has been renamed getJointJacobianTimeVariation and will be removed in future releases of Pinocchio. Please change for new getJointJacobianTimeVariation function.")
-def getJacobianTimeVariation(model,data,jointId,local):
-  if local:
-    return pin.getJointJacobianTimeVariation(model,data,jointId,pin.ReferenceFrame.LOCAL)
-  else:
-    return pin.getJointJacobianTimeVariation(model,data,jointId,pin.ReferenceFrame.WORLD)
 
 @deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new difference function.")
 def differentiate(model,q0,q1):
@@ -158,13 +106,6 @@ def log6FromSE3(transform):
 @deprecated("This function will be removed in future releases of Pinocchio. You can use log or log6.")
 def log6FromMatrix(matrix4):
   return pin.log6(matrix4)
-
-@deprecated("This function has been renamed getJointJacobian and will be removed in future releases of Pinocchio. Please change for new getJointJacobian function.")
-def getJacobian(model,data,jointId,local):
-  if local:
-    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.LOCAL)
-  else:
-    return pin.getJointJacobian(model,data,jointId,pin.ReferenceFrame.WORLD)
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 16 Sept 2019
