@@ -77,19 +77,6 @@ namespace pinocchio
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void humanoidRandom(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
-
-    /** \brief Create a random humanoid tree with 2d limbs.
-     * \ deprecated This function has been replaced by the non-random pinocchio::humanoid function.
-     */
-    PINOCCHIO_DEPRECATED
-    inline void humanoid2d(Model & model);
-
-    /** \brief Alias of humanoidRandom, for compatibility reasons.
-     * \deprecated use pinocchio::humanoid or pinocchio::humanoidRandom instead. 
-     */
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model, bool usingFF = true);
    
   } // namespace buildModels
 } // namespace pinocchio
