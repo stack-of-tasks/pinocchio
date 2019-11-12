@@ -133,20 +133,6 @@ forwardDynamics.__doc__ = (
 + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
 
-def computeCentroidalDynamics(model, data, q, v, a = None):
-  if a is None:
-    message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-               "Please change for the new signature of computeCentroidalMomentum(model,data,q,v).")
-    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-    return pin.computeCentroidalMomentum(model,data,q,v)
-  else:
-    message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-               "Please change for the new signature of computeCentroidalMomentumTimeVariation(model,data,q,v,a).")
-    _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-    return pin.computeCentroidalMomentum(model,data,q,v,a)
-
-computeCentroidalDynamics.__doc__ = ( "This function has been renamed computeCentroidalMomentum or computeCentroidalMomentumTimeVariation to either only compute the centroidal momentum quantity or also its time derivative respectively." )
-
 @deprecated("This function has been renamed computeJointJacobian and will be removed in future releases of Pinocchio. Please change for new computeJointJacobian.")
 def jointJacobian(model, data, q, jointId):
   return computeJointJacobian(model,data,q,jointId)
