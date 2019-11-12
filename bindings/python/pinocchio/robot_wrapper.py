@@ -127,8 +127,12 @@ class RobotWrapper(object):
         a.linear += np.cross(v.angular, v.linear, axis=0)
         return a;
 
+    @deprecated("This method has been renamed computeJointJacobian. Please use computeJointJacobian instead of jointJacobian.")
     def jointJacobian(self, q, index):
-        return pin.jointJacobian(self.model, self.data, q, index)
+        return pin.computeJointJacobian(self.model, self.data, q, index)
+        
+    def computeJointJacobian(self, q, index):
+        return pin.computeJointJacobian(self.model, self.data, q, index)
 
     def getJointJacobian(self, index, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.getFrameJacobian(self.model, self.data, index, rf_frame)
@@ -159,12 +163,20 @@ class RobotWrapper(object):
         """
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
+    @deprecated("This method has been renamed computeFrameJacobian. Please use computeFrameJacobian instead of frameJacobian.")
     def frameJacobian(self, q, frame_id):
         """
             Similar to getFrameJacobian but does not need pin.computeJointJacobians and
             pin.updateFramePlacements to update internal value of self.data related to frames.
         """
-        return pin.frameJacobian(self.model, self.data, q, frame_id)
+        return pin.computeFrameJacobian(self.model, self.data, q, frame_id)
+
+    def computeFrameJacobian(self, q, frame_id):
+        """
+            Similar to getFrameJacobian but does not need pin.computeJointJacobians and
+            pin.updateFramePlacements to update internal value of self.data related to frames.
+        """
+        return pin.computeFrameJacobian(self.model, self.data, q, frame_id)
 
     def rebuildData(self):
         """Re-build the data objects. Needed if the models were modified.
