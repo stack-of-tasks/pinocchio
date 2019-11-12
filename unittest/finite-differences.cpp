@@ -5,7 +5,6 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-#include "pinocchio/algorithm/finite-differences.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
