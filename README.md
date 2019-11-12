@@ -31,12 +31,13 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 
    - forward kinematics and its analytical derivatives,
    - forward/inverse dynamics and their analytical derivatives,
-   - centroidal dynamics and its analytical derivatives.
+   - centroidal dynamics and its analytical derivatives,
+   - and much more with the support of Automatic Differentiation with [CppAD](https://github.com/coin-or/CppAD) or [CASADI](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
 
    - header only,
-   - C++98/03/11/14/17/20 compliant.
+   - C++ 98/03/11/14/17/20 compliant.
 
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
