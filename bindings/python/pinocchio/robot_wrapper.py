@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS
+# Copyright (c) 2015-2019 CNRS INRIA
 #
 
 from . import libpinocchio_pywrap as pin
@@ -79,10 +79,6 @@ class RobotWrapper(object):
     def nle(self, q, v):
         return pin.nonLinearEffects(self.model, self.data, q, v)
 
-    @deprecated("This method is now renamed nle. Please use nle instead.")
-    def bias(self, q, v):
-        return pin.nonLinearEffects(self.model, self.data, q, v)
-
     def gravity(self, q):
         return pin.computeGeneralizedGravity(self.model, self.data, q)
 
@@ -94,10 +90,6 @@ class RobotWrapper(object):
                 pin.forwardKinematics(self.model, self.data, q, v)
         else:
             pin.forwardKinematics(self.model, self.data, q)
-
-    @deprecated("This method is now renamed placement. Please use placement instead.")
-    def position(self, q, index, update_kinematics=True):
-        return self.placement(q, index, update_kinematics)
 
     def placement(self, q, index, update_kinematics=True):
         if update_kinematics:
@@ -113,10 +105,6 @@ class RobotWrapper(object):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q, v, a)
         return self.data.a[index]
-
-    @deprecated("This method is now renamed framePlacement. Please use framePlacement instead.")
-    def framePosition(self, q, index, update_kinematics=True):
-        return self.framePlacement(q, index, update_kinematics)
 
     def framePlacement(self, q, index, update_kinematics=True):
         if update_kinematics:
@@ -139,27 +127,11 @@ class RobotWrapper(object):
         a.linear += np.cross(v.angular, v.linear, axis=0)
         return a;
 
-    @deprecated("This method is now deprecated. Please use jointJacobian instead. It will be removed in release 1.4.0 of Pinocchio.")
-    def jacobian(self, q, index, update_kinematics=True, local_frame=True):
-        if local_frame:
-            return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.LOCAL, update_kinematics)
-        else:
-            return pin.jointJacobian(self.model, self.data, q, index, pin.ReferenceFrame.WORLD, update_kinematics)
-
-    def jointJacobian(self, q, index, *args):
-        if len(args)==0:
-            return pin.jointJacobian(self.model, self.data, q, index)
-        else: # use deprecated signature (19 Feb 2019)
-            update_kinematics = True if len(args)==1 else args[1]
-            rf = args[0]
-            return pin.jointJacobian(self.model, self.data, q, index, rf_frame, update_kinematics)
+    def jointJacobian(self, q, index):
+        return pin.jointJacobian(self.model, self.data, q, index)
 
     def getJointJacobian(self, index, rf_frame=pin.ReferenceFrame.LOCAL):
         return pin.getFrameJacobian(self.model, self.data, index, rf_frame)
-
-    @deprecated("This method is now deprecated. Please use computeJointJacobians instead. It will be removed in release 1.4.0 of Pinocchio.")
-    def computeJacobians(self, q):
-        return pin.computeJointJacobians(self.model, self.data, q)
 
     def computeJointJacobians(self, q):
         return pin.computeJointJacobians(self.model, self.data, q)
@@ -177,29 +149,22 @@ class RobotWrapper(object):
         else:
             pin.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
 
-    @deprecated("This method is now renamed framesForwardKinematics. Please use framesForwardKinematics instead.")
-    def framesKinematics(self, q):
-        pin.framesForwardKinematics(self.model, self.data, q)
-
     def framesForwardKinematics(self, q):
         pin.framesForwardKinematics(self.model, self.data, q)
 
-    '''
-        It computes the Jacobian of frame given by its id (frame_id) either expressed in the
-        local coordinate frame or in the world coordinate frame.
-    '''
     def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
+        """
+            It computes the Jacobian of frame given by its id (frame_id) either expressed in the
+            local coordinate frame or in the world coordinate frame.
+        """
         return pin.getFrameJacobian(self.model, self.data, frame_id, rf_frame)
 
-    '''
-        Similar to getFrameJacobian but does not need pin.computeJointJacobians and
-        pin.updateFramePlacements to update internal value of self.data related to frames.
-    '''
-    def frameJacobian(self, q, frame_id, rf_frame=None):
-        if rf_frame: # use deprecated signature (19 Feb 2019)
-            return pin.frameJacobian(self.model, self.data, q, frame_id, rf_frame)
-        else: # use normal signature
-            return pin.frameJacobian(self.model, self.data, q, frame_id)
+    def frameJacobian(self, q, frame_id):
+        """
+            Similar to getFrameJacobian but does not need pin.computeJointJacobians and
+            pin.updateFramePlacements to update internal value of self.data related to frames.
+        """
+        return pin.frameJacobian(self.model, self.data, q, frame_id)
 
     def rebuildData(self):
         """Re-build the data objects. Needed if the models were modified.
