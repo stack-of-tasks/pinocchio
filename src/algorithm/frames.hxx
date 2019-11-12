@@ -51,14 +51,6 @@ namespace pinocchio
     return data.oMf[frame_id];
   }
 
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
-  {
-    updateFramePlacements(model,data);
-  }
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,

@@ -19,7 +19,7 @@ namespace pinocchio
    * @param[in]  model  The kinematic model.
    * @param      data   Data associated to model.
    *
-   * @warning    One of the algorithms forwardKinematics should have been called first
+   * @warning    One of the algorithms forwardKinematics should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void updateFramePlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -58,6 +58,26 @@ namespace pinocchio
   inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                       const Eigen::MatrixBase<ConfigVectorType> & q);
+
+  
+  /**
+   * @brief      Updates the position of each frame contained in the model.
+   *             This function is now deprecated and has been renamed updateFramePlacements.
+   *
+   * @tparam JointCollection Collection of Joint types.
+   *
+   * @param[in]  model  The kinematic model.
+   * @param      data   Data associated to model.
+   *
+   * @warning    One of the algorithms forwardKinematics should have been called first.
+  */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED
+  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    updateFramePlacements(model,data);
+  }
 
 
   /**
