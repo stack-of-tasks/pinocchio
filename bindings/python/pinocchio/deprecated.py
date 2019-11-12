@@ -22,64 +22,6 @@ StdVect_SE3 = deprecated("Please use StdVec_SE3")(pin.StdVec_SE3)
 StdVect_Force = deprecated("Please use StdVec_Force")(pin.StdVec_Force)
 StdVect_Motion = deprecated("Please use StdVec_Motion")(pin.StdVec_Motion)
 
-@deprecated("This function has been renamed to impulseDynamics for consistency with the C++ interface. Please change for impulseDynamics.")
-def impulseDynamics(model, data, q, v_before, J, r_coeff=0.0, update_kinematics=True):
-  return pin.impulseDynamics(model, data, q, v_before, J, r_coeff, update_kinematics)
-
-@deprecated("This function has been deprecated. Please use buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
-def buildSampleModelHumanoidSimple(usingFF=True):
-    return pin.buildSampleModelHumanoidRandom(usingFF)
-
-@deprecated("Static method Model.BuildHumanoidSimple has been deprecated. Please use function buildSampleModelHumanoid or buildSampleModelHumanoidRandom instead.")
-def _Model__BuildHumanoidSimple(usingFF=True):
-    return pin.buildSampleModelHumanoidRandom(usingFF)
-
-pin.Model.BuildHumanoidSimple = staticmethod(_Model__BuildHumanoidSimple)
-
-@deprecated("Static method Model.BuildEmptyModel has been deprecated. Please use the empty Model constructor instead.")
-def _Model__BuildEmptyModel():
-    return pin.Model()
-
-pin.Model.BuildEmptyModel = staticmethod(_Model__BuildEmptyModel)
-
-@deprecated("This function has been renamed updateFramePlacements when taking two arguments, and framesForwardKinematics when taking three. Please change your code to the appropriate method.")
-def framesKinematics(model,data,q=None):
-  if q is None:
-    pin.updateFramePlacements(model,data)
-  else:
-    pin.framesForwardKinematics(model,data,q)
-
-@deprecated("This function has been renamed difference and will be removed in future releases of Pinocchio. Please change for new difference function.")
-def differentiate(model,q0,q1):
-  return pin.difference(model,q0,q1)
-
-@deprecated("This function has been renamed loadReferenceConfigurations and will be removed in future releases of Pinocchio. Please change for new loadReferenceConfigurations function.")
-def getNeutralConfigurationFromSrdf(model, filename, verbose):
-  pin.loadReferenceConfigurations(model,filename,verbose)
-  return model.referenceConfigurations["half_sitting"]
-
-@deprecated("This function has been renamed loadReferenceConfigurations and will be removed in future releases of Pinocchio. Please change for new loadReferenceConfigurations function.")
-def getNeutralConfiguration(model, filename, verbose):
-  pin.loadReferenceConfigurations(model,filename,verbose)
-  return model.referenceConfigurations["half_sitting"]
-
-@deprecated("This function will be removed in future releases of Pinocchio. You can use exp or exp6.")
-def exp6FromMotion(motion):
-  return pin.exp6(motion)
-
-@deprecated("This function will be removed in future releases of Pinocchio. You can build a Motion object from a 6D vector and use the standard exp function to recover the same behavior.")
-def exp6FromVector(vector6):
-  v = pin.Motion(vector6)
-  return pin.exp6(v)
-
-@deprecated("This function will be removed in future releases of Pinocchio. You can use log or log6.")
-def log6FromSE3(transform):
-  return pin.log6(transform)
-
-@deprecated("This function will be removed in future releases of Pinocchio. You can use log or log6.")
-def log6FromMatrix(matrix4):
-  return pin.log6(matrix4)
-
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
 # Marked as deprecated on 16 Sept 2019
 def impulseDynamics(model, data, *args):
