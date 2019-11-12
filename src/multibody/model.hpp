@@ -465,16 +465,6 @@ namespace pinocchio
     /// \return True if the joint exists in the kinematic tree.
     ///
     bool existJointName(const std::string & name) const;
-    
-    ///
-    /// \brief Get the name of a joint given by its index.
-    ///
-    /// \param[in] index Index of the joint.
-    ///
-    /// \return Name of the joint.
-    ///
-    PINOCCHIO_DEPRECATED
-    const std::string & getJointName(const JointIndex index) const;
 
     ///
     /// \brief Returns the index of a frame given by its name.

@@ -225,15 +225,6 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const std::string &
-  ModelTpl<Scalar,Options,JointCollectionTpl>::
-  getJointName(const JointIndex index) const
-  {
-    assert( index < (ModelTpl::JointIndex)joints.size() );
-    return names[index];
-  }
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   getFrameId(const std::string & name, const FrameType & type) const
