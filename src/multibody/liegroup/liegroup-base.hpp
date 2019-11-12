@@ -213,13 +213,6 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                     const Eigen::MatrixBase<ConfigR_t> & q1,
                     const Eigen::MatrixBase<Tangent_t> & v) const;
 
-    template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-    void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianLOut_t>& J0,
-                     const Eigen::MatrixBase<JacobianROut_t>& J1) const
-    PINOCCHIO_DEPRECATED;
-
     /**
      * @brief      Computes the Jacobian of the difference operation with respect to q0 or q1.
      *
