@@ -173,7 +173,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
-    void normalize (const Eigen::MatrixBase<Config_t>& qout) const;
+    void normalize(const Eigen::MatrixBase<Config_t>& qout) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
@@ -184,7 +184,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out] qout  the random joint configuration.
      */
     template <class Config_t>
-    void random (const Eigen::MatrixBase<Config_t>& qout) const;
+    void random(const Eigen::MatrixBase<Config_t>& qout) const;
 
     /**
      * @brief      Generate a configuration vector uniformly sampled among
@@ -196,10 +196,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out] qout             the random joint configuration in the two bounds.
      */
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    void randomConfiguration
-    (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
-     const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
-     const Eigen::MatrixBase<ConfigOut_t> & qout) const;
+    void randomConfiguration(const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
+                             const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit,
+                             const Eigen::MatrixBase<ConfigOut_t> & qout) const;
 
     /**
      * @brief      Computes the tangent vector that must be integrated during one unit time to go from q0 to q1.
@@ -212,7 +211,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     void difference(const Eigen::MatrixBase<ConfigL_t> & q0,
                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                    const Eigen::MatrixBase<Tangent_t>& v) const;
+                    const Eigen::MatrixBase<Tangent_t> & v) const;
 
     template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
     void Jdifference(const Eigen::MatrixBase<ConfigL_t> & q0,
