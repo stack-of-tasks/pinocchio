@@ -175,15 +175,6 @@ namespace pinocchio
                 typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
     }
   }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
-  inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                               const Eigen::MatrixBase<Matrix6xLike> & J)
-  {
-    getFrameJacobian(model,data,frame_id,LOCAL,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
-  }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   void getFrameJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
