@@ -135,7 +135,7 @@ class RobotWrapper(object):
         return pin.computeJointJacobian(self.model, self.data, q, index)
 
     def getJointJacobian(self, index, rf_frame=pin.ReferenceFrame.LOCAL):
-        return pin.getFrameJacobian(self.model, self.data, index, rf_frame)
+        return pin.getJointJacobian(self.model, self.data, index, rf_frame)
 
     def computeJointJacobians(self, q):
         return pin.computeJointJacobians(self.model, self.data, q)
