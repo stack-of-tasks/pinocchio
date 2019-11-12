@@ -163,7 +163,7 @@ namespace pinocchio
                             const FrameIndex frameId,
                             const Eigen::MatrixBase<Matrix6Like> & J)
   {
-    computeFrameJacobian(model,data,q,frameId,J);
+    computeFrameJacobian(model,data,q,frameId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J));
   }
   
   ///
