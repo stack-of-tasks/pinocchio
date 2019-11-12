@@ -18,7 +18,7 @@ namespace
 
   template<> inline float sinCosTolerance<float>()
   {
-    return 1e-7;
+    return 1e-7f;
   }
 
   template<> inline double sinCosTolerance<double>()
