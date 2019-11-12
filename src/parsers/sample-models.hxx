@@ -192,7 +192,6 @@ namespace pinocchio
       details::addManipulator(model);
     }
     
-    
 #ifdef PINOCCHIO_WITH_HPP_FCL
     template<typename Scalar, int Options,
              template<typename,int> class JointCollectionTpl>
@@ -200,43 +199,6 @@ namespace pinocchio
                                GeometryModel & geom)
     { details::addManipulatorGeometries(model,geom); }
 #endif
-    
-    // Deprecated
-    inline void humanoid2d(Model & model)
-    {
-      using details::addJointAndBody;
-      static const Model::SE3 Id = Model::SE3::Identity();
-      
-      // root
-      addJointAndBody(model, JointModelRX(), "universe", "ff1", Id, false);
-      addJointAndBody(model, JointModelRY(), "ff1_joint", "root", Id, false);
-      
-      // lleg
-      addJointAndBody(model, JointModelRZ(), "root_joint", "lleg1", Id, false);
-      addJointAndBody(model, JointModelRY(), "lleg1_joint", "lleg2", Id, false);
-      
-      // rlgg
-      addJointAndBody(model, JointModelRZ(), "root_joint", "rleg1", Id, false);
-      addJointAndBody(model, JointModelRY(), "lleg1_joint", "rleg2", Id, false);
-      
-      // torso
-      addJointAndBody(model, JointModelRY(), "root_joint", "torso1", Id, false);
-      addJointAndBody(model, JointModelRZ(), "torso1_joint", "chest", Id, false);
-      
-      // rarm
-      addJointAndBody(model, JointModelRX(), "chest_joint", "rarm1", Id, false);
-      addJointAndBody(model, JointModelRZ(), "rarm1_joint", "rarm2", Id, false);
-      
-      // larm
-      addJointAndBody(model, JointModelRX(), "root_joint", "larm1", Id, false);
-      addJointAndBody(model, JointModelRZ(), "larm1_joint", "larm2", Id, false);
-    }
-
-    template<typename Scalar, int Options,
-             template<typename,int> class JointCollectionTpl>
-    inline void humanoidSimple(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               bool usingFF)
-    { humanoidRandom(model,usingFF); }
 
     template<typename Scalar, int Options,
              template<typename,int> class JointCollectionTpl>
