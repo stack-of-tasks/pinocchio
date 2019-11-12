@@ -135,11 +135,11 @@ forwardDynamics.__doc__ = (
 
 @deprecated("This function has been renamed computeJointJacobian and will be removed in future releases of Pinocchio. Please change for new computeJointJacobian.")
 def jointJacobian(model, data, q, jointId):
-  return computeJointJacobian(model,data,q,jointId)
+  return pin.computeJointJacobian(model,data,q,jointId)
   
 @deprecated("This function has been renamed computeFrameJacobian and will be removed in future releases of Pinocchio. Please change for new computeFrameJacobian.")
 def frameJacobian(model, data, q, jointId):
-  return computeFrameJacobian(model,data,q,jointId)
+  return pin.computeFrameJacobian(model,data,q,jointId)
   
 def computeCentroidalDynamics(model, data, q, v, a = None):
   if a is None:
