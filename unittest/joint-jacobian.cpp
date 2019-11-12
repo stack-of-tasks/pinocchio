@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian )
 
   XJrh.setZero();
   Data data_jointJacobian(model);
-  jointJacobian(model,data_jointJacobian,q,idx,XJrh);
+  computeJointJacobian(model,data_jointJacobian,q,idx,XJrh);
   BOOST_CHECK(XJrh.isApprox(rhJrh,1e-12));
   
   /* Test computeJointJacobians with pre-computation of the forward kinematics */
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     timer.tic();
     SMOOTH(NBT)
     {
-      jointJacobian(model,data,q,idx,Jrh);
+      computeJointJacobian(model,data,q,idx,Jrh);
     }
     if(verbose) std::cout << "Single jacobian =\t";
     timer.toc(std::cout,NBT);

@@ -94,7 +94,7 @@ namespace pinocchio
               "and put the results in data.");
       
       bp::def("computeFrameJacobian",
-              &compute_frame_jacobian_proxyframe_jacobian_proxy,
+              &compute_frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Operational frame ID (int)"),
