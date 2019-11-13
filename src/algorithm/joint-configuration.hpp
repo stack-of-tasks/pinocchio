@@ -99,7 +99,7 @@ namespace pinocchio
               const Scalar & u,
               const Eigen::MatrixBase<ReturnType> & qout)
   {
-    interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0, q1, u, qout);
+    interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0.derived(), q1.derived(), u, PINOCCHIO_EIGEN_CONST_CAST(ReturnType,qout));
   }
 
   /**
@@ -144,7 +144,7 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
              const Eigen::MatrixBase<ReturnType> & dvout)
   {
-    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),dvout.derived());
+    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(ReturnType,dvout));
   }
 
   /**
@@ -181,7 +181,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                   const Eigen::MatrixBase<ReturnType> & out)
   {
-    squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),out.derived());
+    squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(ReturnType,out));
   }
 
   /**
@@ -226,7 +226,7 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
                       const Eigen::MatrixBase<ReturnType> & qout)
   {
-    randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), qout.derived());
+    randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), PINOCCHIO_EIGEN_CONST_CAST(ReturnType,qout));
   }
 
   /**
@@ -310,7 +310,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), J.derived(),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
   }
 
   /**
@@ -409,7 +409,7 @@ namespace pinocchio
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,qout.derived());
+    normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType,qout));
   }
 
   /**
@@ -489,7 +489,7 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
-    integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q,jacobian);
+    integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,jacobian));
   }
 
   /// \}
@@ -572,7 +572,7 @@ namespace pinocchio
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u)
   {
-    return interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0, q1, u);
+    return interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived(), u);
   }
 
   /**
