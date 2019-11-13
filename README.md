@@ -1,13 +1,19 @@
-Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
+<p align="center">
+  <img src="./doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
+</p>
+
+<p align="center">
+  <a href="https://opensource.org/licenses/BSD-2-Clause"><img src="https://img.shields.io/badge/License-BSD%202--Clause-green.svg" alt="License"/></a>
+  <a href="https://travis-ci.org/stack-of-tasks/pinocchio"><img src="https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=master" alt="Build Status"/></a>
+  <a href="http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/"><img src="https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage" alt="Coverage Report"/></a>
+  <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/dn/conda-forge/pinocchio.svg" alt="Conda Downloads"/></a>
+  <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/vn/conda-forge/pinocchio.svg" alt="Conda Version"/></a>
+  <a href="https://conda.anaconda.org/conda-forge"><img src="https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg" alt="Anaconda-Server Badge"/></a>
+</p>
+
+<!--Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
 ===========
-
-[![License](https://img.shields.io/badge/License-BSD%202--Clause-green.svg)](https://opensource.org/licenses/BSD-2-Clause)
-[![Build Status](https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=master)](https://travis-ci.org/stack-of-tasks/pinocchio)
-[![Coverage report](https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/)
-[![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pinocchio.svg)](https://anaconda.org/conda-forge/pinocchio)
-[![Conda Version](https://img.shields.io/conda/vn/conda-forge/pinocchio.svg)](https://anaconda.org/conda-forge/pinocchio)
-[![Anaconda-Server Badge](https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg)](https://conda.anaconda.org/conda-forge)
-
+-->
 
 **Pinocchio** instantiates the state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms.
 Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithm or the Articulated-Body Algorithm.
@@ -32,16 +38,25 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
    - forward kinematics and its analytical derivatives,
    - forward/inverse dynamics and their analytical derivatives,
    - centroidal dynamics and its analytical derivatives,
-   - and much more with the support of Automatic Differentiation with [CppAD](https://github.com/coin-or/CppAD) or [CASADI](https://web.casadi.org/).
+   - and much more with the support of modern Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
 
    - header only,
    - C++ 98/03/11/14/17/20 compliant.
 
+**Pinocchio** is extensible.  
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
 **Pinocchio** is supported on Mac OS X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+
+## Performances
+
+**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, whose figures were obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
+
+<p align="center">
+  <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
+</p>
 
 ## Ongoing developments
 
@@ -53,7 +68,7 @@ If you want to follow the current developments, you can directly refer to the [d
 
 If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
 
-**Pinocchio** is also being deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
+**Pinocchio** is also deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
 
 ## Documentation
 
@@ -66,8 +81,8 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 
 ## Tutorials
 
-**Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
-The content of the tutorials are described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
+**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
+The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
 
 ## Citing Pinocchio
 
@@ -106,7 +121,7 @@ You have a question or an issue? You may either directly open a [new issue](http
 
 ## Credits
 
-The following people have been involved in the development of **Pinocchio**:
+The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
 - [Justin Carpentier](https://jcarpent.github.io) (INRIA): main developer and manager of the project
 - [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): project instructor
@@ -119,8 +134,8 @@ The following people have been involved in the development of **Pinocchio**:
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 - [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
 
-If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
+If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
 ## Acknowledgments
 
-The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
+The development of **Pinocchio** is actively supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
