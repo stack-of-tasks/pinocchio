@@ -68,7 +68,7 @@ If you want to follow the current developments, you can directly refer to the [d
 
 If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
 
-**Pinocchio** is also being deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
+**Pinocchio** is also deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
 
 ## Documentation
 
@@ -81,8 +81,8 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 
 ## Tutorials
 
-**Pinocchio** is coming with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
-The content of the tutorials are described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
+**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
+The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
 
 ## Citing Pinocchio
 
