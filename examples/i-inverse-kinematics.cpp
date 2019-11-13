@@ -38,7 +38,7 @@ int main(int /* argc */, char ** /* argv */)
       std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
       break;
     }
-    pinocchio::jointJacobian(model,data,q,JOINT_ID,J);
+    pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);
     const Eigen::VectorXd v     = - svd.compute(J.topRows<3>()).solve(err);
     q = pinocchio::integrate(model,q,v*DT);
     if(!(i%10)) std::cout << "error = " << err.transpose() << std::endl;

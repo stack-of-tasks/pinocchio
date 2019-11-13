@@ -31,17 +31,6 @@ namespace pinocchio
                               const std::string & filename,
                               const bool verbose = false);
     
-    /// \copydoc removeCollisionPairs
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    void removeCollisionPairsFromSrdf(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      GeometryModel & geomModel,
-                                      const std::string & filename,
-                                      const bool verbose = false)
-    {
-      removeCollisionPairs(model,geomModel,filename,verbose);
-    }
-    
     ///
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///
@@ -56,17 +45,6 @@ namespace pinocchio
                                      GeometryModel & geomModel,
                                      const std::string & xmlString,
                                      const bool verbose = false);
-    
-    /// \copydoc removeCollisionPairsFromXML
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    void removeCollisionPairsFromSrdfString(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                            GeometryModel & geomModel,
-                                            const std::string & xmlString,
-                                            const bool verbose = false)
-    {
-      removeCollisionPairsFromXML(model,geomModel,xmlString,verbose);
-    }
     
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
@@ -113,16 +91,6 @@ namespace pinocchio
     bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const std::string & filename,
                              const bool verbose = false);
-    
-    /// \copydoc pinocchio::srdf::loadRotorParameters
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    bool loadRotorParamsFromSrdf(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 const std::string & filename,
-                                 const bool verbose = false)
-    {
-      return loadRotorParameters(model,filename,verbose);
-    }
     
   }
 } // namespace pinocchio

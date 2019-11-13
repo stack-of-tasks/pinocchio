@@ -51,14 +51,6 @@ namespace pinocchio
     return data.oMf[frame_id];
   }
 
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
-  {
-    updateFramePlacements(model,data);
-  }
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -151,11 +143,11 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
-  inline void frameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const FrameIndex frameId,
-                            const Eigen::MatrixBase<Matrix6Like> & J)
+  inline void computeFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const FrameIndex frameId,
+                                   const Eigen::MatrixBase<Matrix6Like> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
@@ -174,15 +166,6 @@ namespace pinocchio
       Pass::run(model.joints[i],data.joints[i],
                 typename Pass::ArgsType(model,data,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J)));
     }
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
-  inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                               const Eigen::MatrixBase<Matrix6xLike> & J)
-  {
-    getFrameJacobian(model,data,frame_id,LOCAL,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>

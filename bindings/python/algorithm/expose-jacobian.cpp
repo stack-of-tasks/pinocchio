@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -11,13 +11,13 @@ namespace pinocchio
   {
     
     static Data::Matrix6x
-    jacobian_proxy(const Model & model,
-                   Data & data,
-                   const Eigen::VectorXd & q,
-                   Model::JointIndex jointId)
+    compute_jacobian_proxy(const Model & model,
+                           Data & data,
+                           const Eigen::VectorXd & q,
+                           Model::JointIndex jointId)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      jointJacobian(model,data,q,jointId,J);
+      computeJointJacobian(model,data,q,jointId,J);
       
       return J;
     }
@@ -65,7 +65,7 @@ namespace pinocchio
               "The result is accessible through data.J. This function assumes that forwardKinematics has been called before",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("jointJacobian",jacobian_proxy,
+      bp::def("computeJointJacobian",compute_jacobian_proxy,
               bp::args("Model, the model of the kinematic tree",
                        "Data, the data associated to the model where the results are stored",
                        "Joint configuration q (size Model::nq)",

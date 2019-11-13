@@ -251,21 +251,6 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
-  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const Eigen::MatrixBase<ConfigVectorType> & q,
-                       const bool computeSubtreeComs,
-                       const bool updateKinematics)
-  {
-    if(updateKinematics)
-      return jacobianCenterOfMass(model,data,q,computeSubtreeComs);
-    else
-      return jacobianCenterOfMass(model,data,computeSubtreeComs);
-  }
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
   jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,

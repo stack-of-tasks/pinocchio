@@ -1,4 +1,4 @@
-              //
+//
 // Copyright (c) 2016-2018 CNRS
 //
 
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
   Data::Matrix6x Jf(6,model.nv); Jf.fill(0);
   Data::Matrix6x Jf_ref(6,model.nv); Jf_ref.fill(0);
 
-  frameJacobian(model, data_ref, q, idx, Jf);
+  computeFrameJacobian(model, data_ref, q, idx, Jf);
 
   computeJointJacobians(model, data_ref, q);
   updateFramePlacement(model,  data_ref, idx);

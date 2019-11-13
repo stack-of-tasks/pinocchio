@@ -40,8 +40,6 @@ int main(int argc, const char ** argv)
   if(argc>1) filename = argv[1];
   if( filename == "HS") 
     pinocchio::buildModels::humanoidRandom(model,true);
-  else if( filename == "H2" )
-    pinocchio::buildModels::humanoid2d(model);
   else
     pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   std::cout << "nq = " << model.nq << std::endl;

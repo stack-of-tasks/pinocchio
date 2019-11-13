@@ -156,18 +156,6 @@ namespace pinocchio {
   }
 
   template <class Derived>
-  template <class ConfigL_t, class ConfigR_t, class JacobianLOut_t, class JacobianROut_t>
-  void LieGroupBase<Derived>::Jdifference(
-      const Eigen::MatrixBase<ConfigL_t> & q0,
-      const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Eigen::MatrixBase<JacobianLOut_t>& J0,
-      const Eigen::MatrixBase<JacobianROut_t>& J1) const
-  {
-    derived().template dDifference<ARG0> (q0, q1, J0);
-    derived().template dDifference<ARG1> (q0, q1, J1);
-  }
-
-  template <class Derived>
   template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dDifference(
       const Eigen::MatrixBase<ConfigL_t> & q0,

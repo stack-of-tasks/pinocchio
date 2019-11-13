@@ -162,33 +162,6 @@ namespace pinocchio
   ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa pinocchio::computeJointJacobians).
   ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
   ///
-  /// \deprecated This function signature is now deprecated. The argument updateKinematics was redundant with the input argument q.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] computeSubtreeComs If true, the algorithm also computes the center of mass of the subtrees, expressed in the world coordinate frame.
-  /// \param[in] updateKinematics If true, the algorithm updates first the geometry of the tree. Otherwise, it uses the current kinematics stored in data.
-  ///
-  /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
-  jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const Eigen::MatrixBase<ConfigVectorType> & q,
-                       const bool computeSubtreeComs,
-                       const bool updateKinematics);
-
-  ///
-  /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
-  ///        The results are accessible through data.Jcom and data.com[0] and are both expressed in the world frame. In addition, the algorithm also computes the Jacobian of all the joints (\sa pinocchio::computeJointJacobians).
-  ///        And data.com[i] gives the center of mass of the subtree supported by joint i (expressed in the world frame).
-  ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///

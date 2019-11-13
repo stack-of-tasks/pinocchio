@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -21,24 +21,22 @@ namespace pinocchio
       return J;
     }
     
-    static Data::Matrix6x frame_jacobian_proxy(const Model & model,
-                                               Data & data,
-                                               const Eigen::VectorXd & q,
-                                               const Model::FrameIndex frame_id
-                                               )
+    static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
+                                                       Data & data,
+                                                       const Eigen::VectorXd & q,
+                                                       const Model::FrameIndex frame_id)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
-      frameJacobian(model, data, q, frame_id, J);
+      computeFrameJacobian(model, data, q, frame_id, J);
   
       return J;
     }
 
 
-    static Data::Matrix6x
-    get_frame_jacobian_time_variation_proxy(const Model & model,
-                                            Data & data,
-                                            Model::FrameIndex jointId,
-                                            ReferenceFrame rf)
+    static Data::Matrix6x get_frame_jacobian_time_variation_proxy(const Model & model,
+                                                                  Data & data,
+                                                                  Model::FrameIndex jointId,
+                                                                  ReferenceFrame rf)
     {
       Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       getFrameJacobianTimeVariation(model,data,jointId,rf,dJ);
@@ -51,8 +49,7 @@ namespace pinocchio
                                                               const Eigen::VectorXd & q,
                                                               const Eigen::VectorXd & v,
                                                               const Model::FrameIndex frame_id,
-                                                              ReferenceFrame rf
-                                                              )
+                                                              const ReferenceFrame rf)
     {
       computeJointJacobiansTimeVariation(model,data,q,v);
       updateFramePlacements(model,data);
@@ -96,8 +93,8 @@ namespace pinocchio
               "And computes the placements of all the operational frames"
               "and put the results in data.");
       
-      bp::def("frameJacobian",
-              &frame_jacobian_proxy,
+      bp::def("computeFrameJacobian",
+              &compute_frame_jacobian_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Operational frame ID (int)"),
@@ -117,8 +114,7 @@ namespace pinocchio
               "where v is the time derivative of the configuration q.\n"
               "Be aware that computeJointJacobians and framesKinematics must have been called first.");
 
-      bp::def("frameJacobianTimeVariation",
-              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &,const Eigen::VectorXd &, const Model::FrameIndex, ReferenceFrame))&frame_jacobian_time_variation_proxy,
+      bp::def("frameJacobianTimeVariation",&frame_jacobian_time_variation_proxy,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",                       
@@ -139,5 +135,7 @@ namespace pinocchio
               "If rf is set to LOCAL, it returns the jacobian time variation associated to the frame index. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
 
     }
+  
   } // namespace python
+
 } // namespace pinocchio

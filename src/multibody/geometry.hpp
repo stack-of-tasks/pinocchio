@@ -54,29 +54,6 @@ namespace pinocchio
     }
 
     ~GeometryModel() {};
-
-    /**
-     * @brief      Add a geometry object to a GeometryModel
-     * @deprecated This method has been set to deprecated. Please use other signature of addGeometryObject.
-     *
-     * @param[in]  object     Object 
-     * @param[in]  model      Corresponding model, used to assert the attributes of object.
-     * @param[in]  autofillJointParent if true, set jointParent from frameParent.
-     *
-     * @return     The index of the new added GeometryObject in geometryObjects
-     * @note object is a nonconst copy to ease the insertion code.
-     */
-    template<typename S2, int O2, template<typename,int> class _JointCollectionTpl>
-    PINOCCHIO_DEPRECATED
-    GeomIndex addGeometryObject(GeometryObject object,
-                                const ModelTpl<S2,O2,_JointCollectionTpl> & model,
-                                const bool autofillJointParent)
-    {
-      if(autofillJointParent)
-        return addGeometryObject(object,model);
-      else
-        return addGeometryObject(object);
-    }
     
     /**
      * @brief      Add a geometry object to a GeometryModel and set its parent joint.
@@ -118,16 +95,6 @@ namespace pinocchio
      * @return     True if the GeometryObject exists in the geometryObjects.
      */
     bool existGeometryName(const std::string & name) const;
-
-
-    /**
-     * @brief      Get the name of a GeometryObject given by its index.
-     *
-     * @param[in]  index  Index of the GeometryObject
-     *
-     * @return     Name of the GeometryObject
-     */
-    PINOCCHIO_DEPRECATED const std::string & getGeometryName(const GeomIndex index) const;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
     ///
@@ -277,18 +244,6 @@ namespace pinocchio
     /// \warning Outer objects are not duplicated (i.e. if a is in outerObjects[b], then
     /// b is not in outerObjects[a]).
     void fillInnerOuterObjectMaps(const GeometryModel & geomModel);
-
-    /// Activate a collision pair, for which collisions and distances would now be computed.
-    ///
-    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
-    /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
-    /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
-    /// condition can be used to temporarily remove a pair without touching the model, in a versatile
-    /// manner. 
-    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
-    /// \param[in] flag value of the activation boolean (true by default).
-    PINOCCHIO_DEPRECATED
-    void activateCollisionPair(const PairIndex pairId, const bool flag);
     
     ///
     /// Activate a collision pair, for which collisions and distances would now be computed.

@@ -80,13 +80,6 @@ namespace pinocchio
   }
 
 
-  inline const std::string& GeometryModel::getGeometryName(const GeomIndex index) const
-  {
-    assert( index < (GeomIndex)geometryObjects.size() );
-    return geometryObjects[index].name;
-  }
-
-
   //
   // @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
   //
@@ -213,12 +206,6 @@ namespace pinocchio
                                                        pair);
     
     return (PairIndex) std::distance(collisionPairs.begin(), it);
-  }
-
-  inline void GeometryData::activateCollisionPair(const PairIndex pairId,const bool flag)
-  {
-    assert( pairId < activeCollisionPairs.size() );
-    activeCollisionPairs[pairId] = flag;
   }
   
   inline void GeometryData::activateCollisionPair(const PairIndex pairId)

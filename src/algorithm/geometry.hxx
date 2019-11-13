@@ -131,29 +131,6 @@ namespace pinocchio
     return geomData.distanceResults[pairId];
   }
   
-
-  template <bool COMPUTE_SHORTEST>
-  PINOCCHIO_DEPRECATED
-  inline std::size_t computeDistances(const GeometryModel & geomModel,
-                                      GeometryData & geomData)
-  {
-    std::size_t min_index = geomModel.collisionPairs.size();
-    double min_dist = std::numeric_limits<double>::infinity();
-    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
-    {
-      if(geomData.activeCollisionPairs[cpt])
-        {
-          computeDistance(geomModel,geomData,cpt);
-          if (COMPUTE_SHORTEST && geomData.distanceResults[cpt].min_distance < min_dist)
-            {
-              min_index = cpt;
-              min_dist = geomData.distanceResults[cpt].min_distance;
-            }
-        }
-    }
-    return min_index;
-  }
-  
   inline std::size_t computeDistances(const GeometryModel & geomModel,
                                       GeometryData & geomData)
   {
@@ -195,20 +172,6 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     updateGeometryPlacements(model, data, geomModel, geomData, q);
     return computeDistances(geomModel,geomData);
-  }
-
-  template <bool ComputeShortest>
-  PINOCCHIO_DEPRECATED
-  inline std::size_t computeDistances(const Model & model,
-                                      Data & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData,
-                                      const Eigen::VectorXd & q
-                                      )
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    updateGeometryPlacements (model, data, geomModel, geomData, q);
-    return computeDistances<ComputeShortest>(geomModel,geomData);
   }
 
   /* --- RADIUS -------------------------------------------------------------------- */
