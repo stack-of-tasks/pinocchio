@@ -52,7 +52,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 
 ## Performances
 
-**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigmes, **Pinocchio** is able to unroll most of the computations, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below.
+**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below.
 
 <p align="center">
   <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
