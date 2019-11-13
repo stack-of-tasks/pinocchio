@@ -52,7 +52,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 
 ## Performances
 
-**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, whose figures were obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
+**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations directly at compile time, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
 
 <p align="center">
   <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
