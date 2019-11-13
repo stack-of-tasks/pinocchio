@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
+  <img src="./doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
 </p>
 
 <p align="center">
@@ -38,16 +38,25 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
    - forward kinematics and its analytical derivatives,
    - forward/inverse dynamics and their analytical derivatives,
    - centroidal dynamics and its analytical derivatives,
-   - and much more with the support of Automatic Differentiation with [CppAD](https://github.com/coin-or/CppAD) or [CASADI](https://web.casadi.org/).
+   - and much more with the support of modern Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
 
    - header only,
    - C++ 98/03/11/14/17/20 compliant.
 
+**Pinocchio** is extensible.  
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
 **Pinocchio** is supported on Mac OS X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+
+## Performances
+
+**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigmes, **Pinocchio** is able to unroll most of the computations, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below.
+
+<p align="center">
+  <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
+</p>
 
 ## Ongoing developments
 
