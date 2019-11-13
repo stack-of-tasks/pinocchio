@@ -121,7 +121,7 @@ You have a question or an issue? You may either directly open a [new issue](http
 
 ## Credits
 
-The following people have been involved in the development of **Pinocchio**:
+The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
 - [Justin Carpentier](https://jcarpent.github.io) (INRIA): main developer and manager of the project
 - [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): project instructor
@@ -134,8 +134,8 @@ The following people have been involved in the development of **Pinocchio**:
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 - [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
 
-If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution here.
+If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
 ## Acknowledgments
 
-The development of **Pinocchio** is supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
+The development of **Pinocchio** is actively supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
