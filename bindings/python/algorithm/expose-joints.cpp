@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -24,8 +24,8 @@ namespace pinocchio
     }
 
     bp::tuple dIntegrate_proxy(const Model & model,
-                               const Eigen::VectorXd& q,
-                               const Eigen::VectorXd& dq)
+                               const Eigen::VectorXd & q,
+                               const Eigen::VectorXd & dq)
     {
       Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
       Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
@@ -36,6 +36,18 @@ namespace pinocchio
       return bp::make_tuple(J0,J1);
     }
 
+    Eigen::MatrixXd dIntegrate_arg_proxy(const Model & model,
+                                         const Eigen::VectorXd & q,
+                                         const Eigen::VectorXd & dq,
+                                         const ArgumentPosition arg)
+    {
+      Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      
+      dIntegrate(model,q,dq,J0,arg);
+      
+      return J;
+    }
+  
     void exposeJointsAlgo()
     {
       using namespace Eigen;
@@ -56,12 +68,21 @@ namespace pinocchio
         ;
 
       bp::def("dIntegrate",
+              &dIntegrate_arg_proxy,
+              bp::args("Model",
+                       "Joint configuration q (size model.nq)",
+                       "Joint velocity v (size model.nv)"),
+              "Computes the partial derivatives of integrate function with respect to the first "
+              "and the second argument, and returns the two Jacobians as a tuple. ");
+
+      bp::def("dIntegrate",
               &dIntegrate_proxy,
               bp::args("Model",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)"),
-              "Compute the partial derivatives of integrate function with respect to first "
-              "and second argument, and return the two jacobian as a tuple. ");
+                       "Joint configuration q (size model.nq)",
+                       "Joint velocity v (size model.nv)",
+                       "arg (either ARG0 or ARG1)"),
+              "Computes the partial derivatives of integrate function with respect to the first (arg == ARG0) "
+              "or the second argument (arg == ARG1). ");
 
       bp::def("interpolate",
               &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
