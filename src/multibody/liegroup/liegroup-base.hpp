@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_lie_group_operation_base_hpp__
@@ -214,19 +214,42 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                     const Eigen::MatrixBase<Tangent_t> & v) const;
 
     /**
+     *
      * @brief      Computes the Jacobian of the difference operation with respect to q0 or q1.
+     *
+     * @tparam     arg   ARG0 (resp. ARG1) to get the Jacobian with respect to q0 (resp. q1).
      *
      * @param[in]  q0    the initial configuration vector.
      * @param[in]  q1    the terminal configuration vector.
-     * @tparam     arg   ARG0 (resp. ARG1) to get the Jacobian with respect to q0 (resp. q1).
      *
      * @param[out] J     the Jacobian of the difference operation.
+     *
      */
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianOut_t> & J) const
+                     const Eigen::MatrixBase<JacobianOut_t> & J) const;
+//    {
+//      PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
+//      return dDifference(q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg);
+//    }
 
+    /**
+     *
+     * @brief      Computes the Jacobian of the difference operation with respect to q0 or q1.
+     *
+     * @param[in]  q0    the initial configuration vector.
+     * @param[in]  q1    the terminal configuration vector.
+     * @param[in]  arg   ARG0 (resp. ARG1) to get the Jacobian with respect to q0 (resp. q1).
+     *
+     * @param[out] J     the Jacobian of the difference operation.
+     *
+     */
+    template<class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianOut_t> & J,
+                     const ArgumentPosition arg) const;
     /**
      * @brief      Squared distance between two joint configurations.
      *

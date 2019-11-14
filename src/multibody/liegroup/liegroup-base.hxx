@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_lie_group_operation_base_hxx__
@@ -172,6 +172,28 @@ namespace pinocchio {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(JacobianOut_t, JacobianMatrix_t);
     PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
     derived().template dDifference_impl<arg> (q0.derived(), q1.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J));
+  }
+
+  template <class Derived>
+  template<class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                                          const Eigen::MatrixBase<JacobianOut_t> & J,
+                                          const ArgumentPosition arg) const
+  {
+    assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
+    
+    switch (arg)
+    {
+      case ARG0:
+        dDifference<ARG0>(q0.derived(), q1.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J));
+        return;
+      case ARG1:
+        dDifference<ARG1>(q0.derived(), q1.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J));
+        return;
+      default:
+        return;
+    }
   }
 
   template <class Derived>
