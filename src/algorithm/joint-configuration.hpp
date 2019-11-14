@@ -23,7 +23,7 @@ namespace pinocchio
    * @details This function corresponds to the exponential map of the joint configuration Lie Group.
    *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
    *
-   * @param[in]  model   Model of the kinematic tree over which the integration is performed.
+   * @param[in]  model   Model of the kinematic tree on which the integration is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
    *
@@ -44,7 +44,7 @@ namespace pinocchio
    * @details This function corresponds to the exponential map of the joint configuration Lie Group.
    *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
    *
-   * @param[in]  model  Model of the kinematic tree over which the integration is performed.
+   * @param[in]  model  Model of the kinematic tree on which the integration is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
    *
@@ -65,7 +65,7 @@ namespace pinocchio
    *
    * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model of the kinematic tree over which the interpolation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the interpolation is performed.
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
@@ -85,7 +85,7 @@ namespace pinocchio
    *
    * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model of the kinematic tree over which the interpolation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the interpolation is performed.
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
@@ -111,9 +111,9 @@ namespace pinocchio
    * @details This function corresponds to the log map of the joint configuration Lie Group.
    *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
    *
-   * @param[in]  model   Model of the system over which the difference operation is performed.
+   * @param[in]  model   Model of the system on which the difference operation is performed.
    * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[in]  q1      Desired configuration (size model.nq)
    *
    * @param[out] dvout   The corresponding velocity (size model.nv)
    *
@@ -132,9 +132,9 @@ namespace pinocchio
    * @details This function corresponds to the log map of the joint configuration Lie Group.
    *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
    *
-   * @param[in]  model   Model of the system over which the difference operation is performed.
+   * @param[in]  model   Model of the system on which the difference operation is performed.
    * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[in]  q1      Desired configuration (size model.nq)
    *
    * @param[out] dvout   The corresponding velocity (size model.nv).
    *
@@ -153,7 +153,7 @@ namespace pinocchio
    *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model of the system over which the squared distance operation is performed.
+   * @param[in]  model      Model of the system on which the squared distance operation is performed.
    * @param[in]  q0             Configuration 0 (size model.nq)
    * @param[in]  q1             Configuration 1 (size model.nq)
    * @param[out] out          The corresponding squared distances for each joint (size model.njoints-1 = number of joints).
@@ -170,7 +170,7 @@ namespace pinocchio
    *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model of the system over which the squared distance operation is performed.
+   * @param[in]  model      Model of the system on which the squared distance operation is performed.
    * @param[in]  q0             Configuration 0 (size model.nq)
    * @param[in]  q1             Configuration 1 (size model.nq)
    * @param[out] out          The corresponding squared distances for each joint (size model.njoints-1 = number of joints).
@@ -194,7 +194,7 @@ namespace pinocchio
    *
    * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample.
    *
-   * @param[in]  model                Model of the system over which the random configuration operation is performed.
+   * @param[in]  model                Model of the system on which the random configuration operation is performed.
    * @param[in]  lowerLimits  Joints lower limits (size model.nq).
    * @param[in]  upperLimits  Joints upper limits (size model.nq).
    * @param[out] qout                  The resulting configuration vector (size model.nq).
@@ -215,7 +215,7 @@ namespace pinocchio
   *
   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
   *
-  * @param[in]  model               Model of the system over which the random configuration operation is performed.
+  * @param[in]  model               Model of the system on which the random configuration operation is performed.
   * @param[in]  lowerLimits  Joints lower limits (size model.nq).
   * @param[in]  upperLimits  Joints upper limits (size model.nq).
   * @param[out] qout                  The resulting configuration vector (size model.nq).
@@ -235,7 +235,7 @@ namespace pinocchio
    *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model of the kinematic tree over which the neutral element is computed
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed
    *
    * @param[out]    qout        The neutral configuration element (size model.nq).
    *
@@ -249,7 +249,7 @@ namespace pinocchio
    *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model of the kinematic tree over which the neutral element is computed.
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
    *
    * @param[out]    qout        The neutral configuration element (size model.nq).
    *
@@ -273,7 +273,7 @@ namespace pinocchio
    *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q \delta q + o(\delta q)\f$.
    *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v \delta v + o(\delta v)\f$.
    *
-   * @param[in]  model   Model that must be integrated
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
@@ -298,11 +298,11 @@ namespace pinocchio
    *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q(q, v) \delta q + o(\delta q)\f$.
    *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v(q, v) \delta v + o(\delta v)\f$.
    *
-   * @param[in]  model   Model that must be integrated
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
-   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q or v) with respect to which the differentiation is performed.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
@@ -556,7 +556,7 @@ namespace pinocchio
    *
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
-   * @param[in]  model   Model of the kinematic tree over which the integration operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
    * @param[in]  q            Initial configuration (size model.nq)
    * @param[in]  v            Joint velocity (size model.nv)
    *
@@ -573,7 +573,7 @@ namespace pinocchio
    *
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time.
    *
-   * @param[in]  model   Model of the kinematic tree over which the integration operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
    * @param[in]  q            Initial configuration (size model.nq)
    * @param[in]  v            Joint velocity (size model.nv)
    *
@@ -593,7 +593,7 @@ namespace pinocchio
    *
    * @brief      Interpolate two configurations for a given model.
    *
-   * @param[in]  model   Model of the kinematic tree over which the interpolation operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the interpolation operation is performed.
    * @param[in]  q0          Initial configuration vector (size model.nq)
    * @param[in]  q1          Final configuration vector (size model.nq)
    * @param[in]  u            u in [0;1] position along the interpolation.
@@ -612,7 +612,7 @@ namespace pinocchio
    *
    * @brief      Interpolate two configurations for a given model.
    *
-   * @param[in]  model   Model of the kinematic tree over which the interpolation operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the interpolation operation is performed.
    * @param[in]  q0          Initial configuration vector (size model.nq)
    * @param[in]  q1          Final configuration vector (size model.nq)
    * @param[in]  u            u in [0;1] position along the interpolation.
@@ -634,7 +634,7 @@ namespace pinocchio
    *
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model of the kinematic tree over which the difference operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
    * @param[in]  q0          Initial configuration (size model.nq)
    * @param[in]  q1          Finial configuration (size model.nq)
    *
@@ -651,7 +651,7 @@ namespace pinocchio
    *
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1.
    *
-   * @param[in]  model   Model of the kinematic tree over which the difference operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
    * @param[in]  q0          Initial configuration (size model.nq)
    * @param[in]  q1          Final configuration (size model.nq)
    *
@@ -671,7 +671,7 @@ namespace pinocchio
    *
    * @brief      Squared distance between two configurations.
    *
-   * @param[in]  model      Model of the kinematic tree over which the squared distance operation is performed.
+   * @param[in]  model      Model of the kinematic tree on which the squared distance operation is performed.
    * @param[in]  q0             Configuration 0 (size model.nq)
    * @param[in]  q1             Configuration 1 (size model.nq)
    *
@@ -688,7 +688,7 @@ namespace pinocchio
    *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model of the kinematic tree over which the squared distance operation is performed.
+   * @param[in]  model      Model of the kinematic tree on which the squared distance operation is performed.
    * @param[in]  q0             Configuration 0 (size model.nq)
    * @param[in]  q1             Configuration 1 (size model.nq)
    *
@@ -712,7 +712,7 @@ namespace pinocchio
    *
    * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model                Model of the kinematic tree over which the uniform sampling operation is performed.
+   * @param[in]  model                Model of the kinematic tree on which the uniform sampling operation is performed.
    * @param[in]  lowerLimits   Joints lower limits (size model.nq).
    * @param[in]  upperLimits   Joints upper limits (size model.nq).
    *
@@ -733,7 +733,7 @@ namespace pinocchio
   *
   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
   *
-  * @param[in]  model               Model of the kinematic tree over which the uniform sampling operation is performed.
+  * @param[in]  model               Model of the kinematic tree on which the uniform sampling operation is performed.
   * @param[in]  lowerLimits  Joints lower limits (size model.nq).
   * @param[in]  upperLimits  Joints upper limits (size model.nq).
   *
@@ -758,7 +758,7 @@ namespace pinocchio
    * @warning    If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model   Model of the kinematic tree over which the uniform sampling operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the uniform sampling operation is performed.
    *
    * @return     The resulting configuration vector (size model.nq)
    *
@@ -776,7 +776,7 @@ namespace pinocchio
    * @warning    If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model   Model of the kinematic tree over which the uniform sampling operation is performed.
+   * @param[in]  model   Model of the kinematic tree on which the uniform sampling operation is performed.
    *
    * @return     The resulting configuration vector (size model.nq).
    *
@@ -792,7 +792,7 @@ namespace pinocchio
    *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model of the kinematic tree over which the neutral element is computed.
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
    *
    * @return        The neutral configuration element (size model.nq).
    *
@@ -804,7 +804,7 @@ namespace pinocchio
   /**
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model of the kinematic tree over which the neutral element is computed.
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
    *
    * @return        The neutral configuration element (size model.nq).
    */
