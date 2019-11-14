@@ -1,11 +1,13 @@
 //
-// Copyright (c) 2016-2018 CNRS INRIA
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_configuration_hpp__
 #define __pinocchio_joint_configuration_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/model.hpp"
+
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 namespace pinocchio
@@ -15,15 +17,18 @@ namespace pinocchio
   /// \{
 
   /**
+   *
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @details This function corresponds to the exponential map of the joint configuration Lie Group.
    *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
    *
-   * @param[in]  model   Model that must be integrated
+   * @param[in]  model   Model of the kinematic tree on which the integration is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
+   *
    * @param[out] qout    The integrated configuration (size model.nq)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
   void
@@ -33,15 +38,18 @@ namespace pinocchio
             const Eigen::MatrixBase<ReturnType> & qout);
 
   /**
+   *
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
    * @details This function corresponds to the exponential map of the joint configuration Lie Group.
    *          Its output can be interpreted as the "sum" from the Lie algebra to the joint configuration space \f$ q \oplus v \f$.
    *
-   * @param[in]  model   Model that must be integrated
+   * @param[in]  model  Model of the kinematic tree on which the integration is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
+   *
    * @param[out] qout    The integrated configuration (size model.nq)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ReturnType>
   void
@@ -54,13 +62,16 @@ namespace pinocchio
   }
 
   /**
+   *
    * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model to be interpolated
+   * @param[in]  model   Model of the kinematic tree on which the interpolation is performed.
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
+   *
    * @param[out] qout    The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -71,13 +82,16 @@ namespace pinocchio
               const Eigen::MatrixBase<ReturnType> & qout);
 
   /**
+   *
    * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model to be interpolated
+   * @param[in]  model   Model of the kinematic tree on which the interpolation is performed.
    * @param[in]  q0      Initial configuration vector (size model.nq)
    * @param[in]  q1      Final configuration vector (size model.nq)
    * @param[in]  u       u in [0;1] position along the interpolation.
+   *
    * @param[out] qout    The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -87,19 +101,22 @@ namespace pinocchio
               const Scalar & u,
               const Eigen::MatrixBase<ReturnType> & qout)
   {
-    interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0, q1, u, qout);
+    interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, q0.derived(), q1.derived(), u, PINOCCHIO_EIGEN_CONST_CAST(ReturnType,qout));
   }
 
   /**
+   *
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
    * @details This function corresponds to the log map of the joint configuration Lie Group.
    *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
    *
-   * @param[in]  model   Model of the system
+   * @param[in]  model   Model of the system on which the difference operation is performed.
    * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[in]  q1      Desired configuration (size model.nq)
+   *
    * @param[out] dvout   The corresponding velocity (size model.nv)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -109,15 +126,18 @@ namespace pinocchio
              const Eigen::MatrixBase<ReturnType> & dvout);
 
   /**
+   *
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
    * @details This function corresponds to the log map of the joint configuration Lie Group.
    *          Its output can be interpreted as a difference from the joint configuration space to the Lie algebra \f$ q_1 \ominus q_0 \f$.
    *
-   * @param[in]  model   Model of the system
+   * @param[in]  model   Model of the system on which the difference operation is performed.
    * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
-   * @param[out] dvout   The corresponding velocity (size model.nv)
+   * @param[in]  q1      Desired configuration (size model.nq)
+   *
+   * @param[out] dvout   The corresponding velocity (size model.nv).
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -126,16 +146,18 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
              const Eigen::MatrixBase<ReturnType> & dvout)
   {
-    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),dvout.derived());
+    difference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(ReturnType,dvout));
   }
 
   /**
+   *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model we want to compute the distance
-   * @param[in]  q0         Configuration 0 (size model.nq)
-   * @param[in]  q1         Configuration 1 (size model.nq)
-   * @param[out] out        The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   * @param[in]  model      Model of the system on which the squared distance operation is performed.
+   * @param[in]  q0             Configuration 0 (size model.nq)
+   * @param[in]  q1             Configuration 1 (size model.nq)
+   * @param[out] out          The corresponding squared distances for each joint (size model.njoints-1 = number of joints).
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -145,12 +167,14 @@ namespace pinocchio
                   const Eigen::MatrixBase<ReturnType> & out);
 
   /**
+   *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model we want to compute the distance
-   * @param[in]  q0         Configuration 0 (size model.nq)
-   * @param[in]  q1         Configuration 1 (size model.nq)
-   * @param[out] out        The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   * @param[in]  model      Model of the system on which the squared distance operation is performed.
+   * @param[in]  q0             Configuration 0 (size model.nq)
+   * @param[in]  q1             Configuration 1 (size model.nq)
+   * @param[out] out          The corresponding squared distances for each joint (size model.njoints-1 = number of joints).
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -159,20 +183,22 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                   const Eigen::MatrixBase<ReturnType> & out)
   {
-    squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),out.derived());
+    squaredDistance<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model,q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(ReturnType,out));
   }
 
   /**
+   *
    * @brief      Generate a configuration vector uniformly sampled among provided limits.
    *
    * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
    *
-   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample.
    *
-   * @param[in]  model        Model for which we want to generate a configuration vector.
-   * @param[in]  lowerLimits  Joints lower limits
-   * @param[in]  upperLimits  Joints upper limits
-   * @param[out] qout         The resulted configuration vector (size model.nq)
+   * @param[in]  model                Model of the system on which the random configuration operation is performed.
+   * @param[in]  lowerLimits  Joints lower limits (size model.nq).
+   * @param[in]  upperLimits  Joints upper limits (size model.nq).
+   * @param[out] qout                  The resulting configuration vector (size model.nq).
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
@@ -182,17 +208,19 @@ namespace pinocchio
                       const Eigen::MatrixBase<ReturnType> & qout);
 
  /**
-   * @brief      Generate a configuration vector uniformly sampled among provided limits.
-   *
-   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
-   *
-   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
-   *
-   * @param[in]  model        Model for which we want to generate a configuration vector.
-   * @param[in]  lowerLimits  Joints lower limits
-   * @param[in]  upperLimits  Joints upper limits
-   * @param[out] qout         The resulted configuration vector (size model.nq)
-   */
+  *
+  * @brief      Generate a configuration vector uniformly sampled among provided limits.
+  *
+  * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
+  *
+  * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+  *
+  * @param[in]  model               Model of the system on which the random configuration operation is performed.
+  * @param[in]  lowerLimits  Joints lower limits (size model.nq).
+  * @param[in]  upperLimits  Joints upper limits (size model.nq).
+  * @param[out] qout                  The resulting configuration vector (size model.nq).
+  *
+  */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -200,34 +228,43 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
                       const Eigen::MatrixBase<ReturnType> & qout)
   {
-    randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), qout.derived());
+    randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2,ReturnType>(model, lowerLimits.derived(), upperLimits.derived(), PINOCCHIO_EIGEN_CONST_CAST(ReturnType,qout));
   }
 
   /**
+   *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model
-   * @param[out]    qout        The neutral configuration element.
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed
+   *
+   * @param[out]    qout        The neutral configuration element (size model.nq).
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ReturnType>
   void
-  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout);
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+          const Eigen::MatrixBase<ReturnType> & qout);
 
   /**
+   *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model
-   * @param[out]    qout        The neutral configuration element.
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
+   *
+   * @param[out]    qout        The neutral configuration element (size model.nq).
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ReturnType>
   void
-  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
+  neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+          const Eigen::MatrixBase<ReturnType> & qout)
   {
-    neutral<LieGroupMap,Scalar,Options,JointCollectionTpl,ReturnType>(model,qout.derived());
+    neutral<LieGroupMap,Scalar,Options,JointCollectionTpl,ReturnType>(model,PINOCCHIO_EIGEN_CONST_CAST(ReturnType,qout));
   }
 
   /**
-   * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
    *
    * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
    *          it is expressed in the tangent space only, not the configuration space.
@@ -236,11 +273,11 @@ namespace pinocchio
    *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q \delta q + o(\delta q)\f$.
    *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v \delta v + o(\delta v)\f$.
    *
-   * @param[in]  model   Model that must be integrated
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
    * @param[in]  q       Initial configuration (size model.nq)
    * @param[in]  v       Joint velocity (size model.nv)
    * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
-   * @param[in]  arg     Argument (either q or v) with respect to which the
+   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation is performed.
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
@@ -251,7 +288,8 @@ namespace pinocchio
                   const ArgumentPosition arg);
 
   /**
-   * @brief      Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
    *
    * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
    *          it is expressed in the tangent space only, not the configuration space.
@@ -260,11 +298,11 @@ namespace pinocchio
    *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q(q, v) \delta q + o(\delta q)\f$.
    *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v(q, v) \delta v + o(\delta v)\f$.
    *
-   * @param[in]  model   Model that must be integrated
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[out] J       Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
-   * @param[in]  arg     Argument (either q or v) with respect to which the
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q or v) with respect to which the differentiation is performed.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
@@ -274,10 +312,64 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), J.derived(),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
   }
 
   /**
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ d(q0, q1) \f$ the difference function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q0: \f$ d(q_0 \oplus \delta q_0, q_1) \ominus d(q_0, q_1) = J_{q_0} \delta q_0 + o(\| \delta q_0 \|)\f$.
+   *           - Jacobian relative to q1: \f$ d(q_0, q_1 \oplus \delta q_1) \ominus d(q_0, q_1) = J_{q_1} \delta q_1 + o(\| \delta q_1 \|)\f$.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Difference operation, either with respect to q0 or q1 (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q0 or q1) with respect to which the differentiation is performed.
+   *
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const Eigen::MatrixBase<ConfigVector1> & q0,
+                   const Eigen::MatrixBase<ConfigVector2> & q1,
+                   const Eigen::MatrixBase<JacobianMatrix> & J,
+                   const ArgumentPosition arg);
+
+  /**
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ d(q0, q1) \f$ the difference function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q0: \f$ d(q_0 \oplus \delta q_0, q_1) \ominus d(q_0, q_1) = J_{q_0} \delta q_0 + o(\| \delta q_0 \|)\f$.
+   *           - Jacobian relative to q1: \f$ d(q_0, q_1 \oplus \delta q_1) \ominus d(q_0, q_1) = J_{q_1} \delta q_1 + o(\| \delta q_1 \|)\f$.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Difference operation, either with respect to q0 or q1 (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q0 or q1) with respect to which the differentiation is performed.
+   *
+  */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVector1> & q0,
+                  const Eigen::MatrixBase<ConfigVector2> & q1,
+                  const Eigen::MatrixBase<JacobianMatrix> & J,
+                  const ArgumentPosition arg)
+  {
+    dDifference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector1,ConfigVector2,JacobianMatrix>
+    (model, q0.derived(), q1.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,J),arg);
+  }
+  /**
+   *
    * @brief      Overall squared distance between two configuration vectors
    *
    * @param[in]  model      Model we want to compute the distance
@@ -285,6 +377,7 @@ namespace pinocchio
    * @param[in]  q1         Configuration 1 (size model.nq)
    *
    * @return     The squared distance between the two configurations
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   Scalar squaredDistanceSum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -292,13 +385,15 @@ namespace pinocchio
                             const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
-   * @brief      Overall squared distance between two configuration vectors
    *
-   * @param[in]  model      Model we want to compute the distance
-   * @param[in]  q0         Configuration 0 (size model.nq)
-   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @brief      Overall squared distance between two configuration vectors, namely \f$ || q_{1} \ominus q_{0} ||_2^{2} \f$.
    *
-   * @return     The squared distance between the two configurations
+   * @param[in]  model  Model of the kinematic tree
+   * @param[in]  q0         Configuration from (size model.nq)
+   * @param[in]  q1         Configuration to (size model.nq)
+   *
+   * @return     The squared distance between the two configurations q0 and q1.
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline Scalar
@@ -310,13 +405,15 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Distance between two configuration vectors
+   *
+   * @brief      Distance between two configuration vectors, namely \f$ || q_{1} \ominus q_{0} ||_2 \f$.
    *
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
    *
-   * @return     The distance between the two configurations
+   * @return     The distance between the two configurations q0 and q1.
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   Scalar distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -324,13 +421,15 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
+   *
    * @brief      Distance between two configuration vectors
    *
    * @param[in]  model      Model we want to compute the distance
    * @param[in]  q0         Configuration 0 (size model.nq)
    * @param[in]  q1         Configuration 1 (size model.nq)
    *
-   * @return     The distance between the two configurations
+   * @return     The distance between the two configurations q0 and q1.
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline Scalar
@@ -342,10 +441,11 @@ namespace pinocchio
   }
 
   /**
-   * @brief         Normalize a configuration vector
    *
-   * @param[in]     model      Model
-   * @param[in,out] q          Configuration to normalize
+   * @brief         Normalize a configuration vector.
+   *
+   * @param[in]     model      Model of the kinematic tree.
+   * @param[in,out] q               Configuration to normalize (size model.nq).
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -353,29 +453,32 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & qout);
 
   /**
-   * @brief         Normalize a configuration vector
    *
-   * @param[in]     model      Model
-   * @param[in,out] q          Configuration to normalize
+   * @brief         Normalize a configuration vector.
+   *
+   * @param[in]     model      Model of the kinematic tree.
+   * @param[in,out] q               Configuration to normalize (size model.nq).
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,qout.derived());
+    normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType,qout));
   }
 
   /**
-   * @brief         Return true if the given configurations are equivalents
-   * @warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
    *
-   * @param[in]     model     Model
-   * @param[in]     q1        The first configuraiton to compare
-   * @param[in]     q2        The second configuration to compare
-   * @param[in]     prec      precision of the comparison
+   * @brief         Return true if the given configurations are equivalents, within the given precision.
+   * @remarks       Two configurations can be equivalent but not equally coefficient wise (e.g two quaternions with opposite coefficients give rise to the same orientation, i.e. they are equivalent.).
    *
-   * @return     Whether the configurations are equivalent or not
+   * @param[in]     model     Model of the kinematic tree.
+   * @param[in]     q1        The first configuraiton to compare.
+   * @param[in]     q2        The second configuration to compare.
+   * @param[in]     prec      precision of the comparison.
+   *
+   * @return     Whether the configurations are equivalent or not, within the given precision.
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
@@ -385,15 +488,17 @@ namespace pinocchio
                       const Scalar & prec);
 
   /**
-   * @brief         Return true if the given configurations are equivalents
-   * @warning       Two configurations can be equivalent but not equally coefficient wise (e.g for quaternions)
    *
-   * @param[in]     model     Model
-   * @param[in]     q1        The first configuraiton to compare
-   * @param[in]     q2        The second configuration to compare
-   * @param[in]     prec      precision of the comparison
+   * @brief         Return true if the given configurations are equivalents, within the given precision.
+   * @remarks       Two configurations can be equivalent but not equally coefficient wise (e.g two quaternions with opposite coefficients give rise to the same orientation, i.e. they are equivalent.).
+   *
+   * @param[in]     model     Model of the kinematic tree.
+   * @param[in]     q1           The first configuraiton to compare
+   * @param[in]     q2           The second configuration to compare
+   * @param[in]     prec      precision of the comparison.
    *
    * @return     Whether the configurations are equivalent or not
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
@@ -406,9 +511,10 @@ namespace pinocchio
   }
 
   /**
+   *
    * @brief         Return the Jacobian of the integrate function for the components of the config vector.
    *
-   * @param[in]     model      Model of rigid body system.
+   * @param[in]     model          Model of the kinematic tree.
    * @param[out]    jacobian   The Jacobian of the integrate operation.
    *
    * @details       This function is often required for the numerical solvers that are working on the
@@ -422,9 +528,10 @@ namespace pinocchio
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian);
 
   /**
+   *
    * @brief         Return the Jacobian of the integrate function for the components of the config vector.
    *
-   * @param[in]     model      Model of rigid body system.
+   * @param[in]     model          Model of the kinematic tree.
    * @param[out]    jacobian   The Jacobian of the integrate operation.
    *
    * @details       This function is often required for the numerical solvers that are working on the
@@ -437,7 +544,7 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
-    integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q,jacobian);
+    integrateCoeffWiseJacobian<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector,JacobianMatrix>(model,q.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,jacobian));
   }
 
   /// \}
@@ -446,13 +553,15 @@ namespace pinocchio
   /// \{
 
   /**
+   *
    * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
-   * @param[in]  model   Model that must be integrated
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
    *
    * @return     The integrated configuration (size model.nq)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
@@ -461,13 +570,15 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v);
 
   /**
-   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time
    *
-   * @param[in]  model   Model that must be integrated
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
+   * @brief      Integrate a configuration vector for the specified model for a tangent vector during one unit time.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
    *
    * @return     The integrated configuration (size model.nq)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
@@ -479,14 +590,16 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model to be interpolated
-   * @param[in]  q0      Initial configuration vector (size model.nq)
-   * @param[in]  q1      Final configuration vector (size model.nq)
-   * @param[in]  u       u in [0;1] position along the interpolation.
+   * @brief      Interpolate two configurations for a given model.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the interpolation operation is performed.
+   * @param[in]  q0          Initial configuration vector (size model.nq)
+   * @param[in]  q1          Final configuration vector (size model.nq)
+   * @param[in]  u            u in [0;1] position along the interpolation.
    *
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -496,14 +609,16 @@ namespace pinocchio
               const Scalar & u);
 
   /**
-   * @brief      Interpolate two configurations for a given model
    *
-   * @param[in]  model   Model to be interpolated
-   * @param[in]  q0      Initial configuration vector (size model.nq)
-   * @param[in]  q1      Final configuration vector (size model.nq)
-   * @param[in]  u       u in [0;1] position along the interpolation.
+   * @brief      Interpolate two configurations for a given model.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the interpolation operation is performed.
+   * @param[in]  q0          Initial configuration vector (size model.nq)
+   * @param[in]  q1          Final configuration vector (size model.nq)
+   * @param[in]  u            u in [0;1] position along the interpolation.
    *
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -512,17 +627,19 @@ namespace pinocchio
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
               const Scalar & u)
   {
-    return interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0, q1, u);
+    return interpolate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorIn1,ConfigVectorIn2>(model, q0.derived(), q1.derived(), u);
   }
 
   /**
+   *
    * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model of the system
-   * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Finial configuration (size model.nq)
    *
    * @return     The corresponding velocity (size model.nv)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -531,13 +648,15 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
-   * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1
    *
-   * @param[in]  model   Model of the system
-   * @param[in]  q0      Initial configuration (size model.nq)
-   * @param[in]  q1      Wished configuration (size model.nq)
+   * @brief      Compute the tangent vector that must be integrated during one unit time to go from q0 to q1.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Final configuration (size model.nq)
    *
    * @return     The corresponding velocity (size model.nv)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -549,13 +668,15 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model we want to compute the distance
-   * @param[in]  q0         Configuration 0 (size model.nq)
-   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @brief      Squared distance between two configurations.
    *
-   * @return     The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   * @param[in]  model      Model of the kinematic tree on which the squared distance operation is performed.
+   * @param[in]  q0             Configuration 0 (size model.nq)
+   * @param[in]  q1             Configuration 1 (size model.nq)
+   *
+   * @return     The corresponding squared distances for each joint (size model.njoints-1, corresponding to the number of joints)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -564,13 +685,15 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1);
 
   /**
+   *
    * @brief      Squared distance between two configuration vectors
    *
-   * @param[in]  model      Model we want to compute the distance
-   * @param[in]  q0         Configuration 0 (size model.nq)
-   * @param[in]  q1         Configuration 1 (size model.nq)
+   * @param[in]  model      Model of the kinematic tree on which the squared distance operation is performed.
+   * @param[in]  q0             Configuration 0 (size model.nq)
+   * @param[in]  q1             Configuration 1 (size model.nq)
    *
-   * @return     The corresponding squared distances for each joint (size model.njoints-1 = number of joints)
+   * @return     The corresponding squared distances for each joint (size model.njoints-1, corresponding to the number of joints)
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
@@ -582,17 +705,19 @@ namespace pinocchio
   }
 
   /**
-   * @brief      Generate a configuration vector uniformly sampled among provided limits.
+   *
+   * @brief      Generate a configuration vector uniformly sampled among given limits.
    *
    * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
    *
    * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model        Model for which we want to generate a configuration vector.
-   * @param[in]  lowerLimits  Joints lower limits
-   * @param[in]  upperLimits  Joints upper limits
+   * @param[in]  model                Model of the kinematic tree on which the uniform sampling operation is performed.
+   * @param[in]  lowerLimits   Joints lower limits (size model.nq).
+   * @param[in]  upperLimits   Joints upper limits (size model.nq).
    *
-   * @return     The resulted configuration vector (size model.nq)
+   * @return     The resulting configuration vector (size model.nq).
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
@@ -601,18 +726,20 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits);
 
  /**
-   * @brief      Generate a configuration vector uniformly sampled among provided limits.
-   *
-   * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
-   *
-   * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
-   *
-   * @param[in]  model        Model for which we want to generate a configuration vector.
-   * @param[in]  lowerLimits  Joints lower limits
-   * @param[in]  upperLimits  Joints upper limits
-   *
-   * @return     The resulted configuration vector (size model.nq)
-   */
+  *
+  * @brief      Generate a configuration vector uniformly sampled among provided limits.
+  *
+  * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
+  *
+  * @warning     If limits are infinite, exceptions may be thrown in the joint implementation of uniformlySample
+  *
+  * @param[in]  model               Model of the kinematic tree on which the uniform sampling operation is performed.
+  * @param[in]  lowerLimits  Joints lower limits (size model.nq).
+  * @param[in]  upperLimits  Joints upper limits (size model.nq).
+  *
+  * @return     The resulting configuration vector (size model.nq)
+  
+  */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -623,6 +750,7 @@ namespace pinocchio
   }
 
   /**
+   *
    * @brief      Generate a configuration vector uniformly sampled among the joint limits of the specified Model.
    *
    * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
@@ -630,15 +758,17 @@ namespace pinocchio
    * @warning    If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model   Model for which we want to generate a configuration vector.
+   * @param[in]  model   Model of the kinematic tree on which the uniform sampling operation is performed.
    *
-   * @return     The resulted configuration vector (size model.nq)
+   * @return     The resulting configuration vector (size model.nq)
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
   /**
+   *
    * @brief      Generate a configuration vector uniformly sampled among the joint limits of the specified Model.
    *
    * @remarks    Limits are not taken into account for rotational transformations (typically SO(2),SO(3)), because they are by definition unbounded.
@@ -646,9 +776,10 @@ namespace pinocchio
    * @warning    If limits are infinite (no one specified when adding a body or no modification directly in my_model.{lowerPositionLimit,upperPositionLimit},
    *             exceptions may be thrown in the joint implementation of uniformlySample
    *
-   * @param[in]  model   Model for which we want to generate a configuration vector.
+   * @param[in]  model   Model of the kinematic tree on which the uniform sampling operation is performed.
    *
-   * @return     The resulted configuration vector (size model.nq)
+   * @return     The resulting configuration vector (size model.nq).
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
@@ -658,11 +789,13 @@ namespace pinocchio
   }
 
   /**
+   *
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
    *
-   * @return        The neutral configuration element.
+   * @return        The neutral configuration element (size model.nq).
+   *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
@@ -671,9 +804,9 @@ namespace pinocchio
   /**
    * @brief         Return the neutral configuration element related to the model configuration space.
    *
-   * @param[in]     model      Model
+   * @param[in]     model      Model of the kinematic tree on which the neutral element is computed.
    *
-   * @return        The neutral configuration element.
+   * @return        The neutral configuration element (size model.nq).
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>

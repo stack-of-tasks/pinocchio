@@ -1,8 +1,7 @@
 //
-// Copyright (c) 2016-2018 CNRS, INRIA
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/math/quaternion.hpp"
@@ -57,9 +56,7 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   // Test Case 0 : Integration of a config with zero velocity
   //
   qs[0] = Eigen::VectorXd::Ones(model.nq);
-  qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
-  qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
-  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
+  normalize(model,qs[0]);
  
   qdots[0] = Eigen::VectorXd::Zero(model.nv);
   results[0] = integrate(model,qs[0],qdots[0]);
@@ -91,9 +88,7 @@ BOOST_AUTO_TEST_CASE ( diff_integration_test )
   std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
   
   qs[0] = Eigen::VectorXd::Ones(model.nq);
-  qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
-  qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
-  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
+  normalize(model,qs[0]);
   
   vs[0] = Eigen::VectorXd::Zero(model.nv);
   vs[1] = Eigen::VectorXd::Ones(model.nv);
@@ -140,6 +135,88 @@ BOOST_AUTO_TEST_CASE ( diff_integration_test )
   
   BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
 }
+
+BOOST_AUTO_TEST_CASE ( diff_difference_test )
+{
+  Model model; buildModel(model);
+  
+  std::vector<Eigen::VectorXd> qs(2);
+  std::vector<Eigen::VectorXd> vs(2);
+  std::vector<Eigen::MatrixXd> results(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  qs[0] = Eigen::VectorXd::Random(model.nq);
+  normalize(model,qs[0]);
+  const Eigen::VectorXd & q0 = qs[0];
+  qs[1] = Eigen::VectorXd::Random(model.nq);
+  normalize(model,qs[1]);
+  const Eigen::VectorXd & q1 = qs[1];
+  
+  vs[0] = Eigen::VectorXd::Zero(model.nv);
+  vs[1] = Eigen::VectorXd::Ones(model.nv);
+  dDifference(model,q0,q1,results[0],ARG0);
+  
+  Eigen::VectorXd q_fd(model.nq), v_fd(model.nv); v_fd.setZero();
+  const double eps = 1e-8;
+  const Eigen::VectorXd v_ref = difference(model,q0,q1);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd = integrate(model,q0,v_fd);
+    results_fd[0].col(k) = (difference(model,q_fd,q1) - v_ref)/eps;
+    v_fd[k] = 0.;
+  }
+  BOOST_CHECK(results[0].isApprox(results_fd[0],sqrt(eps)));
+  
+  dDifference(model,q0,q0,results[0],ARG0);
+  BOOST_CHECK((-results[0]).isIdentity());
+  
+  dDifference(model,q0,q0,results[1],ARG1);
+  BOOST_CHECK(results[1].isIdentity());
+  
+  dDifference(model,q0,q1,results[1],ARG1);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd = integrate(model,q1,v_fd);
+    results_fd[1].col(k) = (difference(model,q0,q_fd) - v_ref)/eps;
+    v_fd[k] = 0.;
+  }
+  BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
+}
+
+BOOST_AUTO_TEST_CASE ( diff_difference_vs_diff_integrate )
+{
+  Model model; buildModel(model);
+  
+  std::vector<Eigen::VectorXd> qs(2);
+  std::vector<Eigen::VectorXd> vs(2);
+  std::vector<Eigen::MatrixXd> results(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  Eigen::VectorXd q0 = Eigen::VectorXd::Random(model.nq);
+  normalize(model,q0);
+  
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd q1 = integrate(model,q0,v);
+  
+  Eigen::VectorXd v_diff = difference(model,q0,q1);
+  BOOST_CHECK(v_diff.isApprox(v));
+  
+  Eigen::MatrixXd J_int_dq = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  Eigen::MatrixXd J_int_dv = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  dIntegrate(model,q0,v,J_int_dq,ARG0);
+  dIntegrate(model,q0,v,J_int_dv,ARG1);
+  
+  Eigen::MatrixXd J_diff_dq0 = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  Eigen::MatrixXd J_diff_dq1 = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  dDifference(model,q0,q1,J_diff_dq0,ARG0);
+  dDifference(model,q0,q1,J_diff_dq1,ARG1);
+  
+  BOOST_CHECK(J_int_dq.isApprox(Eigen::MatrixXd(-(J_int_dv * J_diff_dq0))));
+  BOOST_CHECK(Eigen::MatrixXd(J_int_dv * J_diff_dq1).isIdentity());
+}
+
 
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {

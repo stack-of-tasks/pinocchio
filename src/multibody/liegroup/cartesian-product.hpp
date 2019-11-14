@@ -48,15 +48,16 @@ namespace pinocchio
     CartesianProductOperation () : lg1_ (), lg2_ ()
     {
     }
-    /// Get dimension of Lie Group vector representation
-    ///
-    /// For instance, for SO(3), the dimension of the vector representation is
-    /// 4 (quaternion) while the dimension of the tangent space is 3.
+    // Get dimension of Lie Group vector representation
+    //
+    // For instance, for SO(3), the dimension of the vector representation is
+    // 4 (quaternion) while the dimension of the tangent space is 3.
     Index nq () const
     {
       return lg1_.nq () + lg2_.nq ();
     }
-    /// Get dimension of Lie Group tangent space
+    
+    // Get dimension of Lie Group tangent space
     Index nv () const
     {
       return lg1_.nv () + lg2_.nv ();
@@ -79,17 +80,17 @@ namespace pinocchio
 
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                const Eigen::MatrixBase<ConfigR_t> & q1,
-                                const Eigen::MatrixBase<Tangent_t> & d) const
+                         const Eigen::MatrixBase<ConfigR_t> & q1,
+                         const Eigen::MatrixBase<Tangent_t> & d) const
     {
       lg1_.difference(Q1(q0), Q1(q1), Vo1(d));
       lg2_.difference(Q2(q0), Q2(q1), Vo2(d));
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference (const Eigen::MatrixBase<ConfigL_t> & q0,
-                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                      const Eigen::MatrixBase<JacobianOut_t>& J) const
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       J12(J).setZero();
       J21(J).setZero();
@@ -100,8 +101,8 @@ namespace pinocchio
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
-                               const Eigen::MatrixBase<Velocity_t> & v,
-                               const Eigen::MatrixBase<ConfigOut_t> & qout) const
+                        const Eigen::MatrixBase<Velocity_t> & v,
+                        const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       lg1_.integrate(Q1(q), V1(v), Qo1(qout));
       lg2_.integrate(Q2(q), V2(v), Qo2(qout));

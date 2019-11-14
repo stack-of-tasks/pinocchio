@@ -127,9 +127,9 @@ namespace pinocchio
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
-                           const Eigen::MatrixBase<ConfigR_t> & q1,
-                           const Eigen::MatrixBase<JacobianOut_t>& J) const
+    void dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
@@ -271,6 +271,7 @@ namespace pinocchio
     {
       return NQ;
     }
+    
     /// Get dimension of Lie Group tangent space
     static Index nv()
     {
@@ -306,7 +307,7 @@ namespace pinocchio
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
-                           const Eigen::MatrixBase<JacobianOut_t>& J) const
+                           const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
@@ -369,7 +370,7 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp3(-v);
@@ -387,7 +388,7 @@ namespace pinocchio
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
                                  const Scalar & u,
-                                 const Eigen::MatrixBase<ConfigOut_t>& qout)
+                                 const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
@@ -406,7 +407,7 @@ namespace pinocchio
     }
     
     template <class Config_t>
-    static void normalize_impl(const Eigen::MatrixBase<Config_t>& qout)
+    static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout)
     {
       Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       qout_.normalize();
