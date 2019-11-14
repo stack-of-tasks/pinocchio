@@ -25,25 +25,25 @@ namespace pinocchio
 
     bp::tuple dIntegrate_proxy(const Model & model,
                                const Eigen::VectorXd & q,
-                               const Eigen::VectorXd & dq)
+                               const Eigen::VectorXd & v)
     {
       Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
       Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
 
-      dIntegrate(model,q,dq,J0,ARG0);
-      dIntegrate(model,q,dq,J1,ARG1);
+      dIntegrate(model,q,v,J0,ARG0);
+      dIntegrate(model,q,v,J1,ARG1);
 
       return bp::make_tuple(J0,J1);
     }
 
     Eigen::MatrixXd dIntegrate_arg_proxy(const Model & model,
                                          const Eigen::VectorXd & q,
-                                         const Eigen::VectorXd & dq,
+                                         const Eigen::VectorXd & v,
                                          const ArgumentPosition arg)
     {
       Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
       
-      dIntegrate(model,q,dq,J0,arg);
+      dIntegrate(model,q,v,J,arg);
       
       return J;
     }
@@ -68,20 +68,20 @@ namespace pinocchio
         ;
 
       bp::def("dIntegrate",
-              &dIntegrate_arg_proxy,
+              &dIntegrate_proxy,
               bp::args("Model",
                        "Joint configuration q (size model.nq)",
                        "Joint velocity v (size model.nv)"),
-              "Computes the partial derivatives of integrate function with respect to the first "
+              "Computes the partial derivatives of the integrate function with respect to the first "
               "and the second argument, and returns the two Jacobians as a tuple. ");
 
       bp::def("dIntegrate",
-              &dIntegrate_proxy,
+              &dIntegrate_arg_proxy,
               bp::args("Model",
                        "Joint configuration q (size model.nq)",
                        "Joint velocity v (size model.nv)",
                        "arg (either ARG0 or ARG1)"),
-              "Computes the partial derivatives of integrate function with respect to the first (arg == ARG0) "
+              "Computes the partial derivatives of the integrate function with respect to the first (arg == ARG0) "
               "or the second argument (arg == ARG1). ");
 
       bp::def("interpolate",
