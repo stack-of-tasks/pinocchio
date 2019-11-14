@@ -185,6 +185,39 @@ BOOST_AUTO_TEST_CASE ( diff_difference_test )
   BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
 }
 
+BOOST_AUTO_TEST_CASE ( diff_difference_vs_diff_integrate )
+{
+  Model model; buildModel(model);
+  
+  std::vector<Eigen::VectorXd> qs(2);
+  std::vector<Eigen::VectorXd> vs(2);
+  std::vector<Eigen::MatrixXd> results(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  Eigen::VectorXd q0 = Eigen::VectorXd::Random(model.nq);
+  normalize(model,q0);
+  
+  Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+  Eigen::VectorXd q1 = integrate(model,q0,v);
+  
+  Eigen::VectorXd v_diff = difference(model,q0,q1);
+  BOOST_CHECK(v_diff.isApprox(v));
+  
+  Eigen::MatrixXd J_int_dq = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  Eigen::MatrixXd J_int_dv = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  dIntegrate(model,q0,v,J_int_dq,ARG0);
+  dIntegrate(model,q0,v,J_int_dv,ARG1);
+  
+  Eigen::MatrixXd J_diff_dq0 = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  Eigen::MatrixXd J_diff_dq1 = Eigen::MatrixXd::Zero(model.nv,model.nv);
+  dDifference(model,q0,q1,J_diff_dq0,ARG0);
+  dDifference(model,q0,q1,J_diff_dq1,ARG1);
+  
+  BOOST_CHECK(J_int_dq.isApprox(-(J_int_dv * J_diff_dq0)));
+  BOOST_CHECK((J_int_dv * J_diff_dq1).isIdentity());
+}
+
+
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {
  Model model; buildModel(model);
