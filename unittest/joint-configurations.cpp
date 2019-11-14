@@ -213,8 +213,8 @@ BOOST_AUTO_TEST_CASE ( diff_difference_vs_diff_integrate )
   dDifference(model,q0,q1,J_diff_dq0,ARG0);
   dDifference(model,q0,q1,J_diff_dq1,ARG1);
   
-  BOOST_CHECK(J_int_dq.isApprox(-(J_int_dv * J_diff_dq0)));
-  BOOST_CHECK((J_int_dv * J_diff_dq1).isIdentity());
+  BOOST_CHECK(J_int_dq.isApprox(Eigen::MatrixXd(-(J_int_dv * J_diff_dq0))));
+  BOOST_CHECK(Eigen::MatrixXd(J_int_dv * J_diff_dq1).isIdentity());
 }
 
 
