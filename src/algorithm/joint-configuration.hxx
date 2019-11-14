@@ -6,12 +6,7 @@
 #define __pinocchio_joint_configuration_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
-
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
-
-#include <cmath>
 
 /* --- Details -------------------------------------------------------------------- */
 namespace pinocchio

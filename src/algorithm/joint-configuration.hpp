@@ -6,6 +6,8 @@
 #define __pinocchio_joint_configuration_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/model.hpp"
+
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 namespace pinocchio
