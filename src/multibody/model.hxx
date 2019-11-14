@@ -113,7 +113,7 @@ namespace pinocchio
       rotorInertia.conservativeResize(nv);
       jmodel.jointVelocitySelector(rotorInertia).setZero();
       rotorGearRatio.conservativeResize(nv);
-      jmodel.jointVelocitySelector(rotorGearRatio).setZero();
+      jmodel.jointVelocitySelector(rotorGearRatio).setOnes();
     }
     
     // Init and add joint index to its parent subtrees.
