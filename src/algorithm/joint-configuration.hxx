@@ -170,6 +170,29 @@ namespace pinocchio
     }
   }
 
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const Eigen::MatrixBase<ConfigVector1> & q0,
+                   const Eigen::MatrixBase<ConfigVector2> & q1,
+                   const Eigen::MatrixBase<JacobianMatrix> & J,
+                   const ArgumentPosition arg)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The configuration vector q0 is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The configuration vector q1 is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv, "The output argument is not of the right size");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef dDifferenceStep<LieGroup_t,ConfigVector1,ConfigVector2,JacobianMatrix> Algo;
+    typename Algo::ArgsType args(q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,J),arg);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   Scalar
   squaredDistanceSum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,

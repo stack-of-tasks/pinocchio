@@ -317,6 +317,59 @@ namespace pinocchio
 
   /**
    *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ d(q0, q1) \f$ the difference function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q0: \f$ d(q_0 \oplus \delta q_0, q_1) \ominus d(q_0, q_1) = J_{q_0} \delta q_0 + o(\| \delta q_0 \|)\f$.
+   *           - Jacobian relative to q1: \f$ d(q_0, q_1 \oplus \delta q_1) \ominus d(q_0, q_1) = J_{q_1} \delta q_1 + o(\| \delta q_1 \|)\f$.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Difference operation, either with respect to q0 or q1 (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q0 or q1) with respect to which the differentiation is performed.
+   *
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const Eigen::MatrixBase<ConfigVector1> & q0,
+                   const Eigen::MatrixBase<ConfigVector2> & q1,
+                   const Eigen::MatrixBase<JacobianMatrix> & J,
+                   const ArgumentPosition arg);
+
+  /**
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ d(q0, q1) \f$ the difference function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q0: \f$ d(q_0 \oplus \delta q_0, q_1) \ominus d(q_0, q_1) = J_{q_0} \delta q_0 + o(\| \delta q_0 \|)\f$.
+   *           - Jacobian relative to q1: \f$ d(q_0, q_1 \oplus \delta q_1) \ominus d(q_0, q_1) = J_{q_1} \delta q_1 + o(\| \delta q_1 \|)\f$.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the difference operation is performed.
+   * @param[in]  q0          Initial configuration (size model.nq)
+   * @param[in]  q1          Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Difference operation, either with respect to q0 or q1 (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q0 or q1) with respect to which the differentiation is performed.
+   *
+  */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVector1> & q0,
+                  const Eigen::MatrixBase<ConfigVector2> & q1,
+                  const Eigen::MatrixBase<JacobianMatrix> & J,
+                  const ArgumentPosition arg)
+  {
+    dDifference<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVector1,ConfigVector2,JacobianMatrix>
+    (model, q0.derived(), q1.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,J),arg);
+  }
+  /**
+   *
    * @brief      Overall squared distance between two configuration vectors
    *
    * @param[in]  model      Model we want to compute the distance
