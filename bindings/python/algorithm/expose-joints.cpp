@@ -47,6 +47,31 @@ namespace pinocchio
       
       return J;
     }
+
+    bp::tuple dDifference_proxy(const Model & model,
+                                const Eigen::VectorXd & q1,
+                                const Eigen::VectorXd & q2)
+    {
+      Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
+
+      dDifference(model,q1,q2,J0,ARG0);
+      dDifference(model,q1,q2,J1,ARG1);
+
+      return bp::make_tuple(J0,J1);
+    }
+
+    Eigen::MatrixXd dDifference_arg_proxy(const Model & model,
+                                          const Eigen::VectorXd & q1,
+                                          const Eigen::VectorXd & q2,
+                                          const ArgumentPosition arg)
+    {
+      Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      
+      dDifference(model,q1,q2,J,arg);
+      
+      return J;
+    }
   
     void exposeJointsAlgo()
     {
@@ -113,6 +138,23 @@ namespace pinocchio
                        "Configuration q1 (size model.nq)",
                        "Configuration q2 (size model.nq)"),
               "Distance between two configurations.");
+
+      bp::def("dDifference",
+              &dDifference_proxy,
+              bp::args("Model",
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)"),
+              "Computes the partial derivatives of the difference function with respect to the first "
+              "and the second argument, and returns the two Jacobians as a tuple. ");
+      
+      bp::def("dDifference",
+              &dDifference_arg_proxy,
+              bp::args("Model",
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)",
+                       "arg (either ARG0 or ARG1)"),
+              "Computes the partial derivatives of the difference function with respect to the first (arg == ARG0) "
+              "or the second argument (arg == ARG1). ");
       
       bp::def("randomConfiguration",
               &randomConfiguration_proxy,
