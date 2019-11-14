@@ -1,8 +1,7 @@
 //
-// Copyright (c) 2016-2018 CNRS, INRIA
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/math/quaternion.hpp"
@@ -57,9 +56,7 @@ BOOST_AUTO_TEST_CASE ( integration_test )
   // Test Case 0 : Integration of a config with zero velocity
   //
   qs[0] = Eigen::VectorXd::Ones(model.nq);
-  qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
-  qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
-  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
+  normalize(model,qs[0]);
  
   qdots[0] = Eigen::VectorXd::Zero(model.nv);
   results[0] = integrate(model,qs[0],qdots[0]);
@@ -91,9 +88,7 @@ BOOST_AUTO_TEST_CASE ( diff_integration_test )
   std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
   
   qs[0] = Eigen::VectorXd::Ones(model.nq);
-  qs[0].segment<4>(3) /= qs[0].segment<4>(3).norm(); // quaternion of freeflyer
-  qs[0].segment<4>(7) /= qs[0].segment<4>(7).norm(); // quaternion of spherical joint
-  qs[0].segment<2>(11+2) /= qs[0].segment<2>(11+2).norm(); // planar joint
+  normalize(model,qs[0]);
   
   vs[0] = Eigen::VectorXd::Zero(model.nv);
   vs[1] = Eigen::VectorXd::Ones(model.nv);
