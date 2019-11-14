@@ -62,7 +62,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
     void integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
                    const Eigen::MatrixBase<Tangent_t>  & v,
-                   const Eigen::MatrixBase<ConfigOut_t>& qout) const;
+                   const Eigen::MatrixBase<ConfigOut_t> & qout) const;
     
     /**
      * @brief      Computes the Jacobian of the integrate operator around zero.
@@ -95,10 +95,10 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
-                    const Eigen::MatrixBase<JacobianOut_t>& J) const
+                    const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
-      return dIntegrate(q,v,J,arg);
+      return dIntegrate(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg);
     }
     
     /**
@@ -133,7 +133,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
-                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
+                       const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
@@ -149,7 +149,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
-                       const Eigen::MatrixBase<JacobianOut_t>& J) const;
+                       const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
     /**
      * @brief      Interpolation between two joint's configurations
@@ -164,7 +164,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void interpolate(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Scalar& u,
-                     const Eigen::MatrixBase<ConfigOut_t>& qout) const;
+                     const Eigen::MatrixBase<ConfigOut_t> & qout) const;
     
     /**
      * @brief      Normalize the joint configuration given as input.
@@ -173,7 +173,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
-    void normalize(const Eigen::MatrixBase<Config_t>& qout) const;
+    void normalize(const Eigen::MatrixBase<Config_t> & qout) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
@@ -184,7 +184,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out] qout  the random joint configuration.
      */
     template <class Config_t>
-    void random(const Eigen::MatrixBase<Config_t>& qout) const;
+    void random(const Eigen::MatrixBase<Config_t> & qout) const;
 
     /**
      * @brief      Generate a configuration vector uniformly sampled among
@@ -225,7 +225,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianOut_t>& J) const;
+                     const Eigen::MatrixBase<JacobianOut_t> & J) const
 
     /**
      * @brief      Squared distance between two joint configurations.
@@ -295,7 +295,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                           const Eigen::MatrixBase<ConfigR_t> & q1,
                           const Scalar& u,
-                          const Eigen::MatrixBase<ConfigOut_t>& qout) const;
+                          const Eigen::MatrixBase<ConfigOut_t> & qout) const;
     
     template <class Config_t>
     void normalize_impl(const Eigen::MatrixBase<Config_t> & qout) const;

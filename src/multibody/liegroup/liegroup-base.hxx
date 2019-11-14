@@ -16,7 +16,7 @@ namespace pinocchio {
   void LieGroupBase<Derived>
   ::integrate(const Eigen::MatrixBase<ConfigIn_t> & q,
               const Eigen::MatrixBase<Tangent_t>  & v,
-              const Eigen::MatrixBase<ConfigOut_t>& qout) const
+              const Eigen::MatrixBase<ConfigOut_t> & qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigIn_t , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t  , TangentVector_t);
@@ -40,7 +40,7 @@ namespace pinocchio {
   template<class Config_t, class Tangent_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                                          const Eigen::MatrixBase<Tangent_t>  & v,
-                                         const Eigen::MatrixBase<JacobianOut_t>& J,
+                                         const Eigen::MatrixBase<JacobianOut_t> & J,
                                          const ArgumentPosition arg) const
   {
     assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
@@ -59,7 +59,7 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrate_dq(
       const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t>& J) const
+      const Eigen::MatrixBase<JacobianOut_t> & J) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
@@ -72,7 +72,7 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrate_dv(
       const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t>& J) const
+      const Eigen::MatrixBase<JacobianOut_t> & J) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
@@ -94,8 +94,8 @@ namespace pinocchio {
   void LieGroupBase<Derived>::interpolate(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar& u,
-      const Eigen::MatrixBase<ConfigOut_t>& qout) const
+      const Scalar & u,
+      const Eigen::MatrixBase<ConfigOut_t> & qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
@@ -106,7 +106,7 @@ namespace pinocchio {
   template <class Derived>
   template <class Config_t>
   void LieGroupBase<Derived>::normalize
-  (const Eigen::MatrixBase<Config_t>& qout) const
+  (const Eigen::MatrixBase<Config_t> & qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
     return derived().normalize_impl (qout);
@@ -123,7 +123,7 @@ namespace pinocchio {
   template <class Derived>
   template <class Config_t>
   void LieGroupBase<Derived>::random
-  (const Eigen::MatrixBase<Config_t>& qout) const
+  (const Eigen::MatrixBase<Config_t> & qout) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
     return derived().random_impl (qout);
@@ -147,7 +147,7 @@ namespace pinocchio {
   void LieGroupBase<Derived>::difference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Eigen::MatrixBase<Tangent_t>& d) const
+      const Eigen::MatrixBase<Tangent_t> & d) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
@@ -160,7 +160,7 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dDifference(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Eigen::MatrixBase<JacobianOut_t>& J) const
+      const Eigen::MatrixBase<JacobianOut_t> & J) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
@@ -222,7 +222,7 @@ namespace pinocchio {
   typename LieGroupBase<Derived>::ConfigVector_t LieGroupBase<Derived>::interpolate(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar& u) const
+      const Scalar & u) const
   {
     ConfigVector_t qout;
     interpolate(q0, q1, u, qout);
@@ -267,8 +267,8 @@ namespace pinocchio {
   void LieGroupBase<Derived>::interpolate_impl(
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1,
-      const Scalar& u,
-      const Eigen::MatrixBase<ConfigOut_t>& qout) const
+      const Scalar & u,
+      const Eigen::MatrixBase<ConfigOut_t> & qout) const
   {
     if     (u == 0) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q0;
     else if(u == 1) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q1;
