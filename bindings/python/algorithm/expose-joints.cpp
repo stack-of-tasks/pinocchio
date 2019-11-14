@@ -55,8 +55,8 @@ namespace pinocchio
       bp::def("integrate",
               &integrate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)"),
+                       "Configuration q (size model.nq)",
+                       "Velocity v (size model.nv)"),
               "Integrate the model for a tangent vector during one unit time .");
       
       bp::enum_<ArgumentPosition>("ArgumentPosition")
@@ -87,31 +87,31 @@ namespace pinocchio
       bp::def("interpolate",
               &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)",
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)",
                        "Double u"),
               "Interpolate the model between two configurations.");
       
       bp::def("difference",
               &difference<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)"),
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)"),
               "Difference between two configurations, ie. the tangent vector that must be integrated during one unit time"
               "to go from q1 to q2");
       
       bp::def("squaredDistance",
               &squaredDistance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)"),
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)"),
               "Squared distance vector between two configurations.");
       
       bp::def("distance",
               &distance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)"),
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)"),
               "Distance between two configurations.");
       
       bp::def("randomConfiguration",
@@ -122,8 +122,8 @@ namespace pinocchio
       bp::def("randomConfiguration",
               &randomConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Joint lower limits (size Model::nq)",
-                       "Joint upper limits (size Model::nq)"),
+                       "Joint lower limits (size model.nq)",
+                       "Joint upper limits (size model.nq)"),
               "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.");
       
       bp::def("neutral",
@@ -133,14 +133,14 @@ namespace pinocchio
       
       bp::def("normalize",normalize_proxy,
               bp::args("Model",
-                       "Configuration q (size Model::nq)"),
+                       "Configuration q (size model.nq)"),
               "return the configuration normalized ");
       
       bp::def("isSameConfiguration",
               &isSameConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model",
-                       "Configuration q1 (size Model::nq)",
-                       "Configuration q2 (size Model::nq)",
+                       "Configuration q1 (size model.nq)",
+                       "Configuration q2 (size model.nq)",
                        "Precision"),
               "Return true if two configurations are equivalent");
     }
