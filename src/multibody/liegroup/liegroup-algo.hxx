@@ -25,7 +25,7 @@ namespace pinocchio
       }
     };
     
-#define PINOCCHIO_DETAILS_WRITE_ARGS_0(JM)                               const JointModelBase<JM> & jmodel
+#define PINOCCHIO_DETAILS_WRITE_ARGS_0(JM) const JointModelBase<JM> & jmodel
 #define PINOCCHIO_DETAILS_WRITE_ARGS_1(JM) PINOCCHIO_DETAILS_WRITE_ARGS_0(JM), typename boost::fusion::result_of::at_c<ArgsType, 0>::type a0
 #define PINOCCHIO_DETAILS_WRITE_ARGS_2(JM) PINOCCHIO_DETAILS_WRITE_ARGS_1(JM), typename boost::fusion::result_of::at_c<ArgsType, 1>::type a1
 #define PINOCCHIO_DETAILS_WRITE_ARGS_3(JM) PINOCCHIO_DETAILS_WRITE_ARGS_2(JM), typename boost::fusion::result_of::at_c<ArgsType, 2>::type a2
@@ -170,6 +170,43 @@ namespace pinocchio
   };
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
+  
+  template<typename Visitor, typename JointModel> struct dDifferenceStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+  struct dDifferenceStep
+  : public fusion::JointUnaryVisitorBase< dDifferenceStep<LieGroup_t,ConfigVector1,ConfigVector2,JacobianMatrix> >
+  {
+    typedef boost::fusion::vector<const ConfigVector1 &,
+                                  const ConfigVector2 &,
+                                  JacobianMatrix &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dDifferenceStepAlgo, dDifferenceStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct dDifferenceStepAlgo
+  {
+    template<typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVector1> & q0,
+                    const Eigen::MatrixBase<ConfigVector2> & q1,
+                    const Eigen::MatrixBase<JacobianMatrix> & mat,
+                    const ArgumentPosition & arg)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dDifference(jmodel.jointConfigSelector(q0.derived()),
+                      jmodel.jointConfigSelector(q1.derived()),
+                      jmodel.jointBlock(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,mat)),
+                      arg);
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dDifferenceStepAlgo);
   
   template<typename Visitor, typename JointModel> struct InterpolateStepAlgo;
   
