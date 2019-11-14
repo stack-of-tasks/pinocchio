@@ -136,6 +136,55 @@ BOOST_AUTO_TEST_CASE ( diff_integration_test )
   BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
 }
 
+BOOST_AUTO_TEST_CASE ( diff_difference_test )
+{
+  Model model; buildModel(model);
+  
+  std::vector<Eigen::VectorXd> qs(2);
+  std::vector<Eigen::VectorXd> vs(2);
+  std::vector<Eigen::MatrixXd> results(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  std::vector<Eigen::MatrixXd> results_fd(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  qs[0] = Eigen::VectorXd::Random(model.nq);
+  normalize(model,qs[0]);
+  const Eigen::VectorXd & q0 = qs[0];
+  qs[1] = Eigen::VectorXd::Random(model.nq);
+  normalize(model,qs[1]);
+  const Eigen::VectorXd & q1 = qs[1];
+  
+  vs[0] = Eigen::VectorXd::Zero(model.nv);
+  vs[1] = Eigen::VectorXd::Ones(model.nv);
+  dDifference(model,q0,q1,results[0],ARG0);
+  
+  Eigen::VectorXd q_fd(model.nq), v_fd(model.nv); v_fd.setZero();
+  const double eps = 1e-8;
+  const Eigen::VectorXd v_ref = difference(model,q0,q1);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd = integrate(model,q0,v_fd);
+    results_fd[0].col(k) = (difference(model,q_fd,q1) - v_ref)/eps;
+    v_fd[k] = 0.;
+  }
+  BOOST_CHECK(results[0].isApprox(results_fd[0],sqrt(eps)));
+  
+  dDifference(model,q0,q0,results[0],ARG0);
+  BOOST_CHECK((-results[0]).isIdentity());
+  
+  dDifference(model,q0,q0,results[1],ARG1);
+  BOOST_CHECK(results[1].isIdentity());
+  
+  dDifference(model,q0,q1,results[1],ARG1);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_fd[k] = eps;
+    q_fd = integrate(model,q1,v_fd);
+    results_fd[1].col(k) = (difference(model,q0,q_fd) - v_ref)/eps;
+    v_fd[k] = 0.;
+  }
+  BOOST_CHECK(results[1].isApprox(results_fd[1],sqrt(eps)));
+}
+
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {
  Model model; buildModel(model);
