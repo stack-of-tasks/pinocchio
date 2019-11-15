@@ -39,7 +39,7 @@ def rpyToMatrix(rpy):
     '''
     # Convert from Roll, Pitch, Yaw to transformation Matrix
     '''
-    return rotate('z', rpy[2, 0]) * rotate('y', rpy[1, 0]) * rotate('x', rpy[0, 0])
+    return rotate('z', rpy[2, 0]).dot(rotate('y', rpy[1, 0])).dot(rotate('x', rpy[0, 0]))
 
 
 def matrixToRpy(M):
@@ -56,4 +56,6 @@ def matrixToRpy(M):
         y = atan2(M[1, 0], M[0, 0])  # alpha
         r = atan2(M[2, 1], M[2, 2])  # gamma
 
-    return np.matrix([r, p, y], np.double).T
+    lst = [[r], [p], [y]]
+    is_matrix = isinstance(M, np.matrix)
+    return np.matrix(lst) if is_matrix else np.array(lst)
