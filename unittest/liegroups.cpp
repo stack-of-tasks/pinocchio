@@ -242,6 +242,38 @@ struct LieGroup_Jdifference{
         _1m2 (om1.actInv (om0)) ;
     EIGEN_MATRIX_IS_APPROX (J[1] * _1m2.toActionMatrix(), - J[0], 1e-8);
   }
+
+  template <typename Scalar, int Options>
+    void specificTests(const CartesianProductOperation<
+        VectorSpaceOperationTpl<3,Scalar,Options>,
+        SpecialOrthogonalOperationTpl<3,Scalar,Options>
+        >) const
+  {
+    typedef SE3Tpl<Scalar> SE3;
+    typedef CartesianProductOperation<
+      VectorSpaceOperationTpl<3,Scalar,Options>,
+      SpecialOrthogonalOperationTpl<3,Scalar,Options>
+        > LG_t;
+    typedef typename LG_t::ConfigVector_t ConfigVector_t;
+    typedef typename LG_t::JacobianMatrix_t JacobianMatrix_t;
+
+    LG_t lg;
+
+    ConfigVector_t q[2];
+    q[0] = lg.random();
+    q[1] = lg.random();
+    JacobianMatrix_t J[2];
+
+    lg.template dDifference<ARG0> (q[0], q[1], J[0]);
+    lg.template dDifference<ARG1> (q[0], q[1], J[1]);
+
+    typename SE3::Matrix3
+      oR0 (typename SE3::Quaternion (q[0].template tail<4>()).matrix()),
+      oR1 (typename SE3::Quaternion (q[1].template tail<4>()).matrix());
+    JacobianMatrix_t X (JacobianMatrix_t::Identity());
+    X.template bottomRightCorner<3,3>() = oR1.transpose() * oR0;
+    EIGEN_MATRIX_IS_APPROX (J[1] * X, - J[0], 1e-8);
+  }
 };
 
 template<bool around_identity>
