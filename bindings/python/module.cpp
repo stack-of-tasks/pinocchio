@@ -58,6 +58,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   .value("ARG1",::pinocchio::ARG1)
   .value("ARG2",::pinocchio::ARG2)
   .value("ARG3",::pinocchio::ARG3)
+  .value("ARG4",::pinocchio::ARG4)
   ;
 
   exposeModel();

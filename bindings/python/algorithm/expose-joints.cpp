@@ -84,14 +84,6 @@ namespace pinocchio
                        "Velocity v (size model.nv)"),
               "Integrate the model for a tangent vector during one unit time .");
       
-      bp::enum_<ArgumentPosition>("ArgumentPosition")
-        .value("ARG0",ARG0)
-        .value("ARG1",ARG1)
-        .value("ARG2",ARG2)
-        .value("ARG3",ARG3)
-        .value("ARG4",ARG4)
-        ;
-
       bp::def("dIntegrate",
               &dIntegrate_proxy,
               bp::args("Model",
