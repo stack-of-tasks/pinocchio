@@ -163,13 +163,20 @@ namespace pinocchio
         .def_readwrite("gravity",&Model::gravity,"Motion vector corresponding to the gravity field expressed in the world Frame.")
         
         // Class Methods
-        .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
-        .def("addJoint",&ModelPythonVisitor::addJointWithLimits,bp::args("parent_id","joint_model","joint_placement","joint_name","max_effort","max_velocity","min_config","max_config"),"Adds a joint to the kinematic tree with given bounds. The joint is defined by its placement relative to its parent joint and its name.")
-        .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+        .def("addJoint",&ModelPythonVisitor::addJoint,
+             bp::args("parent_id","joint_model","joint_placement","joint_name"),
+             "Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
+        .def("addJoint",&ModelPythonVisitor::addJointWithLimits,
+             bp::args("parent_id","joint_model","joint_placement","joint_name",
+                      "max_effort","max_velocity","min_config","max_config"),
+             "Adds a joint to the kinematic tree with given bounds. The joint is defined by its placement relative to its parent joint and its name.")
         .def("addJointFrame", &Model::addJointFrame,
              addJointFrame_overload(bp::args("joint_id", "frame_id"),
-                                    "Add the joint provided by its joint_id as a frame to the frame tree.\"
+                                    "Add the joint provided by its joint_id as a frame to the frame tree.\n"
                                     "The frame_id may be optionally provided."))
+        .def("appendBodyToJoint",&Model::appendBodyToJoint,
+             bp::args("joint_id","body_inertia","body_placement"),
+             "Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
         
         .def("addBodyFrame", &Model::addBodyFrame, bp::args("body_name", "parentJoint", "body_placement", "previous_frame(parent frame)"), "add a body to the frame tree")
         .def("getBodyId",&Model::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
@@ -194,7 +201,6 @@ namespace pinocchio
         .def(bp::self != bp::self)
         ;
       }
-
 
       static JointIndex addJoint(Model & model,
                                  JointIndex parent_id,
@@ -267,14 +273,9 @@ namespace pinocchio
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
         ;
-      
       }
-
-
     };
     
-
-
   }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_model_hpp__
