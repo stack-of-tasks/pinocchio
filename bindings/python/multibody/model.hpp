@@ -33,6 +33,39 @@ namespace pinocchio
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
+  
+    template<typename Model>
+    struct PickleModel : bp::pickle_suite
+    {
+      static bp::tuple getinitargs(const Model &)
+      {
+        return bp::make_tuple();
+      }
+
+      static bp::tuple getstate(const Model & model)
+      {
+        const std::string str(model.saveToString());
+        return bp::make_tuple(bp::str(str));
+      }
+
+      static void setstate(Model & model, bp::tuple tup)
+      {
+        if(bp::len(tup) == 0 || bp::len(tup) > 1)
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The pickle data structure contains too many elements.");
+        }
+        bp::object py_obj = tup[0];
+        if(!PyString_Check(py_obj.ptr()))
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The entry is not a string.");
+        }
+
+        const std::string str(PyString_AsString(py_obj.ptr()));
+        model.loadFromString(str);
+      }
+    };
     
     template<typename Model>
     struct ModelPythonVisitor
@@ -290,6 +323,7 @@ namespace pinocchio
         .def(SerializableVisitor<Model>())
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
+        .def_pickle(PickleModel<Model>())
         ;
       }
     };
