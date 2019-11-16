@@ -127,7 +127,7 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>("Default constructor. Constructs an empty model."))
+        .def(bp::init<>(bp::arg("self"),"Default constructor. Constructs an empty model."))
         
         // Class Members
         .add_property("nq", &Model::nq)
