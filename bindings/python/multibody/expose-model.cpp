@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -12,7 +12,7 @@ namespace pinocchio
     
     void exposeModel()
     {
-      ModelPythonVisitor::expose();
+      ModelPythonVisitor<Model>::expose();
     }
     
   } // namespace python

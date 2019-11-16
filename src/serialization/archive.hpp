@@ -58,7 +58,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  object Object in which the loaded data are copied.
     /// \param[in]  filename Name of the file containing the serialized data.
     ///
     template<typename T>
@@ -76,6 +76,71 @@ namespace pinocchio
         const std::string exception_message(filename + " does not seem to be a valid file.");
         throw std::invalid_argument(exception_message);
       }
+    }
+  
+    ///
+    /// \brief Loads an object from a std::stringstream.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  is  string stream constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void loadFromStringStream(T & object,
+                                     std::istringstream & is)
+    {
+      boost::archive::text_iarchive ia(is,boost::archive::no_codecvt);
+      ia >> object;
+    }
+  
+    ///
+    /// \brief Saves an object inside a std::stringstream.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[in]   object Object in which the loaded data are copied.
+    /// \param[out]  ss String stream constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void saveToStringStream(const T & object,
+                                   std::stringstream & ss)
+    {
+      boost::archive::text_oarchive oa(ss);
+      oa & object;
+    }
+  
+    ///
+    /// \brief Loads an object from a std::string
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  str  string constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void loadFromString(T & object,
+                               const std::string & str)
+    {
+      std::istringstream is(str);
+      loadFromStringStream(object,is);
+    }
+  
+    ///
+    /// \brief Saves an object inside a std::string
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[in] object Object in which the loaded data are copied.
+    ///
+    /// \returns a string  constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline std::string saveToString(const T & object)
+    {
+      std::stringstream ss;
+      saveToStringStream(object,ss);
+      return ss.str();
     }
     
     ///
@@ -114,7 +179,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in] object Object in which the loaded data are copied.
     /// \param[in] filename Name of the file containing the serialized data.
     /// \param[in] tag_name XML Tag for the given object.
     ///
@@ -168,7 +233,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in] object Object in which the loaded data are copied.
     /// \param[in] filename Name of the file containing the serialized data.
     ///
     template<typename T>

@@ -34,6 +34,30 @@ namespace pinocchio
         pinocchio::serialization::saveToText(derived(),filename);
       }
       
+      /// \brief Loads a Derived object from a stream string.
+      void loadFromStringStream(std::istringstream & is)
+      {
+        pinocchio::serialization::loadFromStringStream(derived(),is);
+      }
+      
+      /// \brief Saves a Derived object to a string stream.
+      void saveToStringStream(std::stringstream & ss) const
+      {
+        pinocchio::serialization::saveToStringStream(derived(),ss);
+      }
+      
+      /// \brief Loads a Derived object from a  string.
+      void loadFromString(const std::string & str)
+      {
+        pinocchio::serialization::loadFromString(derived(),str);
+      }
+      
+      /// \brief Saves a Derived object to a string.
+      std::string saveToString() const
+      {
+        return pinocchio::serialization::saveToString(derived());
+      }
+      
       /// \brief Loads a Derived object from an XML file.
       void loadFromXML(const std::string & filename,
                        const std::string & tag_name)

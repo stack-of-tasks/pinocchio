@@ -1,6 +1,4 @@
 language: generic
-python:
-  - "2.7"
 sudo: required
 git:
   depth: false
@@ -32,10 +30,16 @@ jobs:
   include:
     - dist: xenial
       env: BUILD_WITH_COLLISION_SUPPORT=OFF
+      python: "2.7"
     - dist: trusty 
       env: BUILD_WITH_COLLISION_SUPPORT=ON
+      python: "2.7"
     - dist: xenial
       env: BUILD_WITH_COLLISION_SUPPORT=ON
+      python: "2.7"
+    - dist: xenial
+      env: BUILD_WITH_COLLISION_SUPPORT=ON
+      python: "3.5"
 
 allow_failures:
   - compiler:

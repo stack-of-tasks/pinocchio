@@ -29,6 +29,11 @@ namespace pinocchio
              bp::arg("filename"),"Saves *this inside a text file.")
         .def("loadFromText",&Derived::loadFromText,
              bp::arg("filename"),"Loads *this from a text file.")
+        .def("saveToString",&Derived::saveToString,
+             "Parses the current object to a string.")
+        .def("loadFromString",&Derived::loadFromString,
+             bp::arg("string"),
+             "Parses from the input string the content of the current object.")
         .def("saveToXML",&Derived::saveToXML,
              bp::args("filename","tag_name"),"Saves *this inside a XML file.")
         .def("loadFromXML",&Derived::loadFromXML,
