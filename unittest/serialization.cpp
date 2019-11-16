@@ -51,6 +51,19 @@ void generic_test(const T & object,
     BOOST_CHECK(object_loaded == object);
   }
   
+  // Load and save as string
+  std::string str_out;
+  saveToString(object,str_out);
+  
+  {
+    T object_loaded;
+    std::string str_in(str_out);
+    loadFromString(object_loaded,str_in);
+    
+    // Check
+    BOOST_CHECK(object_loaded == object);
+  }
+  
   // Load and save as XML
   const std::string xml_filename = filename + ".xml";
   saveToXML(object,xml_filename,tag_name);

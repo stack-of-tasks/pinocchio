@@ -79,7 +79,7 @@ namespace pinocchio
     }
   
     ///
-    /// \brief Loads an object from std::stringstream.
+    /// \brief Loads an object from a std::stringstream.
     ///
     /// \tparam T Type of the object to deserialize.
     ///
@@ -108,6 +108,39 @@ namespace pinocchio
     {
       boost::archive::text_oarchive oa(ss);
       oa & object;
+    }
+  
+    ///
+    /// \brief Loads an object from a std::string
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  str  string constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void loadFromString(T & object,
+                               const std::string & str)
+    {
+      std::istringstream is(str);
+      loadFromStringStream(object,is);
+    }
+  
+    ///
+    /// \brief Saves an object inside a std::string
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[in]   object Object in which the loaded data are copied.
+    /// \param[out]  str String  constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void saveToString(const T & object,
+                             std::string & str)
+    {
+      std::stringstream ss;
+      saveToStringStream(object,ss);
+      str = ss.str();
     }
     
     ///
