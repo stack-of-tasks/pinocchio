@@ -32,6 +32,7 @@ namespace pinocchio
 
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
+    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
     
     struct ModelPythonVisitor
     : public bp::def_visitor< ModelPythonVisitor >
@@ -164,8 +165,11 @@ namespace pinocchio
         // Class Methods
         .def("addJoint",&ModelPythonVisitor::addJoint,bp::args("parent_id","joint_model","joint_placement","joint_name"),"Adds a joint to the kinematic tree. The joint is defined by its placement relative to its parent joint and its name.")
         .def("addJoint",&ModelPythonVisitor::addJointWithLimits,bp::args("parent_id","joint_model","joint_placement","joint_name","max_effort","max_velocity","min_config","max_config"),"Adds a joint to the kinematic tree with given bounds. The joint is defined by its placement relative to its parent joint and its name.")
-        .def("addJointFrame", &Model::addJointFrame, bp::args("jointIndex", "frameIndex"), "add the joint at index jointIndex as a frame to the frame tree")
         .def("appendBodyToJoint",&Model::appendBodyToJoint,bp::args("joint_id","body_inertia","body_placement"),"Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
+        .def("addJointFrame", &Model::addJointFrame,
+             addJointFrame_overload(bp::args("joint_id", "frame_id"),
+                                    "Add the joint provided by its joint_id as a frame to the frame tree.\"
+                                    "The frame_id may be optionally provided."))
         
         .def("addBodyFrame", &Model::addBodyFrame, bp::args("body_name", "parentJoint", "body_placement", "previous_frame(parent frame)"), "add a body to the frame tree")
         .def("getBodyId",&Model::getBodyId, bp::args("name"), "Return the index of a frame of type BODY given by its name")
