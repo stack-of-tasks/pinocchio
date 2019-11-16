@@ -58,7 +58,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  object Object in which the loaded data are copied.
     /// \param[in]  filename Name of the file containing the serialized data.
     ///
     template<typename T>
@@ -114,7 +114,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in] object Object in which the loaded data are copied.
     /// \param[in] filename Name of the file containing the serialized data.
     /// \param[in] tag_name XML Tag for the given object.
     ///
@@ -168,7 +168,7 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in] object Object in which the loaded data are copied.
     /// \param[in] filename Name of the file containing the serialized data.
     ///
     template<typename T>
