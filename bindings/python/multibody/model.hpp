@@ -34,16 +34,32 @@ namespace pinocchio
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
     
+    template<typename Model>
     struct ModelPythonVisitor
-    : public bp::def_visitor< ModelPythonVisitor >
+    : public bp::def_visitor< ModelPythonVisitor<Model> >
     {
     public:
-      typedef Model::Index Index;
-      typedef Model::JointIndex JointIndex;
-      typedef Model::FrameIndex FrameIndex;
-
+      typedef typename Model::Scalar Scalar;
+      
+      typedef typename Model::Index Index;
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Model::FrameIndex FrameIndex;
+      typedef typename Model::IndexVector IndexVector;
+      
+      typedef typename Model::SE3 SE3;
+      typedef typename Model::Motion Motion;
+      typedef typename Model::Force Force;
+      typedef typename Model::Frame Frame;
+      typedef typename Model::Inertia Inertia;
+      
+      typedef typename Model::Data Data;
+      
+      typedef typename Model::VectorXs VectorXs;
+      
     protected:
-      struct addJointVisitor : public boost::static_visitor<Model::Index>
+      
+      struct addJointVisitor
+      : public boost::static_visitor<Index>
       {
         Model & m_model;
         const JointIndex m_parent_id;
@@ -67,25 +83,26 @@ namespace pinocchio
         }
       }; // struct addJointVisitor
 
-      struct addJointWithLimitsVisitor : public boost::static_visitor<Model::Index>
+      struct addJointWithLimitsVisitor
+      : public boost::static_visitor<Index>
       {
         Model & m_model;
         const JointIndex m_parent_id;
         const SE3 & m_joint_placement;
         const std::string & m_joint_name;
-        const Eigen::VectorXd & m_max_effort;
-        const Eigen::VectorXd & m_max_velocity;
-        const Eigen::VectorXd & m_min_config;
-        const Eigen::VectorXd & m_max_config;
+        const VectorXs & m_max_effort;
+        const VectorXs & m_max_velocity;
+        const VectorXs & m_min_config;
+        const VectorXs & m_max_config;
 
         addJointWithLimitsVisitor(Model & model,
                                   const JointIndex parent_id,
                                   const SE3 & joint_placement,
                                   const std::string & joint_name,
-                                  const Eigen::VectorXd & max_effort,
-                                  const Eigen::VectorXd & max_velocity,
-                                  const Eigen::VectorXd & min_config,
-                                  const Eigen::VectorXd & max_config)
+                                  const VectorXs & max_effort,
+                                  const VectorXs & max_velocity,
+                                  const VectorXs & min_config,
+                                  const VectorXs & max_config)
         : m_model(model)
         , m_parent_id(parent_id)
         , m_joint_placement(joint_placement)
@@ -111,6 +128,7 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>("Default constructor. Constructs an empty model."))
+        
         // Class Members
         .add_property("nq", &Model::nq)
         .add_property("nv", &Model::nv)
@@ -217,10 +235,10 @@ namespace pinocchio
                                            bp::object jmodel,
                                            const SE3 & joint_placement,
                                            const std::string & joint_name,
-                                           const Eigen::VectorXd & max_effort,
-                                           const Eigen::VectorXd & max_velocity,
-                                           const Eigen::VectorXd & min_config,
-                                           const Eigen::VectorXd & max_config)
+                                           const VectorXs & max_effort,
+                                           const VectorXs & max_velocity,
+                                           const VectorXs & min_config,
+                                           const VectorXs & max_config)
       {
         JointModelVariant jmodel_variant = bp::extract<JointModelVariant> (jmodel)();
         return boost::apply_visitor(addJointWithLimitsVisitor(model,parent_id,joint_placement,joint_name,max_effort,max_velocity,min_config,max_config), jmodel_variant);
@@ -239,10 +257,10 @@ namespace pinocchio
       ///         no element is found, return the size of the vector.
       ///
       template<typename T>
-      static Model::Index index(std::vector<T> const& x,
+      static Index index(std::vector<T> const& x,
                                 typename std::vector<T>::value_type const& v)
       {
-        Model::Index i = 0;
+        Index i = 0;
         for(typename std::vector<T>::const_iterator it = x.begin(); it != x.end(); ++it, ++i)
         {
           if(*it == v)
@@ -257,13 +275,13 @@ namespace pinocchio
       static void expose()
       {
         StdVectorPythonVisitor<Index>::expose("StdVec_Index");
-        StdVectorPythonVisitor<Model::IndexVector>::expose("StdVec_IndexVector");
+        StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
         StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
-        StdVectorPythonVisitor<double>::expose("StdVec_double");
-        bp::class_< std::map<std::string, Eigen::VectorXd> >("StdMap_String_EigenVectorXd")
-          .def(bp::map_indexing_suite< std::map<std::string, Eigen::VectorXd>, true >())
-          .def_pickle(PickleMap<std::map<std::string, Eigen::VectorXd> >());
+        StdVectorPythonVisitor<Scalar>::expose("StdVec_double");
+        bp::class_<typename Model::ConfigVectorMap>("StdMap_String_EigenVectorXd")
+          .def(bp::map_indexing_suite< typename Model::ConfigVectorMap, true >())
+          .def_pickle(PickleMap<typename Model::ConfigVectorMap>());
 
         bp::class_<Model>("Model",
                           "Articulated Rigid Body model",
