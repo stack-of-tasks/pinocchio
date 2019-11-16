@@ -131,16 +131,16 @@ namespace pinocchio
     ///
     /// \tparam T Type of the object to deserialize.
     ///
-    /// \param[in]   object Object in which the loaded data are copied.
-    /// \param[out]  str String  constaining the serialized content of the object.
+    /// \param[in] object Object in which the loaded data are copied.
+    ///
+    /// \returns a string  constaining the serialized content of the object.
     ///
     template<typename T>
-    inline void saveToString(const T & object,
-                             std::string & str)
+    inline std::string saveToString(const T & object)
     {
       std::stringstream ss;
       saveToStringStream(object,ss);
-      str = ss.str();
+      return ss.str();
     }
     
     ///

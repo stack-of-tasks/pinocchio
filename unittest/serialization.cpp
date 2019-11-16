@@ -52,8 +52,7 @@ void generic_test(const T & object,
   }
   
   // Load and save as string
-  std::string str_out;
-  saveToString(object,str_out);
+  std::string str_out = saveToString(object);
   
   {
     T object_loaded;
