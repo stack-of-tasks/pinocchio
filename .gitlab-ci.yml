@@ -77,7 +77,6 @@ robotpkg-pinocchio-18.04-debug:
 #robotpkg-py-pinocchio-py3-14.04-release:
 #  <<: *robotpkg-py-pinocchio
 #  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
-#  allow_failure: true
 
 #robotpkg-py-pinocchio-14.04-debug:
 #  <<: *robotpkg-py-pinocchio
@@ -88,7 +87,6 @@ robotpkg-pinocchio-18.04-debug:
 #robotpkg-py-pinocchio-py3-14.04-debug:
 #  <<: *robotpkg-py-pinocchio
 #  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
-#  allow_failure: true
 #  before_script:
 #    - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
@@ -99,7 +97,6 @@ robotpkg-py-pinocchio-16.04-release:
 robotpkg-py-pinocchio-py3-16.04-release:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
-  allow_failure: true
 
 robotpkg-py-pinocchio-16.04-debug:
   <<: *robotpkg-py-pinocchio
@@ -110,13 +107,11 @@ robotpkg-py-pinocchio-16.04-debug:
 robotpkg-py-pinocchio-py3-16.04-debug:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
-  allow_failure: true
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-py-pinocchio-py3-18.04-release:
   <<: *robotpkg-py-pinocchio
-  allow_failure: true
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
 
 robotpkg-py-pinocchio-18.04-release:
@@ -132,7 +127,6 @@ robotpkg-py-pinocchio-18.04-debug:
 robotpkg-py-pinocchio-py3-18.04-debug:
   <<: *robotpkg-py-pinocchio
   image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
-  allow_failure: true
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
