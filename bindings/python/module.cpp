@@ -23,6 +23,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 {
   bp::scope().attr("__version__") = pinocchio::printVersion();
   
+  bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
   
   if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
