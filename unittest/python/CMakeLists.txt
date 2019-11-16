@@ -1,5 +1,6 @@
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
+  bindings_model
   bindings_data
   bindings_com
   bindings_com_velocity_derivatives
