@@ -77,6 +77,38 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
+  
+    ///
+    /// \brief Loads an object from std::stringstream.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in]  is  string stream constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void loadFromStringStream(T & object,
+                                     std::istringstream & is)
+    {
+      boost::archive::text_iarchive ia(is,boost::archive::no_codecvt);
+      ia >> object;
+    }
+  
+    ///
+    /// \brief Saves an object inside a std::stringstream.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[in]   object Object in which the loaded data are copied.
+    /// \param[out]  ss String stream constaining the serialized content of the object.
+    ///
+    template<typename T>
+    inline void saveToStringStream(const T & object,
+                                   std::stringstream & ss)
+    {
+      boost::archive::text_oarchive oa(ss);
+      oa & object;
+    }
     
     ///
     /// \brief Loads an object from a XML file.

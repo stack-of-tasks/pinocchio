@@ -38,6 +38,19 @@ void generic_test(const T & object,
     BOOST_CHECK(object_loaded == object);
   }
   
+  // Load and save as string stream
+  std::stringstream ss_out;
+  saveToStringStream(object,ss_out);
+  
+  {
+    T object_loaded;
+    std::istringstream is(ss_out.str());
+    loadFromStringStream(object_loaded,is);
+    
+    // Check
+    BOOST_CHECK(object_loaded == object);
+  }
+  
   // Load and save as XML
   const std::string xml_filename = filename + ".xml";
   saveToXML(object,xml_filename,tag_name);
