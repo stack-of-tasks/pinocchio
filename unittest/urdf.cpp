@@ -47,19 +47,27 @@ BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
   pinocchio::GeometryModel geomModel;
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
   BOOST_CHECK_EQUAL(geomModel.ngeoms, 2);
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
-# if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
+  // Check that cylinder is converted into capsule.
+#ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].fcl->getNodeType(), hpp::fcl::GEOM_CYLINDER);
+#else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].fcl->getNodeType(), hpp::fcl::GEOM_CAPSULE);
+#endif
+
+#if ( HPP_FCL_MAJOR_VERSION>1 || ( HPP_FCL_MAJOR_VERSION==1 && \
       ( HPP_FCL_MINOR_VERSION>1 || ( HPP_FCL_MINOR_VERSION==1 && \
                                      HPP_FCL_PATCH_VERSION>3))))
 #  define PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
 #endif
-  BOOST_CHECK_EQUAL(geomModel.geometryObjects[0].fcl->getNodeType(), hpp::fcl::GEOM_CAPSULE);
-#ifdef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+
+#if defined(PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3) && !defined(PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME)
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].fcl->getNodeType(), hpp::fcl::GEOM_CONVEX);
 #undef PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
-#else
+#else // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3 && !PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].fcl->getObjectType(), hpp::fcl::OT_BVH);
-#endif // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3
+#endif // PINOCCHIO_HPP_FCL_SUPERIOR_TO_1_1_3 && !PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
 #endif // PINOCCHIO_WITH_HPP_FCL
   
   pinocchio::Model model_ff;

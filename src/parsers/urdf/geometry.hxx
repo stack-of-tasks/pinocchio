@@ -66,8 +66,13 @@ namespace pinocchio
             return false;
           BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
             if (cc.first == "capsule") {
+#ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+              std::cerr << "Warning: support for tag link/collision_checking/capsule"
+                " is not available for URDFDOM < 0.3.0" << std::endl;
+#else
               std::string name = cc.second.get<std::string>("<xmlattr>.name");
               if (geomName == name) return true;
+#endif
             }
           } // BOOST_FOREACH
           
@@ -84,8 +89,13 @@ namespace pinocchio
             return false;
           BOOST_FOREACH(const ptree::value_type & cc, link.get_child("collision_checking")) {
             if (cc.first == "convex") {
+#ifdef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+              std::cerr << "Warning: support for tag link/collision_checking/convex"
+                " is not available for URDFDOM < 0.3.0" << std::endl;
+#else
               std::string name = cc.second.get<std::string>("<xmlattr>.name");
               if (geomName == name) return true;
+#endif
             }
           } // BOOST_FOREACH
           
