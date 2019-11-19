@@ -56,8 +56,8 @@ namespace pinocchio
           } // BOOST_FOREACH
         }
         
-        bool replaceCylinderByCapsule (const std::string & linkName,
-                                       const std::string & geomName) const
+        bool isCapsule (const std::string & linkName,
+                        const std::string & geomName) const
         {
           LinkMap_t::const_iterator _link = links_.find(linkName);
           assert (_link != links_.end());
@@ -189,7 +189,7 @@ namespace pinocchio
         // Use FCL capsules for cylinders
         else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
         {
-          bool capsule = tree.replaceCylinderByCapsule(linkName, geomName);
+          bool capsule = tree.isCapsule(linkName, geomName);
           meshScale << 1,1,1;
           const ::urdf::CylinderSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
           
