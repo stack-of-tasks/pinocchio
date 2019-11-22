@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018 CNRS
+# Copyright (c) 2015-2019 CNRS INRIA
 #
 
 # ----------------------------------------------------
@@ -57,7 +57,6 @@ ADD_BENCH(timings-cholesky TRUE)
 # timings derivatives
  
 ADD_BENCH(timings-derivatives TRUE)
-TARGET_LINK_LIBRARIES(timings-derivatives ${PROJECT_NAME})
 IF(CPPAD_FOUND)
   PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppad")
 ENDIF(CPPAD_FOUND)
@@ -69,6 +68,7 @@ ENDIF(CPPADCG_FOUND)
 # timings-eigen
 # 
 ADD_BENCH(timings-eigen)
+PKG_CONFIG_USE_DEPENDENCY(timings-eigen "eigen3")
 
 # timings-geometry
 # 
