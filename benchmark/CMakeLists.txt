@@ -68,6 +68,7 @@ ENDIF(CPPADCG_FOUND)
 # timings-eigen
 # 
 ADD_BENCH(timings-eigen)
+PKG_CONFIG_USE_DEPENDENCY(timings-eigen "eigen3")
 
 # timings-geometry
 # 
