@@ -12,9 +12,13 @@ class TestModel(TestCase):
         import pickle
 
         model = self.model
-        pickle.dump(model, open( "save.p", "wb" ) )
+        filename = "model.pickle"
+        with open(filename, 'wb') as f:
+          pickle.dump(model,f)
       
-        model_copy = pickle.load( open( "save.p", "rb" ) )
+        with open(filename, 'rb') as f:
+          model_copy = pickle.load(f)
+
         self.assertTrue(model == model_copy)
 
 if __name__ == '__main__':

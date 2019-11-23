@@ -61,7 +61,8 @@ robotpkg-pinocchio-18.04-debug:
   script:
     - mkdir -p ccache
     - cd /root/robotpkg/math
-    - git pull
+    - git fetch
+    - git reset --hard origin/master
     - cd pinocchio
     - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
     - cd ..
