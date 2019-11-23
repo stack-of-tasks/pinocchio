@@ -68,24 +68,18 @@ namespace pinocchio
         }
         
         bp::object py_obj = tup[0];
-        std::string str;
-        if(PyString_Check(py_obj.ptr()))
+        boost::python::extract<std::string> obj_as_string(py_obj.ptr());
+        if(obj_as_string.check())
         {
-          str = PyString_AsString(py_obj.ptr());
+          const std::string str = obj_as_string;
+          model.loadFromString(str);
         }
         else
         {
-          boost::python::extract<std::string> obj_as_string(py_obj.ptr());
-          if(obj_as_string.check())
-            str = obj_as_string;
-          else
-          {
-            throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
-                                     "The entry is not a string.");
-          }
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The entry is not a string.");
         }
 
-        model.loadFromString(str);
       }
     };
     
