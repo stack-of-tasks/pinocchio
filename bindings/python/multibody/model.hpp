@@ -66,14 +66,25 @@ namespace pinocchio
           throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
                                    "The pickle data structure contains too many elements.");
         }
+        
         bp::object py_obj = tup[0];
-        if(!PyString_Check(py_obj.ptr()))
+        std::string str;
+        if(PyString_Check(py_obj.ptr()))
         {
-          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
-                                   "The entry is not a string.");
+          str = PyString_AsString(py_obj.ptr());
+        }
+        else
+        {
+          boost::python::extract<std::string> obj_as_string(py_obj.ptr());
+          if(obj_as_string.check())
+            str = obj_as_string;
+          else
+          {
+            throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                     "The entry is not a string.");
+          }
         }
 
-        const std::string str(PyString_AsString(py_obj.ptr()));
         model.loadFromString(str);
       }
     };
