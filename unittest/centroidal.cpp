@@ -1,16 +1,16 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+
 #include "pinocchio/parsers/sample-models.hpp"
+
 #include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
@@ -32,7 +32,7 @@ static void addJointAndBody(pinocchio::Model & model,
   
   Model::JointIndex idx;
   
-  if (setRandomLimits)
+  if(setRandomLimits)
     idx = model.addJoint(model.getJointId(parent_name),joint,
                          SE3::Random(),
                          name + "_joint",
@@ -41,15 +41,15 @@ static void addJointAndBody(pinocchio::Model & model,
                          CV::Random() - CV::Constant(1),
                          CV::Random() + CV::Constant(1)
                          );
-    else
-      idx = model.addJoint(model.getJointId(parent_name),joint,
-                           placement, name + "_joint");
-      
-      model.addJointFrame(idx);
-      
-      model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
-      model.addBodyFrame(name + "_body", idx);
-      }
+  else
+    idx = model.addJoint(model.getJointId(parent_name),joint,
+                         placement, name + "_joint");
+  
+  model.addJointFrame(idx);
+  
+  model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
+  model.addBodyFrame(name + "_body", idx);
+}
 
 BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
   
@@ -104,7 +104,6 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
   crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  SE3::Vector3 com = data_ref.Ycrb[1].lever();
   SE3 cMo(SE3::Identity());
   cMo.translation() = -getComFromCrba(model, data_ref);
   
