@@ -24,17 +24,6 @@
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
 
-#if PY_MAJOR_VERSION >= 3
-  #ifndef PyString_Check
-    #define PyString_Check_notDefined
-    #define PyString_Check PyBytes_Check
-  #endif
-  #ifndef PyString_AsString
-    #define PyString_AsString_notDefined
-    #define PyString_AsString PyBytes_AsString
-  #endif
-#endif
-
 namespace pinocchio
 {
   namespace python
@@ -346,16 +335,4 @@ namespace pinocchio
     
   }} // namespace pinocchio::python
 
-#if PY_MAJOR_VERSION >= 3
-  #ifdef PyString_Check_notDefined
-    #undef PyString_Check
-    #undef PyString_Check_notDefined
-  #endif
-  #ifdef PyString_AsString_notDefined
-    #undef PyString_AsString
-    #undef PyString_AsString_notDefined
-  #endif
-#endif
-
 #endif // ifndef __pinocchio_python_model_hpp__
-
