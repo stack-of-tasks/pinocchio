@@ -29,7 +29,7 @@ class TestDynamicsBindings(TestCase):
         self.tolerance = 1e-9
 
         # we compute J on a different self.data
-        self.J = pin.jointJacobian(self.model,self.model.createData(),self.q,self.model.getJointId('lleg6_joint'))
+        self.J = pin.computeJointJacobian(self.model,self.model.createData(),self.q,self.model.getJointId('lleg6_joint'))
         self.gamma = zero(6)
 
     def test_forwardDynamics_default(self):

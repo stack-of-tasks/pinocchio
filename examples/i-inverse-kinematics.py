@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 import pinocchio
+pinocchio.switchToNumpyMatrix()
 
 model = pinocchio.buildSampleModelManipulator()
 data  = model.createData()
@@ -26,7 +27,7 @@ while True:
     if i >= IT_MAX:
         print("\nWarning: the iterative algorithm has not reached convergence to the desired precision")
         break
-    J   = pinocchio.jointJacobian(model,data,q,JOINT_ID)[:3,:]
+    J   = pinocchio.computeJointJacobian(model,data,q,JOINT_ID)[:3,:]
     v   = - np.linalg.pinv(J)*err
     q   = pinocchio.integrate(model,q,v*DT)
     if not i % 10:        print('error = %s' % err.T)
