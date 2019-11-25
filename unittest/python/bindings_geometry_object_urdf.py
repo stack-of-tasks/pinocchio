@@ -8,7 +8,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def setUp(self):
         self.current_file =  os.path.dirname(os.path.abspath(__file__))
-        self.model_dir = os.path.abspath(os.path.join(self.current_file, '../../models/others'))
+        self.model_dir = os.path.abspath(os.path.join(self.current_file, '../../models/others/robots'))
         self.model_path = os.path.abspath(os.path.join(self.model_dir, 'romeo_description/urdf/romeo.urdf'))
 
     def test_load(self):
