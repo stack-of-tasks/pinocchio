@@ -33,8 +33,10 @@ int main(int argc, char ** argv)
   forwardKinematics(model,data,q);
 
   // Print out the placement of each joint of the kinematic tree
-  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
-    std::cout << model.names[joint_id] << "\t\t: "
+  for(JointIndex joint_id = 0; joint_id < (JointIndex)model.njoints; ++joint_id)
+    std::cout << std::setw(24) << std::left
+              << model.names[joint_id] << ": "
+              << std::fixed << std::setprecision(2)
               << data.oMi[joint_id].translation().transpose()
               << std::endl;
 }

@@ -40,7 +40,7 @@ IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_EXAMPLES
     i-inverse-kinematics
     overview-simple
-    #overview-urdf
+    overview-urdf
     )
 
   FOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
