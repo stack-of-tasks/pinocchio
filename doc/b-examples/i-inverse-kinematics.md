@@ -77,9 +77,9 @@ The second difference consists in the way the velocity is computed
 
 \dontinclude i-inverse-kinematics.cpp
 \skip svdOptions
-\until BDCSVD
+\until SVD
 \skipline svd.compute
 
 This is equivalent to using the pseudo-inverse, but way more efficient.
-Also notice we have chosen to pre-allocate the space for the SVD decomposition instead of using method `bdcSvd(svdOptions)`.
+Also notice we have chosen to pre-allocate the space for the SVD decomposition instead of using method `jacobiSvd(svdOptions)`.
 
