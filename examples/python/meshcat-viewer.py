@@ -1,7 +1,3 @@
-##
-## Copyright (c) 2019 CNRS INRIA
-##
-
 # This examples shows how to load and move a robot in meshcat.
 # Note: this feature requires Meshcat to be installed, this can be done using
 # pip install --user meshcat
