@@ -26,7 +26,7 @@ VISUALIZER = None
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
 current_path =  str(os.path.dirname(os.path.abspath(__file__)))
-model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
+model_path = str(os.path.abspath(os.path.join(current_path, '../../models/others/robots')))
 mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
