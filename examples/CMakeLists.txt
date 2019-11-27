@@ -3,6 +3,7 @@
 #
 
 SET(${PROJECT_NAME}_EXAMPLES
+  i-inverse-kinematics
   overview-simple
   overview-lie
   overview-SE3
@@ -12,13 +13,6 @@ SET(${PROJECT_NAME}_EXAMPLES
   )
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
-
-IF(EIGEN3_VERSION VERSION_GREATER 3.2.90)
-  SET(${PROJECT_NAME}_EXAMPLES
-    ${${PROJECT_NAME}_EXAMPLES}
-    i-inverse-kinematics
-    )
-ENDIF(EIGEN3_VERSION VERSION_GREATER 3.2.90)
 
 FOREACH(EXAMPLE ${${PROJECT_NAME}_EXAMPLES})
   SET(EXAMPLE_NAME "example-${EXAMPLE}")
@@ -40,7 +34,7 @@ IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_EXAMPLES
     i-inverse-kinematics
     overview-simple
-    #overview-urdf
+    overview-urdf
     )
 
   FOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})

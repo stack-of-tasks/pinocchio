@@ -1,14 +1,27 @@
 import pinocchio
 from sys import argv
+from os.path import dirname, join, abspath
 
-filename = "ur5.urdf" if len(argv)<2 else argv[1]
-model    = pinocchio.buildModelFromUrdf(filename)
+# This path refers to Pinocchio source code but you can define your own directory here.
+pinocchio_model_dir = join(dirname(dirname(abspath(__file__))), 'models')
+
+# You should change here to set up your own URDF file or just pass it as an argument of this example.
+urdf_filename = pinocchio_model_dir + '/others/robots/ur_description/urdf/ur5_robot.urdf' if len(argv)<2 else argv[1]
+
+# Load the urdf model
+model    = pinocchio.buildModelFromUrdf(urdf_filename)
+
+# Create data required by the algorithms
 data     = model.createData()
-q        = pinocchio.randomConfiguration(model)
-print('q = ', q.T)
 
+# Sample a random configuration
+q        = pinocchio.randomConfiguration(model)
+print('q: %s' % q.T)
+
+# Perform the forward kinematics over the kinematic tree
 pinocchio.forwardKinematics(model,data,q)
 
-for k in range(model.njoints):
+# Print out the placement of each joint of the kinematic tree
+for name, oMi in zip(model.names, data.oMi):
     print(("{:<24} : {: .2f} {: .2f} {: .2f}"
-          .format( model.names[k], *data.oMi[k].translation.T.flat )))
+          .format( name, *oMi.translation.T.flat )))

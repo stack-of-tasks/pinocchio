@@ -19,7 +19,7 @@ int main(int /* argc */, char ** /* argv */)
 
   pinocchio::Data::Matrix6x J(6,model.nv); J.setZero();
   unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
-  Eigen::BDCSVD<pinocchio::Data::Matrix3x> svd(3,model.nv,svdOptions);
+  Eigen::JacobiSVD<pinocchio::Data::Matrix3x> svd(3,model.nv,svdOptions);
 
   Eigen::Vector3d err;
   for (int i=0;;i++)
