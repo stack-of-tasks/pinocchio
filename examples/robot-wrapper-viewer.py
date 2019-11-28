@@ -1,6 +1,6 @@
 ##
 ## In this short script, we show how to a load a robot model from its URDF description.
-## Here, the robot model is ROMEO, but a similar approach can be done by with rospkg.
+## Here, the robot model is ROMEO, but a similar approach can be done with rospkg.
 ##
 
 import pinocchio as pin
