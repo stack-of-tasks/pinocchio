@@ -35,7 +35,17 @@ IF(BUILD_PYTHON_INTERFACE)
     i-inverse-kinematics
     overview-simple
     overview-urdf
+    kinematics-derivatives
+    fd-derivatives
+    id-derivatives
+    robot-wrapper-viewer
     )
+
+  IF(HPP_FCL_FOUND)
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+      collisions
+      )
+  ENDIF(HPP_FCL_FOUND)
 
   FOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
     ADD_PYTHON_UNIT_TEST("py-example-${EXAMPLE}" "examples/${EXAMPLE}.py" "bindings/python")
