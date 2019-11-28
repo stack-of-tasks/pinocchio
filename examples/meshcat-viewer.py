@@ -8,12 +8,6 @@ import numpy as np
 import sys
 import os
 
-try:
-    # Python 2
-    input = raw_input
-except NameError:
-    pass
-
 from pinocchio.visualize import MeshcatVisualizer
 
 # Load the URDF model.
@@ -40,8 +34,6 @@ except ImportError as err:
     print(err)
     sys.exit(0)
 
-input("Press enter to continue")
-
 # Load the robot in the viewer.
 # Color is needed here because the Romeo URDF doesn't contain any color, so the default color results in an
 # invisible robot (alpha value set to 0).
@@ -59,8 +51,6 @@ q0 = np.matrix([
 ]).T
 viz.display(q0)
 
-input("Displaying a single robot configuration. Press enter to continue")
-
 # Display another robot.
 red_robot_viz = MeshcatVisualizer(model, collision_model, visual_model)
 red_robot_viz.initViewer(viz.viewer)
@@ -68,4 +58,4 @@ red_robot_viz.loadViewerModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0
 q = q0.copy()
 q[1] = 1.0
 red_robot_viz.display(q)
-input("Displaying a second robot with color red, semi-transparent. Press enter to exit")
+

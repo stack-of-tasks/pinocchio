@@ -38,6 +38,8 @@ IF(BUILD_PYTHON_INTERFACE)
     kinematics-derivatives
     fd-derivatives
     id-derivatives
+    gepetto-viewer
+    meshcat-viewer
     robot-wrapper-viewer
     )
 

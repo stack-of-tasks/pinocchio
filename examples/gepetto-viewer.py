@@ -9,12 +9,6 @@ import os
 
 from pinocchio.visualize import GepettoVisualizer
 
-try:
-    # Python 2
-    input = raw_input
-except NameError:
-    pass
-
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
 current_path =  str(os.path.dirname(os.path.abspath(__file__)))
@@ -52,8 +46,6 @@ q0 = np.matrix([
 ]).T
 viz.display(q0)
 
-input("Displaying a single robot configuration. Press enter to continue")
-
 # Display another robot.
 viz2 = GepettoVisualizer(model, collision_model, visual_model)
 viz2.initViewer(viz.viewer)
@@ -61,4 +53,4 @@ viz2.loadViewerModel(rootNodeName = "pinocchio2")
 q = q0.copy()
 q[1] = 1.0
 viz2.display(q)
-input("Displaying a second robot. Press enter to exit")
+
