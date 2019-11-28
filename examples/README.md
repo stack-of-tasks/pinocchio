@@ -4,7 +4,8 @@ This directory contains minimal examples on how to use **Pinocchio** with the Py
 
 ## Loading a model
 
-- Loading a URDF model: `python -i load-urdf.py`
+- Loading a URDF model: `python -i overview-urdf.py`
+- Using RobotWrapper to encapsulate a URDF model: `python -i robot-wrapper-viewer.py`
 
 ## Computing analytical derivatives of rigid body dynamics algorithms
 
@@ -19,4 +20,4 @@ This directory contains minimal examples on how to use **Pinocchio** with the Py
 
 ## Collisions
 
-- Check collisions using [FCL](https://github.com/humanoid-path-planner/hpp-fcl): `python -i collision-detection.py`
+- Check collisions using [FCL](https://github.com/humanoid-path-planner/hpp-fcl): `python -i collisions.py`

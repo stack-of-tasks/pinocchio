@@ -1,4 +1,3 @@
-
 #include "pinocchio/parsers/urdf.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -21,6 +20,7 @@ int main(int argc, char ** argv)
   // Load the urdf model
   Model model;
   pinocchio::urdf::buildModel(urdf_filename,model);
+  std::cout << "model name: " << model.name << std::endl;
   
   // Create data required by the algorithms
   Data data(model);

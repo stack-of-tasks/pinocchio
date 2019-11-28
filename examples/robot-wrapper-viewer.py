@@ -1,10 +1,6 @@
 ##
-## Copyright (c) 2018-2019 CNRS INRIA
-##
-
-##
 ## In this short script, we show how to a load a robot model from its URDF description.
-## Here, the robot model is ROMEO, but a similar approach can be done by with rospkg.
+## Here, the robot model is ROMEO, but a similar approach can be done with rospkg.
 ##
 
 import pinocchio as pin
@@ -13,12 +9,6 @@ from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import *
 import os
 
-try:
-    # Python 2
-    input = raw_input
-except NameError:
-    pass
-
 VISUALIZER = None
 # VISUALIZER = GepettoVisualizer
 # VISUALIZER = MeshcatVisualizer
@@ -26,7 +16,7 @@ VISUALIZER = None
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
 current_path =  str(os.path.dirname(os.path.abspath(__file__)))
-model_path = str(os.path.abspath(os.path.join(current_path, '../../models/romeo')))
+model_path = str(os.path.abspath(os.path.join(current_path, '../models/others/robots')))
 mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
@@ -53,4 +43,3 @@ if VISUALIZER:
         robot.loadViewerModel("pinocchio")
     robot.display(q0)
 
-input("Press enter to exit.")

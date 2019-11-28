@@ -10,6 +10,7 @@ urdf_filename = pinocchio_model_dir + '/others/robots/ur_description/urdf/ur5_ro
 
 # Load the urdf model
 model    = pinocchio.buildModelFromUrdf(urdf_filename)
+print('model name: ',model.name)
 
 # Create data required by the algorithms
 data     = model.createData()

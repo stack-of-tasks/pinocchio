@@ -1,7 +1,3 @@
-##
-## Copyright (c) 2018-2019 CNRS INRIA
-##
-
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 import numpy as np

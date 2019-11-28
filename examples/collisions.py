@@ -1,19 +1,16 @@
-##
-## Copyright (c) 2018-2019 CNRS INRIA
-##
-
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.romeo_wrapper import RomeoWrapper
 
 import os
-current_path = os.getcwd()
+from os.path import dirname, join, abspath
 
-# The model of Romeo is contained in the path PINOCCHIO_GIT_REPOSITORY/models/romeo
-model_path = current_path + "/" + "../../models/romeo"
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+
+model_path = join(pinocchio_model_dir,"others/robots")
 mesh_dir = model_path
 urdf_filename = "romeo_small.urdf"
-urdf_model_path = model_path + "/romeo_description/urdf/" + urdf_filename
+urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 
 # Load model
 model = pin.buildModelFromUrdf(urdf_model_path,pin.JointModelFreeFlyer())
