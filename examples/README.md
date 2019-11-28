@@ -5,6 +5,7 @@ This directory contains minimal examples on how to use **Pinocchio** with the Py
 ## Loading a model
 
 - Loading a URDF model: `python -i overview-urdf.py`
+- Using RobotWrapper to encapsulate a URDF model: `python -i robot-wrapper-viewer.py`
 
 ## Computing analytical derivatives of rigid body dynamics algorithms
 
