@@ -5,6 +5,7 @@
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 import numpy as np
+import sys
 import os
 
 try:
@@ -32,7 +33,12 @@ viz = MeshcatVisualizer(model, collision_model, visual_model)
 #
 # Option open=True pens the visualizer.
 # Note: the visualizer can also be opened seperately by visiting the provided URL.
-viz.initViewer(open=True)
+try:
+    viz.initViewer(open=True)
+except ImportError as err:
+    print("Error while initializing the viewer. It seems you should install Python meshcat")
+    print(err)
+    sys.exit(0)
 
 input("Press enter to continue")
 
