@@ -13,6 +13,12 @@ using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
+  BOOST_AUTO_TEST_CASE(test_empty_model)
+  {
+    Model empty_model;
+    Data empty_data(empty_model);
+  }
+
   BOOST_AUTO_TEST_CASE(test_data_start_idx_v_fromRow)
   {
     Model model;
