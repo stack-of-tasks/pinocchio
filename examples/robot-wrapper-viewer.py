@@ -49,4 +49,4 @@ if VISUALIZER:
         robot.loadViewerModel("pinocchio")
     robot.display(q0)
 
-input("Press enter to exit.")
+#input("Press enter to exit.")
