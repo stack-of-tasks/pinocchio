@@ -28,7 +28,7 @@ It implements the classical algorithms following the methods described in Feathe
 (many thanks to him).
 It also introduces efficient variations of some of them, plus some new ones, notably including a full set of algorithms to compute the derivatives of the main ones.
 
-Pinocchio is open-source, mostly written in C++ with Python bindings, and distributed under LGPL-v3 licence.
+Pinocchio is open-source, mostly written in C++ with Python bindings, and distributed under the BSD licence.
 Contributions are welcome.
 
 In this doc, you will find the usual description of the library functionalities, a quick tutorial to catch over the mathematics behind the implementation, a bunch of examples about how to implement classical applications (inverse kinematics, contact dynamics, collision detection, etc) and a set of practical exercices for beginners.
@@ -37,6 +37,7 @@ In this doc, you will find the usual description of the library functionalities,
 
 Pinocchio is best installed from APT packaging on Ubuntu 14.04, 16.04 and 18.04, from our repository.
 On Mac OS X, we support the installation of Pinocchio through the Homebrew package manager.
+If you just need the Python bindings, you can directly have access to them through Conda.
 On systems for which binaries are not provided, installation from source should be straightforward.
 Every release is validated in the main Linux distributions and Mac OS X.
 

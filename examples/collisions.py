@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.romeo_wrapper import RomeoWrapper
@@ -20,12 +21,14 @@ geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,model_path,pin.Geometry
 
 # Add collisition pairs
 geom_model.addAllCollisionPairs()
+print("num collision pairs - initial:",len(geom_model.collisionPairs))
 
 # Remove collision pairs listed in the SRDF file
-srdf_filename = "romeo_small.srdf"
+srdf_filename = "romeo.srdf"
 srdf_model_path = model_path + "/romeo_description/srdf/" + srdf_filename
 
 pin.removeCollisionPairs(model,geom_model,srdf_model_path)
+print("num collision pairs - final:",len(geom_model.collisionPairs))
 
 # Load reference configuration
 pin.loadReferenceConfigurations(model,srdf_model_path)
