@@ -18,6 +18,13 @@ mesh_dir = model_path
 urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+
+# Currently, MeshCat is not able to retrieve the scaling from DAE files. Set it manually.
+for geom in visual_model.geometryObjects:
+  s = geom.meshScale 
+  s *= 0.01
+  geom.meshScale = s
+
 viz = MeshcatVisualizer(model, collision_model, visual_model)
 # pin.setGeometryMeshScales(visual_model,0.01)
 
