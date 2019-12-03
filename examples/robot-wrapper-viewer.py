@@ -1,18 +1,30 @@
 ##
-## In this short script, we show how to a load a robot model from its URDF description.
-## Here, the robot model is ROMEO, but a similar approach can be done with rospkg.
+## In this short script, we show how to use RobotWrapper
+## integrating different kinds of viewers
 ##
 
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.robot_wrapper import RobotWrapper
-from pinocchio.visualize import *
+from pinocchio.visualize import (GepettoVisualizer, MeshcatVisualizer)
+from sys import argv
 import os
 from os.path import dirname, join, abspath
 
+# If you want to visualize the robot in this example,
+# you can choose which visualizer to employ
+# by specifying an option from the command line:
+# GepettoVisualizer: -g
+# MeshcatVisualizer: -m
 VISUALIZER = None
-# VISUALIZER = GepettoVisualizer
-# VISUALIZER = MeshcatVisualizer
+if len(argv)>1:
+    opt = argv[1]
+    if opt == '-g':
+        VISUALIZER = GepettoVisualizer
+    elif opt == '-m':
+        VISUALIZER = MeshcatVisualizer
+    else:
+        raise ValueError("Unrecognized option: " + opt)
 
 # Load the URDF model with RobotWrapper
 # Conversion with str seems to be necessary when executing this file with ipython
@@ -36,7 +48,7 @@ com = robot.com(q0)
 # This last command is similar to:
 com2 = pin.centerOfMass(model,data,q0)
 
-## load model into gepetto-gui
+# Show model with a visualizer of your choice
 if VISUALIZER:
     robot.setVisualizer(VISUALIZER())
     robot.initViewer()
