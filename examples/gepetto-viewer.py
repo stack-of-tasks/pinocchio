@@ -1,4 +1,5 @@
 # NOTE: this example needs gepetto-gui to be installed
+# Also, as romeo employs DAE files, you need the DAE plugin
 # usage: launch gepetto-gui and then run this test
 
 import pinocchio as pin
@@ -6,15 +7,18 @@ pin.switchToNumpyMatrix()
 import numpy as np
 import sys
 import os
+from os.path import dirname, join, abspath
 
 from pinocchio.visualize import GepettoVisualizer
 
 # Load the URDF model.
 # Conversion with str seems to be necessary when executing this file with ipython
-current_path =  str(os.path.dirname(os.path.abspath(__file__)))
-model_path = str(os.path.abspath(os.path.join(current_path, '../models/others/robots')))
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
+
+model_path = join(pinocchio_model_dir,"others/robots")
 mesh_dir = model_path
-urdf_model_path = str(os.path.abspath(os.path.join(model_path, 'romeo_description/urdf/romeo_small.urdf')))
+urdf_filename = "romeo_small.urdf"
+urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 viz = GepettoVisualizer(model, collision_model, visual_model)
