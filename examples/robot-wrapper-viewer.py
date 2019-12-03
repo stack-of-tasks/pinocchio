@@ -1,7 +1,7 @@
-##
-## In this short script, we show how to use RobotWrapper
-## integrating different kinds of viewers
-##
+#
+# In this short script, we show how to use RobotWrapper
+# integrating different kinds of viewers
+#
 
 import pinocchio as pin
 pin.switchToNumpyMatrix()
