@@ -1,7 +1,6 @@
 from __future__ import print_function
 import pinocchio as pin
 pin.switchToNumpyMatrix()
-from pinocchio.romeo_wrapper import RomeoWrapper
 
 import os
 from os.path import dirname, join, abspath
