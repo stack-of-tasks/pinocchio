@@ -3,7 +3,7 @@
 #
 
 SET(${PROJECT_NAME}_EXAMPLES
-  i-inverse-kinematics
+  inverse-kinematics
   overview-simple
   overview-lie
   overview-SE3
@@ -32,7 +32,7 @@ ENDFOREACH(EXAMPLE ${${PROJECT_NAME}_EXAMPLES})
 
 IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_EXAMPLES
-    i-inverse-kinematics
+    inverse-kinematics
     overview-simple
     overview-urdf
     kinematics-derivatives

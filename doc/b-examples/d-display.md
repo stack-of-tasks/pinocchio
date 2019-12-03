@@ -1,7 +1,7 @@
 # Loading and displaying the model
 
 ## Python
-\include d-display.py
+\include display.py
 
 ## C++
-\include d-display.cpp
+\include display.cpp

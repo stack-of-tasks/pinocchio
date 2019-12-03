@@ -4,7 +4,7 @@ This example shows how to position the end effector of a manipulator robot to a 
 The example employs a simple Jacobian-based iterative algorithm, which is called closed-loop inverse kinematics (CLIK).
 
 ## Python
-\includelineno i-inverse-kinematics.py
+\includelineno inverse-kinematics.py
 
 ### Explanation of the code
 First of all, we import the necessary libraries and we create the `Model` and `Data` objects:
@@ -62,7 +62,7 @@ At the end of the loop, we display the result:
 ## C++
 The equivalent C++ implemetation is given below
 
-\includelineno i-inverse-kinematics.cpp
+\includelineno inverse-kinematics.cpp
 
 ### Explanation of the code
 The code follows exactly the same steps as Python.
@@ -75,7 +75,7 @@ This allows to always use the same memory space, avoiding re-allocation and achi
 
 The second difference consists in the way the velocity is computed
 
-\dontinclude i-inverse-kinematics.cpp
+\dontinclude inverse-kinematics.cpp
 \skip svdOptions
 \until SVD
 \skipline svd.compute

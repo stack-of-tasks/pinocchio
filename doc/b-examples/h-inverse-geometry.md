@@ -1,7 +1,7 @@
 # Inverse geometry
 
 ## Python
-\include h-inverse-geometry.py
+\include inverse-geometry.py
 
 ## C++
-\include h-inverse-geometry.cpp
+\include inverse-geometry.cpp

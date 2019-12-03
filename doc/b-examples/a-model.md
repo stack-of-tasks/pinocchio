@@ -1,7 +1,7 @@
 # Loading the model
 
 ## Python
-\include a-model.py
+\include model.py
 
 ## C++
-\include a-model.cpp
+\include model.cpp

@@ -1,7 +1,7 @@
 # Contact dynamics
 
 ## Python
-\include c-contact.py
+\include contact.py
 
 ## C++
-\include c-contact.cpp
+\include contact.cpp
