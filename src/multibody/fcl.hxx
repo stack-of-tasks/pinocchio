@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_fcl_hxx__
@@ -59,6 +59,11 @@ namespace pinocchio
             && lhs.meshPath     == rhs.meshPath
             && lhs.meshScale    == rhs.meshScale
             );
+  }
+
+  inline bool operator!=(const GeometryObject & lhs, const GeometryObject & rhs)
+  {
+    return !(lhs == rhs);
   }
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
