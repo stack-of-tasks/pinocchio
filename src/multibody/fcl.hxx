@@ -23,7 +23,7 @@ namespace pinocchio
     assert(co1 != co2 && "The index of collision objects must not be equal.");
   }
 
-  inline bool CollisionPair::operator== (const CollisionPair& rhs) const
+  inline bool CollisionPair::operator==(const CollisionPair& rhs) const
   {
     return (first == rhs.first  && second == rhs.second)
       ||   (first == rhs.second && second == rhs.first );
@@ -40,7 +40,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_HPP_FCL  
 
-  inline bool operator == (const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
+  inline bool operator==(const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()
             && lhs.getAABB().min_ == rhs.getAABB().min_
@@ -48,10 +48,10 @@ namespace pinocchio
   }
   
 #endif // PINOCCHIO_WITH_HPP_FCL
-  
+
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
-    return ( lhs.name           == rhs.name
+    return (   lhs.name         == rhs.name
             && lhs.parentFrame  == rhs.parentFrame
             && lhs.parentJoint  == rhs.parentJoint
             && lhs.fcl          == rhs.fcl
