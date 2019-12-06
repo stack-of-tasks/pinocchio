@@ -18,6 +18,7 @@ namespace pinocchio
     void exposeFCL()
     {
       using namespace pinocchio::python::fcl;
+      namespace bp = boost::python;
       
       if(!eigenpy::register_symbolic_link_to_registered_type< ::hpp::fcl::OBJECT_TYPE>())
       {
