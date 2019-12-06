@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 CNRS
+// Copyright (c) 2017-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_object_hpp__
@@ -19,19 +19,26 @@ namespace pinocchio
     namespace bp = boost::python;
 
     struct GeometryObjectPythonVisitor
-      : public boost::python::def_visitor< GeometryObjectPythonVisitor >
+    : public boost::python::def_visitor< GeometryObjectPythonVisitor >
     {
-
+      typedef GeometryObject::CollisionGeometryPtr CollisionGeometryPtr;
+      
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >(
+             bp::args("name","parent frame index","parent joint index","FCL collision geometry",
+                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath")))
         .add_property("meshScale",
-                      bp::make_getter(&GeometryObject::meshScale, bp::return_value_policy<bp::return_by_value>()),
+                      bp::make_getter(&GeometryObject::meshScale,
+                                      bp::return_value_policy<bp::return_by_value>()),
                       bp::make_setter(&GeometryObject::meshScale),
                       "Scaling parameter for the mesh")
         .add_property("meshColor",
-                      bp::make_getter(&GeometryObject::meshColor, bp::return_value_policy<bp::return_by_value>()),
+                      bp::make_getter(&GeometryObject::meshColor,
+                                      bp::return_value_policy<bp::return_by_value>()),
                       bp::make_setter(&GeometryObject::meshColor),
                       "Color rgba for the mesh")
         .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
@@ -42,6 +49,9 @@ namespace pinocchio
         .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
         .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
         .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
           .def("CreateCapsule", &GeometryObjectPythonVisitor::maker_capsule)
