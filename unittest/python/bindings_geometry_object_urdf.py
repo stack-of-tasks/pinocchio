@@ -3,7 +3,7 @@ import pinocchio as pin
 pin.switchToNumpyMatrix()
 import os
 
-@unittest.skipUnless(pin.WITH_URDFDOM_SUPPORT(),"Needs URDFDOM")
+@unittest.skipUnless(pin.WITH_URDFDOM,"Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def setUp(self):

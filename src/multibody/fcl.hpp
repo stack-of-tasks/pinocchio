@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_fcl_hpp__
@@ -77,6 +77,8 @@ struct GeometryObject
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
+  typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
+  
   /// \brief Name of the geometry object
   std::string name;
 
@@ -91,7 +93,7 @@ struct GeometryObject
   JointIndex parentJoint;
 
   /// \brief The actual cloud of points representing the collision mesh of the object after scaling.
-  boost::shared_ptr<fcl::CollisionGeometry> fcl;
+  CollisionGeometryPtr fcl;
 
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
@@ -111,24 +113,25 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
-  GeometryObject(const std::string & name, const FrameIndex parentF,
-                 const JointIndex parentJ,
-                 const boost::shared_ptr<fcl::CollisionGeometry> & collision,
-                 const SE3 & placement, const std::string & meshPath = "",
+  GeometryObject(const std::string & name, const FrameIndex parent_frame,
+                 const JointIndex parent_joint,
+                 const CollisionGeometryPtr & collision,
+                 const SE3 & placement,
+                 const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
-                : name(name)
-                , parentFrame(parentF)
-                , parentJoint(parentJ)
-                , fcl(collision)
-                , placement(placement)
-                , meshPath(meshPath)
-                , meshScale(meshScale)
-                , overrideMaterial(overrideMaterial)
-                , meshColor(meshColor)
-                , meshTexturePath(meshTexturePath)
+  : name(name)
+  , parentFrame(parent_frame)
+  , parentJoint(parent_joint)
+  , fcl(collision)
+  , placement(placement)
+  , meshPath(meshPath)
+  , meshScale(meshScale)
+  , overrideMaterial(overrideMaterial)
+  , meshColor(meshColor)
+  , meshTexturePath(meshTexturePath)
   {}
 
   GeometryObject & operator=(const GeometryObject & other)
