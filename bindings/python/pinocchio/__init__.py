@@ -14,8 +14,12 @@ from .libpinocchio_pywrap import *
 from .deprecated import *
 from .shortcuts import *
 
-try:
-  import hppfcl as fcl
-  WITH_FCL_BINDINGS = True
-except ImportError:
+if pin.WITH_FCL:
+  try:
+    import hppfcl as fcl
+    WITH_FCL_BINDINGS = True
+  except ImportError:
+    WITH_FCL_BINDINGS = False
+else:
   WITH_FCL_BINDINGS = False
+  
