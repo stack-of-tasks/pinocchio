@@ -11,7 +11,7 @@ namespace pinocchio
     
     namespace bp = boost::python;
     
-    static bool WITH_FCL_SUPPORT()
+    static bool WITH_FCL()
     {
 #ifdef PINOCCHIO_WITH_HPP_FCL
       return true;
@@ -20,7 +20,7 @@ namespace pinocchio
 #endif
     }
     
-    static bool WITH_URDFDOM_SUPPORT()
+    static bool WITH_URDFDOM()
     {
 #ifdef PINOCCHIO_WITH_URDFDOM
       return true;
@@ -29,7 +29,7 @@ namespace pinocchio
 #endif
     }
     
-    static bool WITH_LUA5_SUPPORT()
+    static bool WITH_LUA5()
     {
 #ifdef PINOCCHIO_WITH_LUA5
       return true;
@@ -38,9 +38,9 @@ namespace pinocchio
 #endif
     }
     
-    static bool WITH_CPPAD_SUPPORT()
+    static bool WITH_CPPAD()
     {
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
+#ifdef PINOCCHIO_WITH_CPPAD
       return true;
 #else
       return false;
@@ -50,16 +50,16 @@ namespace pinocchio
     void exposeDependencies()
     {
       
-      bp::def("WITH_FCL_SUPPORT",&WITH_FCL_SUPPORT,
+      bp::def("WITH_FCL",&WITH_FCL,
               "Returns True if Pinocchio has been built with the FCL support.");
       
-      bp::def("WITH_URDFDOM_SUPPORT",&WITH_URDFDOM_SUPPORT,
+      bp::def("WITH_URDFDOM",&WITH_URDFDOM,
               "Returns True if Pinocchio has been built with the URDFDOM support.");
       
-      bp::def("WITH_LUA5_SUPPORT",&WITH_LUA5_SUPPORT,
+      bp::def("WITH_LUA5",&WITH_LUA5,
               "Returns True if Pinocchio has been built with the LUA 5 support.");
       
-      bp::def("WITH_CPPAD_SUPPORT",&WITH_CPPAD_SUPPORT,
+      bp::def("WITH_CPPAD",&WITH_CPPAD,
               "Returns True if Pinocchio has been built with the CppAD support.");
     }
     
