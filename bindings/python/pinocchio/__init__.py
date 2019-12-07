@@ -4,7 +4,7 @@
 
 import numpy as np
 from .robot_wrapper import RobotWrapper
-from .libpinocchio_pywrap import __version__
+from .libpinocchio_pywrap import __version__, __raw_version__
 
 from . import libpinocchio_pywrap as pin
 from . import utils
