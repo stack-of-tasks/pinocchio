@@ -82,6 +82,28 @@ BOOST_AUTO_TEST_CASE (test_ccrba)
   pinocchio::Data::Matrix6x Ag_ref (cM1.inverse().toActionMatrix().transpose() * data_ref.M.topRows <6> ());
   BOOST_CHECK(data.Ag.isApprox(Ag_ref,1e-12));
 }
+
+BOOST_AUTO_TEST_CASE(test_centroidal_mapping)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  Eigen::VectorXd q = randomConfiguration(model);
+  Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
+  
+  computeCentroidalMapping(model, data, q);
+  ccrba(model,data_ref,q,v);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+  
+  computeJointJacobians(model,data_ref,q);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+}
   
 BOOST_AUTO_TEST_CASE (test_dccrb)
 {
@@ -238,6 +260,31 @@ BOOST_AUTO_TEST_CASE (test_dccrb)
 }
 
 BOOST_AUTO_TEST_CASE (test_computeCentroidalMomentum_computeCentroidalMomentumTimeVariation)
+BOOST_AUTO_TEST_CASE(test_centroidal_mapping_time_derivative)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  Eigen::VectorXd q = randomConfiguration(model);
+  Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
+  
+  computeCentroidalMappingTimeVariation(model, data, q, v);
+  dccrba(model,data_ref,q,v);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
+  BOOST_CHECK(data.dAg.isApprox(data_ref.dAg));
+  
+  computeJointJacobiansTimeVariation(model,data_ref,q,v);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+}
+
 {
   using namespace pinocchio;
   Model model;
