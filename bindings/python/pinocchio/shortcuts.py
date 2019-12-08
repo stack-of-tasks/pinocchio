@@ -27,7 +27,7 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
     else:
         model = pin.buildModelFromUrdf(filename, root_joint)
 
-    if verbose and not pin.WITH_FCL_SUPPORT and meshLoader is not None:
+    if verbose and not pin.WITH_HPP_FCL and meshLoader is not None:
         print('Info: Pinocchio was compiled without hpp-fcl. meshLoader is ignored.')
     if package_dirs is None:
         package_dirs = []
@@ -38,7 +38,7 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         geometry_types = [geometry_types]
 
     for geometry_type in geometry_types:
-        if meshLoader is None or not pin.WITH_FCL_SUPPORT():
+        if meshLoader is None or not pin.WITH_HPP_FCL:
             geom_model = pin.buildGeomFromUrdf(model, filename, package_dirs, geometry_type)
         else:
             geom_model = pin.buildGeomFromUrdf(model, filename, package_dirs, geometry_type, meshLoader)
