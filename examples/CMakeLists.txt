@@ -10,6 +10,7 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-urdf
   interpolation-SE3
   build-reduced-model
+  geometry-models
   )
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
@@ -41,6 +42,7 @@ IF(BUILD_PYTHON_INTERFACE)
     gepetto-viewer
     meshcat-viewer
     robot-wrapper-viewer
+    geometry-models
     )
 
   IF(HPP_FCL_FOUND)
