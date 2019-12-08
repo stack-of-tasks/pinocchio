@@ -71,9 +71,9 @@ BOOST_AUTO_TEST_CASE (test_ccrba)
   
   ccrba(model, data, q, v);
   BOOST_CHECK(data.com[0].isApprox(-cMo.translation(),1e-12));
-  BOOST_CHECK(data.Ycrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
+  BOOST_CHECK(data.oYcrb[0].matrix().isApprox(data_ref.Ycrb[0].matrix(),1e-12));
   
-  pinocchio::Inertia Ig_ref (cMo.act(data.Ycrb[0]));
+  pinocchio::Inertia Ig_ref (cMo.act(data.oYcrb[0]));
   BOOST_CHECK(data.Ig.matrix().isApprox(Ig_ref.matrix(),1e-12));
   
   pinocchio::SE3 oM1 (data_ref.liMi[1]);

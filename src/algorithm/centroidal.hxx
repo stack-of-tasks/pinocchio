@@ -126,14 +126,12 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S());
       
-      jdata.U() = data.Ycrb[i] * jdata.S();
-      
-      ColsBlock jF = jmodel.jointCols(data.Ag);
-      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
-      
-      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
+      data.oYcrb[parent] += data.oYcrb[i];
     }
     
   }; // struct CcrbaBackwardStep
@@ -154,9 +152,9 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     forwardKinematics(model, data, q);
-    data.Ycrb[0].setZero();
+    data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
-      data.Ycrb[i] = model.inertias[i];
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
     
     typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
@@ -166,7 +164,7 @@ namespace pinocchio
     }
     
     // Express the centroidal map around the center of mass
-    data.com[0] = data.Ycrb[0].lever();
+    data.com[0] = data.oYcrb[0].lever();
     
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
@@ -176,9 +174,9 @@ namespace pinocchio
     
     data.hg.toVector().noalias() = data.Ag*v;
     
-    data.Ig.mass() = data.Ycrb[0].mass();
+    data.Ig.mass() = data.oYcrb[0].mass();
     data.Ig.lever().setZero();
-    data.Ig.inertia() = data.Ycrb[0].inertia();
+    data.Ig.inertia() = data.oYcrb[0].inertia();
     
     return data.Ag;
   }
@@ -197,9 +195,9 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     forwardKinematics(model, data, q);
-    data.Ycrb[0].setZero();
+    data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
-      data.Ycrb[i] = model.inertias[i];
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
     
     typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
@@ -209,7 +207,7 @@ namespace pinocchio
     }
     
     // Express the centroidal map around the center of mass
-    data.com[0] = data.Ycrb[0].lever();
+    data.com[0] = data.oYcrb[0].lever();
     
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
