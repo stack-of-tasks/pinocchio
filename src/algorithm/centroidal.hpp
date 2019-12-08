@@ -161,6 +161,8 @@ namespace pinocchio
   ///
   /// \return The Centroidal Momentum Matrix Ag.
   ///
+  /// \remarks As another output, this algorithm also computes the Joint Jacobian matrix (accessible via data.J).
+  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -179,6 +181,8 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
   /// \return The Centroidal Momentum Matrix Ag.
+  ///
+  /// \remarks As another output, this algorithm also computes the Joint Jacobian matrix (accessible via data.J).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
@@ -200,7 +204,9 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
-  /// \return The Centroidal Momentum Matrix time derivative dAg
+  /// \return The Centroidal Momentum Matrix time derivative dAg (accessible via data.dAg).
+  ///
+  /// \remarks As another output, this algorithm also computes the Centroidal Momentum Matrix Ag (accessible via data.Ag), the Joint Jacobian matrix (accessible via data.J) and the time derivatibe of the Joint Jacobian matrix (accessible via data.dJ).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
