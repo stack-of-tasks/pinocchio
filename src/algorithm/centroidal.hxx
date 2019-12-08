@@ -183,7 +183,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
-  computeCentroidalMapping(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Eigen::MatrixBase<ConfigVectorType> & q)
   {
@@ -324,7 +324,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
-  computeCentroidalMappingTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                         const Eigen::MatrixBase<ConfigVectorType> & q,
                                         const Eigen::MatrixBase<TangentVectorType> & v)

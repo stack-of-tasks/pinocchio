@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_mapping)
   Eigen::VectorXd q = randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   
-  computeCentroidalMapping(model, data, q);
+  computeCentroidalMap(model, data, q);
   ccrba(model,data_ref,q,v);
   
   BOOST_CHECK(data.J.isApprox(data_ref.J));
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_mapping_time_derivative)
   Eigen::VectorXd q = randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
   
-  computeCentroidalMappingTimeVariation(model, data, q, v);
+  computeCentroidalMapTimeVariation(model, data, q, v);
   dccrba(model,data_ref,q,v);
   
   BOOST_CHECK(data.J.isApprox(data_ref.J));
