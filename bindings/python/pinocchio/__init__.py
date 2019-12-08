@@ -16,7 +16,7 @@ from .shortcuts import *
 
 if pin.WITH_HPP_FCL:
   try:
-    import hppfcl as fcl
+    import hppfcl
     WITH_HPP_FCL_BINDINGS = True
   except ImportError:
     WITH_HPP_FCL_BINDINGS = False
