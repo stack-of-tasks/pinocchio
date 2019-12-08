@@ -52,12 +52,30 @@ namespace pinocchio
               "For the same price, it also computes the total joint jacobians (data.J).",
               bp::return_value_policy<bp::return_by_value>());
       
+      bp::def("computeCentroidalMapping",
+              &computeCentroidalMapping<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("Model","Data",
+                       "Joint configuration q (size Model::nq)"),
+              "Computes the centroidal mapping, puts the result in Data.Ag and returns the centroidal mapping.\n"
+              "For the same price, it also computes the total joint jacobians (data.J).",
+              bp::return_value_policy<bp::return_by_value>());
+      
       bp::def("dccrba",
               dccrba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)"),
               "Computes the time derivative of the centroidal momentum matrix Ag in terms of q and v.\n"
+              "For the same price, it also computes the centroidal momentum matrix (data.Ag), the total joint jacobians (data.J) "
+              "and the related joint jacobians time derivative (data.dJ)",
+              bp::return_value_policy<bp::return_by_value>());
+      
+      bp::def("computeCentroidalMappingTimeVariation",
+              computeCentroidalMappingTimeVariation<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              bp::args("Model","Data",
+                       "Joint configuration q (size Model::nq)",
+                       "Joint velocity v (size Model::nv)"),
+              "Computes the time derivative of the centroidal momentum matrix Ag, puts the result in Data.Ag and returns the centroidal mapping.\n"
               "For the same price, it also computes the centroidal momentum matrix (data.Ag), the total joint jacobians (data.J) "
               "and the related joint jacobians time derivative (data.dJ)",
               bp::return_value_policy<bp::return_by_value>());
