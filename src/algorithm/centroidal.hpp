@@ -167,6 +167,24 @@ namespace pinocchio
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
         const Eigen::MatrixBase<TangentVectorType> & v);
+
+  ///
+  /// \brief Computes the Centroidal Momentum Matrix,.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  ///
+  /// \return The Centroidal Momentum Matrix Ag.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeCentroidalMapping(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
   /// \brief Computes the time derivative of the Centroidal Momentum Matrix according to the current configuration and velocity vectors.

@@ -183,6 +183,43 @@ namespace pinocchio
     return data.Ag;
   }
   
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeCentroidalMapping(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
+    forwardKinematics(model, data, q);
+    data.Ycrb[0].setZero();
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+      data.Ycrb[i] = model.inertias[i];
+    
+    typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+    
+    // Express the centroidal map around the center of mass
+    data.com[0] = data.Ycrb[0].lever();
+    
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
+    const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
+    for (long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
+    return data.Ag;
+  }
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct DCcrbaBackwardStep
   : public fusion::JointUnaryVisitorBase< DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
