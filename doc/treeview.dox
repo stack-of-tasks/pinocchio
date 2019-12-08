@@ -48,6 +48,7 @@ namespace pinocchio {
 
   /** \page md_doc_b-examples_intro Examples
         - \subpage md_doc_b-examples_a-model
+        - \subpage md_doc_b-examples_ab-geometry-models
         - \subpage md_doc_b-examples_b-display
         - \subpage md_doc_b-examples_c-dynamics
         - \subpage md_doc_b-examples_d-contact
