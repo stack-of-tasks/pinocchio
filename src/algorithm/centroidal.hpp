@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_centroidal_hpp__
-#define __pinocchio_centroidal_hpp__
+#ifndef __pinocchio_algorithm_centroidal_hpp__
+#define __pinocchio_algorithm_centroidal_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -196,4 +196,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal.hxx"
 
-#endif // ifndef __pinocchio_centroidal_hpp__
+#endif // ifndef __pinocchio_algorithm_centroidal_hpp__
