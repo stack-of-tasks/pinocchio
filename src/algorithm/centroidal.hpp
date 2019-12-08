@@ -198,7 +198,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] v The joint configuration vector (dim model.nv).
+  /// \param[in] v The joint velocity vector (dim model.nv).
   ///
   /// \return The Centroidal Momentum Matrix time derivative dAg
   ///
