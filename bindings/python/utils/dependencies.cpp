@@ -13,7 +13,7 @@ namespace pinocchio
 
     void exposeDependencies()
     {
-      bp::scope().attr("WITH_FCL") =
+      bp::scope().attr("WITH_HPP_FCL") =
 #ifdef PINOCCHIO_WITH_HPP_FCL
       true;
 #else

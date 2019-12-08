@@ -3,7 +3,7 @@ import pinocchio as pin
 pin.switchToNumpyMatrix()
 import numpy as np
 
-@unittest.skipUnless(pin.WITH_FCL,"Needs FCL")
+@unittest.skipUnless(pin.WITH_HPP_FCL,"Needs HPP-FCL")
 class TestGeometryObjectBindings(unittest.TestCase):
 
     def setUp(self):
