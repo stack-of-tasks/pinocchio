@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_centroidal_hxx__
-#define __pinocchio_centroidal_hxx__
+#ifndef __pinocchio_algorithm_centroidal_hxx__
+#define __pinocchio_algorithm_centroidal_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
@@ -126,14 +126,12 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S());
       
-      jdata.U() = data.Ycrb[i] * jdata.S();
-      
-      ColsBlock jF = jmodel.jointCols(data.Ag);
-      //        = data.Ag.middleCols(jmodel.idx_v(), jmodel.nv());
-      
-      forceSet::se3Action(data.oMi[i],jdata.U(),jF);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
+      data.oYcrb[parent] += data.oYcrb[i];
     }
     
   }; // struct CcrbaBackwardStep
@@ -154,9 +152,9 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     forwardKinematics(model, data, q);
-    data.Ycrb[0].setZero();
+    data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
-      data.Ycrb[i] = model.inertias[i];
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
     
     typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
@@ -166,7 +164,7 @@ namespace pinocchio
     }
     
     // Express the centroidal map around the center of mass
-    data.com[0] = data.Ycrb[0].lever();
+    data.com[0] = data.oYcrb[0].lever();
     
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
@@ -176,9 +174,46 @@ namespace pinocchio
     
     data.hg.toVector().noalias() = data.Ag*v;
     
-    data.Ig.mass() = data.Ycrb[0].mass();
+    data.Ig.mass() = data.oYcrb[0].mass();
     data.Ig.lever().setZero();
-    data.Ig.inertia() = data.Ycrb[0].inertia();
+    data.Ig.inertia() = data.oYcrb[0].inertia();
+    
+    return data.Ag;
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
+    forwardKinematics(model, data, q);
+    data.oYcrb[0].setZero();
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+    
+    typedef CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+    
+    // Express the centroidal map around the center of mass
+    data.com[0] = data.oYcrb[0].lever();
+    
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
+    const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
+    for (long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
     return data.Ag;
   }
@@ -286,10 +321,59 @@ namespace pinocchio
     
     return data.dAg;
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                        const Eigen::MatrixBase<ConfigVectorType> & q,
+                                        const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    
+    forwardKinematics(model,data,q,v);
+    data.oYcrb[0].setZero();
+    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+    {
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.ov[i] = data.oMi[i].act(data.v[i]); // v_i expressed in the world frame
+      data.doYcrb[i] = data.oYcrb[i].variation(data.ov[i]);
+    }
+    
+    typedef DCcrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+    
+    // Express the centroidal map around the center of mass
+    data.com[0] = data.oYcrb[0].lever();
+    
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
+    
+    const Block3x Ag_lin = data.Ag.template middleRows<3> (Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>  (Force::ANGULAR);
+    for(Eigen::DenseIndex i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
+    // Express the centroidal time derivative map around the center of mass
+    const Block3x dAg_lin = data.dAg.template middleRows<3>(Force::LINEAR);
+    Block3x dAg_ang = data.dAg.template middleRows<3>(Force::ANGULAR);
+    for(Eigen::DenseIndex i = 0; i<model.nv; ++i)
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
+    
+    return data.dAg;
+  }
   
 } // namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_centroidal_hxx__
-
+#endif // ifndef __pinocchio_algorithm_centroidal_hxx__
