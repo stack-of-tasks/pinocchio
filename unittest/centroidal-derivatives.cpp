@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   for(size_t k = 0; k < (size_t)model.njoints; ++k)
   {
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
-    BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oMi[k].act(data_ref.Ycrb[k])));
+    BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
   }
   BOOST_CHECK(dhdot_da.isApprox(data_ref.Ag));
   
