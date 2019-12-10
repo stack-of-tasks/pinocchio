@@ -1,7 +1,7 @@
 # Collision detection and distances
 
 ## Python
-\include e-collisions.py
+\include collisions.py
 
 ## C++
-\include e-collisions.cpp
+\include collisions.cpp

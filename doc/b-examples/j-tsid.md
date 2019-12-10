@@ -1,7 +1,7 @@
 # Task space inverse dynamics
 
 ## Python
-\include j-tsid.py
+\include tsid.py
 
 ## C++
-\include j-tsid.cpp
+\include tsid.cpp

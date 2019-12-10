@@ -1,7 +1,7 @@
 # Loading the model
 
 ## Python
-\include a-model.py
+\include overview-urdf.py
 
 ## C++
-\include a-model.cpp
+\include overview-urdf.cpp

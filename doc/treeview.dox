@@ -48,9 +48,10 @@ namespace pinocchio {
 
   /** \page md_doc_b-examples_intro Examples
         - \subpage md_doc_b-examples_a-model
-        - \subpage md_doc_b-examples_b-dynamics
-        - \subpage md_doc_b-examples_c-contact
-        - \subpage md_doc_b-examples_d-display
+        - \subpage md_doc_b-examples_ab-geometry-models
+        - \subpage md_doc_b-examples_b-display
+        - \subpage md_doc_b-examples_c-dynamics
+        - \subpage md_doc_b-examples_d-contact
         - \subpage md_doc_b-examples_e-collisions
         - \subpage md_doc_b-examples_f-derivatives
         - \subpage md_doc_b-examples_g-code-generation
@@ -61,6 +62,12 @@ namespace pinocchio {
         - \subpage md_doc_b-examples_l-postures
         - \subpage md_doc_b-examples_m-rrt
         - \subpage md_doc_b-examples_n-rl
+  */
+
+  /** \page md_doc_b-examples_b-display
+        - \subpage md_doc_b-examples_display_a-gepetto-viewer
+        - \subpage md_doc_b-examples_display_b-meshcat-viewer
+        - \subpage md_doc_b-examples_display_c-robot-wrapper-viewer
   */
 
   /** \page md_doc_c-maths_intro Mathematical Formulation

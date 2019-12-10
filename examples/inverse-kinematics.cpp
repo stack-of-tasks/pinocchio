@@ -1,4 +1,5 @@
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -9,25 +10,26 @@ int main(int /* argc */, char ** /* argv */)
   pinocchio::buildModels::manipulator(model);
   pinocchio::Data data(model);
 
-  const int    JOINT_ID = 6;
-  Eigen::Vector3d xdes;        xdes << 0.5, -0.5, 0.5;
+  const int JOINT_ID = 6;
+  const pinocchio::SE3 oMdes(Eigen::Matrix3d::Identity(), Eigen::Vector3d(1., 0., 1.));
 
-  Eigen::VectorXd q     = pinocchio::neutral(model);
-  const double eps      = 1e-4;
-  const int IT_MAX      = 1000;
-  const double DT       = 1e-1;
+  Eigen::VectorXd q = pinocchio::neutral(model);
+  const double eps  = 1e-4;
+  const int IT_MAX  = 1000;
+  const double DT   = 1e-1;
 
   pinocchio::Data::Matrix6x J(6,model.nv); J.setZero();
   unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
-  Eigen::JacobiSVD<pinocchio::Data::Matrix3x> svd(3,model.nv,svdOptions);
+  Eigen::JacobiSVD<pinocchio::Data::Matrix6x> svd(6, model.nv, svdOptions);
 
-  Eigen::Vector3d err;
+  typedef Eigen::Matrix<double, 6, 1> Vector6d;
+  Vector6d err;
+  Eigen::VectorXd v(model.nv);
   for (int i=0;;i++)
   {
     pinocchio::forwardKinematics(model,data,q);
-    const Eigen::Vector3d & x   = data.oMi[JOINT_ID].translation();
-    const Eigen::Matrix3d & R   = data.oMi[JOINT_ID].rotation();
-    err = R.transpose()*(x-xdes);
+    const pinocchio::SE3 dMi = oMdes.actInv(data.oMi[JOINT_ID]);
+    err = pinocchio::log6(dMi).toVector();
     if(err.norm() < eps)
     {
       std::cout << "Convergence achieved!" << std::endl;
@@ -39,9 +41,12 @@ int main(int /* argc */, char ** /* argv */)
       break;
     }
     pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);
-    const Eigen::VectorXd v     = - svd.compute(J.topRows<3>()).solve(err);
+    pinocchio::SE3::Matrix6 Jlog;
+    pinocchio::Jlog6(dMi, Jlog);
+    v = - svd.compute(Jlog * J).solve(err);
     q = pinocchio::integrate(model,q,v*DT);
-    if(!(i%10)) std::cout << "error = " << err.transpose() << std::endl;
+    if(!(i%10))
+      std::cout << "error = " << err.transpose() << std::endl;
   }
 
   std::cout << "\nresult: " << q.transpose() << std::endl;

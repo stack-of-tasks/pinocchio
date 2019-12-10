@@ -1,7 +1,7 @@
 # Code generation
 
 ## Python
-\include g-code-generation.py
+\include code-generation.py
 
 ## C++
-\include g-code-generation.cpp
+\include code-generation.cpp

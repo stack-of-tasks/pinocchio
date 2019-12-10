@@ -3,13 +3,14 @@
 #
 
 SET(${PROJECT_NAME}_EXAMPLES
-  i-inverse-kinematics
+  inverse-kinematics
   overview-simple
   overview-lie
   overview-SE3
   overview-urdf
   interpolation-SE3
   build-reduced-model
+  geometry-models
   )
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
@@ -32,7 +33,7 @@ ENDFOREACH(EXAMPLE ${${PROJECT_NAME}_EXAMPLES})
 
 IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_EXAMPLES
-    i-inverse-kinematics
+    inverse-kinematics
     overview-simple
     overview-urdf
     kinematics-derivatives
@@ -41,6 +42,7 @@ IF(BUILD_PYTHON_INTERFACE)
     gepetto-viewer
     meshcat-viewer
     robot-wrapper-viewer
+    geometry-models
     )
 
   IF(HPP_FCL_FOUND)

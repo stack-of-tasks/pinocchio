@@ -1,10 +1,10 @@
 # Inverse kinematics (clik)
 
-This example shows how to position the end effector of a manipulator robot to a given position.
+This example shows how to position the end effector of a manipulator robot to a given pose (position and orientation).
 The example employs a simple Jacobian-based iterative algorithm, which is called closed-loop inverse kinematics (CLIK).
 
 ## Python
-\includelineno i-inverse-kinematics.py
+\includelineno inverse-kinematics.py
 
 ### Explanation of the code
 First of all, we import the necessary libraries and we create the `Model` and `Data` objects:
@@ -13,8 +13,8 @@ First of all, we import the necessary libraries and we create the `Model` and `D
 The end effector corresponds to the 6th joint
 \skipline JOINT
 
-and its desired position is given as
-\skipline xdes
+and its desired pose is given as
+\skipline oMdes
 
 Next, we define an initial configuration
 \skipline q
@@ -26,25 +26,33 @@ but using this method generalizes well to more complex kinds of robots, ensuring
 
 Next, we set some computation-related values
 \until DT
-corresponding to the desired position precision (a tenth of a millimeter will do), a maximum number of iterations (to avoid infinite looping in case the position is not reachable) and a positive "time step" defining the convergence rate.
+corresponding to the desired position precision (we will see later what it exactly means), a maximum number of iterations (to avoid infinite looping in case the position is not reachable) and a positive "time step" defining the convergence rate.
 
 Then, we begin the iterative process.
-At each iteration, we begin by computing the end-effector pose for the current configuration value:
-\skip forwardKinematics
-\until R
+At each iteration, we begin by computing the forward kinematics:
+\skipline forwardKinematics
 
-Next, we compute the error between the desired position and the current one. Notice we chose to express it in the local joint frame:
-\skipline err
+Next, we compute the error between the desired pose and the current one.
+\skip dMi
+\until err
+Here, `data.oMi[JOINT_ID]` corresponds to the placement of the sixth joint (previously computed by `forwardKinematics`),
+`dMi` corresponds to the transformation between the desired pose and the current one, and `err` is the error.
+In order to compute the error, we employed `log`: this is a `Motion` object, and it is one way of computing an error in \f$SO(3)\f$ as a six-dimensional vector.
 
 If the error norm is below the previously-defined threshold, we have found the solution and we break out of the loop
 \until break
+Notice that, strictly speaking, the norm of a spatial velocity does not make physical sense, since it mixes linear and angular quantities.
+A more rigorous implementation should treat the linar part and the angular part separately.
+In this example, however, we choose to slightly abuse the notation in order to keep it simple.
 
 If we have reached the maximum number of iterations, it means a solution has not been found. We print an error message and we also break
 \until break
 
 Otherwise, we search for another configuration trying to reduce the error.
 
-We start by computing the Jacobian, also in the local joint frame. Since we are only interested in the position, and not in the orientation, we select the first three lines, corresponding to the translation part
+We start by computing the Jacobian of the error.
+This is consists in the concatenation of two partial derivatives:
+the Jacobian of the `log` function and the joint Jacobian, expressed in the local joint frame.
 \skipline J
 
 Next, we can compute the evolution of the configuration by taking the pseudo-inverse of the Jacobian:
@@ -62,7 +70,7 @@ At the end of the loop, we display the result:
 ## C++
 The equivalent C++ implemetation is given below
 
-\includelineno i-inverse-kinematics.cpp
+\includelineno inverse-kinematics.cpp
 
 ### Explanation of the code
 The code follows exactly the same steps as Python.
@@ -75,7 +83,7 @@ This allows to always use the same memory space, avoiding re-allocation and achi
 
 The second difference consists in the way the velocity is computed
 
-\dontinclude i-inverse-kinematics.cpp
+\dontinclude inverse-kinematics.cpp
 \skip svdOptions
 \until SVD
 \skipline svd.compute
