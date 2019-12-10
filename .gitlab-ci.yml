@@ -27,31 +27,31 @@ cache:
 
 #robotpkg-pinocchio-14.04-release:
 #  <<: *robotpkg-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:14.04
 #
 #robotpkg-pinocchio-14.04-debug:
 #  <<: *robotpkg-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:14.04
 #  before_script:
 #    - echo PKG_OPTIONS.pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-pinocchio-16.04-release:
   <<: *robotpkg-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
 
 robotpkg-pinocchio-16.04-debug:
   <<: *robotpkg-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
   before_script:
     - echo PKG_OPTIONS.pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-pinocchio-18.04-release:
   <<: *robotpkg-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
 
 robotpkg-pinocchio-18.04-debug:
   <<: *robotpkg-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
   before_script:
     - echo PKG_OPTIONS.pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
@@ -74,67 +74,67 @@ robotpkg-pinocchio-18.04-debug:
 
 #robotpkg-py-pinocchio-14.04-release:
 #  <<: *robotpkg-py-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
 #
 #robotpkg-py-pinocchio-py3-14.04-release:
 #  <<: *robotpkg-py-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
 
 #robotpkg-py-pinocchio-14.04-debug:
 #  <<: *robotpkg-py-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:14.04
 #  before_script:
 #    - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 #
 #robotpkg-py-pinocchio-py3-14.04-debug:
 #  <<: *robotpkg-py-pinocchio
-#  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
+#  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:14.04
 #  before_script:
 #    - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-py-pinocchio-16.04-release:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
 
 robotpkg-py-pinocchio-py3-16.04-release:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
 
 robotpkg-py-pinocchio-16.04-debug:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-py-pinocchio-py3-16.04-debug:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:16.04
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-py-pinocchio-py3-18.04-release:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
 
 robotpkg-py-pinocchio-18.04-release:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
 
 robotpkg-py-pinocchio-18.04-debug:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 robotpkg-py-pinocchio-py3-18.04-debug:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio-py3:18.04
   before_script:
     - echo PKG_OPTIONS.py-pinocchio=debug >> /opt/openrobots/etc/robotpkg.conf
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
-  image: eur0c.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
+  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
   before_script:
     - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
   after_script:
