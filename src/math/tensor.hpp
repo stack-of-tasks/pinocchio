@@ -7,7 +7,7 @@
 
 #include "pinocchio/fwd.hpp"
 
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   #include <unsupported/Eigen/CXX11/Tensor>
 #endif
 
@@ -18,7 +18,7 @@
 namespace pinocchio
 {
 
-#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
+#ifndef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
 
   // Mimic the Eigen::Tensor module only available for C++11 and more
   template<typename Scalar_, int NumIndices_, int Options_ = 0, typename IndexType = Eigen::DenseIndex>
@@ -175,7 +175,7 @@ namespace pinocchio
   template<typename Scalar_, int NumIndices_, int Options_ = 0, typename IndexType = Eigen::DenseIndex>
   using Tensor = Eigen::Tensor<Scalar_,NumIndices_,Options_,IndexType>;
 
-#endif // ifndef PINOCCHIO_WITH_CXX11_SUPPORT
+#endif // ifndef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
 
 }
 

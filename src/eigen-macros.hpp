@@ -41,4 +41,9 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
 /// \brief Macro for an automatic const_cast
 #define PINOCCHIO_EIGEN_CONST_CAST(TYPE,OBJ) const_cast<TYPE &>(OBJ.derived())
 
+/// \brief Tell if Pinocchio should use the Eigen Tensor Module or not
+#if defined(PINOCCHIO_WITH_CXX11_SUPPORT) && EIGEN_VERSION_AT_LEAST(3,2,90)
+  #define PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+#endif
+
 #endif // ifndef __pinocchio_eigen_macros_hpp__
