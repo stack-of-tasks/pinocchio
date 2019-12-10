@@ -96,7 +96,11 @@ namespace pinocchio
   , impulse_c()
   , staticRegressor(3,4*(model.njoints-1))
   , jointTorqueRegressor(model.nv,10*(model.njoints-1))
+#if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+#else
+  , kinematic_hessians(6,model.nv,model.nv)
+#endif
   {
     typedef typename Model::JointIndex JointIndex;
     
