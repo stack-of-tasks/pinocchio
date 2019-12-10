@@ -17,6 +17,8 @@ def npToTTuple(M):
 
 
 def npToTuple(M):
+    if len(M.shape) == 1:
+        return tuple(M.tolist())
     if M.shape[0] == 1:
         return tuple(M.tolist()[0])
     if M.shape[1] == 1:
