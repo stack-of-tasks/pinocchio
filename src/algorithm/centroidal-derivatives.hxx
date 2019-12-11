@@ -308,31 +308,28 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Vector3 Vector3;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      typename Data::Force & ftmp = data.f[0];
       typename Data::Motion & vtmp = data.v[0];
       typename Data::Matrix6x & Ftmp = data.Fcrb[0];
 
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dHdq_cols = jmodel.jointCols(data.dHdq);
-      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock Ftmp_cols = jmodel.jointCols(Ftmp);
       
-      Ftmp_cols = dFdq_cols;
-      
-      ftmp.linear() = data.oYcrb[i].mass() * model.gravity.linear();
+      const Vector3 mg = data.oYcrb[i].mass() * model.gravity.linear();
       for(Eigen::DenseIndex k = 0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> mref(J_cols.col(k));
         vtmp.linear() = mref.linear() + mref.angular().cross(data.oYcrb[i].lever());
         
         ForceRef<typename ColsBlock::ColXpr> fout(Ftmp_cols.col(k));
-        fout.angular() += vtmp.linear().cross(ftmp.linear());
+        fout.angular() += vtmp.linear().cross(mg);
       }
       
       data.oh[parent] += data.oh[i];
@@ -371,6 +368,10 @@ namespace pinocchio
     
     // compute first data.oh[0] and data.of[0]
     data.oh[0].setZero(); data.of[0].setZero(); data.oYcrb[0].setZero();
+
+    typename Data::Matrix6x & Ftmp = data.Fcrb[0];
+    Ftmp = data.dFdq;
+    
     typedef GetCentroidalDynDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
@@ -403,7 +404,7 @@ namespace pinocchio
     
     // Retrieve the partial derivatives from RNEA derivatives
     translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
-    translateForceSet(data.Fcrb[0],com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(Ftmp,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
