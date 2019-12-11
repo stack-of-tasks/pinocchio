@@ -42,14 +42,14 @@ BOOST_AUTO_TEST_CASE(test_emulate_tensors)
   }
   
   const Eigen::DenseIndex new_x_dim = 2*x_dim, new_y_dim = 2*y_dim, new_z_dim = 2*z_dim;
-  const Tensor::Index dims[3] = { x_dim,y_dim,z_dim };
+  const Eigen::array<Tensor::Index,rank> dims = { x_dim,y_dim,z_dim };
   tensor1.resize(dims);
   
   BOOST_CHECK(tensor1.size() == tensor1_bis.size());
   for(std::size_t i = 0; i < rank; ++i)
     BOOST_CHECK(tensor1.dimension(i) == dims[i]);
   
-  const Tensor::Index new_dims[3] = { new_x_dim,new_y_dim,new_z_dim };
+  const Eigen::array<Tensor::Index,rank> new_dims = { new_x_dim,new_y_dim,new_z_dim };
   tensor1.resize(new_dims);
   
   BOOST_CHECK(tensor1.size() == 8*tensor1_bis.size());

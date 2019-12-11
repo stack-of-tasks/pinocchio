@@ -198,9 +198,9 @@ namespace pinocchio
     }
     
     EIGEN_DEVICE_FUNC
-    void resize(const Index dimensions[NumIndices])
+    void resize(const Eigen::array<Index,NumIndices> & dimensions)
     {
-      int i;
+      size_t i;
       Index size = Index(1);
       for(i = 0; i < NumIndices; i++)
       {
