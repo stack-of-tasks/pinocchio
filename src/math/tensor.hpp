@@ -7,12 +7,46 @@
 
 #include "pinocchio/fwd.hpp"
 
-#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
-  #include <unsupported/Eigen/CXX11/Tensor>
-#endif
-
 #if !EIGEN_VERSION_AT_LEAST(3,2,90)
   #define EIGEN_DEVICE_FUNC
+#endif
+
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+  #include <unsupported/Eigen/CXX11/Tensor>
+#else
+  #if (__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY)
+    #include <boost/array.hpp>
+    namespace Eigen {
+      template <typename T, std::size_t n>
+      struct array
+      {
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE T& operator[] (size_t index) { return values[index]; }
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE const T& operator[] (size_t index) const { return values[index]; }
+
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE T& front() { return values[0]; }
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE const T& front() const { return values[0]; }
+
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE T& back() { return values[n-1]; }
+        EIGEN_DEVICE_FUNC
+        EIGEN_STRONG_INLINE const T& back() const { return values[n-1]; }
+
+        EIGEN_DEVICE_FUNC EIGEN_ALWAYS_INLINE
+        static std::size_t size() { return n; }
+
+        T values[n];
+      };
+    } // namespace Eigen
+  #else
+    #include <array>
+    namespace Eigen {
+      template <typename T, std::size_t N> using array = std::array<T, N>;
+    } // namespace Eigen
+  #endif
 #endif
 
 namespace pinocchio
