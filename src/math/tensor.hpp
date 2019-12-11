@@ -15,7 +15,6 @@
   #include <unsupported/Eigen/CXX11/Tensor>
 #else
   #if (__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY)
-    #include <boost/array.hpp>
     namespace Eigen {
       template <typename T, std::size_t n>
       struct array
