@@ -34,6 +34,9 @@ namespace pinocchio
     };
     typedef IndexType Index;
     
+    inline Tensor& base()             { return *this; }
+    inline const Tensor& base() const { return *this; }
+    
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Index rank() const
     {
       return NumIndices;
@@ -158,6 +161,27 @@ namespace pinocchio
     {
       EIGEN_STATIC_ASSERT(5 == NumIndices, YOU_MADE_A_PROGRAMMING_MISTAKE)
       return coeff(i0 + i1 * m_dimensions[0] + i2 * m_dimensions[1] * m_dimensions[0] + i3 * m_dimensions[2] * m_dimensions[1] * m_dimensions[0] + i4 * m_dimensions[3] * m_dimensions[2] * m_dimensions[1] * m_dimensions[0]);
+    }
+    
+    EIGEN_DEVICE_FUNC
+    void resize(const Index dimensions[NumIndices])
+    {
+      int i;
+      Index size = Index(1);
+      for(i = 0; i < NumIndices; i++)
+      {
+        Eigen::internal::check_rows_cols_for_overflow<Eigen::Dynamic>::run(size, dimensions[i]);
+        size *= dimensions[i];
+      }
+      
+      for(i = 0; i < NumIndices; i++)
+        m_dimensions[i] = dimensions[i];
+      m_storage.resize(size);
+      
+      #ifdef EIGEN_INITIALIZE_COEFFS
+        bool size_changed = size != this->size();
+        if(size_changed) EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
+      #endif
     }
     
   protected:
