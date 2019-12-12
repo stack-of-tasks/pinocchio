@@ -126,7 +126,7 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   
-  inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
+  inline void GeometryModel::addCollisionPair(const CollisionPair & pair)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
                                    "The input pair.first is larger than the number of geometries contained in the GeometryModel");
@@ -150,7 +150,7 @@ namespace pinocchio
     }
   }
   
-  inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)
+  inline void GeometryModel::removeCollisionPair(const CollisionPair & pair)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
                                    "The input pair.first is larger than the number of geometries contained in the GeometryModel");
@@ -165,14 +165,14 @@ namespace pinocchio
   
   inline void GeometryModel::removeAllCollisionPairs () { collisionPairs.clear(); }
 
-  inline bool GeometryModel::existCollisionPair (const CollisionPair & pair) const
+  inline bool GeometryModel::existCollisionPair(const CollisionPair & pair) const
   {
     return (std::find(collisionPairs.begin(),
                       collisionPairs.end(),
                       pair) != collisionPairs.end());
   }
   
-  inline PairIndex GeometryModel::findCollisionPair (const CollisionPair & pair) const
+  inline PairIndex GeometryModel::findCollisionPair(const CollisionPair & pair) const
   {
     CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
                                                        collisionPairs.end(),
