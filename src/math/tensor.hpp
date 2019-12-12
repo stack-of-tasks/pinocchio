@@ -20,9 +20,11 @@
       struct array
       {
         EIGEN_DEVICE_FUNC
-        EIGEN_STRONG_INLINE T& operator[] (size_t index) { return values[index]; }
+        EIGEN_STRONG_INLINE T& operator[] (size_t index)
+        { return values[index]; }
         EIGEN_DEVICE_FUNC
-        EIGEN_STRONG_INLINE const T& operator[] (size_t index) const { return values[index]; }
+        EIGEN_STRONG_INLINE const T& operator[] (size_t index) const
+        { return values[index]; }
 
         EIGEN_DEVICE_FUNC
         EIGEN_STRONG_INLINE T& front() { return values[0]; }
@@ -83,9 +85,15 @@ namespace pinocchio
       NumIndices = NumIndices_
     };
     typedef IndexType Index;
+    typedef Eigen::array<Index,NumIndices_> Dimensions;
     
     inline Tensor& base()             { return *this; }
     inline const Tensor& base() const { return *this; }
+    
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    Dimensions& dimensions() { return m_dimensions; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const Dimensions& dimensions() const { return m_dimensions; }
     
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Index rank() const
     {
@@ -239,7 +247,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> StorageType;
     StorageType m_storage;
     
-    Index m_dimensions[NumIndices];
+    Dimensions m_dimensions;
     
   };
 
