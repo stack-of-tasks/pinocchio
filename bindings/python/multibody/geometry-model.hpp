@@ -35,46 +35,62 @@ namespace pinocchio
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
 
-        .def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &)>(&GeometryModel::addGeometryObject),
-             bp::arg("GeometryObject"),
-             "Add a GeometryObject to a GeometryModel").def("addGeometryObject",static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &,
-                                                                                                                                         const Model &)>(&GeometryModel::addGeometryObject),
-                                                            bp::args("GeometryObject",
-                                                                     "model: a moddel of the system"),
-                                                            "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in model")
-        .def("getGeometryId",&GeometryModel::getGeometryId)
-        .def("existGeometryName",&GeometryModel::existGeometryName)
-        .def("createData",&GeometryModelPythonVisitor::createData)
+        .def("addGeometryObject",
+             static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &)>(&GeometryModel::addGeometryObject),
+             bp::arg("geometry_object"),
+             "Add a GeometryObject to a GeometryModel.\n"
+             "Parameters\n"
+             "\tgeometry_object : a GeometryObject\n")
+        .def("addGeometryObject",
+             static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &,
+                                                                      const Model &)>(&GeometryModel::addGeometryObject),
+             bp::args("self","geometry_object",
+                      "model"),
+             "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in the model.\n"
+             "Parameters\n"
+             "\tgeometry_object : a GeometryObject\n"
+             "\tmodel : a Model of the system\n")
+        .def("getGeometryId",
+             &GeometryModel::getGeometryId,
+             bp::args("self","name"),
+             "Returns the index of a GeometryObject given by its name.")
+        .def("existGeometryName",
+             &GeometryModel::existGeometryName,
+             bp::args("self","name"),
+             "Checks if a GeometryObject  given by its name exists.")
+        .def("createData",
+             &GeometryModelPythonVisitor::createData,
+             bp::arg("self"),
+             "Create a GeometryData associated to the current model.")
 #ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
         .def("addCollisionPair",&GeometryModel::addCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Add a collision pair given by the index of the two collision objects."
-             " Remark: co1 < co2")
+             bp::args("collision_pair"),
+             "Add a collision pair given by the index of the two collision objects.")
         .def("addAllCollisionPairs",&GeometryModel::addAllCollisionPairs,
              "Add all collision pairs.\n"
              "note : collision pairs between geometries having the same parent joint are not added.")
         .def("removeCollisionPair",&GeometryModel::removeCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Remove a collision pair given by the index of the two collision objects."
-             " Remark: co1 < co2")
+             bp::args("self","collision_pair"),
+             "Remove a collision pair.")
         .def("removeAllCollisionPairs",&GeometryModel::removeAllCollisionPairs,
              "Remove all collision pairs.")
         .def("existCollisionPair",&GeometryModel::existCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Check if a collision pair given by the index of the two collision objects exists or not."
-             " Remark: co1 < co2")
+             bp::args("collision_pair"),
+             "Check if a collision pair exists.")
         .def("findCollisionPair", &GeometryModel::findCollisionPair,
-             bp::args("co1 (index)","co2 (index)"),
-             "Return the index of a collision pair given by the index of the two collision objects exists or not."
-             " Remark: co1 < co2")
+             bp::args("collision_pair"),
+             "Return the index of a collision pair.")
 #endif // PINOCCHIO_WITH_HPP_FCL
         ;
       }
       
-      static GeometryData createData(const GeometryModel & geomModel) { return GeometryData(geomModel); }
+      static GeometryData createData(const GeometryModel & geomModel)
+      {
+        return GeometryData(geomModel);
+      }
 
       /* --- Expose --------------------------------------------------------- */
       static void expose()
