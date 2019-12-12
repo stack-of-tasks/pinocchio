@@ -42,10 +42,13 @@ namespace pinocchio
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].type == pinocchio::BODY)  );
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].parent == object.parentJoint) );
+    if(object.parentFrame < model.nframes)
+    {
+      assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+             (model.frames[object.parentFrame].type == pinocchio::BODY)  );
+      assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
+             (model.frames[object.parentFrame].parent == object.parentJoint) );
+    }
     
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
