@@ -113,6 +113,20 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
+  ///
+  /// \brief Full constructor.
+  ///
+  /// \param[in] name  Name of the geometry object.
+  /// \param[in] parent_frame  Index of the parent frame.
+  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
+  /// \param[in] collision The FCL collision geometry object.
+  /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
+  /// \param[in] meshScale Scale of the mesh [if applicable].
+  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
+  /// \param[in] meshColor Color of the mesh [if applicable].
+  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  ///
   GeometryObject(const std::string & name,
                  const FrameIndex parent_frame,
                  const JointIndex parent_joint,
