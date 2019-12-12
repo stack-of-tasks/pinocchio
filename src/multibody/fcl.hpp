@@ -10,11 +10,11 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-#include <hpp/fcl/collision_object.h>
-#include <hpp/fcl/collision.h>
-#include <hpp/fcl/distance.h>
-#include <hpp/fcl/shape/geometric_shapes.h>
-#include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
+  #include <hpp/fcl/collision_object.h>
+  #include <hpp/fcl/collision.h>
+  #include <hpp/fcl/distance.h>
+  #include <hpp/fcl/shape/geometric_shapes.h>
+  #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #endif
 
 #include <iostream>
@@ -113,7 +113,8 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
-  GeometryObject(const std::string & name, const FrameIndex parent_frame,
+  GeometryObject(const std::string & name,
+                 const FrameIndex parent_frame,
                  const JointIndex parent_joint,
                  const CollisionGeometryPtr & collision,
                  const SE3 & placement,
