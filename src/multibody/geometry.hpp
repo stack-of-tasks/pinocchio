@@ -48,11 +48,8 @@ namespace pinocchio
     : ngeoms(0)
     , geometryObjects()
     , collisionPairs()
-    { 
-      const std::size_t num_max_collision_pairs = (ngeoms * (ngeoms-1))/2;
-      collisionPairs.reserve(num_max_collision_pairs);
-    }
-
+    {}
+    
     ~GeometryModel() {};
     
     /**
@@ -121,6 +118,7 @@ namespace pinocchio
     
     ///
     /// \brief Remove all collision pairs from collisionPairs. Same as collisionPairs.clear().
+    ///
     void removeAllCollisionPairs();
    
     ///
