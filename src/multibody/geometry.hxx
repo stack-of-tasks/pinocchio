@@ -29,9 +29,10 @@ namespace pinocchio
   , outerObjects()
   {
     collisionObjects.reserve(modelGeom.geometryObjects.size());
-    BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-    { collisionObjects.push_back
-      (fcl::CollisionObject(geom.fcl)); }
+    BOOST_FOREACH(const GeometryObject & geom, modelGeom.geometryObjects)
+    {
+      collisionObjects.push_back(fcl::CollisionObject(geom.fcl));
+    }
     fillInnerOuterObjectMaps(modelGeom);
   }
 #else
@@ -87,10 +88,10 @@ namespace pinocchio
     for( GeomIndex gid = 0; gid<geomModel.geometryObjects.size(); gid++)
       innerObjects[geomModel.geometryObjects[gid].parentJoint].push_back(gid);
 
-    BOOST_FOREACH( const CollisionPair & pair, geomModel.collisionPairs )
-      {
-        outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
-      }
+    BOOST_FOREACH(const CollisionPair & pair, geomModel.collisionPairs)
+    {
+      outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
+    }
   }
 #endif
 
