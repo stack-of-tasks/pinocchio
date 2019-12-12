@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_model_hpp__
@@ -54,7 +54,8 @@ namespace pinocchio
              "Add a collision pair given by the index of the two collision objects."
              " Remark: co1 < co2")
         .def("addAllCollisionPairs",&GeometryModel::addAllCollisionPairs,
-             "Add all collision pairs.")
+             "Add all collision pairs.\n"
+             "note : collision pairs between geometries having the same parent joint are not added.")
         .def("removeCollisionPair",&GeometryModel::removeCollisionPair,
              bp::args("co1 (index)","co2 (index)"),
              "Remove a collision pair given by the index of the two collision objects."

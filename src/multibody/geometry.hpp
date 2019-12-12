@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -108,8 +108,7 @@ namespace pinocchio
     ///
     /// \brief Add all possible collision pairs.
     ///
-    /// \note Collision pairs between geometries of having the same parent joint
-    ///       are not added.
+    /// \note Collision pairs between geometries having the same parent joint are not added.
     ///
     void addAllCollisionPairs();
    
@@ -122,7 +121,7 @@ namespace pinocchio
     
     ///
     /// \brief Remove all collision pairs from collisionPairs. Same as collisionPairs.clear().
-    void removeAllCollisionPairs ();
+    void removeAllCollisionPairs();
    
     ///
     /// \brief Check if a collision pair exists in collisionPairs.
