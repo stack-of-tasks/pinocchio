@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hxx__
@@ -44,8 +44,6 @@ namespace pinocchio
   {
     if(object.parentFrame < model.nframes)
     {
-      assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-             (model.frames[object.parentFrame].type == pinocchio::BODY)  );
       assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
              (model.frames[object.parentFrame].parent == object.parentJoint) );
     }
