@@ -58,6 +58,7 @@ namespace pinocchio
       int min_;
       int max_;
     };
+  
     typedef FakeCollisionGeometry CollisionGeometry;
 
   }
@@ -93,7 +94,7 @@ struct GeometryObject
   /// \brief Index of the parent joint
   JointIndex parentJoint;
 
-  /// \brief The actual cloud of points representing the collision mesh of the object after scaling.
+  /// \brief The FCL CollisionGeometry
   CollisionGeometryPtr fcl;
 
   /// \brief Position of geometry object in parent joint frame
