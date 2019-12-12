@@ -249,7 +249,9 @@ namespace pinocchio
         .def("addFrame",(bool (Model::*)(const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &Model::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
         .def("addFrame",(bool (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
         
-        .def("createData",&ModelPythonVisitor::createData)
+        .def("createData",
+             &ModelPythonVisitor::createData,
+             "Create a Data object for the given model.")
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::arg("data"),"Check consistency of data wrt model.")
         
