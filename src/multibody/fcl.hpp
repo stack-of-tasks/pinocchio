@@ -21,6 +21,7 @@
 #include <map>
 #include <vector>
 #include <utility>
+#include <limits>
 #include <assert.h>
 
 #include <boost/foreach.hpp>
@@ -139,6 +140,41 @@ struct GeometryObject
                  const std::string & meshTexturePath = "")
   : name(name)
   , parentFrame(parent_frame)
+  , parentJoint(parent_joint)
+  , fcl(collision)
+  , placement(placement)
+  , meshPath(meshPath)
+  , meshScale(meshScale)
+  , overrideMaterial(overrideMaterial)
+  , meshColor(meshColor)
+  , meshTexturePath(meshTexturePath)
+  {}
+
+  ///
+  /// \brief Reduced constructor.
+  /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
+  ///
+  /// \param[in] name  Name of the geometry object.
+  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
+  /// \param[in] collision The FCL collision geometry object.
+  /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
+  /// \param[in] meshScale Scale of the mesh [if applicable].
+  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
+  /// \param[in] meshColor Color of the mesh [if applicable].
+  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  ///
+  GeometryObject(const std::string & name,
+                 const JointIndex parent_joint,
+                 const CollisionGeometryPtr & collision,
+                 const SE3 & placement,
+                 const std::string & meshPath = "",
+                 const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
+                 const bool overrideMaterial = false,
+                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                 const std::string & meshTexturePath = "")
+  : name(name)
+  , parentFrame(std::numeric_limits<FrameIndex>::max())
   , parentJoint(parent_joint)
   , fcl(collision)
   , placement(placement)

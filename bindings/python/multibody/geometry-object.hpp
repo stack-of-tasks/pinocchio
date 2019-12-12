@@ -29,7 +29,11 @@ namespace pinocchio
         cl
         .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >(
-             bp::args("name","parent frame index","parent joint index","FCL collision geometry",
+             bp::args("self","name","parent frame index","parent joint index","FCL collision geometry",
+                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath")))
+        .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >(
+             bp::args("self","name","parent joint index","FCL collision geometry",
                       "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath")))
         .add_property("meshScale",
                       bp::make_getter(&GeometryObject::meshScale,
