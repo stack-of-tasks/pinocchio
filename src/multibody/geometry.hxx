@@ -43,7 +43,7 @@ namespace pinocchio
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
-    if(object.parentFrame < model.nframes)
+    if(object.parentFrame < (FrameIndex)model.nframes)
       PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
                                      "The object joint parent and its frame joint parent do not match.");
     
@@ -63,10 +63,11 @@ namespace pinocchio
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
 
-    container::aligned_vector<GeometryObject>::const_iterator it = std::find_if(geometryObjects.begin(),
-                                                                  geometryObjects.end(),
-                                                                  boost::bind(&GeometryObject::name, _1) == name
-                                                                  );
+    container::aligned_vector<GeometryObject>::const_iterator it
+    = std::find_if(geometryObjects.begin(),
+                   geometryObjects.end(),
+                   boost::bind(&GeometryObject::name, _1) == name
+                   );
     return GeomIndex(it - geometryObjects.begin());
   }
 
