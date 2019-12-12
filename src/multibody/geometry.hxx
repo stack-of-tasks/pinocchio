@@ -80,39 +80,6 @@ namespace pinocchio
                         boost::bind(&GeometryObject::name, _1) == name) != geometryObjects.end();
   }
 
-
-  //
-  // @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
-  //
-  // @param[in]  joint         Index of the joint
-  // @param[in]  inner_object  Index of the GeometryObject that will be an inner object
-  //
-  // inline void GeometryModel::addInnerObject(const JointIndex joint_id, const GeomIndex inner_object)
-  // {
-  //   if (std::find(innerObjects[joint_id].begin(),
-  //                 innerObjects[joint_id].end(),
-  //                 inner_object) == innerObjects[joint_id].end())
-  //     innerObjects[joint_id].push_back(inner_object);
-  //   else
-  //     std::cout << "inner object already added" << std::endl;
-  // }
-
-  //
-  // @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
-  //
-  // @param[in]  joint         Index of the joint
-  // @param[in]  inner_object  Index of the GeometryObject that will be an outer object
-  //
-  // inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
-  // {
-  //   if (std::find(outerObjects[joint].begin(),
-  //                 outerObjects[joint].end(),
-  //                 outer_object) == outerObjects[joint].end())
-  //     outerObjects[joint].push_back(outer_object);
-  //   else
-  //     std::cout << "outer object already added" << std::endl;
-  // }
-
 #ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
