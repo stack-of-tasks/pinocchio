@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_fcl_hpp__
-#define __pinocchio_fcl_hpp__
+#ifndef __pinocchio_multibody_fcl_hpp__
+#define __pinocchio_multibody_fcl_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -162,4 +162,4 @@ struct GeometryObject
 #include "pinocchio/multibody/fcl.hxx"
 
 
-#endif // ifndef __pinocchio_fcl_hpp__
+#endif // ifndef __pinocchio_multibody_fcl_hpp__

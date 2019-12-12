@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_fcl_hxx__
-#define __pinocchio_fcl_hxx__
+#ifndef __pinocchio_multibody_fcl_hxx__
+#define __pinocchio_multibody_fcl_hxx__
 
 #include <ostream>
 
@@ -82,4 +82,4 @@ namespace pinocchio
 } // namespace pinocchio
 
 
-#endif // ifndef __pinocchio_fcl_hxx__
+#endif // ifndef __pinocchio_multibody_fcl_hxx__
