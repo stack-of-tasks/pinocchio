@@ -31,7 +31,7 @@ namespace pinocchio
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
              (
              bp::args("self","name","parent_frame index","parent_joint index","collision_geometry",
-                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath")
+                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath"),
              "Full constructor of a GeometryObject."))
         .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
@@ -65,7 +65,7 @@ namespace pinocchio
         .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial,
                       "Boolean that tells whether material information is stored inside the given GeometryObject.")
         .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath,
-                      "Path to the mesh texture file".)
+                      "Path to the mesh texture file.")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
