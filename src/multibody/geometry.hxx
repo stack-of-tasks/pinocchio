@@ -127,7 +127,10 @@ namespace pinocchio
   
   inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
+                                   "The input pair.first is larger than the number of geometries contained in the GeometryModel");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
+                                   "The input pair.second is larger than the number of geometries contained in the GeometryModel");
     if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
   
@@ -148,7 +151,10 @@ namespace pinocchio
   
   inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
+                                   "The input pair.first is larger than the number of geometries contained in the GeometryModel");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
+                                   "The input pair.second is larger than the number of geometries contained in the GeometryModel");
 
     CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
                                                  collisionPairs.end(),
@@ -176,13 +182,15 @@ namespace pinocchio
   
   inline void GeometryData::activateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
+                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
     activeCollisionPairs[pairId] = true;
   }
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
+                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
     activeCollisionPairs[pairId] = false;
   }
 
