@@ -43,10 +43,8 @@ namespace pinocchio
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
     if(object.parentFrame < model.nframes)
-    {
-      assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-             (model.frames[object.parentFrame].parent == object.parentJoint) );
-    }
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
+                                     "The object joint parent and its frame joint parent do not match.");
     
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
