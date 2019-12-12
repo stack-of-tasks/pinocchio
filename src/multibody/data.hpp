@@ -325,7 +325,7 @@ namespace pinocchio
     /// \brief Inverse of the operational-space inertia matrix
     MatrixXs JMinvJt;
     
-    /// \brief Cholesky decompostion of \f$\JMinvJt\f$.
+    /// \brief Cholesky decompostion of \f$JMinvJt\f$.
     Eigen::LLT<MatrixXs> llt_JMinvJt;
     
     /// \brief Lagrange Multipliers corresponding to the contact forces in pinocchio::forwardDynamics.
