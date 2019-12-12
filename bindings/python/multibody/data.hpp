@@ -93,7 +93,9 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dAg,
                                             "Time derivative of the centroidal momentum matrix Ag.")
         .ADD_DATA_PROPERTY_READONLY(Force,hg,
-                                    "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the inertial frame).")
+                                    "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
+        .ADD_DATA_PROPERTY_READONLY(Force,dhg,
+                                    "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
         .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
                                     "Centroidal Composite Rigid Body Inertia.")
         
