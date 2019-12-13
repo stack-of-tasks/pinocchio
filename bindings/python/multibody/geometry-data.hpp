@@ -75,7 +75,11 @@ namespace pinocchio
                       "Vector of distance results.")
         .def_readonly("collisionRequest",
                       &GeometryData::collisionRequest,
-                      "Defines which information should be computed by FCL for collision computations.")
+                      "Defines which information should be computed by FCL for collision computations.\n\n"
+                      "Note: it is possible to define a security_margin and a break_distance for a collision request.\n"
+                      "Most likely, for robotics application, these thresholds will be different for each collision pairs\n"
+                      "(e.g. the two hands can have a large security margin while the two hips cannot.\n"
+                      "It may be a good idea to have as many collision requests as collision pairs.)")
         .def_readonly("collisionResults",
                       &GeometryData::collisionResults,
                       "Vector of collision results.")
