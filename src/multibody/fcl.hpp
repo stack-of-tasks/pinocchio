@@ -191,6 +191,12 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
+  
+  GeometryObject(const GeometryObject & other)
+  : fcl(geometry)
+  {
+    *this = other;
+  }
 
   GeometryObject & operator=(const GeometryObject & other)
   {
