@@ -389,7 +389,7 @@ namespace pinocchio
 #else
             const std::string & geom_name = (*i)->name;
 #endif // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-            const boost::shared_ptr<fcl::CollisionGeometry> geometry =
+            const GeometryObject::CollisionGeometryPtr geometry =
             retrieveCollisionGeometry(tree, meshLoader, link_name, geom_name,
                                       (*i)->geometry, package_dirs, meshPath, meshScale);
 #else

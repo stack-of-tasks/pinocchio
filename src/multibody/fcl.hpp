@@ -94,8 +94,12 @@ struct GeometryObject
   /// \brief Index of the parent joint
   JointIndex parentJoint;
 
-  /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitives, etc.)
-  CollisionGeometryPtr fcl;
+  /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
+  CollisionGeometryPtr geometry;
+
+  /// \brief The former pointer to the FCL CollisionGeometry.
+  /// \deprecated It is now deprecated and has been renamed GeometryObject::geometry
+  PINOCCHIO_DEPRECATED CollisionGeometryPtr & fcl;
 
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
@@ -121,7 +125,7 @@ struct GeometryObject
   /// \param[in] name  Name of the geometry object.
   /// \param[in] parent_frame  Index of the parent frame.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision The FCL collision geometry object.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
@@ -132,7 +136,7 @@ struct GeometryObject
   GeometryObject(const std::string & name,
                  const FrameIndex parent_frame,
                  const JointIndex parent_joint,
-                 const CollisionGeometryPtr & collision,
+                 const CollisionGeometryPtr & collision_geometry,
                  const SE3 & placement,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
@@ -142,7 +146,8 @@ struct GeometryObject
   : name(name)
   , parentFrame(parent_frame)
   , parentJoint(parent_joint)
-  , fcl(collision)
+  , geometry(collision_geometry)
+  , fcl(geometry)
   , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
@@ -157,7 +162,7 @@ struct GeometryObject
   ///
   /// \param[in] name  Name of the geometry object.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision The FCL collision geometry object.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
@@ -167,7 +172,7 @@ struct GeometryObject
   ///
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
-                 const CollisionGeometryPtr & collision,
+                 const CollisionGeometryPtr & collision_geometry,
                  const SE3 & placement,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
@@ -177,7 +182,8 @@ struct GeometryObject
   : name(name)
   , parentFrame(std::numeric_limits<FrameIndex>::max())
   , parentJoint(parent_joint)
-  , fcl(collision)
+  , geometry(collision_geometry)
+  , fcl(geometry)
   , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
@@ -191,7 +197,7 @@ struct GeometryObject
     name                = other.name;
     parentFrame         = other.parentFrame;
     parentJoint         = other.parentJoint;
-    fcl                 = other.fcl;
+    geometry            = other.geometry;
     placement           = other.placement;
     meshPath            = other.meshPath;
     meshScale           = other.meshScale;
@@ -211,6 +217,5 @@ struct GeometryObject
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/fcl.hxx"
-
 
 #endif // ifndef __pinocchio_multibody_fcl_hpp__

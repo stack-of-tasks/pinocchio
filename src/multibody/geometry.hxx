@@ -14,26 +14,26 @@
 
 namespace pinocchio
 {
-  inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-  : oMg(modelGeom.ngeoms)
+  inline GeometryData::GeometryData(const GeometryModel & geom_model)
+  : oMg(geom_model.ngeoms)
   
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+  , activeCollisionPairs(geom_model.collisionPairs.size(), true)
   , distanceRequest(true, 0, 0, fcl::GST_INDEP)
-  , distanceResults(modelGeom.collisionPairs.size())
+  , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
-  , collisionResults(modelGeom.collisionPairs.size())
+  , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
   , innerObjects()
   , outerObjects()
   {
-    collisionObjects.reserve(modelGeom.geometryObjects.size());
-    BOOST_FOREACH(const GeometryObject & geom, modelGeom.geometryObjects)
+    collisionObjects.reserve(geom_model.geometryObjects.size());
+    BOOST_FOREACH(const GeometryObject & geom_object, geom_model.geometryObjects)
     {
-      collisionObjects.push_back(fcl::CollisionObject(geom.fcl));
+      collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
     }
-    fillInnerOuterObjectMaps(modelGeom);
+    fillInnerOuterObjectMaps(geom_model);
   }
 #else
   {}

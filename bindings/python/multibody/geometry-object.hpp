@@ -50,7 +50,7 @@ namespace pinocchio
                                       bp::return_value_policy<bp::return_by_value>()),
                       bp::make_setter(&GeometryObject::meshColor),
                       "Color rgba of the mesh.")
-        .def_readwrite("fcl", &GeometryObject::fcl,
+        .def_readwrite("fcl", &GeometryObject::geometry,
                        "The FCL CollisionGeometry associated to the given GeometryObject.")
         .def_readwrite("name", &GeometryObject::name,
                        "Name associated to the given GeometryObject.")

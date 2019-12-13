@@ -195,26 +195,26 @@ namespace pinocchio
                                 GeometryData & geomData)
   {
     geomData.radius.resize(model.joints.size(),0);
-    BOOST_FOREACH(const GeometryObject & geom,geomModel.geometryObjects)
+    BOOST_FOREACH(const GeometryObject & geom_object,geomModel.geometryObjects)
     {
-      const boost::shared_ptr<const fcl::CollisionGeometry> & fcl
-        = geom.fcl;
-      const GeometryModel::SE3 & jMb = geom.placement; // placement in joint.
-      const Model::JointIndex & i = geom.parentJoint;
+      const GeometryObject::CollisionGeometryPtr & geometry
+        = geom_object.geometry;
+      const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
+      const Model::JointIndex & i = geom_object.parentJoint;
       assert (i<geomData.radius.size());
 
       double radius = geomData.radius[i] * geomData.radius[i];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,min,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,min,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,max,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,min,max,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,min,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,min,max)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,max,min)).squaredNorm(),radius);
-      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(fcl,max,max,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,min,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,min,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,min,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,min,max,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,max,min,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,max,min,max)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,max,max,min)).squaredNorm(),radius);
+      radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,max,max,max)).squaredNorm(),radius);
 
       // Don't forget to sqroot the squared norm before storing it.
       geomData.radius[i] = sqrt(radius);

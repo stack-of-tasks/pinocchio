@@ -54,7 +54,7 @@ namespace pinocchio
     return (   lhs.name         == rhs.name
             && lhs.parentFrame  == rhs.parentFrame
             && lhs.parentJoint  == rhs.parentJoint
-            && lhs.fcl          == rhs.fcl
+            && lhs.geometry     == rhs.geometry
             && lhs.placement    == rhs.placement
             && lhs.meshPath     == rhs.meshPath
             && lhs.meshScale    == rhs.meshScale
