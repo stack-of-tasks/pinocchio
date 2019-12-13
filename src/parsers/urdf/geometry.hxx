@@ -189,7 +189,7 @@ namespace pinocchio
         // Use FCL capsules for cylinders
         else if (urdf_geometry->type == ::urdf::Geometry::CYLINDER)
         {
-          bool capsule = tree.isCapsule(linkName, geomName);
+          const bool is_capsule = tree.isCapsule(linkName, geomName);
           meshScale << 1,1,1;
           const ::urdf::CylinderSharedPtr collisionGeometry = ::urdf::dynamic_pointer_cast< ::urdf::Cylinder> (urdf_geometry);
           
@@ -197,7 +197,7 @@ namespace pinocchio
           double length = collisionGeometry->length;
           
           // Create fcl capsule geometry.
-          if (capsule) {
+          if (is_capsule) {
             meshPath = "CAPSULE";
             geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
           } else {
@@ -389,7 +389,7 @@ namespace pinocchio
 #else
             const std::string & geom_name = (*i)->name;
 #endif // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
-            const boost::shared_ptr<fcl::CollisionGeometry> geometry =
+            const GeometryObject::CollisionGeometryPtr geometry =
             retrieveCollisionGeometry(tree, meshLoader, link_name, geom_name,
                                       (*i)->geometry, package_dirs, meshPath, meshScale);
 #else

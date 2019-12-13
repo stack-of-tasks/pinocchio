@@ -28,27 +28,44 @@ namespace pinocchio
       {
         cl
         .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >(
-             bp::args("name","parent frame index","parent joint index","FCL collision geometry",
-                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath")))
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+             bp::args("self","name","parent_frame index","parent_joint index","collision_geometry",
+                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath"),
+             "Full constructor of a GeometryObject."))
+        .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+              bp::args("self","name","parent_joint index","collision_geometry",
+                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath"),
+              "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
+              ))
         .add_property("meshScale",
                       bp::make_getter(&GeometryObject::meshScale,
                                       bp::return_value_policy<bp::return_by_value>()),
                       bp::make_setter(&GeometryObject::meshScale),
-                      "Scaling parameter for the mesh")
+                      "Scaling parameter of the mesh.")
         .add_property("meshColor",
                       bp::make_getter(&GeometryObject::meshColor,
                                       bp::return_value_policy<bp::return_by_value>()),
                       bp::make_setter(&GeometryObject::meshColor),
-                      "Color rgba for the mesh")
-        .def_readwrite("name", &GeometryObject::name, "Name of the GeometryObject")
-        .def_readwrite("parentJoint", &GeometryObject::parentJoint, "Index of the parent joint")
-        .def_readwrite("parentFrame", &GeometryObject::parentFrame, "Index of the parent frame")
+                      "Color rgba of the mesh.")
+        .def_readwrite("geometry", &GeometryObject::geometry,
+                       "The FCL CollisionGeometry associated to the given GeometryObject.")
+        .def_readwrite("name", &GeometryObject::name,
+                       "Name associated to the given GeometryObject.")
+        .def_readwrite("parentJoint", &GeometryObject::parentJoint,
+                       "Index of the parent joint.")
+        .def_readwrite("parentFrame", &GeometryObject::parentFrame,
+                       "Index of the parent frame.")
         .def_readwrite("placement",&GeometryObject::placement,
-                       "Position of geometry object in parent joint's frame")
-        .def_readonly("meshPath", &GeometryObject::meshPath, "Absolute path to the mesh file")
-        .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial, "Boolean that tells whether material information is stored in Geometry object")
-        .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath, "Absolute path to the mesh texture file")
+                       "Position of geometry object in parent joint's frame.")
+        .def_readonly("meshPath", &GeometryObject::meshPath,
+                      "Path to the mesh file.")
+        .def_readonly("overrideMaterial", &GeometryObject::overrideMaterial,
+                      "Boolean that tells whether material information is stored inside the given GeometryObject.")
+        .def_readonly("meshTexturePath", &GeometryObject::meshTexturePath,
+                      "Path to the mesh texture file.")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)

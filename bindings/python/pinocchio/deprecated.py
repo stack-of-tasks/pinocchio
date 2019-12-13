@@ -85,3 +85,10 @@ def computeCentroidalDynamics(model, data, q, v, a = None):
     return pin.computeCentroidalMomentum(model,data,q,v,a)
 
 computeCentroidalDynamics.__doc__ = ( "This function has been renamed computeCentroidalMomentum or computeCentroidalMomentumTimeVariation to either only compute the centroidal momentum quantity or also its time derivative respectively." )
+
+class GeometryObject(pin.GeometryObject):
+    @property
+    @deprecated("The fcl property has been renamed geometry. Please use GeometryObject.geometry instead")
+    def fcl(self):
+       return self.geometry
+

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hxx__
@@ -14,25 +14,26 @@
 
 namespace pinocchio
 {
-  inline GeometryData::GeometryData(const GeometryModel & modelGeom)
-  : oMg(modelGeom.ngeoms)
+  inline GeometryData::GeometryData(const GeometryModel & geom_model)
+  : oMg(geom_model.ngeoms)
   
 #ifdef PINOCCHIO_WITH_HPP_FCL
-  , activeCollisionPairs(modelGeom.collisionPairs.size(), true)
+  , activeCollisionPairs(geom_model.collisionPairs.size(), true)
   , distanceRequest(true, 0, 0, fcl::GST_INDEP)
-  , distanceResults(modelGeom.collisionPairs.size())
+  , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
-  , collisionResults(modelGeom.collisionPairs.size())
+  , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
   , innerObjects()
   , outerObjects()
   {
-    collisionObjects.reserve(modelGeom.geometryObjects.size());
-    BOOST_FOREACH( const GeometryObject & geom, modelGeom.geometryObjects)
-    { collisionObjects.push_back
-      (fcl::CollisionObject(geom.fcl)); }
-    fillInnerOuterObjectMaps(modelGeom);
+    collisionObjects.reserve(geom_model.geometryObjects.size());
+    BOOST_FOREACH(const GeometryObject & geom_object, geom_model.geometryObjects)
+    {
+      collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
+    }
+    fillInnerOuterObjectMaps(geom_model);
   }
 #else
   {}
@@ -42,10 +43,9 @@ namespace pinocchio
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].type == pinocchio::BODY)  );
-    assert( //TODO: reenable when relevant (object.parentFrame == -1) ||
-           (model.frames[object.parentFrame].parent == object.parentJoint) );
+    if(object.parentFrame < (FrameIndex)model.nframes)
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
+                                     "The object joint parent and its frame joint parent do not match.");
     
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
@@ -63,10 +63,11 @@ namespace pinocchio
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
 
-    container::aligned_vector<GeometryObject>::const_iterator it = std::find_if(geometryObjects.begin(),
-                                                                  geometryObjects.end(),
-                                                                  boost::bind(&GeometryObject::name, _1) == name
-                                                                  );
+    container::aligned_vector<GeometryObject>::const_iterator it
+    = std::find_if(geometryObjects.begin(),
+                   geometryObjects.end(),
+                   boost::bind(&GeometryObject::name, _1) == name
+                   );
     return GeomIndex(it - geometryObjects.begin());
   }
 
@@ -79,39 +80,6 @@ namespace pinocchio
                         boost::bind(&GeometryObject::name, _1) == name) != geometryObjects.end();
   }
 
-
-  //
-  // @brief      Associate a GeometryObject of type COLLISION to a joint's inner objects list
-  //
-  // @param[in]  joint         Index of the joint
-  // @param[in]  inner_object  Index of the GeometryObject that will be an inner object
-  //
-  // inline void GeometryModel::addInnerObject(const JointIndex joint_id, const GeomIndex inner_object)
-  // {
-  //   if (std::find(innerObjects[joint_id].begin(),
-  //                 innerObjects[joint_id].end(),
-  //                 inner_object) == innerObjects[joint_id].end())
-  //     innerObjects[joint_id].push_back(inner_object);
-  //   else
-  //     std::cout << "inner object already added" << std::endl;
-  // }
-
-  //
-  // @brief      Associate a GeometryObject of type COLLISION to a joint's outer objects list
-  //
-  // @param[in]  joint         Index of the joint
-  // @param[in]  inner_object  Index of the GeometryObject that will be an outer object
-  //
-  // inline void GeometryModel::addOutterObject (const JointIndex joint, const GeomIndex outer_object)
-  // {
-  //   if (std::find(outerObjects[joint].begin(),
-  //                 outerObjects[joint].end(),
-  //                 outer_object) == outerObjects[joint].end())
-  //     outerObjects[joint].push_back(outer_object);
-  //   else
-  //     std::cout << "outer object already added" << std::endl;
-  // }
-
 #ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
@@ -121,10 +89,10 @@ namespace pinocchio
     for( GeomIndex gid = 0; gid<geomModel.geometryObjects.size(); gid++)
       innerObjects[geomModel.geometryObjects[gid].parentJoint].push_back(gid);
 
-    BOOST_FOREACH( const CollisionPair & pair, geomModel.collisionPairs )
-      {
-        outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
-      }
+    BOOST_FOREACH(const CollisionPair & pair, geomModel.collisionPairs)
+    {
+      outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
+    }
   }
 #endif
 
@@ -159,9 +127,12 @@ namespace pinocchio
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   
-  inline void GeometryModel::addCollisionPair (const CollisionPair & pair)
+  inline void GeometryModel::addCollisionPair(const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
+                                   "The input pair.first is larger than the number of geometries contained in the GeometryModel");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
+                                   "The input pair.second is larger than the number of geometries contained in the GeometryModel");
     if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
   
@@ -180,9 +151,12 @@ namespace pinocchio
     }
   }
   
-  inline void GeometryModel::removeCollisionPair (const CollisionPair & pair)
+  inline void GeometryModel::removeCollisionPair(const CollisionPair & pair)
   {
-    assert( (pair.first < ngeoms) && (pair.second < ngeoms) );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
+                                   "The input pair.first is larger than the number of geometries contained in the GeometryModel");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
+                                   "The input pair.second is larger than the number of geometries contained in the GeometryModel");
 
     CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
                                                  collisionPairs.end(),
@@ -192,14 +166,14 @@ namespace pinocchio
   
   inline void GeometryModel::removeAllCollisionPairs () { collisionPairs.clear(); }
 
-  inline bool GeometryModel::existCollisionPair (const CollisionPair & pair) const
+  inline bool GeometryModel::existCollisionPair(const CollisionPair & pair) const
   {
     return (std::find(collisionPairs.begin(),
                       collisionPairs.end(),
                       pair) != collisionPairs.end());
   }
   
-  inline PairIndex GeometryModel::findCollisionPair (const CollisionPair & pair) const
+  inline PairIndex GeometryModel::findCollisionPair(const CollisionPair & pair) const
   {
     CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
                                                        collisionPairs.end(),
@@ -210,13 +184,15 @@ namespace pinocchio
   
   inline void GeometryData::activateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
+                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
     activeCollisionPairs[pairId] = true;
   }
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
-    assert( pairId < activeCollisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
+                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
     activeCollisionPairs[pairId] = false;
   }
 
