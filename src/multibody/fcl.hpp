@@ -86,7 +86,7 @@ struct GeometryObject
 
   /// \brief Index of the parent frame
   ///
-  /// Parent frame may be unset (set to -1) as it is mostly used as a documentation of the tree, or in third-party libraries.
+  /// Parent frame may be unset (to the std::numeric_limits<FrameIndex>::max() value) as it is mostly used as a documentation of the tree, or in third-party libraries.
   /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
   /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
   FrameIndex parentFrame;
@@ -94,22 +94,22 @@ struct GeometryObject
   /// \brief Index of the parent joint
   JointIndex parentJoint;
 
-  /// \brief The FCL CollisionGeometry
+  /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitives, etc.)
   CollisionGeometryPtr fcl;
 
   /// \brief Position of geometry object in parent joint frame
   SE3 placement;
 
-  /// \brief Absolute path to the mesh file
+  /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
   std::string meshPath;
 
-  /// \brief Scaling vector applied to the fcl object.
+  /// \brief Scaling vector applied to the GeometryObject::fcl object.
   Eigen::Vector3d meshScale;
 
   /// \brief Decide whether to override the Material.
   bool overrideMaterial;
 
-  /// \brief RGBA color value of the mesh.
+  /// \brief RGBA color value of the GeometryObject::fcl object.
   Eigen::Vector4d meshColor;
 
   /// \brief Absolute path to the mesh texture file.
