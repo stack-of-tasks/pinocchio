@@ -39,6 +39,23 @@
 
         T values[n];
       };
+    
+      template<class T, std::size_t n>
+      EIGEN_DEVICE_FUNC bool operator==(const array<T,n> & lhs, const array<T,n> & rhs)
+      {
+        for (std::size_t i = 0; i < n; ++i) {
+          if (lhs[i] != rhs[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+        
+      template<class T, std::size_t n>
+      EIGEN_DEVICE_FUNC bool operator!=(const array<T,n> & lhs, const array<T,n> & rhs)
+      {
+        return !(lhs == rhs);
+      }
     } // namespace Eigen
   #else
     #include <array>
