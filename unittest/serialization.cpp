@@ -3,6 +3,8 @@
 //
 
 #include "pinocchio/serialization/archive.hpp"
+
+#include "pinocchio/serialization/eigen.hpp"
 #include "pinocchio/serialization/spatial.hpp"
 
 #include "pinocchio/serialization/frame.hpp"
@@ -86,6 +88,22 @@ void generic_test(const T & object,
     // Check
     BOOST_CHECK(object_loaded == object);
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_eigen_serialization)
+{
+  using namespace pinocchio;
+  
+  const Eigen::DenseIndex num_cols = 10;
+  const Eigen::DenseIndex num_rows = 20;
+  
+  const Eigen::DenseIndex array_size = 3;
+  
+  Eigen::MatrixXd Mat = Eigen::MatrixXd::Random(num_rows,num_cols);
+  generic_test(Mat,TEST_SERIALIZATION_FOLDER"/eigen_matrix","matrix");
+  
+  Eigen::VectorXd Vec = Eigen::VectorXd::Random(num_rows*num_cols);
+  generic_test(Vec,TEST_SERIALIZATION_FOLDER"/eigen_vector","vector");
 }
 
 BOOST_AUTO_TEST_CASE(test_spatial_serialization)
