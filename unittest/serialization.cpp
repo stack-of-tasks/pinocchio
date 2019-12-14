@@ -21,6 +21,38 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
+template<typename T1, typename T2 = T1>
+struct call_equality_op
+{
+  static bool run(const T1 & v1, const T2 & v2)
+  {
+    return v1 == v2;
+  }
+};
+
+template<typename T>
+bool run_call_equality_op(const T & v1, const T & v2)
+{
+  return call_equality_op<T,T>::run(v1,v2);
+}
+
+// Bug fix in Eigen::Tensor
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+template<typename Scalar, int NumIndices, int Options, typename IndexType>
+struct call_equality_op< pinocchio::Tensor<Scalar,NumIndices,Options,IndexType> >
+{
+  typedef pinocchio::Tensor<Scalar,NumIndices,Options,IndexType> T;
+  
+  static bool run(const T & v1, const T & v2)
+  {
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXd;
+    Eigen::Map<const VectorXd> map1(v1.data(),v1.size(),1);
+    Eigen::Map<const VectorXd> map2(v2.data(),v2.size(),1);
+    return map1 == map2;
+  }
+};
+#endif
+
 template<typename T>
 void generic_test(const T & object,
                   const std::string & filename,
@@ -37,7 +69,7 @@ void generic_test(const T & object,
     loadFromText(object_loaded,txt_filename);
     
     // Check
-    BOOST_CHECK(object_loaded == object);
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
   
   // Load and save as string stream
@@ -50,7 +82,7 @@ void generic_test(const T & object,
     loadFromStringStream(object_loaded,is);
     
     // Check
-    BOOST_CHECK(object_loaded == object);
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
   
   // Load and save as string
@@ -62,7 +94,7 @@ void generic_test(const T & object,
     loadFromString(object_loaded,str_in);
     
     // Check
-    BOOST_CHECK(object_loaded == object);
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
   
   // Load and save as XML
@@ -74,7 +106,7 @@ void generic_test(const T & object,
     loadFromXML(object_loaded,xml_filename,tag_name);
     
     // Check
-    BOOST_CHECK(object_loaded == object);
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
   
   // Load and save as binary
@@ -86,7 +118,7 @@ void generic_test(const T & object,
     loadFromBinary(object_loaded,bin_filename);
     
     // Check
-    BOOST_CHECK(object_loaded == object);
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
 }
 
