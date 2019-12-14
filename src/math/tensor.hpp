@@ -141,6 +141,10 @@ namespace pinocchio
       return *this;
     }
     
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor()
+    : m_storage()
+    {
+    }
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit Tensor(Index dim1)
     : m_storage(dim1)
     {
