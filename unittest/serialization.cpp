@@ -104,6 +104,9 @@ BOOST_AUTO_TEST_CASE(test_eigen_serialization)
   
   Eigen::VectorXd Vec = Eigen::VectorXd::Random(num_rows*num_cols);
   generic_test(Vec,TEST_SERIALIZATION_FOLDER"/eigen_vector","vector");
+  
+  Eigen::array<Eigen::DenseIndex,array_size> array = { 1, 2, 3 };
+  generic_test(array,TEST_SERIALIZATION_FOLDER"/eigen_array","ar");
 }
 
 BOOST_AUTO_TEST_CASE(test_spatial_serialization)

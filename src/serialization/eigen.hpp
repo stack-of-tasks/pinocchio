@@ -25,11 +25,12 @@
  THE SOFTWARE.
  */
 
-
 #ifndef __pinocchio_serialization_eigen_matrix_hpp__
 #define __pinocchio_serialization_eigen_matrix_hpp__
 
 #include <Eigen/Dense>
+#include "pinocchio/math/tensor.hpp"
+
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
 
@@ -62,6 +63,24 @@ namespace boost
     void serialize(Archive & ar, Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int version)
     {
       split_free(ar,m,version);
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void save(Archive & ar, const Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
+    {
+      ar & make_nvp("array",make_array(&a.front(),_NumIndices));
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void load(Archive & ar, Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
+    {
+      ar >> make_nvp("array",make_array(&a.front(),_NumIndices));
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void serialize(Archive & ar, Eigen::array<_IndexType,_NumIndices> & a, const unsigned int version)
+    {
+      split_free(ar,a,version);
     }
     
   }
