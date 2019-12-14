@@ -6,6 +6,7 @@
 #define __pinocchio_multibodsy_joint_fwd_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 
 namespace pinocchio
 {
