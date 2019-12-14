@@ -106,7 +106,17 @@ BOOST_AUTO_TEST_CASE(test_eigen_serialization)
   generic_test(Vec,TEST_SERIALIZATION_FOLDER"/eigen_vector","vector");
   
   Eigen::array<Eigen::DenseIndex,array_size> array = { 1, 2, 3 };
-  generic_test(array,TEST_SERIALIZATION_FOLDER"/eigen_array","ar");
+  generic_test(array,TEST_SERIALIZATION_FOLDER"/eigen_array","array");
+  
+  const Eigen::DenseIndex tensor_size = 3;
+  const Eigen::DenseIndex x_dim = 10, y_dim = 20, z_dim = 30;
+  
+  typedef pinocchio::Tensor<double,tensor_size> Tensor3x;
+  Tensor3x tensor(x_dim,y_dim,z_dim);
+  
+  Eigen::Map<Eigen::VectorXd>(tensor.data(),tensor.size(),1).setRandom();
+  
+  generic_test(tensor,TEST_SERIALIZATION_FOLDER"/eigen_tensor","tensor");
 }
 
 BOOST_AUTO_TEST_CASE(test_spatial_serialization)
@@ -312,7 +322,6 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
     BOOST_REQUIRE_THROW(loadFromBinary(model,complete_filename),
                         std::invalid_argument);
   }
-  
   
 }
 

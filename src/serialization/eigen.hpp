@@ -82,6 +82,34 @@ namespace boost
     {
       split_free(ar,a,version);
     }
+  
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void save(Archive & ar, const ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> Tensor;
+      const typename Tensor::Dimensions & dimensions = t.dimensions();
+      
+      ar & BOOST_SERIALIZATION_NVP(dimensions);
+      ar & make_nvp("data",make_array(t.data(), (size_t)t.size()));
+    }
+    
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void load(Archive & ar, ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> Tensor;
+      typename Tensor::Dimensions dimensions;
+      
+      ar >> BOOST_SERIALIZATION_NVP(dimensions);
+      t.resize(dimensions);
+      
+      ar >> make_nvp("data",make_array(t.data(), (size_t)t.size()));
+    }
+    
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void serialize(Archive & ar, ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int version)
+    {
+      split_free(ar,t,version);
+    }
     
   }
 }
