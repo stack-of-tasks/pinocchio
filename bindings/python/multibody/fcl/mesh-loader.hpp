@@ -36,6 +36,7 @@ namespace pinocchio
         void visit(PyClass& cl) const
         {
           cl
+          .def(bp::init<>(bp::arg("self"),"Default constructor"))
           .def("create",&MeshLoaderPythonVisitor::create<MeshLoader>,"Create a new object.")
           .staticmethod("create")
           ;
@@ -47,7 +48,7 @@ namespace pinocchio
           bp::class_<MeshLoader, MeshLoaderPtr_t>
             (class_name.c_str(),
              doc.c_str(),
-             bp::init<>())
+             bp::no_init)
             .def(MeshLoaderPythonVisitor())
           ;
         }

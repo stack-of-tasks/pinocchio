@@ -8,6 +8,7 @@
 #include "pinocchio/bindings/python/multibody/fcl/distance-result.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/collision-geometry.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/mesh-loader.hpp"
+#include "pinocchio/bindings/python/multibody/fcl/transform.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
@@ -96,6 +97,10 @@ namespace pinocchio
       if(!eigenpy::register_symbolic_link_to_registered_type< ::hpp::fcl::CachedMeshLoader>())
         MeshLoaderPythonVisitor< ::hpp::fcl::CachedMeshLoader>::
         expose("Class to create CollisionGeometry from mesh files with cache mechanism.");
+      
+      // Register implicit conversion SE3 <=> ::hpp::fcl::Transform3f
+      bp::implicitly_convertible< SE3,::hpp::fcl::Transform3f >();
+      bp::implicitly_convertible< ::hpp::fcl::Transform3f,SE3 >();
     }
     
   } // namespace python
