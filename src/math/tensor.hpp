@@ -253,6 +253,16 @@ namespace pinocchio
       #endif
     }
     
+    EIGEN_DEVICE_FUNC bool operator==(const Tensor & other) const
+    {
+      return m_storage == other.m_storage;
+    }
+    
+    EIGEN_DEVICE_FUNC bool operator!=(const Tensor & other) const
+    {
+      return m_storage != other.m_storage;
+    }
+    
   protected:
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> StorageType;
