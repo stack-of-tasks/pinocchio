@@ -113,7 +113,22 @@ namespace pinocchio
   /// \brief BiasZeroTpl has been replaced by MotionZeroTpl. Please use this naming instead.
   template<typename Scalar, int Options>
   struct PINOCCHIO_DEPRECATED BiasZeroTpl : MotionZeroTpl<Scalar,Options>
-  {};
+  {
+    typedef MotionZeroTpl<Scalar,Options> Base;
+    BiasZeroTpl(const Base &) {}
+  };
+
+  template<typename Scalar, int Options>
+  struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
+  {
+    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+  };
+  
+  template<typename Scalar, int Options, typename MotionDerived>
+  struct MotionAlgebraAction< BiasZeroTpl<Scalar,Options>, MotionDerived>
+  {
+    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+  };
   
 } // namespace pinocchio
 
