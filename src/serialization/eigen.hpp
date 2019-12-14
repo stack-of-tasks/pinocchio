@@ -25,11 +25,12 @@
  THE SOFTWARE.
  */
 
-
 #ifndef __pinocchio_serialization_eigen_matrix_hpp__
 #define __pinocchio_serialization_eigen_matrix_hpp__
 
 #include <Eigen/Dense>
+#include "pinocchio/math/tensor.hpp"
+
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
 
@@ -62,6 +63,74 @@ namespace boost
     void serialize(Archive & ar, Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int version)
     {
       split_free(ar,m,version);
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void save(Archive & ar, const Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
+    {
+      ar & make_nvp("array",make_array(&a.front(),_NumIndices));
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void load(Archive & ar, Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
+    {
+      ar >> make_nvp("array",make_array(&a.front(),_NumIndices));
+    }
+  
+    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    void serialize(Archive & ar, Eigen::array<_IndexType,_NumIndices> & a, const unsigned int version)
+    {
+      split_free(ar,a,version);
+    }
+  
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+  
+    template <class Archive, typename _IndexType, int _NumIndices>
+    void save(Archive & ar, const Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
+    {
+      save(ar,static_cast<const Eigen::array<_IndexType,_NumIndices> &>(ds),version);
+    }
+  
+    template <class Archive, typename _IndexType, int _NumIndices>
+    void load(Archive & ar, Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
+    {
+      load(ar,static_cast<Eigen::array<_IndexType,_NumIndices> &>(ds),version);
+    }
+  
+    template <class Archive, typename _IndexType, int _NumIndices>
+    void serialize(Archive & ar, Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
+    {
+      split_free(ar,static_cast<Eigen::array<_IndexType,_NumIndices> &>(ds),version);
+    }
+  
+#endif
+  
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void save(Archive & ar, const ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> Tensor;
+      const typename Tensor::Dimensions & dimensions = t.dimensions();
+      
+      ar & BOOST_SERIALIZATION_NVP(dimensions);
+      ar & make_nvp("data",make_array(t.data(), (size_t)t.size()));
+    }
+    
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void load(Archive & ar, ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int /*version*/)
+    {
+      typedef ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> Tensor;
+      typename Tensor::Dimensions dimensions;
+      
+      ar >> BOOST_SERIALIZATION_NVP(dimensions);
+      t.resize(dimensions);
+      
+      ar >> make_nvp("data",make_array(t.data(), (size_t)t.size()));
+    }
+    
+    template <class Archive, typename _Scalar, int _NumIndices, int _Options, typename _IndexType>
+    void serialize(Archive & ar, ::pinocchio::Tensor<_Scalar,_NumIndices,_Options,_IndexType> & t, const unsigned int version)
+    {
+      split_free(ar,t,version);
     }
     
   }

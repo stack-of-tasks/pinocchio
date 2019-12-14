@@ -20,9 +20,11 @@
       struct array
       {
         EIGEN_DEVICE_FUNC
-        EIGEN_STRONG_INLINE T& operator[] (size_t index) { return values[index]; }
+        EIGEN_STRONG_INLINE T& operator[] (size_t index)
+        { return values[index]; }
         EIGEN_DEVICE_FUNC
-        EIGEN_STRONG_INLINE const T& operator[] (size_t index) const { return values[index]; }
+        EIGEN_STRONG_INLINE const T& operator[] (size_t index) const
+        { return values[index]; }
 
         EIGEN_DEVICE_FUNC
         EIGEN_STRONG_INLINE T& front() { return values[0]; }
@@ -39,6 +41,23 @@
 
         T values[n];
       };
+    
+      template<class T, std::size_t n>
+      EIGEN_DEVICE_FUNC bool operator==(const array<T,n> & lhs, const array<T,n> & rhs)
+      {
+        for (std::size_t i = 0; i < n; ++i) {
+          if (lhs[i] != rhs[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+        
+      template<class T, std::size_t n>
+      EIGEN_DEVICE_FUNC bool operator!=(const array<T,n> & lhs, const array<T,n> & rhs)
+      {
+        return !(lhs == rhs);
+      }
     } // namespace Eigen
   #else
     #include <array>
@@ -66,9 +85,15 @@ namespace pinocchio
       NumIndices = NumIndices_
     };
     typedef IndexType Index;
+    typedef Eigen::array<Index,NumIndices_> Dimensions;
     
     inline Tensor& base()             { return *this; }
     inline const Tensor& base() const { return *this; }
+    
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    Dimensions& dimensions() { return m_dimensions; }
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
+    const Dimensions& dimensions() const { return m_dimensions; }
     
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Index rank() const
     {
@@ -114,6 +139,17 @@ namespace pinocchio
     {
       m_storage.setRandom();
       return *this;
+    }
+    
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor()
+    : m_storage()
+    {
+    }
+
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(const Tensor & other)
+    : m_storage(other.m_storage)
+    , m_dimensions(other.m_dimensions)
+    {
     }
     
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit Tensor(Index dim1)
@@ -217,12 +253,22 @@ namespace pinocchio
       #endif
     }
     
+    EIGEN_DEVICE_FUNC bool operator==(const Tensor & other) const
+    {
+      return m_storage == other.m_storage;
+    }
+    
+    EIGEN_DEVICE_FUNC bool operator!=(const Tensor & other) const
+    {
+      return m_storage != other.m_storage;
+    }
+    
   protected:
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> StorageType;
     StorageType m_storage;
     
-    Index m_dimensions[NumIndices];
+    Dimensions m_dimensions;
     
   };
 
