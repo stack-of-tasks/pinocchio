@@ -101,4 +101,6 @@ namespace pinocchio
   // end of group joint
 }
 
+#include "pinocchio/multibody/fwd.hpp"
+
 #endif // ifndef __pinocchio_multibody_joint_fwd_hpp__
