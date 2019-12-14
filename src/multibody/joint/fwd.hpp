@@ -2,11 +2,10 @@
 // Copyright (c) 2016-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_multibodsy_joint_fwd_hpp__
-#define __pinocchio_multibodsy_joint_fwd_hpp__
+#ifndef __pinocchio_multibody_joint_fwd_hpp__
+#define __pinocchio_multibody_joint_fwd_hpp__
 
 #include "pinocchio/fwd.hpp"
-#include "pinocchio/multibody/fwd.hpp"
 
 namespace pinocchio
 {
@@ -102,4 +101,4 @@ namespace pinocchio
   // end of group joint
 }
 
-#endif // ifndef __pinocchio_multibodsy_joint_fwd_hpp__
+#endif // ifndef __pinocchio_multibody_joint_fwd_hpp__
