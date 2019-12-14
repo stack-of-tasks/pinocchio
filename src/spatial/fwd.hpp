@@ -18,7 +18,8 @@ namespace pinocchio
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
   template<typename Scalar, int Options=0> class MotionTpl;
-  template<typename Scalar, int Options=0> struct BiasZeroTpl;
+  template<typename Scalar, int Options=0> struct MotionZeroTpl;
+  template<typename Scalar, int Options=0> struct PINOCCHIO_DEPRECATED BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
@@ -55,7 +56,12 @@ namespace pinocchio
   typedef ForceTpl      <double,0> Force;
   typedef InertiaTpl    <double,0> Inertia;
   typedef Symmetric3Tpl <double,0> Symmetric3;
+  typedef MotionZeroTpl <double,0> MotionZero;
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   typedef BiasZeroTpl   <double,0> BiasZero;
+#pragma GCC diagnostic pop
 
   /**
    * @}

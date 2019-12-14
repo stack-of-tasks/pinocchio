@@ -405,7 +405,7 @@ namespace pinocchio
     typedef ConstraintTranslationTpl<Scalar,Options> Constraint_t;
     typedef TransformTranslationTpl<Scalar,Options> Transformation_t;
     typedef MotionTranslationTpl<Scalar,Options> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;

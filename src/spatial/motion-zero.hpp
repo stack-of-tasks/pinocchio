@@ -10,19 +10,19 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options>
-  struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
+  struct SE3GroupAction< MotionZeroTpl<Scalar,Options> >
   {
-    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+    typedef MotionZeroTpl<Scalar,Options> ReturnType;
   };
   
   template<typename Scalar, int Options, typename MotionDerived>
-  struct MotionAlgebraAction< BiasZeroTpl<Scalar,Options>, MotionDerived>
+  struct MotionAlgebraAction< MotionZeroTpl<Scalar,Options>, MotionDerived>
   {
-    typedef BiasZeroTpl<Scalar,Options> ReturnType;
+    typedef MotionZeroTpl<Scalar,Options> ReturnType;
   };
 
   template<typename _Scalar, int _Options>
-  struct traits< BiasZeroTpl<_Scalar,_Options> >
+  struct traits< MotionZeroTpl<_Scalar,_Options> >
   {
     enum {
       Options = _Options,
@@ -44,14 +44,14 @@ namespace pinocchio
     typedef Motion MotionPlain;
     typedef MotionPlain PlainReturnType;
     
-  }; // traits BiasZeroTpl
+  }; // traits MotionZeroTpl
   
   template<typename Scalar, int Options>
-  struct BiasZeroTpl
-  : public MotionBase< BiasZeroTpl<Scalar,Options> >
+  struct MotionZeroTpl
+  : public MotionBase< MotionZeroTpl<Scalar,Options> >
   {
-    typedef typename traits<BiasZeroTpl>::MotionPlain MotionPlain;
-    typedef typename traits<BiasZeroTpl>::PlainReturnType PlainReturnType;
+    typedef typename traits<MotionZeroTpl>::MotionPlain MotionPlain;
+    typedef typename traits<MotionZeroTpl>::PlainReturnType PlainReturnType;
     
     static PlainReturnType plain() { return MotionPlain::Zero(); }
     
@@ -69,9 +69,9 @@ namespace pinocchio
     }
     
     template<typename M1>
-    BiasZeroTpl motionAction(const MotionBase<M1> &) const
+    MotionZeroTpl motionAction(const MotionBase<M1> &) const
     {
-      return BiasZeroTpl();
+      return MotionZeroTpl();
     }
     
     template<typename S2, int O2, typename D2>
@@ -81,9 +81,9 @@ namespace pinocchio
     }
     
     template<typename S2, int O2>
-    BiasZeroTpl se3Action_impl(const SE3Tpl<S2,O2> &) const
+    MotionZeroTpl se3Action_impl(const SE3Tpl<S2,O2> &) const
     {
-      return BiasZeroTpl();
+      return MotionZeroTpl();
     }
     
     template<typename S2, int O2, typename D2>
@@ -93,22 +93,27 @@ namespace pinocchio
     }
     
     template<typename S2, int O2>
-    BiasZeroTpl se3ActionInverse_impl(const SE3Tpl<S2,O2> &) const
+    MotionZeroTpl se3ActionInverse_impl(const SE3Tpl<S2,O2> &) const
     {
-      return BiasZeroTpl();
+      return MotionZeroTpl();
     }
     
-  }; // struct BiasZeroTpl
+  }; // struct MotionZeroTpl
   
   template<typename M1, typename Scalar, int Options>
   inline const M1 & operator+(const MotionBase<M1> & v,
-                              const BiasZeroTpl<Scalar,Options> &)
+                              const MotionZeroTpl<Scalar,Options> &)
   { return v.derived(); }
   
   template<typename Scalar, int Options, typename M1>
-  inline const M1 & operator+(const BiasZeroTpl<Scalar,Options> &,
+  inline const M1 & operator+(const MotionZeroTpl<Scalar,Options> &,
                               const MotionBase<M1> & v)
   { return v.derived(); }
+
+  /// \brief BiasZeroTpl has been replaced by MotionZeroTpl. Please use this naming instead.
+  template<typename Scalar, int Options>
+  struct PINOCCHIO_DEPRECATED BiasZeroTpl : MotionZeroTpl<Scalar,Options>
+  {};
   
 } // namespace pinocchio
 

@@ -494,7 +494,7 @@ namespace pinocchio
     typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;

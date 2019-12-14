@@ -337,7 +337,7 @@ namespace pinocchio
     typedef ConstraintSphericalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
