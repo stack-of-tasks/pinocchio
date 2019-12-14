@@ -85,19 +85,19 @@ namespace boost
   
 #ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   
-    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    template <class Archive, typename _IndexType, int _NumIndices>
     void save(Archive & ar, const Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
     {
       save(ar,static_cast<const Eigen::array<_IndexType,_NumIndices> &>(ds),version);
     }
   
-    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    template <class Archive, typename _IndexType, int _NumIndices>
     void load(Archive & ar, Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
     {
       load(ar,static_cast<Eigen::array<_IndexType,_NumIndices> &>(ds),version);
     }
   
-    template <class Archive, typename _IndexType, std::size_t _NumIndices>
+    template <class Archive, typename _IndexType, int _NumIndices>
     void serialize(Archive & ar, Eigen::DSizes<_IndexType,_NumIndices> & ds, const unsigned int version)
     {
       split_free(ar,static_cast<Eigen::array<_IndexType,_NumIndices> &>(ds),version);
