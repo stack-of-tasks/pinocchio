@@ -120,16 +120,16 @@ namespace pinocchio
         }
         case 1:
         {
-          res.rotation().col(1) = m.rotation().col(1);
           res.rotation().col(2).noalias() = m_cos * m.rotation().col(2) + m_sin * m.rotation().col(0);
+          res.rotation().col(1) = m.rotation().col(1);
           res.rotation().col(0).noalias() = res.rotation().col(1).cross(res.rotation().col(2));
           break;
         }
         case 2:
         {
-          res.rotation().col(2) = m.rotation().col(2);
           res.rotation().col(0).noalias() = m_cos * m.rotation().col(0) + m_sin * m.rotation().col(1);
           res.rotation().col(1).noalias() = res.rotation().col(2).cross(res.rotation().col(0));
+          res.rotation().col(2) = m.rotation().col(2);
           break;
         }
         default:
