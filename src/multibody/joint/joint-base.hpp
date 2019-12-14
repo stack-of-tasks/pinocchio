@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_base_hpp__
-#define __pinocchio_joint_base_hpp__
+#ifndef __pinocchio_multibody_joint_base_hpp__
+#define __pinocchio_multibody_joint_base_hpp__
 
 #include "pinocchio/math/matrix-block.hpp"
 
@@ -368,7 +368,7 @@ namespace pinocchio
   protected:
 
     /// Default constructor: protected.
-    /// 
+    ///
     /// Prevent the construction of stand-alone JointModelBase.
     inline JointModelBase()
     : i_id(std::numeric_limits<JointIndex>::max()), i_q(-1), i_v(-1) {}
@@ -401,4 +401,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_base_hpp__
+#endif // ifndef __pinocchio_multibody_joint_base_hpp__
