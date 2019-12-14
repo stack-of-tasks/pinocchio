@@ -145,6 +145,13 @@ namespace pinocchio
     : m_storage()
     {
     }
+
+    EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE Tensor(const Tensor & other)
+    : m_storage(other.m_storage)
+    , m_dimensions(other.m_dimensions)
+    {
+    }
+    
     EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE explicit Tensor(Index dim1)
     : m_storage(dim1)
     {
