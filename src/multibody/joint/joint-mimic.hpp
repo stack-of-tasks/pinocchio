@@ -301,6 +301,7 @@ namespace pinocchio
     // Accessors
     ConstraintTypeConstRef S_accessor() const { return S; }
     TansformTypeConstRef M_accessor() const { return jdata_ref.M; }
+    TansformTypeRef M_accessor() { return jdata_ref.M; }
     MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
     BiasTypeConstRef c_accessor() const { return jdata_ref.c; }
     UTypeConstRef U_accessor() const { return jdata_ref.U; }

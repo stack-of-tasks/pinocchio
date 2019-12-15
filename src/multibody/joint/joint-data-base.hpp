@@ -13,6 +13,7 @@
   PINOCCHIO_JOINT_MODEL_TYPEDEF_GENERIC(Joint,TYPENAME); \
   typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::TansformTypeRef TansformTypeRef;      \
   typedef TYPENAME traits<Joint>::MotionTypeConstRef MotionTypeConstRef;      \
   typedef TYPENAME traits<Joint>::BiasTypeConstRef BiasTypeConstRef;      \
   typedef TYPENAME traits<Joint>::UTypeConstRef UTypeConstRef;      \
@@ -40,6 +41,7 @@
 #define PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR \
   ConstraintTypeConstRef S_accessor() const { return S; } \
   TansformTypeConstRef M_accessor() const { return M; } \
+  TansformTypeRef M_accessor() { return M; } \
   MotionTypeConstRef v_accessor() const { return v; } \
   BiasTypeConstRef c_accessor() const { return c; } \
   UTypeConstRef U_accessor() const { return U; } \
@@ -50,6 +52,7 @@
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
   typedef const Constraint_t & ConstraintTypeConstRef; \
   typedef const Transformation_t & TansformTypeConstRef; \
+  typedef Transformation_t & TansformTypeRef; \
   typedef const Motion_t & MotionTypeConstRef; \
   typedef const Bias_t & BiasTypeConstRef; \
   typedef const U_t & UTypeConstRef; \
@@ -73,6 +76,7 @@ namespace pinocchio
 
     ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
     TansformTypeConstRef M() const     { return derived().M_accessor(); }
+    TansformTypeRef M() { return derived().M_accessor(); }
     MotionTypeConstRef v() const     { return derived().v_accessor(); }
     BiasTypeConstRef c() const     { return derived().c_accessor(); }
 
