@@ -235,6 +235,11 @@ namespace pinocchio
     
     ConstLinearRef translation() const { return CartesianAxis3()*displacement(); };
     AngularType rotation() const { return AngularType(3,3); }
+    
+    bool isEqual(const TransformPrismaticTpl & other) const
+    {
+      return m_displacement == other.m_displacement;
+    }
 
   protected:
     

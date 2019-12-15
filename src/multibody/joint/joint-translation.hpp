@@ -233,6 +233,11 @@ namespace pinocchio
     
     AngularType rotation() const { return AngularType(3,3); }
     
+    bool isEqual(const TransformTranslationTpl & other) const
+    {
+      return m_translation == other.m_translation;
+    }
+    
   protected:
     
     LinearType m_translation;

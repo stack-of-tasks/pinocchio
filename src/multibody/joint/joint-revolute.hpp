@@ -159,6 +159,11 @@ namespace pinocchio
       return m;
     }
     
+    bool isEqual(const TransformRevoluteTpl & other) const
+    {
+      return m_cos == other.m_cos && m_sin == other.m_sin;
+    }
+    
   protected:
     
     Scalar m_sin, m_cos;
