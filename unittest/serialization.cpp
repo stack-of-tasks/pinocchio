@@ -284,7 +284,7 @@ struct init<pinocchio::JointModelMimic<JointModel_> >
   }
 };
 
-struct TestJoint
+struct TestJointModel
 {
   template <typename JointModel>
   void operator()(const pinocchio::JointModelBase<JointModel> &) const
@@ -301,10 +301,10 @@ struct TestJoint
   
 };
 
-BOOST_AUTO_TEST_CASE(test_multibody_joints_serialization)
+BOOST_AUTO_TEST_CASE(test_multibody_joints_model_serialization)
 {
   using namespace pinocchio;
-  boost::mpl::for_each<JointModelVariant::types>(TestJoint());
+  boost::mpl::for_each<JointModelVariant::types>(TestJointModel());
 }
 
 BOOST_AUTO_TEST_CASE(test_model_serialization)

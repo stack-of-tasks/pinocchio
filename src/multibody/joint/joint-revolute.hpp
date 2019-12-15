@@ -143,7 +143,10 @@ namespace pinocchio
     }
     
     const Scalar & sin() const { return m_sin; }
+    Scalar & sin() { return m_sin; }
+    
     const Scalar & cos() const { return m_cos; }
+    Scalar & cos() { return m_cos; }
     
     template<typename OtherScalar>
     void setValues(const OtherScalar & sin, const OtherScalar & cos)
