@@ -210,22 +210,22 @@ namespace pinocchio
 
     MotionRevoluteTpl() {}
     
-    MotionRevoluteTpl(const Scalar & w) : w(w)  {}
+    MotionRevoluteTpl(const Scalar & w) : m_w(w)  {}
     
     template<typename Vector1Like>
     MotionRevoluteTpl(const Eigen::MatrixBase<Vector1Like> & v)
-    : w(v[0])
+    : m_w(v[0])
     {
       using namespace Eigen;
       EIGEN_STATIC_ASSERT_SIZE_1x1(Vector1Like);
     }
     
-    inline PlainReturnType plain() const { return Axis() * w; }
+    inline PlainReturnType plain() const { return Axis() * m_w; }
     
     template<typename OtherScalar>
     MotionRevoluteTpl __mult__(const OtherScalar & alpha) const
     {
-      return MotionRevoluteTpl(alpha*w);
+      return MotionRevoluteTpl(alpha*m_w);
     }
     
     template<typename MotionDerived>
@@ -233,20 +233,20 @@ namespace pinocchio
     {
       m.linear().setZero();
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
-        m.angular()[k] = k == axis ? w : (Scalar)0;
+        m.angular()[k] = k == axis ? m_w : (Scalar)0;
     }
     
     template<typename MotionDerived>
     inline void addTo(MotionDense<MotionDerived> & v) const
     {
       typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
-      v.angular()[axis] += (OtherScalar)w;
+      v.angular()[axis] += (OtherScalar)m_w;
     }
     
     template<typename S2, int O2, typename D2>
     inline void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.angular().noalias() = m.rotation().col(axis) * w;
+      v.angular().noalias() = m.rotation().col(axis) * m_w;
       v.linear().noalias() = m.translation().cross(v.angular());
     }
     
@@ -263,11 +263,11 @@ namespace pinocchio
                                MotionDense<D2> & v) const
     {
       // Linear
-      CartesianAxis3::alphaCross(w,m.translation(),v.angular());
+      CartesianAxis3::alphaCross(m_w,m.translation(),v.angular());
       v.linear().noalias() = m.rotation().transpose() * v.angular();
       
       // Angular
-      v.angular().noalias() = m.rotation().transpose().col(axis) * w;
+      v.angular().noalias() = m.rotation().transpose().col(axis) * m_w;
     }
     
     template<typename S2, int O2>
@@ -283,10 +283,10 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      CartesianAxis3::alphaCross(-w,v.linear(),mout.linear());
+      CartesianAxis3::alphaCross(-m_w,v.linear(),mout.linear());
 
       // Angular
-      CartesianAxis3::alphaCross(-w,v.angular(),mout.angular());
+      CartesianAxis3::alphaCross(-m_w,v.angular(),mout.angular());
     }
     
     template<typename M1>
@@ -297,8 +297,13 @@ namespace pinocchio
       return res;
     }
     
+    Scalar & angularRate() { return m_w; }
+    const Scalar & angularRate() const { return m_w; }
+    
     // data
-    Scalar w;
+  protected:
+    
+    Scalar m_w;
   }; // struct MotionRevoluteTpl
 
   template<typename S1, int O1, int axis, typename MotionDerived>
@@ -685,7 +690,7 @@ namespace pinocchio
     {
       calc(data,qs.derived());
 
-      data.v.w = (Scalar)vs[idx_v()];
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
     }
     
     template<typename Matrix6Like>
