@@ -49,6 +49,7 @@ namespace pinocchio
     typedef Motion_t MotionTypeConstRef;
     typedef Motion_t MotionTypeRef;
     typedef Bias_t BiasTypeConstRef;
+    typedef Bias_t BiasTypeRef;
     typedef U_t UTypeConstRef;
     typedef U_t UTypeRef;
     typedef D_t DTypeConstRef;
