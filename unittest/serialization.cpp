@@ -316,6 +316,7 @@ struct TestJointTransform
   {
     typedef typename JointModel::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Transformation_t Transform;
+    typedef typename pinocchio::traits<JointDerived>::Constraint_t Constraint;
     typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
     typedef pinocchio::JointDataBase<JointData> JointDataBase;
     JointModel jmodel = init<JointModel>::run();
@@ -334,6 +335,9 @@ struct TestJointTransform
     jmodel.calc(jdata,q_random);
     Transform & m = jdata_base.M();
     test(m);
+    
+    Constraint & S = jdata_base.S();
+    test(S);
   }
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -348,6 +352,7 @@ struct TestJointTransform
     typedef pinocchio::JointModelMimic<JointModel> JointModelMimic;
     typedef typename JointModelMimic::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Transformation_t Transform;
+    typedef typename pinocchio::traits<JointDerived>::Constraint_t Constraint;
     typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
     typedef pinocchio::JointDataBase<JointDataMimic> JointDataBase;
     JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
@@ -367,6 +372,9 @@ struct TestJointTransform
     jmodel_mimic.calc(jdata_mimic,q_random);
     Transform & m = jdata_mimic_base.M();
     test(m);
+    
+    Constraint & S = jdata_mimic_base.S();
+    test(S);
   }
   
   template<typename Transform>

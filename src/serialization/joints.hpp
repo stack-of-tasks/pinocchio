@@ -20,6 +20,7 @@
 
 #include "pinocchio/serialization/joints-transform.hpp"
 #include "pinocchio/serialization/joints-motion.hpp"
+#include "pinocchio/serialization/joints-constraint.hpp"
 #include "pinocchio/serialization/joints-model.hpp"
 
 #endif // ifndef __pinocchio_serialization_joints_hpp__
