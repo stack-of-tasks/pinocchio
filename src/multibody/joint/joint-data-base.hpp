@@ -112,6 +112,24 @@ namespace pinocchio
       return os;
     }
     
+    bool operator==(const JointDataBase<Derived> & other) const
+    {
+      return derived().isEqual(other.derived());
+    }
+    
+    /// \brief Default operator== implementation
+    bool isEqual(const JointDataBase<Derived> & other) const
+    {
+      return S() == other.S()
+          && M() == other.M()
+          && v() == other.v()
+          && c() == other.c()
+          && U() == other.U()
+          && Dinv() == other.Dinv()
+          && UDinv() == other.UDinv()
+      ;
+    }
+    
   protected:
     
     /// \brief Default constructor: protected.
