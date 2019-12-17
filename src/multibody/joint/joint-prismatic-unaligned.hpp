@@ -65,8 +65,8 @@ namespace pinocchio
     
     template<typename Vector3Like, typename S2>
     MotionPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
-                                const S2 & m_v)
-    : m_axis(axis), m_v(m_v)
+                                const S2 & v)
+    : m_axis(axis), m_v(v)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
     inline PlainReturnType plain() const
@@ -168,7 +168,7 @@ namespace pinocchio
   operator+(const MotionPrismaticUnalignedTpl<Scalar,Options> & m1, const MotionDense<MotionDerived> & m2)
   {
     typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.m_v*m1.axis + m2.linear(), m2.angular());
+    return ReturnType(m1.linearRate() * m1.axis() + m2.linear(), m2.angular());
   }
   
   template<typename MotionDerived, typename S2, int O2>
