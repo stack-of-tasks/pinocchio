@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_generic_hpp__
@@ -44,6 +44,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
     
     typedef Constraint_t ConstraintTypeConstRef;
+    typedef Constraint_t ConstraintTypeRef;
     typedef Transformation_t TansformTypeConstRef;
     typedef Transformation_t TansformTypeRef;
     typedef Motion_t MotionTypeConstRef;
@@ -111,9 +112,7 @@ namespace pinocchio
     /// Define all the standard accessors
     Constraint_t S_accessor() const { return S(); }
     Transformation_t M_accessor() const { return M(); }
-    Transformation_t M_accessor() { return M(); }
     Motion_t v_accessor() const { return v(); }
-    Motion_t v_accessor() { return v(); }
     Bias_t c_accessor() const { return c(); }
     Bias_t c_accessor() { return c(); }
     U_t U_accessor() const { return U(); }

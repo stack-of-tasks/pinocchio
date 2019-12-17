@@ -12,6 +12,7 @@
 #define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,TYPENAME)              \
   PINOCCHIO_JOINT_MODEL_TYPEDEF_GENERIC(Joint,TYPENAME); \
   typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::ConstraintTypeRef ConstraintTypeRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeRef TansformTypeRef;      \
   typedef TYPENAME traits<Joint>::MotionTypeConstRef MotionTypeConstRef;      \
@@ -42,6 +43,7 @@
   
 #define PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR \
   ConstraintTypeConstRef S_accessor() const { return S; } \
+  ConstraintTypeRef S_accessor() { return S; } \
   TansformTypeConstRef M_accessor() const { return M; } \
   TansformTypeRef M_accessor() { return M; } \
   MotionTypeConstRef v_accessor() const { return v; } \
@@ -55,6 +57,7 @@
   
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
   typedef const Constraint_t & ConstraintTypeConstRef; \
+  typedef Constraint_t & ConstraintTypeRef; \
   typedef const Transformation_t & TansformTypeConstRef; \
   typedef Transformation_t & TansformTypeRef; \
   typedef const Motion_t & MotionTypeConstRef; \
@@ -81,6 +84,7 @@ namespace pinocchio
     const Derived & derived() const { return *static_cast<const Derived*>(this); }
 
     ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
+    ConstraintTypeRef S()     { return derived().S_accessor(); }
     TansformTypeConstRef M() const     { return derived().M_accessor(); }
     TansformTypeRef M() { return derived().M_accessor(); }
     MotionTypeConstRef v() const     { return derived().v_accessor(); }

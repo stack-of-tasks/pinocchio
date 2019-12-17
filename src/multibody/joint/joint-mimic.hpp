@@ -153,7 +153,10 @@ namespace pinocchio
     }
     
     inline const Scalar & scaling() const { return m_scaling_factor; }
+    inline Scalar & scaling() { return m_scaling_factor; }
+    
     inline const Constraint & constraint() const { return m_constraint; }
+    inline Constraint & constraint() { return m_constraint; }
     
     bool isEqual(const ScaledConstraint & other) const
     {
@@ -306,6 +309,7 @@ namespace pinocchio
     
     // Accessors
     ConstraintTypeConstRef S_accessor() const { return S; }
+    ConstraintTypeRef S_accessor() { return S; }
     TansformTypeConstRef M_accessor() const { return jdata_ref.M; }
     TansformTypeRef M_accessor() { return jdata_ref.M; }
     MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
