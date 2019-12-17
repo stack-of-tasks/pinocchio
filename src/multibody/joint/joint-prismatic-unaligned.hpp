@@ -238,14 +238,14 @@ namespace pinocchio
     
     template<typename Vector3Like>
     ConstraintPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : axis(axis)
+    : m_axis(axis)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
-      return JointMotion(axis,v[0]);
+      return JointMotion(m_axis,v[0]);
     }
     
     template<typename S1, int O1>
@@ -254,7 +254,7 @@ namespace pinocchio
     {
       typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
-      v.linear().noalias() = m.rotation()*axis;
+      v.linear().noalias() = m.rotation()*m_axis;
       v.angular().setZero();
       return res;
     }
@@ -265,7 +265,7 @@ namespace pinocchio
     {
       typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
-      v.linear().noalias() = m.rotation().transpose()*axis;
+      v.linear().noalias() = m.rotation().transpose()*m_axis;
       v.angular().setZero();
       return res;
     }
@@ -283,7 +283,7 @@ namespace pinocchio
       {
         typedef typename ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType ReturnType;
         ReturnType res;
-        res[0] = ref.axis.dot(f.linear());
+        res[0] = ref.axis().dot(f.linear());
         return res;
       }
       
@@ -294,12 +294,12 @@ namespace pinocchio
       {
         EIGEN_STATIC_ASSERT(ForceSet::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
         /* Return ax.T * F[1:3,:] */
-        return ref.axis.transpose() * F.template middleRows<3>(LINEAR);
+        return ref.axis().transpose() * F.template middleRows<3>(LINEAR);
       }
       
     };
-    TransposeConst transpose() const { return TransposeConst(*this); }
     
+    TransposeConst transpose() const { return TransposeConst(*this); }
     
     /* CRBA joint operators
      *   - ForceSet::Block = ForceSet
@@ -310,7 +310,8 @@ namespace pinocchio
     DenseBase matrix_impl() const
     {
       DenseBase S;
-      S << axis, Vector3::Zero();
+      S.template segment<3>(LINEAR) = m_axis;
+      S.template segment<3>(ANGULAR).setZero();
       return S;
     }
     
@@ -318,13 +319,18 @@ namespace pinocchio
     DenseBase motionAction(const MotionDense<MotionDerived> & v) const
     {
       DenseBase res;
-      res << v.angular().cross(axis), Vector3::Zero();
+      res.template segment<3>(LINEAR).noalias() = v.angular().cross(m_axis);
+      res.template segment<3>(ANGULAR).setZero();
       
       return res;
     }
+      
+    const Vector3 & axis() const { return m_axis; }
+    Vector3 & axis() { return m_axis; }
     
-    // data
-    Vector3 axis;
+  protected:
+    
+    Vector3 m_axis;
     
   }; // struct ConstraintPrismaticUnalignedTpl
   
@@ -352,8 +358,8 @@ namespace pinocchio
         const S1 & m                             = Y.mass();
         const typename Inertia::Vector3 & c      = Y.lever();
         
-        res.template head<3>().noalias() = m*cpu.axis;
-        res.template tail<3>().noalias() = c.cross(res.template head<3>());
+        res.template segment<3>(Constraint::LINEAR).noalias() = m*cpu.axis();
+        res.template segment<3>(Constraint::ANGULAR).noalias() = c.cross(res.template segment<3>(Constraint::LINEAR));
         
         return res;
       }
@@ -383,7 +389,7 @@ namespace pinocchio
                                    const Constraint & cru)
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-        return Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis;
+        return Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis();
       }
     };
   } // namespace impl
