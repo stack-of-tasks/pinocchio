@@ -152,7 +152,7 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      data.v.w = (Scalar)vs[idx_v()];
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
     }
     
     template<typename Matrix6Like>

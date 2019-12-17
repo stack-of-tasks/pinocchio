@@ -300,7 +300,11 @@ namespace pinocchio
     Scalar & angularRate() { return m_w; }
     const Scalar & angularRate() const { return m_w; }
     
-    // data
+    bool isEqual_impl(const MotionRevoluteTpl & other) const
+    {
+      return m_w == other.m_w;
+    }
+    
   protected:
     
     Scalar m_w;

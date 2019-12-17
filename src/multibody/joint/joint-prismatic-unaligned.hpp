@@ -65,39 +65,39 @@ namespace pinocchio
     
     template<typename Vector3Like, typename S2>
     MotionPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
-                                const S2 & rate)
-    : axis(axis), rate(rate)
+                                const S2 & m_v)
+    : m_axis(axis), m_v(m_v)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(axis*rate,
+      return PlainReturnType(m_axis*m_v,
                              PlainReturnType::Vector3::Zero());
     }
     
     template<typename OtherScalar>
     MotionPrismaticUnalignedTpl __mult__(const OtherScalar & alpha) const
     {
-      return MotionPrismaticUnalignedTpl(axis,alpha*rate);
+      return MotionPrismaticUnalignedTpl(m_axis,alpha*m_v);
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
     {
-      other.linear() += axis * rate;
+      other.linear() += m_axis * m_v;
     }
     
     template<typename Derived>
     void setTo(MotionDense<Derived> & other) const
     {
-      other.linear().noalias() = axis*rate;
+      other.linear().noalias() = m_axis*m_v;
       other.angular().setZero();
     }
 
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.linear().noalias() = rate * (m.rotation() * axis); // TODO: check efficiency
+      v.linear().noalias() = m_v * (m.rotation() * m_axis); // TODO: check efficiency
       v.angular().setZero();
     }
     
@@ -113,7 +113,7 @@ namespace pinocchio
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       // Linear
-      v.linear().noalias() = rate * (m.rotation().transpose() * axis);
+      v.linear().noalias() = m_v * (m.rotation().transpose() * m_axis);
       
       // Angular
       v.angular().setZero();
@@ -131,8 +131,8 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      mout.linear().noalias() = v.angular().cross(axis);
-      mout.linear() *= rate;
+      mout.linear().noalias() = v.angular().cross(m_axis);
+      mout.linear() *= m_v;
       
       // Angular
       mout.angular().setZero();
@@ -146,9 +146,21 @@ namespace pinocchio
       return res;
     }
     
-    // data
-    Vector3 axis;
-    Scalar rate;
+    bool isEqual_impl(const MotionPrismaticUnalignedTpl & other) const
+    {
+      return m_axis == other.m_axis && m_v == other.m_v;
+    }
+    
+    const Scalar & linearRate() const { return m_v; }
+    Scalar & linearRate() { return m_v; }
+    
+    const Vector3 & axis() const { return m_axis; }
+    Vector3 & axis() { return m_axis; }
+    
+  protected:
+    
+    Vector3 m_axis;
+    Scalar m_v;
   }; // struct MotionPrismaticUnalignedTpl
 
   template<typename Scalar, int Options, typename MotionDerived>
@@ -156,7 +168,7 @@ namespace pinocchio
   operator+(const MotionPrismaticUnalignedTpl<Scalar,Options> & m1, const MotionDense<MotionDerived> & m2)
   {
     typedef typename MotionDerived::MotionPlain ReturnType;
-    return ReturnType(m1.rate*m1.axis + m2.linear(), m2.angular());
+    return ReturnType(m1.m_v*m1.axis + m2.linear(), m2.angular());
   }
   
   template<typename MotionDerived, typename S2, int O2>
@@ -509,7 +521,7 @@ namespace pinocchio
       
       typedef typename TangentVector::Scalar S2;
       const S2 & v = vs[idx_v()];
-      data.v.rate = v;
+      data.v.linearRate() = v;
     }
     
     template<typename Matrix6Like>

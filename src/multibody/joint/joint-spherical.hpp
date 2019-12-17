@@ -66,51 +66,51 @@ namespace pinocchio
     
     template<typename Vector3Like>
     MotionSphericalTpl(const Eigen::MatrixBase<Vector3Like> & w)
-    : w(w)
+    : m_w(w)
     {}
 
-    Vector3 & operator() () { return w; }
-    const Vector3 & operator() () const { return w; }
+    Vector3 & operator() () { return m_w; }
+    const Vector3 & operator() () const { return m_w; }
 
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(PlainReturnType::Vector3::Zero(), w);
+      return PlainReturnType(PlainReturnType::Vector3::Zero(), m_w);
     }
     
     template<typename MotionDerived>
     void addTo(MotionDense<MotionDerived> & other) const
     {
-      other.angular() += w;
+      other.angular() += m_w;
     }
     
     template<typename Derived>
     void setTo(MotionDense<Derived> & other) const
     {
       other.linear().setZero();
-      other.angular() = w;
+      other.angular() = m_w;
     }
     
     MotionSphericalTpl __plus__(const MotionSphericalTpl & other) const
     {
-      return MotionSphericalTpl(w + other.w);
+      return MotionSphericalTpl(m_w + other.m_w);
     }
     
     bool isEqual_impl(const MotionSphericalTpl & other) const
     {
-      return w == other.w;
+      return m_w == other.m_w;
     }
     
     template<typename MotionDerived>
     bool isEqual_impl(const MotionDense<MotionDerived> & other) const
     {
-      return other.angular() == w && other.linear().isZero(0);
+      return other.angular() == m_w && other.linear().isZero(0);
     }
     
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       // Angular
-      v.angular().noalias() = m.rotation() * w;
+      v.angular().noalias() = m.rotation() * m_w;
       
       // Linear
       v.linear().noalias() = m.translation().cross(v.angular());
@@ -130,11 +130,11 @@ namespace pinocchio
       // Linear
       // TODO: use v.angular() as temporary variable
       Vector3 v3_tmp;
-      v3_tmp.noalias() = w.cross(m.translation());
+      v3_tmp.noalias() = m_w.cross(m.translation());
       v.linear().noalias() = m.rotation().transpose() * v3_tmp;
       
       // Angular
-      v.angular().noalias() = m.rotation().transpose() * w;
+      v.angular().noalias() = m.rotation().transpose() * m_w;
     }
     
     template<typename S2, int O2>
@@ -149,10 +149,10 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      mout.linear().noalias() = v.linear().cross(w);
+      mout.linear().noalias() = v.linear().cross(m_w);
       
       // Angular
-      mout.angular().noalias() = v.angular().cross(w);
+      mout.angular().noalias() = v.angular().cross(m_w);
     }
     
     template<typename M1>
@@ -162,16 +162,20 @@ namespace pinocchio
       motionAction(v,res);
       return res;
     }
-   
-    // data
-    Vector3 w;
+    
+    const Vector3 & angular() const { return m_w; }
+    Vector3 & angular() { return m_w; }
+
+  protected:
+    
+    Vector3 m_w;
   }; // struct MotionSphericalTpl
 
   template<typename S1, int O1, typename MotionDerived>
   inline typename MotionDerived::MotionPlain
   operator+(const MotionSphericalTpl<S1,O1> & m1, const MotionDense<MotionDerived> & m2)
   {
-    return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.w);
+    return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.angular());
   }
 
   template<typename Scalar, int Options> struct ConstraintSphericalTpl;
@@ -454,7 +458,7 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v() = vs.template segment<NV>(idx_v());
+      data.v.angular() = vs.template segment<NV>(idx_v());
     }
     
     template<typename Matrix6Like>
@@ -494,7 +498,6 @@ namespace pinocchio
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
-
 
   }; // struct JointModelSphericalTpl
 

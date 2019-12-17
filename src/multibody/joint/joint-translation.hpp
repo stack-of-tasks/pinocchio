@@ -65,37 +65,42 @@ namespace pinocchio
     
     template<typename Vector3Like>
     MotionTranslationTpl(const Eigen::MatrixBase<Vector3Like> & v)
-    : rate(v)
+    : m_v(v)
     {}
     
     MotionTranslationTpl(const MotionTranslationTpl & other)
-    : rate(other.rate)
+    : m_v(other.m_v)
     {}
  
-    Vector3 & operator()() { return rate; }
-    const Vector3 & operator()() const { return rate; }
+    Vector3 & operator()() { return m_v; }
+    const Vector3 & operator()() const { return m_v; }
     
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(rate,PlainReturnType::Vector3::Zero());
+      return PlainReturnType(m_v,PlainReturnType::Vector3::Zero());
+    }
+    
+    bool isEqual_impl(const MotionTranslationTpl & other) const
+    {
+      return m_v == other.m_v;
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
     {
-      rate = other.rate;
+      m_v = other.m_v;
       return *this;
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
     {
-      other.linear() += rate;
+      other.linear() += m_v;
     }
     
     template<typename Derived>
     void setTo(MotionDense<Derived> & other) const
     {
-      other.linear() = rate;
+      other.linear() = m_v;
       other.angular().setZero();
     }
     
@@ -103,7 +108,7 @@ namespace pinocchio
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.angular().setZero();
-      v.linear().noalias() = m.rotation() * rate; // TODO: check efficiency
+      v.linear().noalias() = m.rotation() * m_v; // TODO: check efficiency
     }
     
     template<typename S2, int O2>
@@ -118,7 +123,7 @@ namespace pinocchio
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       // Linear
-      v.linear().noalias() = m.rotation().transpose() * rate;
+      v.linear().noalias() = m.rotation().transpose() * m_v;
       
       // Angular
       v.angular().setZero();
@@ -136,7 +141,7 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      mout.linear().noalias() = v.angular().cross(rate);
+      mout.linear().noalias() = v.angular().cross(m_v);
       
       // Angular
       mout.angular().setZero();
@@ -150,8 +155,12 @@ namespace pinocchio
       return res;
     }
     
-    // data
-    Vector3 rate;
+    const Vector3 & linear() const { return m_v; }
+    Vector3 & linear() { return m_v; }
+    
+  protected:
+    
+    Vector3 m_v;
     
   }; // struct MotionTranslationTpl
   
@@ -160,7 +169,7 @@ namespace pinocchio
   operator+(const MotionTranslationTpl<S1,O1> & m1,
             const MotionDense<MotionDerived> & m2)
   {
-    return typename MotionDerived::MotionPlain(m2.linear() + m1.rate, m2.angular());
+    return typename MotionDerived::MotionPlain(m2.linear() + m1.linear(), m2.angular());
   }
   
   template<typename Scalar, int Options> struct TransformTranslationTpl;
@@ -489,7 +498,7 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v() = this->jointVelocitySelector(vs);
+      data.v.linear() = this->jointVelocitySelector(vs);
     }
     
     template<typename Matrix6Like>
