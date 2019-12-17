@@ -47,6 +47,7 @@ namespace pinocchio
     typedef Transformation_t TansformTypeConstRef;
     typedef Transformation_t TansformTypeRef;
     typedef Motion_t MotionTypeConstRef;
+    typedef Motion_t MotionTypeRef;
     typedef Bias_t BiasTypeConstRef;
     typedef U_t UTypeConstRef;
     typedef U_t UTypeRef;
@@ -111,6 +112,7 @@ namespace pinocchio
     Transformation_t M_accessor() const { return M(); }
     Transformation_t M_accessor() { return M(); }
     Motion_t v_accessor() const { return v(); }
+    Motion_t v_accessor() { return v(); }
     Bias_t c_accessor() const { return c(); }
     U_t U_accessor() const { return U(); }
     D_t Dinv_accessor() const { return Dinv(); }
