@@ -114,6 +114,7 @@ namespace pinocchio
     Motion_t v_accessor() const { return v(); }
     Motion_t v_accessor() { return v(); }
     Bias_t c_accessor() const { return c(); }
+    Bias_t c_accessor() { return c(); }
     U_t U_accessor() const { return U(); }
     D_t Dinv_accessor() const { return Dinv(); }
     UD_t UDinv_accessor() const { return UDinv(); }

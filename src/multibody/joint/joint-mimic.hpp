@@ -305,6 +305,7 @@ namespace pinocchio
     MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
     MotionTypeRef v_accessor() { return jdata_ref.v; }
     BiasTypeConstRef c_accessor() const { return jdata_ref.c; }
+    BiasTypeRef c_accessor() { return jdata_ref.c; }
     UTypeConstRef U_accessor() const { return jdata_ref.U; }
     UTypeRef U_accessor() { return jdata_ref.U; }
     DTypeConstRef Dinv_accessor() const { return jdata_ref.Dinv; }
