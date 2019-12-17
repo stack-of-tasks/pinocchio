@@ -57,7 +57,14 @@ namespace pinocchio
     
     template<typename D2>
     static bool isEqual_impl(const MotionDense<D2> & other)
-    { return other.linear().isZero() && other.angular().isZero(); }
+    {
+      return other.linear().isZero(0) && other.angular().isZero(0);
+    }
+    
+    static bool isEqual_impl(const MotionZeroTpl &)
+    {
+      return true;
+    }
     
     template<typename D2>
     static void addTo(const MotionBase<D2> &) {}
