@@ -15,6 +15,7 @@
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeRef TansformTypeRef;      \
   typedef TYPENAME traits<Joint>::MotionTypeConstRef MotionTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::MotionTypeRef MotionTypeRef;      \
   typedef TYPENAME traits<Joint>::BiasTypeConstRef BiasTypeConstRef;      \
   typedef TYPENAME traits<Joint>::UTypeConstRef UTypeConstRef;      \
   typedef TYPENAME traits<Joint>::UTypeRef UTypeRef;      \
@@ -43,6 +44,7 @@
   TansformTypeConstRef M_accessor() const { return M; } \
   TansformTypeRef M_accessor() { return M; } \
   MotionTypeConstRef v_accessor() const { return v; } \
+  MotionTypeRef v_accessor() { return v; } \
   BiasTypeConstRef c_accessor() const { return c; } \
   UTypeConstRef U_accessor() const { return U; } \
   UTypeRef U_accessor() { return U; } \
@@ -54,6 +56,7 @@
   typedef const Transformation_t & TansformTypeConstRef; \
   typedef Transformation_t & TansformTypeRef; \
   typedef const Motion_t & MotionTypeConstRef; \
+  typedef Motion_t & MotionTypeRef; \
   typedef const Bias_t & BiasTypeConstRef; \
   typedef const U_t & UTypeConstRef; \
   typedef U_t & UTypeRef; \
@@ -78,6 +81,7 @@ namespace pinocchio
     TansformTypeConstRef M() const     { return derived().M_accessor(); }
     TansformTypeRef M() { return derived().M_accessor(); }
     MotionTypeConstRef v() const     { return derived().v_accessor(); }
+    MotionTypeRef v()     { return derived().v_accessor(); }
     BiasTypeConstRef c() const     { return derived().c_accessor(); }
 
     UTypeConstRef U() const     { return derived().U_accessor(); }
