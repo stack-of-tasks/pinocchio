@@ -383,6 +383,84 @@ BOOST_AUTO_TEST_CASE(test_multibody_joints_transform_serialization)
   boost::mpl::for_each<JointModelVariant::types>(TestJointTransform());
 }
 
+struct TestJointMotion
+{
+  template <typename JointModel>
+  void operator()(const pinocchio::JointModelBase<JointModel> &) const
+  {
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
+    typedef pinocchio::JointDataBase<JointData> JointDataBase;
+    JointModel jmodel = init<JointModel>::run();
+    
+    JointData jdata = jmodel.createData();
+    JointDataBase & jdata_base = static_cast<JointDataBase &>(jdata);
+    
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+   
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+    
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+    
+    jmodel.calc(jdata,q_random,v_random);
+    Motion & m = jdata_base.v();
+    
+    test(m);
+  }
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  void operator()(const pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> &)
+  {
+    // Do nothing
+  }
+    
+  template<typename JointModel>
+  void operator()(const pinocchio::JointModelMimic<JointModel> &)
+  {
+    typedef pinocchio::JointModelMimic<JointModel> JointModelMimic;
+    typedef typename JointModelMimic::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
+    typedef pinocchio::JointDataBase<JointDataMimic> JointDataBase;
+    JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
+    JointModel jmodel = init<JointModel>::run();
+    
+    JointDataMimic jdata_mimic = jmodel_mimic.createData();
+    JointDataBase & jdata_mimic_base = static_cast<JointDataBase &>(jdata_mimic);
+    
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+    
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+    
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+    
+    jmodel_mimic.calc(jdata_mimic,q_random,v_random);
+    Motion & m = jdata_mimic_base.v();
+    
+    test(m);
+  }
+  
+  template<typename Motion>
+  static void test(Motion & m)
+  {
+    generic_test(m,TEST_SERIALIZATION_FOLDER"/JointMotion","motion");
+  }
+  
+};
+
+BOOST_AUTO_TEST_CASE(test_multibody_joints_motion_serialization)
+{
+  using namespace pinocchio;
+  boost::mpl::for_each<JointModelVariant::types>(TestJointMotion());
+}
+
 BOOST_AUTO_TEST_CASE(test_model_serialization)
 {
   using namespace pinocchio;
