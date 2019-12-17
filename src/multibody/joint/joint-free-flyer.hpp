@@ -94,6 +94,8 @@ namespace pinocchio
     motionAction(const MotionBase<MotionDerived> & v) const
     { return v.toActionMatrix(); }
     
+    bool isEqual(const ConstraintIdentityTpl &) const { return true; }
+    
   }; // struct ConstraintIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>

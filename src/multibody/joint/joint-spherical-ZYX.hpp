@@ -166,6 +166,10 @@ namespace pinocchio
     
     // data
     Matrix3 S_minimal;
+    bool isEqual(const ConstraintSphericalZYXTpl & other) const
+    {
+      return m_S == other.m_S;
+    }
     
   }; // struct ConstraintSphericalZYXTpl
 

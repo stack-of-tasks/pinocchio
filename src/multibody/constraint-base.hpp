@@ -98,6 +98,11 @@ namespace pinocchio
     {
       return derived().motionAction(v);
     }
+    
+    bool operator==(const ConstraintBase<Derived> & other) const
+    {
+      return derived().isEqual(other.derived());
+    }
 
   }; // class ConstraintBase
   

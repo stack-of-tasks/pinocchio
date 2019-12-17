@@ -155,6 +155,12 @@ namespace pinocchio
     inline const Scalar & scaling() const { return m_scaling_factor; }
     inline const Constraint & constraint() const { return m_constraint; }
     
+    bool isEqual(const ScaledConstraint & other) const
+    {
+      return m_constraint == other.m_constraint
+      && m_scaling_factor == other.m_scaling_factor;
+    }
+    
   protected:
     
     Constraint m_constraint;

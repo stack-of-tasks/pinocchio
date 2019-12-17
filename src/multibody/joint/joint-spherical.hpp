@@ -281,6 +281,8 @@ namespace pinocchio
       
       return res;
     }
+    
+    bool isEqual(const ConstraintSphericalTpl &) const { return true; }
 
   }; // struct ConstraintSphericalTpl
 

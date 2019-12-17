@@ -360,6 +360,8 @@ namespace pinocchio
       return res;
     }
     
+    bool isEqual(const ConstraintTranslationTpl &) const { return true; }
+    
   }; // struct ConstraintTranslationTpl
   
   template<typename MotionDerived, typename S2, int O2>

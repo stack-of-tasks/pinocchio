@@ -328,6 +328,11 @@ namespace pinocchio
     const Vector3 & axis() const { return m_axis; }
     Vector3 & axis() { return m_axis; }
     
+    bool isEqual(const ConstraintPrismaticUnalignedTpl & other) const
+    {
+      return m_axis == other.m_axis;
+    }
+    
   protected:
     
     Vector3 m_axis;

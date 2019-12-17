@@ -327,6 +327,9 @@ namespace pinocchio
       
       return res;
     }
+    
+    bool isEqual(const ConstraintPlanarTpl &)  const { return true; }
+    
   }; // struct ConstraintPlanarTpl
 
   template<typename MotionDerived, typename S2, int O2>

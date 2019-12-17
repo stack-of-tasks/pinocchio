@@ -450,6 +450,9 @@ namespace pinocchio
       v = m.cross(Axis());
       return res;
     }
+    
+    bool isEqual(const ConstraintRevoluteTpl &) const { return true; }
+    
   }; // struct ConstraintRevoluteTpl
 
   template<typename _Scalar, int _Options, int _axis>

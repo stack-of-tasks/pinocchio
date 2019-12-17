@@ -378,6 +378,8 @@ namespace pinocchio
       v = m.cross(Axis());
       return res;
     }
+    
+    bool isEqual(const ConstraintPrismaticTpl &) const { return true; }
 
   }; // struct ConstraintPrismaticTpl
   
