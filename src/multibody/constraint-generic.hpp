@@ -148,6 +148,11 @@ namespace pinocchio
     
     void disp_impl(std::ostream & os) const { os << "S =\n" << S << std::endl;}
     
+    bool isEqual(const ConstraintTpl & other) const
+    {
+      return S == other.S;
+    }
+    
   protected:
     DenseBase S;
   }; // class ConstraintTpl
