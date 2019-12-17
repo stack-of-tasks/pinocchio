@@ -390,6 +390,7 @@ struct TestJointMotion
   {
     typedef typename JointModel::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
+    typedef typename pinocchio::traits<JointDerived>::Bias_t Bias;
     typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
     typedef pinocchio::JointDataBase<JointData> JointDataBase;
     JointModel jmodel = init<JointModel>::run();
@@ -410,6 +411,9 @@ struct TestJointMotion
     Motion & m = jdata_base.v();
     
     test(m);
+    
+    Bias & b = jdata_base.c();
+    test(b);
   }
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -424,6 +428,7 @@ struct TestJointMotion
     typedef pinocchio::JointModelMimic<JointModel> JointModelMimic;
     typedef typename JointModelMimic::JointDerived JointDerived;
     typedef typename pinocchio::traits<JointDerived>::Motion_t Motion;
+    typedef typename pinocchio::traits<JointDerived>::Bias_t Bias;
     typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
     typedef pinocchio::JointDataBase<JointDataMimic> JointDataBase;
     JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
@@ -445,6 +450,9 @@ struct TestJointMotion
     Motion & m = jdata_mimic_base.v();
     
     test(m);
+    
+    Bias & b = jdata_mimic_base.c();
+    test(b);
   }
   
   template<typename Motion>
