@@ -22,5 +22,6 @@
 #include "pinocchio/serialization/joints-motion.hpp"
 #include "pinocchio/serialization/joints-constraint.hpp"
 #include "pinocchio/serialization/joints-model.hpp"
+#include "pinocchio/serialization/joints-data.hpp"
 
 #endif // ifndef __pinocchio_serialization_joints_hpp__
