@@ -284,16 +284,16 @@ namespace pinocchio
     
     JointDataMimic(const JointDataBase<JointData> & jdata,
                    const Scalar & scaling)
-    : jdata_ref(jdata.derived())
-    , scaling(scaling)
-    , S(jdata_ref.S,scaling)
+    : m_jdata_ref(jdata.derived())
+    , m_scaling(scaling)
+    , m_S(m_jdata_ref.S,scaling)
     {}
     
     JointDataMimic & operator=(const JointDataMimic & other)
     {
-      jdata_ref = other.jdata_ref;
-      scaling = other.scaling;
-      S = Constraint_t(jdata_ref.S,other.scaling);
+      m_jdata_ref = other.m_jdata_ref;
+      m_scaling = other.m_scaling;
+      m_S = Constraint_t(m_jdata_ref.S,other.m_scaling);
       return *this;
     }
     
@@ -304,7 +304,7 @@ namespace pinocchio
     
     std::string shortname() const
     {
-      return std::string("JointDataMimic<") + jdata_ref.shortname() + std::string(">");
+      return std::string("JointDataMimic<") + m_jdata_ref.shortname() + std::string(">");
     }
     
     // Accessors
@@ -332,20 +332,26 @@ namespace pinocchio
     template<class JointModel>
     friend struct JointModelMimic;
     
+    const JointData & jdata() const { return m_jdata_ref; }
+    JointData & jdata() { return m_jdata_ref; }
+    
+    const Scalar & scaling() const { return m_scaling; }
+    Scalar & scaling() { return m_scaling; }
+    
   protected:
     
-    JointData jdata_ref;
-    Scalar scaling;
+    JointData m_jdata_ref;
+    Scalar m_scaling;
     
     /// \brief Transform configuration vector
-    ConfigVector_t q_transform;
+    ConfigVector_t m_q_transform;
     /// \brief Transform velocity vector.
-    TangentVector_t v_transform;
+    TangentVector_t m_v_transform;
     
   public:
     
     // data
-    Constraint_t S;
+    Constraint_t m_S;
     
   }; // struct JointDataMimic
   
@@ -414,8 +420,8 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.q_transform);
-      m_jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
+                           m_scaling,m_offset,jdata.m_q_transform);
+      m_jmodel_ref.calc(jdata.m_jdata_ref,jdata.m_q_transform);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -427,11 +433,11 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.q_transform);
-      jdata.v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
-      m_jmodel_ref.calc(jdata.jdata_ref,
-                        jdata.q_transform,
-                        jdata.v_transform);
+                           m_scaling,m_offset,jdata.m_q_transform);
+      jdata.m_v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
+      m_jmodel_ref.calc(jdata.m_jdata_ref,
+                        jdata.m_q_transform,
+                        jdata.m_v_transform);
     }
     
     template<typename Matrix6Like>
@@ -439,7 +445,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      m_jmodel_ref.calc_aba(data.jdata_ref,
+      // TODO: fixme
+      m_jmodel_ref.calc_aba(data.m_jdata_ref,
                             PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
                             update_I);
     }
