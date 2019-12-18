@@ -448,7 +448,12 @@ namespace pinocchio
     
     D_t StU;
 
-    JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
+    JointDataPlanarTpl ()
+    : M(1)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
     static std::string classname() { return std::string("JointDataPlanar"); }
     std::string shortname() const { return classname(); }

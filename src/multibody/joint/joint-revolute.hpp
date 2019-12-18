@@ -646,7 +646,11 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteTpl() {}
+    JointDataRevoluteTpl()
+    : U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
     static std::string classname() { return std::string("JointDataRevolute"); }
     std::string shortname() const { return classname(); }

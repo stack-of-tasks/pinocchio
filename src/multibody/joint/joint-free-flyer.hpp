@@ -188,7 +188,12 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataFreeFlyerTpl() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
+    JointDataFreeFlyerTpl()
+    : M(1)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
     static std::string classname() { return std::string("JointDataFreeFlyer"); }
     std::string shortname() const { return classname(); }

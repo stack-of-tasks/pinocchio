@@ -73,7 +73,11 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataRevoluteUnboundedUnalignedTpl() {}
+    JointDataRevoluteUnboundedUnalignedTpl()
+    : U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
     
     template<typename Vector3Like>
     JointDataRevoluteUnboundedUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
