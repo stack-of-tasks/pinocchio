@@ -2,6 +2,7 @@
 // Copyright (c) 2019 INRIA
 //
 
+#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include "pinocchio/serialization/archive.hpp"
@@ -475,6 +476,100 @@ BOOST_AUTO_TEST_CASE(test_multibody_joints_motion_serialization)
 {
   using namespace pinocchio;
   boost::mpl::for_each<JointModelVariant::types>(TestJointMotion());
+}
+
+struct TestJointData
+{
+  template <typename JointModel>
+  void operator()(const pinocchio::JointModelBase<JointModel> &) const
+  {
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
+    JointModel jmodel = init<JointModel>::run();
+    
+    JointData jdata = jmodel.createData();
+
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+   
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+    
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+    
+    jmodel.calc(jdata,q_random,v_random);
+    pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
+    jmodel.calc_aba(jdata,I,false);
+    test(jdata);
+  }
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  void operator()(const pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> &)
+  {
+    typedef pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef typename JointModel::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointData;
+    
+    JointModel jmodel_build = init<JointModel>::run();
+    
+    pinocchio::Model model;
+    model.addJoint(0, jmodel_build, pinocchio::SE3::Random(), "model");
+    model.lowerPositionLimit.fill(-1.);
+    model.upperPositionLimit.fill( 1.);
+    
+    JointModel & jmodel = boost::get<JointModel>(model.joints[1]);
+    Eigen::VectorXd q_random = pinocchio::randomConfiguration(model);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(model.nv);
+    
+    pinocchio::Data data(model);
+    JointData & jdata = boost::get<JointData>(data.joints[1]);
+    
+    jmodel.calc(jdata,q_random,v_random);
+    pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
+    jmodel.calc_aba(jdata,I,false);
+    
+    test(jdata);
+  }
+    
+  template<typename JointModel>
+  void operator()(const pinocchio::JointModelMimic<JointModel> &)
+  {
+    typedef pinocchio::JointModelMimic<JointModel> JointModelMimic;
+    typedef typename JointModelMimic::JointDerived JointDerived;
+    typedef typename pinocchio::traits<JointDerived>::JointDataDerived JointDataMimic;
+    JointModelMimic jmodel_mimic = init<JointModelMimic>::run();
+    JointModel jmodel = init<JointModel>::run();
+    
+    JointDataMimic jdata_mimic = jmodel_mimic.createData();
+
+    typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
+    LieGroupType lg;
+    
+    Eigen::VectorXd lb(Eigen::VectorXd::Constant(jmodel.nq(),-1.));
+    Eigen::VectorXd ub(Eigen::VectorXd::Constant(jmodel.nq(), 1.));
+    
+    Eigen::VectorXd q_random = lg.randomConfiguration(lb,ub);
+    Eigen::VectorXd v_random = Eigen::VectorXd::Random(jmodel.nv());
+    
+    jmodel_mimic.calc(jdata_mimic,q_random,v_random);
+    pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
+    jmodel_mimic.calc_aba(jdata_mimic,I,false);
+    test(jdata_mimic);
+  }
+  
+  template<typename JointData>
+  static void test(JointData & joint_data)
+  {
+    generic_test(joint_data,TEST_SERIALIZATION_FOLDER"/JointData","data");
+  }
+  
+};
+
+BOOST_AUTO_TEST_CASE(test_multibody_joints_data_serialization)
+{
+  using namespace pinocchio;
+  boost::mpl::for_each<JointModelVariant::types>(TestJointData());
 }
 
 BOOST_AUTO_TEST_CASE(test_model_serialization)
