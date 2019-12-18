@@ -652,7 +652,10 @@ namespace pinocchio
     , UDinv(UD_t::Zero())
     {}
 
-    static std::string classname() { return std::string("JointDataRevolute"); }
+    static std::string classname()
+    {
+      return std::string("JointDataR") + axisLabel<axis>();
+    }
     std::string shortname() const { return classname(); }
     
   }; // struct JointDataRevoluteTpl

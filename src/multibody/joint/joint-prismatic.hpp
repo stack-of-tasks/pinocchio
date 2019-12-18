@@ -555,7 +555,10 @@ namespace pinocchio
     , UDinv(UD_t::Zero())
     {}
 
-    static std::string classname() { return std::string("JointDataPrismatic"); }
+    static std::string classname()
+    {
+      return std::string("JointDataP") + axisLabel<axis>();
+    }
     std::string shortname() const { return classname(); }
 
   }; // struct JointDataPrismaticTpl
