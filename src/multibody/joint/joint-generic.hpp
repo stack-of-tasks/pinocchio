@@ -54,7 +54,9 @@ namespace pinocchio
     typedef U_t UTypeConstRef;
     typedef U_t UTypeRef;
     typedef D_t DTypeConstRef;
+    typedef D_t DTypeRef;
     typedef UD_t UDTypeConstRef;
+    typedef UD_t UDTypeRef;
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
@@ -109,12 +111,11 @@ namespace pinocchio
       BOOST_MPL_ASSERT((boost::mpl::contains<typename JointDataVariant::types,JointDataDerived>));
     }
     
-    /// Define all the standard accessors
+    // Define all the standard accessors
     Constraint_t S_accessor() const { return S(); }
     Transformation_t M_accessor() const { return M(); }
     Motion_t v_accessor() const { return v(); }
     Bias_t c_accessor() const { return c(); }
-    Bias_t c_accessor() { return c(); }
     U_t U_accessor() const { return U(); }
     D_t Dinv_accessor() const { return Dinv(); }
     UD_t UDinv_accessor() const { return UDinv(); }

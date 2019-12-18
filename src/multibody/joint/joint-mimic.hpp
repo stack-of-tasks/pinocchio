@@ -308,18 +308,26 @@ namespace pinocchio
     }
     
     // Accessors
-    ConstraintTypeConstRef S_accessor() const { return S; }
-    ConstraintTypeRef S_accessor() { return S; }
-    TansformTypeConstRef M_accessor() const { return jdata_ref.M; }
-    TansformTypeRef M_accessor() { return jdata_ref.M; }
-    MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
-    MotionTypeRef v_accessor() { return jdata_ref.v; }
-    BiasTypeConstRef c_accessor() const { return jdata_ref.c; }
-    BiasTypeRef c_accessor() { return jdata_ref.c; }
-    UTypeConstRef U_accessor() const { return jdata_ref.U; }
-    UTypeRef U_accessor() { return jdata_ref.U; }
-    DTypeConstRef Dinv_accessor() const { return jdata_ref.Dinv; }
-    UDTypeConstRef UDinv_accessor() const { return jdata_ref.UDinv; }
+    ConstraintTypeConstRef S_accessor() const { return m_S; }
+    ConstraintTypeRef S_accessor() { return m_S; }
+    
+    TansformTypeConstRef M_accessor() const { return m_jdata_ref.M; }
+    TansformTypeRef M_accessor() { return m_jdata_ref.M; }
+    
+    MotionTypeConstRef v_accessor() const { return m_jdata_ref.v; }
+    MotionTypeRef v_accessor() { return m_jdata_ref.v; }
+    
+    BiasTypeConstRef c_accessor() const { return m_jdata_ref.c; }
+    BiasTypeRef c_accessor() { return m_jdata_ref.c; }
+    
+    UTypeConstRef U_accessor() const { return m_jdata_ref.U; }
+    UTypeRef U_accessor() { return m_jdata_ref.U; }
+    
+    DTypeConstRef Dinv_accessor() const { return m_jdata_ref.Dinv; }
+    DTypeRef Dinv_accessor() { return m_jdata_ref.Dinv; }
+    
+    UDTypeConstRef UDinv_accessor() const { return m_jdata_ref.UDinv; }
+    UDTypeRef UDinv_accessor() { return m_jdata_ref.UDinv; }
     
     template<class JointModel>
     friend struct JointModelMimic;

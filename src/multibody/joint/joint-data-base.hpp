@@ -22,7 +22,9 @@
   typedef TYPENAME traits<Joint>::UTypeConstRef UTypeConstRef;      \
   typedef TYPENAME traits<Joint>::UTypeRef UTypeRef;      \
   typedef TYPENAME traits<Joint>::DTypeConstRef DTypeConstRef;      \
-  typedef TYPENAME traits<Joint>::UDTypeConstRef UDTypeConstRef
+  typedef TYPENAME traits<Joint>::DTypeRef DTypeRef;      \
+  typedef TYPENAME traits<Joint>::UDTypeConstRef UDTypeConstRef; \
+  typedef TYPENAME traits<Joint>::UDTypeRef UDTypeRef
   
 #ifdef __clang__
 
@@ -53,7 +55,9 @@
   UTypeConstRef U_accessor() const { return U; } \
   UTypeRef U_accessor() { return U; } \
   DTypeConstRef Dinv_accessor() const { return Dinv; } \
-  UDTypeConstRef UDinv_accessor() const { return UDinv; }
+  DTypeRef Dinv_accessor() { return Dinv; } \
+  UDTypeConstRef UDinv_accessor() const { return UDinv; } \
+  UDTypeRef UDinv_accessor() { return UDinv; }
   
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
   typedef const Constraint_t & ConstraintTypeConstRef; \
@@ -67,7 +71,9 @@
   typedef const U_t & UTypeConstRef; \
   typedef U_t & UTypeRef; \
   typedef const D_t & DTypeConstRef; \
-  typedef const UD_t & UDTypeConstRef;
+  typedef D_t & DTypeRef; \
+  typedef const UD_t & UDTypeConstRef; \
+  typedef UD_t & UDTypeRef;
 
 namespace pinocchio
 {
@@ -95,7 +101,9 @@ namespace pinocchio
     UTypeConstRef U() const     { return derived().U_accessor(); }
     UTypeRef U()           { return derived().U_accessor(); }
     DTypeConstRef Dinv() const  { return derived().Dinv_accessor(); }
+    DTypeRef Dinv()  { return derived().Dinv_accessor(); }
     UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
+    UDTypeRef UDinv() { return derived().UDinv_accessor(); }
 
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
