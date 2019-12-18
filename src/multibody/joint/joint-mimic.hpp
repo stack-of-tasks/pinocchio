@@ -286,14 +286,14 @@ namespace pinocchio
                    const Scalar & scaling)
     : m_jdata_ref(jdata.derived())
     , m_scaling(scaling)
-    , m_S(m_jdata_ref.S,scaling)
+    , S(m_jdata_ref.S,scaling)
     {}
     
     JointDataMimic & operator=(const JointDataMimic & other)
     {
       m_jdata_ref = other.m_jdata_ref;
       m_scaling = other.m_scaling;
-      m_S = Constraint_t(m_jdata_ref.S,other.m_scaling);
+      S = Constraint_t(m_jdata_ref.S,other.m_scaling);
       return *this;
     }
     
@@ -308,8 +308,8 @@ namespace pinocchio
     }
     
     // Accessors
-    ConstraintTypeConstRef S_accessor() const { return m_S; }
-    ConstraintTypeRef S_accessor() { return m_S; }
+    ConstraintTypeConstRef S_accessor() const { return S; }
+    ConstraintTypeRef S_accessor() { return S; }
     
     TansformTypeConstRef M_accessor() const { return m_jdata_ref.M; }
     TansformTypeRef M_accessor() { return m_jdata_ref.M; }
@@ -351,7 +351,7 @@ namespace pinocchio
   public:
     
     // data
-    Constraint_t m_S;
+    Constraint_t S;
     
   }; // struct JointDataMimic
   
