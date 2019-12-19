@@ -41,11 +41,17 @@ ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
-OPTION (BUILD_UNIT_TESTS "Build the unitary tests" OFF)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
 OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
 OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+
+IF(DEFINED BUILD_UNIT_TESTS)
+  MESSAGE(AUTHOR_WARNING "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
+    If you are manually building Pinocchio from source in an existing build folder,\
+    we suggest that you delete your build folder and make a new one.")
+  SET(BUILD_TESTING ${BUILD_UNIT_TESTS})
+ENDIF(DEFINED BUILD_UNIT_TESTS)
 
 # --- OPTIONAL DEPENDENCIES -------------------------
 OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
@@ -60,8 +66,6 @@ IF (INITIALIZE_WITH_NAN)
   MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
   ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
 ENDIF (INITIALIZE_WITH_NAN)
-
-SET(BUILD_TESTING ${BUILD_UNIT_TESTS})
 
 MACRO(TAG_LIBRARY_VERSION target)
   SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
