@@ -293,6 +293,8 @@ namespace pinocchio
     {
       m_jdata_ref = other.m_jdata_ref;
       m_scaling = other.m_scaling;
+      m_q_transform = other.m_q_transform;
+      m_v_transform = other.m_v_transform;
       S = Constraint_t(m_jdata_ref.S,other.m_scaling);
       return *this;
     }
