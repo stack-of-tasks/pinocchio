@@ -19,10 +19,6 @@ IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
 ENDIF()
 
-# Normally, BUILD_TESTING defaults to ON. This sets the default to OFF.
-# It needs to be included before module CTest, thus before command PROJECT
-OPTION (BUILD_TESTING "" OFF)
-
 INCLUDE(cmake/base.cmake)
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
