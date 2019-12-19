@@ -6,6 +6,10 @@
 
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
+#include "pinocchio/multibody/model.hpp"
+
+#include "pinocchio/algorithm/joint-configuration.hpp"
+
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -329,6 +333,55 @@ BOOST_AUTO_TEST_CASE(cast)
   
   BOOST_CHECK(jmodelx.cast<double>() == jmodelx);
   BOOST_CHECK(jmodelx.cast<long double>().cast<double>() == jmodelx);
+}
+
+struct TestJointOperatorEqual
+{
+
+  template <typename JointModel>
+  void operator()(const JointModelBase<JointModel> & ) const
+  {
+    JointModel jmodel_init = init<JointModel>::run();
+    typedef typename JointModel::JointDataDerived JointData;
+    
+    Model model;
+    model.addJoint(0,jmodel_init,SE3::Random(),"toto");
+    model.lowerPositionLimit.fill(-1.);
+    model.upperPositionLimit.fill( 1.);
+    
+    const JointModel & jmodel = boost::get<JointModel>(model.joints[1]);
+    
+    Eigen::VectorXd q = randomConfiguration(model);
+    Eigen::VectorXd v = Eigen::VectorXd::Random(model.nv);
+    
+    JointData jdata = jmodel.createData();
+    
+    jmodel.calc(jdata,q,v);
+    Inertia::Matrix6 I = Inertia::Matrix6::Identity();
+    jmodel.calc_aba(jdata,I,false);
+    test(jdata);
+  }
+  
+  template <typename JointModel>
+  void operator()(const pinocchio::JointModelMimic<JointModel> & ) const
+  {
+
+  }
+  
+  template<typename JointData>
+  static void test(const JointData & jdata)
+  {
+    pinocchio::JointData jdata_generic1(jdata);
+    
+    std::cout << "name: " << jdata_generic1.shortname() << std::endl;
+    BOOST_CHECK(jdata_generic1 == jdata_generic1);
+  }
+
+};
+
+BOOST_AUTO_TEST_CASE(test_operator_equal)
+{
+  boost::mpl::for_each<JointModelVariant::types>(TestJointOperatorEqual());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
