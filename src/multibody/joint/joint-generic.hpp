@@ -85,6 +85,9 @@ namespace pinocchio
     typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
     
+    using Base::operator==;
+    using Base::operator!=;
+    
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
@@ -122,6 +125,12 @@ namespace pinocchio
 
     static std::string classname() { return "JointData"; }
     std::string shortname() const { return ::pinocchio::shortname(*this); }
+    
+    bool isEqual(const JointDataTpl & other) const
+    {
+      return Base::isEqual(other)
+      && toVariant() == other.toVariant();
+    }
 
   };
   
