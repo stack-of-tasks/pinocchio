@@ -138,6 +138,17 @@ namespace pinocchio
       ;
     }
     
+    bool operator!=(const JointDataBase<Derived> & other) const
+    {
+      return derived().isNotEqual(other.derived());
+    }
+    
+    /// \brief Default operator!= implementation
+    bool isNotEqual(const JointDataBase<Derived> & other) const
+    {
+      return !(derived() == other.derived());
+    }
+    
   protected:
     
     /// \brief Default constructor: protected.
