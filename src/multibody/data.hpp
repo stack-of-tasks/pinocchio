@@ -142,7 +142,7 @@ namespace pinocchio
     container::aligned_vector<Inertia> Ycrb;
     
     /// \brief Vector of sub-tree composite rigid body inertia time derivatives \f$ \dot{Y}_{crb}\f$. See Data::Ycrb for more details.
-    container::aligned_vector<typename Inertia::Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
+    container::aligned_vector<Matrix6> dYcrb; // TODO: change with dense symmetric matrix6
     
     /// \brief The joint space inertia matrix (a square matrix of dim model.nv).
     MatrixXs M;
@@ -175,19 +175,19 @@ namespace pinocchio
     Matrix6x IS;
 
     /// \brief Right variation of the inertia matrix
-    container::aligned_vector<typename Inertia::Matrix6> vxI;
+    container::aligned_vector<Matrix6> vxI;
     
     /// \brief Left variation of the inertia matrix
-    container::aligned_vector<typename Inertia::Matrix6> Ivx;
+    container::aligned_vector<Matrix6> Ivx;
     
     /// \brief Inertia quantities expressed in the world frame
     container::aligned_vector<Inertia> oYcrb;
     
     /// \brief Time variation of the inertia quantities expressed in the world frame
-    container::aligned_vector<typename Inertia::Matrix6> doYcrb;
+    container::aligned_vector<Matrix6> doYcrb;
     
     /// \brief Temporary for derivative algorithms
-    typename Inertia::Matrix6 Itmp;
+    Matrix6 Itmp;
     
     /// \brief Temporary for derivative algorithms
     Matrix6 M6tmp;
@@ -199,7 +199,7 @@ namespace pinocchio
     
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
-    container::aligned_vector<typename Inertia::Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
+    container::aligned_vector<Matrix6> Yaba;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     TangentVectorType u;                  // Joint Inertia

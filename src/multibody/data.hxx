@@ -23,79 +23,79 @@ namespace pinocchio
   inline DataTpl<Scalar,Options,JointCollectionTpl>::
   DataTpl(const Model & model)
   : joints(0)
-  , a((std::size_t)model.njoints)
-  , oa((std::size_t)model.njoints)
-  , a_gf((std::size_t)model.njoints)
-  , oa_gf((std::size_t)model.njoints)
-  , v((std::size_t)model.njoints)
-  , ov((std::size_t)model.njoints)
-  , f((std::size_t)model.njoints)
-  , of((std::size_t)model.njoints)
-  , h((std::size_t)model.njoints)
-  , oh((std::size_t)model.njoints)
-  , oMi((std::size_t)model.njoints)
-  , liMi((std::size_t)model.njoints)
-  , tau(model.nv)
-  , nle(model.nv)
-  , g(model.nv)
-  , oMf((std::size_t)model.nframes)
-  , Ycrb((std::size_t)model.njoints)
-  , dYcrb((std::size_t)model.njoints)
-  , M(model.nv,model.nv)
-  , Minv(model.nv,model.nv)
-  , C(model.nv,model.nv)
-  , dHdq(6,model.nv)
-  , dFdq(6,model.nv)
-  , dFdv(6,model.nv)
-  , dFda(6,model.nv)
-  , SDinv(6,model.nv)
-  , UDinv(6,model.nv)
-  , IS(6,model.nv)
-  , vxI((std::size_t)model.njoints)
-  , Ivx((std::size_t)model.njoints)
-  , oYcrb((std::size_t)model.njoints)
-  , doYcrb((std::size_t)model.njoints)
-  , ddq(model.nv)
-  , Yaba((std::size_t)model.njoints)
-  , u(model.nv)
-  , Ag(6,model.nv)
-  , dAg(6,model.nv)
-  , Fcrb((std::size_t)model.njoints)
+  , a((std::size_t)model.njoints,Motion::Zero())
+  , oa((std::size_t)model.njoints,Motion::Zero())
+  , a_gf((std::size_t)model.njoints,Motion::Zero())
+  , oa_gf((std::size_t)model.njoints,Motion::Zero())
+  , v((std::size_t)model.njoints,Motion::Zero())
+  , ov((std::size_t)model.njoints,Motion::Zero())
+  , f((std::size_t)model.njoints,Force::Zero())
+  , of((std::size_t)model.njoints,Force::Zero())
+  , h((std::size_t)model.njoints,Force::Zero())
+  , oh((std::size_t)model.njoints,Force::Zero())
+  , oMi((std::size_t)model.njoints,SE3::Identity())
+  , liMi((std::size_t)model.njoints,SE3::Identity())
+  , tau(VectorXs::Zero(model.nv))
+  , nle(VectorXs::Zero(model.nv))
+  , g(VectorXs::Zero(model.nv))
+  , oMf((std::size_t)model.nframes,SE3::Identity())
+  , Ycrb((std::size_t)model.njoints,Inertia::Zero())
+  , dYcrb((std::size_t)model.njoints,Inertia::Zero())
+  , M(MatrixXs::Zero(model.nv,model.nv))
+  , Minv(MatrixXs::Zero(model.nv,model.nv))
+  , C(MatrixXs::Zero(model.nv,model.nv))
+  , dHdq(Matrix6x::Zero(6,model.nv))
+  , dFdq(Matrix6x::Zero(6,model.nv))
+  , dFdv(Matrix6x::Zero(6,model.nv))
+  , dFda(Matrix6x::Zero(6,model.nv))
+  , SDinv(Matrix6x::Zero(6,model.nv))
+  , UDinv(Matrix6x::Zero(6,model.nv))
+  , IS(MatrixXs::Zero(6,model.nv))
+  , vxI((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , Ivx((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oYcrb((std::size_t)model.njoints,Inertia::Zero())
+  , doYcrb((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , ddq(VectorXs::Zero(model.nv))
+  , Yaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , u(VectorXs::Zero(model.nv))
+  , Ag(Matrix6x::Zero(6,model.nv))
+  , dAg(Matrix6x::Zero(6,model.nv))
+  , Fcrb((std::size_t)model.njoints,Matrix6x::Zero(6,model.nv))
   , lastChild((std::size_t)model.njoints)
   , nvSubtree((std::size_t)model.njoints)
   , start_idx_v_fromRow((std::size_t)model.nv)
   , end_idx_v_fromRow((std::size_t)model.nv)
-  , U(model.nv,model.nv)
-  , D(model.nv)
-  , Dinv(model.nv)
-  , tmp(model.nv)
+  , U(MatrixXs::Identity(model.nv,model.nv))
+  , D(VectorXs::Zero(model.nv))
+  , Dinv(VectorXs::Zero(model.nv))
+  , tmp(VectorXs::Zero(model.nv))
   , parents_fromRow((std::size_t)model.nv)
   , supports_fromRow((std::size_t)model.nv)
   , nvSubtree_fromRow((std::size_t)model.nv)
-  , J(6,model.nv)
-  , dJ(6,model.nv)
-  , dVdq(6,model.nv)
-  , dAdq(6,model.nv)
-  , dAdv(6,model.nv)
+  , J(Matrix6x::Zero(6,model.nv))
+  , dJ(Matrix6x::Zero(6,model.nv))
+  , dVdq(Matrix6x::Zero(6,model.nv))
+  , dAdq(Matrix6x::Zero(6,model.nv))
+  , dAdv(Matrix6x::Zero(6,model.nv))
   , dtau_dq(MatrixXs::Zero(model.nv,model.nv))
   , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
-  , iMf((std::size_t)model.njoints)
-  , com((std::size_t)model.njoints)
-  , vcom((std::size_t)model.njoints)
-  , acom((std::size_t)model.njoints)
-  , mass((std::size_t)model.njoints)
-  , Jcom(3,model.nv)
+  , iMf((std::size_t)model.njoints,SE3::Identity())
+  , com((std::size_t)model.njoints,Vector3::Zero())
+  , vcom((std::size_t)model.njoints,Vector3::Zero())
+  , acom((std::size_t)model.njoints,Vector3::Zero())
+  , mass((std::size_t)model.njoints,(Scalar)(-1))
+  , Jcom(Matrix3x::Zero(3,model.nv))
   , JMinvJt()
   , llt_JMinvJt()
   , lambda_c()
-  , sDUiJt(model.nv,model.nv)
-  , torque_residual(model.nv)
-  , dq_after(model.nv)
+  , sDUiJt(MatrixXs::Zero(model.nv,model.nv))
+  , torque_residual(VectorXs::Zero(model.nv))
+  , dq_after(VectorXs::Zero(model.nv))
   , impulse_c()
-  , staticRegressor(3,4*(model.njoints-1))
-  , jointTorqueRegressor(model.nv,10*(model.njoints-1))
+  , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
+  , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
 #else
@@ -116,32 +116,13 @@ namespace pinocchio
     computeLastChild(model);
 
     /* Init for Coriolis */
-    C.setZero();
 
     /* Init for Cholesky */
-    U.setIdentity();
     computeParents_fromRow(model);
     computeSupports_fromRow(model);
-
-    /* Init Jacobian */
-    J.setZero();
-    Ag.setZero();
     
     /* Init universe states relatively to itself */
-    
-    a[0].setZero();
-    oa[0].setZero();
-    v[0].setZero();
-    ov[0].setZero();
     a_gf[0] = -model.gravity;
-    f[0].setZero();
-    h[0].setZero();
-    oMi[0].setIdentity();
-    liMi[0].setIdentity();
-    oMf[0].setIdentity();
-    
-    Yaba[0].setZero();
-    Ycrb[0].setZero();
     
     kinematic_hessians.setZero();
   }
@@ -223,6 +204,15 @@ namespace pinocchio
         supports_fromRow[(size_t)(idx_vj+row)].push_back(idx_vj+row);
       }
     }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool operator==(const DataTpl<Scalar,Options,JointCollectionTpl> & data1,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
+  {
+    return
+      data1.joints == data2.joints
+    ;
   }
 
 } // namespace pinocchio
