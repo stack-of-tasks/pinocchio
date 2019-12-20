@@ -305,7 +305,8 @@ namespace pinocchio
       && m_jdata_ref == other.m_jdata_ref
       && m_scaling == other.m_scaling
       && m_q_transform == other.m_q_transform
-      && m_v_transform == other.m_v_transform;
+      && m_v_transform == other.m_v_transform
+      ;
     }
     
     static std::string classname()
@@ -348,6 +349,12 @@ namespace pinocchio
     
     const Scalar & scaling() const { return m_scaling; }
     Scalar & scaling() { return m_scaling; }
+    
+    ConfigVector_t & jointConfiguration() { return m_q_transform; }
+    const ConfigVector_t & jointConfiguration() const { return m_q_transform; }
+    
+    TangentVector_t & jointVelocity() { return m_v_transform; }
+    const TangentVector_t & jointVelocity() const { return m_v_transform; }
     
   protected:
     
