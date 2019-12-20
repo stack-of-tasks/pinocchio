@@ -187,6 +187,8 @@ namespace boost
       
       ar & make_nvp("jdata",joint.jdata());
       ar & make_nvp("scaling",joint.scaling());
+      ar & make_nvp("jointConfiguration",joint.jointConfiguration());
+      ar & make_nvp("jointVelocity",joint.jointVelocity());
     }
     
   }
