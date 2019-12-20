@@ -65,4 +65,16 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     }
   }
 
+  BOOST_AUTO_TEST_CASE(test_copy_and_equal_op)
+  {
+    Model model;
+    buildModels::humanoidRandom(model);
+    
+    Data data(model);
+    Data data_copy = data;
+    
+    BOOST_CHECK(data == data);
+    BOOST_CHECK(data == data_copy);
+  }
+
 BOOST_AUTO_TEST_SUITE_END()

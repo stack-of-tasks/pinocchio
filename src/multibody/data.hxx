@@ -211,7 +211,85 @@ namespace pinocchio
                   const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
   {
     return
-      data1.joints == data2.joints
+       data1.joints == data2.joints
+    && data1.a == data2.a
+    && data1.oa == data2.oa
+    && data1.a_gf == data2.a_gf
+    && data1.oa_gf == data2.oa_gf
+    && data1.v == data2.v
+    && data1.ov == data2.ov
+    && data1.f == data2.f
+    && data1.of == data2.of
+    && data1.h == data2.h
+    && data1.oh == data2.oh
+    && data1.oMi == data2.oMi
+    && data1.liMi == data2.liMi
+    && data1.tau == data2.tau
+    && data1.nle == data2.nle
+    && data1.g == data2.g
+    && data1.oMf == data2.oMf
+    && data1.Ycrb == data2.Ycrb
+    && data1.dYcrb == data2.dYcrb
+    && data1.M == data2.M
+    && data1.Minv == data2.Minv
+    && data1.C == data2.C
+    && data1.dHdq == data2.dHdq
+    && data1.dFdq == data2.dFdq
+    && data1.dFdv == data2.dFdv
+    && data1.dFda == data2.dFda
+    && data1.SDinv == data2.SDinv
+    && data1.UDinv == data2.UDinv
+    && data1.IS == data2.IS
+    && data1.vxI == data2.vxI
+    && data1.Ivx == data2.Ivx
+    && data1.oYcrb == data2.oYcrb
+    && data1.doYcrb == data2.doYcrb
+    && data1.ddq == data2.ddq
+    && data1.Yaba == data2.Yaba
+    && data1.u == data2.u
+    && data1.Ag == data2.Ag
+    && data1.dAg == data2.dAg
+    && data1.hg == data2.hg
+    && data1.dhg == data2.dhg
+    && data1.Ig == data2.Ig
+    && data1.Fcrb == data2.Fcrb
+    && data1.lastChild == data2.lastChild
+    && data1.nvSubtree == data2.nvSubtree
+    && data1.start_idx_v_fromRow == data2.start_idx_v_fromRow
+    && data1.end_idx_v_fromRow == data2.end_idx_v_fromRow
+    && data1.U == data2.U
+    && data1.D == data2.D
+    && data1.Dinv == data2.Dinv
+    && data1.parents_fromRow == data2.parents_fromRow
+    && data1.supports_fromRow == data2.supports_fromRow
+    && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow
+    && data1.J == data2.J
+    && data1.dJ == data2.dJ
+    && data1.dVdq == data2.dVdq
+    && data1.dAdq == data2.dAdq
+    && data1.dAdv == data2.dAdv
+    && data1.dtau_dq == data2.dtau_dq
+    && data1.dtau_dv == data2.dtau_dv
+    && data1.ddq_dq == data2.ddq_dq
+    && data1.ddq_dv == data2.ddq_dv
+    && data1.iMf == data2.iMf
+    && data1.com == data2.com
+    && data1.vcom == data2.vcom
+    && data1.acom == data2.acom
+    && data1.mass == data2.mass
+    && data1.Jcom == data2.Jcom
+    && data1.kinetic_energy == data2.kinetic_energy
+    && data1.potential_energy == data2.potential_energy
+    && data1.JMinvJt == data2.JMinvJt
+    && data1.lambda_c == data2.lambda_c
+    && data1.torque_residual == data2.torque_residual
+    && data1.dq_after == data2.dq_after
+    && data1.impulse_c == data2.impulse_c
+    && data1.staticRegressor == data2.staticRegressor
+    && data1.bodyRegressor == data2.bodyRegressor
+    && data1.jointTorqueRegressor == data2.jointTorqueRegressor
+    && data1.kinematic_hessians == data2.kinematic_hessians
+
     ;
   }
 
