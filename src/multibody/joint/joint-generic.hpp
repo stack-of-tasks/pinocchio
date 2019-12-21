@@ -101,7 +101,9 @@ namespace pinocchio
     D_t               Dinv()  const { return dinv_inertia(*this); }
     UD_t              UDinv() const { return udinv_inertia(*this); }
 
-    JointDataTpl() : JointDataVariant() {}
+    JointDataTpl()
+    : JointDataVariant()
+    {}
     
     JointDataTpl(const JointDataVariant & jdata_variant)
     : JointDataVariant(jdata_variant)

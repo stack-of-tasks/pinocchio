@@ -550,7 +550,9 @@ namespace pinocchio
     UD_t UDinv;
 
     JointDataPrismaticTpl()
-    : U(U_t::Zero())
+    : M((Scalar)0)
+    , v((Scalar)0)
+    , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
     {}

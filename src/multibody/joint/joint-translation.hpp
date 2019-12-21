@@ -207,6 +207,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_SE3_TYPEDEF_TPL(TransformTranslationTpl);
     typedef typename traits<TransformTranslationTpl>::PlainType PlainType;
+    typedef typename traits<TransformTranslationTpl>::Vector3 Vector3;
     
     TransformTranslationTpl() {}
     
@@ -463,7 +464,9 @@ namespace pinocchio
     UD_t UDinv;
 
     JointDataTranslationTpl()
-    : U(U_t::Zero())
+    : M(Transformation_t::Vector3::Zero())
+    , v(Motion_t::Vector3::Zero())
+    , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
     {}

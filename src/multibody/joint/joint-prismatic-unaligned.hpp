@@ -452,7 +452,10 @@ namespace pinocchio
     UD_t UDinv;
 
     JointDataPrismaticUnalignedTpl()
-    : U(U_t::Zero())
+    : M(Transformation_t::Vector3::Zero())
+    , S(Constraint_t::Vector3::Zero())
+    , v(Constraint_t::Vector3::Zero(),(Scalar)0)
+    , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
     {}

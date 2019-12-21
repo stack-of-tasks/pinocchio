@@ -189,7 +189,8 @@ namespace pinocchio
     UD_t UDinv;
     
     JointDataFreeFlyerTpl()
-    : M(1)
+    : M(Transformation_t::Identity())
+    , v(Motion_t::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())

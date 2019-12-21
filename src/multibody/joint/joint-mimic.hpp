@@ -71,6 +71,10 @@ namespace pinocchio
     
     ScaledConstraint() {}
     
+    explicit ScaledConstraint(const Scalar & scaling_factor)
+    : m_scaling_factor(scaling_factor)
+    {}
+    
     ScaledConstraint(const Constraint & constraint,
                      const Scalar & scaling_factor)
     : m_constraint(constraint)
@@ -280,7 +284,12 @@ namespace pinocchio
     
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     
-    JointDataMimic() {}
+    JointDataMimic()
+    : m_scaling((Scalar)0)
+    , m_q_transform(ConfigVector_t::Zero())
+    , m_v_transform(TangentVector_t::Zero())
+    , S((Scalar)0)
+    {}
     
     JointDataMimic(const JointDataBase<JointData> & jdata,
                    const Scalar & scaling)

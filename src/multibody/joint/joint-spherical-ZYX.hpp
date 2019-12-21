@@ -280,7 +280,10 @@ namespace pinocchio
     D_t StU;
 
     JointDataSphericalZYXTpl ()
-    : M(1)
+    : S(Constraint_t::Matrix3::Zero())
+    , M(Transformation_t::Identity())
+    , v(Motion_t::Vector3::Zero())
+    , c(Bias_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())

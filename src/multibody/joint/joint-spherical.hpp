@@ -384,7 +384,8 @@ namespace pinocchio
     UD_t UDinv;
 
     JointDataSphericalTpl ()
-    : M(1)
+    : M(Transformation_t::Identity())
+    , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
