@@ -111,15 +111,15 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,staticRegressor,"Static regressor.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint Torque Regressor.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint torque regressor.")
         ;
       }
 
@@ -127,8 +127,8 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<Data>("Data",
-                         "Articulated rigid body data.\n"
-                         "It contains all the data that can be modified by the algorithms.",
+                         "Articulated rigid body data related to a Model.\n"
+                         "It contains all the data that can be modified by the Pinocchio algorithms.",
                          bp::no_init)
         .def(DataPythonVisitor())
         .def(CopyableVisitor<Data>());
