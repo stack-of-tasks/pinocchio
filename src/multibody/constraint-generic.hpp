@@ -74,6 +74,11 @@ namespace pinocchio
                           YOU_CALLED_A_FIXED_SIZE_METHOD_ON_A_DYNAMIC_SIZE_MATRIX_OR_VECTOR)
     }
     
+    static ConstraintTpl Zero(const int dim)
+    {
+      return ConstraintTpl(dim);
+    }
+    
     template<typename VectorLike>
     JointMotion __mult__(const Eigen::MatrixBase<VectorLike> & vj) const
     {
