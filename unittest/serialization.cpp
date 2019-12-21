@@ -14,6 +14,7 @@
 
 #include "pinocchio/serialization/joints.hpp"
 #include "pinocchio/serialization/model.hpp"
+#include "pinocchio/serialization/data.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -620,6 +621,18 @@ BOOST_AUTO_TEST_CASE(test_throw_extension)
                         std::invalid_argument);
   }
   
+}
+
+BOOST_AUTO_TEST_CASE(test_data_serialization)
+{
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model);
+  
+  generic_test(data,TEST_SERIALIZATION_FOLDER"/Data","Data");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
