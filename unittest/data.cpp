@@ -75,6 +75,9 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
     BOOST_CHECK(data == data);
     BOOST_CHECK(data == data_copy);
+    
+    data_copy.oMi[0].setRandom();
+    BOOST_CHECK(data != data_copy);
   }
 
 BOOST_AUTO_TEST_SUITE_END()

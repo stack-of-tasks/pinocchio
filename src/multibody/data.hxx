@@ -299,6 +299,13 @@ namespace pinocchio
     ;
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool operator!=(const DataTpl<Scalar,Options,JointCollectionTpl> & data1,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
+  {
+    return !(data1 == data2);
+  }
+
 } // namespace pinocchio
 
 /// @endcond
