@@ -361,6 +361,11 @@ namespace pinocchio
     /// \param[in] model The model structure of the rigid body system.
     ///
     explicit DataTpl(const Model & model);
+    
+    ///
+    /// \brief Default constructor
+    ///
+    DataTpl() {}
 
   private:
     void computeLastChild(const Model & model);
