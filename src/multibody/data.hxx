@@ -216,7 +216,7 @@ namespace pinocchio
   bool operator==(const DataTpl<Scalar,Options,JointCollectionTpl> & data1,
                   const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
   {
-    return
+    bool value =
        data1.joints == data2.joints
     && data1.a == data2.a
     && data1.oa == data2.oa
@@ -294,9 +294,16 @@ namespace pinocchio
     && data1.staticRegressor == data2.staticRegressor
     && data1.bodyRegressor == data2.bodyRegressor
     && data1.jointTorqueRegressor == data2.jointTorqueRegressor
-    && data1.kinematic_hessians == data2.kinematic_hessians
-
     ;
+    
+    // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef Eigen::Map<const typename Data::VectorXs> MapVectorXs;
+    value &=
+       MapVectorXs(data1.kinematic_hessians.data(),data1.kinematic_hessians.size())
+    == MapVectorXs(data2.kinematic_hessians.data(),data2.kinematic_hessians.size());
+
+    return value;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
