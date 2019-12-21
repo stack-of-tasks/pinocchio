@@ -52,6 +52,7 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<>(bp::arg("self"),"Default constructor."))
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Joint spatial acceleration")
