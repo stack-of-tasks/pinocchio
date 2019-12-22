@@ -94,6 +94,8 @@ namespace pinocchio
     motionAction(const MotionBase<MotionDerived> & v) const
     { return v.toActionMatrix(); }
     
+    bool isEqual(const ConstraintIdentityTpl &) const { return true; }
+    
   }; // struct ConstraintIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>
@@ -147,7 +149,7 @@ namespace pinocchio
     typedef ConstraintIdentityTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
@@ -186,7 +188,13 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataFreeFlyerTpl() : M(1), U(), Dinv(), UDinv(UD_t::Identity()) {}
+    JointDataFreeFlyerTpl()
+    : M(Transformation_t::Identity())
+    , v(Motion_t::Zero())
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Identity())
+    {}
 
     static std::string classname() { return std::string("JointDataFreeFlyer"); }
     std::string shortname() const { return classname(); }

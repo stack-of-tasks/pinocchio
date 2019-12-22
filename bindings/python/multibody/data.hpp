@@ -6,9 +6,11 @@
 #define __pinocchio_python_data_hpp__
 
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/serialization/data.hpp"
 
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigenpy.hpp>
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
@@ -21,7 +23,45 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+    
+    template<typename Data>
+    struct PickleData : bp::pickle_suite
+    {
+      static bp::tuple getinitargs(const Data &)
+      {
+        return bp::make_tuple();
+      }
 
+      static bp::tuple getstate(const Data & data)
+      {
+        const std::string str(data.saveToString());
+        return bp::make_tuple(bp::str(str));
+      }
+
+      static void setstate(Data & data, bp::tuple tup)
+      {
+        if(bp::len(tup) == 0 || bp::len(tup) > 1)
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The pickle data structure contains too many elements.");
+        }
+        
+        bp::object py_obj = tup[0];
+        boost::python::extract<std::string> obj_as_string(py_obj.ptr());
+        if(obj_as_string.check())
+        {
+          const std::string str = obj_as_string;
+          data.loadFromString(str);
+        }
+        else
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The entry is not a string.");
+        }
+
+      }
+    };
+  
     struct DataPythonVisitor
       : public boost::python::def_visitor< DataPythonVisitor >
     {
@@ -52,6 +92,7 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<>(bp::arg("self"),"Default constructor."))
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Joint spatial acceleration")
@@ -111,15 +152,18 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy(model,data,q,v,True/False)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy(model,data,q,True/False)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,staticRegressor,"Static regressor.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint Torque Regressor.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint torque regressor.")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 
@@ -127,11 +171,14 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<Data>("Data",
-                         "Articulated rigid body data.\n"
-                         "It contains all the data that can be modified by the algorithms.",
+                         "Articulated rigid body data related to a Model.\n"
+                         "It contains all the data that can be modified by the Pinocchio algorithms.",
                          bp::no_init)
         .def(DataPythonVisitor())
-        .def(CopyableVisitor<Data>());
+        .def(CopyableVisitor<Data>())
+        .def(SerializableVisitor<Data>())
+        .def_pickle(PickleData<Data>());
+        
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
         StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
         StdVectorPythonVisitor<int>::expose("StdVec_int");

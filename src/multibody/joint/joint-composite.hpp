@@ -77,9 +77,12 @@ namespace pinocchio
 
     JointDataCompositeTpl()
     : joints()
-    , iMlast(0), pjMi(0)
+    , iMlast(0)
+    , pjMi(0)
     , S(0)
-    , M(),v(),c()
+    , M(Transformation_t::Identity())
+    , v(Motion_t::Zero())
+    , c(Motion_t::Zero())
     , U(6,0), Dinv(0,0), UDinv(6,0)
     , StU(0,0)
     {}
@@ -87,10 +90,14 @@ namespace pinocchio
     
     JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
     : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
-    , S(nv)
-    , M(), v(), c()
-    , U(6,nv), Dinv(nv,nv), UDinv(6,nv)
-    , StU(nv,nv)
+    , S(Constraint_t::Zero(nv))
+    , M(Transformation_t::Identity())
+    , v(Motion_t::Zero())
+    , c(Motion_t::Zero())
+    , U(U_t::Zero(6,nv))
+    , Dinv(D_t::Zero(nv,nv))
+    , UDinv(UD_t::Zero(6,nv))
+    , StU(D_t::Zero(nv,nv))
     {}
     
     /// \brief Vector of joints

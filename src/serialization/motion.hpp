@@ -41,6 +41,14 @@ namespace boost
     {
       split_free(ar,m,version);
     }
+  
+    template <class Archive, typename Scalar, int Options>
+    void serialize(Archive & /*ar*/,
+                   pinocchio::MotionZeroTpl<Scalar,Options> & /*m*/,
+                   const unsigned int /*version*/)
+    {
+      // Nothing to do
+    }
     
   }
 }

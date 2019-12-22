@@ -252,7 +252,7 @@ namespace pinocchio
     { return this->act_impl(m2);}
     
     template<int O2>
-    bool __equal__(const SE3Tpl<Scalar,O2> & m2) const
+    bool isEqual(const SE3Tpl<Scalar,O2> & m2) const
     {
       return (rotation() == m2.rotation() && translation() == m2.translation());
     }

@@ -30,7 +30,7 @@ namespace pinocchio
     typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
@@ -69,9 +69,18 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataRevoluteUnboundedTpl() {}
+    JointDataRevoluteUnboundedTpl()
+    : M((Scalar)0,(Scalar)1)
+    , v((Scalar)0)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
-    static std::string classname() { return std::string("JointDataRevoluteUnbounded"); }
+    static std::string classname()
+    {
+      return std::string("JointDataRUB") + axisLabel<axis>();
+    }
     std::string shortname() const { return classname(); }
     
   }; // struct JointDataRevoluteUnbounded
@@ -120,7 +129,7 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v.w = (Scalar)vs[idx_v()];
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
     }
     
     template<typename Matrix6Like>

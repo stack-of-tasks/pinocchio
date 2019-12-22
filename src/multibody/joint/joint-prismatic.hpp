@@ -66,28 +66,28 @@ namespace pinocchio
     typedef typename Axis::CartesianAxis3 CartesianAxis3;
 
     MotionPrismaticTpl() {}
-    MotionPrismaticTpl(const Scalar & v) : rate(v) {}
+    MotionPrismaticTpl(const Scalar & v) : m_v(v) {}
 
-    inline PlainReturnType plain() const { return Axis() * rate; }
+    inline PlainReturnType plain() const { return Axis() * m_v; }
     
     template<typename OtherScalar>
     MotionPrismaticTpl __mult__(const OtherScalar & alpha) const
     {
-      return MotionPrismaticTpl(alpha*rate);
+      return MotionPrismaticTpl(alpha*m_v);
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
     {
       typedef typename MotionDense<Derived>::Scalar OtherScalar;
-      other.linear()[_axis] += (OtherScalar) rate;
+      other.linear()[_axis] += (OtherScalar) m_v;
     }
     
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & other) const
     {
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
-        other.linear()[k] = k == axis ? rate : (Scalar)0;
+        other.linear()[k] = k == axis ? m_v : (Scalar)0;
       other.angular().setZero();
     }
     
@@ -95,7 +95,7 @@ namespace pinocchio
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.angular().setZero();
-      v.linear().noalias() = rate * (m.rotation().col(axis));
+      v.linear().noalias() = m_v * (m.rotation().col(axis));
     }
     
     template<typename S2, int O2>
@@ -110,7 +110,7 @@ namespace pinocchio
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       // Linear
-      v.linear().noalias() = rate * (m.rotation().transpose().col(axis));
+      v.linear().noalias() = m_v * (m.rotation().transpose().col(axis));
       
       // Angular
       v.angular().setZero();
@@ -128,7 +128,7 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      CartesianAxis3::alphaCross(-rate,v.angular(),mout.linear());
+      CartesianAxis3::alphaCross(-m_v,v.angular(),mout.linear());
 
       // Angular
       mout.angular().setZero();
@@ -142,8 +142,17 @@ namespace pinocchio
       return res;
     }
     
-    //data
-    Scalar rate;
+    Scalar & linearRate() { return m_v; }
+    const Scalar & linearRate() const { return m_v; }
+    
+    bool isEqual_impl(const MotionPrismaticTpl & other) const
+    {
+      return m_v == other.m_v;
+    }
+    
+  protected:
+    
+    Scalar m_v;
   }; // struct MotionPrismaticTpl
 
   template<typename Scalar, int Options, int axis, typename MotionDerived>
@@ -235,6 +244,11 @@ namespace pinocchio
     
     ConstLinearRef translation() const { return CartesianAxis3()*displacement(); };
     AngularType rotation() const { return AngularType(3,3); }
+    
+    bool isEqual(const TransformPrismaticTpl & other) const
+    {
+      return m_displacement == other.m_displacement;
+    }
 
   protected:
     
@@ -364,6 +378,8 @@ namespace pinocchio
       v = m.cross(Axis());
       return res;
     }
+    
+    bool isEqual(const ConstraintPrismaticTpl &) const { return true; }
 
   }; // struct ConstraintPrismaticTpl
   
@@ -494,7 +510,7 @@ namespace pinocchio
     typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
@@ -533,9 +549,18 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
 
-    JointDataPrismaticTpl() {}
+    JointDataPrismaticTpl()
+    : M((Scalar)0)
+    , v((Scalar)0)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
-    static std::string classname() { return std::string("JointDataPrismatic"); }
+    static std::string classname()
+    {
+      return std::string("JointDataP") + axisLabel<axis>();
+    }
     std::string shortname() const { return classname(); }
 
   }; // struct JointDataPrismaticTpl
@@ -580,7 +605,7 @@ namespace pinocchio
       
       typedef typename TangentVector::Scalar S2;
       const S2 & v = vs[idx_v()];
-      data.v.rate = v;
+      data.v.linearRate() = v;
     }
     
     template<typename Matrix6Like>

@@ -23,79 +23,85 @@ namespace pinocchio
   inline DataTpl<Scalar,Options,JointCollectionTpl>::
   DataTpl(const Model & model)
   : joints(0)
-  , a((std::size_t)model.njoints)
-  , oa((std::size_t)model.njoints)
-  , a_gf((std::size_t)model.njoints)
-  , oa_gf((std::size_t)model.njoints)
-  , v((std::size_t)model.njoints)
-  , ov((std::size_t)model.njoints)
-  , f((std::size_t)model.njoints)
-  , of((std::size_t)model.njoints)
-  , h((std::size_t)model.njoints)
-  , oh((std::size_t)model.njoints)
-  , oMi((std::size_t)model.njoints)
-  , liMi((std::size_t)model.njoints)
-  , tau(model.nv)
-  , nle(model.nv)
-  , g(model.nv)
-  , oMf((std::size_t)model.nframes)
-  , Ycrb((std::size_t)model.njoints)
-  , dYcrb((std::size_t)model.njoints)
-  , M(model.nv,model.nv)
-  , Minv(model.nv,model.nv)
-  , C(model.nv,model.nv)
-  , dHdq(6,model.nv)
-  , dFdq(6,model.nv)
-  , dFdv(6,model.nv)
-  , dFda(6,model.nv)
-  , SDinv(6,model.nv)
-  , UDinv(6,model.nv)
-  , IS(6,model.nv)
-  , vxI((std::size_t)model.njoints)
-  , Ivx((std::size_t)model.njoints)
-  , oYcrb((std::size_t)model.njoints)
-  , doYcrb((std::size_t)model.njoints)
-  , ddq(model.nv)
-  , Yaba((std::size_t)model.njoints)
-  , u(model.nv)
-  , Ag(6,model.nv)
-  , dAg(6,model.nv)
-  , Fcrb((std::size_t)model.njoints)
-  , lastChild((std::size_t)model.njoints)
-  , nvSubtree((std::size_t)model.njoints)
-  , start_idx_v_fromRow((std::size_t)model.nv)
-  , end_idx_v_fromRow((std::size_t)model.nv)
-  , U(model.nv,model.nv)
-  , D(model.nv)
-  , Dinv(model.nv)
-  , tmp(model.nv)
-  , parents_fromRow((std::size_t)model.nv)
+  , a((std::size_t)model.njoints,Motion::Zero())
+  , oa((std::size_t)model.njoints,Motion::Zero())
+  , a_gf((std::size_t)model.njoints,Motion::Zero())
+  , oa_gf((std::size_t)model.njoints,Motion::Zero())
+  , v((std::size_t)model.njoints,Motion::Zero())
+  , ov((std::size_t)model.njoints,Motion::Zero())
+  , f((std::size_t)model.njoints,Force::Zero())
+  , of((std::size_t)model.njoints,Force::Zero())
+  , h((std::size_t)model.njoints,Force::Zero())
+  , oh((std::size_t)model.njoints,Force::Zero())
+  , oMi((std::size_t)model.njoints,SE3::Identity())
+  , liMi((std::size_t)model.njoints,SE3::Identity())
+  , tau(VectorXs::Zero(model.nv))
+  , nle(VectorXs::Zero(model.nv))
+  , g(VectorXs::Zero(model.nv))
+  , oMf((std::size_t)model.nframes,SE3::Identity())
+  , Ycrb((std::size_t)model.njoints,Inertia::Zero())
+  , dYcrb((std::size_t)model.njoints,Inertia::Zero())
+  , M(MatrixXs::Zero(model.nv,model.nv))
+  , Minv(MatrixXs::Zero(model.nv,model.nv))
+  , C(MatrixXs::Zero(model.nv,model.nv))
+  , dHdq(Matrix6x::Zero(6,model.nv))
+  , dFdq(Matrix6x::Zero(6,model.nv))
+  , dFdv(Matrix6x::Zero(6,model.nv))
+  , dFda(Matrix6x::Zero(6,model.nv))
+  , SDinv(Matrix6x::Zero(6,model.nv))
+  , UDinv(Matrix6x::Zero(6,model.nv))
+  , IS(MatrixXs::Zero(6,model.nv))
+  , vxI((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , Ivx((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oYcrb((std::size_t)model.njoints,Inertia::Zero())
+  , doYcrb((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , ddq(VectorXs::Zero(model.nv))
+  , Yaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , u(VectorXs::Zero(model.nv))
+  , Ag(Matrix6x::Zero(6,model.nv))
+  , dAg(Matrix6x::Zero(6,model.nv))
+  , hg(Force::Zero())
+  , dhg(Force::Zero())
+  , Ig(Inertia::Zero())
+  , Fcrb((std::size_t)model.njoints,Matrix6x::Zero(6,model.nv))
+  , lastChild((std::size_t)model.njoints,-1)
+  , nvSubtree((std::size_t)model.njoints,-1)
+  , start_idx_v_fromRow((std::size_t)model.nv,-1)
+  , end_idx_v_fromRow((std::size_t)model.nv,-1)
+  , U(MatrixXs::Identity(model.nv,model.nv))
+  , D(VectorXs::Zero(model.nv))
+  , Dinv(VectorXs::Zero(model.nv))
+  , tmp(VectorXs::Zero(model.nv))
+  , parents_fromRow((std::size_t)model.nv,-1)
   , supports_fromRow((std::size_t)model.nv)
-  , nvSubtree_fromRow((std::size_t)model.nv)
-  , J(6,model.nv)
-  , dJ(6,model.nv)
-  , dVdq(6,model.nv)
-  , dAdq(6,model.nv)
-  , dAdv(6,model.nv)
+  , nvSubtree_fromRow((std::size_t)model.nv,-1)
+  , J(Matrix6x::Zero(6,model.nv))
+  , dJ(Matrix6x::Zero(6,model.nv))
+  , dVdq(Matrix6x::Zero(6,model.nv))
+  , dAdq(Matrix6x::Zero(6,model.nv))
+  , dAdv(Matrix6x::Zero(6,model.nv))
   , dtau_dq(MatrixXs::Zero(model.nv,model.nv))
   , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
-  , iMf((std::size_t)model.njoints)
-  , com((std::size_t)model.njoints)
-  , vcom((std::size_t)model.njoints)
-  , acom((std::size_t)model.njoints)
-  , mass((std::size_t)model.njoints)
-  , Jcom(3,model.nv)
+  , iMf((std::size_t)model.njoints,SE3::Identity())
+  , com((std::size_t)model.njoints,Vector3::Zero())
+  , vcom((std::size_t)model.njoints,Vector3::Zero())
+  , acom((std::size_t)model.njoints,Vector3::Zero())
+  , mass((std::size_t)model.njoints,(Scalar)(-1))
+  , Jcom(Matrix3x::Zero(3,model.nv))
+  , kinetic_energy((Scalar)-1)
+  , potential_energy((Scalar)-1)
   , JMinvJt()
   , llt_JMinvJt()
   , lambda_c()
-  , sDUiJt(model.nv,model.nv)
-  , torque_residual(model.nv)
-  , dq_after(model.nv)
+  , sDUiJt(MatrixXs::Zero(model.nv,model.nv))
+  , torque_residual(VectorXs::Zero(model.nv))
+  , dq_after(VectorXs::Zero(model.nv))
   , impulse_c()
-  , staticRegressor(3,4*(model.njoints-1))
-  , jointTorqueRegressor(model.nv,10*(model.njoints-1))
+  , staticRegressor(Matrix3x::Zero(3,4*(model.njoints-1)))
+  , bodyRegressor(BodyRegressorType::Zero())
+  , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
 #else
@@ -116,32 +122,13 @@ namespace pinocchio
     computeLastChild(model);
 
     /* Init for Coriolis */
-    C.setZero();
 
     /* Init for Cholesky */
-    U.setIdentity();
     computeParents_fromRow(model);
     computeSupports_fromRow(model);
-
-    /* Init Jacobian */
-    J.setZero();
-    Ag.setZero();
     
     /* Init universe states relatively to itself */
-    
-    a[0].setZero();
-    oa[0].setZero();
-    v[0].setZero();
-    ov[0].setZero();
     a_gf[0] = -model.gravity;
-    f[0].setZero();
-    h[0].setZero();
-    oMi[0].setIdentity();
-    liMi[0].setIdentity();
-    oMf[0].setIdentity();
-    
-    Yaba[0].setZero();
-    Ycrb[0].setZero();
     
     kinematic_hessians.setZero();
   }
@@ -223,6 +210,107 @@ namespace pinocchio
         supports_fromRow[(size_t)(idx_vj+row)].push_back(idx_vj+row);
       }
     }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool operator==(const DataTpl<Scalar,Options,JointCollectionTpl> & data1,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
+  {
+    bool value =
+       data1.joints == data2.joints
+    && data1.a == data2.a
+    && data1.oa == data2.oa
+    && data1.a_gf == data2.a_gf
+    && data1.oa_gf == data2.oa_gf
+    && data1.v == data2.v
+    && data1.ov == data2.ov
+    && data1.f == data2.f
+    && data1.of == data2.of
+    && data1.h == data2.h
+    && data1.oh == data2.oh
+    && data1.oMi == data2.oMi
+    && data1.liMi == data2.liMi
+    && data1.tau == data2.tau
+    && data1.nle == data2.nle
+    && data1.g == data2.g
+    && data1.oMf == data2.oMf
+    && data1.Ycrb == data2.Ycrb
+    && data1.dYcrb == data2.dYcrb
+    && data1.M == data2.M
+    && data1.Minv == data2.Minv
+    && data1.C == data2.C
+    && data1.dHdq == data2.dHdq
+    && data1.dFdq == data2.dFdq
+    && data1.dFdv == data2.dFdv
+    && data1.dFda == data2.dFda
+    && data1.SDinv == data2.SDinv
+    && data1.UDinv == data2.UDinv
+    && data1.IS == data2.IS
+    && data1.vxI == data2.vxI
+    && data1.Ivx == data2.Ivx
+    && data1.oYcrb == data2.oYcrb
+    && data1.doYcrb == data2.doYcrb
+    && data1.ddq == data2.ddq
+    && data1.Yaba == data2.Yaba
+    && data1.u == data2.u
+    && data1.Ag == data2.Ag
+    && data1.dAg == data2.dAg
+    && data1.hg == data2.hg
+    && data1.dhg == data2.dhg
+    && data1.Ig == data2.Ig
+    && data1.Fcrb == data2.Fcrb
+    && data1.lastChild == data2.lastChild
+    && data1.nvSubtree == data2.nvSubtree
+    && data1.start_idx_v_fromRow == data2.start_idx_v_fromRow
+    && data1.end_idx_v_fromRow == data2.end_idx_v_fromRow
+    && data1.U == data2.U
+    && data1.D == data2.D
+    && data1.Dinv == data2.Dinv
+    && data1.parents_fromRow == data2.parents_fromRow
+    && data1.supports_fromRow == data2.supports_fromRow
+    && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow
+    && data1.J == data2.J
+    && data1.dJ == data2.dJ
+    && data1.dVdq == data2.dVdq
+    && data1.dAdq == data2.dAdq
+    && data1.dAdv == data2.dAdv
+    && data1.dtau_dq == data2.dtau_dq
+    && data1.dtau_dv == data2.dtau_dv
+    && data1.ddq_dq == data2.ddq_dq
+    && data1.ddq_dv == data2.ddq_dv
+    && data1.iMf == data2.iMf
+    && data1.com == data2.com
+    && data1.vcom == data2.vcom
+    && data1.acom == data2.acom
+    && data1.mass == data2.mass
+    && data1.Jcom == data2.Jcom
+    && data1.kinetic_energy == data2.kinetic_energy
+    && data1.potential_energy == data2.potential_energy
+    && data1.JMinvJt == data2.JMinvJt
+    && data1.lambda_c == data2.lambda_c
+    && data1.torque_residual == data2.torque_residual
+    && data1.dq_after == data2.dq_after
+    && data1.impulse_c == data2.impulse_c
+    && data1.staticRegressor == data2.staticRegressor
+    && data1.bodyRegressor == data2.bodyRegressor
+    && data1.jointTorqueRegressor == data2.jointTorqueRegressor
+    ;
+    
+    // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef Eigen::Map<const typename Data::VectorXs> MapVectorXs;
+    value &=
+       MapVectorXs(data1.kinematic_hessians.data(),data1.kinematic_hessians.size())
+    == MapVectorXs(data2.kinematic_hessians.data(),data2.kinematic_hessians.size());
+
+    return value;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool operator!=(const DataTpl<Scalar,Options,JointCollectionTpl> & data1,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data2)
+  {
+    return !(data1 == data2);
   }
 
 } // namespace pinocchio

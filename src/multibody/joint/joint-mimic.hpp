@@ -71,6 +71,10 @@ namespace pinocchio
     
     ScaledConstraint() {}
     
+    explicit ScaledConstraint(const Scalar & scaling_factor)
+    : m_scaling_factor(scaling_factor)
+    {}
+    
     ScaledConstraint(const Constraint & constraint,
                      const Scalar & scaling_factor)
     : m_constraint(constraint)
@@ -153,7 +157,16 @@ namespace pinocchio
     }
     
     inline const Scalar & scaling() const { return m_scaling_factor; }
+    inline Scalar & scaling() { return m_scaling_factor; }
+    
     inline const Constraint & constraint() const { return m_constraint; }
+    inline Constraint & constraint() { return m_constraint; }
+    
+    bool isEqual(const ScaledConstraint & other) const
+    {
+      return m_constraint == other.m_constraint
+      && m_scaling_factor == other.m_scaling_factor;
+    }
     
   protected:
     
@@ -271,21 +284,38 @@ namespace pinocchio
     
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     
-    JointDataMimic() {}
+    JointDataMimic()
+    : m_scaling((Scalar)0)
+    , m_q_transform(ConfigVector_t::Zero())
+    , m_v_transform(TangentVector_t::Zero())
+    , S((Scalar)0)
+    {}
     
     JointDataMimic(const JointDataBase<JointData> & jdata,
                    const Scalar & scaling)
-    : jdata_ref(jdata.derived())
-    , scaling(scaling)
-    , S(jdata_ref.S,scaling)
+    : m_jdata_ref(jdata.derived())
+    , m_scaling(scaling)
+    , S(m_jdata_ref.S,scaling)
     {}
     
     JointDataMimic & operator=(const JointDataMimic & other)
     {
-      jdata_ref = other.jdata_ref;
-      scaling = other.scaling;
-      S = Constraint_t(jdata_ref.S,other.scaling);
+      m_jdata_ref = other.m_jdata_ref;
+      m_scaling = other.m_scaling;
+      m_q_transform = other.m_q_transform;
+      m_v_transform = other.m_v_transform;
+      S = Constraint_t(m_jdata_ref.S,other.m_scaling);
       return *this;
+    }
+    
+    bool isEqual(const JointDataMimic & other) const
+    {
+      return Base::isEqual(other)
+      && m_jdata_ref == other.m_jdata_ref
+      && m_scaling == other.m_scaling
+      && m_q_transform == other.m_q_transform
+      && m_v_transform == other.m_v_transform
+      ;
     }
     
     static std::string classname()
@@ -295,31 +325,55 @@ namespace pinocchio
     
     std::string shortname() const
     {
-      return std::string("JointDataMimic<") + jdata_ref.shortname() + std::string(">");
+      return std::string("JointDataMimic<") + m_jdata_ref.shortname() + std::string(">");
     }
     
     // Accessors
     ConstraintTypeConstRef S_accessor() const { return S; }
-    TansformTypeConstRef M_accessor() const { return jdata_ref.M; }
-    MotionTypeConstRef v_accessor() const { return jdata_ref.v; }
-    BiasTypeConstRef c_accessor() const { return jdata_ref.c; }
-    UTypeConstRef U_accessor() const { return jdata_ref.U; }
-    UTypeRef U_accessor() { return jdata_ref.U; }
-    DTypeConstRef Dinv_accessor() const { return jdata_ref.Dinv; }
-    UDTypeConstRef UDinv_accessor() const { return jdata_ref.UDinv; }
+    ConstraintTypeRef S_accessor() { return S; }
+    
+    TansformTypeConstRef M_accessor() const { return m_jdata_ref.M; }
+    TansformTypeRef M_accessor() { return m_jdata_ref.M; }
+    
+    MotionTypeConstRef v_accessor() const { return m_jdata_ref.v; }
+    MotionTypeRef v_accessor() { return m_jdata_ref.v; }
+    
+    BiasTypeConstRef c_accessor() const { return m_jdata_ref.c; }
+    BiasTypeRef c_accessor() { return m_jdata_ref.c; }
+    
+    UTypeConstRef U_accessor() const { return m_jdata_ref.U; }
+    UTypeRef U_accessor() { return m_jdata_ref.U; }
+    
+    DTypeConstRef Dinv_accessor() const { return m_jdata_ref.Dinv; }
+    DTypeRef Dinv_accessor() { return m_jdata_ref.Dinv; }
+    
+    UDTypeConstRef UDinv_accessor() const { return m_jdata_ref.UDinv; }
+    UDTypeRef UDinv_accessor() { return m_jdata_ref.UDinv; }
     
     template<class JointModel>
     friend struct JointModelMimic;
     
+    const JointData & jdata() const { return m_jdata_ref; }
+    JointData & jdata() { return m_jdata_ref; }
+    
+    const Scalar & scaling() const { return m_scaling; }
+    Scalar & scaling() { return m_scaling; }
+    
+    ConfigVector_t & jointConfiguration() { return m_q_transform; }
+    const ConfigVector_t & jointConfiguration() const { return m_q_transform; }
+    
+    TangentVector_t & jointVelocity() { return m_v_transform; }
+    const TangentVector_t & jointVelocity() const { return m_v_transform; }
+    
   protected:
     
-    JointData jdata_ref;
-    Scalar scaling;
+    JointData m_jdata_ref;
+    Scalar m_scaling;
     
     /// \brief Transform configuration vector
-    ConfigVector_t q_transform;
+    ConfigVector_t m_q_transform;
     /// \brief Transform velocity vector.
-    TangentVector_t v_transform;
+    TangentVector_t m_v_transform;
     
   public:
     
@@ -393,8 +447,8 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.q_transform);
-      m_jmodel_ref.calc(jdata.jdata_ref,jdata.q_transform);
+                           m_scaling,m_offset,jdata.m_q_transform);
+      m_jmodel_ref.calc(jdata.m_jdata_ref,jdata.m_q_transform);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -406,11 +460,11 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.q_transform);
-      jdata.v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
-      m_jmodel_ref.calc(jdata.jdata_ref,
-                        jdata.q_transform,
-                        jdata.v_transform);
+                           m_scaling,m_offset,jdata.m_q_transform);
+      jdata.m_v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
+      m_jmodel_ref.calc(jdata.m_jdata_ref,
+                        jdata.m_q_transform,
+                        jdata.m_v_transform);
     }
     
     template<typename Matrix6Like>
@@ -418,7 +472,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      m_jmodel_ref.calc_aba(data.jdata_ref,
+      // TODO: fixme
+      m_jmodel_ref.calc_aba(data.m_jdata_ref,
                             PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
                             update_I);
     }

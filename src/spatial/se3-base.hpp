@@ -96,7 +96,7 @@ namespace pinocchio
     }
     
     bool operator==(const Derived & other) const
-    { return derived().__equal__(other); }
+    { return derived().isEqual(other); }
     
     bool operator!=(const Derived & other) const
     { return !(*this == other); }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_generic_hpp__
@@ -44,13 +44,19 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
     
     typedef Constraint_t ConstraintTypeConstRef;
+    typedef Constraint_t ConstraintTypeRef;
     typedef Transformation_t TansformTypeConstRef;
+    typedef Transformation_t TansformTypeRef;
     typedef Motion_t MotionTypeConstRef;
+    typedef Motion_t MotionTypeRef;
     typedef Bias_t BiasTypeConstRef;
+    typedef Bias_t BiasTypeRef;
     typedef U_t UTypeConstRef;
     typedef U_t UTypeRef;
     typedef D_t DTypeConstRef;
+    typedef D_t DTypeRef;
     typedef UD_t UDTypeConstRef;
+    typedef UD_t UDTypeRef;
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
@@ -79,6 +85,9 @@ namespace pinocchio
     typedef JointCollectionTpl<_Scalar,_Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;
     
+    using Base::operator==;
+    using Base::operator!=;
+    
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
@@ -92,7 +101,9 @@ namespace pinocchio
     D_t               Dinv()  const { return dinv_inertia(*this); }
     UD_t              UDinv() const { return udinv_inertia(*this); }
 
-    JointDataTpl() : JointDataVariant() {}
+    JointDataTpl()
+    : JointDataVariant()
+    {}
     
     JointDataTpl(const JointDataVariant & jdata_variant)
     : JointDataVariant(jdata_variant)
@@ -105,7 +116,7 @@ namespace pinocchio
       BOOST_MPL_ASSERT((boost::mpl::contains<typename JointDataVariant::types,JointDataDerived>));
     }
     
-    /// Define all the standard accessors
+    // Define all the standard accessors
     Constraint_t S_accessor() const { return S(); }
     Transformation_t M_accessor() const { return M(); }
     Motion_t v_accessor() const { return v(); }
@@ -116,6 +127,12 @@ namespace pinocchio
 
     static std::string classname() { return "JointData"; }
     std::string shortname() const { return ::pinocchio::shortname(*this); }
+    
+    bool isEqual(const JointDataTpl & other) const
+    {
+      return Base::isEqual(other)
+      && toVariant() == other.toVariant();
+    }
 
   };
   
@@ -135,7 +152,7 @@ namespace pinocchio
     typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
 
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
-    PINOCCHIO_JOINT_USE_INDEXES;
+    PINOCCHIO_JOINT_USE_INDEXES(JointModelTpl);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef typename JointCollection::JointDataVariant JointDataVariant;

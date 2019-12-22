@@ -35,7 +35,7 @@ namespace pinocchio
     typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionRevoluteUnalignedTpl<Scalar,Options> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> F_t;
     
     // [ABA]
@@ -73,14 +73,23 @@ namespace pinocchio
     D_t Dinv;
     UD_t UDinv;
     
-    JointDataRevoluteUnboundedUnalignedTpl() {}
+    JointDataRevoluteUnboundedUnalignedTpl()
+    : M(Transformation_t::Identity())
+    , S(Constraint_t::Vector3::Zero())
+    , v(Constraint_t::Vector3::Zero(),(Scalar)0)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
     
     template<typename Vector3Like>
     JointDataRevoluteUnboundedUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(1)
+    : M(Transformation_t::Identity())
     , S(axis)
     , v(axis,(Scalar)NAN)
-    , U(), Dinv(), UDinv()
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
     {}
     
     static std::string classname() { return std::string("JointDataRevoluteUnboundedUnalignedTpl"); }
@@ -152,7 +161,7 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      data.v.w = (Scalar)vs[idx_v()];
+      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
     }
     
     template<typename Matrix6Like>

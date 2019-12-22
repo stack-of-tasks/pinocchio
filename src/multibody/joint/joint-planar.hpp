@@ -67,44 +67,44 @@ namespace pinocchio
     
     MotionPlanarTpl(const Scalar & x_dot, const Scalar & y_dot,
                     const Scalar & theta_dot)
-    : m_x_dot(x_dot), m_y_dot(y_dot), m_theta_dot(theta_dot)
-    {}
+    {
+      m_data << x_dot, y_dot, theta_dot;
+    }
     
     template<typename Vector3Like>
     MotionPlanarTpl(const Eigen::MatrixBase<Vector3Like> & vj)
-    : m_x_dot(vj[0]), m_y_dot(vj[1]), m_theta_dot(vj[2])
+    : m_data(vj)
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
     }
 
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(typename PlainReturnType::Vector3(m_x_dot,m_y_dot,Scalar(0)),
-                             typename PlainReturnType::Vector3(Scalar(0),Scalar(0),m_theta_dot));
+      return PlainReturnType(typename PlainReturnType::Vector3(vx(),vy(),Scalar(0)),
+                             typename PlainReturnType::Vector3(Scalar(0),Scalar(0),wz()));
     }
     
     template<typename Derived>
     void addTo(MotionDense<Derived> & other) const
     {
-      other.linear()[0] += m_x_dot;
-      other.linear()[1] += m_y_dot;
-      other.angular()[2] += m_theta_dot;
+      other.linear()[0] += vx();
+      other.linear()[1] += vy();
+      other.angular()[2] += wz();
     }
     
     template<typename MotionDerived>
     void setTo(MotionDense<MotionDerived> & other) const
     {
-      other.linear()  <<   m_x_dot,   m_y_dot,   (Scalar)0;
-      other.angular() << (Scalar)0, (Scalar)0, m_theta_dot;
+      other.linear()  <<   vx(),   vy(),   (Scalar)0;
+      other.angular() << (Scalar)0, (Scalar)0, wz();
     }
     
     template<typename S2, int O2, typename D2>
     void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
-      v.angular().noalias() = m.rotation().col(2) * m_theta_dot;
-      v.linear().noalias() = m.translation().cross(v.angular());
-      v.linear() += m.rotation().col(0) * m_x_dot;
-      v.linear() += m.rotation().col(1) * m_y_dot;
+      v.angular().noalias() = m.rotation().col(2) * wz();
+      v.linear().noalias() = m.rotation().template leftCols<2>() * m_data.template head<2>();
+      v.linear() += m.translation().cross(v.angular());
     }
     
     template<typename S2, int O2>
@@ -121,12 +121,12 @@ namespace pinocchio
       // Linear
       // TODO: use v.angular() as temporary variable
       Vector3 v3_tmp;
-      AxisZ::alphaCross(m_theta_dot,m.translation(),v3_tmp);
-      v3_tmp[0] += m_x_dot; v3_tmp[1] += m_y_dot;
+      AxisZ::alphaCross(wz(),m.translation(),v3_tmp);
+      v3_tmp[0] += vx(); v3_tmp[1] += vy();
       v.linear().noalias() = m.rotation().transpose() * v3_tmp;
       
       // Angular
-      v.angular().noalias() = m.rotation().transpose().col(2) * m_theta_dot;
+      v.angular().noalias() = m.rotation().transpose().col(2) * wz();
     }
     
     template<typename S2, int O2>
@@ -141,17 +141,17 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      AxisZ::alphaCross(-m_theta_dot,v.linear(),mout.linear());
+      AxisZ::alphaCross(-wz(),v.linear(),mout.linear());
       
       typename M1::ConstAngularType w_in = v.angular();
       typename M2::LinearType v_out = mout.linear();
       
-      v_out[0] -= w_in[2] * m_y_dot;
-      v_out[1] += w_in[2] * m_x_dot;
-      v_out[2] += -w_in[1] * m_x_dot + w_in[0] * m_y_dot ;
+      v_out[0] -= w_in[2] * vy();
+      v_out[1] += w_in[2] * vx();
+      v_out[2] += -w_in[1] * vx() + w_in[0] * vy() ;
       
       // Angular
-      AxisZ::alphaCross(-m_theta_dot,v.angular(),mout.angular());
+      AxisZ::alphaCross(-wz(),v.angular(),mout.angular());
     }
     
     template<typename M1>
@@ -162,10 +162,26 @@ namespace pinocchio
       return res;
     }
 
-    // data
-    Scalar m_x_dot;
-    Scalar m_y_dot;
-    Scalar m_theta_dot;
+    const Scalar & vx() const { return m_data[0]; }
+    Scalar & vx() { return m_data[0]; }
+    
+    const Scalar & vy() const { return m_data[1]; }
+    Scalar & vy() { return m_data[1]; }
+    
+    const Scalar & wz() const { return m_data[2]; }
+    Scalar & wz() { return m_data[2]; }
+    
+    const Vector3 & data() const { return m_data; }
+    Vector3 & data() { return m_data; }
+    
+    bool isEqual_impl(const MotionPlanarTpl & other) const
+    {
+      return m_data == other.m_data;
+    }
+    
+  protected:
+    
+    Vector3 m_data;
     
   }; // struct MotionPlanarTpl
   
@@ -174,10 +190,10 @@ namespace pinocchio
   operator+(const MotionPlanarTpl<Scalar,Options> & m1, const MotionDense<MotionDerived> & m2)
   {
     typename MotionDerived::MotionPlain result(m2);
-    result.linear()[0] += m1.m_x_dot;
-    result.linear()[1] += m1.m_y_dot;
+    result.linear()[0] += m1.vx();
+    result.linear()[1] += m1.vy();
 
-    result.angular()[2] += m1.m_theta_dot;
+    result.angular()[2] += m1.wz();
 
     return result;
   }
@@ -269,7 +285,8 @@ namespace pinocchio
       
       // LINEAR
       X_subspace.template block <3,2>(Motion::LINEAR, 0) = m.rotation ().template leftCols <2> ();
-      X_subspace.template block <3,1>(Motion::LINEAR, 2) = m.translation().cross(m.rotation ().template rightCols<1>());
+      X_subspace.template block <3,1>(Motion::LINEAR, 2).noalias()
+      = m.translation().cross(m.rotation ().template rightCols<1>());
 
       // ANGULAR
       X_subspace.template block <3,2>(Motion::ANGULAR, 0).setZero ();
@@ -285,8 +302,8 @@ namespace pinocchio
       
       // LINEAR
       X_subspace.template block <3,2>(Motion::LINEAR, 0) = m.rotation().transpose().template leftCols <2>();
-      X_subspace.template block <3,1>(Motion::ANGULAR,2) = m.rotation().transpose() * m.translation(); // tmp variable
-      X_subspace.template block <3,1>(Motion::LINEAR, 2) = -X_subspace.template block <3,1>(Motion::ANGULAR,2).cross(m.rotation().transpose().template rightCols<1>());
+      X_subspace.template block <3,1>(Motion::ANGULAR,2).noalias() = m.rotation().transpose() * m.translation(); // tmp variable
+      X_subspace.template block <3,1>(Motion::LINEAR, 2).noalias() = -X_subspace.template block <3,1>(Motion::ANGULAR,2).cross(m.rotation().transpose().template rightCols<1>());
       
       // ANGULAR
       X_subspace.template block <3,2>(Motion::ANGULAR, 0).setZero();
@@ -310,6 +327,9 @@ namespace pinocchio
       
       return res;
     }
+    
+    bool isEqual(const ConstraintPlanarTpl &)  const { return true; }
+    
   }; // struct ConstraintPlanarTpl
 
   template<typename MotionDerived, typename S2, int O2>
@@ -390,7 +410,7 @@ namespace pinocchio
     typedef ConstraintPlanarTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionPlanarTpl<Scalar,Options> Motion_t;
-    typedef BiasZeroTpl<Scalar,Options> Bias_t;
+    typedef MotionZeroTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
@@ -428,7 +448,13 @@ namespace pinocchio
     
     D_t StU;
 
-    JointDataPlanarTpl () : M(1), U(), Dinv(), UDinv() {}
+    JointDataPlanarTpl ()
+    : M(Transformation_t::Identity())
+    , v(Motion_t::Vector3::Zero())
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
     static std::string classname() { return std::string("JointDataPlanar"); }
     std::string shortname() const { return classname(); }
@@ -488,9 +514,9 @@ namespace pinocchio
       
       typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v ());
 
-      data.v.m_x_dot = q_dot(0);
-      data.v.m_y_dot = q_dot(1);
-      data.v.m_theta_dot = q_dot(2);
+      data.v.vx() = q_dot(0);
+      data.v.vy() = q_dot(1);
+      data.v.wz() = q_dot(2);
     }
     
     template<typename Matrix6Like>

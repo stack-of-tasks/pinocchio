@@ -7,7 +7,6 @@
 #define __pinocchio_python_model_hpp__
 
 #include "pinocchio/multibody/model.hpp"
-#include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/serialization/model.hpp"
 
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
@@ -16,6 +15,7 @@
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"

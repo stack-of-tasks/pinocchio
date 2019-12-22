@@ -53,18 +53,18 @@ namespace pinocchio
     
     template<typename Matrix3Like>
     ConstraintSphericalZYXTpl(const Eigen::MatrixBase<Matrix3Like> & subspace)
-    : S_minimal(subspace)
+    : m_S(subspace)
     {  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3); }
     
     template<typename Vector3Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
-      return JointMotion(S_minimal * v);
+      return JointMotion(m_S * v);
     }
     
-    Matrix3 & operator() () { return S_minimal; }
-    const Matrix3 & operator() () const { return S_minimal; }
+    Matrix3 & operator() () { return m_S; }
+    const Matrix3 & operator() () const { return m_S; }
     
     int nv_impl() const { return NV; }
     
@@ -80,7 +80,7 @@ namespace pinocchio
       >::type
       operator* (const ForceDense<Derived> & phi) const
       {
-        return ref.S_minimal.transpose() * phi.angular();
+        return ref.m_S.transpose() * phi.angular();
       }
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
@@ -92,7 +92,7 @@ namespace pinocchio
       operator* (const Eigen::MatrixBase<D> & F) const
       {
         EIGEN_STATIC_ASSERT(D::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
-        return ref.S_minimal.transpose () * F.template middleRows<3>(ANGULAR);
+        return ref.m_S.transpose () * F.template middleRows<3>(ANGULAR);
       }
     }; // struct ConstraintTranspose
     
@@ -102,7 +102,7 @@ namespace pinocchio
     {
       DenseBase S;
       S.template middleRows<3>(LINEAR).setZero();
-      S.template middleRows<3>(ANGULAR) = S_minimal;
+      S.template middleRows<3>(ANGULAR) = m_S;
       return S;
     }
     
@@ -118,12 +118,12 @@ namespace pinocchio
       //        X_subspace.template block <3,3> (Motion::LINEAR, 0) = skew (m.translation ()) * m.rotation ();
       //        X_subspace.template block <3,3> (Motion::ANGULAR, 0) = m.rotation ();
       //
-      //        return (X_subspace * S_minimal).eval();
+      //        return (X_subspace * m_S).eval();
       
       Eigen::Matrix<Scalar,6,3,Options> result;
       
       // ANGULAR
-      result.template middleRows<3>(ANGULAR).noalias() = m.rotation () * S_minimal;
+      result.template middleRows<3>(ANGULAR).noalias() = m.rotation () * m_S;
       
       // LINEAR
       cross(m.translation(),
@@ -141,12 +141,12 @@ namespace pinocchio
       
       // LINEAR
       cross(m.translation(),
-            S_minimal,
+            m_S,
             result.template middleRows<3>(ANGULAR));
       result.template middleRows<3>(LINEAR).noalias() = -m.rotation().transpose() * result.template middleRows<3>(ANGULAR);
       
       // ANGULAR
-      result.template middleRows<3>(ANGULAR).noalias() = m.rotation().transpose() * S_minimal;
+      result.template middleRows<3>(ANGULAR).noalias() = m.rotation().transpose() * m_S;
       
       return result;
     }
@@ -158,14 +158,22 @@ namespace pinocchio
       const typename MotionDerived::ConstAngularType w = m.angular();
       
       DenseBase res;
-      cross(v,S_minimal,res.template middleRows<3>(LINEAR));
-      cross(w,S_minimal,res.template middleRows<3>(ANGULAR));
+      cross(v,m_S,res.template middleRows<3>(LINEAR));
+      cross(w,m_S,res.template middleRows<3>(ANGULAR));
       
       return res;
     }
     
-    // data
-    Matrix3 S_minimal;
+    Matrix3 & angularSubspace() { return m_S; }
+    const Matrix3 & angularSubspace() const { return m_S; }
+    
+    bool isEqual(const ConstraintSphericalZYXTpl & other) const
+    {
+      return m_S == other.m_S;
+    }
+    
+  protected:
+    Matrix3 m_S;
     
   }; // struct ConstraintSphericalZYXTpl
 
@@ -182,7 +190,7 @@ namespace pinocchio
     M.template middleRows<3>(Constraint::ANGULAR) =  (Y.inertia () -
     typename Symmetric3::AlphaSkewSquare(Y.mass (), Y.lever ())).matrix();
 
-    return (M * S.S_minimal).eval();
+    return (M * S.angularSubspace()).eval();
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
@@ -196,7 +204,7 @@ namespace pinocchio
             const ConstraintSphericalZYXTpl<S2,O2> & S)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
-    return Y.derived().template middleCols<3>(Inertia::ANGULAR) * S.S_minimal;
+    return Y.derived().template middleCols<3>(Inertia::ANGULAR) * S.angularSubspace();
   }
 
   template<typename S1, int O1>
@@ -271,7 +279,15 @@ namespace pinocchio
     UD_t UDinv;
     D_t StU;
 
-    JointDataSphericalZYXTpl () : M(1), U(), Dinv(), UDinv() {}
+    JointDataSphericalZYXTpl ()
+    : S(Constraint_t::Matrix3::Zero())
+    , M(Transformation_t::Identity())
+    , v(Motion_t::Vector3::Zero())
+    , c(Bias_t::Vector3::Zero())
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    {}
 
     static std::string classname() { return std::string("JointDataSphericalZYX"); }
     std::string shortname() const { return classname(); }
@@ -317,7 +333,7 @@ namespace pinocchio
                 c1 * s2,
                 c1 * c2;
 
-      data.S.S_minimal
+      data.S.angularSubspace()
       <<  -s1, Scalar(0), Scalar(1),
       c1 * s2, c2, Scalar(0),
       c1 * c2, -s2, Scalar(0);
@@ -346,7 +362,7 @@ namespace pinocchio
           c1 * s2,
           c1 * c2;
       
-      data.S.S_minimal
+      data.S.angularSubspace()
       <<  -s1, Scalar(0), Scalar(1),
       c1 * s2, c2, Scalar(0),
       c1 * c2, -s2, Scalar(0);
@@ -354,7 +370,7 @@ namespace pinocchio
       typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type
       & q_dot = vs.template segment<NV>(idx_v());
 
-      data.v().noalias() = data.S.S_minimal * q_dot;
+      data.v().noalias() = data.S.angularSubspace() * q_dot;
 
       data.c()(0) = -c1 * q_dot(0) * q_dot(1);
       data.c()(1) = -s1 * s2 * q_dot(0) * q_dot(1) + c1 * c2 * q_dot(0) * q_dot(2) - s2 * q_dot(1) * q_dot(2);
@@ -366,8 +382,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.S_minimal;
-      data.StU.noalias() = data.S.S_minimal.transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
+      data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.angularSubspace();
+      data.StU.noalias() = data.S.angularSubspace().transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
       
       // compute inverse
 //      data.Dinv.setIdentity();
