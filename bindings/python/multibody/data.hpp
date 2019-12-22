@@ -6,9 +6,11 @@
 #define __pinocchio_python_data_hpp__
 
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/serialization/data.hpp"
 
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigenpy.hpp>
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
@@ -21,7 +23,45 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+    
+    template<typename Data>
+    struct PickleData : bp::pickle_suite
+    {
+      static bp::tuple getinitargs(const Data &)
+      {
+        return bp::make_tuple();
+      }
 
+      static bp::tuple getstate(const Data & data)
+      {
+        const std::string str(data.saveToString());
+        return bp::make_tuple(bp::str(str));
+      }
+
+      static void setstate(Data & data, bp::tuple tup)
+      {
+        if(bp::len(tup) == 0 || bp::len(tup) > 1)
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The pickle data structure contains too many elements.");
+        }
+        
+        bp::object py_obj = tup[0];
+        boost::python::extract<std::string> obj_as_string(py_obj.ptr());
+        if(obj_as_string.check())
+        {
+          const std::string str = obj_as_string;
+          data.loadFromString(str);
+        }
+        else
+        {
+          throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
+                                   "The entry is not a string.");
+        }
+
+      }
+    };
+  
     struct DataPythonVisitor
       : public boost::python::def_visitor< DataPythonVisitor >
     {
@@ -135,7 +175,10 @@ namespace pinocchio
                          "It contains all the data that can be modified by the Pinocchio algorithms.",
                          bp::no_init)
         .def(DataPythonVisitor())
-        .def(CopyableVisitor<Data>());
+        .def(CopyableVisitor<Data>())
+        .def(SerializableVisitor<Data>())
+        .def_pickle(PickleData<Data>());
+        
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
         StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
         StdVectorPythonVisitor<int>::expose("StdVec_int");
