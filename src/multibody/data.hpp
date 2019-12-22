@@ -17,6 +17,8 @@
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
+#include "pinocchio/serialization/serializable.hpp"
+
 #include <iostream>
 #include <Eigen/Cholesky>
 
@@ -25,6 +27,7 @@ namespace pinocchio
  
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct DataTpl
+  : serialization::Serializable< DataTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
