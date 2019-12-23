@@ -136,7 +136,7 @@ namespace pinocchio
     ///
     /// \brief Returns true if *this and other are equal.
     ///
-    bool operator==(const GeometryModel & other)
+    bool operator==(const GeometryModel & other) const
     {
       return
          ngeoms == other.ngeoms
