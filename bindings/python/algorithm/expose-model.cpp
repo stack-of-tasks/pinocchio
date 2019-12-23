@@ -3,8 +3,8 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/utils/list.hpp"
 #include "pinocchio/algorithm/model.hpp"
-#include "pinocchio/algorithm/aba.hpp"
 
 namespace pinocchio
 {
@@ -19,14 +19,7 @@ namespace pinocchio
                            const bp::list & list_of_joints_to_lock,
                            const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
     {
-      std::vector<JointIndex> list_of_joints_to_lock_vec;
-      list_of_joints_to_lock_vec.reserve((size_t)bp::len(list_of_joints_to_lock));
-      for(int k = 0; k < bp::len(list_of_joints_to_lock); ++k)
-      {
-        JointIndex joint_id = bp::extract<JointIndex>(list_of_joints_to_lock[k]);
-        list_of_joints_to_lock_vec.push_back(joint_id);
-      }
-      
+      std::vector<JointIndex> list_of_joints_to_lock_vec = extract<JointIndex>(list_of_joints_to_lock);
       return buildReducedModel(model,list_of_joints_to_lock_vec,reference_configuration);
     }
      
@@ -42,7 +35,7 @@ namespace pinocchio
               "Build a reduce model from a given input model and a list of joint to lock.");
 
       bp::def("buildReducedModel",
-              &buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
+              (Model (*)(const Model &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))&buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("model: input kinematic model",
                        "list_of_joints_to_lock: list of joint indexes to lock",
                        "reference_configuration: reference configuration to compute the placement of the lock joints"),
