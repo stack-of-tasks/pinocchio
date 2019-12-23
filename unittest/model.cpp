@@ -320,6 +320,7 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   }
 }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
 BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
 {
   Model humanoid_model;
@@ -430,5 +431,6 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
     BOOST_CHECK(geom_data.oMg[i].isApprox(reduded_geom_data.oMg[i]));
   }
 }
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 BOOST_AUTO_TEST_SUITE_END()
