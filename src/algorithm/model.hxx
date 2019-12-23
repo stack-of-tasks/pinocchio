@@ -193,6 +193,9 @@ namespace pinocchio
     typedef details::AppendJointOfModelAlgoTpl<Scalar, Options, JointCollectionTpl> AppendJointOfModelAlgo;
     typedef typename AppendJointOfModelAlgo::ArgsType ArgsType;
     
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frameInModelA < (FrameIndex) modelA.nframes,
+                                   "frameInModelA is an invalid Frame index, greater than the number of frames contained in modelA.");
+    
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::SE3 SE3;
     typedef typename Model::Frame Frame;
