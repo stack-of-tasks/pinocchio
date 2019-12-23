@@ -169,7 +169,7 @@ namespace pinocchio
   void
   appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
               const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
-              FrameIndex frameInModelA,
+              const FrameIndex frameInModelA,
               const SE3Tpl<Scalar, Options> & aMb,
               ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
@@ -185,7 +185,7 @@ namespace pinocchio
               const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
               const GeometryModel& geomModelA,
               const GeometryModel& geomModelB,
-              FrameIndex frameInModelA,
+              const FrameIndex frameInModelA,
               const SE3Tpl<Scalar, Options>& aMb,
               ModelTpl<Scalar,Options,JointCollectionTpl>& model,
               GeometryModel& geomModel)
