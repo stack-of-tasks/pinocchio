@@ -277,10 +277,11 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  ModelTpl<Scalar,Options,JointCollectionTpl>
+  void
   buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & input_model,
                     std::vector<JointIndex> list_of_joints_to_lock,
-                    const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+                    const Eigen::MatrixBase<ConfigVectorType> & reference_configuration,
+                    ModelTpl<Scalar,Options,JointCollectionTpl> & reduced_model)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(reference_configuration.size() == input_model.nq,
                                    "The configuration vector is not of right size");
@@ -292,8 +293,6 @@ namespace pinocchio
     typedef typename Model::JointData JointData;
     typedef typename Model::Frame Frame;
     typedef typename Model::SE3 SE3;
-    
-    Model reduced_model;
     
     // Sort indexes
     std::sort(list_of_joints_to_lock.begin(),list_of_joints_to_lock.end());
@@ -452,10 +451,7 @@ namespace pinocchio
         reduced_model.addFrame(reduced_frame);
       }
     }
-    
-    return reduced_model;
   }
-
 
 } // namespace pinocchio
 
