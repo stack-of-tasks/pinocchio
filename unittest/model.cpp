@@ -250,7 +250,6 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   
   BOOST_CHECK(humanoid_copy_model.names == humanoid_model.names);
   BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
-  BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
   BOOST_CHECK(humanoid_copy_model == humanoid_model);
   
   std::vector<JointIndex> joints_to_lock;
@@ -262,6 +261,10 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   Model reduced_humanoid_model = buildReducedModel(humanoid_model,joints_to_lock,reference_config_humanoid);
   BOOST_CHECK(reduced_humanoid_model.njoints == humanoid_model.njoints-(int)joints_to_lock.size());
   BOOST_CHECK(reduced_humanoid_model != humanoid_model);
+  
+  Model reduced_humanoid_model_other_signature;
+  buildReducedModel(humanoid_model,joints_to_lock,reference_config_humanoid,reduced_humanoid_model_other_signature);
+  BOOST_CHECK(reduced_humanoid_model == reduced_humanoid_model_other_signature);
   
   // Check that forward kinematics give same results
   Data data(humanoid_model), reduced_data(reduced_humanoid_model);
