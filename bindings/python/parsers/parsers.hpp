@@ -121,7 +121,7 @@ namespace pinocchio
                         const GeometryType type
                         )
       {
-        std::vector<std::string> package_dirs_ = extractList<std::string>(package_dirs);
+        std::vector<std::string> package_dirs_ = extract<std::string>(package_dirs);
         return buildGeomFromUrdf(model,filename,package_dirs_,type);
       }
 
@@ -175,7 +175,7 @@ namespace pinocchio
                         const fcl::MeshLoaderPtr& meshLoader
                         )
       {
-        std::vector<std::string> package_dirs_ = extractList<std::string>(package_dirs);
+        std::vector<std::string> package_dirs_ = extract<std::string>(package_dirs);
         return buildGeomFromUrdf(model,filename,package_dirs_,type,meshLoader);
       }
 

@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_model_hxx__
-#define __pinocchio_model_hxx__
+#ifndef __pinocchio_multibody_model_hxx__
+#define __pinocchio_multibody_model_hxx__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/utils/string-generator.hpp"
@@ -278,4 +278,4 @@ namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_model_hxx__
+#endif // ifndef __pinocchio_multibody_model_hxx__
