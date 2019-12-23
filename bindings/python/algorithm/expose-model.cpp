@@ -22,10 +22,46 @@ namespace pinocchio
       std::vector<JointIndex> list_of_joints_to_lock_vec = extract<JointIndex>(list_of_joints_to_lock);
       return buildReducedModel(model,list_of_joints_to_lock_vec,reference_configuration);
     }
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    bp::tuple appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
+                          const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
+                          const GeometryModel & geomModelA,
+                          const GeometryModel & geomModelB,
+                          const FrameIndex frameInModelA,
+                          const SE3Tpl<Scalar,Options> & aMb)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      Model model; GeometryModel geom_model;
+      
+      appendModel(modelA,modelB,geomModelA,geomModelB,frameInModelA,aMb,model,geom_model);
+      
+      return bp::make_tuple(model,geom_model);
+    }
      
     void exposeModelAlgo()
     {
       using namespace Eigen;
+      
+      bp::def("appendModel",
+              (Model (*)(const Model &, const Model &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
+              bp::args("modelA","modelB","frame_in_modelA","aMb"),
+              "Append a child model into a parent model, after a specific frame given by its index.\n\n"
+              " modelA: the parent model\n"
+              " modelB: the child model\n"
+              " frameInModelA:  index of the frame of modelA where to append modelB\n"
+              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
+      
+      bp::def("appendModel",
+              (bp::tuple (*)(const Model &, const Model &, const GeometryModel &, const GeometryModel &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
+              bp::args("modelA","modelB","frame_in_modelA","aMb"),
+              "Append a child (geometry) model into a parent (geometry) model, after a specific frame given by its index.\n\n"
+              " modelA: the parent model\n"
+              " modelB: the child model\n"
+              " geomModelA: the parent geometry model\n"
+              " geomModelB: the child geometry model\n"
+              " frameInModelA:  index of the frame of modelA where to append modelB\n"
+              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
 
       bp::def("buildReducedModel",
               buildReducedModel_list<double,0,JointCollectionDefaultTpl,VectorXd>,
