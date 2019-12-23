@@ -82,6 +82,8 @@ namespace pinocchio
    *  \param[in] reference_configuration reference configuration.
    *  \param[out] reduced_model the reduced model.
    *
+   *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in the kinematic tree as a Frame as FIXED_JOINT.
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   void
@@ -99,6 +101,8 @@ namespace pinocchio
    *  \param[in] reference_configuration reference configuration.
    *
    *  \returns A reduce model of the input model.
+   *
+   *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in the kinematic tree as a Frame as FIXED_JOINT.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
