@@ -144,6 +144,14 @@ namespace pinocchio
       && collisionPairs == other.collisionPairs
       ;
     }
+    
+    ///
+    /// \brief Returns true if *this and other are not equal.
+    ///
+    bool operator!=(const GeometryModel & other) const
+    {
+      return !(*this == other);
+    }
 
     friend std::ostream& operator<<(std::ostream & os,
                                     const GeometryModel & model_geom);
