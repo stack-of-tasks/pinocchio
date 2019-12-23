@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_data_hpp__
-#define __pinocchio_data_hpp__
+#ifndef __pinocchio_multibody_data_hpp__
+#define __pinocchio_multibody_data_hpp__
 
 #include "pinocchio/math/tensor.hpp"
 
@@ -384,5 +384,5 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/data.hxx"
 
-#endif // ifndef __pinocchio_data_hpp__
+#endif // ifndef __pinocchio_multibody_data_hpp__
 
