@@ -29,20 +29,11 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     
+    typedef ::pinocchio::GeometryObject GeometryObject;
     typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
     typedef pinocchio::GeomIndex GeomIndex;
-    
-    /// \brief The number of GeometryObjects
-    Index ngeoms;
-
-    /// \brief Vector of GeometryObjects used for collision computations
-    GeometryObjectVector geometryObjects;
-    ///
-    /// \brief Vector of collision pairs.
-    ///
-    CollisionPairVector collisionPairs;
   
     GeometryModel()
     : ngeoms(0)
@@ -141,8 +132,40 @@ namespace pinocchio
     PairIndex findCollisionPair(const CollisionPair & pair) const;
     
 #endif // PINOCCHIO_WITH_HPP_FCL
+    
+    ///
+    /// \brief Returns true if *this and other are equal.
+    ///
+    bool operator==(const GeometryModel & other) const
+    {
+      return
+         ngeoms == other.ngeoms
+      && geometryObjects == other.geometryObjects
+      && collisionPairs == other.collisionPairs
+      ;
+    }
+    
+    ///
+    /// \brief Returns true if *this and other are not equal.
+    ///
+    bool operator!=(const GeometryModel & other) const
+    {
+      return !(*this == other);
+    }
 
-    friend std::ostream& operator<<(std::ostream & os, const GeometryModel & model_geom);
+    friend std::ostream& operator<<(std::ostream & os,
+                                    const GeometryModel & model_geom);
+    
+    /// \brief The number of GeometryObjects
+    Index ngeoms;
+
+    /// \brief Vector of GeometryObjects used for collision computations
+    GeometryObjectVector geometryObjects;
+    ///
+    /// \brief Vector of collision pairs.
+    ///
+    CollisionPairVector collisionPairs;
+    
   }; // struct GeometryModel
 
   struct GeometryData

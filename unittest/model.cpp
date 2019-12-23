@@ -10,6 +10,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -250,7 +251,6 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   
   BOOST_CHECK(humanoid_copy_model.names == humanoid_model.names);
   BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
-  BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
   BOOST_CHECK(humanoid_copy_model == humanoid_model);
   
   std::vector<JointIndex> joints_to_lock;
@@ -262,6 +262,10 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   Model reduced_humanoid_model = buildReducedModel(humanoid_model,joints_to_lock,reference_config_humanoid);
   BOOST_CHECK(reduced_humanoid_model.njoints == humanoid_model.njoints-(int)joints_to_lock.size());
   BOOST_CHECK(reduced_humanoid_model != humanoid_model);
+  
+  Model reduced_humanoid_model_other_signature;
+  buildReducedModel(humanoid_model,joints_to_lock,reference_config_humanoid,reduced_humanoid_model_other_signature);
+  BOOST_CHECK(reduced_humanoid_model == reduced_humanoid_model_other_signature);
   
   // Check that forward kinematics give same results
   Data data(humanoid_model), reduced_data(reduced_humanoid_model);
@@ -315,5 +319,118 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
     }
   }
 }
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
+{
+  Model humanoid_model;
+  buildModels::humanoid(humanoid_model);
+  
+  humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
+  humanoid_model.upperPositionLimit.head<3>().fill( 1.);
+  const Eigen::VectorXd reference_config_humanoid = randomConfiguration(humanoid_model);
+  
+  GeometryModel humanoid_geometry;
+  buildModels::humanoidGeometries(humanoid_model, humanoid_geometry);
+  
+  static const std::vector<JointIndex> empty_index_vector;
+  
+  Model humanoid_copy_model; GeometryModel humanoid_copy_geometry;
+  buildReducedModel(humanoid_model,humanoid_geometry,empty_index_vector,
+                    reference_config_humanoid,humanoid_copy_model,humanoid_copy_geometry);
+
+  BOOST_CHECK(humanoid_copy_model == humanoid_model);
+  BOOST_CHECK(humanoid_copy_geometry == humanoid_geometry);
+  
+  std::vector<JointIndex> joints_to_lock;
+  const std::string joint1_to_lock = "rarm_shoulder2_joint";
+  joints_to_lock.push_back(humanoid_model.getJointId(joint1_to_lock));
+  const std::string joint2_to_lock = "larm_shoulder2_joint";
+  joints_to_lock.push_back(humanoid_model.getJointId(joint2_to_lock));
+  
+  Model reduced_humanoid_model; GeometryModel reduced_humanoid_geometry;
+  buildReducedModel(humanoid_model,humanoid_geometry,joints_to_lock,
+                    reference_config_humanoid,reduced_humanoid_model,reduced_humanoid_geometry);
+  
+  BOOST_CHECK(reduced_humanoid_geometry.ngeoms == humanoid_geometry.ngeoms);
+  BOOST_CHECK(reduced_humanoid_geometry.collisionPairs == humanoid_geometry.collisionPairs);
+  BOOST_CHECK(reduced_humanoid_geometry.geometryObjects.size() == humanoid_geometry.geometryObjects.size());
+  
+  for(Index i = 0; i < humanoid_geometry.geometryObjects.size(); ++i)
+  {
+    const GeometryObject & go1 = humanoid_geometry.geometryObjects[i];
+    const GeometryObject & go2 = reduced_humanoid_geometry.geometryObjects[i];
+    BOOST_CHECK(go1.name == go2.name);
+    BOOST_CHECK(go1.geometry == go2.geometry);
+    BOOST_CHECK(go1.meshPath == go2.meshPath);
+    BOOST_CHECK(go1.meshScale == go2.meshScale);
+    BOOST_CHECK(go1.overrideMaterial == go2.overrideMaterial);
+    BOOST_CHECK(go1.meshColor == go2.meshColor);
+    BOOST_CHECK(go1.meshTexturePath == go2.meshTexturePath);
+  }
+  
+  Data data(humanoid_model), reduced_data(reduced_humanoid_model);
+  const Eigen::VectorXd q = reference_config_humanoid;
+  Eigen::VectorXd reduced_q(reduced_humanoid_model.nq);
+  
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)reduced_humanoid_model.njoints; ++joint_id)
+  {
+    const JointIndex reference_joint_id = humanoid_model.getJointId(reduced_humanoid_model.names[joint_id]);
+    
+    reduced_humanoid_model.joints[joint_id].jointConfigSelector(reduced_q) =
+    humanoid_model.joints[reference_joint_id].jointConfigSelector(q);
+  }
+  
+  framesForwardKinematics(humanoid_model,data,q);
+  framesForwardKinematics(reduced_humanoid_model,reduced_data,reduced_q);
+  
+  for(size_t frame_id = 0; frame_id < reduced_humanoid_model.frames.size(); ++frame_id)
+  {
+    const Frame & reduced_frame = reduced_humanoid_model.frames[frame_id];
+    switch(reduced_frame.type)
+    {
+      case JOINT:
+      case FIXED_JOINT:
+      {
+        // May not be present in the original model
+        if(humanoid_model.existJointName(reduced_frame.name))
+        {
+          const JointIndex joint_id = humanoid_model.getJointId(reduced_frame.name);
+          BOOST_CHECK(data.oMi[joint_id].isApprox(reduced_data.oMf[frame_id]));
+        }
+        else if(humanoid_model.existFrame(reduced_frame.name))
+        {
+          const FrameIndex humanoid_frame_id = humanoid_model.getFrameId(reduced_frame.name);
+          BOOST_CHECK(data.oMf[humanoid_frame_id].isApprox(reduced_data.oMf[frame_id]));
+        }
+        else
+        {
+          BOOST_CHECK_MESSAGE(false, "The frame " << reduced_frame.name << " is not presend in the humanoid_model");
+        }
+        break;
+      }
+      default:
+      {
+        BOOST_CHECK(humanoid_model.existFrame(reduced_frame.name));
+        const FrameIndex humanoid_frame_id = humanoid_model.getFrameId(reduced_frame.name);
+        BOOST_CHECK(data.oMf[humanoid_frame_id].isApprox(reduced_data.oMf[frame_id]));
+        break;
+      }
+        
+    }
+  }
+  
+  // Test GeometryObject placements
+  GeometryData geom_data(humanoid_geometry), reduded_geom_data(reduced_humanoid_geometry);
+  updateGeometryPlacements(humanoid_model,data,humanoid_geometry,geom_data);
+  updateGeometryPlacements(reduced_humanoid_model,reduced_data,reduced_humanoid_geometry,reduded_geom_data);
+  
+  BOOST_CHECK(geom_data.oMg.size() == reduded_geom_data.oMg.size());
+  for(FrameIndex i = 0; i < geom_data.oMg.size(); ++i)
+  {
+    BOOST_CHECK(geom_data.oMg[i].isApprox(reduded_geom_data.oMg[i]));
+  }
+}
+#endif // PINOCCHIO_WITH_HPP_FCL
 
 BOOST_AUTO_TEST_SUITE_END()

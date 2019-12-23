@@ -84,6 +84,9 @@ namespace pinocchio
              bp::args("collision_pair"),
              "Return the index of a collision pair.")
 #endif // PINOCCHIO_WITH_HPP_FCL
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
       

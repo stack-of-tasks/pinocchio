@@ -15,31 +15,136 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
     ModelTpl<Scalar,Options,JointCollectionTpl>
-    buildReducedModel_list(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const bp::list & list_of_joints_to_lock,
-                           const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+    buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const bp::list & list_of_joints_to_lock,
+                      const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
     {
-      std::vector<JointIndex> list_of_joints_to_lock_vec = extract<JointIndex>(list_of_joints_to_lock);
-      return buildReducedModel(model,list_of_joints_to_lock_vec,reference_configuration);
+      const std::vector<JointIndex> vec_of_joints_to_lock = extract<JointIndex>(list_of_joints_to_lock);
+      return buildReducedModel(model,vec_of_joints_to_lock,reference_configuration);
     }
-     
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    bp::tuple appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
+                          const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
+                          const GeometryModel & geomModelA,
+                          const GeometryModel & geomModelB,
+                          const FrameIndex frameInModelA,
+                          const SE3Tpl<Scalar,Options> & aMb)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      Model model; GeometryModel geom_model;
+      
+      appendModel(modelA,modelB,geomModelA,geomModelB,frameInModelA,aMb,model,geom_model);
+      
+      return bp::make_tuple(model,geom_model);
+    }
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    bp::tuple
+    buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const GeometryModel & geom_model,
+                      const std::vector<JointIndex> & list_of_joints_to_lock,
+                      const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      Model reduced_model; GeometryModel reduced_geom_model;
+      
+      buildReducedModel(model,geom_model,list_of_joints_to_lock,
+                        reference_configuration,reduced_model,reduced_geom_model);
+      
+      return bp::make_tuple(reduced_model,reduced_geom_model);
+    }
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    bp::tuple
+    buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const GeometryModel & geom_model,
+                      const bp::list & list_of_joints_to_lock,
+                      const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      Model reduced_model; GeometryModel reduced_geom_model;
+      
+      const std::vector<JointIndex> vec_of_joints_to_lock = extract<JointIndex>(list_of_joints_to_lock);
+      buildReducedModel(model,geom_model,vec_of_joints_to_lock,
+                        reference_configuration,reduced_model,reduced_geom_model);
+      
+      return bp::make_tuple(reduced_model,reduced_geom_model);
+    }
+  
     void exposeModelAlgo()
     {
       using namespace Eigen;
+      
+      bp::def("appendModel",
+              (Model (*)(const Model &, const Model &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
+              bp::args("modelA","modelB","frame_in_modelA","aMb"),
+              "Append a child model into a parent model, after a specific frame given by its index.\n\n"
+              " modelA: the parent model\n"
+              " modelB: the child model\n"
+              " frameInModelA:  index of the frame of modelA where to append modelB\n"
+              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
+      
+      bp::def("appendModel",
+              (bp::tuple (*)(const Model &, const Model &, const GeometryModel &, const GeometryModel &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
+              bp::args("modelA","modelB","frame_in_modelA","aMb"),
+              "Append a child (geometry) model into a parent (geometry) model, after a specific frame given by its index.\n\n"
+              " modelA: the parent model\n"
+              " modelB: the child model\n"
+              " geomModelA: the parent geometry model\n"
+              " geomModelB: the child geometry model\n"
+              " frameInModelA:  index of the frame of modelA where to append modelB\n"
+              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
 
       bp::def("buildReducedModel",
-              buildReducedModel_list<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("model: input kinematic model",
-                       "list_of_joints_to_lock: list of joint indexes to lock",
-                       "reference_configuration: reference configuration to compute the placement of the lock joints"),
-              "Build a reduce model from a given input model and a list of joint to lock.");
+              (Model (*)(const Model &, const bp::list &, const Eigen::MatrixBase<VectorXd> &))
+              buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("model",
+                       "list_of_joints_to_lock",
+                       "reference_configuration"),
+              "Build a reduce model from a given input model and a list of joint to lock.\n\n"
+              " model: input kinematic modell to reduce\n"
+              " list_of_joints_to_lock: list of joint indexes to lock\n"
+              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
 
       bp::def("buildReducedModel",
-              (Model (*)(const Model &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))&buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("model: input kinematic model",
-                       "list_of_joints_to_lock: list of joint indexes to lock",
-                       "reference_configuration: reference configuration to compute the placement of the lock joints"),
-              "Build a reduce model from a given input model and a list of joint to lock.");
+              (Model (*)(const Model &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
+              &pinocchio::buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("model",
+                       "list_of_joints_to_lock",
+                       "reference_configuration"),
+              "Build a reduce model from a given input model and a list of joint to lock.\n\n"
+              " model: input kinematic modell to reduce\n"
+              " list_of_joints_to_lock: list of joint indexes to lock\n"
+              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
+
+      bp::def("buildReducedModel",
+              (bp::tuple (*)(const Model &, const GeometryModel &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
+              &buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("model",
+                       "geom_model",
+                       "list_of_joints_to_lock",
+                       "reference_configuration"),
+              "Build a reduced model and a rededuced geometry model  from a given input model,"
+              "a given input geometry model and a list of joint to lock.\n\n"
+              " model: input kinematic modell to reduce\n"
+              " geom_model: input geometry model to reduce\n"
+              " list_of_joints_to_lock: list of joint indexes to lock\n"
+              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
+
+      bp::def("buildReducedModel",
+              (bp::tuple (*)(const Model &, const GeometryModel &, const bp::list &, const Eigen::MatrixBase<VectorXd> &))
+              &buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("model",
+                       "geom_model",
+                       "list_of_joints_to_lock",
+                       "reference_configuration"),
+              "Build a reduced model and a rededuced geometry model  from a given input model,"
+              "a given input geometry model and a list of joint to lock.\n\n"
+              " model: input kinematic modell to reduce\n"
+              " geom_model: input geometry model to reduce\n"
+              " list_of_joints_to_lock: list of joint indexes to lock\n"
+              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
       
     }
     
