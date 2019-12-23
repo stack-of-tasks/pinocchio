@@ -15,12 +15,12 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
     ModelTpl<Scalar,Options,JointCollectionTpl>
-    buildReducedModel_list(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const bp::list & list_of_joints_to_lock,
-                           const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
+    buildReducedModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const bp::list & list_of_joints_to_lock,
+                      const Eigen::MatrixBase<ConfigVectorType> & reference_configuration)
     {
-      std::vector<JointIndex> list_of_joints_to_lock_vec = extract<JointIndex>(list_of_joints_to_lock);
-      return buildReducedModel(model,list_of_joints_to_lock_vec,reference_configuration);
+      const std::vector<JointIndex> vec_of_joints_to_lock = extract<JointIndex>(list_of_joints_to_lock);
+      return buildReducedModel(model,vec_of_joints_to_lock,reference_configuration);
     }
   
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
