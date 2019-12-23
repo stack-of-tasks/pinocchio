@@ -49,6 +49,11 @@ namespace pinocchio
     struct FakeCollisionGeometry
     {
       FakeCollisionGeometry(){};
+      
+      bool operator==(const FakeCollisionGeometry & other) const
+      {
+        return true;
+      }
     };
 
     struct AABB
