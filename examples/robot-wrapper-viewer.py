@@ -32,8 +32,8 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
 model_path = join(pinocchio_model_dir,"others/robots")
 mesh_dir = model_path
-urdf_filename = "romeo_small.urdf"
-urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
+urdf_filename = "talos_reduced.urdf"
+urdf_model_path = join(join(model_path,"talos_data/urdf"),urdf_filename)
 
 robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
@@ -52,9 +52,5 @@ com2 = pin.centerOfMass(model,data,q0)
 if VISUALIZER:
     robot.setVisualizer(VISUALIZER())
     robot.initViewer()
-    if VISUALIZER == MeshcatVisualizer:
-        robot.loadViewerModel("pinocchio", color=[0., 0., 0., 1.])
-    else:
-        robot.loadViewerModel("pinocchio")
+    robot.loadViewerModel("pinocchio")
     robot.display(q0)
-
