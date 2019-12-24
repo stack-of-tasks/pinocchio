@@ -628,4 +628,98 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_fast_ABA)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  //  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact info
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) ContactInfoVector;
+  ContactInfoVector contact_infos;
+  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  contact_infos.push_back(ci_RF);
+  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
+  contact_infos.push_back(ci_LF);
+  
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_infos.size(); ++k)
+    constraint_dim += contact_infos[k].dim();
+  
+  const double mu0 = 0.;
+  
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  
+  initContactDynamics(model, data_ref, contact_infos);
+  contactDynamics(model, data_ref, q, v, tau, contact_infos);
+  forwardKinematics(model, data_ref, q, v, data_ref.ddq);
+  
+  updateFramePlacements(model,data_ref);
+  getFrameJacobian(model,data_ref,
+                   ci_RF.frame_id,ci_RF.reference_frame,
+                   J_ref.middleRows<6>(0));
+  getFrameJacobian(model,data_ref,
+                   ci_LF.frame_id,ci_LF.reference_frame,
+                   J_ref.middleRows<6>(6));
+  
+  Eigen::VectorXd gamma(constraint_dim);
+  
+  gamma.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame).toVector();
+  gamma.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame).toVector();
+  
+  std::cout << "J_ref*data_ref.ddq + gamma = " << (J_ref*data_ref.ddq + gamma).transpose() << std::endl;
+  BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
+  
+  Data data_constrained_dyn(model);
+  forwardDynamics(model,data_constrained_dyn,q,v,tau,J_ref,gamma
+                  ,mu0);
+  BOOST_CHECK((J_ref*data_constrained_dyn.ddq + gamma).isZero());
+  
+  fastContactDynamics(model, data, q, v, tau, contact_infos);
+  
+//  BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
+  
+  std::cout << "a_sol: " << data.ddq.transpose() << std::endl;
+  std::cout << "a_sol_ref: " << data_ref.ddq.transpose() << std::endl;
+  std::cout << "a_sol_ref2: " << data_constrained_dyn.ddq.transpose() << std::endl;
+  
+  size_t ee_id = 0;
+  for(ContactInfoVector::const_iterator it = contact_infos.begin();
+      it != contact_infos.end();
+      ++it, ee_id++)
+  {
+    const ContactInfo & cinfo = *it;
+    const FrameIndex frame_id = cinfo.frame_id;
+    const Model::Frame & frame = model.frames[frame_id];
+    const JointIndex joint_id = frame.parent;
+    
+    const Data::Motion & a_joint = data.a[joint_id];
+    const SE3 oMc = data.oMf[frame_id] * cinfo.placement;
+    const SE3 iMc = frame.placement * cinfo.placement;
+    
+    const SE3::Vector3 contact_acc_local
+    = classicAcceleration(data.v[joint_id], data.a[joint_id], iMc);
+    
+    std::cout << "Contact " << ee_id << std::endl;
+    std::cout << "contact_acc_local: " << contact_acc_local.transpose() << std::endl;
+  }
+  
+}
+
 BOOST_AUTO_TEST_SUITE_END ()

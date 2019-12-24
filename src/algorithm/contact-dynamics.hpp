@@ -66,6 +66,15 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos,
                   const Scalar mu = 0.);
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  fastContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVectorType1> & v,
+                      const Eigen::MatrixBase<TangentVectorType2> & tau,
+                      const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos);
 
 } // namespace pinocchio
 
