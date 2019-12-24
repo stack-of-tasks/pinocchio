@@ -4,7 +4,14 @@ from ..shortcuts import buildModelsFromUrdf, createDatas
 from . import BaseVisualizer
 
 import os
+import warnings
 import numpy as np
+
+try:
+    import hppfcl
+    WITH_HPP_FCL_BINDINGS = True
+except:
+    WITH_HPP_FCL_BINDINGS = False
 
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
@@ -32,24 +39,38 @@ class MeshcatVisualizer(BaseVisualizer):
         if loadModel:
             self.loadViewerModel()
 
-    def loadViewerGeometryObject(self, geometry_object,geometry_type, color=None):
+    def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
 
         import meshcat.geometry
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
-        if geometry_object.meshPath == "":
-            raise IOError("{} mesh file not found for link {}.".format(str(geometry_type).lower(),geometry_object.name))
-        # Get file type from filename extension.
-        _, file_extension = os.path.splitext(geometry_object.meshPath)
-        if file_extension.lower() == ".dae":
-            obj = meshcat.geometry.DaeMeshGeometry.from_file(geometry_object.meshPath)
-        elif file_extension.lower() == ".obj":
-            obj = meshcat.geometry.ObjMeshGeometry.from_file(geometry_object.meshPath)
-        elif file_extension.lower() == ".stl":
-            obj = meshcat.geometry.StlMeshGeometry.from_file(geometry_object.meshPath)
-        else:
-            raise ImportError("Unknown mesh file format: {}.".format(geometry_object.meshPath))
+
+        try:
+            if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                # Geometric primitives
+                return
+            else:
+                # Mesh
+                # Path is empty if Pinocchio is built without HPP-FCL bindings
+                if geometry_object.meshPath == "":
+                    return
+                # Get file type from filename extension.
+                _, file_extension = os.path.splitext(geometry_object.meshPath)
+                if file_extension.lower() == ".dae":
+                    obj = meshcat.geometry.DaeMeshGeometry.from_file(geometry_object.meshPath)
+                elif file_extension.lower() == ".obj":
+                    obj = meshcat.geometry.ObjMeshGeometry.from_file(geometry_object.meshPath)
+                elif file_extension.lower() == ".stl":
+                    obj = meshcat.geometry.StlMeshGeometry.from_file(geometry_object.meshPath)
+                else:
+                    msg = "Unknown mesh file format: {}.".format(geometry_object.meshPath)
+                    warnings.warn(msg, category=UserWarning, stacklevel=2)
+                    return
+        except Exception as e:
+            msg = "Error while loading geometry object: {}.".format(geometry_object.name)
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            return
         material = meshcat.geometry.MeshPhongMaterial()
         # Set material color from URDF, converting for triplet of doubles to a single int.
         if color is None:
