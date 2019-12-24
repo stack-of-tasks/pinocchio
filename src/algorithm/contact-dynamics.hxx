@@ -740,6 +740,73 @@ namespace pinocchio
     return data.ddq;
   }
   
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  fastContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVectorType1> & v,
+                      const Eigen::MatrixBase<TangentVectorType2> & tau,
+                      const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
+    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
+    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::JointIndex JointIndex;
+    typedef ContactInfoTpl<Scalar,Options> ContactInfo;
+    typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
+    
+    data.v[0].setZero();
+    data.a[0] = -model.gravity;
+    data.u = tau;
+    
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+    }
+    
+    typename Data::SE3 iMc; // tmp variable
+    for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+        it != contact_infos.end(); ++it)
+    {
+      const ContactInfo & cinfo = *it;
+      const typename ContactInfo::FrameIndex & frame_id = cinfo.frame_id;
+      const typename Model::Frame & frame = model.frames[frame_id];
+      const typename Model::JointIndex & joint_id = frame.parent;
+
+      // Compute relative placement between the joint and the contact frame
+      iMc = frame.placement * cinfo.placement;
+      typename Data::Motion & ai = data.a[joint_id];
+      typename Data::Motion & vi = data.v[joint_id];
+      if(cinfo.type == CONTACT_6D or cinfo.type == CONTACT_3D)
+      {
+        ai.linear() += vi.angular().cross(vi.linear());
+      }
+    }
+    
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+    
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+    }
+    
+    return data.ddq;
+  }
+  
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_contact_dynamics_hxx__
