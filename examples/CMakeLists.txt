@@ -41,6 +41,7 @@ IF(BUILD_PYTHON_INTERFACE)
     id-derivatives
     gepetto-viewer
     meshcat-viewer
+    meshcat-viewer-dae
     robot-wrapper-viewer
     geometry-models
     )
