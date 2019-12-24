@@ -50,7 +50,7 @@ namespace pinocchio
     {
       FakeCollisionGeometry(){};
       
-      bool operator==(const FakeCollisionGeometry & other) const
+      bool operator==(const FakeCollisionGeometry &) const
       {
         return true;
       }
