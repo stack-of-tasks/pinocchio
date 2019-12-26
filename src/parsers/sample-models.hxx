@@ -125,6 +125,8 @@ namespace pinocchio
         typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
         typedef typename Model::FrameIndex FrameIndex;
         typedef typename Model::SE3 SE3;
+
+        const Eigen::Vector4d meshColor(1., 1., 0.78, 1.0);
         
         FrameIndex parentFrame;
         
@@ -132,42 +134,66 @@ namespace pinocchio
         GeometryObject shoulderBall(pre+"shoulder_object",
                                     parentFrame, model.frames[parentFrame].parent,
                                     boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
-                                    SE3::Identity());
+                                    SE3::Identity(),
+                                    "SPHERE",
+                                    Eigen::Vector3d::Ones(),
+                                    false,
+                                    meshColor);
         geom.addGeometryObject(shoulderBall);
         
         parentFrame = model.getBodyId(pre+"elbow_body");
         GeometryObject elbowBall(pre+"elbow_object",
                                  parentFrame, model.frames[parentFrame].parent,
                                  boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
-                                 SE3::Identity());
+                                 SE3::Identity(),
+                                 "SPHERE",
+                                 Eigen::Vector3d::Ones(),
+                                 false,
+                                 meshColor);
         geom.addGeometryObject(elbowBall);
         
         parentFrame = model.getBodyId(pre+"wrist1_body");
         GeometryObject wristBall(pre+"wrist_object",
                                  parentFrame, model.frames[parentFrame].parent,
                                  boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
-                                 SE3::Identity());
+                                 SE3::Identity(),
+                                 "SPHERE",
+                                 Eigen::Vector3d::Ones(),
+                                 false,
+                                 meshColor);
         geom.addGeometryObject(wristBall);
         
         parentFrame = model.getBodyId(pre+"upperarm_body");
         GeometryObject upperArm(pre+"upperarm_object",
                                 parentFrame, model.frames[parentFrame].parent,
                                 boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
-                                SE3(SE3::Matrix3::Identity(), typename  SE3::Vector3(0,0,0.5)) );
+                                SE3(SE3::Matrix3::Identity(), typename  SE3::Vector3(0,0,0.5)),
+                                "CAPSULE",
+                                Eigen::Vector3d::Ones(),
+                                false,
+                                meshColor);
         geom.addGeometryObject(upperArm);
         
         parentFrame = model.getBodyId(pre+"lowerarm_body");
         GeometryObject lowerArm(pre+"lowerarm_object",
                                 parentFrame, model.frames[parentFrame].parent,
                                 boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
-                                SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.5)) );
+                                SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.5)),
+                                "CAPSULE",
+                                Eigen::Vector3d::Ones(),
+                                false,
+                                meshColor);
         geom.addGeometryObject(lowerArm);
         
         parentFrame = model.getBodyId(pre+"effector_body");
         GeometryObject effectorArm(pre+"effector_object",
                                    parentFrame, model.frames[parentFrame].parent,
                                    boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
-                                   SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.1)) );
+                                   SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.1)),
+                                   "CAPSULE",
+                                   Eigen::Vector3d::Ones(),
+                                   false,
+                                   meshColor);
         geom.addGeometryObject(effectorArm);
       }
 #endif
@@ -371,11 +397,17 @@ namespace pinocchio
       
       FrameIndex parentFrame;
       
+      const Eigen::Vector4d meshColor(1., 1., 0.78, 1.0);
+      
       parentFrame = model.getBodyId("chest1_body");
       GeometryObject chestBall("chest_object",
                                parentFrame, model.frames[parentFrame].parent,
                                boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
-                               SE3::Identity());
+                               SE3::Identity(),
+                               "SPHERE",
+                               Eigen::Vector3d::Ones(),
+                               false,
+                               meshColor);
       geom.addGeometryObject(chestBall);
       
       parentFrame = model.getBodyId("head2_body");
@@ -383,7 +415,11 @@ namespace pinocchio
                               parentFrame, model.frames[parentFrame].parent,
                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
                               SE3(SE3::Matrix3::Identity(),
-                                  typename SE3::Vector3(0,0,0.5)));
+                                  typename SE3::Vector3(0,0,0.5)),
+                              "SPHERE",
+                               Eigen::Vector3d::Ones(),
+                               false,
+                               meshColor);
       geom.addGeometryObject(headBall);
       
       parentFrame = model.getBodyId("chest2_body");
@@ -391,7 +427,11 @@ namespace pinocchio
                               parentFrame, model.frames[parentFrame].parent,
                               boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               SE3(SE3::Matrix3::Identity(),
-                                  typename SE3::Vector3(0,0,0.5)));
+                                  typename SE3::Vector3(0,0,0.5)),
+                              "SPHERE",
+                              Eigen::Vector3d::Ones(),
+                              false,
+                              meshColor);
       geom.addGeometryObject(chestArm);
     }
 #endif
