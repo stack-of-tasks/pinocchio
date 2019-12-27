@@ -1,7 +1,16 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
+from ..rpy import npToTuple
 
 from . import BaseVisualizer
+
+import warnings
+
+try:
+    import hppfcl
+    WITH_HPP_FCL_BINDINGS = True
+except:
+    WITH_HPP_FCL_BINDINGS = False
 
 class GepettoVisualizer(BaseVisualizer):
     """A Pinocchio display using Gepetto Viewer"""
@@ -44,10 +53,30 @@ class GepettoVisualizer(BaseVisualizer):
                   )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
 
+    def loadPrimitive(self, meshName, geometry_object):
+
+        gui = self.viewer.gui
+
+        meshColor = geometry_object.meshColor
+
+        geom = geometry_object.geometry
+        if isinstance(geom, hppfcl.Capsule):
+            return gui.addCapsule(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Cylinder):
+            return gui.addCylinder(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Box):
+            w, h, d = npToTuple(2. * geom.halfSide)
+            return gui.addBox(meshName, w, h, d, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Sphere):
+            return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
+        else:
+            msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            return False
+
     def loadViewerGeometryObject(self, geometry_object, geometry_type):
         """Load a single geometry object"""
 
-        from ..rpy import npToTuple
         gui = self.viewer.gui
 
         meshName = self.getViewerNodeName(geometry_object,geometry_type)
@@ -55,12 +84,24 @@ class GepettoVisualizer(BaseVisualizer):
         meshTexturePath = geometry_object.meshTexturePath
         meshScale = geometry_object.meshScale
         meshColor = geometry_object.meshColor
-        if gui.addMesh(meshName, meshPath):
-            gui.setScale(meshName, npToTuple(meshScale))
-            if geometry_object.overrideMaterial:
-                gui.setColor(meshName, npToTuple(meshColor))
-                if meshTexturePath is not '':
-                    gui.setTexture(meshName, meshTexturePath)
+
+        try:
+            if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                success = self.loadPrimitive(meshName, geometry_object)
+            else:
+                success = gui.addMesh(meshName, meshPath)
+            if not success:
+                return
+        except Exception as e:
+            msg = "Error while loading geometry object: %s\nError message:\n%s" % (geometry_object.name, e)
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            return
+
+        gui.setScale(meshName, npToTuple(meshScale))
+        if geometry_object.overrideMaterial:
+            gui.setColor(meshName, npToTuple(meshColor))
+            if meshTexturePath is not '':
+                gui.setTexture(meshName, meshTexturePath)
 
     def loadViewerModel(self, rootNodeName="pinocchio"):
         """Create the scene displaying the robot meshes in gepetto-viewer"""
