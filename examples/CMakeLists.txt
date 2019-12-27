@@ -49,6 +49,7 @@ IF(BUILD_PYTHON_INTERFACE)
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       collisions
+      sample-model-viewer
       )
   ENDIF(HPP_FCL_FOUND)
 
