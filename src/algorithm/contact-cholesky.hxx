@@ -315,7 +315,7 @@ namespace pinocchio
                   U(_ii,jj) = (data.J(contact_dim<CONTACT_6D>::value-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                 }
                 break;
-
+              } // end case LOCAL_WORLD_ALIGNED
               default:
                 assert(false && "Must never happened");
             }
@@ -326,6 +326,7 @@ namespace pinocchio
 
       }
 
+      // Upper left diagonal part of U
       for(Eigen::DenseIndex j = total_constraints_dim-1; j>=0; --j)
       {
         const Eigen::DenseIndex slice_dim = total_dim - j - 1;

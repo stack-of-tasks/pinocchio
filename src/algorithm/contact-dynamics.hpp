@@ -25,9 +25,10 @@ namespace pinocchio
   /// \param[in] contact_infos Vector of contact information related to the problem.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
-  inline void initContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos);
+  inline void
+  initContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos);
   
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
@@ -53,6 +54,7 @@ namespace pinocchio
   /// \param[in] tau The joint torque vector (size model.nv).
   /// \param[in] contact_infos Vector of contact information related to the problem.
   /// \param[in] mu Damping factor for cholesky decomposition. Set to zero if constraints are full rank.
+  ///
   /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.

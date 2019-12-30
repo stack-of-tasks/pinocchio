@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE(test_fast_ABA)
   
   initContactDynamics(model, data_ref, contact_infos);
   contactDynamics(model, data_ref, q, v, tau, contact_infos);
-  forwardKinematics(model, data_ref, q, v, data_ref.ddq);
+  forwardKinematics(model, data_ref, q, v, v*0);
   
   updateFramePlacements(model,data_ref);
   getFrameJacobian(model,data_ref,
