@@ -1,7 +1,8 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 
-import hppfcl
+if pin.WITH_HPP_FCL:
+    import hppfcl
 
 from . import BaseVisualizer
 
@@ -58,19 +59,22 @@ class GepettoVisualizer(BaseVisualizer):
         meshScale = npToTuple(geometry_object.meshScale)
         meshColor = npToTuple(geometry_object.meshColor)
         geometry = geometry_object.geometry
-        if isinstance(geometry, hppfcl.Box):
-            hs = geometry.halfSide
-            meshInGUI = gui.addBox(meshName, 2*hs[0], 2*hs[1], 2*hs[2], meshColor)
-        elif isinstance(geometry, hppfcl.Sphere):
-            meshInGUI = gui.addSphere(meshName, geometry.radius, meshColor)
-        elif isinstance(geometry, hppfcl.Capsule):
-            meshInGUI = gui.addCapsule(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
-        elif isinstance(geometry, hppfcl.Cylinder):
-            meshInGUI = gui.addCylinder(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
-        elif isinstance(geometry, hppfcl.Cone):
-            meshInGUI = gui.addCone(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+        if pin.WITH_HPP_FCL:
+            if isinstance(geometry, hppfcl.Box):
+                hs = geometry.halfSide
+                meshInGUI = gui.addBox(meshName, 2*hs[0], 2*hs[1], 2*hs[2], meshColor)
+            elif isinstance(geometry, hppfcl.Sphere):
+                meshInGUI = gui.addSphere(meshName, geometry.radius, meshColor)
+            elif isinstance(geometry, hppfcl.Capsule):
+                meshInGUI = gui.addCapsule(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+            elif isinstance(geometry, hppfcl.Cylinder):
+                meshInGUI = gui.addCylinder(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+            elif isinstance(geometry, hppfcl.Cone):
+                meshInGUI = gui.addCone(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+            else:
+                meshInGUI = gui.addMesh(meshName, meshPath)
         else:
-            meshInGUI = gui.addMesh(meshName, meshPath)
+                meshInGUI = gui.addMesh(meshName, meshPath)
 
         if meshInGUI:
             gui.setScale(meshName, meshScale)
