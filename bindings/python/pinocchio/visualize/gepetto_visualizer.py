@@ -65,6 +65,8 @@ class GepettoVisualizer(BaseVisualizer):
             meshInGUI = gui.addSphere(meshName, geometry.radius, meshColor)
         elif isinstance(geometry, hppfcl.Capsule):
             meshInGUI = gui.addCapsule(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+        elif isinstance(geometry, hppfcl.Cylinder):
+            meshInGUI = gui.addCylinder(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
         else:
             meshInGUI = gui.addMesh(meshName, meshPath)
 
