@@ -15,7 +15,6 @@ for i, geom in enumerate(geometries):
     color = np.random.uniform(0, 1, 4)
     color[3] = 0.5
     geom_obj.meshColor = color
-    # geom_obj.meshColor = np.array((1, 0, 0, 1))
     geom_model.addGeometryObject(geom_obj)
 
 viz = GepettoVisualizer(
