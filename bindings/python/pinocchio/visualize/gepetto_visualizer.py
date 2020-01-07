@@ -1,6 +1,8 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 
+import hppfcl
+
 from . import BaseVisualizer
 
 class GepettoVisualizer(BaseVisualizer):
@@ -53,12 +55,23 @@ class GepettoVisualizer(BaseVisualizer):
         meshName = self.getViewerNodeName(geometry_object,geometry_type)
         meshPath = geometry_object.meshPath
         meshTexturePath = geometry_object.meshTexturePath
-        meshScale = geometry_object.meshScale
-        meshColor = geometry_object.meshColor
-        if gui.addMesh(meshName, meshPath):
-            gui.setScale(meshName, npToTuple(meshScale))
+        meshScale = npToTuple(geometry_object.meshScale)
+        meshColor = npToTuple(geometry_object.meshColor)
+        geometry = geometry_object.geometry
+        if isinstance(geometry, hppfcl.Box):
+            hs = geometry.halfSide
+            meshInGUI = gui.addBox(meshName, 2*hs[0], 2*hs[1], 2*hs[2], meshColor)
+        elif isinstance(geometry, hppfcl.Sphere):
+            meshInGUI = gui.addSphere(meshName, geometry.radius, meshColor)
+        elif isinstance(geometry, hppfcl.Capsule):
+            meshInGUI = gui.addCapsule(meshName, geometry.radius, 2*geometry.halfLength, meshColor)
+        else:
+            meshInGUI = gui.addMesh(meshName, meshPath)
+
+        if meshInGUI:
+            gui.setScale(meshName, meshScale)
             if geometry_object.overrideMaterial:
-                gui.setColor(meshName, npToTuple(meshColor))
+                gui.setColor(meshName, meshColor)
                 if meshTexturePath is not '':
                     gui.setTexture(meshName, meshTexturePath)
 
