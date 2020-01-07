@@ -69,6 +69,8 @@ class GepettoVisualizer(BaseVisualizer):
             return gui.addBox(meshName, w, h, d, npToTuple(meshColor))
         elif isinstance(geom, hppfcl.Sphere):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Cone):
+            return gui.addCone(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
         else:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
