@@ -28,5 +28,5 @@ viz = GepettoVisualizer(
 )
 
 viz.initViewer()
-viz.loadViewerModel("{}".format(np.random.randint(5)))
+viz.loadViewerModel("shapes")
 viz.display(np.zeros(0))
