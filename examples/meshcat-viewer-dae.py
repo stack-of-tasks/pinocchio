@@ -17,10 +17,16 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
 model_path = join(pinocchio_model_dir,"others/robots")
 mesh_dir = model_path
-urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/urdf"),urdf_filename)
+urdf_filename = "romeo_small.urdf"
+urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
+
+# Currently, MeshCat is not able to retrieve the scaling from DAE files. Set it manually.
+for geom in visual_model.geometryObjects:
+  s = geom.meshScale 
+  s *= 0.01
+  geom.meshScale = s
 
 viz = MeshcatVisualizer(model, collision_model, visual_model)
 
@@ -38,17 +44,27 @@ except ImportError as err:
     sys.exit(0)
 
 # Load the robot in the viewer.
-viz.loadViewerModel()
+# Color is needed here because the Romeo URDF doesn't contain any color, so the default color results in an
+# invisible robot (alpha value set to 0).
+viz.loadViewerModel(color = [0.0, 0.0, 0.0, 1.0])
 
 # Display a robot configuration.
-q0 = pin.neutral(model)
+q0 = np.matrix([
+    0, 0, 0.840252, 0, 0, 0, 1,  # Free flyer
+    0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # left leg
+    0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # right leg
+    0,  # chest
+    1.5, 0.6, -0.5, -1.05, -0.4, -0.3, -0.2,  # left arm
+    0, 0, 0, 0,  # head
+    1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,  # right arm
+]).T
 viz.display(q0)
 
 # Display another robot.
-viz2 = MeshcatVisualizer(model, collision_model, visual_model)
-viz2.initViewer(viz.viewer)
-viz2.loadViewerModel(rootNodeName = "pinocchio2")
+red_robot_viz = MeshcatVisualizer(model, collision_model, visual_model)
+red_robot_viz.initViewer(viz.viewer)
+red_robot_viz.loadViewerModel(rootNodeName = "red_robot", color = [1.0, 0.0, 0.0, 0.5])
 q = q0.copy()
 q[1] = 1.0
-viz2.display(q)
+red_robot_viz.display(q)
 

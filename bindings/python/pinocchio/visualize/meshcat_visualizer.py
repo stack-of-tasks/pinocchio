@@ -1,10 +1,18 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
+from ..rpy import npToTuple
 
 from . import BaseVisualizer
 
 import os
+import warnings
 import numpy as np
+
+try:
+    import hppfcl
+    WITH_HPP_FCL_BINDINGS = True
+except:
+    WITH_HPP_FCL_BINDINGS = False
 
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
@@ -32,14 +40,41 @@ class MeshcatVisualizer(BaseVisualizer):
         if loadModel:
             self.loadViewerModel()
 
-    def loadViewerGeometryObject(self, geometry_object,geometry_type, color=None):
-        """Load a single geometry object"""
+    def loadPrimitive(self, geometry_object):
 
         import meshcat.geometry
 
-        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        # Cylinders need to be rotated
+        R = np.array([[1.,  0.,  0.,  0.],
+                      [0.,  0., -1.,  0.],
+                      [0.,  1.,  0.,  0.],
+                      [0.,  0.,  0.,  1.]])
+        RotatedCylinder = type("RotatedCylinder", (meshcat.geometry.Cylinder,), {"intrinsic_transform": lambda self: R })
+
+        geom = geometry_object.geometry
+        if isinstance(geom, hppfcl.Capsule):
+            obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+        elif isinstance(geom, hppfcl.Cylinder):
+            obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+        elif isinstance(geom, hppfcl.Box):
+            obj = meshcat.geometry.Box(npToTuple(2. * geom.halfSide))
+        elif isinstance(geom, hppfcl.Sphere):
+            obj = meshcat.geometry.Sphere(geom.radius)
+        else:
+            msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            obj = None
+
+        return obj
+
+    def loadMesh(self, geometry_object):
+    
+        import meshcat.geometry
+
+        # Mesh path is empty if Pinocchio is built without HPP-FCL bindings
         if geometry_object.meshPath == "":
-            raise IOError("{} mesh file not found for link {}.".format(str(geometry_type).lower(),geometry_object.name))
+            return None
+
         # Get file type from filename extension.
         _, file_extension = os.path.splitext(geometry_object.meshPath)
         if file_extension.lower() == ".dae":
@@ -49,7 +84,30 @@ class MeshcatVisualizer(BaseVisualizer):
         elif file_extension.lower() == ".stl":
             obj = meshcat.geometry.StlMeshGeometry.from_file(geometry_object.meshPath)
         else:
-            raise ImportError("Unknown mesh file format: {}.".format(geometry_object.meshPath))
+            msg = "Unknown mesh file format: {}.".format(geometry_object.meshPath)
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            obj = None
+
+        return obj
+
+    def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
+        """Load a single geometry object"""
+
+        import meshcat.geometry
+
+        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+
+        try:
+            if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
+                obj = self.loadPrimitive(geometry_object)
+            else:
+                obj = self.loadMesh(geometry_object)
+            if obj is None:
+                return
+        except Exception as e:
+            msg = "Error while loading geometry object: %s\nError message:\n%s" % (geometry_object.name, e)
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            return
         material = meshcat.geometry.MeshPhongMaterial()
         # Set material color from URDF, converting for triplet of doubles to a single int.
         if color is None:

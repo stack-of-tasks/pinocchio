@@ -32,7 +32,7 @@ class TestGeometryObjectBindings(unittest.TestCase):
 
     def test_meshpath_get(self):
         col = self.collision_model.geometryObjects[0]
-        self.assertTrue(col.meshPath == "")
+        self.assertTrue(col.meshPath is not None)
 
     def test_scale(self):
         scale = np.matrix([1.,2.,3.]).T

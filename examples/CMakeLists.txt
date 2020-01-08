@@ -41,6 +41,7 @@ IF(BUILD_PYTHON_INTERFACE)
     id-derivatives
     gepetto-viewer
     meshcat-viewer
+    meshcat-viewer-dae
     robot-wrapper-viewer
     geometry-models
     )
@@ -48,6 +49,8 @@ IF(BUILD_PYTHON_INTERFACE)
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       collisions
+      sample-model-viewer
+      display_shapes
       )
   ENDIF(HPP_FCL_FOUND)
 
