@@ -1,6 +1,11 @@
+import sys
 import numpy as np
 import pinocchio as pin
-import hppfcl
+try:
+    import hppfcl
+except ImportError:
+    print("This example requires hppfcl")
+    sys.exit(0)
 from pinocchio.visualize import GepettoVisualizer
 
 pin.switchToNumpyArray()
@@ -27,6 +32,19 @@ viz = GepettoVisualizer(
     model=model, collision_model=geom_model, visual_model=geom_model,
 )
 
-viz.initViewer()
-viz.loadViewerModel("shapes")
+# Initialize the viewer.
+try:
+    viz.initViewer()
+except ImportError:
+    print("Error while initializing the viewer. It seems you should install gepetto-viewer")
+    print(err)
+    sys.exit(0)
+
+try:
+    viz.loadViewerModel("shapes")
+except AttributeError:
+    print("Error while loading the viewer model. It seems you should start gepetto-viewer")
+    print(err)
+    sys.exit(0)
+
 viz.display(np.zeros(0))
