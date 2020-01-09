@@ -17,11 +17,12 @@ int main(int /* argc */, char ** /* argv */)
   const double eps  = 1e-4;
   const int IT_MAX  = 1000;
   const double DT   = 1e-1;
+  const double damp = 1e-6;
 
-  pinocchio::Data::Matrix6x J(6,model.nv); J.setZero();
-  unsigned int svdOptions = Eigen::ComputeThinU | Eigen::ComputeThinV;
-  Eigen::JacobiSVD<pinocchio::Data::Matrix6x> svd(6, model.nv, svdOptions);
+  pinocchio::Data::Matrix6x J(6,model.nv);
+  J.setZero();
 
+  bool success;
   typedef Eigen::Matrix<double, 6, 1> Vector6d;
   Vector6d err;
   Eigen::VectorXd v(model.nv);
@@ -32,22 +33,28 @@ int main(int /* argc */, char ** /* argv */)
     err = pinocchio::log6(dMi).toVector();
     if(err.norm() < eps)
     {
-      std::cout << "Convergence achieved!" << std::endl;
+      success = true;
       break;
     }
     if (i >= IT_MAX)
     {
-      std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
+      success = false;
       break;
     }
     pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);
-    pinocchio::SE3::Matrix6 Jlog;
-    pinocchio::Jlog6(dMi, Jlog);
-    v = - svd.compute(Jlog * J).solve(err);
+    pinocchio::Data::Matrix6 JJt;
+    JJt.noalias() = J * J.transpose();
+    JJt.diagonal().array() += damp;
+    v.noalias() = - J.transpose() * JJt.ldlt().solve(err);
     q = pinocchio::integrate(model,q,v*DT);
     if(!(i%10))
-      std::cout << "error = " << err.transpose() << std::endl;
+      std::cout << i << ": error = " << err.transpose() << std::endl;
   }
+
+  if(success)
+    std::cout << "Convergence achieved!" << std::endl;
+  else
+    std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
 
   std::cout << "\nresult: " << q.transpose() << std::endl;
   std::cout << "\nfinal error: " << err.transpose() << std::endl;
