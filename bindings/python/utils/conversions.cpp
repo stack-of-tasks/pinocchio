@@ -58,11 +58,11 @@ namespace pinocchio
     
     void exposeConversions()
     {
-      const char* doc1 = "Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,Q1,Q2,Q3,Q4] .";
+      const char* doc1 = "Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,x,y,z,w] .";
       bp::def ("se3ToXYZQUAT"     , se3ToXYZQUAT     , doc1);
       bp::def ("se3ToXYZQUATtuple", se3ToXYZQUATtuple, doc1);
 
-      const char* doc2 = "Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a SE3 element";
+      const char* doc2 = "Reverse function of se3ToXYZQUAT: convert [X,Y,Z,x,y,z,w] to a SE3 element";
       bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const bp::tuple&)> (XYZQUATToSe3_bp<bp::tuple>), doc2);
       bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const bp::list &)> (XYZQUATToSe3_bp<bp::list >), doc2);
       bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const VectorXd &)> (XYZQUATToSe3_ei<VectorXd >), doc2);
