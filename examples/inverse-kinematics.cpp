@@ -22,7 +22,7 @@ int main(int /* argc */, char ** /* argv */)
   pinocchio::Data::Matrix6x J(6,model.nv);
   J.setZero();
 
-  bool success;
+  bool success = false;
   typedef Eigen::Matrix<double, 6, 1> Vector6d;
   Vector6d err;
   Eigen::VectorXd v(model.nv);
