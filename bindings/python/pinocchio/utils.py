@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 #
 
 from __future__ import print_function
@@ -33,8 +33,8 @@ def se3ToXYZQUAT(M):
     return pin.se3ToXYZQUATtuple(M)
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
-def XYZQUATToSe3(vec):
-    return pin.XYZQUATToSe3(vec)
+def XYZQUATToSE3(vec):
+    return pin.XYZQUATToSE3(vec)
 
 
 @deprecated('Now useless.')
@@ -111,5 +111,5 @@ __all__ = ['np', 'npl', 'eye', 'zero', 'rand', 'isapprox', 'mprint',
            'skew', 'cross',
            'npToTTuple', 'npToTuple', 'rotate',
            'rpyToMatrix', 'matrixToRpy',
-           'se3ToXYZQUAT', 'XYZQUATToSe3',
+           'se3ToXYZQUAT', 'XYZQUATToSE3',
            'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT', 'fromListToVectorOfString']
