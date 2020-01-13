@@ -11,6 +11,7 @@ SET(${PROJECT_NAME}_EXAMPLES
   interpolation-SE3
   build-reduced-model
   geometry-models
+  kinematics-derivatives
   )
 
 IF(HPP_FCL_FOUND)
