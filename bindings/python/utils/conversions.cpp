@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -12,11 +12,11 @@ namespace pinocchio
     namespace bp = boost::python;
     typedef SE3::Scalar Scalar;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic,1> VectorXd;
-    typedef Eigen::Matrix<Scalar, 7, 1> Vector7d;
+    typedef Eigen::Matrix<Scalar, 7,1> Vector7d;
     typedef Eigen::Map<      SE3::Quaternion> QuatMap;
     typedef Eigen::Map<const SE3::Quaternion> QuatConstMap;
 
-    VectorXd se3ToXYZQUAT (const SE3& M)
+    VectorXd SE3ToXYZQUAT(const SE3& M)
     {
       Vector7d res;
       res.head<3>() = M.translation();
@@ -24,7 +24,7 @@ namespace pinocchio
       return res;
     }
 
-    bp::tuple se3ToXYZQUATtuple (const SE3& M)
+    bp::tuple SE3ToXYZQUATtuple(const SE3& M)
     {
       SE3::Quaternion q (M.rotation());
       return bp::make_tuple (
@@ -32,8 +32,8 @@ namespace pinocchio
           q.x(), q.y(), q.z(), q.w());
     }
 
-    template <typename TupleOfList>
-    SE3 XYZQUATToSe3_bp(const TupleOfList& v)
+    template <typename TupleOrList>
+    SE3 XYZQUATToSE3_bp(const TupleOrList& v)
     {
       //bp::extract<SE3::Scalar> to_double;
       SE3::Quaternion q (
@@ -49,7 +49,7 @@ namespace pinocchio
     }
 
     template <typename Vector7Like>
-    SE3 XYZQUATToSe3_ei(const Vector7Like& v)
+    SE3 XYZQUATToSE3_ei(const Vector7Like& v)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector7Like, v, 7, 1);
       QuatConstMap q (v.template tail<4>().data());
@@ -58,15 +58,20 @@ namespace pinocchio
     
     void exposeConversions()
     {
-      const char* doc1 = "Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,Q1,Q2,Q3,Q4] .";
-      bp::def ("se3ToXYZQUAT"     , se3ToXYZQUAT     , doc1);
-      bp::def ("se3ToXYZQUATtuple", se3ToXYZQUATtuple, doc1);
+      const char* doc1 = "Convert the input SE3 object to a numpy array.";
+      bp::def("SE3ToXYZQUAT"     , SE3ToXYZQUAT     , "M", doc1);
+      const char* doc1_tuple = "Convert the input SE3 object to a 7D tuple of floats [X,Y,Z,x,y,z,w].";
+      bp::def("SE3ToXYZQUATtuple", SE3ToXYZQUATtuple, "M", doc1_tuple);
 
-      const char* doc2 = "Reverse function of se3ToXYZQUAT: convert [X,Y,Z,Q1,Q2,Q3,Q4] to a SE3 element";
-      bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const bp::tuple&)> (XYZQUATToSe3_bp<bp::tuple>), doc2);
-      bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const bp::list &)> (XYZQUATToSe3_bp<bp::list >), doc2);
-      bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const VectorXd &)> (XYZQUATToSe3_ei<VectorXd >), doc2);
-      bp::def ("XYZQUATToSe3", static_cast<SE3 (*) (const Vector7d &)> (XYZQUATToSe3_ei<Vector7d >), doc2);
+      const char* doc2 = "Reverse function of SE3ToXYZQUAT: convert [X,Y,Z,x,y,z,w] to an SE3 element.";
+      bp::def("XYZQUATToSE3",
+              static_cast<SE3 (*) (const bp::tuple&)> (XYZQUATToSE3_bp<bp::tuple>),
+              bp::arg("tuple"),doc2);
+      bp::def("XYZQUATToSE3",
+              static_cast<SE3 (*) (const bp::list &)> (XYZQUATToSE3_bp<bp::list >),
+              bp::arg("list"),doc2);
+      bp::def("XYZQUATToSE3", static_cast<SE3 (*) (const VectorXd &)> (XYZQUATToSE3_ei<VectorXd >),
+              bp::arg("array"),doc2);
     }
     
   } // namespace python

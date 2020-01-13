@@ -148,14 +148,14 @@ class GepettoVisualizer(BaseVisualizer):
             pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
             gui.applyConfigurations (
                     [ self.getViewerNodeName(collision,pin.GeometryType.COLLISION) for collision in self.collision_model.geometryObjects ],
-                    [ pin.se3ToXYZQUATtuple(self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]) for collision in self.collision_model.geometryObjects ]
+                    [ pin.SE3ToXYZQUATtuple(self.collision_data.oMg[self.collision_model.getGeometryId(collision.name)]) for collision in self.collision_model.geometryObjects ]
                     )
 
         if self.display_visuals:
             pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
             gui.applyConfigurations (
                     [ self.getViewerNodeName(visual,pin.GeometryType.VISUAL) for visual in self.visual_model.geometryObjects ],
-                    [ pin.se3ToXYZQUATtuple(self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]) for visual in self.visual_model.geometryObjects ]
+                    [ pin.SE3ToXYZQUATtuple(self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]) for visual in self.visual_model.geometryObjects ]
                     )
 
         gui.refresh()

@@ -92,3 +92,15 @@ class GeometryObject(pin.GeometryObject):
     def fcl(self):
        return self.geometry
 
+@deprecated("This function is now called SE3ToXYZQUATtuple. Please change for this new signature to delete this warning.")
+def se3ToXYZQUATtuple(M):
+    return pin.SE3ToXYZQUATtuple(M)
+
+@deprecated("This function is now called SE3ToXYZQUAT. Please change for this new signature to delete this warning.")
+def se3ToXYZQUAT(M):
+    return pin.SE3ToXYZQUAT(M)
+
+@deprecated("This function is now called XYZQUATToSE3. Please change for this new signature to delete this warning.")
+def XYZQUATToSe3(x):
+    return pin.XYZQUATToSE3(x)
+

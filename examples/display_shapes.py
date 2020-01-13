@@ -35,16 +35,16 @@ viz = GepettoVisualizer(
 # Initialize the viewer.
 try:
     viz.initViewer()
-except ImportError:
+except ImportError as error:
     print("Error while initializing the viewer. It seems you should install gepetto-viewer")
-    print(err)
+    print(error.message)
     sys.exit(0)
 
 try:
     viz.loadViewerModel("shapes")
-except AttributeError:
+except AttributeError as error:
     print("Error while loading the viewer model. It seems you should start gepetto-viewer")
-    print(err)
+    print(error.message)
     sys.exit(0)
 
 viz.display(np.zeros(0))
