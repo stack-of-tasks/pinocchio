@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_parser_srdf_hxx__
@@ -29,7 +29,7 @@ namespace pinocchio
     {
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
       void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                GeometryModel & geomModel,
+                                GeometryModel & geom_model,
                                 std::istream & stream,
                                 const bool verbose = false)
       {
@@ -67,20 +67,20 @@ namespace pinocchio
 
             typedef GeometryModel::CollisionPairVector CollisionPairVector;
             bool didRemove = false;
-            for(CollisionPairVector::iterator _colPair = geomModel.collisionPairs.begin();
-                _colPair != geomModel.collisionPairs.end(); ) {
+            for(CollisionPairVector::iterator _colPair = geom_model.collisionPairs.begin();
+                _colPair != geom_model.collisionPairs.end(); ) {
               const CollisionPair& colPair (*_colPair);
               bool remove =
               (
-               (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id1)
-               && (geomModel.geometryObjects[colPair.second].parentFrame == frame_id2)
+               (geom_model.geometryObjects[colPair.first ].parentFrame == frame_id1)
+               && (geom_model.geometryObjects[colPair.second].parentFrame == frame_id2)
                ) || (
-                     (geomModel.geometryObjects[colPair.second].parentFrame == frame_id1)
-                     && (geomModel.geometryObjects[colPair.first ].parentFrame == frame_id2)
+                     (geom_model.geometryObjects[colPair.second].parentFrame == frame_id1)
+                     && (geom_model.geometryObjects[colPair.first ].parentFrame == frame_id2)
                      );
               
               if (remove) {
-                _colPair = geomModel.collisionPairs.erase(_colPair);
+                _colPair = geom_model.collisionPairs.erase(_colPair);
                 didRemove = true;
               } else {
                 ++_colPair;
@@ -96,7 +96,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              GeometryModel & geomModel,
+                              GeometryModel & geom_model,
                               const std::string & filename,
                               const bool verbose)
     {
@@ -116,17 +116,17 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
 
-      details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
+      details::removeCollisionPairs(model, geom_model, srdf_stream, verbose);
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void removeCollisionPairsFromXML(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     GeometryModel & geomModel,
+                                     GeometryModel & geom_model,
                                      const std::string & xmlString,
                                      const bool verbose)
     {
       std::istringstream srdf_stream(xmlString);
-      details::removeCollisionPairs(model, geomModel, srdf_stream, verbose);
+      details::removeCollisionPairs(model, geom_model, srdf_stream, verbose);
     }
     
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL

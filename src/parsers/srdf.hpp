@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_parser_srdf_hpp__
@@ -20,14 +20,13 @@ namespace pinocchio
     ///        It throws if the SRDF file is incorrect.
     ///
     /// \param[in] model Model of the kinematic tree.
-    /// \param[in] geomModel Model of the geometries.
-    /// \param[out] data_geom Data containing the active collision pairs.
+    /// \param[in] geom_model Model of the geometries.
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void removeCollisionPairs(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              GeometryModel & geomModel,
+                              GeometryModel & geom_model,
                               const std::string & filename,
                               const bool verbose = false);
     
@@ -35,14 +34,13 @@ namespace pinocchio
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///
     /// \param[in] model Model of the kinematic tree.
-    /// \param[in] geomModel Model of the geometries.
-    /// \param[out] data_geom Data containing the active collision pairs.
+    /// \param[in] geom_model Model of the geometries.
     /// \param[in] xmlString constaining the XML SRDF string.
     /// \param[in] verbose Verbosity mode (print removed collision pairs and undefined link inside the model).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void removeCollisionPairsFromXML(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     GeometryModel & geomModel,
+                                     GeometryModel & geom_model,
                                      const std::string & xmlString,
                                      const bool verbose = false);
     
@@ -52,6 +50,7 @@ namespace pinocchio
     /// \brief Get the reference configurations of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
     ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
+    ///
     /// \param[in] model The Model for which we want the reference configs.
     /// \param[in] filename The complete path to the SRDF file.
     /// \param[in] verbose Verbosity mode.
@@ -66,6 +65,7 @@ namespace pinocchio
     /// \brief Get the reference configurations of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
     ///        saved in a map indexed by the configuration name (model.referenceConfigurations).
+    ///
     /// \param[in] model The Model for which we want the reference configs.
     /// \param[in] xmlStream a stream containing the content of a SRDF.
     /// \param[in] verbose Verbosity mode.
