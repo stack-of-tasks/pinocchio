@@ -35,7 +35,7 @@ IF(URDFDOM_FOUND)
 ENDIF(URDFDOM_FOUND)
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-  ADD_PYTHON_UNIT_TEST("py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
+  ADD_PYTHON_UNIT_TEST("test-python-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
 
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
