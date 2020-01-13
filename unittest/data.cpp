@@ -1,10 +1,12 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
+
+#include "pinocchio/algorithm/check.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -17,6 +19,8 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   {
     Model empty_model;
     Data empty_data(empty_model);
+    
+    BOOST_CHECK(empty_model.check(empty_data));
   }
 
   BOOST_AUTO_TEST_CASE(test_data_start_idx_v_fromRow)
