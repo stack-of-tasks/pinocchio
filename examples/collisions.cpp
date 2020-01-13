@@ -1,8 +1,6 @@
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 
-#include "pinocchio/multibody/data.hpp"
-
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
 
