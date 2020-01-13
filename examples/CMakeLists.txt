@@ -43,8 +43,8 @@ IF(BUILD_PYTHON_INTERFACE)
     overview-simple
     overview-urdf
     kinematics-derivatives
-    fd-derivatives
-    id-derivatives
+    forward-dynamics-derivatives
+    inverse-dynamics-derivatives
     gepetto-viewer
     meshcat-viewer
     meshcat-viewer-dae
@@ -56,7 +56,7 @@ IF(BUILD_PYTHON_INTERFACE)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       collisions
       sample-model-viewer
-      display_shapes
+      display-shapes
       )
   ENDIF(HPP_FCL_FOUND)
 
