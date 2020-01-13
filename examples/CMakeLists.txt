@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 #
 
 SET(${PROJECT_NAME}_EXAMPLES
@@ -12,6 +12,12 @@ SET(${PROJECT_NAME}_EXAMPLES
   build-reduced-model
   geometry-models
   )
+
+IF(HPP_FCL_FOUND)
+  LIST(APPEND ${PROJECT_NAME}_EXAMPLES
+    collisions
+    )
+ENDIF(HPP_FCL_FOUND)
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
 
