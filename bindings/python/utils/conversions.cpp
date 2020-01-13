@@ -12,6 +12,7 @@ namespace pinocchio
     namespace bp = boost::python;
     typedef SE3::Scalar Scalar;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic,1> VectorXd;
+    typedef Eigen::Matrix<Scalar, 7,1> Vector7d;
     typedef Eigen::Map<      SE3::Quaternion> QuatMap;
     typedef Eigen::Map<const SE3::Quaternion> QuatConstMap;
 
