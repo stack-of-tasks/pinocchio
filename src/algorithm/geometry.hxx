@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_geometry_hxx__
@@ -15,32 +15,32 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                       const GeometryModel & geomModel,
-                                       GeometryData & geomData,
+                                       const GeometryModel & geom_model,
+                                       GeometryData & geom_data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     forwardKinematics(model, data, q);
-    updateGeometryPlacements(model, data, geomModel, geomData);
+    updateGeometryPlacements(model, data, geom_model, geom_data);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void updateGeometryPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                       const GeometryModel & geomModel,
-                                       GeometryData & geomData)
+                                       const GeometryModel & geom_model,
+                                       GeometryData & geom_data)
   {
     PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
     
-    for (GeomIndex i=0; i < (GeomIndex) geomModel.ngeoms; ++i)
+    for (GeomIndex i=0; i < (GeomIndex) geom_model.ngeoms; ++i)
     {
-      const Model::JointIndex & joint = geomModel.geometryObjects[i].parentJoint;
-      if (joint>0) geomData.oMg[i] =  (data.oMi[joint] * geomModel.geometryObjects[i].placement);
-      else         geomData.oMg[i] =  geomModel.geometryObjects[i].placement;
+      const Model::JointIndex & joint = geom_model.geometryObjects[i].parentJoint;
+      if (joint>0) geom_data.oMg[i] =  (data.oMi[joint] * geom_model.geometryObjects[i].placement);
+      else         geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
 #ifdef PINOCCHIO_WITH_HPP_FCL  
-      geomData.collisionObjects[i].setTransform( toFclTransform3f(geomData.oMg[i]) );
+      geom_data.collisionObjects[i].setTransform( toFclTransform3f(geom_data.oMg[i]) );
 #endif // PINOCCHIO_WITH_HPP_FCL
     }
   }
@@ -50,39 +50,39 @@ namespace pinocchio
   /* --- COLLISIONS ----------------------------------------------------------------- */
   /* --- COLLISIONS ----------------------------------------------------------------- */
 
-  inline bool computeCollision(const GeometryModel & geomModel,
-                               GeometryData & geomData,
+  inline bool computeCollision(const GeometryModel & geom_model,
+                               GeometryData & geom_data,
                                const PairIndex & pairId)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
-    const CollisionPair & pair = geomModel.collisionPairs[pairId];
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geom_model.collisionPairs.size() );
+    const CollisionPair & pair = geom_model.collisionPairs[pairId];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.collisionResults.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.collisionResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_data.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_data.collisionObjects.size() );
 
-    fcl::CollisionResult& collisionResult = geomData.collisionResults[pairId];
+    fcl::CollisionResult& collisionResult = geom_data.collisionResults[pairId];
     collisionResult.clear();
-    fcl::collide (&geomData.collisionObjects[pair.first],
-                  &geomData.collisionObjects[pair.second],
-                  geomData.collisionRequest,
+    fcl::collide (&geom_data.collisionObjects[pair.first],
+                  &geom_data.collisionObjects[pair.second],
+                  geom_data.collisionRequest,
                   collisionResult);
 
     return collisionResult.isCollision();
   }
   
-  inline bool computeCollisions(const GeometryModel & geomModel,
-                                GeometryData & geomData,
+  inline bool computeCollisions(const GeometryModel & geom_model,
+                                GeometryData & geom_data,
                                 const bool stopAtFirstCollision = true)
   {
     bool isColliding = false;
     
-    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
+    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
     {
-      if(geomData.activeCollisionPairs[cpt])
+      if(geom_data.activeCollisionPairs[cpt])
         {
-          computeCollision(geomModel,geomData,cpt);
-          isColliding |= geomData.collisionResults[cpt].isCollision();
+          computeCollision(geom_model,geom_data,cpt);
+          isColliding |= geom_data.collisionResults[cpt].isCollision();
           if(isColliding && stopAtFirstCollision)
             return true;
         }
@@ -95,56 +95,56 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const GeometryModel & geomModel,
-                                GeometryData & geomData,
+                                const GeometryModel & geom_model,
+                                GeometryData & geom_data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    updateGeometryPlacements(model, data, geomModel, geomData, q);
+    updateGeometryPlacements(model, data, geom_model, geom_data, q);
     
-    return computeCollisions(geomModel,geomData, stopAtFirstCollision);
+    return computeCollisions(geom_model,geom_data, stopAtFirstCollision);
   }
 
   /* --- DISTANCES ----------------------------------------------------------------- */
   /* --- DISTANCES ----------------------------------------------------------------- */
   /* --- DISTANCES ----------------------------------------------------------------- */
 
-  inline fcl::DistanceResult & computeDistance(const GeometryModel & geomModel,
-                                               GeometryData & geomData,
+  inline fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
+                                               GeometryData & geom_data,
                                                const PairIndex & pairId)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geomModel.collisionPairs.size() );
-    const CollisionPair & pair = geomModel.collisionPairs[pairId];
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geom_model.collisionPairs.size() );
+    const CollisionPair & pair = geom_model.collisionPairs[pairId];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geomData.distanceResults.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geomData.collisionObjects.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geomData.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.distanceResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_data.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_data.collisionObjects.size() );
 
-    geomData.distanceResults[pairId].clear();
-    fcl::distance ( &geomData.collisionObjects[pair.first],
-                    &geomData.collisionObjects[pair.second],
-                    geomData.distanceRequest,
-                    geomData.distanceResults[pairId]);
+    geom_data.distanceResults[pairId].clear();
+    fcl::distance ( &geom_data.collisionObjects[pair.first],
+                    &geom_data.collisionObjects[pair.second],
+                    geom_data.distanceRequest,
+                    geom_data.distanceResults[pairId]);
 
-    return geomData.distanceResults[pairId];
+    return geom_data.distanceResults[pairId];
   }
   
-  inline std::size_t computeDistances(const GeometryModel & geomModel,
-                                      GeometryData & geomData)
+  inline std::size_t computeDistances(const GeometryModel & geom_model,
+                                      GeometryData & geom_data)
   {
-    std::size_t min_index = geomModel.collisionPairs.size();
+    std::size_t min_index = geom_model.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
-    for (std::size_t cpt = 0; cpt < geomModel.collisionPairs.size(); ++cpt)
+    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
     {
-      if(geomData.activeCollisionPairs[cpt])
+      if(geom_data.activeCollisionPairs[cpt])
       {
-        computeDistance(geomModel,geomData,cpt);
-        if(geomData.distanceResults[cpt].min_distance < min_dist)
+        computeDistance(geom_model,geom_data,cpt);
+        if(geom_data.distanceResults[cpt].min_distance < min_dist)
         {
           min_index = cpt;
-          min_dist = geomData.distanceResults[cpt].min_distance;
+          min_dist = geom_data.distanceResults[cpt].min_distance;
         }
       }
     }
@@ -154,24 +154,24 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData)
+                                      const GeometryModel & geom_model,
+                                      GeometryData & geom_data)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    updateGeometryPlacements(model,data,geomModel,geomData);
-    return computeDistances(geomModel,geomData);
+    updateGeometryPlacements(model,data,geom_model,geom_data);
+    return computeDistances(geom_model,geom_data);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const GeometryModel & geomModel,
-                                      GeometryData & geomData,
+                                      const GeometryModel & geom_model,
+                                      GeometryData & geom_data,
                                       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    updateGeometryPlacements(model, data, geomModel, geomData, q);
-    return computeDistances(geomModel,geomData);
+    updateGeometryPlacements(model, data, geom_model, geom_data, q);
+    return computeDistances(geom_model,geom_data);
   }
 
   /* --- RADIUS -------------------------------------------------------------------- */
@@ -191,19 +191,19 @@ namespace pinocchio
   /// in some continuous collision test.
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void computeBodyRadius(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                const GeometryModel & geomModel,
-                                GeometryData & geomData)
+                                const GeometryModel & geom_model,
+                                GeometryData & geom_data)
   {
-    geomData.radius.resize(model.joints.size(),0);
-    BOOST_FOREACH(const GeometryObject & geom_object,geomModel.geometryObjects)
+    geom_data.radius.resize(model.joints.size(),0);
+    BOOST_FOREACH(const GeometryObject & geom_object,geom_model.geometryObjects)
     {
       const GeometryObject::CollisionGeometryPtr & geometry
         = geom_object.geometry;
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
       const Model::JointIndex & i = geom_object.parentJoint;
-      assert (i<geomData.radius.size());
+      assert (i<geom_data.radius.size());
 
-      double radius = geomData.radius[i] * geomData.radius[i];
+      double radius = geom_data.radius[i] * geom_data.radius[i];
 
       // The radius is simply the one of the 8 corners of the AABB cube, expressed 
       // in the joint frame, whose norm is the highest.
@@ -217,7 +217,7 @@ namespace pinocchio
       radius = std::max (jMb.act(PINOCCHIO_GEOM_AABB(geometry,max,max,max)).squaredNorm(),radius);
 
       // Don't forget to sqroot the squared norm before storing it.
-      geomData.radius[i] = sqrt(radius);
+      geom_data.radius[i] = sqrt(radius);
     }
   }
 
@@ -226,35 +226,35 @@ namespace pinocchio
 
   /* --- APPEND GEOMETRY MODEL ----------------------------------------------------------- */
 
-  inline void appendGeometryModel(GeometryModel & geomModel1,
-                                  const GeometryModel & geomModel2)
+  inline void appendGeometryModel(GeometryModel & geom_model1,
+                                  const GeometryModel & geom_model2)
   {
-    assert (geomModel1.ngeoms == geomModel1.geometryObjects.size());
-    Index nGeom1 = geomModel1.geometryObjects.size();
-    Index nColPairs1 = geomModel1.collisionPairs.size();
-    assert (geomModel2.ngeoms == geomModel2.geometryObjects.size());
-    Index nGeom2 = geomModel2.geometryObjects.size();
-    Index nColPairs2 = geomModel2.collisionPairs.size();
+    assert (geom_model1.ngeoms == geom_model1.geometryObjects.size());
+    Index nGeom1 = geom_model1.geometryObjects.size();
+    Index nColPairs1 = geom_model1.collisionPairs.size();
+    assert (geom_model2.ngeoms == geom_model2.geometryObjects.size());
+    Index nGeom2 = geom_model2.geometryObjects.size();
+    Index nColPairs2 = geom_model2.collisionPairs.size();
 
     /// Append the geometry objects and geometry positions
-    geomModel1.geometryObjects.insert(geomModel1.geometryObjects.end(),
-        geomModel2.geometryObjects.begin(), geomModel2.geometryObjects.end());
-    geomModel1.ngeoms += nGeom2;
+    geom_model1.geometryObjects.insert(geom_model1.geometryObjects.end(),
+        geom_model2.geometryObjects.begin(), geom_model2.geometryObjects.end());
+    geom_model1.ngeoms += nGeom2;
 
-    /// 1. copy the collision pairs and update geomData1 accordingly.
-    geomModel1.collisionPairs.reserve(nColPairs1 + nColPairs2 + nGeom1 * nGeom2);
+    /// 1. copy the collision pairs and update geom_data1 accordingly.
+    geom_model1.collisionPairs.reserve(nColPairs1 + nColPairs2 + nGeom1 * nGeom2);
     for (Index i = 0; i < nColPairs2; ++i)
     {
-      const CollisionPair& cp = geomModel2.collisionPairs[i];
-      geomModel1.collisionPairs.push_back(
+      const CollisionPair& cp = geom_model2.collisionPairs[i];
+      geom_model1.collisionPairs.push_back(
           CollisionPair (cp.first + nGeom1, cp.second + nGeom1)
           );
     }
 
-    /// 2. add the collision pairs between geomModel1 and geomModel2.
+    /// 2. add the collision pairs between geom_model1 and geom_model2.
     for (Index i = 0; i < nGeom1; ++i) {
       for (Index j = 0; j < nGeom2; ++j) {
-        geomModel1.collisionPairs.push_back(CollisionPair(i, nGeom1 + j));
+        geom_model1.collisionPairs.push_back(CollisionPair(i, nGeom1 + j));
       }
     }
   }
