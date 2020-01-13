@@ -12,6 +12,7 @@ SET(${PROJECT_NAME}_EXAMPLES
   build-reduced-model
   geometry-models
   kinematics-derivatives
+  forward-dynamics-derivatives
   inverse-dynamics-derivatives
   )
 
