@@ -33,7 +33,7 @@ def se3ToXYZQUAT(M):
     return pin.se3ToXYZQUATtuple(M)
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
-def XYZQUATToSE3(vec):
+def XYZQUATToSe3(vec):
     return pin.XYZQUATToSE3(vec)
 
 
@@ -111,5 +111,5 @@ __all__ = ['np', 'npl', 'eye', 'zero', 'rand', 'isapprox', 'mprint',
            'skew', 'cross',
            'npToTTuple', 'npToTuple', 'rotate',
            'rpyToMatrix', 'matrixToRpy',
-           'se3ToXYZQUAT', 'XYZQUATToSE3',
            'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT', 'fromListToVectorOfString']
+           'se3ToXYZQUAT', 'XYZQUATToSe3',
