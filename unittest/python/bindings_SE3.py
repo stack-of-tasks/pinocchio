@@ -114,11 +114,11 @@ class TestSE3Bindings(unittest.TestCase):
 
     def test_conversions(self):
         def compute (m):
-            tq_vec = pin.se3ToXYZQUAT      (m)
-            tq_tup = pin.se3ToXYZQUATtuple (m)
-            mm_vec = pin.XYZQUATToSe3 (tq_vec)
-            mm_tup = pin.XYZQUATToSe3 (tq_tup)
-            mm_lis = pin.XYZQUATToSe3 (list(tq_tup))
+            tq_vec = pin.SE3ToXYZQUAT      (m)
+            tq_tup = pin.SE3ToXYZQUATtuple (m)
+            mm_vec = pin.XYZQUATToSE3 (tq_vec)
+            mm_tup = pin.XYZQUATToSE3 (tq_tup)
+            mm_lis = pin.XYZQUATToSE3 (list(tq_tup))
             return tq_vec, tq_tup, mm_vec, mm_tup, mm_lis
 
         m = pin.SE3.Identity()

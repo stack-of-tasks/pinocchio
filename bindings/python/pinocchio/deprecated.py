@@ -102,5 +102,5 @@ def se3ToXYZQUAT(M):
 
 @deprecated("This function is now called XYZQUATToSE3. Please change for this new signature to delete this warning.")
 def XYZQUATToSe3(x):
-    return pin.XYZQUATToSE3(M)
+    return pin.XYZQUATToSE3(x)
 
