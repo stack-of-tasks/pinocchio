@@ -36,28 +36,6 @@ def se3ToXYZQUAT(M):
 def XYZQUATToSe3(vec):
     return pin.XYZQUATToSE3(vec)
 
-
-@deprecated('Now useless.')
-def XYZQUATToViewerConfiguration(xyzq):
-    '''
-    Convert the input 7D vector [X,Y,Z,x,y,z,w] to 7D vector [X,Y,Z,x,y,z,w]
-    Gepetto Viewer Corba has changed its convention for quaternions - This function is not more required.
-    See https://github.com/humanoid-path-planner/gepetto-viewer-corba/pull/58 for more details.
-    '''
-    if isinstance(xyzq, (np.matrix)):
-        return xyzq.A.squeeze().tolist()
-    return xyzq
-
-@deprecated('Now useless.')
-def ViewerConfigurationToXYZQUAT(vconf):
-    '''
-    Reverse function of XYZQUATToViewerConfiguration : convert [X,Y,Z,x,y,z,w] to [X,Y,Z,x,y,z,w]
-    Gepetto Viewer Corba has changed its convention for quaternions - This function is not more required.
-    See https://github.com/humanoid-path-planner/gepetto-viewer-corba/pull/58 for more details.
-    '''
-    return vconf
-
-
 def isapprox(a, b, epsilon=1e-6):
     if "np" in a.__class__.__dict__:
         a = a.np
@@ -111,5 +89,5 @@ __all__ = ['np', 'npl', 'eye', 'zero', 'rand', 'isapprox', 'mprint',
            'skew', 'cross',
            'npToTTuple', 'npToTuple', 'rotate',
            'rpyToMatrix', 'matrixToRpy',
-           'XYZQUATToViewerConfiguration', 'ViewerConfigurationToXYZQUAT', 'fromListToVectorOfString']
            'se3ToXYZQUAT', 'XYZQUATToSe3',
+           'fromListToVectorOfString']
