@@ -12,6 +12,7 @@ SET(${PROJECT_NAME}_EXAMPLES
   build-reduced-model
   geometry-models
   kinematics-derivatives
+  inverse-dynamics-derivatives
   )
 
 IF(HPP_FCL_FOUND)
