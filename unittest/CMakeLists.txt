@@ -123,6 +123,9 @@ ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 
+# Multiprecision arithmetic
+ADD_PINOCCHIO_UNIT_TEST(boost-multiprecision)
+
 # Automatic differentiation
 IF(CPPAD_FOUND AND BUILD_WITH_AUTODIFF_SUPPORT)
   ADD_PINOCCHIO_UNIT_TEST(cppad-basic cppad)
