@@ -30,6 +30,21 @@ namespace Eigen
 
 #ifndef BOOST_MP_EIGEN_HPP
 
+namespace boost {
+namespace multiprecision {
+namespace fix {
+
+  template <class T>
+  struct scalar_result_from_possible_complex
+  {
+     typedef typename mpl::if_c<number_category<T>::value == number_kind_complex,
+                                typename component_type<T>::type, T>::type type;
+  };
+
+} // namespace fix
+} // namespace multiprecision
+} // namespace boost
+
 //  Code adapted from <boost/multiprecision/eigen.hpp>
 //  Copyright 2018 John Maddock. Distributed under the Boost
 //  Software License, Version 1.0. (See accompanying file
@@ -39,11 +54,11 @@ namespace Eigen
   template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
   struct NumTraits<boost::multiprecision::number<Backend, ExpressionTemplates> >
   {
-    typedef boost::multiprecision::number<Backend, ExpressionTemplates>                          self_type;
-    typedef typename boost::multiprecision::scalar_result_from_possible_complex<self_type>::type Real;
-    typedef self_type                                                                            NonInteger; // Not correct but we can't do much better??
-    typedef double                                                                               Literal;
-    typedef self_type                                                                            Nested;
+    typedef boost::multiprecision::number<Backend, ExpressionTemplates>                               self_type;
+    typedef typename boost::multiprecision::fix::scalar_result_from_possible_complex<self_type>::type Real;
+    typedef self_type                                                                                 NonInteger; // Not correct but we can't do much better??
+    typedef double                                                                                    Literal;
+    typedef self_type                                                                                 Nested;
     enum
     {
       IsComplex             = boost::multiprecision::number_category<self_type>::value == boost::multiprecision::number_kind_complex,
