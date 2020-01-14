@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __math_sincos_hpp__
-#define __math_sincos_hpp__
+#ifndef __pinocchio_math_sincos_hpp__
+#define __pinocchio_math_sincos_hpp__
 
 #include <boost/type_traits.hpp>
 #include <cmath>
@@ -97,4 +97,4 @@ namespace pinocchio
   
 }
 
-#endif //#ifndef __math_sincos_hpp__
+#endif //#ifndef __pinocchio_math_sincos_hpp__
