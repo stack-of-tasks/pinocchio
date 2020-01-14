@@ -12,7 +12,7 @@
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
-#include "pinocchio/math/boost-multiprecision.hpp"
+#include "pinocchio/math/multiprecision.hpp"
 
 #include <boost/multiprecision/cpp_bin_float.hpp>
 #include <boost/math/special_functions/gamma.hpp>

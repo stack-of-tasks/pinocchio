@@ -2,8 +2,8 @@
 // Copyright (c) 2020 INRIA
 //
 
-#ifndef __pinocchio_math_boost_mutliprecision_hpp__
-#define __pinocchio_math_boost_mutliprecision_hpp__
+#ifndef __pinocchio_math_mutliprecision_hpp__
+#define __pinocchio_math_mutliprecision_hpp__
 
 #include "pinocchio/math/fwd.hpp"
 
@@ -134,4 +134,4 @@ namespace Eigen
 
 #endif // ifndef BOOST_MP_EIGEN_HPP
 
-#endif // ifndef __pinocchio_math_boost_mutliprecision_hpp__
+#endif // ifndef __pinocchio_math_mutliprecision_hpp__
