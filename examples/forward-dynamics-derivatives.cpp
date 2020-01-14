@@ -24,7 +24,7 @@ int main(int argc, char ** argv)
   // Build a data related to model
   Data data(model);
   
-  // Sample a random joint configuration as well as random joint velocity and acceleration
+  // Sample a random joint configuration as well as random joint velocity and torque
   Eigen::VectorXd q = randomConfiguration(model);
   Eigen::VectorXd v = Eigen::VectorXd(model.nv);
   Eigen::VectorXd tau = Eigen::VectorXd(model.nv);
