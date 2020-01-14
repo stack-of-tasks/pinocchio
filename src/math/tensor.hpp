@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_math_tensor_hpp__
@@ -245,12 +245,20 @@ namespace pinocchio
       
       for(i = 0; i < NumIndices; i++)
         m_dimensions[i] = dimensions[i];
-      m_storage.resize(size);
       
-      #ifdef EIGEN_INITIALIZE_COEFFS
-        bool size_changed = size != this->size();
-        if(size_changed) EIGEN_INITIALIZE_COEFFS_IF_THAT_OPTION_IS_ENABLED
-      #endif
+      bool size_changed = size != this->size();
+      if(size_changed) m_storage.resize(size);
+      
+#ifdef EIGEN_INITIALIZE_COEFFS
+        if(size_changed)
+        {
+#if defined(EIGEN_INITIALIZE_MATRICES_BY_ZERO)
+          m_storage.fill(Scalar(0));
+#elif defined(EIGEN_INITIALIZE_MATRICES_BY_NAN)
+          m_storage.fill(std::numeric_limits<Scalar>::quiet_NaN());
+#endif
+        }
+#endif
     }
     
     EIGEN_DEVICE_FUNC bool operator==(const Tensor & other) const
