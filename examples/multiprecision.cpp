@@ -5,7 +5,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 
-#include <boost/multiprecision/cpp_bin_float.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 
 #include <iostream>
 
@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
   Data data(model);
   
   // Define Model and Data for multiprecision types
-  typedef boost::multiprecision::cpp_bin_float_100 float_100;
+  typedef boost::multiprecision::cpp_dec_float_100 float_100;
   typedef ModelTpl<float_100> ModelMulti;
   typedef DataTpl<float_100> DataMulti;
   
