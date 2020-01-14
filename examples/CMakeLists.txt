@@ -11,6 +11,9 @@ SET(${PROJECT_NAME}_EXAMPLES
   interpolation-SE3
   build-reduced-model
   geometry-models
+  kinematics-derivatives
+  forward-dynamics-derivatives
+  inverse-dynamics-derivatives
   )
 
 IF(HPP_FCL_FOUND)
@@ -43,8 +46,8 @@ IF(BUILD_PYTHON_INTERFACE)
     overview-simple
     overview-urdf
     kinematics-derivatives
-    fd-derivatives
-    id-derivatives
+    forward-dynamics-derivatives
+    inverse-dynamics-derivatives
     gepetto-viewer
     meshcat-viewer
     meshcat-viewer-dae
@@ -56,11 +59,11 @@ IF(BUILD_PYTHON_INTERFACE)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       collisions
       sample-model-viewer
-      display_shapes
+      display-shapes
       )
   ENDIF(HPP_FCL_FOUND)
 
   FOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
-    ADD_PYTHON_UNIT_TEST("py-example-${EXAMPLE}" "examples/${EXAMPLE}.py" "bindings/python")
+    ADD_PYTHON_UNIT_TEST("example-py-${EXAMPLE}" "examples/${EXAMPLE}.py" "bindings/python")
   ENDFOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
 ENDIF(BUILD_PYTHON_INTERFACE)
