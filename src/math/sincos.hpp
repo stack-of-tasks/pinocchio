@@ -1,18 +1,18 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __math_sincos_hpp__
-#define __math_sincos_hpp__
+#ifndef __pinocchio_math_sincos_hpp__
+#define __pinocchio_math_sincos_hpp__
 
 #include <boost/type_traits.hpp>
 #include <cmath>
 
 namespace pinocchio
 {
-  /// Forward declaration
-  template<typename Scalar, bool value = boost::is_floating_point<Scalar>::value> struct SINCOSAlgo;
+  // Forward declaration
+  template<typename S1, typename S2 = S1, typename S3 = S1, bool value = boost::is_floating_point<S1>::value & boost::is_floating_point<S2>::value & boost::is_floating_point<S3>::value> struct SINCOSAlgo;
   
   ///
   /// \brief Computes sin/cos values of a given input scalar.
@@ -23,23 +23,23 @@ namespace pinocchio
   /// \param[inout] sa Variable containing the sin of a.
   /// \param[inout] ca Variable containing the cos of a.
   ///
-  template<typename Scalar>
-  void SINCOS(const Scalar & a, Scalar * sa, Scalar * ca)
+  template<typename S1, typename S2, typename S3>
+  void SINCOS(const S1 & a, S2 * sa, S3 * ca)
   {
-    SINCOSAlgo<Scalar>::run(a,sa,ca);
+    SINCOSAlgo<S1,S2,S3>::run(a,sa,ca);
   }
   
-  /// Generic evaluation of sin/cos functions.
-  template<typename Scalar,bool>
+  /// \brief Generic evaluation of sin/cos functions.
+  template<typename S1, typename S2, typename S3, bool>
   struct SINCOSAlgo
   {
-    static void run(const Scalar & a, Scalar * sa, Scalar * ca) 
+    static void run(const S2 & a, S2 * sa, S3 * ca)
     {   
       (*sa) = std::sin(a); (*ca) = std::cos(a);
     }   
   };  
 
-  /// Specific evaluation of sin/cos for double type.
+  /// \brief Specific evaluation of sin/cos for double type.
   template<>
   struct SINCOSAlgo<double>
   {
@@ -55,7 +55,7 @@ namespace pinocchio
     }   
   };
   
-  /// Specific evaluation of sin/cos for float type.
+  /// \brief Specific evaluation of sin/cos for float type.
   template<>
   struct SINCOSAlgo<float>
   {
@@ -71,7 +71,7 @@ namespace pinocchio
     }
   };
   
-  /// Specific evaluation of sin/cos for long double.
+  /// \brief Specific evaluation of sin/cos for long double.
   template<>
   struct SINCOSAlgo<long double>
   {
@@ -85,11 +85,11 @@ namespace pinocchio
     }
   };
 
-  /// Implementation for overloaded scalar types (e.g. Automatic Differentiation).
-  template<class Scalar>
-  struct SINCOSAlgo< Scalar, false >
+  /// \brief Implementation for overloaded scalar types (e.g. Automatic Differentiation).
+  template<typename S1, typename S2, typename S3>
+  struct SINCOSAlgo<S1, S2, S3, false >
   {
-    static void run(const Scalar & a, Scalar * sa, Scalar * ca)
+    static void run(const S1 & a, S2 * sa, S3 * ca)
     {
       (*sa) = sin(a); (*ca) = cos(a);
     }
@@ -97,4 +97,4 @@ namespace pinocchio
   
 }
 
-#endif //#ifndef __math_sincos_hpp__
+#endif //#ifndef __pinocchio_math_sincos_hpp__
