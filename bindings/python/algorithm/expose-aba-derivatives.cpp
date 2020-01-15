@@ -36,7 +36,7 @@ namespace pinocchio
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)",
                        "Torque tau (size Model::nv)"),
-              "Computes the ABA derivatives, put the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
+              "Computes the ABA derivatives, store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the joint acceleration vector output with respect to the joint configuration,\n"
               "velocity and torque vectors.");
 
@@ -48,7 +48,7 @@ namespace pinocchio
                        "a: acceleration vector (size model.nv)",
                        "fext: vector external forces (size model.njoints)"),
               "Computes the ABA derivatives with external contact foces,\n"
-              "put the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
+              "store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the acceleration output with respect to the joint configuration,\n"
               "velocity and torque vectors.\n"
               "The forces are of type StdVec_Force.");

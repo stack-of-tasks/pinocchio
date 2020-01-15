@@ -27,7 +27,7 @@ namespace pinocchio
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Compute all the terms M, non linear effects and Jacobians in"
-              "in the same loop and put the results in data.");
+              "in the same loop and store the results in data.");
     }
   } // namespace python
 } // namespace pinocchio

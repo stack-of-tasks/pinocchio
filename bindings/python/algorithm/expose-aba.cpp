@@ -29,7 +29,7 @@ namespace pinocchio
                        "Joint configuration q (size Model::nq)",
                        "Joint velocity v (size Model::nv)",
                        "Joint torque tau (size Model::nv)"),
-              "Compute ABA, put the result in Data::ddq and return it.",
+              "Compute ABA, store the result in Data::ddq and return it.",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
@@ -39,7 +39,7 @@ namespace pinocchio
                        "Joint velocity v (size Model::nv)",
                        "Joint torque tau (size Model::nv)",
                        "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
-              "Compute ABA with external forces, put the result in Data::ddq and return it.",
+              "Compute ABA with external forces, store the result in Data::ddq and return it.",
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("computeMinverse",

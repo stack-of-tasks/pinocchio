@@ -17,14 +17,14 @@ namespace pinocchio
               &updateGlobalPlacements<double,0,JointCollectionDefaultTpl>,
               bp::args("Model","Data"),
               "Updates the global placements of all the frames of the kinematic "
-              "tree and put the results in data according to the relative placements of the joints.");
+              "tree and store the results in data according to the relative placements of the joints.");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the global placements of all the joints of the kinematic "
-              "tree and put the results in data.");
+              "tree and store the results in data.");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
@@ -32,7 +32,7 @@ namespace pinocchio
                        "Configuration q (size Model::nq)",
                        "Velocity v (size Model::nv)"),
               "Compute the global placements and local spatial velocities of all the joints of the kinematic "
-              "tree and put the results in data.");
+              "tree and store the results in data.");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
@@ -41,7 +41,7 @@ namespace pinocchio
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)"),
               "Compute the global placements, local spatial velocities and spatial accelerations of all the joints of the kinematic "
-              "tree and put the results in data.");
+              "tree and store the results in data.");
     }
     
   } // namespace python

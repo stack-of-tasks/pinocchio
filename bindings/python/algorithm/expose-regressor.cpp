@@ -34,7 +34,7 @@ namespace pinocchio
               bp::args("Model","Data",
                        "Configuration q (size Model::nq)"),
               "Compute the static regressor that links the inertia parameters of the system to its center of mass position,\n"
-              "put the result in Data and return it.",
+              "store the result in Data and return it.",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("bodyRegressor",
@@ -66,7 +66,7 @@ namespace pinocchio
                        "Acceleration a (size Model::nv)"),
               "Compute the joint torque regressor that links the joint torque "
               "to the dynamic parameters of each link according to the current the robot motion,\n"
-              "put the result in Data and return it.",
+              "store the result in Data and return it.",
               bp::return_value_policy<bp::return_by_value>());
     }
     

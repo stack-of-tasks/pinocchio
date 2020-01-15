@@ -91,7 +91,7 @@ namespace pinocchio
                        "Configuration q (size Model::nq)"),
               "Update first the placement of the joints according to the given configuration value."
               "And computes the placements of all the operational frames"
-              "and put the results in data.");
+              "and store the results in data.");
       
       bp::def("computeFrameJacobian",
               &compute_frame_jacobian_proxy,
