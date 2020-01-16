@@ -30,7 +30,7 @@ def skew(p):
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def se3ToXYZQUAT(M):
-    return pin.se3ToXYZQUATtuple(M)
+    return pin.SE3ToXYZQUATtuple(M)
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def XYZQUATToSe3(vec):
