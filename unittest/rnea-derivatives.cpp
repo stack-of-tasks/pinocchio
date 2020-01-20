@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives_fext)
   model.upperPositionLimit.head<3>().fill( 1.);
   VectorXd q = randomConfiguration(model);
 
-  typedef container::aligned_vector<Force> ForceVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
   for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
     (*it).setRandom();
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_fext)
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd a(VectorXd::Random(model.nv));
   
-  typedef container::aligned_vector<Force> ForceVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
   for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
     (*it).setRandom();

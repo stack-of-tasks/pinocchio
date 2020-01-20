@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -16,7 +16,9 @@ namespace pinocchio
     {
       computeABADerivatives(model,data,q,v,tau);
     }
-    typedef container::aligned_vector<Force> ForceAlignedVector;
+  
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
+  
     void computeABADerivatives_fext(const Model & model, Data & data,
                                     const Eigen::VectorXd & q,
                                     const Eigen::VectorXd & v,

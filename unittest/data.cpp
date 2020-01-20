@@ -84,4 +84,17 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     BOOST_CHECK(data != data_copy);
   }
 
+  BOOST_AUTO_TEST_CASE(test_container_aligned_vector)
+  {
+    Model model;
+    buildModels::humanoidRandom(model);
+    
+    Data data(model);
+    
+    container::aligned_vector<Data::Force> & f = data.f;
+    data.f[0].setRandom();
+    
+    BOOST_CHECK(data.f[0] == f[0]);
+  }
+
 BOOST_AUTO_TEST_SUITE_END()

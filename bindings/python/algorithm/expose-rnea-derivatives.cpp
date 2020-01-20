@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -10,7 +10,7 @@ namespace pinocchio
   namespace python
   {
     
-    typedef container::aligned_vector<Force> ForceAlignedVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
     
     Data::MatrixXs computeGeneralizedGravityDerivatives(const Model & model, Data & data,
                                                         const Eigen::VectorXd & q)
@@ -32,9 +32,9 @@ namespace pinocchio
     }
     
     void computeRNEADerivatives(const Model & model, Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const Eigen::VectorXd & a)
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v,
+                                const Eigen::VectorXd & a)
     {
       pinocchio::computeRNEADerivatives(model,data,q,v,a);
       // Symmetrize M

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_generic_hpp__
@@ -229,8 +229,8 @@ namespace pinocchio
     }
   };
   
-  typedef container::aligned_vector<JointData> JointDataVector;
-  typedef container::aligned_vector<JointModel> JointModelVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointData) JointDataVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
 
 } // namespace pinocchio
 

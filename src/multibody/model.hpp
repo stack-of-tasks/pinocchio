@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -53,10 +53,10 @@ namespace pinocchio
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointData;
     
-    typedef container::aligned_vector<JointModel> JointModelVector;
-    typedef container::aligned_vector<JointData> JointDataVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointData) JointDataVector;
     
-    typedef container::aligned_vector<Frame> FrameVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Frame) FrameVector;
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
@@ -86,10 +86,10 @@ namespace pinocchio
     int nframes;
 
     /// \brief Spatial inertias of the body *i* expressed in the supporting joint frame *i*.
-    container::aligned_vector<Inertia> inertias;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) inertias;
     
     /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
-    container::aligned_vector<SE3> jointPlacements;
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) jointPlacements;
 
     /// \brief Model of joint *i*, encapsulated in a JointModelAccessor.
     JointModelVector joints;

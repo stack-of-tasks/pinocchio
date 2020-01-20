@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -30,7 +30,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     
     typedef ::pinocchio::GeometryObject GeometryObject;
-    typedef container::aligned_vector<GeometryObject> GeometryObjectVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(GeometryObject) GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     
     typedef pinocchio::GeomIndex GeomIndex;
@@ -184,7 +184,7 @@ namespace pinocchio
     /// oMg is used for pinocchio (kinematics) computation but is translated to fcl type
     /// for fcl (collision) computation. The copy is done in collisionObjects[i]->setTransform(.)
     ///
-    container::aligned_vector<SE3> oMg;
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) oMg;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
     ///
