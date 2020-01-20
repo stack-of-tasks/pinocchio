@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hxx__
@@ -63,7 +63,7 @@ namespace pinocchio
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
 
-    container::aligned_vector<GeometryObject>::const_iterator it
+    GeometryObjectVector::const_iterator it
     = std::find_if(geometryObjects.begin(),
                    geometryObjects.end(),
                    boost::bind(&GeometryObject::name, _1) == name
