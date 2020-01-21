@@ -21,7 +21,7 @@ namespace pinocchio
                     const bp::list & fext_list)
     {
       container::aligned_vector<Force> fext;
-      extract(fext_list,fext);
+      extract(fext_list,fext.base());
       
       return rnea(model,data,q.derived(),v.derived(),a.derived(),fext);
     }
