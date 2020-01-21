@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_fcl_mesh_loader_hpp__
@@ -9,7 +9,7 @@
 #include <hpp/fcl/mesh_loader/loader.h>
 
 #include <boost/python.hpp>
-#include <typeinfo>
+#include <boost/python/type_id.hpp>
 
 namespace pinocchio
 {
@@ -44,9 +44,12 @@ namespace pinocchio
         
         static void expose(const std::string & doc = "")
         {
-          static const std::string class_name = typeid(MeshLoader).name();
+          static const bp::type_info info = bp::type_id<MeshLoader>();
+          static const std::string class_name = info.name();
+          static const std::string class_name_without_namespace = class_name.substr(class_name.find_last_of(':')+1);
+          
           bp::class_<MeshLoader, MeshLoaderPtr_t>
-            (class_name.c_str(),
+            (class_name_without_namespace.c_str(),
              doc.c_str(),
              bp::no_init)
             .def(MeshLoaderPythonVisitor())
