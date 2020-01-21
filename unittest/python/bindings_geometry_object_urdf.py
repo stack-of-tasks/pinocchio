@@ -7,16 +7,16 @@ import os
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def setUp(self):
-        self.current_file =  os.path.dirname(os.path.abspath(__file__))
-        self.model_dir = os.path.abspath(os.path.join(self.current_file, '../../models/others/robots'))
-        self.model_path = os.path.abspath(os.path.join(self.model_dir, 'romeo_description/urdf/romeo.urdf'))
+        self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
+        self.model_dir = os.path.abspath(os.path.join(self.current_file, "../../models/others/robots"))
+        self.model_path = os.path.abspath(os.path.join(self.model_dir, "romeo_description/urdf/romeo.urdf"))
 
     def test_load(self):
         hint_list = [self.model_dir, "wrong/hint"]
         expected_mesh_path = os.path.join(self.model_dir,'romeo_description/meshes/V1/collision/LHipPitch.dae')
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
-        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
+        collision_model = pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, hint_list)
 
         col = collision_model.geometryObjects[1]
         self.assertEqual(col.meshPath, expected_mesh_path)
@@ -28,11 +28,11 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
 
-        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
+        collision_model = pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, hint_list)
         col = collision_model.geometryObjects[1]
         self.assertEqual(col.meshPath, expected_collision_path)
 
-        visual_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.VISUAL)
+        visual_model = pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.VISUAL, hint_list)
         vis = visual_model.geometryObjects[1]
         self.assertEqual(vis.meshPath, expected_visual_path)
 
@@ -59,6 +59,23 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
         vis_v = visual_model_v.geometryObjects[1]
         self.assertEqual(vis_v.meshPath, expected_visual_path)
+    
+    def test_deprecated_signatures(self):
+        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+  
+        hint_list = [self.model_dir, "wrong/hint"]
+        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
+
+        hint_vec = pin.StdVec_StdString()
+        hint_vec.append(self.model_dir)
+        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION)
+
+        collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION)
+      
+        if pin.WITH_HPP_FCL_BINDINGS:
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.MeshLoader())
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.MeshLoader())
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION, pin.MeshLoader())
 
 if __name__ == '__main__':
     unittest.main()
