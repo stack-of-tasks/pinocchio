@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -89,18 +89,23 @@ namespace pinocchio
       {
         CollisionGeometryPythonVisitor::expose();
       }
+      
+      typedef ::hpp::fcl::MeshLoader MeshLoader;
+      typedef ::hpp::fcl::CachedMeshLoader CachedMeshLoader;
 
-      if(!eigenpy::register_symbolic_link_to_registered_type< ::hpp::fcl::MeshLoader>())
-        MeshLoaderPythonVisitor< ::hpp::fcl::MeshLoader>::
+      if(!eigenpy::register_symbolic_link_to_registered_type<MeshLoader>())
+        MeshLoaderPythonVisitor<MeshLoader>::
         expose("Class to create CollisionGeometry from mesh files.");
 
-      if(!eigenpy::register_symbolic_link_to_registered_type< ::hpp::fcl::CachedMeshLoader>())
-        MeshLoaderPythonVisitor< ::hpp::fcl::CachedMeshLoader>::
+      if(!eigenpy::register_symbolic_link_to_registered_type<CachedMeshLoader>())
+        MeshLoaderPythonVisitor<CachedMeshLoader>::
         expose("Class to create CollisionGeometry from mesh files with cache mechanism.");
       
+      typedef ::hpp::fcl::Transform3f Transform3f;
+      
       // Register implicit conversion SE3 <=> ::hpp::fcl::Transform3f
-      bp::implicitly_convertible< SE3,::hpp::fcl::Transform3f >();
-      bp::implicitly_convertible< ::hpp::fcl::Transform3f,SE3 >();
+      bp::implicitly_convertible< SE3,Transform3f >();
+      bp::implicitly_convertible< Transform3f,SE3 >();
     }
     
   } // namespace python
