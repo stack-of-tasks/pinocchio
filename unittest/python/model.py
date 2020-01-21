@@ -83,5 +83,18 @@ class TestModel(TestCase):
         self.assertApprox(data.a_gf[0].np, -model.gravity.np)
         self.assertApprox(data.f[-1], model.inertias[-1] * data.a_gf[-1])
 
+    def test_pickle(self):
+        import pickle
+
+        model = self.model
+        filename = "model.pickle"
+        with open(filename, 'wb') as f:
+          pickle.dump(model,f)
+    
+        with open(filename, 'rb') as f:
+          model_copy = pickle.load(f)
+
+        self.assertTrue(model == model_copy)
+
 if __name__ == '__main__':
     unittest.main()
