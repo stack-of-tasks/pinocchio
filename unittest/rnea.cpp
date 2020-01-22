@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 /*
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   VectorXd v (VectorXd::Random(model.nv));
   VectorXd a (VectorXd::Random(model.nv));
   
-  container::aligned_vector<Force> fext(model.joints.size(), Force::Zero());
+  PINOCCHIO_ALIGNED_STD_VECTOR(Force) fext(model.joints.size(), Force::Zero());
   
   JointIndex rf = model.getJointId("rleg6_joint"); Force Frf = Force::Random();
   fext[rf] = Frf;
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(test_compute_static_torque)
 
   VectorXd q = randomConfiguration(model);
 
-  typedef container::aligned_vector<Force> ForceVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
   for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
     (*it).setRandom();

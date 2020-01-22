@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS, INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   VectorXd tau(VectorXd::Random(model.nv));
   VectorXd a(aba(model,data_ref,q,v,tau));
   
-  typedef container::aligned_vector<Force> ForceVector;
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
   for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
     (*it).setRandom();

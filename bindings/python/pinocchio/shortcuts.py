@@ -41,9 +41,9 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
 
     for geometry_type in geometry_types:
         if meshLoader is None or (not pin.WITH_HPP_FCL and not pin.WITH_HPP_FCL_BINDINGS):
-            geom_model = pin.buildGeomFromUrdf(model, filename, package_dirs, geometry_type)
+            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs)
         else:
-            geom_model = pin.buildGeomFromUrdf(model, filename, package_dirs, geometry_type, meshLoader)
+            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs, meshLoader)
         lst.append(geom_model)
 
     return tuple(lst)

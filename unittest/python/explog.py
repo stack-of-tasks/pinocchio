@@ -8,7 +8,7 @@ pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero, eye
 from pinocchio.explog import exp, log
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestExpLog(TestCase):

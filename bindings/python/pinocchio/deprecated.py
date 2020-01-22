@@ -104,3 +104,27 @@ def se3ToXYZQUAT(M):
 def XYZQUATToSe3(x):
     return pin.XYZQUATToSE3(x)
 
+def buildGeomFromUrdf(model, filename, *args):
+
+  arg3 = args[0]
+  if isinstance(arg3,(str,list,pin.StdVec_StdString)):
+    package_dir = arg3
+    geom_type = args[1]
+
+    if len(args) >= 3:
+      mesh_loader = args[2]
+      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
+                 "Please change for the new signature buildGeomFromUrdf(model,filename,type,package_dirs,mesh_loader).")
+      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir,mesh_loader)
+    else:
+      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
+                 "Please change for the new signature buildGeomFromUrdf(model,filename,type,package_dirs).")
+      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
+      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir)
+  else:
+    return pin.buildGeomFromUrdf(model, filename, *args)
+    
+buildGeomFromUrdf.__doc__ = (
+  pin.buildGeomFromUrdf.__doc__
+) 

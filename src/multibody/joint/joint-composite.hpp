@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_composite_hpp__
@@ -71,7 +71,7 @@ namespace pinocchio
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataVariant;
 
-    typedef container::aligned_vector<JointDataVariant> JointDataVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointDataVariant) JointDataVector;
     
     // JointDataComposite()  {} // can become necessary if we want a vector of JointDataComposite ?
 
@@ -104,10 +104,10 @@ namespace pinocchio
     JointDataVector joints;
    
     /// \brief Transforms from previous joint to last joint
-    container::aligned_vector<Transformation_t> iMlast;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) iMlast;
 
     /// \brief Transforms from previous joint to joint i
-    container::aligned_vector<Transformation_t> pjMi;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) pjMi;
 
     Constraint_t S;
     Transformation_t M;
@@ -162,7 +162,7 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> Motion;
     typedef InertiaTpl<Scalar,Options> Inertia;
   
-    typedef container::aligned_vector<JointModelVariant> JointModelVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModelVariant) JointModelVector;
     
     using Base::id;
     using Base::idx_q;
@@ -366,7 +366,7 @@ namespace pinocchio
     /// \brief Vector of joints contained in the joint composite.
     JointModelVector joints;
     /// \brief Vector of joint placements. Those placements correspond to the origin of the joint relatively to their parent.
-    container::aligned_vector<SE3> jointPlacements;
+    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) jointPlacements;
 
     template<typename D>
     typename SizeDepType<NQ>::template SegmentReturn<D>::ConstType

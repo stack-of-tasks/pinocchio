@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
 
-  container::aligned_vector<Force> fext(model.joints.size(), Force::Random());
+  PINOCCHIO_ALIGNED_STD_VECTOR(Force) fext(model.joints.size(), Force::Random());
   
   crba(model, data, q);
   computeJointJacobians(model, data, q);

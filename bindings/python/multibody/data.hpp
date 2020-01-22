@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_data_hpp__
@@ -71,17 +71,17 @@ namespace pinocchio
 
     public:
 
-#define ADD_DATA_PROPERTY(TYPE,NAME,DOC)    \
+#define ADD_DATA_PROPERTY(NAME,DOC)         \
       def_readwrite(#NAME,                  \
       &Data::NAME,                          \
       DOC)
       
-#define ADD_DATA_PROPERTY_READONLY(TYPE,NAME,DOC) \
+#define ADD_DATA_PROPERTY_READONLY(NAME,DOC)      \
       def_readonly(#NAME,                         \
       &Data::NAME,                                \
       DOC)
       
-#define ADD_DATA_PROPERTY_READONLY_BYVALUE(TYPE,NAME,DOC)                       \
+#define ADD_DATA_PROPERTY_READONLY_BYVALUE(NAME,DOC)                            \
       add_property(#NAME,                                                       \
       make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()),  \
       DOC) 
@@ -95,72 +95,72 @@ namespace pinocchio
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a,"Joint spatial acceleration")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,oa,
+        .ADD_DATA_PROPERTY(a,"Joint spatial acceleration")
+        .ADD_DATA_PROPERTY(oa,
                            "Joint spatial acceleration expressed at the origin of the world frame.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,a_gf,
+        .ADD_DATA_PROPERTY(a_gf,
                            "Joint spatial acceleration containing also the contribution of the gravity acceleration")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,oa_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration, but expressed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(oa_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration, but expressed at the origin of the world frame.")
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,v,"Joint spatial velocity expressed in the joint frame.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Motion>,ov,"Joint spatial velocity expressed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(v,"Joint spatial velocity expressed in the joint frame.")
+        .ADD_DATA_PROPERTY(ov,"Joint spatial velocity expressed at the origin of the world frame.")
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,f,"Joint spatial force expresssed in the joint frame.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,of,"Joint spatial force expresssed at the origin of the world frame.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Force>,h,"Vector of spatial momenta expressed in the local frame of the joint.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMi,"Body absolute placement (wrt world)")
-        .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,oMf,"frames absolute placement (wrt world)")
-        .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,liMi,"Body relative placement (wrt parent)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,tau,"Joint torques (output of RNEA)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,nle,"Non Linear Effects (output of nle algorithm)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,ddq,"Joint accelerations (output of ABA)")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Inertia>,Ycrb,"Inertia of the sub-tree composit rigid body")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,M,"The joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Data::RowMatrixXs,Minv,"The inverse of the joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Matrix6x>,Fcrb,"Spatial forces set, used in CRBA")
-        .ADD_DATA_PROPERTY(std::vector<int>,lastChild,"Index of the last child (for CRBA)")
-        .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree,"Dimension of the subtree motion space (for CRBA)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,U,"Joint Inertia square root (upper triangle)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,D,"Diagonal of UDUT inertia decomposition")
-        .ADD_DATA_PROPERTY(std::vector<int>,parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
-        .ADD_DATA_PROPERTY(std::vector<int>,nvSubtree_fromRow,"Subtree of the current row index (used in Cholesky)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,J,"Jacobian of joint placement")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dJ,"Time variation of the Jacobian of joint placement (data.J).")
-        .ADD_DATA_PROPERTY(container::aligned_vector<SE3>,iMf,"Body placement wrt to algorithm end effector.")
+        .ADD_DATA_PROPERTY(f,"Joint spatial force expresssed in the joint frame.")
+        .ADD_DATA_PROPERTY(of,"Joint spatial force expresssed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(h,"Vector of spatial momenta expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
+        .ADD_DATA_PROPERTY(oMf,"frames absolute placement (wrt world)")
+        .ADD_DATA_PROPERTY(liMi,"Body relative placement (wrt parent)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(tau,"Joint torques (output of RNEA)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(nle,"Non Linear Effects (output of nle algorithm)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq,"Joint accelerations (output of ABA)")
+        .ADD_DATA_PROPERTY(Ycrb,"Inertia of the sub-tree composit rigid body")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(M,"The joint space inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Minv,"The inverse of the joint space inertia matrix")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
+        .ADD_DATA_PROPERTY(Fcrb,"Spatial forces set, used in CRBA")
+        .ADD_DATA_PROPERTY(lastChild,"Index of the last child (for CRBA)")
+        .ADD_DATA_PROPERTY(nvSubtree,"Dimension of the subtree motion space (for CRBA)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(U,"Joint Inertia square root (upper triangle)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(D,"Diagonal of UDUT inertia decomposition")
+        .ADD_DATA_PROPERTY(parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
+        .ADD_DATA_PROPERTY(nvSubtree_fromRow,"Subtree of the current row index (used in Cholesky)")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(J,"Jacobian of joint placement")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dJ,"Time variation of the Jacobian of joint placement (data.J).")
+        .ADD_DATA_PROPERTY(iMf,"Body placement wrt to algorithm end effector.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,Ag,
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Ag,
                                             "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix6x,dAg,
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dAg,
                                             "Time derivative of the centroidal momentum matrix Ag.")
-        .ADD_DATA_PROPERTY_READONLY(Force,hg,
+        .ADD_DATA_PROPERTY_READONLY(hg,
                                     "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(Force,dhg,
+        .ADD_DATA_PROPERTY_READONLY(dhg,
                                     "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(Inertia,Ig,
+        .ADD_DATA_PROPERTY_READONLY(Ig,
                                     "Centroidal Composite Rigid Body Inertia.")
         
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,com,"CoM position of the subtree starting at joint index i.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,vcom,"CoM velocity of the subtree starting at joint index i.")
-        .ADD_DATA_PROPERTY(container::aligned_vector<Vector3>,acom,"CoM acceleration of the subtree starting at joint index i..")
-        .ADD_DATA_PROPERTY(std::vector<double>,mass,"Mass of the subtree starting at joint index i.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,Jcom,"Jacobian of center of mass.")
+        .ADD_DATA_PROPERTY(com,"CoM position of the subtree starting at joint index i.")
+        .ADD_DATA_PROPERTY(vcom,"CoM velocity of the subtree starting at joint index i.")
+        .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i..")
+        .ADD_DATA_PROPERTY(mass,"Mass of the subtree starting at joint index i.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Jcom,"Jacobian of center of mass.")
 
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,C,"Joint space Coriolis matrix.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(C,"Joint space Coriolis matrix.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(double,potential_energy,"Potential energy in [J] computed by potentialEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by potentialEnergy")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,lambda_c,"Lagrange Multipliers linked to contact forces")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,impulse_c,"Lagrange Multipliers linked to contact impulses")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to contact forces")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to contact impulses")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::VectorXd,dq_after,"Generalized velocity after the impact.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Matrix3x,staticRegressor,"Static regressor.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Eigen::MatrixXd,jointTorqueRegressor,"Joint torque regressor.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dq_after,"Generalized velocity after the impact.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(staticRegressor,"Static regressor.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(jointTorqueRegressor,"Joint torque regressor.")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)

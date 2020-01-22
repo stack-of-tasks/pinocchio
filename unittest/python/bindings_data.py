@@ -2,7 +2,7 @@ import unittest
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 class TestData(TestCase):
     def setUp(self):

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -151,10 +151,10 @@ int main(int argc, const char ** argv)
   Data data(model);
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
-  container::aligned_vector<VectorXd> qs     (NBT);
-  container::aligned_vector<VectorXd> qdots  (NBT);
-  container::aligned_vector<VectorXd> qddots (NBT);
-  container::aligned_vector<VectorXd> taus (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs     (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) taus (NBT);
   
   for(size_t i=0;i<NBT;++i)
   {

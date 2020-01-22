@@ -7,7 +7,7 @@ pin.switchToNumpyMatrix()
 
 from pinocchio.rpy import matrixToRpy, npToTuple, rotate, rpyToMatrix
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 
 class TestRPY(TestCase):

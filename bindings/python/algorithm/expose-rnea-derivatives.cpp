@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -10,7 +10,7 @@ namespace pinocchio
   namespace python
   {
     
-    typedef container::aligned_vector<Force> ForceAlignedVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
     
     Data::MatrixXs computeGeneralizedGravityDerivatives(const Model & model, Data & data,
                                                         const Eigen::VectorXd & q)
@@ -32,9 +32,9 @@ namespace pinocchio
     }
     
     void computeRNEADerivatives(const Model & model, Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const Eigen::VectorXd & a)
+                                const Eigen::VectorXd & q,
+                                const Eigen::VectorXd & v,
+                                const Eigen::VectorXd & a)
     {
       pinocchio::computeRNEADerivatives(model,data,q,v,a);
       // Symmetrize M
@@ -80,7 +80,7 @@ namespace pinocchio
                        "q: configuration vector (size model.nq)",
                        "v: velocity vector (size model.nv)",
                        "a: acceleration vector (size model.nv)"),
-              "Computes the RNEA partial derivatives, put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "Computes the RNEA partial derivatives, store the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
       
@@ -92,7 +92,7 @@ namespace pinocchio
                        "a: acceleration vector (size model.nv)",
                        "fext: vector of external forces expressed in the local frame of the joints (size model.njoints)"),
               "Computes the RNEA partial derivatives with external contact foces,\n"
-              "put the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "store the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.");
     }

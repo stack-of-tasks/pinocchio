@@ -6,7 +6,7 @@ import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.utils import cross, isapprox
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 class TestUtils(TestCase):
     def test_cross(self):

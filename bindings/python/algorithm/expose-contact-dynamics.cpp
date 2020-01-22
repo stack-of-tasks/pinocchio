@@ -111,7 +111,7 @@ namespace pinocchio
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Damping factor when J is rank deficient."
                        ),
-              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
+              "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
               " Internally, pinocchio.crba is called."
               ));
       
@@ -123,7 +123,7 @@ namespace pinocchio
                        "Contact Jacobian J (size nb_constraint * Model::nv)",
                        "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
                        "Damping factor when J is rank deficient."),
-              "Solves the impact dynamics problem with contacts, put the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
+              "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
               " Assumes pinocchio.crba has been called."
               ));
       

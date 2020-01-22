@@ -14,7 +14,6 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_SE3
   bindings_geometry_model
   explog
-  model
   rpy
   utils
   serialization

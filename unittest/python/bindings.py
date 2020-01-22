@@ -3,7 +3,7 @@ import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.utils import np, npl, rand, skew, zero
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 # This whole file seems to be outdated and superseded by more recent tests
 # Probably it should be removed and its contents moved or split somewhere else

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -203,11 +203,11 @@ int main(int argc, const char ** argv)
   
 
   pinocchio::Data data(model);
-  VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+  const VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
-  std::vector<VectorXd> qs     (NBT);
-  std::vector<VectorXd> qdots  (NBT);
-  std::vector<VectorXd> qddots (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs     (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots (NBT);
   for(size_t i=0;i<NBT;++i)
     {
       qs[i]     = randomConfiguration(model,-qmax,qmax);

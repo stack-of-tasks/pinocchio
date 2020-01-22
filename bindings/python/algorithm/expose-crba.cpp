@@ -25,7 +25,7 @@ namespace pinocchio
       bp::def("crba",crba_proxy,
               bp::args("Model","Data",
                        "Joint configuration q (size Model::nq)"),
-              "Computes CRBA, put the result in Data and return it.");
+              "Computes CRBA, store the result in Data and return it.");
     }
     
   } // namespace python

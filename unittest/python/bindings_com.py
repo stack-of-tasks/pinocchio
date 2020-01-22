@@ -1,5 +1,5 @@
 import unittest
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero

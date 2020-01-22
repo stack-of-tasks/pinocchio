@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2020 CNRS
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -124,7 +124,7 @@ namespace pinocchio
           std::ostringstream oss;
           oss << joint_name << " already inserted as a frame. Current frames "
           "are [";
-          for (typename container::aligned_vector<Frame>::const_iterator it =
+          for (typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
                model.frames.begin (); it != model.frames.end (); ++it) {
             oss << "\"" << it->name << "\",";
           }
