@@ -4,7 +4,7 @@ pin.switchToNumpyMatrix()
 import numpy as np
 from pinocchio.utils import eye,zero,rand,skew
 
-from test_case import TestCase
+from test_case import PinocchioTestCase as TestCase
 
 class TestInertiaBindings(TestCase):
 
