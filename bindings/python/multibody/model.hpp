@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -12,11 +12,11 @@
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
 #include <boost/python/overloads.hpp>
 #include <eigenpy/memory.hpp>
+#include <eigenpy/exception.hpp>
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
-#include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"

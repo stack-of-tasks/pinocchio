@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_data_hpp__
@@ -8,7 +8,6 @@
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
 
-#include "pinocchio/bindings/python/utils/eigen_container.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
