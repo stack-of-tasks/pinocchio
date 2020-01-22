@@ -151,8 +151,8 @@ int main(int argc, const char ** argv)
   Data data(model);
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorX)> qs     (NBT);
-  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd qdots  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs     (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots  (NBT);
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots (NBT);
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) taus (NBT);
   
