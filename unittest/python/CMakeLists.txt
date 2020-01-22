@@ -1,3 +1,7 @@
+#
+# Copyright (c) 2015-2020 CNRS INRIA
+#
+
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
   bindings_model
@@ -34,7 +38,7 @@ IF(URDFDOM_FOUND)
 ENDIF(URDFDOM_FOUND)
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
-  ADD_PYTHON_UNIT_TEST("test-python-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
+  ADD_PYTHON_UNIT_TEST("test-py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
 ENDFOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
 
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
