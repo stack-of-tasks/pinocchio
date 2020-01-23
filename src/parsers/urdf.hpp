@@ -108,7 +108,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModelFromXML(const std::string & xmlStream,
-                      const JointModelVariant & rootJoint,
+                      const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                       ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const bool verbose = false);
     
