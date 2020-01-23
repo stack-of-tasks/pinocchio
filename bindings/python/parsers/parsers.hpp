@@ -285,6 +285,7 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the robot\n"
               "\turdf_filename: path to the URDF file containing the model of the robot\n"
+              "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection)."
               "\tpackage_dirs: vector of paths pointing to the folders containing the model of the robot\n"
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection)."
               );
@@ -322,8 +323,8 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the robot\n"
               "\turdf_filename: path to the URDF file containing the model of the robot\n"
-              "\tpackage_dir: path pointing to the folder containing the meshes of the robot\n"
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection)."
+              "\tpackage_dir: path pointing to the folder containing the meshes of the robot\n"
               );
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -336,8 +337,8 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the robot\n"
               "\turdf_filename: path to the URDF file containing the model of the robot\n"
-              "\tpackage_dirs: vector of paths pointing to the folders containing the model of the robot\n"
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
+              "\tpackage_dirs: vector of paths pointing to the folders containing the model of the robot\n"
               "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries)."
               );
       
@@ -349,8 +350,8 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the robot\n"
               "\turdf_filename: path to the URDF file containing the model of the robot\n"
-              "\tpackage_dirs: Python list of paths pointing to the folders containing the meshes of the robot\n"
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
+              "\tpackage_dirs: Python list of paths pointing to the folders containing the meshes of the robot\n"
               "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries)."
               );
 
@@ -362,8 +363,8 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the robot\n"
               "\turdf_filename: path to the URDF file containing the model of the robot\n"
-              "\tpackage_dir: path pointing to the folder containing the meshes of the robot\n"
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
+              "\tpackage_dir: path pointing to the folder containing the meshes of the robot\n"
               "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries)."
               );
       
