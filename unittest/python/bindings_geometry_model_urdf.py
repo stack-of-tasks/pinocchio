@@ -3,6 +3,9 @@ import pinocchio as pin
 pin.switchToNumpyMatrix()
 import os
 
+def checkGeom(geom1,geom2):
+  return geom1.ngeoms == geom2.ngeoms
+
 @unittest.skipUnless(pin.WITH_URDFDOM,"Needs URDFDOM")
 class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
@@ -20,6 +23,28 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
         col = collision_model.geometryObjects[1]
         self.assertEqual(col.meshPath, expected_mesh_path)
+
+    def test_self_load(self):
+        hint_list = [self.model_dir]
+
+        model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
+        collision_model_ref = pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, hint_list)
+
+        collision_model_self = pin.GeometryModel()
+        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, hint_list)
+        self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
+
+        collision_model_self = pin.GeometryModel()
+        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, self.model_dir)
+        self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
+
+        hint_vec = pin.StdVec_StdString()
+        hint_vec.append(self.model_dir)
+
+        collision_model_self = pin.GeometryModel()
+        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLIS$ION, collision_model_self, hint_vec)
+        self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
+ 
 
     def test_multi_load(self):
         hint_list = [self.model_dir, "wrong/hint"]
