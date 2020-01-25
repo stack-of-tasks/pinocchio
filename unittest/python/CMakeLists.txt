@@ -33,6 +33,7 @@ ENDIF(HPP_FCL_FOUND)
 IF(URDFDOM_FOUND)
   SET(${PROJECT_NAME}_PYTHON_TESTS
     ${${PROJECT_NAME}_PYTHON_TESTS}
+    bindings_urdf
     bindings_geometry_model_urdf
     )
 ENDIF(URDFDOM_FOUND)
