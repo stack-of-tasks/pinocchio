@@ -17,6 +17,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_motion
   bindings_SE3
   bindings_geometry_model
+  bindings_rnea
   explog
   rpy
   utils
