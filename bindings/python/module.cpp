@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -10,6 +10,8 @@
 #include "pinocchio/bindings/python/utils/dependencies.hpp"
 #include "pinocchio/bindings/python/utils/conversions.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -31,6 +33,8 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
     eigenpy::exposeQuaternion();
   if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
+  
+  StdContainerFromPythonList< std::vector<std::string> >::register_converter();
 
   typedef Eigen::Matrix<double,6,6> Matrix6d;
   typedef Eigen::Matrix<double,6,1> Vector6d;
