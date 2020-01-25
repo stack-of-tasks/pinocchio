@@ -135,6 +135,9 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   GeometryModel geomModel;
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, packageDirs );
   geomModel.addAllCollisionPairs();
+  
+  GeometryModel geomModelOther = pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, packageDirs );
+  BOOST_CHECK(geomModelOther == geomModel);
 
   Data data(model);
   GeometryData geomData(geomModel);
