@@ -10,21 +10,6 @@ namespace pinocchio
 {
   namespace python
   {
-    
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename Force>
-    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-    rnea_proxy_list(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                    const Eigen::MatrixBase<TangentVectorType2> & a,
-                    const bp::list & fext_list)
-    {
-      container::aligned_vector<Force> fext;
-      extract(fext_list,fext.base());
-      
-      return rnea(model,data,q.derived(),v.derived(),a.derived(),fext);
-    }
   
     void exposeRNEA()
     {
@@ -46,16 +31,6 @@ namespace pinocchio
                        "Velocity v (size Model::nv)",
                        "Acceleration a (size Model::nv)",
                        "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
-              "Compute the RNEA with external forces, store the result in Data and return it.",
-              bp::return_value_policy<bp::return_by_value>());
-
-      bp::def("rnea",
-              &rnea_proxy_list<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Acceleration a (size Model::nv)",
-                       "List of external forces expressed in the local frame of each joint (size Model::njoints)"),
               "Compute the RNEA with external forces, store the result in Data and return it.",
               bp::return_value_policy<bp::return_by_value>());
 
