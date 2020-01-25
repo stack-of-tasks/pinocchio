@@ -42,7 +42,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         hint_vec.append(self.model_dir)
 
         collision_model_self = pin.GeometryModel()
-        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLIS$ION, collision_model_self, hint_vec)
+        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, hint_vec)
         self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
  
 
