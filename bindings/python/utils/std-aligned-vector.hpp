@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_std_aligned_vector_hpp__
@@ -8,34 +8,44 @@
 #include <boost/python.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <string>
+
 #include "pinocchio/container/aligned-vector.hpp"
+
 #include "pinocchio/bindings/python/utils/pickle-vector.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 namespace pinocchio
 {
   namespace python
   {
     
-    namespace bp = boost::python;
-    
     ///
     /// \brief Expose an container::aligned_vector from a type given as template argument.
     ///
-    /// \tparam T Type to expose as std::vector<T>.
+    /// \tparam T Type to expose as container::aligned_vector<T>.
+    /// \tparam EnableFromPythonListConverter Enables the conversion from a Python list to a container::aligned_vector<T>.
     ///
     /// \sa StdAlignedVectorPythonVisitor
     ///
-    template<class T, bool NoProxy = false>
+    template<class T, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdAlignedVectorPythonVisitor
-    : public bp::vector_indexing_suite< typename container::aligned_vector<T>,NoProxy >
+    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy>
+    , public StdContainerFromPythonList< container::aligned_vector<T> >
     {
+      typedef container::aligned_vector<T> vector_type;
+      typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
       
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        bp::class_< typename container::aligned_vector<T> >(class_name.c_str(),doc_string.c_str())
+        ::boost::python::class_<vector_type>(class_name.c_str(),
+                                             doc_string.c_str())
         .def(StdAlignedVectorPythonVisitor())
-        .def_pickle(PickleVector<typename container::aligned_vector<T> >());
+        .def_pickle(PickleVector<vector_type>());
+        
+        // Register conversion
+        if(EnableFromPythonListConverter)
+          FromPythonListConverter::register_converter();
       }
     };
   } // namespace python
