@@ -19,8 +19,6 @@ namespace pinocchio
   namespace python
   {
     
-    namespace bp = boost::python;
-    
     ///
     /// \brief Expose an container::aligned_vector from a type given as template argument.
     ///
@@ -31,7 +29,7 @@ namespace pinocchio
     ///
     template<class T, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdAlignedVectorPythonVisitor
-    : public bp::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy>
+    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy>
     , public StdContainerFromPythonList< container::aligned_vector<T> >
     {
       typedef container::aligned_vector<T> vector_type;
@@ -40,8 +38,8 @@ namespace pinocchio
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        bp::class_<vector_type>(class_name.c_str(),
-                                doc_string.c_str())
+        ::boost::python::class_<vector_type>(class_name.c_str(),
+                                             doc_string.c_str())
         .def(StdAlignedVectorPythonVisitor())
         .def_pickle(PickleVector<vector_type>());
         

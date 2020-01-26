@@ -17,8 +17,6 @@ namespace pinocchio
   namespace python
   {
     
-    namespace bp = boost::python;
-  
     ///
     /// \brief Register the conversion from a Python list to a std::vector
     ///
@@ -36,14 +34,14 @@ namespace pinocchio
         if(!PyList_Check(obj_ptr)) return 0;
         
         // Retrieve the underlying list
-        bp::object bp_obj(bp::handle<>(bp::borrowed(obj_ptr)));
-        bp::list bp_list(bp_obj);
-        bp::ssize_t list_size = bp::len(bp_list);
+        ::boost::python::object bp_obj(::boost::python::handle<>(::boost::python::borrowed(obj_ptr)));
+        ::boost::python::list bp_list(bp_obj);
+        ::boost::python::ssize_t list_size = ::boost::python::len(bp_list);
         
         // Check if all the elements contained in the current vector is of type T
-        for(bp::ssize_t k = 0; k < list_size; ++k)
+        for(::boost::python::ssize_t k = 0; k < list_size; ++k)
         {
-          bp::extract<T> elt(bp_list[k]);
+          ::boost::python::extract<T> elt(bp_list[k]);
           if(!elt.check()) return 0;
         }
         
@@ -55,11 +53,11 @@ namespace pinocchio
                             boost::python::converter::rvalue_from_python_stage1_data * memory)
       {
         // Extract the list
-        bp::object bp_obj(bp::handle<>(bp::borrowed(obj_ptr)));
-        bp::list bp_list(bp_obj);
-        bp::ssize_t list_size = bp::len(bp_list);
+        ::boost::python::object bp_obj(::boost::python::handle<>(::boost::python::borrowed(obj_ptr)));
+        ::boost::python::list bp_list(bp_obj);
+        ::boost::python::ssize_t list_size = ::boost::python::len(bp_list);
         
-        void * storage = reinterpret_cast<bp::converter::rvalue_from_python_storage<vector_type>*>
+        void * storage = reinterpret_cast<::boost::python::converter::rvalue_from_python_storage<vector_type>*>
         (reinterpret_cast<void*>(memory))->storage.bytes;
         
         // Build the std::vector
@@ -68,9 +66,9 @@ namespace pinocchio
         vector.reserve((size_t)list_size);
         
         // Populate the vector
-        for(bp::ssize_t k = 0; k < list_size; ++k)
+        for(::boost::python::ssize_t k = 0; k < list_size; ++k)
         {
-          bp::extract<T> elt(bp_list[k]);
+          ::boost::python::extract<T> elt(bp_list[k]);
           vector.push_back(elt());
         }
         
@@ -80,9 +78,9 @@ namespace pinocchio
       
       static void register_converter()
       {
-        bp::converter::registry::push_back(&convertible,
-                                           &construct,
-                                           bp::type_id<vector_type>());
+        ::boost::python::converter::registry::push_back(&convertible,
+                                                        &construct,
+                                                        ::boost::python::type_id<vector_type>());
       }
     };
     
@@ -98,7 +96,7 @@ namespace pinocchio
     ///
     template<class T, class Allocator = std::allocator<T>, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdVectorPythonVisitor
-    : public bp::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy>
+    : public ::boost::python::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy>
     , public StdContainerFromPythonList< std::vector<T,Allocator> >
     {
       typedef std::vector<T,Allocator> vector_type;
@@ -107,7 +105,7 @@ namespace pinocchio
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        bp::class_<vector_type>(class_name.c_str(),doc_string.c_str())
+        ::boost::python::class_<vector_type>(class_name.c_str(),doc_string.c_str())
         .def(StdVectorPythonVisitor())
         .def_pickle(PickleVector<vector_type>());
         
