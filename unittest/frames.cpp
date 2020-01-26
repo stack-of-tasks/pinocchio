@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -205,6 +205,7 @@ BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
   Data::Matrix6x Jff(6,model.nv); Jff.fill(0);
+  Data::Matrix6x Jff2(6,model.nv); Jff2.fill(0);
 
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
@@ -225,6 +226,10 @@ BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
   getFrameJacobian(model,data,idx,WORLD,Jff);
   getJointJacobian(model, data_ref, parent_idx,WORLD, Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
+  
+  computeFrameJacobian(model,data,q,idx,WORLD,Jff2);
+  
+  BOOST_CHECK(Jff2.isApprox(Jjj));
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
@@ -252,6 +257,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jf(6,model.nv); Jf.fill(0);
+  Data::Matrix6x Jf2(6,model.nv); Jf2.fill(0);
   Data::Matrix6x Jf_ref(6,model.nv); Jf_ref.fill(0);
 
   computeFrameJacobian(model, data_ref, q, idx, Jf);
@@ -260,7 +266,11 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian )
   updateFramePlacement(model,  data_ref, idx);
   getFrameJacobian(model,      data_ref, idx, LOCAL, Jf_ref);
 
-  BOOST_CHECK(Jf.isApprox(Jf_ref));  
+  BOOST_CHECK(Jf.isApprox(Jf_ref));
+  
+  computeFrameJacobian(model,data,q,idx,LOCAL,Jf2);
+  
+  BOOST_CHECK(Jf2.isApprox(Jf_ref));
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_local_world_oriented )
@@ -285,6 +295,7 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_local_world_oriented )
 
   Model::Index idx = model.getFrameId(frame_name);
   Data::Matrix6x Jf(6,model.nv); Jf.fill(0);
+  Data::Matrix6x Jf2(6,model.nv); Jf2.fill(0);
   Data::Matrix6x Jf_ref(6,model.nv); Jf_ref.fill(0);
 
   computeJointJacobians(model, data, q);
@@ -294,8 +305,12 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_local_world_oriented )
   // Compute the jacobians.
   Jf_ref = SE3(data.oMf[idx].rotation(), Eigen::Vector3d::Zero()).toActionMatrix() * Jf_ref;
   getFrameJacobian(model,      data, idx, LOCAL_WORLD_ALIGNED, Jf);
-
+  
   BOOST_CHECK(Jf.isApprox(Jf_ref));
+  
+  computeFrameJacobian(model,data,q,idx,LOCAL_WORLD_ALIGNED,Jf2);
+  
+  BOOST_CHECK(Jf2.isApprox(Jf_ref));
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
