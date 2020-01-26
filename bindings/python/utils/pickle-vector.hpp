@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_pickle_vector_hpp__
@@ -13,7 +13,6 @@ namespace pinocchio
 {
   namespace python
   {
-    namespace bp = boost::python;
     ///
     /// \brief Create a pickle interface for the std::vector and aligned vector
     ///
@@ -22,15 +21,20 @@ namespace pinocchio
     /// \sa Pickle
     ///
     template<typename VecType>
-    struct PickleVector : bp::pickle_suite
+    struct PickleVector : boost::python::pickle_suite
     { 
-      static bp::tuple getinitargs(const VecType&) {    return bp::make_tuple();      }
-      static bp::tuple getstate(bp::object op)
-      { return bp::make_tuple(bp::list(bp::extract<const VecType&>(op)()));           }
-      static void setstate(bp::object op, bp::tuple tup)
+      static boost::python::tuple getinitargs(const VecType&)
+      { return boost::python::make_tuple(); }
+      
+      static boost::python::tuple getstate(boost::python::object op)
       {
-        VecType& o = bp::extract<VecType&>(op)(); 
-        bp::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
+        return boost::python::make_tuple(boost::python::list(boost::python::extract<const VecType&>(op)()));
+      }
+      
+      static void setstate(boost::python::object op, boost::python::tuple tup)
+      {
+        VecType & o = boost::python::extract<VecType&>(op)();
+        boost::python::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
         o.insert(o.begin(),begin,end);
       }
     };
