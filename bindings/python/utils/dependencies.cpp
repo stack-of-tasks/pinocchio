@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2020 INRIA
 //
 
 #include <boost/python.hpp>
@@ -22,13 +22,6 @@ namespace pinocchio
       
       bp::scope().attr("WITH_URDFDOM") =
 #ifdef PINOCCHIO_WITH_URDFDOM
-      true;
-#else
-      false;
-#endif
-      
-      bp::scope().attr("WITH_LUA5") =
-#ifdef PINOCCHIO_WITH_LUA5
       true;
 #else
       false;

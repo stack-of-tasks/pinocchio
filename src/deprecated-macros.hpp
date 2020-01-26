@@ -17,10 +17,4 @@
   #endif
 #endif
 
-#ifdef PINOCCHIO_WITH_LUA5
-  #ifdef PINOCCHIO_ENABLE_COMPATIBILITY_WITH_VERSION_1 // for backward compatibility
-    #define WITH_LUA5
-  #endif
-#endif
-
 #endif // ifndef __pinocchio_deprecated_macros_hpp__

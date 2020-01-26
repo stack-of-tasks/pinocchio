@@ -1,18 +1,11 @@
 # 
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 # 
 
 # ----------------------------------------------------
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
-
-IF(LUA5_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_PARSERS_SOURCES 
-      parsers/lua/lua_tables.cpp
-      parsers/lua.cpp
-    )
-ENDIF(LUA5_FOUND)
 
 SET(${PROJECT_NAME}_SOURCES
   ${${PROJECT_NAME}_PARSERS_SOURCES}
@@ -35,10 +28,6 @@ IF(UNIX)
     IF(HPP_FCL_FOUND)
       PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME} hpp-fcl)
     ENDIF(HPP_FCL_FOUND)
-
-    IF(LUA5_FOUND)
-      PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME} ${LUA5_PACKAGE})
-    ENDIF(LUA5_FOUND)
 
     ADD_HEADER_GROUP(HEADERS)
     ADD_SOURCE_GROUP(${PROJECT_NAME}_SOURCES)

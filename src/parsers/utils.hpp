@@ -26,8 +26,7 @@ namespace pinocchio
   ///
   enum ModelFileExtensionType{
     UNKNOWN = 0,
-    URDF,
-    LUA
+    URDF
   };
   
   ///
@@ -37,14 +36,12 @@ namespace pinocchio
   ///
   /// \return The type of the extension of the model file
   ///
-  inline ModelFileExtensionType checkModelFileExtension (const std::string & filename)
+  inline ModelFileExtensionType checkModelFileExtension(const std::string & filename)
   {
     const std::string extension = filename.substr(filename.find_last_of(".") + 1);
     
     if (extension == "urdf")
       return URDF;
-    else if (extension == "lua")
-      return LUA;
     
     return UNKNOWN;
   }

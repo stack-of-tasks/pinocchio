@@ -15,10 +15,6 @@
 #include "pinocchio/bindings/python/multibody/geometry-model.hpp"
 #include "pinocchio/bindings/python/multibody/geometry-data.hpp"
 
-#ifdef PINOCCHIO_WITH_LUA5
-  #include "pinocchio/parsers/lua.hpp"
-#endif // #ifdef PINOCCHIO_WITH_LUA5
-
 #include "pinocchio/parsers/srdf.hpp"
 
 namespace pinocchio
@@ -257,18 +253,6 @@ namespace pinocchio
 #endif // #ifdef PINOCCHIO_WITH_HPP_FCL
 
 #endif // #ifdef PINOCCHIO_WITH_URDFDOM
-
-#ifdef PINOCCHIO_WITH_LUA5
-      static Model buildModelFromLua(const std::string & filename,
-                                     bool ff,
-                                     bool verbose
-                                     )
-      {
-        Model model;
-        model = pinocchio::lua::buildModel(filename, ff, verbose);
-        return model;
-      }
-#endif // #ifdef PINOCCHIO_WITH_LUA5
       
       BOOST_PYTHON_FUNCTION_OVERLOADS(loadReferenceConfigurations_overload,
                                       srdf::loadReferenceConfigurations,
@@ -542,14 +526,6 @@ namespace pinocchio
 
 #endif // #ifdef PINOCCHIO_WITH_HPP_FCL
 #endif // #ifdef PINOCCHIO_WITH_URDFDOM
-      
-#ifdef PINOCCHIO_WITH_LUA5
-      bp::def("buildModelFromLua",buildModelFromLua,
-              bp::args("Filename (string)",
-                       "Free flyer (bool, false for a fixed robot)",
-                       "Verbose option "),
-              "Parse the URDF file given in input and return a proper pinocchio model");
-#endif // #ifdef PINOCCHIO_WITH_LUA5
 
       bp::def("loadReferenceConfigurations",
               static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
