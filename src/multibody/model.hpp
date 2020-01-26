@@ -136,12 +136,12 @@ namespace pinocchio
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
     
-    /// \brief Vector of supports.
-    /// supports[j] corresponds to the collection of all joints located on the path between body *j*  and the world.
+    /// \brief Vector of joint supports.
+    /// supports[j] corresponds to the collection of all joints located on the path between body *j*  and the root.
     /// The last element of supports[j] is the index of the joint *j* itself.
     std::vector<IndexVector> supports;
     
-    /// \brief Vector of subtrees.
+    /// \brief Vector of joint subtrees.
     /// subtree[j] corresponds to the subtree supported by the joint *j*.
     /// The first element of subtree[j] is the index of the joint *j* itself.
     std::vector<IndexVector> subtrees;

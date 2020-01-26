@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -24,14 +24,25 @@ namespace pinocchio
     static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
                                                        Data & data,
                                                        const Eigen::VectorXd & q,
-                                                       const Model::FrameIndex frame_id)
+                                                       Model::FrameIndex frame_id)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
       computeFrameJacobian(model, data, q, frame_id, J);
   
       return J;
     }
-
+    
+    static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
+                                                       Data & data,
+                                                       const Eigen::VectorXd & q,
+                                                       Model::FrameIndex frame_id,
+                                                       ReferenceFrame reference_frame)
+    {
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      computeFrameJacobian(model, data, q, frame_id, reference_frame, J);
+  
+      return J;
+    }
 
     static Data::Matrix6x get_frame_jacobian_time_variation_proxy(const Model & model,
                                                                   Data & data,
@@ -60,79 +71,66 @@ namespace pinocchio
     void exposeFramesAlgo()
     {
       using namespace Eigen;
+      
       bp::def("updateFramePlacements",
               &updateFramePlacements<double,0,JointCollectionDefaultTpl>,
-              bp::args("Model","Data"),
+              bp::args("model","data"),
               "Computes the placements of all the operational frames according to the current joint placement stored in data"
               "and puts the results in data.");
 
       bp::def("updateFramePlacement",
               &updateFramePlacement<double,0,JointCollectionDefaultTpl>,
-              bp::args("Model","Data","Operational frame ID (int)"),
-              "Computes the placement of the given operational frames according to the current joint placement stored in data,"
-              "puts the results in data and returns it.",
+              bp::args("model","data","frame_id"),
+              "Computes the placement of the given operational frame (frame_id) according to the current joint placement stored in data, stores the results in data and returns it.",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("getFrameVelocity",
               &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
-              bp::args("Model","Data","Operational frame ID (int)"),
-              "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
-              "Fist or second order forwardKinematics should be called first.");
+              bp::args("model","data","frame_id"),
+              "Returns the spatial velocity of the frame expressed in the coordinates system of the Frame itself.\n"
+              "forwardKinematics(model,data,q,v,[a]).");
 
       bp::def("getFrameAcceleration",
               &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
-              bp::args("Model","Data","Operational frame ID (int)"),
-              "Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system."
-              "Second order forwardKinematics should be called first.");
+              bp::args("model","data","frame_id"),
+              "Returns the spatial acceleration of the frame expressed in the coordinates system of the Frame itself.\n"
+              "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a .");
       
       bp::def("framesForwardKinematics",
               &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)"),
-              "Update first the placement of the joints according to the given configuration value."
-              "And computes the placements of all the operational frames"
-              "and store the results in data.");
+              bp::args("model","data","q"),
+              "Calls first the forwardKinematics(model,data,q) and then update the Frame placement quantities (data.oMf).");
       
       bp::def("computeFrameJacobian",
-              &compute_frame_jacobian_proxy,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Operational frame ID (int)"),
-              "Computes the Jacobian of the frame given by its ID."
-              "The columns of the Jacobian are expressed in the frame coordinates.\n"
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
+              bp::args("model","data","q","frame_id","reference_frame"),
+              "Computes the Jacobian of the frame given by its frame_id in the coordinate system given by reference_frame.\n");
+      
+      bp::def("computeFrameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex))&compute_frame_jacobian_proxy,
+              bp::args("model","data","q","frame_id"),
+              "Computes the Jacobian of the frame given by its frame_id.\n"
+              "The columns of the Jacobian are expressed in the coordinates system of the Frame itself.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
-              "where v is the time derivative of the configuration q.");
+              "where v is the joint velocity.");
       
       bp::def("getFrameJacobian",
               &get_frame_jacobian_proxy,
-              bp::args("Model","Data",
-                       "Operational frame ID (int)",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
-              "Computes the Jacobian of the frame given by its ID either in the local or the world frames."
-              "The columns of the Jacobian are expressed in the frame coordinates.\n"
+              bp::args("model","data","frame_id","reference_frame"),
+              "Computes the Jacobian of the frame given by its ID either in the local or the world frames.\n"
+              "The columns of the Jacobian are expressed in the LOCAL frame coordinates system.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
-              "where v is the time derivative of the configuration q.\n"
-              "Be aware that computeJointJacobians and framesKinematics must have been called first.");
+              "where v is the joint velocity.\n"
+              "computeJointJacobians(model,data,q) and updateFramePlacements(model,data) must have been called first.");
 
       bp::def("frameJacobianTimeVariation",&frame_jacobian_time_variation_proxy,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",                       
-                       "Operational frame ID (int)",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
-              "Computes the Jacobian Time Variation of the frame given by its ID either in the local or the world frames."
-              "The columns of the Jacobian time variation are expressed in the frame coordinates.\n"
-              "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
-              "where v is the time derivative of the configuration q.");      
+              bp::args("model","data","q","v","frame_id","reference_frame"),
+              "Computes the Jacobian Time Variation of the frame given by its frame_id either in the reference frame provided by reference_frame.\n");
 
       bp::def("getFrameJacobianTimeVariation",get_frame_jacobian_time_variation_proxy,
-              bp::args("Model, the model of the kinematic tree",
-                       "Data, the data associated to the model where the results are stored",
-                       "Frame ID, the index of the frame.",
-                       "Reference frame rf (either ReferenceFrame.LOCAL or ReferenceFrame.WORLD)"),
-              "Returns the Jacobian time variation of a specific frame (specified by Frame ID) expressed either in the world or the local frame."
-              "You have to call computeJointJacobiansTimeVariation and framesKinematics first."
-              "If rf is set to LOCAL, it returns the jacobian time variation associated to the frame index. Otherwise, it returns the jacobian time variation of the frame coinciding with the world frame.");
+              bp::args("model","data","frame_id","reference_frame"),
+              "Returns the Jacobian time variation of the frame given by its frame_id either in the reference frame provided by reference_frame.\n"
+              "You have to call computeJointJacobiansTimeVariation(model,data,q,v) and updateFramePlacements(model,data) first.");
 
     }
   

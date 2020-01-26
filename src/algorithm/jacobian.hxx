@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_jacobian_hxx__
@@ -13,23 +13,25 @@
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   struct JointJacobiansForwardStep
-  : public fusion::JointUnaryVisitorBase< JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+  : public fusion::JointUnaryVisitorBase< JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
                                   Data &,
-                                  const ConfigVectorType &> ArgsType;
+                                  const ConfigVectorType &,
+                                  Matrix6xLike &> ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q)
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<Matrix6xLike> & J)
     {
       typedef typename Model::JointIndex JointIndex;
       
@@ -42,7 +44,8 @@ namespace pinocchio
       if(parent>0) data.oMi[i] = data.oMi[parent]*data.liMi[i];
       else         data.oMi[i] = data.liMi[i];
       
-      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
+      jmodel.jointCols(J_) = data.oMi[i].act(jdata.S());
     }
   
   };
@@ -57,13 +60,17 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
+    typedef typename Data::Matrix6x Matrix6x;
     
-    typedef JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass;
+    typedef JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6x> Pass;
+    typedef typename Pass::ArgsType ArgsType;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass::run(model.joints[i],data.joints[i],
-                typename Pass::ArgsType(model,data,q.derived()));
+                ArgsType(model,data,q.derived(),
+                         PINOCCHIO_EIGEN_CONST_CAST(Matrix6x,data.J)));
     }
   
     return data.J;

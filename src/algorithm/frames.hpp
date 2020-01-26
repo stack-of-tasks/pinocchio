@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_frames_hpp__
@@ -144,6 +144,33 @@ namespace pinocchio
                                const Eigen::MatrixBase<Matrix6xLike> & J);
   
   ///
+  /// \brief Computes the Jacobian of a specific Frame expressed in the desired reference_frame given as argument.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
+  ///
+  /// \param[in] model                                The model structure of the rigid body system.
+  /// \param[in] data                                  The data structure of the rigid body system.
+  /// \param[in] q                                         The joint configuration vector (dim model.nq).
+  /// \param[in] frameId                            The id of the Frame refering to model.frames[frameId].
+  /// \param[in] reference_frame          Reference frame in which the Jacobian is expressed.
+  /// \param[out] J                                       A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.setZero().
+  ///
+  /// \return The Jacobian of the specific Frame expressed in the desired reference frame (matrix 6 x model.nv).
+  ///
+  /// \remarks The result of this function is equivalent to call first computeJointJacobians(model,data,q), then updateFramePlacements(model,data) and then call getJointJacobian(model,data,jointId,rf,J),
+  ///         but forwardKinematics and updateFramePlacements are not fully computed.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
+  inline void computeFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const FrameIndex frameId,
+                                   const ReferenceFrame reference_frame,
+                                   const Eigen::MatrixBase<Matrix6xLike> & J);
+
+  ///
   /// \brief Computes the Jacobian of a specific Frame expressed in the LOCAL frame coordinate system.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -160,30 +187,32 @@ namespace pinocchio
   ///
   /// \remarks The result of this function is equivalent to call first computeJointJacobians(model,data,q), then updateFramePlacements(model,data) and then call getJointJacobian(model,data,jointId,LOCAL,J),
   ///         but forwardKinematics and updateFramePlacements are not fully computed.
-  ///         It is worth to call jacobian if you only need a single Jacobian for a specific joint. Otherwise, for several Jacobians, it is better
-  ///         to call computeJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   inline void computeFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                    const Eigen::MatrixBase<ConfigVectorType> & q,
                                    const FrameIndex frameId,
-                                   const Eigen::MatrixBase<Matrix6Like> & J);
+                                   const Eigen::MatrixBase<Matrix6xLike> & J)
+  {
+    computeFrameJacobian(model,data,q.derived(),frameId,LOCAL,
+                         PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
+  }
                         
   ///
   /// \brief This function is now deprecated and has been renamed computeFrameJacobian. This signature will be removed in future release of Pinocchio.
   ///
   /// \copydoc pinocchio::computeFrameJacobian
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   PINOCCHIO_DEPRECATED
   inline void frameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
                             const FrameIndex frameId,
-                            const Eigen::MatrixBase<Matrix6Like> & J)
+                            const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-    computeFrameJacobian(model,data,q,frameId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J));
+    computeFrameJacobian(model,data,q,frameId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
   
   ///
