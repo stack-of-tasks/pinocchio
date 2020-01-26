@@ -31,7 +31,18 @@ namespace pinocchio
   
       return J;
     }
-
+    
+    static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
+                                                       Data & data,
+                                                       const Eigen::VectorXd & q,
+                                                       Model::FrameIndex frame_id,
+                                                       ReferenceFrame reference_frame)
+    {
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      computeFrameJacobian(model, data, q, frame_id, reference_frame, J);
+  
+      return J;
+    }
 
     static Data::Matrix6x get_frame_jacobian_time_variation_proxy(const Model & model,
                                                                   Data & data,
@@ -91,14 +102,17 @@ namespace pinocchio
               "Calls first the forwardKinematics(model,data,q) and then update the Frame placement quantities (data.oMf).");
       
       bp::def("computeFrameJacobian",
-              &compute_frame_jacobian_proxy,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Operational frame ID (int)"),
-              "Computes the Jacobian of the frame given by its ID."
-              "The columns of the Jacobian are expressed in the frame coordinates.\n"
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
+              bp::args("model","data","q","frame_id","reference_frame"),
+              "Computes the Jacobian of the frame given by its frame_id in the coordinate system given by reference_frame.\n");
+      
+      bp::def("computeFrameJacobian",
+              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex))&compute_frame_jacobian_proxy,
+              bp::args("model","data","q","frame_id"),
+              "Computes the Jacobian of the frame given by its frame_id.\n"
+              "The columns of the Jacobian are expressed in the coordinates system of the Frame itself.\n"
               "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
-              "where v is the time derivative of the configuration q.");
+              "where v is the joint velocity.");
       
       bp::def("getFrameJacobian",
               &get_frame_jacobian_proxy,
