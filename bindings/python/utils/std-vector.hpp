@@ -57,7 +57,7 @@ namespace pinocchio
         ::boost::python::list bp_list(bp_obj);
         ::boost::python::ssize_t list_size = ::boost::python::len(bp_list);
         
-        void * storage = reinterpret_cast<::boost::python::converter::rvalue_from_python_storage<vector_type>*>
+        void * storage = reinterpret_cast< ::boost::python::converter::rvalue_from_python_storage<vector_type>*>
         (reinterpret_cast<void*>(memory))->storage.bytes;
         
         // Build the std::vector

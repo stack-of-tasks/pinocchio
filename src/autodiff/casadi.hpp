@@ -56,7 +56,7 @@ namespace Eigen
   
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
     template<typename Scalar, bool IsInteger>
-    struct significant_decimals_default_impl<::casadi::Matrix<Scalar>,IsInteger>
+    struct significant_decimals_default_impl< ::casadi::Matrix<Scalar>,IsInteger>
     {
       static inline int run()
       {
@@ -208,13 +208,13 @@ namespace pinocchio
     namespace internal
     {
       template<typename Scalar>
-      struct return_type_max<::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>>
+      struct return_type_max< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>>
       {
         typedef ::casadi::Matrix<Scalar> type;
       };
       
       template<typename Scalar, typename T>
-      struct return_type_max<::casadi::Matrix<Scalar>,T>
+      struct return_type_max< ::casadi::Matrix<Scalar>,T>
       {
         typedef ::casadi::Matrix<Scalar> type;
       };
@@ -226,7 +226,7 @@ namespace pinocchio
       };
       
       template<typename Scalar>
-      struct call_max<::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar> >
+      struct call_max< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar> >
       {
         static inline ::casadi::Matrix<Scalar> run(const ::casadi::Matrix<Scalar> & a,
                                                    const ::casadi::Matrix<Scalar> & b)
@@ -234,7 +234,7 @@ namespace pinocchio
       };
       
       template<typename S1, typename S2>
-      struct call_max<::casadi::Matrix<S1>,S2>
+      struct call_max< ::casadi::Matrix<S1>,S2>
       {
         typedef ::casadi::Matrix<S1> CasadiType;
         static inline ::casadi::Matrix<S1> run(const ::casadi::Matrix<S1> & a,
@@ -265,7 +265,7 @@ namespace pinocchio
     {
       
       template<typename _Scalar>
-      struct quaternionbase_assign_impl<::casadi::Matrix<_Scalar> >
+      struct quaternionbase_assign_impl< ::casadi::Matrix<_Scalar> >
       {
         typedef ::casadi::Matrix<_Scalar> Scalar;
         template<typename Matrix3, typename QuaternionDerived>
@@ -351,7 +351,7 @@ namespace pinocchio
 //    };
     
     template<typename Scalar, typename then_type, typename else_type>
-    struct if_then_else_impl<::casadi::Matrix<Scalar>,then_type,else_type>
+    struct if_then_else_impl< ::casadi::Matrix<Scalar>,then_type,else_type>
     {
       typedef typename traits<if_then_else_impl>::ReturnType ReturnType;
       
