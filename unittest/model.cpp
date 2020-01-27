@@ -123,6 +123,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
     buildModels::manipulator(manipulator);
     buildModels::manipulatorGeometries(manipulator, geomManipulator);
+    geomManipulator.addAllCollisionPairs();
     // Add prefix to joint and frame names
     AddPrefix addManipulatorPrefix ("manipulator/");
     std::transform (++manipulator.names.begin(), manipulator.names.end(),
@@ -134,6 +135,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
     buildModels::humanoid(humanoid);
     buildModels::humanoidGeometries(humanoid, geomHumanoid);
+    geomHumanoid.addAllCollisionPairs();
     // Add prefix to joint and frame names
     AddPrefix addHumanoidPrefix ("humanoid/");
     std::transform (++humanoid.names.begin(), humanoid.names.end(),
@@ -246,12 +248,14 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill( 1.);
   
+  humanoid_model.referenceConfigurations.insert(std::pair<std::string,Eigen::VectorXd>("neutral",neutral(humanoid_model)));
   Eigen::VectorXd reference_config_humanoid = randomConfiguration(humanoid_model);
   Model humanoid_copy_model = buildReducedModel(humanoid_model,empty_index_vector,reference_config_humanoid);
   
   BOOST_CHECK(humanoid_copy_model.names == humanoid_model.names);
   BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
   BOOST_CHECK(humanoid_copy_model == humanoid_model);
+  BOOST_CHECK(humanoid_copy_model.referenceConfigurations["neutral"].isApprox(neutral(humanoid_copy_model)));
   
   std::vector<JointIndex> joints_to_lock;
   const std::string joint1_to_lock = "rarm_shoulder2_joint";
@@ -261,6 +265,7 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 
   Model reduced_humanoid_model = buildReducedModel(humanoid_model,joints_to_lock,reference_config_humanoid);
   BOOST_CHECK(reduced_humanoid_model.njoints == humanoid_model.njoints-(int)joints_to_lock.size());
+  
   BOOST_CHECK(reduced_humanoid_model != humanoid_model);
   
   Model reduced_humanoid_model_other_signature;
@@ -279,6 +284,8 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
     reduced_humanoid_model.joints[joint_id].jointConfigSelector(reduced_q) =
     humanoid_model.joints[reference_joint_id].jointConfigSelector(q);
   }
+  
+  BOOST_CHECK(reduced_humanoid_model.referenceConfigurations["neutral"].isApprox(neutral(reduced_humanoid_model)));
   
   framesForwardKinematics(humanoid_model,data,q);
   framesForwardKinematics(reduced_humanoid_model,reduced_data,reduced_q);
