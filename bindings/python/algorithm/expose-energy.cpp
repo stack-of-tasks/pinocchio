@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -14,24 +14,29 @@ namespace pinocchio
     {
       using namespace Eigen;
       
-      bp::def("kineticEnergy",
-              &kineticEnergy<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",
-                       "Update kinematics (bool)"),
-              "Computes the kinematic energy of the model for the "
-              "given joint configuration and velocity and stores the result "
-              "in data.kinetic_energy. By default, the first order kinematic quantities of the model are updated.");
+      bp::def("computeKineticEnergy",
+              (double (*)(const Model &, Data &, const Eigen::VectorXd &, const Eigen::VectorXd &))&computeKineticEnergy<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              bp::args("model","data","q","v"),
+              "Computes the forward kinematics and the kinematic energy of the model for the "
+              "given joint configuration and velocity given as input. The result is accessible through data.kinetic_energy.");
       
-      bp::def("potentialEnergy",
-              &potentialEnergy<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Update kinematics (bool)"),
+      bp::def("computeKineticEnergy",
+              &computeKineticEnergy<double,0,JointCollectionDefaultTpl>,
+              bp::args("model","data"),
+              "Computes the kinematic energy of the model for the "
+              "given joint placement and velocity stored in data. The result is accessible through data.kinetic_energy.");
+      
+      bp::def("computePotentialEnergy",
+              (double (*)(const Model &, Data &, const Eigen::VectorXd &))&computePotentialEnergy<double,0,JointCollectionDefaultTpl,VectorXd>,
+              bp::args("model","data","q"),
               "Computes the potential energy of the model for the "
-              "given the joint configuration and stores the result "
-              "in data.potential_energy. By default, the zero order kinematic quantities of the model are updated.");
+              "given the joint configuration given as input. The result is accessible through data.potential_energy.");
+      
+      bp::def("computePotentialEnergy",
+              &computePotentialEnergy<double,0,JointCollectionDefaultTpl>,
+              bp::args("model","data"),
+              "Computes the potential energy of the model for the "
+              "given joint placement stored in data. The result is accessible through data.potential_energy.");
     }
     
   } // namespace python
