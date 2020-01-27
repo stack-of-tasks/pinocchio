@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_compute_all_terms_hpp__
@@ -23,8 +23,8 @@ namespace pinocchio
   ///         - pinocchio::computeJointJacobians
   ///         - pinocchio::centerOfMass
   ///         - pinocchio::jacobianCenterOfMass
-  ///         - pinocchio::kineticEnergy
-  ///         - pinocchio::potentialEnergy
+  ///         - pinocchio::computeKineticEnergy
+  ///         - pinocchio::computePotentialEnergy
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -242,8 +242,8 @@ namespace pinocchio
     data.Jcom /= data.mass[0];
     
     // Energy
-    kineticEnergy(model, data, q, v, false);
-    potentialEnergy(model, data, q, false);
+    computeKineticEnergy(model, data);
+    computePotentialEnergy(model, data);
 
   }
 } /// \endcond namespace pinocchio
