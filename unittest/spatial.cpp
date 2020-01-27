@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include <iostream>
@@ -659,6 +659,9 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
     BOOST_CHECK(I2.isApprox(I));
 
   }
+  
+  // Test disp
+  std::cout << aI << std::endl;
 
 }
 
