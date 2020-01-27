@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -43,7 +43,6 @@ ENDIF(WIN32)
 OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION (BUILD_UTILS "Build the utils" OFF)
 OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
-OPTION (BUILD_WITH_LUA_SUPPORT "Build the lua parser" OFF)
 OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF(DEFINED BUILD_UNIT_TESTS)
@@ -136,26 +135,6 @@ IF(URDFDOM_FOUND AND BUILD_WITH_URDF_SUPPORT)
   ENDIF(${URDFDOM_VERSION} VERSION_GREATER "0.4.2")
 ENDIF(URDFDOM_FOUND AND BUILD_WITH_URDF_SUPPORT)
 
-# Special care of lua which can be of versions 5.1 or 5.2
-# Priority is set to lua5.2
-IF(BUILD_WITH_LUA_SUPPORT)
-  ADD_OPTIONAL_DEPENDENCY("lua5.2")
-  IF(LUA5_2_FOUND)
-    SET(LUA5_FOUND TRUE)
-    SET(LUA5_PACKAGE "lua5.2")
-    ADD_DEFINITIONS(-DPINOCCHIO_LUA_VERSION_GREATER_5_2)
-    PKG_CONFIG_APPEND_CFLAGS("-DPINOCCHIO_LUA_VERSION_GREATER_5_2")
-  ELSE(LUA5_2_FOUND)
-    ADD_OPTIONAL_DEPENDENCY("lua5.1")
-    IF(LUA5_1_FOUND)
-      SET(LUA5_FOUND TRUE)
-      SET(LUA5_PACKAGE "lua5.1")
-    ELSE(LUA5_1_FOUND)
-      MESSAGE(FATAL_ERROR "Cannot find a suitable version of Lua 5.1 or 5.2")
-    ENDIF(LUA5_1_FOUND)
-  ENDIF(LUA5_2_FOUND)
-ENDIF(BUILD_WITH_LUA_SUPPORT)
-
 SET(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 SET(BOOST_BUILD_COMPONENTS unit_test_framework)
 SET(BOOST_OPTIONAL_COMPONENTS "")
@@ -212,16 +191,6 @@ ELSE(HPP_FCL_FOUND)
     )
 ENDIF(HPP_FCL_FOUND)
 
-IF(LUA5_FOUND)
-  ADD_DEFINITIONS(-DPINOCCHIO_WITH_LUA5)
-  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_LUA5")
-ELSE(LUA5_FOUND)
-  LIST(REMOVE_ITEM HEADERS
-    ${PROJECT_SOURCE_DIR}/src/parsers/lua.hpp
-    ${PROJECT_SOURCE_DIR}/src/parsers/lua/lua_tables.hpp
-    )
-ENDIF(LUA5_FOUND)
-
 LIST(APPEND HEADERS macros.hpp)
 
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio")
@@ -232,7 +201,6 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/joint")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegroup")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/visitor")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/lua")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
