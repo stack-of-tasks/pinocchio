@@ -60,5 +60,14 @@ class TestMotionBindings(unittest.TestCase):
         self.assertTrue(np.allclose((m.actInv(v)).vector, np.linalg.inv(m.action) * v.vector))
         self.assertTrue(np.allclose((v ^ v).vector, zero(6)))
 
+    def test_conversion(self):
+
+        m = pin.Motion.Random()
+        m_array = np.array(m)
+
+        m_from_array = pin.Motion(m_array)
+
+        self.assertTrue(m_from_array == m)
+
 if __name__ == '__main__':
     unittest.main()

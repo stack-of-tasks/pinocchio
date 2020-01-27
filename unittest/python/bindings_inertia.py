@@ -96,6 +96,12 @@ class TestInertiaBindings(TestCase):
 
         I2 = pin.Inertia.FromDynamicParameters(v)
         self.assertApprox(I2, I)
+    
+    def test_array(self):
+        I = pin.Inertia.Random()
+        I_array = np.array(I)
+
+        self.assertApprox(I_array,I.matrix())
 
 if __name__ == '__main__':
     unittest.main()

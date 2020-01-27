@@ -61,5 +61,14 @@ class TestForceBindings(unittest.TestCase):
         v = pin.Motion(np.vstack([f.vector[3:], f.vector[:3]]))
         self.assertTrue(np.allclose((v ^ f).vector, zero(6)))
 
+    def test_conversion(self):
+
+        f = pin.Force.Random()
+        f_array = np.array(f)
+
+        f_from_array = pin.Force(f_array)
+
+        self.assertTrue(f_from_array == f)
+
 if __name__ == '__main__':
     unittest.main()

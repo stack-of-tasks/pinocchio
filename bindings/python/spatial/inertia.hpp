@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -146,6 +146,8 @@ namespace pinocchio
              bp::args("mass","length_x","length_y","length_z"),
              "Returns an Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
+        
+        .def("__array__",&Inertia::matrix)
         
         .def_pickle(Pickle())
         ;

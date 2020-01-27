@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -117,6 +117,8 @@ namespace pinocchio
         .staticmethod("Random")
         .def("Zero",&Force::Zero,"Returns a zero Force.")
         .staticmethod("Zero")
+        
+        .def("__array__",&ForcePythonVisitor::getVector)
         
         .def_pickle(Pickle())
         ;

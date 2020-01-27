@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -157,6 +157,8 @@ namespace pinocchio
         .def("Random",&SE3::Random,"Returns a random transformation.")
         .staticmethod("Random")
         
+        .def("__array__",&SE3::toHomogeneousMatrix)
+        
         .def_pickle(Pickle())
         ;
       }
@@ -193,8 +195,6 @@ namespace pinocchio
       { return self.act(other); }
     };
     
-
-
   } // namespace python
 } // namespace pinocchio
 
