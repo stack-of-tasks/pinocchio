@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -67,7 +67,7 @@ namespace pinocchio
         .def(bp::init<Vector3,Vector3>
              ((bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Motion vector (don(t mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector6")),"Init from a vector 6 [linear velocity, angular velocity]"))
+        .def(bp::init<Vector6>((bp::arg("vec")),"Init from a vector 6 [linear velocity, angular velocity]"))
         .def(bp::init<Motion>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
@@ -132,6 +132,8 @@ namespace pinocchio
         .def("Zero",&Motion::Zero,"Returns a zero Motion.")
         .staticmethod("Zero")
         
+        .def("__array__",&MotionPythonVisitor::getVector)
+        
         .def_pickle(Pickle())
         ;
       }
@@ -139,9 +141,9 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<Motion>("Motion",
-                              "Motion vectors, in se3 == M^6.\n\n"
-                              "Supported operations ...",
-                              bp::init<>())
+                           "Motion vectors, in se3 == M^6.\n\n"
+                           "Supported operations ...",
+                           bp::init<>())
         .def(MotionPythonVisitor<Motion>())
         .def(CopyableVisitor<Motion>())
         .def(PrintableVisitor<Motion>())
