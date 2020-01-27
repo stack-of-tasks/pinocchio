@@ -140,5 +140,11 @@ class TestSE3Bindings(unittest.TestCase):
         self.assertTrue (mm_vec == mm_tup)
         self.assertTrue (mm_vec == mm_lis)
 
+        M = pin.SE3.Random()
+        h = np.array(M)
+
+        M_from_h = pin.SE3(h)
+        self.assertTrue(M == M_from_h)
+
 if __name__ == '__main__':
     unittest.main()
