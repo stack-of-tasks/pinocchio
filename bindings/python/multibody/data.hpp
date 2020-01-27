@@ -152,8 +152,8 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by kineticEnergy")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by potentialEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to contact forces")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to contact impulses")

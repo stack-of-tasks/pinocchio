@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   getJacobianComFromCrba(model, data_other);
   computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
-  kineticEnergy(model, data_other, q, v, true);
-  potentialEnergy(model, data_other, q, true);
+  computeKineticEnergy(model, data_other, q, v);
+  computePotentialEnergy(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   getJacobianComFromCrba(model, data_other);
   computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
-  kineticEnergy(model, data_other, q, v, true);
-  potentialEnergy(model, data_other, q, true);
+  computeKineticEnergy(model, data_other, q, v);
+  computePotentialEnergy(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
@@ -111,8 +111,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   getJacobianComFromCrba(model, data_other);
   computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
-  kineticEnergy(model, data_other, q, v, true);
-  potentialEnergy(model, data_other, q, true);
+  computeKineticEnergy(model, data_other, q, v);
+  computePotentialEnergy(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   getJacobianComFromCrba(model, data_other);
   computeJointJacobians(model,data_other,q);
   centerOfMass(model, data_other, q, v, true);
-  kineticEnergy(model, data_other, q, v, true);
-  potentialEnergy(model, data_other, q, true);
+  computeKineticEnergy(model, data_other, q, v);
+  computePotentialEnergy(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
