@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_energy_hpp__
