@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <map>
+#include <iterator>
 
 namespace pinocchio
 {
@@ -270,8 +271,18 @@ namespace pinocchio
 
       if(other.referenceConfigurations.size() != referenceConfigurations.size())
         return false;
-      res &= other.referenceConfigurations == referenceConfigurations;
-      if(!res) return res;
+      
+      typename ConfigVectorMap::const_iterator it = referenceConfigurations.begin();
+      typename ConfigVectorMap::const_iterator it_other = other.referenceConfigurations.begin();
+      for(long k = 0; k < (long)referenceConfigurations.size(); ++k)
+      {
+        std::advance(it,k); std::advance(it_other,k);
+        
+        if(it->second.size() != it_other->second.size())
+          return false;
+        if(it->second != it_other->second)
+          return false;
+      }
 
       if(other.rotorInertia.size() != rotorInertia.size())
         return false;
