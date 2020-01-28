@@ -22,26 +22,14 @@ namespace pinocchio
     /// Given \f$r, p, y\f$, the rotation is given as \f$ R = R_z(y)R_y(p)R_x(r) \f$,
     /// where \f$R_{\alpha}(\theta)\f$ denotes the rotation of \f$\theta\f$ degrees
     /// around axis \f$\alpha\f$.
-    /// As this is a specialized implementation, it is expected to be very efficient
     ///
     template<typename Scalar>
     Eigen::Matrix<Scalar,3,3> rpyToMatrix(Scalar r, Scalar p, Scalar y)
     {
-      typedef Eigen::Matrix<Scalar,3,3> ResultType;
-      ResultType res;
-
-      Scalar sr, cr;
-      SINCOS(r,&sr,&cr);
-      Scalar sp, cp;
-      SINCOS(p,&sp,&cp);
-      Scalar sy, cy;
-      SINCOS(y,&sy,&cy);
-
-      res <<  cp*cy, cy*sp*sr - cr*sy, sr*sy + cr*cy*sp,
-              cp*sy, cr*cy + sp*sr*sy, cr*sp*sy - cy*sr,
-                -sp,            cp*sr,            cp*cr;
-
-      return res;         
+      return (Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ())
+              * Eigen::AngleAxisd(p, Eigen::Vector3d::UnitY())
+              * Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX())
+             ).toRotationMatrix();
     }
 
     ///
@@ -50,7 +38,6 @@ namespace pinocchio
     /// Given a vector \f$(r, p, y)\f$, the rotation is given as \f$ R = R_z(y)R_y(p)R_x(r) \f$,
     /// where \f$R_{\alpha}(\theta)\f$ denotes the rotation of \f$\theta\f$ degrees
     /// around axis \f$\alpha\f$.
-    /// As this is a specialized implementation, it is expected to be very efficient
     ///
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
@@ -70,7 +57,6 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     /// The angles are guaranteed to be in the ranges \f$r\in[-\pi,\pi]\f$
     /// \f$p\in[-\frac{\pi}{2},\frac{\pi}{2}]\f$ \f$y\in[-\pi,\pi]\f$.
-    /// As this is a specialized implementation, it is expected to be very efficient.
     ///
     /// \warning the method assumes \f$R\f$ is a rotation matrix. If it is not, the result is undefined.
     ///
