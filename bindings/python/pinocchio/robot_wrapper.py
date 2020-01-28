@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 #
 
 from . import libpinocchio_pywrap as pin
@@ -63,12 +63,10 @@ class RobotWrapper(object):
         return self.data.acom[0]
 
     def centroidalMomentum(self, q, v):
-        pin.ccrba(self.model, self.data, q, v)
-        return self.data.hg
+        return pin.computeCentroidalMomentum(self.model, self.data, q, v)
 
     def centroidalMomentumVariation(self, q, v, a):
-        pin.dccrba(self.model, self.data, q, v)
-        return pin.Force(self.data.Ag*a+self.data.dAg*v)
+        return pin.computeCentroidalMomentumTimeVariation(self.model, self.data, q, v, a)
 
     def Jcom(self, q):
         return pin.jacobianCenterOfMass(self.model, self.data, q)
