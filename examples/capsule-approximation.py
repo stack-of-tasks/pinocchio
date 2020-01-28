@@ -55,9 +55,12 @@ def capsule_approximation(vertices):
     capsule_vol = lambda x: capsule_volume(x[:3], x[3:6], x[6])
     constraint = optimize.NonlinearConstraint(constraint_cap, lb=-np.inf, ub=0)
     res = optimize.minimize(capsule_vol, x0, constraints=constraint)
+    res_constraint = constraint_cap(res.x)
+    assert (
+        res_constraint <= 1e-4
+    ), "The computed solution is invalid, a vertex is at a distance {:.5f} of the capsule.".format(res_constraint)
     a, b, r = res.x[:3], res.x[3:6], res.x[6]
     return a, b, r
-
 
 filename = "mesh.obj"
 mesh_loader = hppfcl.MeshLoader()
