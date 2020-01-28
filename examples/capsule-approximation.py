@@ -17,21 +17,14 @@ def capsule_volume(a, b, r):
     return np.linalg.norm(b - a) * np.pi * r ** 2 + 4 / 3 * np.pi * r ** 3
 
 
-def distance_point_segment(p, a, b):
+def distance_points_segment(p, a, b):
     ap = p - a
     ab = b - a
     t = ap.dot(ab) / ab.dot(ab)
     t = np.clip(t, 0, 1)
-    p_witness = a + (b - a) * t
-    dist = np.linalg.norm(p - p_witness)
+    p_witness = a[None, :] + (b - a)[None, :] * t[:, None]
+    dist = np.linalg.norm(p - p_witness, axis=1).max()
     return dist
-
-
-def distance_points_segment(vertices, a, b):
-    d = 0
-    for v in vertices:
-        d = max(distance_point_segment(v, a, b), d)
-    return d
 
 
 def pca_approximation(vertices):
