@@ -63,8 +63,7 @@ class RobotWrapper(object):
         return self.data.acom[0]
 
     def centroidalMomentum(self, q, v):
-        pin.ccrba(self.model, self.data, q, v)
-        return self.data.hg
+        return pin.computeCentroidalMomentum(self.model, self.data, q, v)
 
     def centroidalMomentumVariation(self, q, v, a):
         return pin.computeCentroidalMomentumTimeVariation(self.model, self.data, q, v, a)
