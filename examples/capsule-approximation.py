@@ -1,3 +1,10 @@
+"""
+Copyright (c) 2020 INRIA
+Inspired from Antonio El Khoury PhD: https://tel.archives-ouvertes.fr/file/index/docid/833019/filename/thesis.pdf
+Section 3.8.1 Computing minimum bounding capsules
+"""
+
+
 import numpy as np
 import scipy.optimize as optimize
 
