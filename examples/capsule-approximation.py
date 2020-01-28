@@ -61,6 +61,6 @@ def capsule_approximation(vertices):
 
 filename = "mesh.obj"
 mesh_loader = hppfcl.MeshLoader()
-mesh = mesh_loader.load(filename)
+mesh = mesh_loader.load(filename, np.ones(3))
 vertices = mesh.vertices()
 a, b, r = capsule_approximation(vertices)
