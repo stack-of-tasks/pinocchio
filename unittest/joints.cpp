@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -1172,7 +1172,6 @@ BOOST_AUTO_TEST_SUITE_END()
   {
     static JointModel_ run()
     {
-      std::cout << "call default init" << std::endl;
       JointModel_ jmodel;
       jmodel.setIndexes(0,0,0);
       return jmodel;
@@ -1299,7 +1298,8 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     BOOST_CHECK(jmodel_any != jmodelx);
   }
   
-  struct TestJointModelCast
+  template<typename TestDerived>
+  struct TestJointModel
   {
     template<typename JointModel>
     void operator()(const pinocchio::JointModelBase<JointModel> &) const
@@ -1357,6 +1357,15 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     template<typename JointModel>
     static void test(const JointModelBase<JointModel> & jmodel)
     {
+      return TestDerived::test(jmodel);
+    }
+  };
+
+  struct TestJointModelCast : TestJointModel<TestJointModelCast>
+  {
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
       typedef typename JointModel::Scalar Scalar;
       BOOST_CHECK(jmodel.template cast<Scalar>() == jmodel);
       BOOST_CHECK(jmodel.template cast<long double>().template cast<double>() == jmodel);
@@ -1369,6 +1378,33 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
     boost::mpl::for_each<JointModelVariant::types>(TestJointModelCast());
     
     TestJointModelCast()(JointModel());
+  }
+
+  struct TestJointModelDisp : TestJointModel<TestJointModelDisp>
+  {
+    template<typename JointModel>
+    static void test(const JointModelBase<JointModel> & jmodel)
+    {
+      typedef typename JointModel::JointDataDerived JointData;
+      
+      std::cout << "shortname: " << jmodel.shortname() << std::endl;
+      std::cout << "classname: " << jmodel.classname() << std::endl;
+      std::cout << "disp:\n" << jmodel << std::endl;
+      
+      JointData jdata = jmodel.createData();
+      
+      std::cout << "shortname: " << jdata.shortname() << std::endl;
+      std::cout << "classname: " << jdata.classname() << std::endl;
+      std::cout << "disp:\n" << jdata << std::endl;
+    }
+  };
+
+  BOOST_AUTO_TEST_CASE(test_disp)
+  {
+    typedef JointCollectionDefault::JointModelVariant JointModelVariant;
+    boost::mpl::for_each<JointModelVariant::types>(TestJointModelDisp());
+    
+    TestJointModelDisp()(JointModel());
   }
   
 BOOST_AUTO_TEST_SUITE_END()
