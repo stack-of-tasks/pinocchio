@@ -135,6 +135,9 @@ namespace pinocchio {
   /// \namespace pinocchio::quaternion
   /// \brief Quaternion operations
 
+  /// \namespace pinocchio::rpy
+  /// \brief Roll-pitch-yaw operations
+
   /// \namespace pinocchio::urdf
   /// \brief URDF parsing
 

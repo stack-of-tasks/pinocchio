@@ -47,6 +47,7 @@ ADD_PINOCCHIO_UNIT_TEST(eigen-basic-op)
 ADD_PINOCCHIO_UNIT_TEST(eigen-tensor)
 ADD_PINOCCHIO_UNIT_TEST(sincos)
 ADD_PINOCCHIO_UNIT_TEST(quaternion)
+ADD_PINOCCHIO_UNIT_TEST(rpy)
 ADD_PINOCCHIO_UNIT_TEST(rotation)
 
 # Pinocchio features

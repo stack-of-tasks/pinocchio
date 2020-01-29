@@ -24,6 +24,7 @@ class TestRPY(TestCase):
         self.assertApprox(rpyToMatrix(matrixToRpy(m)), m)
         rpy = np.matrix(list(range(3))).T * pi / 2
         self.assertApprox(matrixToRpy(rpyToMatrix(rpy)), rpy)
+        self.assertApprox(rpyToMatrix(rpy), rpyToMatrix(float(rpy[0]), float(rpy[1]), float(rpy[2])))
 
 if __name__ == '__main__':
     unittest.main()

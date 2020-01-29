@@ -18,6 +18,7 @@ namespace pinocchio
     void exposeMotion();
     void exposeInertia();
     void exposeExplog();
+    void exposeRpy();
     
     // Expose multibody classes
     void exposeJoints();
