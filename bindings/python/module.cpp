@@ -52,6 +52,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeInertia();
   exposeJoints();
   exposeExplog();
+  exposeRpy();
   
   bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
   .value("WORLD",::pinocchio::WORLD)

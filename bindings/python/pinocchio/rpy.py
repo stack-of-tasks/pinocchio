@@ -2,8 +2,6 @@
 # Copyright (c) 2015 CNRS
 #
 
-from math import atan2, pi, sqrt
-
 import numpy as np
 
 from . import libpinocchio_pywrap as pin
@@ -37,27 +35,7 @@ def rotate(axis, ang):
     return pin.AngleAxis(ang, u).matrix()
 
 
-def rpyToMatrix(rpy):
-    '''
-    # Convert from Roll, Pitch, Yaw to transformation Matrix
-    '''
-    return rotate('z', rpy[2, 0]).dot(rotate('y', rpy[1, 0])).dot(rotate('x', rpy[0, 0]))
+rpyToMatrix = pin._rpyToMatrix
+matrixToRpy = pin._matrixToRpy
 
-
-def matrixToRpy(M):
-    '''
-    # Convert from Transformation Matrix to Roll, Pitch, Yaw
-    '''
-    m = sqrt(M[2, 1] ** 2 + M[2, 2] ** 2)
-    p = atan2(-M[2, 0], m)
-
-    if abs(abs(p) - pi / 2) < 0.001:
-        r = 0
-        y = -atan2(M[0, 1], M[1, 1])
-    else:
-        y = atan2(M[1, 0], M[0, 0])  # alpha
-        r = atan2(M[2, 1], M[2, 2])  # gamma
-
-    lst = [[r], [p], [y]]
-    is_matrix = isinstance(M, np.matrix)
-    return np.matrix(lst) if is_matrix else np.array(lst)
+__all__ = ['npToTTuple', 'npToTuple', 'rotate', 'rpyToMatrix', 'matrixToRpy']

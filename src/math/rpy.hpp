@@ -24,7 +24,7 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(Scalar r, Scalar p, Scalar y)
+    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r, const Scalar p, const Scalar y)
     {
       return (Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ())
               * Eigen::AngleAxisd(p, Eigen::Vector3d::UnitY())
@@ -41,11 +41,11 @@ namespace pinocchio
     ///
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & v)
+    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
     {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, v, 3, 1);
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, rpy, 3, 1);
 
-      return rpyToMatrix(v[0],v[1],v[2]);
+      return rpyToMatrix(rpy[0], rpy[1], rpy[2]);
     }
 
     ///
