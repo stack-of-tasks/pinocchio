@@ -17,7 +17,7 @@ namespace pinocchio
   namespace rpy
   {
     ///
-    /// \brief Convert from Roll, Pitch, Yaw to transformation Matrix
+    /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
     ///
     /// Given \f$r, p, y\f$, the rotation is given as \f$ R = R_z(y)R_y(p)R_x(r) \f$,
     /// where \f$R_{\alpha}(\theta)\f$ denotes the rotation of \f$\theta\f$ degrees
@@ -26,14 +26,16 @@ namespace pinocchio
     template<typename Scalar>
     Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r, const Scalar p, const Scalar y)
     {
-      return (Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ())
-              * Eigen::AngleAxisd(p, Eigen::Vector3d::UnitY())
-              * Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX())
+      typedef Eigen::AngleAxis<Scalar> AngleAxis;
+      typedef Eigen::Matrix<Scalar,3,1> Vector3s;
+      return (AngleAxis(y, Vector3s::UnitZ())
+              * AngleAxis(p, Vector3s::UnitY())
+              * AngleAxis(r, Vector3s::UnitX())
              ).toRotationMatrix();
     }
 
     ///
-    /// \brief Convert from Roll, Pitch, Yaw to transformation Matrix
+    /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
     ///
     /// Given a vector \f$(r, p, y)\f$, the rotation is given as \f$ R = R_z(y)R_y(p)R_x(r) \f$,
     /// where \f$R_{\alpha}(\theta)\f$ denotes the rotation of \f$\theta\f$ degrees

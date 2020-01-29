@@ -6,6 +6,8 @@ import numpy as np
 
 from . import libpinocchio_pywrap as pin
 
+from .libpinocchio_pywrap import _rpyToMatrix as rpyToMatrix
+from .libpinocchio_pywrap import _matrixToRpy as matrixToRpy
 
 def npToTTuple(M):
     L = M.tolist()
@@ -33,9 +35,5 @@ def rotate(axis, ang):
     u = np.zeros(3)
     u[cood[axis]] = 1.0
     return pin.AngleAxis(ang, u).matrix()
-
-
-rpyToMatrix = pin._rpyToMatrix
-matrixToRpy = pin._matrixToRpy
 
 __all__ = ['npToTTuple', 'npToTuple', 'rotate', 'rpyToMatrix', 'matrixToRpy']
