@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 /*
@@ -33,6 +33,7 @@
 
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/array.hpp>
 
 namespace boost
 {
@@ -65,6 +66,7 @@ namespace boost
       split_free(ar,m,version);
     }
   
+#if !defined(PINOCCHIO_WITH_EIGEN_TENSOR_MODULE) && ((__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY))
     template <class Archive, typename _IndexType, std::size_t _NumIndices>
     void save(Archive & ar, const Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
     {
@@ -82,6 +84,21 @@ namespace boost
     {
       split_free(ar,a,version);
     }
+#else
+  template <class Archive, class T, std::size_t N>
+  void save(Archive& ar, const std::array<T,N> & a, const unsigned int version)
+  {
+    typedef std::array<T,N> Array;
+    serialize(ar,const_cast<Array&>(a),version);
+  }
+  
+  template <class Archive, class T, std::size_t N>
+  void load(Archive& ar, std::array<T,N> & a, const unsigned int version)
+  {
+    typedef std::array<T,N> Array;
+    serialize(ar,a,version);
+  }
+#endif
   
 #ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   
