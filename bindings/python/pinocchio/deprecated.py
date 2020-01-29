@@ -129,40 +129,22 @@ buildGeomFromUrdf.__doc__ = (
   pin.buildGeomFromUrdf.__doc__
 ) 
 
-def potentialEnergy(model,data,q,update_kinematics=None):
-  if update_kinematics is None:
+@deprecated("This function is now deprecated and will be removed in future releases of Pinocchio. "
+            "Please change for the new function computePotentialEnergy.")
+def potentialEnergy(model,data,q,update_kinematics=True):
+  if update_kinematics:
     return pin.computePotentialEnergy(model,data,q)
   else:
-    if update_kinematics:
-      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature computePotentialEnergy(model,data,q).")
-      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.computePotentialEnergy(model,data,q)
-    else:
-      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature computePotentialEnergy(model,data).")
-      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.computePotentialEnergy(model,data)
+    return pin.computePotentialEnergy(model,data)
 
-potentialEnergy.__doc__ = (
-  pin.computePotentialEnergy.__doc__
-)
+potentialEnergy.__doc__ += '\n' + pin.computePotentialEnergy.__doc__
 
-def kineticEnergy(model,data,q,v,update_kinematics=None):
-  if update_kinematics is None:
+@deprecated("This function is now deprecated and will be removed in future releases of Pinocchio. "
+            "Please change for the new function computeKineticEnergy.")
+def kineticEnergy(model,data,q,v,update_kinematics=True):
+  if update_kinematics:
     return pin.computeKineticEnergy(model,data,q,v)
   else:
-    if update_kinematics:
-      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature computeKineticEnergy(model,data,q,v).")
-      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.computeKineticEnergy(model,data,q,v)
-    else:
-      message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
-                 "Please change for the new signature computeKineticEnergy(model,data).")
-      _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.computeKineticEnergy(model,data)
+    return pin.computeKineticEnergy(model,data)
 
-kineticEnergy.__doc__ = (
-  pin.computeKineticEnergy.__doc__
-)
+kineticEnergy.__doc__ += '\n' + pin.computeKineticEnergy.__doc__
