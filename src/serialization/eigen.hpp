@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 /*
@@ -65,6 +65,7 @@ namespace boost
       split_free(ar,m,version);
     }
   
+#if (__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY)
     template <class Archive, typename _IndexType, std::size_t _NumIndices>
     void save(Archive & ar, const Eigen::array<_IndexType,_NumIndices> & a, const unsigned int /*version*/)
     {
@@ -82,6 +83,7 @@ namespace boost
     {
       split_free(ar,a,version);
     }
+#endif
   
 #ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   
