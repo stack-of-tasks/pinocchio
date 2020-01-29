@@ -107,8 +107,8 @@ namespace pinocchio
                             const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
-  /// \brief Computes the generalized static torque contribution \f$ g(q) - \sum J(q)^{\top} \f_{\text{ext}} \f$ of the Lagrangian dynamics:
-  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + c(q, \dot{q}) + g(q) = \tau + \sum J(q)^{\top} \f_{\text{ext}} \end{eqnarray} \f$ </CENTER> <BR>.
+  /// \brief Computes the generalized static torque contribution \f$ g(q) - \sum J(q)^{\top} f_{\text{ext}} \f$ of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + c(q, \dot{q}) + g(q) = \tau + \sum J(q)^{\top} f_{\text{ext}} \end{eqnarray} \f$ </CENTER> <BR>.
   /// This torque vector accouts for the contribution of the gravity and the external forces.
   ///
   /// \note This function is equivalent to pinocchio::rnea(model, data, q, 0, 0, fext).
