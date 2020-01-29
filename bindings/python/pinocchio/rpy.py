@@ -30,7 +30,7 @@ def rotate(axis, ang):
     eg. T = rot('x', pi / 4): rotate pi/4 rad about x axis
     '''
     cood = {'x': 0, 'y': 1, 'z': 2}
-    u = np.matrix(np.zeros([3, 1]), np.double)
+    u = np.zeros(3)
     u[cood[axis]] = 1.0
     return pin.AngleAxis(ang, u).matrix()
 
