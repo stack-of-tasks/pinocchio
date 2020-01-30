@@ -28,6 +28,7 @@ IF(HPP_FCL_FOUND)
   SET(${PROJECT_NAME}_PYTHON_TESTS
     ${${PROJECT_NAME}_PYTHON_TESTS}
     bindings_geometry_object
+    bindings_fcl_transform
     )
 ENDIF(HPP_FCL_FOUND)
 

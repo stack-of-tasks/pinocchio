@@ -15,9 +15,9 @@ def exp(x):
     if np.isscalar(x):
         return math.exp(x)
     if isinstance(x, np.ndarray):
-        if x.shape == (6, 1):
+        if x.shape == (6, 1) or x.shape == (6,):
             return pin.exp6(pin.Motion(x))
-        if x.shape == (3, 1):
+        if x.shape == (3, 1) or x.shape == (3,):
             return pin.exp3(x)
         raise ValueError('Error only 3 and 6 vectors are allowed.')
     raise ValueError('Error exp is only defined for real, vector3, vector6 and pin.Motion objects.')

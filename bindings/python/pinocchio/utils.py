@@ -42,6 +42,8 @@ def isapprox(a, b, epsilon=1e-6):
     if "np" in b.__class__.__dict__:
         b = b.np
     if isinstance(a, (np.ndarray, list)) and isinstance(b, (np.ndarray, list)):
+        a = np.squeeze(np.array(a))
+        b = np.squeeze(np.array(b))
         return np.allclose(a, b, epsilon)
     return abs(a - b) < epsilon
 
