@@ -287,6 +287,20 @@ namespace pinocchio
       return res;
     }
     
+    ///
+    /// \brief Linear interpolation on the SE3 manifold.
+    ///
+    /// \param[in] A Initial transformation.
+    /// \param[in] B Target transformation.
+    /// \param[in] alpha Interpolation factor in [0 ... 1].
+    ///
+    /// \returns An interpolated transformation between A and B.
+    ///
+    /// \note This is similar to the SLERP operation which acts initially for rotation but applied here to rigid transformation.
+    ///
+    template<typename OtherScalar>
+    static SE3Tpl Interpolate(const SE3Tpl & A, const SE3Tpl & B, const OtherScalar & alpha);
+    
   protected:
     AngularType rot;
     LinearType trans;
