@@ -13,6 +13,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
@@ -156,6 +157,16 @@ namespace pinocchio
         .staticmethod("Identity")
         .def("Random",&SE3::Random,"Returns a random transformation.")
         .staticmethod("Random")
+        .def("Interpolate",&SE3::template Interpolate<double>,
+             bp::args("A","B","alpha"),
+             "Linear interpolation on the SE3 manifold.\n\n"
+             "This method computes the linear interpolation between A and B, such that the result C = A + (B-A)*t if it would be applied on classic Euclidian space.\n"
+             "This operation is very similar to the SLERP operation on Rotations.\n"
+             "Parameters:\n"
+             "\tA: Initial transformation\n"
+             "\tB: Target transformation\n"
+             "\talpha: Interpolation factor")
+        .staticmethod("Interpolate")
         
         .def("__array__",&SE3::toHomogeneousMatrix)
         
