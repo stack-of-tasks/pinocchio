@@ -38,9 +38,12 @@ namespace pinocchio
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        ::boost::python::class_<vector_type>(class_name.c_str(),
-                                             doc_string.c_str())
+        namespace bp = boost::python;
+        
+        bp::class_<vector_type>(class_name.c_str(),doc_string.c_str())
         .def(StdAlignedVectorPythonVisitor())
+        .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
+             "Returns the aligned_vector as a Python list.")
         .def_pickle(PickleVector<vector_type>());
         
         // Register conversion
