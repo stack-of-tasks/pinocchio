@@ -421,4 +421,25 @@ BOOST_AUTO_TEST_CASE (test_basic)
   BOOST_CHECK(v6.isApprox(v6FromLog, EPSILON));
 }
 
+BOOST_AUTO_TEST_CASE(test_SE3_interpolate)
+{
+  SE3 A = SE3::Random();
+  SE3 B = SE3::Random();
+  
+  SE3 A_bis = SE3::Interpolate(A,B,0.);
+  BOOST_CHECK(A_bis.isApprox(A));
+  SE3 B_bis = SE3::Interpolate(A,B,1.);
+  BOOST_CHECK(B_bis.isApprox(B));
+  
+  A_bis = SE3::Interpolate(A,A,1.);
+  BOOST_CHECK(A_bis.isApprox(A));
+  
+  B_bis = SE3::Interpolate(B,B,1.);
+  BOOST_CHECK(B_bis.isApprox(B));
+  
+  SE3 C = SE3::Interpolate(A,B,0.5);
+  SE3 D = SE3::Interpolate(B,A,0.5);
+  BOOST_CHECK(D.isApprox(C));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

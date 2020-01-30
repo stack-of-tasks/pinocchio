@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018, CNRS
+// Copyright (c) 2017-2020, CNRS INRIA
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
 //
 
@@ -226,12 +226,15 @@ struct LieGroup_Jdifference{
     typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LG_t;
     typedef typename LG_t::ConfigVector_t ConfigVector_t;
     typedef typename LG_t::JacobianMatrix_t JacobianMatrix_t;
+    typedef typename LG_t::ConstQuaternionMap_t ConstQuaternionMap_t;
 
     LG_t lg;
 
     ConfigVector_t q[2];
     q[0] = lg.random();
     q[1] = lg.random();
+                          
+    ConstQuaternionMap_t quat0(q[0].template tail<4>().data()), quat1(q[1].template tail<4>().data());
     JacobianMatrix_t J[2];
 
     lg.template dDifference<ARG0> (q[0], q[1], J[0]);
@@ -241,6 +244,19 @@ struct LieGroup_Jdifference{
         om1 (typename SE3::Quaternion (q[1].template tail<4>()).matrix(), q[1].template head<3>()),
         _1m2 (om1.actInv (om0)) ;
     EIGEN_MATRIX_IS_APPROX (J[1] * _1m2.toActionMatrix(), - J[0], 1e-8);
+                          
+    // Test against SE3::Interpolate
+    const Scalar u = 0.3;
+    ConfigVector_t q_interp = lg.interpolate(q[0],q[1],u);
+    ConstQuaternionMap_t quat_interp(q_interp.template tail<4>().data());
+                        
+    SE3 M0(quat0,q[0].template head<3>());
+    SE3 M1(quat1,q[1].template head<3>());
+                          
+    SE3 M_u = SE3::Interpolate(M0,M1,u);
+    SE3 M_interp(quat_interp,q_interp.template head<3>());
+                          
+    BOOST_CHECK(M_u.isApprox(M_interp));
   }
 
   template <typename Scalar, int Options>
