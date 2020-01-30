@@ -80,6 +80,16 @@ namespace pinocchio
                                                         &construct,
                                                         ::boost::python::type_id<vector_type>());
       }
+      
+      static ::boost::python::list tolist(vector_type & self)
+      {
+        namespace bp = boost::python;
+        
+        typedef bp::iterator<vector_type> iterator;
+        bp::list python_list(iterator()(self));
+        
+        return python_list;
+      }
     };
     
     ///
@@ -103,8 +113,12 @@ namespace pinocchio
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
       {
-        ::boost::python::class_<vector_type>(class_name.c_str(),doc_string.c_str())
+        namespace bp = boost::python;
+        
+        bp::class_<vector_type>(class_name.c_str(),doc_string.c_str())
         .def(StdVectorPythonVisitor())
+        .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
+             "Returns the std::vector as a Python list.")
         .def_pickle(PickleVector<vector_type>());
         
         // Register conversion
