@@ -26,10 +26,10 @@ class TestModel(TestCase):
         MIN_POS = -1.
         MAX_POS = 1.
 
-        me = np.matrix([MAX_EFF])
-        mv = np.matrix([MAX_VEL])
-        lb = np.matrix([MIN_POS])
-        ub = np.matrix([MAX_POS])
+        me = np.array([MAX_EFF])
+        mv = np.array([MAX_VEL])
+        lb = np.array([MIN_POS])
+        ub = np.array([MAX_POS])
         idx = model.addJoint(idx, pin.JointModelRY(), pin.SE3.Identity(), 'joint_'+str(idx+1),me,mv,lb,ub)
 
         self.assertEqual(model.nbodies, 1)
@@ -65,7 +65,7 @@ class TestModel(TestCase):
         self.assertEqual(model.names[0], "universe")
 
     def test_gravity(self):
-        self.assertApprox(self.model.gravity.np, np.matrix('0 0 -9.81 0 0 0').T)
+        self.assertApprox(self.model.gravity.np, np.array([0, 0, -9.81, 0, 0, 0]).T)
 
     def test_rnea(self):
         model = self.model
