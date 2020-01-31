@@ -95,7 +95,6 @@ namespace boost
   template <class Archive, class T, std::size_t N>
   void load(Archive& ar, std::array<T,N> & a, const unsigned int version)
   {
-    typedef std::array<T,N> Array;
     serialize(ar,a,version);
   }
 #endif
