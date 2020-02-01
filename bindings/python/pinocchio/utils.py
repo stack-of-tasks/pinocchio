@@ -60,6 +60,8 @@ def mprint(M, name="ans",eps=1e-15):
     '''
     if isinstance(M, pin.SE3):
         M = M.homogeneous
+    if len(M.shape==1):
+        M = np.expand_dims(M, axis=0)
     ncol = M.shape[1]
     NC = 6
     print(name, " = ")
