@@ -59,6 +59,9 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
   <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
 </p>
 
+For other benchmarks, and mainly the capacity of Pinocchio to exploit at best your CPU capacities using advanced code generation techniques, we refer to the technical [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
+In addition, the introspection done [here](https://github.com/rbd-benchmarks/rbd-benchmarks) may also help you to understand and compare the performances of the modern rigid body dynamics librairies.
+
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
