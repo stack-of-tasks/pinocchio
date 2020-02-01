@@ -14,17 +14,24 @@ from .rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
 
 from .deprecation import deprecated
 
-@deprecated("Please use numpy.eye")
 def eye(n):
-    return np.matrix(np.eye(n))
+    res = np.eye(n)
+    if pin.getNumpyType()==np.matrix:
+        return np.matrix(res)
+    else:
+        return res
 
-@deprecated("Please use numpy.zero")
 def zero(n):
-    return np.matrix(np.zeros([n, 1] if isinstance(n, int) else n))
+    if pin.getNumpyType()==np.matrix:
+        return np.matrix(np.zeros([n, 1] if isinstance(n, int) else n))
+    else:
+        return np.zeros(n)
 
-@deprecated("Please use numpy.random.rand")
 def rand(n):
-    return np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]))
+    if pin.getNumpyType()==np.matrix:
+        return np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]))
+    else:
+        return np.random.rand(n) if isinstance(n, int) else np.random.rand(n[0], n[1])
 
 @deprecated("Please use numpy.cross(a, b) or numpy.cross(a, b, axis=0).")
 def cross(a, b):
