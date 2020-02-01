@@ -14,13 +14,21 @@ from .rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
 
 from .deprecation import deprecated
 
-eye = lambda n: np.matrix(np.eye(n), np.double)
-zero = lambda n: np.matrix(np.zeros([n, 1] if isinstance(n, int) else n), np.double)
-rand = lambda n: np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]), np.double)
+@deprecated("Please use numpy.eye")
+def eye(n):
+    return np.matrix(np.eye(n))
 
+@deprecated("Please use numpy.zero")
+def zero(n):
+    return np.matrix(np.zeros([n, 1] if isinstance(n, int) else n))
 
+@deprecated("Please use numpy.random.rand")
+def rand(n):
+    return np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]))
+
+@deprecated("Please use numpy.cross(a, b) or numpy.cross(a, b, axis=0).")
 def cross(a, b):
-    return np.matrix(np.cross(a.T, b.T).T, np.double)
+    return np.matrix(np.cross(a, b, axis=0))
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def skew(p):
