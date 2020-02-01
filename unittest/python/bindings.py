@@ -1,7 +1,7 @@
 import unittest
 import pinocchio as pin
 pin.switchToNumpyMatrix()
-from pinocchio.utils import np, npl, rand, skew, zero
+from pinocchio.utils import np, npl, rand, zero
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -17,7 +17,7 @@ class TestSE3(TestCase):
 
     def test_se3(self):
         R, p, m = self.R, self.p, self.m
-        X = np.vstack([np.hstack([R, skew(p) * R]), np.hstack([zero([3, 3]), R])])
+        X = np.vstack([np.hstack([R, pin.skew(p) * R]), np.hstack([zero([3, 3]), R])])
         self.assertApprox(m.action, X)
         M = np.vstack([np.hstack([R, p]), np.matrix([0., 0., 0., 1.], np.double)])
         self.assertApprox(m.homogeneous, M)

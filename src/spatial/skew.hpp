@@ -185,7 +185,7 @@ namespace pinocchio
   /// \param[in] u A 3 dimensional vector.
   /// \param[in] v A 3 dimensional vector.
   ///
-  /// \return The square cross product matrix C.
+  /// \return The square cross product matrix skew[u] * skew[v].
   ///
   template <typename V1, typename V2>
   inline Eigen::Matrix<typename V1::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(V1)::Options>

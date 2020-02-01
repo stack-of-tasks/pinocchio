@@ -2,7 +2,7 @@ import unittest
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 import numpy as np
-from pinocchio.utils import eye,zero,rand,skew
+from pinocchio.utils import eye,zero,rand
 
 ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
 
@@ -59,7 +59,7 @@ class TestSE3Bindings(unittest.TestCase):
         aXb = amb.action
         self.assertTrue(np.allclose(aXb[:3,:3], amb.rotation)) # top left 33 corner = rotation of amb
         self.assertTrue(np.allclose(aXb[3:,3:], amb.rotation)) # bottom right 33 corner = rotation of amb
-        tblock = skew(amb.translation)*amb.rotation
+        tblock = pin.skew(amb.translation)*amb.rotation
         self.assertTrue(np.allclose(aXb[:3,3:], tblock))       # top right 33 corner = translation + rotation
         self.assertTrue(np.allclose(aXb[3:,:3], zero([3,3])))  # bottom left 33 corner = 0
 
