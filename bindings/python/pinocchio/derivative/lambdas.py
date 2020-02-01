@@ -3,8 +3,8 @@
 #
 
 import numpy as np
-from pinocchio import Motion,Force
-from pinocchio.utils import skew,zero
+from pinocchio import Motion, Force, skew
+from pinocchio.utils import zero
 
 def jFromIdx(idxv,robot):
     '''Return the joint index from the velocity index'''

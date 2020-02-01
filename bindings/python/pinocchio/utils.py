@@ -22,11 +22,9 @@ rand = lambda n: np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.ra
 def cross(a, b):
     return np.matrix(np.cross(a.T, b.T).T, np.double)
 
-
+@deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def skew(p):
-    x, y, z = p
-    return np.matrix([[0, -z, y], [z, 0, -x], [-y, x, 0]], np.double)
-
+    return pin.skew(p)
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def se3ToXYZQUAT(M):

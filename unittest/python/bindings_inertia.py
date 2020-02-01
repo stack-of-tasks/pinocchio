@@ -2,7 +2,7 @@ import unittest
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 import numpy as np
-from pinocchio.utils import eye,zero,rand,skew
+from pinocchio.utils import eye,zero,rand
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -84,7 +84,7 @@ class TestInertiaBindings(TestCase):
         self.assertApprox(v[0], I.mass)
         self.assertApprox(v[1:4], I.mass * I.lever)
 
-        I_o = I.inertia + I.mass * skew(I.lever).transpose() * skew(I.lever)
+        I_o = I.inertia + I.mass * pin.skew(I.lever).transpose() * pin.skew(I.lever)
         I_ov = np.matrix(
                 [[float(v[4]), float(v[5]), float(v[7])],
                  [float(v[5]), float(v[6]), float(v[8])],
