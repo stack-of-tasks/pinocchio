@@ -16,6 +16,20 @@ namespace pinocchio
     namespace bp = boost::python;
   
     // We need to resort to another call, because it seems that Boost.Python is not aligning the Eigen::MatrixBase. TODO: fix it!
+    template<typename Vector3>
+    Eigen::Matrix<typename Vector3::Scalar,3,3,Vector3::Options> skew(const Vector3 & v)
+    {
+      return pinocchio::skew(v);
+    }
+  
+    // We need to resort to another call, because it seems that Boost.Python is not aligning the Eigen::MatrixBase. TODO: fix it!
+    template<typename Vector3>
+    Eigen::Matrix<typename Vector3::Scalar,3,3,Vector3::Options> skewSquare(const Vector3 & u, const Vector3 & v)
+    {
+      return pinocchio::skewSquare(u,v);
+    }
+  
+    // We need to resort to another call, because it seems that Boost.Python is not aligning the Eigen::MatrixBase. TODO: fix it!
     template<typename Matrix3>
     Eigen::Matrix<typename Matrix3::Scalar,3,1,Matrix3::Options> unSkew(const Matrix3 & mat)
     {
@@ -34,7 +48,7 @@ namespace pinocchio
               "Parameters:\n"
               "\tu: the input vector of dimension 3");
       
-      bp::def("skewSquare",&skewSquare<Vector3,Vector3>,
+      bp::def("skewSquare",&skewSquare<Vector3>,
               bp::args("u","v"),
               "Computes the skew square representation of two given 3d vectors, "
               "i.e. the antisymmetric matrix representation of the chained cross product operator, u x (v x w), where w is another 3d vector.\n"
