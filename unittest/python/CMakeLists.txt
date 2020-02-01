@@ -13,6 +13,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_force
   bindings_frame
   bindings_inertia
+  bindings_spatial
   bindings_joint_composite
   bindings_motion
   bindings_SE3

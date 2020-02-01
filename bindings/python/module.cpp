@@ -53,7 +53,8 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   exposeJoints();
   exposeExplog();
   exposeRpy();
-  
+  exposeSkew();
+
   bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
   .value("WORLD",::pinocchio::WORLD)
   .value("LOCAL",::pinocchio::LOCAL)
