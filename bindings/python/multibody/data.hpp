@@ -158,8 +158,9 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to contact forces")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to contact impulses")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to the contact forces")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to the contact impulses")
+        .ADD_DATA_PROPERTY(contact_forces,"Contact forces")
         
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(staticRegressor,"Static regressor.")
