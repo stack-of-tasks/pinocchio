@@ -23,6 +23,8 @@ namespace pinocchio
     void exposeFramesAlgo();
     void exposeEnergy();
     void exposeKinematics();
+  
+    void exposeContactDynamics();
     void exposeConstrainedDynamics();
     void exposeCAT();
     void exposeJacobian();
