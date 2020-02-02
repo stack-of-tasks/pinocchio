@@ -133,7 +133,7 @@ int main(int argc, const char ** argv)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
   total_time = 0;
-  MatrixXd H_inverse(contact_chol_empty.dim(),contact_chol_empty.dim());
+  MatrixXd H_inverse(contact_chol_empty.size(),contact_chol_empty.size());
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
@@ -165,7 +165,7 @@ int main(int argc, const char ** argv)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
   total_time = 0;
-  H_inverse.resize(contact_chol_6D.dim(),contact_chol_6D.dim());
+  H_inverse.resize(contact_chol_6D.size(),contact_chol_6D.size());
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
@@ -224,7 +224,7 @@ int main(int argc, const char ** argv)
   << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
   
   total_time = 0;
-  H_inverse.resize(contact_chol_6D6D.dim(),contact_chol_6D6D.dim());
+  H_inverse.resize(contact_chol_6D6D.size(),contact_chol_6D6D.size());
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);

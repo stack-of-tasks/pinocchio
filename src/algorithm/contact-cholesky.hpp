@@ -145,12 +145,12 @@ namespace pinocchio
                    const S1 mu = 0.);
       
       /// \brief Size of the decomposition
-      Eigen::DenseIndex dim() const { return D.size(); }
+      Eigen::DenseIndex size() const { return D.size(); }
       
       /// \brief Computes the total dimension of the constraints contained in the Cholesky factorization
       Eigen::DenseIndex constraintDim() const
       {
-        return dim() - nv;
+        return size() - nv;
       }
       
       /// \brief Returns the number of contacts associated to this decomposition.

@@ -40,7 +40,7 @@ namespace pinocchio
         .add_property("frame_id",&ContactInfo::frame_id,"Index of the parent Frame in the model tree.")
         .add_property("placement",&ContactInfo::placement,"Placement of the contact with respect to the parent Frame.")
         
-        .def("dim", &ContactInfo::dim, "Dimension of the contact")
+        .def("size", &ContactInfo::size, "Size of the contact")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)

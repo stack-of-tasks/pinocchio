@@ -127,7 +127,7 @@ namespace pinocchio
       return !(*this == other);
     }
     
-    int dim() const
+    int size() const
     {
       switch(type)
       {

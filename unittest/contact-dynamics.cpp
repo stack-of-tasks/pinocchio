@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(contact_info)
   // Check default constructor
   ContactInfo ci1;
   BOOST_CHECK(ci1.type == CONTACT_UNDEFINED);
-  BOOST_CHECK(ci1.dim() == 0);
+  BOOST_CHECK(ci1.size() == 0);
   
   // Check complete constructor
   SE3 M(SE3::Random());
@@ -34,14 +34,14 @@ BOOST_AUTO_TEST_CASE(contact_info)
   BOOST_CHECK(ci2.type == CONTACT_3D);
   BOOST_CHECK(ci2.frame_id == 0);
   BOOST_CHECK(ci2.placement.isApprox(M));
-  BOOST_CHECK(ci2.dim() == 3);
+  BOOST_CHECK(ci2.size() == 3);
   
   // Check contructor with two arguments
   ContactInfo ci2prime(CONTACT_3D,0);
   BOOST_CHECK(ci2prime.type == CONTACT_3D);
   BOOST_CHECK(ci2prime.frame_id == 0);
   BOOST_CHECK(ci2prime.placement.isIdentity());
-  BOOST_CHECK(ci2prime.dim() == 3);
+  BOOST_CHECK(ci2prime.size() == 3);
   
   // Check default copy constructor
   ContactInfo ci3(ci2);
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(contact_info)
   BOOST_CHECK(ci4.type == CONTACT_6D);
   BOOST_CHECK(ci4.frame_id == 0);
   BOOST_CHECK(ci4.placement.isIdentity());
-  BOOST_CHECK(ci4.dim() == 6);
+  BOOST_CHECK(ci4.size() == 6);
 }
 
 /// \brief Computes forces in the world frame
@@ -186,8 +186,23 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   contact_infos_6D.push_back(ci_LF);
   
   initContactDynamics(model,data1,contact_infos_empty);
-  initContactDynamics(model,data1,contact_infos_6D);
+  BOOST_CHECK(data1.contact_chol.size() == (model.nv + 0));
+  contactDynamics(model,data1,q,v,tau,contact_infos_empty);
+  BOOST_CHECK(!hasNaN(data1.ddq));
   
+  initContactDynamics(model,data1,contact_infos_6D);
+  BOOST_CHECK(data1.contact_chol.size() == (model.nv + 1*6));
+  contactDynamics(model,data1,q,v,tau,contact_infos_6D);
+  BOOST_CHECK(!hasNaN(data1.ddq));
+  
+  std::cout << "initContactDynamics" << std::endl;
+  initContactDynamics(model,data1,contact_infos_6D6D);
+  BOOST_CHECK(data1.contact_chol.size() == (model.nv + 2*6));
+  std::cout << "contactDynamics" << std::endl;
+  contactDynamics(model,data1,q,v,tau,contact_infos_6D6D);
+  BOOST_CHECK(!hasNaN(data1.ddq));
+  
+  initContactDynamics(model,data2,contact_infos_6D6D);
   initContactDynamics(model,data2,contact_infos_6D);
   initContactDynamics(model,data2,contact_infos_empty);
 }
@@ -222,7 +237,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].dim();
+    constraint_dim += contact_infos[k].size();
   
   const double mu0 = 0.;
   
@@ -296,7 +311,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
     {
       case pinocchio::CONTACT_3D:
       {
-        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.dim())));
+        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.size())));
         break;
       }
         
@@ -311,7 +326,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
         break;
     }
     
-    constraint_id += cinfo.dim();
+    constraint_id += cinfo.size();
   }
 }
 
@@ -345,7 +360,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].dim();
+    constraint_dim += contact_infos[k].size();
   
   const double mu0 = 0.;
   
@@ -404,7 +419,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
     {
       case pinocchio::CONTACT_3D:
       {
-        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.dim())));
+        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.size())));
         break;
       }
         
@@ -419,7 +434,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
         break;
     }
     
-    constraint_id += cinfo.dim();
+    constraint_id += cinfo.size();
   }
 }
 
@@ -451,7 +466,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].dim();
+    constraint_dim += contact_infos[k].size();
   
   const double mu0 = 0.;
   
@@ -504,7 +519,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
     {
       case pinocchio::CONTACT_3D:
       {
-        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.dim())));
+        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.size())));
         break;
       }
         
@@ -519,7 +534,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
         break;
     }
     
-    constraint_id += cinfo.dim();
+    constraint_id += cinfo.size();
   }
 }
 
@@ -553,7 +568,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].dim();
+    constraint_dim += contact_infos[k].size();
   
   const double mu0 = 0.;
   
@@ -609,7 +624,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
     {
       case pinocchio::CONTACT_3D:
       {
-        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.dim())));
+        BOOST_CHECK(data.contact_forces[k].linear().isApprox(data_ref.lambda_c.segment(constraint_id,cinfo.size())));
         break;
       }
         
@@ -624,7 +639,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
         break;
     }
     
-    constraint_id += cinfo.dim();
+    constraint_id += cinfo.size();
   }
 }
 
@@ -659,7 +674,7 @@ BOOST_AUTO_TEST_CASE(test_fast_ABA)
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].dim();
+    constraint_dim += contact_infos[k].size();
   
   const double mu0 = 0.;
   

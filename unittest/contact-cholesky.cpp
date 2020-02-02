@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   BOOST_CHECK(contact_chol_decomposition.Dinv.size() == model.nv);
   BOOST_CHECK(contact_chol_decomposition.U.rows() == model.nv);
   BOOST_CHECK(contact_chol_decomposition.U.cols() == model.nv);
-  BOOST_CHECK(contact_chol_decomposition.dim() == model.nv);
+  BOOST_CHECK(contact_chol_decomposition.size() == model.nv);
   BOOST_CHECK(contact_chol_decomposition.U.diagonal().isOnes());
   
   Data data(model); crba(model,data,q);
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   // Test basic operation
   VectorXd v_in(VectorXd::Random(model.nv));
-  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.size(),20));
   
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -345,8 +345,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   BOOST_CHECK(H_recomposed_mu.isApprox(H_mu));
   
   // Test basic operation
-  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
-  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
+  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.size()));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.size(),20));
 
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -428,7 +428,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   BOOST_CHECK(sol_copy_mat.isApprox(sol_mat));
   
   // inverse
-  MatrixXd H_inv(contact_chol_decomposition.dim(),contact_chol_decomposition.dim());
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
   contact_chol_decomposition.inverse(H_inv);
   
   MatrixXd H_inv_ref = H.inverse();
@@ -531,8 +531,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // Test basic operation
-  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.dim()));
-  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.dim(),20));
+  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.size()));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.size(),20));
   
   // Test Uv
   VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
@@ -614,7 +614,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   BOOST_CHECK(sol_copy_mat.isApprox(sol_mat));
   
   // inverse
-  MatrixXd H_inv(contact_chol_decomposition.dim(),contact_chol_decomposition.dim());
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
   contact_chol_decomposition.inverse(H_inv);
   
   MatrixXd H_inv_ref = H.inverse();
@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // inverse
-  MatrixXd H_inv(contact_chol_decomposition.dim(),contact_chol_decomposition.dim());
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
   contact_chol_decomposition.inverse(H_inv);
   
   MatrixXd H_inv_ref = H_recomposed.inverse();
@@ -770,7 +770,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // inverse
-  MatrixXd H_inv(contact_chol_decomposition.dim(),contact_chol_decomposition.dim());
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
   contact_chol_decomposition.inverse(H_inv);
   
   MatrixXd H_inv_ref = H_recomposed.inverse();
