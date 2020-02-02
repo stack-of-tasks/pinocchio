@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_hpp__
@@ -23,7 +23,7 @@ namespace pinocchio
     void exposeFramesAlgo();
     void exposeEnergy();
     void exposeKinematics();
-    void exposeDynamics();
+    void exposeConstrainedDynamics();
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();

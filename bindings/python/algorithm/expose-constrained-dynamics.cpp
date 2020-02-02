@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -73,7 +73,7 @@ namespace pinocchio
     }
     
 
-    void exposeDynamics()
+    void exposeConstrainedDynamics()
     {
       using namespace Eigen;
       
