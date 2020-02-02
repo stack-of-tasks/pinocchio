@@ -5,7 +5,7 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/algorithm/proximal.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 
 namespace pinocchio
 {
@@ -77,72 +77,43 @@ namespace pinocchio
     {
       using namespace Eigen;
       
-      // Expose type of contacts
-      bp::enum_<ContactType>("ContactType")
-      .value("CONTACT_3D",CONTACT_3D)
-      .value("CONTACT_6D",CONTACT_6D)
-      .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
-      ;
-      
-      ContactInfoPythonVisitor<ContactInfo>::expose();
-      ProximalSettingsPythonVisitor<ProximalSettings>::expose();
-      
       bp::def("forwardDynamics",
               &forwardDynamics_proxy,
               forwardDynamics_overloads(
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",
-                       "Joint torque tau (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Contact drift gamma (size nb_constraint)",
-                       "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
-              " Internally, pinocchio.computeAllTerms is called."
+              bp::args("model","data","q","v","tau","constraint_jacobian","constraint_drift","damping"),
+              "Solves the constrained dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
+              "Note: internally, pinocchio.computeAllTerms is called."
               ));
 
       bp::def("forwardDynamics",
               &forwardDynamics_proxy_no_q,
               forwardDynamics_overloads_no_q(
-              bp::args("Model","Data",
-                       "Joint torque tau (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Contact drift gamma (size nb_constraint)",
-                       "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
-              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
-              " Assumes pinocchio.computeAllTerms has been called."
+              bp::args("model","data","tau","constraint_jacobian","constraint_drift","damping"),
+              "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
+              "Note: this function assumes that pinocchio.computeAllTerms has been called first."
               ));
 
       bp::def("impulseDynamics",
               &impulseDynamics_proxy,
               impulseDynamics_overloads(
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity before impact v_before (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
-                       "Damping factor when J is rank deficient."
-                       ),
-              "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
-              " Internally, pinocchio.crba is called."
+              bp::args("model","data","q","v_before","constraint_jacobian","restitution_coefficient","damping"),
+              "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c.\n"
+              "Note: internally, pinocchio.crba is called."
               ));
       
       bp::def("impulseDynamics",
               &impulseDynamics_proxy_no_q,
               impulseDynamics_overloads_no_q(
-              bp::args("Model","Data",
-                       "Joint velocity before impact v_before (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
-                       "Damping factor when J is rank deficient."),
+              bp::args("model","data","v_before","constraint_jacobian","restitution_coefficient","damping"),
               "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
-              " Assumes pinocchio.crba has been called."
+              "Note: this function assumes that pinocchio.crba has been called first."
               ));
       
-      bp::def("getKKTContactDynamicMatrixInverse",getKKTContactDynamicMatrixInverse_proxy,
-              bp::args("Model","Data",
-                       "Contact Jacobian J(size nb_constraint * Model::nv)"),
-              "Computes the inverse of the constraint matrix [[M JT], [J 0]]. forward/impulseDynamics must be called first. The jacobian should be the same that was provided to forward/impulseDynamics.");
+      bp::def("getKKTContactDynamicMatrixInverse",
+              getKKTContactDynamicMatrixInverse_proxy,
+              bp::args("model","data","constraint_jacobian"),
+              "Computes the inverse of the constraint matrix [[M Jt], [J 0]]. forwardDynamics or impulseDynamics must have been called first.\n"
+              "Note: the constraint Jacobian should be the same that was provided to forwardDynamics or impulseDynamics.");
     }
     
   } // namespace python
