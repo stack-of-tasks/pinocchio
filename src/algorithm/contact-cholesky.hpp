@@ -92,6 +92,18 @@ namespace pinocchio
       ContactCholeskyDecompositionTpl() {}
       
       ///
+      /// \brief Constructor from a model.
+      ///
+      /// \param[in] model Model of the kinematic tree.
+      ///
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+      ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model)
+      {
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) empty_contact_infos;
+        allocate(model,empty_contact_infos);
+      }
+      
+      ///
       /// \brief Constructor from a model and a collection of ContactInfo objects.
       ///
       /// \param[in] model Model of the kinematic tree
