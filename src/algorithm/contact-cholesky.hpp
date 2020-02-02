@@ -124,7 +124,7 @@ namespace pinocchio
       /// \param[in] contact_infos Vector containing the contact information (which frame is in contact and the type of contact: ponctual, 6D rigid, etc.)
       /// \param[in] mu Regularization factor allowing to enforce the definite propertie of the KKT matrix.
       ///
-      /// \remarks The system mass matrix and the Jacobians of the kinematic tree should have been computed first. This can be achieved by calling pinocchio::crba.
+      /// \remarks The mass matrix and the Jacobians of the dynamical system should have been computed first. This can be achieved by simply calling pinocchio::crba.
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
@@ -141,11 +141,35 @@ namespace pinocchio
         return dim() - nv;
       }
       
+      ///
+      /// \brief Computes the solution of \f$ A x = b \f$ where *this is the Cholesky decomposition of A.
+      ///        "in-place" version of ContactCholeskyDecompositionTpl::solve(b) where the result is written in b.
+      ///        This functions takes as input the vector b, and returns the solution \f$ x = A^-1 b \f$.
+      ///
+      /// \param[inout] mat The right-and-side term which also contains the solution of the linear system.
+      ///
+      /// \sa ContactCholeskyDecompositionTpl::solve
       template<typename MatrixLike>
       void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const;
       
+      ///
+      /// \brief Computes the solution of \f$ A x = b \f$ where *this is the Cholesky decomposition of A.
+      ///        This functions takes as input the vector b, and returns the solution \f$ x = A^-1 b \f$.
+      ///
+      /// \param[inout] mat The right-and-side term.
+      ///
+      /// \sa ContactCholeskyDecompositionTpl::solveInPlace
       template<typename MatrixLike>
       Matrix solve(const Eigen::MatrixBase<MatrixLike> & mat) const;
+      
+      ///
+      /// \brief Retrieves the Cholesky decomposition of the Mass Matrix contained in *this.
+      ///
+      /// \param[in] model Model of the dynamical system.
+      ///
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
+      ContactCholeskyDecompositionTpl
+      getMassMatrixChoeslkyDecomposition(const ModelTpl<S1,O1,JointCollectionTpl> & model) const;
       
       ///@{
       /// \brief Vectorwize operations
@@ -203,6 +227,7 @@ namespace pinocchio
       
       IndexVector parents_fromRow;
       IndexVector nv_subtree_fromRow;
+      
       /// \brief Last child of the given joint index
       IndexVector last_child;
       
