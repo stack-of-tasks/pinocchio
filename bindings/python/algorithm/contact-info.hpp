@@ -31,16 +31,16 @@ namespace pinocchio
         cl
         .def(bp::init<>("Default constructor."))
         .def(bp::init<ContactType,FrameIndex,SE3>
-             ((bp::arg("Type of the contact"),
-               bp::arg("Index of the parent Frame in the model tree"),
-               bp::arg("Placement of the contact with respect to the parent Frame")),
-              "Contructor with from a given type, parent and placement."))
+             ((bp::arg("contact_type"),
+               bp::arg("frame_id"),
+               bp::arg("placement")),
+              "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
         
         .add_property("type",&ContactInfo::type,"Type of the contact.")
         .add_property("frame_id",&ContactInfo::frame_id,"Index of the parent Frame in the model tree.")
         .add_property("placement",&ContactInfo::placement,"Placement of the contact with respect to the parent Frame.")
         
-        .def("dim", &ContactInfo::dim)
+        .def("dim", &ContactInfo::dim, "Dimension of the contact")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
