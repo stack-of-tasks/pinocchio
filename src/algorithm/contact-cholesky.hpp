@@ -237,6 +237,9 @@ namespace pinocchio
       /// \brief Dimension of the tangent of the configuration space of the model
       Eigen::DenseIndex nv;
       
+      /// \brief Number of contacts.
+      Eigen::DenseIndex num_contacts;
+      
       VectorOfSliceVector rowise_sparsity_pattern;
       
     private:
