@@ -230,6 +230,15 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   
   MatrixXd M_inv_ref = data.M.inverse();
   BOOST_CHECK(M_inv.isApprox(M_inv_ref));
+  
+  // test retrieve Mass Matrix Cholesky Decomposition
+  ContactCholeskyDecomposition mass_matrix_chol
+  = contact_chol_decomposition.getMassMatrixChoeslkyDecomposition(model);
+  
+  BOOST_CHECK(mass_matrix_chol == contact_chol_decomposition);
+  BOOST_CHECK(mass_matrix_chol.U.isApprox(data_ref.U));
+  BOOST_CHECK(mass_matrix_chol.D.isApprox(data_ref.D));
+  BOOST_CHECK(mass_matrix_chol.Dinv.isApprox(data_ref.Dinv));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)

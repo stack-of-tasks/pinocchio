@@ -370,6 +370,22 @@ namespace pinocchio
       solveInPlace(res);
       return res;
     }
+  
+    template<typename Scalar, int Options>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
+    ContactCholeskyDecompositionTpl<Scalar,Options>
+    ContactCholeskyDecompositionTpl<Scalar,Options>::
+    getMassMatrixChoeslkyDecomposition(const ModelTpl<S1,O1,JointCollectionTpl> & model) const
+    {
+      typedef ContactCholeskyDecompositionTpl<Scalar,Options> ReturnType;
+      ReturnType res(model);
+      
+      res.D = D.tail(nv);
+      res.Dinv = Dinv.tail(nv);
+      res.U = U.bottomRightCorner(nv,nv);
+      
+      return res;
+    }
     
     namespace details
     {

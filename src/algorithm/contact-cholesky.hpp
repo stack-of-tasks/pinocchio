@@ -179,7 +179,7 @@ namespace pinocchio
       ///
       /// \param[in] model Model of the dynamical system.
       ///
-      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
       ContactCholeskyDecompositionTpl
       getMassMatrixChoeslkyDecomposition(const ModelTpl<S1,O1,JointCollectionTpl> & model) const;
       
