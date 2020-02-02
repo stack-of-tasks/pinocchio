@@ -11,7 +11,7 @@
 #include "pinocchio/serialization/data.hpp"
 
 #include <eigenpy/memory.hpp>
-#include <eigenpy/exception.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
