@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
@@ -26,7 +26,7 @@ namespace pinocchio
       typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
       
       nv = model.nv;
-      num_contacts = contact_infos.size();
+      num_contacts = (Eigen::DenseIndex)contact_infos.size();
       
       Eigen::DenseIndex num_total_constraints = 0;
       for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
@@ -191,7 +191,7 @@ namespace pinocchio
     {
       typedef ContactInfoTpl<S1,O1> ContactInfo;
       assert(model.check(data) && "data is not consistent with model.");
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_infos.size() == num_contacts,
+      PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_infos.size() == num_contacts,
                                      "The number of contacts inside contact_infos and the one during allocation do not match.");
       
       const Eigen::DenseIndex total_dim = dim();
