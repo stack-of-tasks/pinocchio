@@ -138,10 +138,10 @@ namespace pinocchio
                                             "Time derivative of the centroidal momentum matrix Ag.")
         .ADD_DATA_PROPERTY_READONLY(hg,
                                     "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(dhg,
-                                    "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(Ig,
-                                    "Centroidal Composite Rigid Body Inertia.")
+        .ADD_DATA_PROPERTY(dhg,
+                           "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
+        .ADD_DATA_PROPERTY(Ig,
+                           "Centroidal Composite Rigid Body Inertia.")
         
         .ADD_DATA_PROPERTY(com,"CoM position of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(vcom,"CoM velocity of the subtree starting at joint index i.")
