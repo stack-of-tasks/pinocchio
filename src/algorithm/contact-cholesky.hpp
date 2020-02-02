@@ -153,6 +153,9 @@ namespace pinocchio
         return dim() - nv;
       }
       
+      /// \brief Returns the number of contacts associated to this decomposition.
+      Eigen::DenseIndex numContacts() const { return num_contacts; }
+      
       ///
       /// \brief Computes the solution of \f$ A x = b \f$ where *this is the Cholesky decomposition of A.
       ///        "in-place" version of ContactCholeskyDecompositionTpl::solve(b) where the result is written in b.
