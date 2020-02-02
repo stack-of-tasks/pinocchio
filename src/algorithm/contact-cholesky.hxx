@@ -32,7 +32,8 @@ namespace pinocchio
           it != contact_infos.end();
           ++it)
       {
-        assert(it->dim() > 0 && "The dimension of the contact info must be positive");
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(it->dim() > 0,
+                                       "The dimension of the contact info must be positive");
         num_total_constraints += it->dim();
       }
       
@@ -228,7 +229,7 @@ namespace pinocchio
           .cwiseProduct(D.segment(jj+1,NVT));
 
         D[jj] = M(j,j) - U.row(jj).segment(jj+1,NVT).dot(DUt_partial);
-        assert(D[jj] != 0. && "The diagonal element is equal to zero.");
+        assert(D[jj] != Scalar(0) && "The diagonal element is equal to zero.");
         Dinv[jj] = Scalar(1)/D[jj];
         
         for(Eigen::DenseIndex _ii = parents_fromRow[jj]; _ii >= total_constraints_dim; _ii = parents_fromRow[_ii])
@@ -334,7 +335,7 @@ namespace pinocchio
         DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
 
         D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
-        assert(D[j] != 0. && "The diagonal element is equal to zero.");
+        assert(D[j] != Scalar(0) && "The diagonal element is equal to zero.");
         Dinv[j] = Scalar(1)/D[j];
 
         for(Eigen::DenseIndex _i = j-1; _i >= 0; _i--)
@@ -378,7 +379,8 @@ namespace pinocchio
         {
           MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
           
-          assert(mat.rows() == chol.dim() && "The input matrix is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.dim(),
+                                         "The input matrix is of wrong size");
           
           for(Eigen::DenseIndex col_id = 0; col_id < mat_.cols(); ++col_id)
             UvAlgo<typename MatrixLike::ColXpr>::run(chol,mat_.col(col_id));
@@ -395,7 +397,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
           VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
           
-          assert(vec.size() == chol.dim() && "The input vector is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.dim(),
+                                         "The input vector is of wrong size");
           const Eigen::DenseIndex num_total_constraints = chol.dim() - chol.nv;
           
           // TODO: exploit the Sparsity pattern of the first rows of U
@@ -431,7 +434,8 @@ namespace pinocchio
         {
           MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
           
-          assert(mat.rows() == chol.dim() && "The input matrix is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.dim(),
+                                         "The input matrix is of wrong size");
           
           for(Eigen::DenseIndex col_id = 0; col_id < mat_.cols(); ++col_id)
             UtvAlgo<typename MatrixLike::ColXpr>::run(chol,mat_.col(col_id));
@@ -448,7 +452,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
           VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
           
-          assert(vec.size() == chol.dim() && "The input vector is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.dim(),
+                                         "The input vector is of wrong size");
           const Eigen::DenseIndex num_total_constraints = chol.constraintDim();
           
           for(Eigen::DenseIndex k = chol.dim()-2; k >= num_total_constraints; --k)
@@ -485,7 +490,8 @@ namespace pinocchio
         {
           MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
           
-          assert(mat.rows() == chol.dim() && "The input matrix is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.dim(),
+                                         "The input matrix is of wrong size");
           
           for(Eigen::DenseIndex col_id = 0; col_id < mat_.cols(); ++col_id)
             UivAlgo<typename MatrixLike::ColXpr>::run(chol,mat_.col(col_id));
@@ -502,7 +508,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
           VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
           
-          assert(vec.size() == chol.dim() && "The input vector is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.dim(),
+                                         "The input vector is of wrong size");
           
           const Eigen::DenseIndex num_total_constraints = chol.dim() - chol.nv;
           for(Eigen::DenseIndex k = chol.dim()-2; k >= num_total_constraints; --k)
@@ -538,7 +545,8 @@ namespace pinocchio
         {
           MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
           
-          assert(mat.rows() == chol.dim() && "The input matrix is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.dim(),
+                                         "The input matrix is of wrong size");
           
           for(Eigen::DenseIndex col_id = 0; col_id < mat_.cols(); ++col_id)
             UtivAlgo<typename MatrixLike::ColXpr>::run(chol,mat_.col(col_id));
@@ -555,7 +563,8 @@ namespace pinocchio
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
           VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
           
-          assert(vec.size() == chol.dim() && "The input vector is of wrong size");
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.dim(),
+                                         "The input vector is of wrong size");
           const Eigen::DenseIndex num_total_constraints = chol.constraintDim();
           
           // TODO: exploit the Sparsity pattern of the first rows of U
@@ -623,8 +632,8 @@ namespace pinocchio
         typedef typename ContactCholeskyDecomposition::RowMatrix RowMatrix;
         
         const Eigen::DenseIndex & chol_dim = chol.dim();
-        assert(col < chol_dim && col >= 0);
-        assert(vec.size() == chol_dim);
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(col < chol_dim && col >= 0);
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol_dim);
         
         const typename ContactCholeskyDecomposition::IndexVector & nvt = chol.nv_subtree_fromRow;
         VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
@@ -686,8 +695,8 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     inverse(const Eigen::MatrixBase<MatrixType> & res) const
     {
-      assert(res.rows() == dim());
-      assert(res.cols() == dim());
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(res.rows() == dim());
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(res.cols() == dim());
       
       MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
       
