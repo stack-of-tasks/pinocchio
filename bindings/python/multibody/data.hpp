@@ -13,6 +13,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/exception.hpp>
 
+#include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
@@ -74,20 +75,14 @@ namespace pinocchio
 
     public:
 
-#define ADD_DATA_PROPERTY(NAME,DOC)         \
-      def_readwrite(#NAME,                  \
-      &Data::NAME,                          \
-      DOC)
+#define ADD_DATA_PROPERTY(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY(Data,NAME,DOC)
       
-#define ADD_DATA_PROPERTY_READONLY(NAME,DOC)      \
-      def_readonly(#NAME,                         \
-      &Data::NAME,                                \
-      DOC)
+#define ADD_DATA_PROPERTY_READONLY(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY_READONLY(Data,NAME,DOC)
       
-#define ADD_DATA_PROPERTY_READONLY_BYVALUE(NAME,DOC)                            \
-      add_property(#NAME,                                                       \
-      make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()),  \
-      DOC) 
+#define ADD_DATA_PROPERTY_READONLY_BYVALUE(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY_READONLY_BYVALUE(Data,NAME,DOC)
 
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -136,8 +131,8 @@ namespace pinocchio
                                             "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dAg,
                                             "Time derivative of the centroidal momentum matrix Ag.")
-        .ADD_DATA_PROPERTY_READONLY(hg,
-                                    "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
+        .ADD_DATA_PROPERTY(hg,
+                           "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
         .ADD_DATA_PROPERTY(dhg,
                            "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
         .ADD_DATA_PROPERTY(Ig,
@@ -154,10 +149,10 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
-        
+
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
-        
+
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to the contact forces")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to the contact impulses")
         .ADD_DATA_PROPERTY(contact_forces,"Contact forces")
@@ -191,5 +186,9 @@ namespace pinocchio
     };
     
   }} // namespace pinocchio::python
+
+#undef ADD_DATA_PROPERTY
+#undef ADD_DATA_PROPERTY_READONLY
+#undef ADD_DATA_PROPERTY_READONLY_BYVALUE
 
 #endif // ifndef __pinocchio_python_data_hpp__
