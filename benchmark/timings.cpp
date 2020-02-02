@@ -240,17 +240,17 @@ int main(int argc, const char ** argv)
  
   timer.tic();
   SMOOTH(NBT)
-    {
-      crba(model,data,qs[_smooth]);
-    }
-  std::cout << "CRBA = \t\t"; timer.toc(std::cout,NBT);
+  {
+    deprecated::crba(model,data,qs[_smooth]);
+  }
+  std::cout << "CRBA (classic) = \t\t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    crbaMinimal(model,data,qs[_smooth]);
+    crba(model,data,qs[_smooth]);
   }
-  std::cout << "CRBA minimal = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "CRBA (optimized) = \t\t"; timer.toc(std::cout,NBT);
 
   timer.tic();
   SMOOTH(NBT)

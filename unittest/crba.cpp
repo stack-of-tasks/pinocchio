@@ -134,10 +134,10 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
   Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
   
-  crba(model,data_ref,q);
+  pinocchio::deprecated::crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  crbaMinimal(model,data,q);
+  crba(model,data,q);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   BOOST_CHECK(data.M.isApprox(data_ref.M));

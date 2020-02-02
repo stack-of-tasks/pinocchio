@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_crba_hxx__
@@ -14,6 +14,7 @@
 
 namespace pinocchio 
 {
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
   : public fusion::JointUnaryVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
@@ -166,40 +167,42 @@ namespace pinocchio
     }
   };
 
+  namespace deprecated
+  {
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+         const Eigen::MatrixBase<ConfigVectorType> & q)
+    {
+      assert(model.check(data) && "data is not consistent with model.");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
+      
+      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+      
+      typedef CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+      for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
+      {
+        Pass1::run(model.joints[i],data.joints[i],
+                   typename Pass1::ArgsType(model,data,q.derived()));
+      }
+      
+      typedef CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+      for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+      {
+        Pass2::run(model.joints[i],data.joints[i],
+                   typename Pass2::ArgsType(model,data));
+      }
+      
+      return data.M;
+    }
+  }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
   crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q)
-  {
-    assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
-    
-    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-    
-    typedef CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
-    for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
-    {
-      Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived()));
-    }
-    
-    typedef CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
-    {
-      Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data));
-    }
-
-    return data.M;
-  }
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
-  crbaMinimal(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-              DataTpl<Scalar,Options,JointCollectionTpl> & data,
-              const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
