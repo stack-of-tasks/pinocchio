@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hpp__
@@ -223,6 +223,40 @@ namespace pinocchio
                                                const Eigen::DenseIndex col,
                                                const Eigen::MatrixBase<VectorLike> & vec);
       ///@}
+      
+      template<typename S1, int O1>
+      bool operator==(const ContactCholeskyDecompositionTpl<S1,O1> & other) const
+      {
+        bool is_same = true;
+        
+        if(nv != other.nv || num_contacts != other.num_contacts)
+          return false;
+        
+        if(   D.size() != other.D.size()
+           || Dinv.size() != other.Dinv.size()
+           || U.rows() != other.U.rows()
+           || U.cols() != other.U.cols())
+          return false;
+        
+        is_same &= (D == other.D);
+        is_same &= (Dinv == other.Dinv);
+        is_same &= (U == other.U);
+        
+        is_same &= (parents_fromRow == other.parents_fromRow);
+        is_same &= (nv_subtree_fromRow == other.nv_subtree_fromRow);
+        is_same &= (last_child == other.last_child);
+        is_same &= (extented_parents_fromRow == other.extented_parents_fromRow);
+//        is_same &= (rowise_sparsity_pattern == other.rowise_sparsity_pattern);
+        
+        return is_same;
+      }
+      
+      template<typename S1, int O1>
+      bool operator!=(const ContactCholeskyDecompositionTpl<S1,O1> & other) const
+      {
+        return !(*this == other);
+      }
+      
     protected:
       
       IndexVector parents_fromRow;

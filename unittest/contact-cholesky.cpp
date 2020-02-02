@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include <iostream>
@@ -50,6 +50,39 @@ namespace pinocchio
 }
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+
+BOOST_AUTO_TEST_CASE(contact_operator_equal)
+{
+  
+  using namespace Eigen;
+  using namespace pinocchio;
+  using namespace cholesky;
+
+  pinocchio::Model humanoid_model;
+  pinocchio::buildModels::humanoidRandom(humanoid_model);
+  Data humanoid_data(humanoid_model);
+
+  pinocchio::Model manipulator_model;
+  pinocchio::buildModels::manipulator(manipulator_model);
+  Data manipulator_data(manipulator_model);
+
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_info_empty;
+  
+  humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
+  humanoid_model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd humanoid_q = randomConfiguration(humanoid_model);
+  crba(humanoid_model,humanoid_data,humanoid_q);
+
+  VectorXd manipulator_q = randomConfiguration(manipulator_model);
+  crba(manipulator_model,manipulator_data,manipulator_q);
+  
+  ContactCholeskyDecomposition humanoid_chol(humanoid_model), manipulator_chol(manipulator_model);
+  humanoid_chol.compute(humanoid_model,humanoid_data,contact_info_empty);
+  manipulator_chol.compute(manipulator_model,manipulator_data,contact_info_empty);
+  
+  BOOST_CHECK(humanoid_chol == humanoid_chol);
+  BOOST_CHECK(humanoid_chol != manipulator_chol);
+}
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
 {
