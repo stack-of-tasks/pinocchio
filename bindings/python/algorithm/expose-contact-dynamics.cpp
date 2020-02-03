@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/algorithm/proximal.hpp"
+#include "pinocchio/bindings/python/algorithm/contact-cholesky.hpp"
+
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 #include "pinocchio/algorithm/contact-dynamics.hpp"
@@ -40,6 +42,8 @@ namespace pinocchio
         .value("CONTACT_6D",CONTACT_6D)
         .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
         ;
+        
+        ContactCholeskyDecompositionPythonVisitor<cholesky::ContactCholeskyDecomposition>::expose();
         
         ContactInfoPythonVisitor<ContactInfo>::expose();
         
