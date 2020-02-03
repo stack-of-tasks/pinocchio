@@ -4,7 +4,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include <boost/python.hpp>
-//#include "pinocchio/bindings/python/utils/namespace.hpp"
+#include "pinocchio/bindings/python/utils/namespace.hpp"
 #include "pinocchio/math/rpy.hpp"
 
 namespace pinocchio
@@ -22,7 +22,7 @@ namespace pinocchio
     {
       return pinocchio::rpy::matrixToRpy(R);
     }
-    
+
     void exposeRpy()
     {
       using namespace Eigen;
@@ -30,21 +30,21 @@ namespace pinocchio
 
       {
         // using the rpy scope
-        //bp::scope current_scope = getOrCreatePythonNamespace("rpy");
-        
-        bp::def("_rpyToMatrix",
+        bp::scope current_scope = getOrCreatePythonNamespace("rpy");
+
+        bp::def("rpyToMatrix",
                 static_cast<Matrix3d (*)(const double, const double, const double)>(&rpyToMatrix),
                 bp::args("roll", "pitch", "yaw"),
                 "Given (r, p, y), the rotation is given as R = R_z(y)R_y(p)R_x(r),"
                 " where R_a(theta) denotes the rotation of theta degrees axis a");
 
-        bp::def("_rpyToMatrix",
+        bp::def("rpyToMatrix",
                 &rpyToMatrix_proxy,
                 bp::arg("rpy"),
                 "Given (r, p, y), the rotation is given as R = R_z(y)R_y(p)R_x(r),"
                 " where R_a(theta) denotes the rotation of theta degrees axis a");
 
-        bp::def("_matrixToRpy",
+        bp::def("matrixToRpy",
                 &matrixToRpy_proxy,
                 bp::arg("R"),
                 "Given a rotation matrix R, the angles (r, p, y) are given so that R = R_z(y)R_y(p)R_x(r),"

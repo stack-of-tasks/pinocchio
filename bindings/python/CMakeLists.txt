@@ -160,7 +160,6 @@ IF(BUILD_PYTHON_INTERFACE)
     utils.py
     robot_wrapper.py
     romeo_wrapper.py
-    rpy.py
     explog.py
     shortcuts.py
     )
