@@ -33,7 +33,7 @@ namespace pinocchio
     , public StdContainerFromPythonList< container::aligned_vector<T> >
     {
       typedef container::aligned_vector<T> vector_type;
-      typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
+      typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")

@@ -17,13 +17,45 @@ namespace pinocchio
 {
   namespace python
   {
+  
+    namespace details
+    {
+      template<typename vector_type, bool NoProxy>
+      struct build_list
+      {
+        static ::boost::python::list run(vector_type & vec)
+        {
+          namespace bp = ::boost::python;
+          
+          bp::list bp_list;
+          typedef typename vector_type::iterator iterator;
+          for(iterator it = vec.begin(); it != vec.end(); ++it)
+          {
+            bp_list.append(boost::ref(*it));
+          }
+          return bp_list;
+        }
+      };
+    
+      template<typename vector_type>
+      struct build_list<vector_type,true>
+      {
+        static ::boost::python::list run(vector_type & vec)
+        {
+          namespace bp = ::boost::python;
+          
+          typedef bp::iterator<vector_type> iterator;
+          return bp::list(iterator()(vec));
+        }
+      };
+    }
     
     ///
     /// \brief Register the conversion from a Python list to a std::vector
     ///
     /// \tparam vector_type A std container (e.g. std::vector or std::list)
     ///
-    template<typename vector_type>
+    template<typename vector_type, bool NoProxy = false>
     struct StdContainerFromPythonList
     {
       typedef typename vector_type::value_type T;
@@ -83,12 +115,7 @@ namespace pinocchio
       
       static ::boost::python::list tolist(vector_type & self)
       {
-        namespace bp = boost::python;
-        
-        typedef bp::iterator<vector_type> iterator;
-        bp::list python_list(iterator()(self));
-        
-        return python_list;
+        return details::build_list<vector_type,NoProxy>::run(self);
       }
     };
     
@@ -108,7 +135,7 @@ namespace pinocchio
     , public StdContainerFromPythonList< std::vector<T,Allocator> >
     {
       typedef std::vector<T,Allocator> vector_type;
-      typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
+      typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
