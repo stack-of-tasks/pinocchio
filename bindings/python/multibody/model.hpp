@@ -310,11 +310,11 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        StdVectorPythonVisitor<Index>::expose("StdVec_Index");
+        StdVectorPythonVisitor<Index,std::allocator<Index>,true>::expose("StdVec_Index");
         StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
-        StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
-        StdVectorPythonVisitor<Scalar>::expose("StdVec_double");
+        StdVectorPythonVisitor<bool,std::allocator<bool>,true>::expose("StdVec_Bool");
+        StdVectorPythonVisitor<Scalar,std::allocator<Scalar>,true>::expose("StdVec_double");
         bp::class_<typename Model::ConfigVectorMap>("StdMap_String_EigenVectorXd")
           .def(bp::map_indexing_suite< typename Model::ConfigVectorMap, true >())
           .def_pickle(PickleMap<typename Model::ConfigVectorMap>());
