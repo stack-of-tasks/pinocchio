@@ -13,6 +13,11 @@ from .libpinocchio_pywrap import *
 from .deprecated import *
 from .shortcuts import *
 
+# Manually register submodules
+import sys
+sys.modules['pinocchio.rpy'] = rpy
+sys.modules['pinocchio.cholesky'] = cholesky
+
 if pin.WITH_HPP_FCL:
   try:
     import hppfcl
