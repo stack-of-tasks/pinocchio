@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/algorithm/proximal.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
+
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
 namespace bp = boost::python;
@@ -40,6 +42,10 @@ namespace pinocchio
         ;
         
         ContactInfoPythonVisitor<ContactInfo>::expose();
+        
+        typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) ContactInfoVector;
+        StdVectorPythonVisitor<ContactInfo,ContactInfoVector::allocator_type>::expose("StdVec_ContactInfo");
+        
         ProximalSettingsPythonVisitor<ProximalSettings>::expose();
         
         typedef Eigen::aligned_allocator<ContactInfo> ContactInfoAllocator;
