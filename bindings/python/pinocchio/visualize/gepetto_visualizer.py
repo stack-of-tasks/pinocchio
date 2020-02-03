@@ -102,7 +102,7 @@ class GepettoVisualizer(BaseVisualizer):
         gui.setScale(meshName, npToTuple(meshScale))
         if geometry_object.overrideMaterial:
             gui.setColor(meshName, npToTuple(meshColor))
-            if meshTexturePath is not '':
+            if meshTexturePath != '':
                 gui.setTexture(meshName, meshTexturePath)
 
     def loadViewerModel(self, rootNodeName="pinocchio"):
