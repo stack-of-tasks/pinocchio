@@ -23,6 +23,24 @@ namespace pinocchio
       return pinocchio::rpy::matrixToRpy(R);
     }
 
+    Eigen::Matrix3d rotate(const std::string axis, const double ang)
+    {
+      if(axis.length() != 1U)
+          throw std::invalid_argument(std::string("Invalid axis: ").append(axis));
+      Eigen::Vector3d u;
+      u.setZero();
+      const char axis_ = axis[0];
+      switch(axis_)
+      {
+        case 'x': u[0] = 1.; break;
+        case 'y': u[1] = 1.; break;
+        case 'z': u[2] = 1.; break;
+        default: throw std::invalid_argument(std::string("Invalid axis: ").append(1U,axis_));
+      }
+
+      return Eigen::AngleAxisd(ang, u).matrix();
+    }
+
     void exposeRpy()
     {
       using namespace Eigen;
@@ -51,6 +69,12 @@ namespace pinocchio
                 " where R_a(theta) denotes the rotation of theta degrees axis a."
                 " The angles are guaranteed to be in the ranges: r in [-pi,pi],"
                 " p in[-pi/2,pi/2], y in [-pi,pi]");
+
+        bp::def("rotate",
+                &rotate,
+                bp::args("axis", "ang"),
+                "Transformation Matrix corresponding to a rotation about x, y or z"
+                " e.g. R = rot('x', pi / 4): rotate pi/4 rad about x axis");
       }
       
     }
