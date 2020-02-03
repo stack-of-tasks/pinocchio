@@ -5,8 +5,8 @@ import numpy as np
 import pinocchio as pin
 pin.switchToNumpyMatrix()
 
-from pinocchio.utils import npToTuple, rotate
-from pinocchio.rpy import matrixToRpy, rpyToMatrix
+from pinocchio.utils import npToTuple
+from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate
 
 from test_case import PinocchioTestCase as TestCase
 
