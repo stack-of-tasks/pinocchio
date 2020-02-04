@@ -235,6 +235,12 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   ContactCholeskyDecomposition mass_matrix_chol
   = contact_chol_decomposition.getMassMatrixChoeslkyDecomposition(model);
   
+  // test Operational Space Inertia Matrix
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  BOOST_CHECK(iosim.size() == 0);
+  BOOST_CHECK(osim.size() == 0);
+  
   BOOST_CHECK(mass_matrix_chol == contact_chol_decomposition);
   BOOST_CHECK(mass_matrix_chol.U.isApprox(data_ref.U));
   BOOST_CHECK(mass_matrix_chol.D.isApprox(data_ref.D));
@@ -323,6 +329,15 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  // test Operational Space Inertia Matrix
+  
+  MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
   
   ContactCholeskyDecomposition contact_chol_decomposition_mu;
   contact_chol_decomposition_mu.allocate(model, contact_infos);

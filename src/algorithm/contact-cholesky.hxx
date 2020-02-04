@@ -38,6 +38,8 @@ namespace pinocchio
         num_total_constraints += it->size();
       }
       
+      U1inv.resize(num_total_constraints,num_total_constraints);
+      
       oMc.resize(contact_infos.size());
       
       const Eigen::DenseIndex total_dim = nv + num_total_constraints;

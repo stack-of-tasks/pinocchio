@@ -127,6 +127,34 @@ namespace pinocchio
                     const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos);
       
       ///
+      /// \brief Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.
+      ///
+      Matrix getInverseOperationalSpaceInertiaMatrix() const
+      {
+        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        const ConstBlockXpr U1
+        = U.topLeftCorner(constraintDim(),constraintDim());
+        
+        Matrix res = -U1 * D.head(constraintDim()).asDiagonal() * U1.adjoint();
+        return res;
+      }
+      
+      ///
+      /// \brief Returns the Operational Space Inertia Matrix resulting from the decomposition.
+      ///
+      Matrix getOperationalSpaceInertiaMatrix() const
+      {
+        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
+        = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
+        
+        U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
+        Matrix res = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
+        
+        return res;
+      }
+      
+      ///
       /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
       ///        related to the system mass matrix and the Jacobians of the contact patches contained in
       ///        the vector of ContactInfo named contact_infos.
@@ -290,6 +318,9 @@ namespace pinocchio
       Eigen::DenseIndex num_contacts;
       
       VectorOfSliceVector rowise_sparsity_pattern;
+      
+      /// \brief Inverse of the top left block of U
+      mutable Matrix U1inv;
       
     private:
       typedef SE3Tpl<Scalar,Options> SE3;
