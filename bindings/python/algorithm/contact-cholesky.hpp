@@ -54,6 +54,20 @@ namespace pinocchio
              bp::arg("self"),
              "Returns the matrix resulting from the decomposition.")
         
+        .def("compute",
+             (void (*)(Self & self, const Model &, Data &, const ContactInfoVector &, const Scalar))&compute,
+             bp::args("self","model","data","contact_infos","mu"),
+             "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
+             "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
+             "the vector of ContactInfo named contact_infos. The decomposition is regularized with a factor mu.\n")
+        
+        .def("compute",
+             (void (*)(Self & self, const Model &, Data &, const ContactInfoVector &))&compute,
+             bp::args("self","model","data","contact_infos"),
+             "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
+             "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
+             "the vector of ContactInfo named contact_infos.")
+        
         .def("solve",
              &solve<Matrix>,
              bp::args("self","matrix"),
@@ -88,6 +102,16 @@ namespace pinocchio
       static Matrix solve(const Self & self, const MatrixType & mat)
       {
         return self.solve(mat);
+      }
+      
+      static void compute(Self & self, const Model & model, Data & data, const ContactInfoVector & info, const Scalar mu)
+      {
+        self.compute(model,data,info,mu);
+      }
+      
+      static void compute(Self & self, const Model & model, Data & data, const ContactInfoVector & info)
+      {
+        self.compute(model,data,info);
       }
     };
     
