@@ -12,8 +12,7 @@ import numpy.linalg as npl
 from . import libpinocchio_pywrap as pin
 from libpinocchio_pywrap.rpy import matrixToRpy, rpyToMatrix, rotate
 
-import warnings as _warnings
-from .deprecation import deprecated, DeprecatedWarning
+from .deprecation import deprecated
 
 def npToTTuple(M):
     L = M.tolist()
@@ -35,24 +34,18 @@ def eye(n):
     if pin.getNumpyType()==np.matrix:
         return np.matrix(res)
     else:
-        message = "This function is deprecated for numpy.array. Plase use numpy.eye"
-        _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
         return res
 
 def zero(n):
     if pin.getNumpyType()==np.matrix:
         return np.matrix(np.zeros([n, 1] if isinstance(n, int) else n))
     else:
-        message = "This function is deprecated for numpy.array. Please use numpy.zeros"
-        _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
         return np.zeros(n)
 
 def rand(n):
     if pin.getNumpyType()==np.matrix:
         return np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]))
     else:
-        "This function is deprecated for numpy.array. Please use numpy.random.rand"
-        _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
         return np.random.rand(n) if isinstance(n, int) else np.random.rand(n[0], n[1])
 
 @deprecated("Please use numpy.cross(a, b) or numpy.cross(a, b, axis=0).")
