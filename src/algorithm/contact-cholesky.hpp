@@ -147,7 +147,7 @@ namespace pinocchio
       /// \brief Size of the decomposition
       Eigen::DenseIndex size() const { return D.size(); }
       
-      /// \brief Computes the total dimension of the constraints contained in the Cholesky factorization
+      /// \brief Returns the total dimension of the constraints contained in the Cholesky factorization
       Eigen::DenseIndex constraintDim() const
       {
         return size() - nv;
