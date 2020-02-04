@@ -148,3 +148,7 @@ def kineticEnergy(model,data,q,v,update_kinematics=True):
     return pin.computeKineticEnergy(model,data)
 
 kineticEnergy.__doc__ += '\n' + pin.computeKineticEnergy.__doc__
+
+from .utils import npToTTuple, npToTuple
+pin.rpy.npToTTuple = deprecated("This function was moved to the utils submodule.")(npToTTuple)
+pin.rpy.npToTuple = deprecated("This function was moved to the utils submodule.")(npToTuple)

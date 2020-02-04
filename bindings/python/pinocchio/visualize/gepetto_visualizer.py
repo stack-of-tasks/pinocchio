@@ -1,6 +1,6 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
-from ..rpy import npToTuple
+from ..utils import npToTuple
 
 from . import BaseVisualizer
 

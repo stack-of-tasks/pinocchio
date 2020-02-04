@@ -10,9 +10,24 @@ import numpy as np
 import numpy.linalg as npl
 
 from . import libpinocchio_pywrap as pin
-from .rpy import matrixToRpy, npToTTuple, npToTuple, rotate, rpyToMatrix
+from libpinocchio_pywrap.rpy import matrixToRpy, rpyToMatrix, rotate
 
 from .deprecation import deprecated
+
+def npToTTuple(M):
+    L = M.tolist()
+    for i in range(len(L)):
+        L[i] = tuple(L[i])
+    return tuple(L)
+
+def npToTuple(M):
+    if len(M.shape) == 1:
+        return tuple(M.tolist())
+    if M.shape[0] == 1:
+        return tuple(M.tolist()[0])
+    if M.shape[1] == 1:
+        return tuple(M.T.tolist()[0])
+    return npToTTuple(M)
 
 def eye(n):
     res = np.eye(n)

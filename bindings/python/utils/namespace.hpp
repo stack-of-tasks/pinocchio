@@ -20,7 +20,7 @@ namespace pinocchio
     ///
     /// \returns The submodule related to the namespace name.
     ///
-    bp::object getOrCreatePythonNamespace(const std::string & submodule_name)
+    inline bp::object getOrCreatePythonNamespace(const std::string & submodule_name)
     {
       bp::scope current_scope;
       std::string current_scope_name(bp::extract<const char*>(current_scope.attr("__name__")));
