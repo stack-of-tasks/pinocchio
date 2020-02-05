@@ -354,7 +354,7 @@ namespace pinocchio {
   template <class Config_t, class Tangent_t>
   typename LieGroupBase<Derived>::ConfigVector_t
   LieGroupBase<Derived>::integrate(const Eigen::MatrixBase<Config_t>  & q,
-                                            const Eigen::MatrixBase<Tangent_t> & v) const
+                                   const Eigen::MatrixBase<Tangent_t> & v) const
   {
     ConfigVector_t qout;
     integrate(q.derived(), v.derived(), qout);
