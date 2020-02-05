@@ -68,6 +68,18 @@ namespace pinocchio
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
              "the vector of ContactInfo named contact_infos.")
         
+        .def("getInverseOperationalSpaceInertiaMatrix",
+             &Self::getInverseOperationalSpaceInertiaMatrix,
+             bp::arg("self"),
+             "Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.",
+             bp::return_value_policy<bp::return_by_value>())
+        
+        .def("getOperationalSpaceInertiaMatrix",
+             &Self::getOperationalSpaceInertiaMatrix,
+             bp::arg("self"),
+             "Returns the Operational Space Inertia Matrix resulting from the decomposition.",
+             bp::return_value_policy<bp::return_by_value>())
+        
         .def("solve",
              &solve<Matrix>,
              bp::args("self","matrix"),
