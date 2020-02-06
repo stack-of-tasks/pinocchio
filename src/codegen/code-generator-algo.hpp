@@ -35,7 +35,7 @@ namespace pinocchio
                 const std::string & library_name = "cg_rnea_eval")
     : Base(model,model.nq+2*model.nv,model.nv,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_a = ADTangentVectorType(model.nv); ad_a.setZero();
       x = VectorXs::Zero(Base::getInputDimension());
@@ -133,7 +133,7 @@ namespace pinocchio
                const std::string & library_name = "cg_aba_eval")
     : Base(model,model.nq+2*model.nv,model.nv,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_tau = ADTangentVectorType(model.nv); ad_tau.setZero();
       x = VectorXs::Zero(Base::getInputDimension());
@@ -231,7 +231,7 @@ namespace pinocchio
                 const std::string & library_name = "cg_crba_eval")
     : Base(model,model.nq,(model.nv*(model.nv+1))/2,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       x = VectorXs::Zero(Base::getInputDimension());
       res = VectorXs::Zero(Base::getOutputDimension());
       
@@ -319,7 +319,7 @@ namespace pinocchio
                 const std::string & library_name = "cg_minv_eval")
     : Base(model,model.nq,(model.nv*(model.nv+1))/2,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       x = VectorXs::Zero(Base::getInputDimension());
       res = VectorXs::Zero(Base::getOutputDimension());
       
@@ -409,7 +409,7 @@ namespace pinocchio
                            const std::string & library_name = "cg_partial_rnea_eval")
     : Base(model,model.nq+2*model.nv,3*model.nv*model.nv,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_a = ADTangentVectorType(model.nv); ad_a.setZero();
       
@@ -518,7 +518,7 @@ namespace pinocchio
                           const std::string & library_name = "cg_partial_aba_eval")
     : Base(model,model.nq+2*model.nv,3*model.nv*model.nv,function_name,library_name)
     {
-      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(model);
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_tau = ADTangentVectorType(model.nv); ad_tau.setZero();
       
