@@ -10,7 +10,7 @@ import numpy as np
 import numpy.linalg as npl
 
 from . import libpinocchio_pywrap as pin
-from libpinocchio_pywrap.rpy import matrixToRpy, rpyToMatrix, rotate
+from .libpinocchio_pywrap.rpy import matrixToRpy, rpyToMatrix, rotate
 
 from .deprecation import deprecated
 
