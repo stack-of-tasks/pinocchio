@@ -6,7 +6,7 @@ set -x
 set -v
 
 # Setup environment variables.
-if [[ $TRAVIS_PYTHON_VERSION -gt 3 ]]; then
+if [[ $TRAVIS_PYTHON_VERSION -gt 30 ]]; then
   export CMAKE_ADDITIONAL_OPTIONS=" ${CMAKE_ADDITIONAL_OPTIONS} -DPYTHON_EXECUTABLE=$(which python3)"
 else
   export CMAKE_ADDITIONAL_OPTIONS=" ${CMAKE_ADDITIONAL_OPTIONS} -DPYTHON_EXECUTABLE=$(which python2)"

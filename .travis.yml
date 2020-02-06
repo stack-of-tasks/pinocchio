@@ -31,17 +31,25 @@ branches:
 jobs:
   include:
     - dist: xenial
-      env: BUILD_WITH_COLLISION_SUPPORT=OFF
-      python: "2.7"
+      env: 
+        - BUILD_WITH_COLLISION_SUPPORT=OFF
+        - TRAVIS_PYTHON_VERSION=27
+      python: 2.7
     - dist: trusty 
-      env: BUILD_WITH_COLLISION_SUPPORT=ON
-      python: "2.7"
+      env: 
+        - BUILD_WITH_COLLISION_SUPPORT=ON
+        - TRAVIS_PYTHON_VERSION=27
+      python: 2.7
     - dist: xenial
-      env: BUILD_WITH_COLLISION_SUPPORT=ON
-      python: "2.7"
+      env: 
+        - BUILD_WITH_COLLISION_SUPPORT=ON
+        - TRAVIS_PYTHON_VERSION=27
+      python: 2.7
     - dist: xenial
-      env: BUILD_WITH_COLLISION_SUPPORT=ON
-      python: "3.5"
+      env: 
+        - BUILD_WITH_COLLISION_SUPPORT=ON
+        - TRAVIS_PYTHON_VERSION=35
+      python: 3.5
 
 allow_failures:
   - compiler:
