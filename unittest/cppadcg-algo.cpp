@@ -47,18 +47,18 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ADData ad_data(ad_model);
     
     // Sample random configuration
-    typedef Model::ConfigVectorType CongigVectorType;
+    typedef Model::ConfigVectorType ConfigVectorType;
     typedef Model::TangentVectorType TangentVectorType;
-    CongigVectorType q(model.nq);
+    ConfigVectorType q(model.nq);
     q = pinocchio::randomConfiguration(model);
     
     TangentVectorType v(TangentVectorType::Random(model.nv));
     TangentVectorType a(TangentVectorType::Random(model.nv));
     
-    typedef ADModel::ConfigVectorType ADCongigVectorType;
+    typedef ADModel::ConfigVectorType ADConfigVectorType;
     typedef ADModel::TangentVectorType ADTangentVectorType;
     
-    ADCongigVectorType ad_q = q.cast<ADScalar>();
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
     ADTangentVectorType ad_v = v.cast<ADScalar>();
     ADTangentVectorType ad_a = a.cast<ADScalar>();
 

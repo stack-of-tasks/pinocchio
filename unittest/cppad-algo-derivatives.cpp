@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   ADData ad_data(ad_model);
   
   // Sample random configuration
-  typedef Model::ConfigVectorType CongigVectorType;
+  typedef Model::ConfigVectorType ConfigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
-  CongigVectorType q(model.nq);
+  ConfigVectorType q(model.nq);
   q = pinocchio::randomConfiguration(model);
 
   TangentVectorType v(TangentVectorType::Random(model.nv));
@@ -69,10 +69,10 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   rnea_partial_da.triangularView<Eigen::StrictlyLower>()
   = rnea_partial_da.transpose().triangularView<Eigen::StrictlyLower>();
   
-  typedef ADModel::ConfigVectorType ADCongigVectorType;
+  typedef ADModel::ConfigVectorType ADConfigVectorType;
   typedef ADModel::TangentVectorType ADTangentVectorType;
   
-  ADCongigVectorType ad_q = q.cast<ADScalar>();
+  ADConfigVectorType ad_q = q.cast<ADScalar>();
   ADTangentVectorType ad_dq = ADTangentVectorType::Zero(model.nv);
   ADTangentVectorType ad_v = v.cast<ADScalar>();
   ADTangentVectorType ad_a = a.cast<ADScalar>();
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   // dtau_dq
   {
     CppAD::Independent(ad_dq);
-    ADCongigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
+    ADConfigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
     pinocchio::rnea(ad_model,ad_data,ad_q_plus,ad_v,ad_a);
     
     VectorXAD Y(model.nv);
@@ -175,9 +175,9 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   ADData ad_data(ad_model);
   
   // Sample random configuration
-  typedef Model::ConfigVectorType CongigVectorType;
+  typedef Model::ConfigVectorType ConfigVectorType;
   typedef Model::TangentVectorType TangentVectorType;
-  CongigVectorType q(model.nq);
+  ConfigVectorType q(model.nq);
   q = pinocchio::randomConfiguration(model);
   
   TangentVectorType v(TangentVectorType::Random(model.nv));
@@ -195,10 +195,10 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   aba_partial_dtau.triangularView<Eigen::StrictlyLower>()
   = aba_partial_dtau.transpose().triangularView<Eigen::StrictlyLower>();
   
-  typedef ADModel::ConfigVectorType ADCongigVectorType;
+  typedef ADModel::ConfigVectorType ADConfigVectorType;
   typedef ADModel::TangentVectorType ADTangentVectorType;
   
-  ADCongigVectorType ad_q = q.cast<ADScalar>();
+  ADConfigVectorType ad_q = q.cast<ADScalar>();
   ADTangentVectorType ad_dq = ADTangentVectorType::Zero(model.nv);
   ADTangentVectorType ad_v = v.cast<ADScalar>();
   ADTangentVectorType ad_tau = tau.cast<ADScalar>();
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   // dddq_dq
   {
     CppAD::Independent(ad_dq);
-    ADCongigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
+    ADConfigVectorType ad_q_plus = pinocchio::integrate(ad_model,ad_q,ad_dq);
     pinocchio::aba(ad_model,ad_data,ad_q_plus,ad_v,ad_tau);
     
     VectorXAD Y(model.nv);

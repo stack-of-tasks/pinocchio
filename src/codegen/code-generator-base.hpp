@@ -36,10 +36,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options|Eigen::RowMajor> RowMatrixXs;
     typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1,Options> ADVectorXs;
     
-    typedef typename Model::ConfigVectorType CongigVectorType;
+    typedef typename Model::ConfigVectorType ConfigVectorType;
     typedef typename Model::TangentVectorType TangentVectorType;
     
-    typedef typename ADModel::ConfigVectorType ADCongigVectorType;
+    typedef typename ADModel::ConfigVectorType ADConfigVectorType;
     typedef typename ADModel::TangentVectorType ADTangentVectorType;
     
     typedef CppAD::ADFun<CGScalar> ADFun;
@@ -161,7 +161,7 @@ namespace pinocchio
     ADVectorXs ad_X, ad_Y;
     ADFun ad_fun;
     
-    ADCongigVectorType ad_q, ad_q_plus;
+    ADConfigVectorType ad_q, ad_q_plus;
     ADTangentVectorType ad_dq, ad_v, ad_a;
     
     VectorXs y;
