@@ -262,6 +262,13 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
     BOOST_CHECK(YS.isApprox(YS_ref));
   }
   
+  // Test constrainst operations
+  {
+    Eigen::MatrixXd StS = constraint.transpose() * constraint;
+    Eigen::MatrixXd StS_ref = constraint_mat.transpose() * constraint_mat;
+    BOOST_CHECK(StS.isApprox(StS_ref));
+  }
+  
 }
 
 template<typename JointModel_> struct init;

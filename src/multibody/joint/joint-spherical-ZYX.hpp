@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -33,9 +33,12 @@ namespace pinocchio
     typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,3,Options> ReducedSquaredMatrix;
     
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
+    
+    typedef ReducedSquaredMatrix StDiagonalMatrixSOperationReturnType;
   }; // struct traits struct ConstraintRotationalSubspace
   
   template<typename _Scalar, int _Options>
@@ -68,7 +71,7 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct ConstraintTranspose
+    struct ConstraintTranspose : ConstraintTransposeBase<ConstraintSphericalZYXTpl>
     {
       const ConstraintSphericalZYXTpl & ref;
       ConstraintTranspose(const ConstraintSphericalZYXTpl & ref) : ref(ref) {}
@@ -176,6 +179,21 @@ namespace pinocchio
     Matrix3 m_S;
     
   }; // struct ConstraintSphericalZYXTpl
+
+  namespace details
+  {
+    template<typename Scalar, int Options>
+    struct StDiagonalMatrixSOperation< ConstraintSphericalZYXTpl<Scalar,Options> >
+    {
+      typedef ConstraintSphericalZYXTpl<Scalar,Options> Constraint;
+      typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
+      
+      static ReturnType run(const ConstraintBase<Constraint> & constraint)
+      {
+        return constraint.matrix().transpose() * constraint.matrix();
+      }
+    };
+  }
 
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template <typename S1, int O1, typename S2, int O2>

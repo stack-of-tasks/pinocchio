@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_joint_mimic_hpp__
@@ -22,11 +22,15 @@ namespace pinocchio
       LINEAR = traits<Constraint>::LINEAR,
       ANGULAR = traits<Constraint>::ANGULAR
     };
+    
     typedef typename traits<Constraint>::JointMotion JointMotion;
     typedef typename traits<Constraint>::JointForce JointForce;
     typedef typename traits<Constraint>::DenseBase DenseBase;
+    typedef typename traits<Constraint>::ReducedSquaredMatrix ReducedSquaredMatrix;
+    
     typedef typename traits<Constraint>::MatrixReturnType MatrixReturnType;
     typedef typename traits<Constraint>::ConstMatrixReturnType ConstMatrixReturnType;
+    typedef ReducedSquaredMatrix StDiagonalMatrixSOperationReturnType;
   }; // traits ScaledConstraint
   
   template<class Constraint>
@@ -119,7 +123,7 @@ namespace pinocchio
     
     int nv_impl() const { return m_constraint.nv(); }
     
-    struct TransposeConst
+    struct TransposeConst : ConstraintTransposeBase<ScaledConstraint>
     {
       const ScaledConstraint & ref;
       TransposeConst(const ScaledConstraint & ref) : ref(ref) {}
@@ -128,7 +132,7 @@ namespace pinocchio
       typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
-        // TODO: I don't know why, but we should a dense a return type, otherwise it failes at the evaluation level;
+        // TODO: I don't know why, but we should a dense a return type, otherwise it fails at the evaluation level;
         typedef typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
         return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
       }
@@ -178,6 +182,22 @@ namespace pinocchio
     Constraint m_constraint;
     Scalar m_scaling_factor;
   }; // struct ScaledConstraint
+
+  namespace details
+  {
+    template<typename ParentConstraint>
+    struct StDiagonalMatrixSOperation< ScaledConstraint<ParentConstraint> >
+    {
+      typedef ScaledConstraint<ParentConstraint> Constraint;
+      typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
+      
+      static ReturnType run(const ConstraintBase<Constraint> & constraint)
+      {
+        const Constraint & constraint_ = constraint.derived();
+        return (constraint_.constraint().transpose() * constraint_.constraint()) * (constraint_.scaling() * constraint_.scaling());
+      }
+    };
+  }
   
   template<typename S1, int O1, typename _Constraint>
   struct MultiplicationOp<InertiaTpl<S1,O1>, ScaledConstraint<_Constraint> >

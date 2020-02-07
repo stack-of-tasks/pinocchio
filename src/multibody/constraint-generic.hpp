@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2020 CNRS, INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -24,10 +24,12 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,Dim,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,Dim,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,Dim,Dim,Options> ReducedSquaredMatrix;
     
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(DenseBase) ConstMatrixReturnType;
     typedef typename PINOCCHIO_EIGEN_REF_TYPE(DenseBase) MatrixReturnType;
     
+    typedef ReducedSquaredMatrix StDiagonalMatrixSOperationReturnType;
   }; // traits ConstraintTpl
   
   template<int Dim, typename Scalar, int Options>
@@ -85,7 +87,7 @@ namespace pinocchio
       return JointMotion(S*vj);
     }
     
-    struct Transpose
+    struct Transpose : ConstraintTransposeBase<ConstraintTpl>
     {
       const ConstraintTpl & ref;
       Transpose( const ConstraintTpl & ref ) : ref(ref) {}
@@ -161,6 +163,21 @@ namespace pinocchio
   protected:
     DenseBase S;
   }; // class ConstraintTpl
+
+  namespace details
+  {
+    template<int Dim, typename Scalar, int Options>
+    struct StDiagonalMatrixSOperation< ConstraintTpl<Dim,Scalar,Options> >
+    {
+      typedef ConstraintTpl<Dim,Scalar,Options> Constraint;
+      typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
+      
+      static ReturnType run(const ConstraintBase<Constraint> & constraint)
+      {
+        return constraint.matrix().transpose() * constraint.matrix();
+      }
+    };
+  }
   
   
 } // namespace pinocchio

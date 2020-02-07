@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -10,6 +10,8 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
+
+#include <boost/static_assert.hpp>
 
 // S   : v   \in M^6              -> v_J \in lie(Q) ~= R^nv
 // S^T : f_J \in lie(Q)^* ~= R^nv -> f    \in F^6
@@ -124,6 +126,35 @@ namespace pinocchio
   {
     return impl::LhsMultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::run(Y.derived(),
                                                                                               constraint.derived());
+  }
+    
+  namespace details
+  {
+    template<typename Constraint>
+    struct StDiagonalMatrixSOperation
+    {
+      typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
+      typedef typename traits<Constraint>::ReducedSquaredMatrix ReducedSquaredMatrix;
+      
+      static ReturnType run(const ConstraintBase<Constraint> & /*constraint*/)
+      {
+        return ReducedSquaredMatrix::Identity(Constraint::NV,Constraint::NV);
+      }
+    };
+  }
+    
+  template<class ConstraintDerived>
+  struct ConstraintTransposeBase
+  {
+    typedef typename traits<ConstraintDerived>::StDiagonalMatrixSOperationReturnType StDiagonalMatrixSOperationReturnType;
+  };
+    
+  template<class ConstraintDerived>
+  typename ConstraintTransposeBase<ConstraintDerived>::StDiagonalMatrixSOperationReturnType
+  operator*(const ConstraintTransposeBase<ConstraintDerived> & /*S_transpose*/,
+            const ConstraintBase<ConstraintDerived> & S)
+  {
+    return details::StDiagonalMatrixSOperation<ConstraintDerived>::run(S.derived());
   }
 
 } // namespace pinocchio

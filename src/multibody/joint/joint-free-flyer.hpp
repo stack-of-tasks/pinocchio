@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -32,10 +32,12 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,6,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,6,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,6,6,Options> ReducedSquaredMatrix;
+    
     typedef typename Matrix6::IdentityReturnType ConstMatrixReturnType;
     typedef typename Matrix6::IdentityReturnType MatrixReturnType;
+    typedef typename Matrix6::IdentityReturnType StDiagonalMatrixSOperationReturnType;
   }; // traits ConstraintRevolute
-
 
   template<typename _Scalar, int _Options>
   struct ConstraintIdentityTpl
@@ -70,7 +72,7 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct TransposeConst
+    struct TransposeConst : ConstraintTransposeBase<ConstraintIdentityTpl>
     {
       template<typename Derived>
       typename ForceDense<Derived>::ToVectorConstReturnType
