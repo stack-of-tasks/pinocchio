@@ -98,6 +98,8 @@ namespace pinocchio
       dtau_da = Base::jac.middleCols(it,ad_model.nv); it += ad_model.nv;
     }
     
+    MatrixXs dtau_dq, dtau_dv, dtau_da;
+    
   protected:
     
     using Base::ad_model;
@@ -110,7 +112,6 @@ namespace pinocchio
     
     VectorXs x;
     VectorXs res;
-    MatrixXs dtau_dq, dtau_dv, dtau_da;
     
     ADCongigVectorType ad_q, ad_q_plus;
     ADTangentVectorType ad_dq, ad_v, ad_a;
@@ -196,6 +197,8 @@ namespace pinocchio
       da_dtau = Base::jac.middleCols(it,ad_model.nv); it += ad_model.nv;
     }
     
+    MatrixXs da_dq,da_dv,da_dtau;
+    
   protected:
     
     using Base::ad_model;
@@ -208,7 +211,6 @@ namespace pinocchio
     
     VectorXs x;
     VectorXs res;
-    MatrixXs da_dq,da_dv,da_dtau;
     
     ADCongigVectorType ad_q, ad_q_plus;
     ADTangentVectorType ad_dq, ad_v, ad_tau;
@@ -286,6 +288,8 @@ namespace pinocchio
       assert(it_Y == Base::getOutputDimension());
     }
     
+    MatrixXs M;
+    
   protected:
     
     using Base::ad_model;
@@ -297,7 +301,6 @@ namespace pinocchio
     
     VectorXs x;
     VectorXs res;
-    MatrixXs M;
     
     ADCongigVectorType ad_q;
   };
@@ -371,6 +374,8 @@ namespace pinocchio
       }
     }
     
+    MatrixXs Minv;
+    
   protected:
     
     using Base::ad_model;
@@ -382,7 +387,6 @@ namespace pinocchio
     
     VectorXs x;
     VectorXs res;
-    MatrixXs Minv;
     
     ADCongigVectorType ad_q;
   };
