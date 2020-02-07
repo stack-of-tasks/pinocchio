@@ -6,6 +6,7 @@
 #include "pinocchio/multibody/data.hpp"
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -332,6 +333,22 @@ int main(int argc, const char ** argv)
     forwardKinematics(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
   }
   std::cout << "Second Order Kinematics = \t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    forwardKinematics(model,data,qs[_smooth]);
+    updateFramePlacements(model, data);
+  }
+  std::cout << "Zero Order Kinematics + Update Frame Placement = \t"; timer.toc(std::cout,NBT);
+
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    framesForwardKinematics(model,data, qs[_smooth]);
+  }
+  std::cout << "Zero Order Frames Kinematics = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
