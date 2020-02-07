@@ -334,13 +334,15 @@ int main(int argc, const char ** argv)
   }
   std::cout << "Second Order Kinematics = \t"; timer.toc(std::cout,NBT);
 
-  timer.tic();
+  total = 0.;
   SMOOTH(NBT)
   {
     forwardKinematics(model,data,qs[_smooth]);
+    timer.tic();	  
     updateFramePlacements(model, data);
+    total += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "Zero Order Kinematics + Update Frame Placement = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Update Frame Placement = \t"; timer.toc(std::cout,NBT);
 
   
   timer.tic();
