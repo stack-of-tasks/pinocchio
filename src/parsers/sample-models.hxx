@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -15,15 +15,18 @@ namespace pinocchio
       template<typename Scalar, int Options,
                template<typename,int> class JointCollectionTpl,
                typename JointModel>
-      static void addJointAndBody(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  const JointModelBase<JointModel> & joint,
-                                  const std::string & parent_name,
-                                  const std::string & name,
-                                  const typename ModelTpl<Scalar,Options,JointCollectionTpl>::SE3 & placement = ModelTpl<Scalar,Options,JointCollectionTpl>::SE3::Random(),
-                                  bool setRandomLimits = true)
+      static JointIndex addJointAndBody(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                        const JointModelBase<JointModel> & joint,
+                                        const std::string & parent_name,
+                                        const std::string & name,
+                                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::SE3 & placement = ModelTpl<Scalar,Options,JointCollectionTpl>::SE3::Random(),
+                                        bool setRandomLimits = true)
       {
         typedef typename JointModel::ConfigVector_t CV;
         typedef typename JointModel::TangentVector_t TV;
+
+        CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
+        TV vmax = TV::Constant( 10),   taumax = TV::Constant(10)
         
         JointIndex idx;
         
@@ -37,18 +40,23 @@ namespace pinocchio
                                );
         else
           idx = model.addJoint(model.getJointId(parent_name),joint,
-                               placement, name + "_joint");
+                               placement, name + "_joint",
+                               taumax,
+                               vmax,
+                               qmin,
+                               qmax);
           
         model.addJointFrame(idx);
         
         model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
         model.addBodyFrame(name + "_body", idx);
+        return idx;
       }
       
       template<typename Scalar, int Options,
                template<typename,int> class JointCollectionTpl>
       static void addManipulator(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex rootJoint = 0,
+                                 typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex root_joint_idx = 0,
                                  const typename ModelTpl<Scalar,Options,JointCollectionTpl>::SE3 & Mroot
                                  = ModelTpl<Scalar,Options,JointCollectionTpl>::SE3::Identity(),
                                  const std::string & pre = "")
@@ -59,54 +67,50 @@ namespace pinocchio
         typedef typename Model::Inertia Inertia;
         
         typedef JointCollectionTpl<Scalar,Options> JC;
+        typedef typename JC::JointModel JointModel;
         typedef typename JC::JointModelRX::ConfigVector_t CV;
         typedef typename JC::JointModelRX::TangentVector_t TV;
         
-        JointIndex idx = rootJoint;
+        static const SE3 Marm(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ());
+        static const SE3 Id4 = SE3::Identity();
+        static const Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
+        static const Inertia Iarm(1.,typename Inertia::Vector3(0,0,.5),Inertia::Matrix3::Identity());
+        static const Scalar qmin = -3.14, qmax = 3.14;
+        static const Scalar vmax = 10., taumax = 10.;
         
-        SE3 Marm(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ());
-        SE3 I4 = SE3::Identity();
-        Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
-        Inertia Iarm(1.,typename Inertia::Vector3(0,0,.5),Inertia::Matrix3::Identity());
-        CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
-        TV vmax = TV::Constant( 10),   taumax = TV::Constant(10);
+        JointIndex joint_id;
         
-        idx = model.addJoint(idx,typename JC::JointModelRX(),Mroot,
-                             pre+"shoulder1_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Ijoint);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"shoulder1_body",idx);
+        const std::string & root_joint_name = model.names[root_joint_idx];
+        joint_id = addJointAndBody(model,typename JC::JointModelRX(),root_joint_name,pre+"shoulder1",Mroot);
+        model.inertias[joint_id] = Ijoint;
+        const JointModel & base_joint = model.joints[joint_id];
         
-        idx = model.addJoint(idx,typename JC::JointModelRY(),I4,
-                             pre+"shoulder2_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Ijoint);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"shoulder2_body",idx);
+        joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"shoulder2",Id4);
+        model.inertias[joint_id] = Ijoint;
+      
+        joint_id = addJointAndBody(model,typename JC::JointModelRZ(),model.names[joint_id],pre+"shoulder3",Id4);
+        model.inertias[joint_id] = Iarm;
+        model.addBodyFrame(pre+"upperarm_body",joint_id);
+      
+        joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"elbow",Id4);
+        model.inertias[joint_id] = Iarm;
+        model.addBodyFrame(pre+"lowerarm_body",joint_id);
+        model.addBodyFrame(pre+"elbow_body",joint_id);
+      
+        joint_id = addJointAndBody(model,typename JC::JointModelRX(),model.names[joint_id],pre+"wrist1",Marm);
+        model.inertias[joint_id] = Ijoint;
+      
+        joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"wrist2",Id4);
+        model.inertias[joint_id] = Iarm;
+        model.addBodyFrame(pre+"effector_body",joint_id);
         
-        idx = model.addJoint(idx,typename JC::JointModelRZ(),I4,
-                             pre+"shoulder3_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Iarm);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"upperarm_body",idx);
+        const int idx_q = base_joint.idx_q();
+        const int idx_v = base_joint.idx_v();
         
-        idx = model.addJoint(idx,typename JC::JointModelRY(),Marm,
-                             pre+"elbow_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Iarm);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"lowerarm_body",idx);
-        model.addBodyFrame(pre+"elbow_body",idx);
-        
-        idx = model.addJoint(idx,typename JC::JointModelRX(),Marm,
-                             pre+"wrist1_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Ijoint);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"wrist1_body",idx);
-        
-        idx = model.addJoint(idx,typename JC::JointModelRY(),I4,
-                             pre+"wrist2_joint",taumax,vmax,qmin,qmax);
-        model.appendBodyToJoint(idx,Iarm);
-        model.addJointFrame(idx);
-        model.addBodyFrame(pre+"effector_body",idx);
+        model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
+        model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
+        model.velocityLimit.template segment<6>(idx_v).fill(vmax);
+        model.effortLimit.template segment<6>(idx_v).fill(vmax);
         
       }
       
