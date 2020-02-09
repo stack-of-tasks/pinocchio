@@ -67,9 +67,7 @@ namespace pinocchio
         typedef typename Model::Inertia Inertia;
         
         typedef JointCollectionTpl<Scalar,Options> JC;
-        typedef typename JC::JointModel JointModel;
-        typedef typename JC::JointModelRX::ConfigVector_t CV;
-        typedef typename JC::JointModelRX::TangentVector_t TV;
+        typedef typename Model::JointModel JointModel;
         
         static const SE3 Marm(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ());
         static const SE3 Id4 = SE3::Identity();
@@ -110,7 +108,7 @@ namespace pinocchio
         model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
         model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
         model.velocityLimit.template segment<6>(idx_v).fill(vmax);
-        model.effortLimit.template segment<6>(idx_v).fill(vmax);
+        model.effortLimit.template segment<6>(idx_v).fill(taumax);
         
       }
       
