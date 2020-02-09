@@ -67,8 +67,7 @@ namespace pinocchio
         typedef typename Model::Inertia Inertia;
         
         typedef JointCollectionTpl<Scalar,Options> JC;
-        typedef typename Model::JointModel JointModel;
-        
+
         static const SE3 Marm(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ());
         static const SE3 Id4 = SE3::Identity();
         static const Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
@@ -81,7 +80,6 @@ namespace pinocchio
         const std::string & root_joint_name = model.names[root_joint_idx];
         joint_id = addJointAndBody(model,typename JC::JointModelRX(),root_joint_name,pre+"shoulder1",Mroot);
         model.inertias[joint_id] = Ijoint;
-        const JointModel & base_joint = model.joints[joint_id];
         
         joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"shoulder2",Id4);
         model.inertias[joint_id] = Ijoint;
@@ -102,14 +100,10 @@ namespace pinocchio
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre+"effector_body",joint_id);
         
-        const int idx_q = base_joint.idx_q();
-        const int idx_v = base_joint.idx_v();
-        
-        model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
-        model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
-        model.velocityLimit.template segment<6>(idx_v).fill(vmax);
-        model.effortLimit.template segment<6>(idx_v).fill(taumax);
-        
+        model.lowerPositionLimit.template tail<6>().fill(qmin);
+        model.upperPositionLimit.template tail<6>().fill(qmax);
+        model.velocityLimit.template tail<6>().fill(vmax);
+        model.effortLimit.template tail<6>().fill(taumax);
       }
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
