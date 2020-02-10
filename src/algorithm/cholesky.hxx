@@ -476,7 +476,7 @@ namespace pinocchio
         
         v_.head(col+1).array() *= data.Dinv.head(col+1).array();
         
-        for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
+        for(int k=0; k < col+1; ++k)
         {
           const int nvt_max = nvt[(size_t)k]-1;
           v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
@@ -498,8 +498,11 @@ namespace pinocchio
 
       Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,Minv);
       
-      for(int k = 0; k < model.nv; ++k)
-        internal::Miunit(model,data,k,Minv_.col(k));
+      for(int col = 0; col < model.nv; ++col)
+        internal::Miunit(model,data,col,Minv_.col(col));
+      
+      Minv_.template triangularView<Eigen::StrictlyLower>()
+      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
       
       return Minv_;
     }

@@ -754,7 +754,7 @@ namespace pinocchio
 
         vec_.head(col+1).array() *= chol.Dinv.head(col+1).array();
 
-        for(Eigen::DenseIndex k = 0; k < chol_dim-1; ++k) // You can stop one step before nv.
+        for(Eigen::DenseIndex k = 0; k < col+1; ++k) // You can stop one step before nv.
         {
           const Eigen::DenseIndex nvt_max = nvt[k]-1;
           vec_.segment(k+1,nvt_max) -= chol.U.row(k).segment(k+1,nvt_max).transpose() * vec_[k];
@@ -776,6 +776,9 @@ namespace pinocchio
       
       for(Eigen::DenseIndex col_id = 0; col_id < size(); ++col_id)
         details::inverseAlgo(*this,col_id,res_.col(col_id));
+      
+      res_.template triangularView<Eigen::StrictlyLower>()
+      = res_.transpose().template triangularView<Eigen::StrictlyLower>();
     }
     
   } // namespace cholesky
