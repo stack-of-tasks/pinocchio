@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_cholesky_hxx__
@@ -441,7 +441,7 @@ namespace pinocchio
     {
       Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
-      return m_.derived();
+      return m_;
     }
     
     namespace internal
@@ -482,7 +482,7 @@ namespace pinocchio
           v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
         }
         
-        return v_.derived();
+        return v_;
       }
     }// namespace internal
     
@@ -501,7 +501,7 @@ namespace pinocchio
       for(int k = 0; k < model.nv; ++k)
         internal::Miunit(model,data,k,Minv_.col(k));
       
-      return Minv_.derived();
+      return Minv_;
     }
 
   } //   namespace cholesky
