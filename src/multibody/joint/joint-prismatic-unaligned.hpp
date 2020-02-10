@@ -470,8 +470,9 @@ namespace pinocchio
     JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
     : M()
     , S(axis)
-    , v(axis,(Scalar)NAN)
-    , U(), Dinv(), UDinv()
+    , v(axis,(Scalar)0)
+    , U(U_t::Zero()), Dinv(D_t::Zero()), UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataPrismaticUnaligned"); }

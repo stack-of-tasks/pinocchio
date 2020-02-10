@@ -88,10 +88,11 @@ namespace pinocchio
     JointDataRevoluteUnboundedUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
     : M(Transformation_t::Identity())
     , S(axis)
-    , v(axis,(Scalar)NAN)
+    , v(axis,(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
     
     static std::string classname() { return std::string("JointDataRevoluteUnboundedUnalignedTpl"); }
