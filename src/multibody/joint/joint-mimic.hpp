@@ -375,6 +375,9 @@ namespace pinocchio
     UDTypeConstRef UDinv_accessor() const { return m_jdata_ref.UDinv; }
     UDTypeRef UDinv_accessor() { return m_jdata_ref.UDinv; }
     
+    DTypeConstRef StU_accessor() const { return m_jdata_ref.StU; }
+    DTypeRef StU_accessor() { return m_jdata_ref.StU; }
+    
     template<class JointModel>
     friend struct JointModelMimic;
     

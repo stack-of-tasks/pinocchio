@@ -305,6 +305,7 @@ namespace pinocchio
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataSphericalZYX"); }

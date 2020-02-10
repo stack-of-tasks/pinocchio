@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_basic_visitors_hxx__
@@ -500,6 +500,35 @@ namespace pinocchio
   udinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
   {
     return JointUDInvInertiaVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
+  }
+
+  /**
+   * @brief      JointStUInertiaVisitor visitor
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointStUInertiaVisitor
+  : boost::static_visitor< Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> >
+  {
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> ReturnType;
+    
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return ReturnType(jdata.StU());
+    }
+    
+    static ReturnType run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+    {
+      return boost::apply_visitor(JointStUInertiaVisitor(),jdata);
+      
+    }
+  };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options>
+  stu_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  {
+    return JointStUInertiaVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
   }
 
   /**

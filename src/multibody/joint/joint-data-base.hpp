@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -57,7 +57,9 @@
   DTypeConstRef Dinv_accessor() const { return Dinv; } \
   DTypeRef Dinv_accessor() { return Dinv; } \
   UDTypeConstRef UDinv_accessor() const { return UDinv; } \
-  UDTypeRef UDinv_accessor() { return UDinv; }
+  UDTypeRef UDinv_accessor() { return UDinv; } \
+  DTypeConstRef StU_accessor() const { return StU; } \
+  DTypeRef StU_accessor() { return StU; } \
   
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
   typedef const Constraint_t & ConstraintTypeConstRef; \
@@ -104,6 +106,8 @@ namespace pinocchio
     DTypeRef Dinv()  { return derived().Dinv_accessor(); }
     UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
     UDTypeRef UDinv() { return derived().UDinv_accessor(); }
+    DTypeConstRef StU() const  { return derived().StU_accessor(); }
+    DTypeRef StU()  { return derived().StU_accessor(); }
 
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
@@ -135,6 +139,7 @@ namespace pinocchio
           && U() == other.U()
           && Dinv() == other.Dinv()
           && UDinv() == other.UDinv()
+          && StU() == other.StU()
       ;
     }
     

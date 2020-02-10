@@ -100,6 +100,7 @@ namespace pinocchio
     U_t               U()     const { return u_inertia(*this); }
     D_t               Dinv()  const { return dinv_inertia(*this); }
     UD_t              UDinv() const { return udinv_inertia(*this); }
+    D_t               StU()   const { return stu_inertia(*this); }
 
     JointDataTpl()
     : JointDataVariant()
@@ -124,6 +125,7 @@ namespace pinocchio
     U_t U_accessor() const { return U(); }
     D_t Dinv_accessor() const { return Dinv(); }
     UD_t UDinv_accessor() const { return UDinv(); }
+    D_t StU_accessor() const { return StU(); }
 
     static std::string classname() { return "JointData"; }
     std::string shortname() const { return ::pinocchio::shortname(*this); }

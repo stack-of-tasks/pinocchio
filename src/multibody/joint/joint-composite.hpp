@@ -118,7 +118,6 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
-    
     D_t StU;
 
     static std::string classname() { return std::string("JointDataComposite"); }

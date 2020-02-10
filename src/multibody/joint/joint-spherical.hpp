@@ -386,6 +386,7 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
     JointDataSphericalTpl ()
     : M(Transformation_t::Identity())
@@ -393,6 +394,7 @@ namespace pinocchio
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataSpherical"); }

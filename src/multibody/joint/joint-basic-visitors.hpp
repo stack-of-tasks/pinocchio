@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_basic_visitors_hpp__
@@ -263,6 +263,18 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
   udinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+
+  /**
+   * @brief      Visit a JointDataTpl through JointStUInertiaVisitor to get St*I*S matrix of the inertia matrix
+   *             decomposition.
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The St*I*S matrix
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options>
+  stu_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
 } // namespace pinocchio
 
