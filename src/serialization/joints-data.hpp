@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_serialization_joints_data_hpp__
@@ -55,6 +55,7 @@ namespace boost
         ar & make_nvp("U",joint_data.U());
         ar & make_nvp("Dinv",joint_data.Dinv());
         ar & make_nvp("UDinv",joint_data.UDinv());
+        ar & make_nvp("StU",joint_data.StU());
       }
     }
     
