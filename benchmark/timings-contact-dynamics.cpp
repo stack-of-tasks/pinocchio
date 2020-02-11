@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -249,10 +249,8 @@ int main(int argc, const char ** argv)
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    timer.tic();
     getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
     getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
-    total_time += timer.toc(timer.DEFAULT_UNIT);
     
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
     
@@ -276,10 +274,10 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    computeJointJacobians(model,data,qs[_smooth]);
+    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
     getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
     getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
-    forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
+    forwardDynamics(model,data,taus[_smooth],J,gamma);
   }
   std::cout << "constrainedDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
   
