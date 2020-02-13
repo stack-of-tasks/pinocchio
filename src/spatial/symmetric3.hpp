@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2019 CNRS INRIA
+// Copyright (c) 2014-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_symmetric3_hpp__
@@ -63,6 +63,15 @@ namespace pinocchio
     
     static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
     void setIdentity() { m_data << 1, 0, 1, 0, 0, 1; }
+    
+    template<typename Vector3Like>
+    void setDiagonal(const Eigen::MatrixBase<Vector3Like> & diag)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      m_data[0] = diag[0];
+      m_data[2] = diag[1];
+      m_data[5] = diag[2];
+    }
 
     /* Required by Inertia::operator== */
     bool operator==(const Symmetric3Tpl & other) const

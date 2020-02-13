@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 /* --- Unitary test symmetric.cpp This code tests and compares two ways of
@@ -129,6 +129,15 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     // Identity
     { 
       BOOST_CHECK(Symmetric3::Identity().matrix().isApprox(Matrix3::Identity(), 1e-12));
+    }
+    
+    // Set diagonal
+    {
+      Symmetric3 S0 = Symmetric3::Zero();
+      const Symmetric3::Vector3 diag_elt = (Symmetric3::Vector3::Constant(1.) + Symmetric3::Vector3::Random());
+      S0.setDiagonal(diag_elt);
+      
+      BOOST_CHECK(S0.matrix().diagonal().isApprox(diag_elt));
     }
 
     // Skew2
