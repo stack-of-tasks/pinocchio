@@ -40,4 +40,11 @@ jobs:
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
         sudo make install
+        cd ../unittest/packaging
+        mkdir build
+        cd build
+        export CMAKE_PREFIX_PATH=/usr/local
+        cmake ..
+        make
+        cd ../../../build
         sudo make uninstall
