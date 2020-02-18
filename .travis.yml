@@ -1,5 +1,5 @@
 language: generic
-sudo: required
+os: linux
 git:
   depth: false
 compiler:
@@ -19,9 +19,6 @@ env:
     - BUILD_WITH_CATKIN_SUPPORT=false
     - CTEST_OUTPUT_ON_FAILURE=1
 
-notifications:
-email:
-  - pinocchio-dev@laas.fr
 branches:
   only:
     - master
@@ -51,8 +48,6 @@ jobs:
         - TRAVIS_PYTHON_VERSION=35
       python: 3.5
 
-allow_failures:
-  - compiler:
 before_install: ./travis_custom/custom_before_install
 install:
   - pip install --user pyopenssl
