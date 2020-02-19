@@ -1,10 +1,9 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#include <Python.h>
-
-#include "pinocchio/bindings/python/parsers/parsers.hpp"
+#include "pinocchio/bindings/python/parsers/urdf.hpp"
+#include "pinocchio/bindings/python/parsers/srdf.hpp"
 #include "pinocchio/bindings/python/parsers/sample-models.hpp"
 
 namespace pinocchio
@@ -14,8 +13,9 @@ namespace pinocchio
     
     void exposeParsers()
     {
-      ParsersPythonVisitor::expose();
-      SampleModelsPythonVisitor::expose();
+      exposeURDFParser();
+      exposeSRDFParser();
+      exposeSampleModels();
     }
     
   } // namespace python
