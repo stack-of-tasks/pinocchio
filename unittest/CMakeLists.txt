@@ -122,7 +122,9 @@ ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 
 # Multiprecision arithmetic
-ADD_PINOCCHIO_UNIT_TEST(multiprecision)
+IF(BUILD_ADVANCED_TESTING)
+  ADD_PINOCCHIO_UNIT_TEST(multiprecision)
+ENDIF(BUILD_ADVANCED_TESTING)
 
 # Automatic differentiation
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
