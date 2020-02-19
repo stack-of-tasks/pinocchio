@@ -15,7 +15,6 @@
 #include <eigenpy/exception.hpp>
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
