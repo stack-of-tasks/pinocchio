@@ -31,7 +31,6 @@ SET(${PROJECT_NAME}_EXAMPLES
   kinematics-derivatives
   forward-dynamics-derivatives
   inverse-dynamics-derivatives
-  multiprecision
   )
 
 IF(BUILD_ADVANCED_TESTING)
