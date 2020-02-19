@@ -53,7 +53,7 @@ install:
   - pip install --user pyopenssl
   - pip install --user numpy
 script:
-  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT}"
+  - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT} -DBUILD_ADVANCED_TESTING=ON"
   - sudo free -m -t
   - travis_wait 60 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
