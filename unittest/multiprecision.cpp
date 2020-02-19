@@ -2,7 +2,6 @@
 // Copyright (c) 2020 INRIA
 //
 
-#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -69,10 +68,9 @@ BOOST_AUTO_TEST_CASE(test_cast)
 BOOST_AUTO_TEST_CASE(test_mutliprecision)
 {
   using namespace pinocchio;
-  const std::string urdf_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/talos_data/urdf/talos_reduced.urdf");
-  
+
   Model model;
-  pinocchio::urdf::buildModel(urdf_filename, model);
+  pinocchio::buildModels::humanoidRandom(model);
   Data data(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);

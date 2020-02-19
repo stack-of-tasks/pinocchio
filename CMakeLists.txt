@@ -54,6 +54,8 @@ IF(DEFINED BUILD_UNIT_TESTS)
   SET(BUILD_TESTING ${BUILD_UNIT_TESTS})
 ENDIF(DEFINED BUILD_UNIT_TESTS)
 
+OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
+
 # --- OPTIONAL DEPENDENCIES -------------------------
 OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
 OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the Collision support (required HPP-FCL)" OFF)

@@ -31,8 +31,13 @@ SET(${PROJECT_NAME}_EXAMPLES
   kinematics-derivatives
   forward-dynamics-derivatives
   inverse-dynamics-derivatives
-  multiprecision
   )
+
+IF(BUILD_ADVANCED_TESTING)
+  LIST(APPEND ${PROJECT_NAME}_EXAMPLES
+    multiprecision
+    )
+ENDIF(BUILD_ADVANCED_TESTING)
 
 IF(HPP_FCL_FOUND)
   LIST(APPEND ${PROJECT_NAME}_EXAMPLES
