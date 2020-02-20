@@ -34,7 +34,7 @@ jobs:
         export MAKEFLAGS="-j2"
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python2) -DBUILD_ADVANCED_TESTING=ON
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
