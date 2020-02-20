@@ -284,7 +284,7 @@ namespace pinocchio
       (const ::urdf::CollisionSharedPtr, std::string& meshTexturePath,
        Eigen::Vector4d & meshColor, const std::vector<std::string> &)
       {
-        meshColor.setZero();
+        meshColor << 0.9, 0.9, 0.9, 1.;
         meshTexturePath = "";
         return false;
       }
