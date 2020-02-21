@@ -83,7 +83,6 @@ IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
     multibody/fcl/collision-result.hpp
     multibody/fcl/distance-result.hpp
     multibody/fcl/collision-geometry.hpp
-    multibody/fcl/mesh-loader.hpp
     multibody/fcl/transform.hpp
     )
 
