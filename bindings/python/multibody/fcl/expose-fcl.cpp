@@ -6,10 +6,11 @@
 #include "pinocchio/bindings/python/multibody/fcl/contact.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/collision-result.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/distance-result.hpp"
-#include "pinocchio/bindings/python/multibody/fcl/collision-geometry.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/transform.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+
+#include <eigenpy/registration.hpp>
 
 namespace pinocchio
 {
@@ -82,11 +83,6 @@ namespace pinocchio
       if(!eigenpy::register_symbolic_link_to_registered_type< std::vector< ::hpp::fcl::DistanceResult> >())
       {
         StdVectorPythonVisitor<DistanceResultPythonVisitor::DistanceResult>::expose("StdVec_DistanceResult");
-      }
-      
-      if(!eigenpy::register_symbolic_link_to_registered_type< ::hpp::fcl::CollisionGeometry>())
-      {
-        CollisionGeometryPythonVisitor::expose();
       }
       
       typedef ::hpp::fcl::Transform3f Transform3f;
