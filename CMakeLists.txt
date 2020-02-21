@@ -91,6 +91,9 @@ SET(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 # ----------------------------------------------------
 ADD_REQUIRED_DEPENDENCY("eigen3 >= 3.0.5")
 
+# Variable containing all the cflags definition relative to optional dependencies
+SET(CFLAGS_DEPENDENCIES)
+
 IF(BUILD_WITH_URDF_SUPPORT)
   ADD_REQUIRED_DEPENDENCY("urdfdom >= 0.2.0")
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_URDFDOM)
@@ -170,8 +173,6 @@ SEARCH_FOR_BOOST()
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
-# Variable containing all the cflags definition relative to optional dependencies
-SET(CFLAGS_DEPENDENCIES)
 LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
 
 # Path to boost headers
