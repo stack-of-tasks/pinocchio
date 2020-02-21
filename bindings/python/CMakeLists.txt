@@ -79,9 +79,6 @@ REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_SOURCES}" "${CMAKE_CURRENT_SOURC
 # Python exposition of FCL
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    multibody/fcl/contact.hpp
-    multibody/fcl/collision-result.hpp
-    multibody/fcl/distance-result.hpp
     multibody/fcl/transform.hpp
     )
 
