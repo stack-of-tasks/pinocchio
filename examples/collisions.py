@@ -1,5 +1,5 @@
 from __future__ import print_function
-import pinocchio as pin
+import pinocchio as pin, hppfcl
 pin.switchToNumpyMatrix()
 
 import os
