@@ -8,8 +8,8 @@ Section 3.8.1 Computing minimum bounding capsules
 import numpy as np
 import scipy.optimize as optimize
 
-import hppfcl
-
+import hppfcl, eigenpy
+eigenpy.switchToNumpyArray()
 
 """
 Capsule definition
@@ -68,9 +68,83 @@ def capsule_approximation(vertices):
     a, b, r = res.x[:3], res.x[3:6], res.x[6]
     return a, b, r
 
+def approximate_mesh(filename, lMg):
+    mesh_loader = hppfcl.MeshLoader()
+    mesh = mesh_loader.load(filename, np.ones(3))
+    vertices = np.array([ lMg * mesh.vertices(i) for i in range(mesh.num_vertices) ])
+    assert vertices.shape == (mesh.num_vertices, 3)
+    a, b, r = capsule_approximation(vertices)
+    return a, b, r
 
-filename = "mesh.obj"
-mesh_loader = hppfcl.MeshLoader()
-mesh = mesh_loader.load(filename, np.ones(3))
-vertices = mesh.vertices()
-a, b, r = capsule_approximation(vertices)
+def parse_urdf(infile, outfile):
+    from lxml import etree
+
+    tree = etree.parse(infile)
+
+    def get_path(fn):
+        if fn.startswith('package://'):
+            relpath = fn[len('package://'):]
+            import os
+            for rospath in os.environ['ROS_PACKAGE_PATH'].split(':'):
+                abspath = os.path.join(rospath, relpath)
+                if os.path.isfile(abspath):
+                    return abspath
+            raise ValueError("Could not find " + fn)
+        return fn
+
+    def get_transform(origin):
+        from pinocchio import SE3, rpy
+        _xyz = [ float(v) for v in origin.attrib.get('xyz', '0 0 0').split(' ') ]
+        _rpy = [ float(v) for v in origin.attrib.get('rpy', '0 0 0').split(' ') ]
+        return SE3 (rpy.rpyToMatrix(*_rpy), np.array(_xyz))
+
+    def set_transform(origin, a, b):
+        from pinocchio import rpy, Quaternion
+        length = np.linalg.norm(b-a)
+        z = (b - a) / length
+        R = Quaternion.FromTwoVectors(np.array([0, 0, 1]), z).matrix()
+        origin.attrib['xyz'] = " ".join([str(v) for v in ((a+b)/2) ])
+        origin.attrib['rpy'] = " ".join([str(v) for v in rpy.matrixToRpy(R) ])
+
+    from tqdm import tqdm
+    for mesh in tqdm(tree.xpath('/robot/link/collision/geometry/mesh'), desc="Generating capsules"):
+        geom = mesh.getparent()
+        coll = geom.getparent()
+        link = coll.getparent()
+        if coll.find('origin') is None:
+            o = etree.Element("origin")
+            o.tail = geom.tail
+            coll.insert(0, o)
+        origin = coll.find('origin')
+        lMg = get_transform(origin)
+
+        meshfile = get_path(mesh.attrib['filename'])
+        import os
+        name = os.path.basename(meshfile)
+        # Generate capsule
+        a, b, radius = approximate_mesh (meshfile, lMg)
+        length = np.linalg.norm(b-a)
+
+        set_transform(origin, a, b)
+
+        mesh.tag = "cylinder"
+        mesh.attrib.pop('filename')
+        mesh.attrib['radius'] = str(radius)
+        mesh.attrib['length'] = str(length)
+        coll.attrib['name'] = name
+
+        if link.find('collision_checking') is None:
+            link.append(etree.Element('collision_checking'))
+        collision_checking = link.find('collision_checking')
+        collision_checking.append(etree.Element('capsule'))
+        collision_checking[-1].attrib['name'] = name
+
+    tree.write(outfile)
+
+if __name__ == "__main__":
+    #filename = "mesh.obj"
+    #mesh_loader = hppfcl.MeshLoader()
+    #mesh = mesh_loader.load(filename, np.ones(3))
+    #vertices = mesh.vertices()
+    #a, b, r = capsule_approximation(vertices)
+    parse_urdf("models/others/robots/ur_description/urdf/ur5_gripper.urdf", "test.urdf")
