@@ -38,9 +38,9 @@ namespace pinocchio
     // Expose algorithms
     void exposeAlgorithms();
     
-#ifdef PINOCCHIO_WITH_HPP_FCL
+#ifdef PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
     void exposeFCL();
-#endif // PINOCCHIO_WITH_HPP_FCL
+#endif // PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
 
   } // namespace python
 } // namespace pinocchio

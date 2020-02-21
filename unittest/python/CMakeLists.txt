@@ -29,8 +29,13 @@ IF(HPP_FCL_FOUND)
   SET(${PROJECT_NAME}_PYTHON_TESTS
     ${${PROJECT_NAME}_PYTHON_TESTS}
     bindings_geometry_object
-    bindings_fcl_transform
     )
+  IF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
+    SET(${PROJECT_NAME}_PYTHON_TESTS
+      ${${PROJECT_NAME}_PYTHON_TESTS}
+      bindings_fcl_transform
+      )
+  ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 ENDIF(HPP_FCL_FOUND)
 
 IF(URDFDOM_FOUND)
