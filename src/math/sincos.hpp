@@ -33,7 +33,7 @@ namespace pinocchio
   template<typename S1, typename S2, typename S3, bool>
   struct SINCOSAlgo
   {
-    static void run(const S2 & a, S2 * sa, S3 * ca)
+    static void run(const S1 & a, S2 * sa, S3 * ca)
     {   
       (*sa) = std::sin(a); (*ca) = std::cos(a);
     }   
