@@ -31,21 +31,19 @@ jobs:
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=OFF
         - TRAVIS_PYTHON_VERSION=27
-      python: 2.7
-    - dist: trusty 
-      env: 
-        - BUILD_WITH_COLLISION_SUPPORT=ON
-        - TRAVIS_PYTHON_VERSION=27
+        - TRAVIS_PYTHON_VERSION_WITH_DOT=2.7
       python: 2.7
     - dist: xenial
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=ON
         - TRAVIS_PYTHON_VERSION=27
+        - TRAVIS_PYTHON_VERSION_WITH_DOT=2.7
       python: 2.7
     - dist: xenial
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=ON
         - TRAVIS_PYTHON_VERSION=35
+        - TRAVIS_PYTHON_VERSION_WITH_DOT=3.5
       python: 3.5
 
 before_install: ./travis_custom/custom_before_install
