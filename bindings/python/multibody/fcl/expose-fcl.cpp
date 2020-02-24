@@ -14,6 +14,7 @@ namespace pinocchio
     void exposeFCL()
     {
       namespace bp = boost::python;
+      bp::import ("hppfcl");
       
       typedef ::hpp::fcl::Transform3f Transform3f;
       
