@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_proximal_hpp__
@@ -28,13 +28,12 @@ namespace pinocchio
         cl
         .def(bp::init<>("Default constructor."))
         .def(bp::init<Scalar,Scalar,int>
-             ((bp::arg("threshold"),
+             ((bp::arg("accuracy"),
                bp::arg("mu"),
                bp::arg("max_it")),
               "Structure containing all the settings paramters for the proximal algorithms."))
         
-        .add_property("threshold",&ProximalSettings::threshold,"Proximal threshold: threshold for two consecutive iterates of the "
-                      "Proximal algorithms.")
+        .add_property("accuracy",&ProximalSettings::accuracy,"Minimum residual accuracy.")
         .add_property("mu",&ProximalSettings::mu,"Regularization parameter of the Proximal algorithms.")
         .add_property("max_it",&ProximalSettings::max_it,"Maximal number of iterations.")
         ;
@@ -43,7 +42,7 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<ProximalSettings>("ProximalSettings",
-                                     "Structure containing all the settings paramters for the proximal algorithms.")
+                                     "Structure containing all the settings paramters for the Proximal algorithms.")
         .def(ProximalSettingsPythonVisitor<ProximalSettings>())
         ;
         
