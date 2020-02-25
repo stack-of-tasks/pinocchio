@@ -33,27 +33,19 @@ namespace pinocchio
       using namespace Eigen;
 
       bp::def("computeABADerivatives",
-              computeABADerivativesDefault,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Torque tau (size Model::nv)"),
+              &computeABADerivatives<,
+              bp::args("model","data","q","v","tau"),
               "Computes the ABA derivatives, store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the joint acceleration vector output with respect to the joint configuration,\n"
               "velocity and torque vectors.");
 
       bp::def("computeABADerivatives",
               computeABADerivatives_fext,
-              bp::args("Model","Data",
-                       "q: configuration vector (size model.nq)",
-                       "v: velocity vector (size model.nv)",
-                       "a: acceleration vector (size model.nv)",
-                       "fext: vector external forces (size model.njoints)"),
+              bp::args("model","data","q","v","tau","fext"),
               "Computes the ABA derivatives with external contact foces,\n"
               "store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the acceleration output with respect to the joint configuration,\n"
-              "velocity and torque vectors.\n"
-              "The forces are of type StdVec_Force.");
+              "velocity and torque vectors.");
     }
   } // namespace python
 } // namespace pinocchio
