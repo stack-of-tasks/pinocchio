@@ -215,7 +215,7 @@ namespace pinocchio
       Jout.diagonal().array() += Scalar(0.5) * (2 - theta*theta / Scalar(6));
       
       // Jlog += r_{\times}/2
-      addSkew(0.5 * log, Jlog);
+      addSkew(Scalar(0.5) * log, Jlog);
     }
     else
     {
@@ -229,7 +229,7 @@ namespace pinocchio
       Jout.diagonal().array() += Scalar(0.5) * (theta*st_1mct);
 
       // Jlog += r_{\times}/2
-      addSkew(0.5 * log, Jlog);
+      addSkew(Scalar(0.5) * log, Jlog);
     }
   }
 
@@ -373,7 +373,7 @@ namespace pinocchio
       beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
     }
     
-    return Motion(alpha * p - 0.5 * w.cross(p) + beta * w.dot(p) * w,
+    return Motion(alpha * p - Scalar(0.5) * w.cross(p) + beta * w.dot(p) * w,
                   w);
   }
 
@@ -523,7 +523,7 @@ namespace pinocchio
     C.noalias() = v3_tmp * w.transpose();
     C.noalias() += beta * w * p.transpose();
     C.diagonal().array() += wTp * beta;
-    addSkew(.5*p,C);
+    addSkew(Scalar(.5)*p,C);
     
     B.noalias() = C * A;
     C.setZero();
