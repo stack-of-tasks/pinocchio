@@ -28,7 +28,14 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {};
+        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {
+          template <int N>
+          static inline CppAD::AD<Scalar> get(const mpl::int_<N>& n)
+          {
+            return CppAD::AD<Scalar>(constant_pi<Scalar>::get(n));
+          }
+
+        };
       }
     }
   }

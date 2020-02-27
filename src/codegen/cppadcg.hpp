@@ -25,7 +25,13 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {};
+        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {
+          template <int N>
+          static inline CppAD::cg::CG<Scalar> get(const mpl::int_<N>& n)
+          {
+            return CppAD::cg::CG<Scalar>(constant_pi<Scalar>::get(n));
+          }
+        };
       }
     }
   }
@@ -49,6 +55,15 @@ namespace Eigen
     };
   }
 } // namespace Eigen
+
+namespace CppAD
+{
+  template <class Scalar>
+  bool isfinite(const cg::CG<Scalar> &x) { return std::isfinite(x.getValue()); } 
+  
+  template <class Scalar>
+  bool isfinite(const AD<Scalar>  &x) { return isfinite(Value(x)); }
+}
 
 namespace pinocchio
 {
