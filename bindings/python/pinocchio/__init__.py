@@ -21,6 +21,7 @@ sys.modules['pinocchio.cholesky'] = cholesky
 if pin.WITH_HPP_FCL:
   try:
     import hppfcl
+    from hppfcl import Contact, StdVec_Contact, CollisionResult, StdVec_CollisionResult, DistanceResult, StdVec_DistanceResult, CollisionGeometry, MeshLoader, CachedMeshLoader
     WITH_HPP_FCL_BINDINGS = True
   except ImportError:
     WITH_HPP_FCL_BINDINGS = False

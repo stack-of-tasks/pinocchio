@@ -98,9 +98,9 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION)
       
         if pin.WITH_HPP_FCL_BINDINGS:
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.MeshLoader())
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.MeshLoader())
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION, pin.MeshLoader())
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
+            collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
 
 if __name__ == '__main__':
     unittest.main()

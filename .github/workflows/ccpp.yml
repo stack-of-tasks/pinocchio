@@ -22,7 +22,7 @@ jobs:
         sudo rm -rf /usr/local/share/boost/1.69.0
         export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
         export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py27-hpp-fcl robotpkg-hpp-fcl"
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
     - name: Run cmake
@@ -30,6 +30,7 @@ jobs:
         git submodule update --init
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
         export PATH=$PATH:/opt/openrobots/bin
+        export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python2.7/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
         export MAKEFLAGS="-j2"
         mkdir build

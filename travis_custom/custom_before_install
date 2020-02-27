@@ -8,6 +8,7 @@ set -v
 # Add robotpkg
 sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
 curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
+sudo apt update
 
 # show memory usage before install
 sudo free -m -t
@@ -24,9 +25,9 @@ else
 fi
 
 # Add Geometry dependencies
-if [[ $BUILD_WITH_COLLISION_SUPPORT -eq ON ]]; then 
-  export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl"
-fi 
+if [[ $BUILD_WITH_COLLISION_SUPPORT -eq ON ]]; then
+  export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-hpp-fcl robotpkg-py${TRAVIS_PYTHON_VERSION}-hpp-fcl"
+fi
 
 # When this script is called the current directory is ./custom_travis
 . ./.travis/run ../.travis/before_install

@@ -19,6 +19,7 @@ export CMAKE_ADDITIONAL_OPTIONS="${CMAKE_ADDITIONAL_OPTIONS} -DDISABLE_DEPRECATE
 export CMAKE_ADDITIONAL_OPTIONS="${CMAKE_ADDITIONAL_OPTIONS} -DCMAKE_CXX_FLAGS_DEBUG=\"-O1\""
 export PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:/opt/openrobots/lib/pkgconfig"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/openrobots/lib"
+export PYTHONPATH="${PYTHONPATH}:/opt/openrobots/lib/python${TRAVIS_PYTHON_VERSION_WITH_DOT}/site-packages"
 export MAKEFLAGS="-j2"
 
 # Setup environment variables.

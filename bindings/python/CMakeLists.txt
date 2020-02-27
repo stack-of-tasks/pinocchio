@@ -77,20 +77,15 @@ REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_HEADERS}" "${CMAKE_CURRENT_SOURC
 REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/" ${PROJECT_NAME}_PYTHON_SOURCES)
 
 # Python exposition of FCL
-IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
+IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    multibody/fcl/contact.hpp
-    multibody/fcl/collision-result.hpp
-    multibody/fcl/distance-result.hpp
-    multibody/fcl/collision-geometry.hpp
-    multibody/fcl/mesh-loader.hpp
     multibody/fcl/transform.hpp
     )
 
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     multibody/fcl/expose-fcl.cpp
     )
-ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
+ENDIF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 
@@ -99,9 +94,9 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python"
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/joint")
-IF(BUILD_WITH_HPP_FCL_SUPPORT)
+IF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
   MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/fcl")
-ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
+ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/serialization")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
@@ -134,6 +129,9 @@ IF(BUILD_PYTHON_INTERFACE)
   IF(HPP_FCL_FOUND)
     PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} hpp-fcl)
   ENDIF(HPP_FCL_FOUND)
+  IF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
+    TARGET_COMPILE_DEFINITIONS(${PYWRAP} PRIVATE -DPINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS)
+  ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 
   IF(CPPAD_FOUND)
     PKG_CONFIG_USE_DEPENDENCY(${PYWRAP} "cppad")
