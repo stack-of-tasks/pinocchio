@@ -47,10 +47,13 @@ int main(int argc, const char ** argv)
   data_check.M.triangularView<Eigen::StrictlyLower>() = data_check.M.transpose().triangularView<Eigen::StrictlyLower>();
 
   const MatrixXd & M_check = data_check.M;
-  if(M_check.isApprox(M))
+  if(M_check.isApprox(M)) {
     std::cout << "Super! The two results are the same." << std::endl;
-  else
+    return 0;
+  }
+  else {
     std::cout << "Not Super! The results do not match." << std::endl;
+    return -1;
+  }
 
-  return -1;
 }
