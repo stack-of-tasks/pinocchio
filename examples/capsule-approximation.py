@@ -4,7 +4,6 @@ Inspired from Antonio El Khoury PhD: https://tel.archives-ouvertes.fr/file/index
 Section 3.8.1 Computing minimum bounding capsules
 """
 
-
 import numpy as np
 import scipy.optimize as optimize
 
@@ -142,9 +141,15 @@ def parse_urdf(infile, outfile):
     tree.write(outfile)
 
 if __name__ == "__main__":
+    # Example for a single capsule
     #filename = "mesh.obj"
     #mesh_loader = hppfcl.MeshLoader()
     #mesh = mesh_loader.load(filename, np.ones(3))
     #vertices = mesh.vertices()
     #a, b, r = capsule_approximation(vertices)
-    parse_urdf("models/others/robots/ur_description/urdf/ur5_gripper.urdf", "test.urdf")
+    
+    # Example for a whole URDF model
+    # This path refers to Pinocchio source code but you can define your own directory here.
+    pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+    urdf_filename = pinocchio_model_dir + "models/others/robots/ur_description/urdf/ur5_gripper.urdf"
+    parse_urdf(urdf_filename, "ur5_gripper_with_capsules.urdf")
