@@ -7,8 +7,8 @@ Section 3.8.1 Computing minimum bounding capsules
 import numpy as np
 import scipy.optimize as optimize
 
-import hppfcl, eigenpy
-eigenpy.switchToNumpyArray()
+import hppfcl
+hppfcl.switchToNumpyArray()
 
 """
 Capsule definition
