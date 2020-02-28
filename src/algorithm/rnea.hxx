@@ -72,14 +72,16 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &
+                                  Data &,
+                                  const TangentVectorType &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data)
+                     Data & data,
+                     const Eigen::MatrixBase<TangentVectorType> & a)
     {
       typedef typename Model::JointIndex JointIndex;
       
@@ -164,7 +166,7 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data));
+                 typename Pass2::ArgsType(model,data,a.derived()));
     }
     
     // Add armature contribution
