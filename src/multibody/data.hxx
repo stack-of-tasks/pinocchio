@@ -57,6 +57,7 @@ namespace pinocchio
   , doYcrb((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , ddq(VectorXs::Zero(model.nv))
   , Yaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oYaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , u(VectorXs::Zero(model.nv))
   , Ag(Matrix6x::Zero(6,model.nv))
   , dAg(Matrix6x::Zero(6,model.nv))
@@ -122,9 +123,7 @@ namespace pinocchio
     { Fcrb[i].resize(6,model.nv); }
     
     computeLastChild(model);
-
-    /* Init for Coriolis */
-
+    
     /* Init for Cholesky */
     computeParents_fromRow(model);
     computeSupports_fromRow(model);
@@ -253,6 +252,7 @@ namespace pinocchio
     && data1.doYcrb == data2.doYcrb
     && data1.ddq == data2.ddq
     && data1.Yaba == data2.Yaba
+    && data1.oYaba == data2.oYaba
     && data1.u == data2.u
     && data1.Ag == data2.Ag
     && data1.dAg == data2.dAg

@@ -205,6 +205,10 @@ namespace pinocchio
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Yaba;  // TODO: change with dense symmetric matrix6
     
+    // ABA internal data
+    /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA] expressed in the world coordinate frame
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba;  // TODO: change with dense symmetric matrix6
+    
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     TangentVectorType u;                  // Joint Inertia
     
