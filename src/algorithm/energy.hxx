@@ -40,6 +40,7 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");;
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Model::Motion Motion;
 
