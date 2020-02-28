@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_rnea_derivatives_hxx__
@@ -79,11 +79,12 @@ namespace pinocchio
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
@@ -99,9 +100,9 @@ namespace pinocchio
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
-      lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
       for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = YS * data.dAdq.col(j);
       
       jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
@@ -313,11 +314,14 @@ namespace pinocchio
                      const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      typename Data::RowMatrix6 & M6tmpR2 = data.M6tmpR2;
+      
+      // Temporary variables
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
@@ -364,19 +368,19 @@ namespace pinocchio
       
       if(parent > 0)
       {
-        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
-        M6tmpR2.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
+        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
+        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         {
           rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j)
-          + M6tmpR2.topRows(jmodel.nv()) * data.dVdq.col(j);
+          = YS  * data.dAdq.col(j)
+          + StY * data.dVdq.col(j);
         }
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         {
           rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j)
-          + M6tmpR2.topRows(jmodel.nv()) * data.J.col(j);
+          = YS  * data.dAdv.col(j)
+          + StY * data.J.col(j);
         }
       }
       

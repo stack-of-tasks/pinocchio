@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS, INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_aba_derivatives_hxx__
@@ -251,11 +251,12 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
       
       typename Data::MatrixXs & rnea_partial_dq = data.dtau_dq;
       typename Data::MatrixXs & rnea_partial_dv = data.dtau_dv;
@@ -288,17 +289,17 @@ namespace pinocchio
       
       if(parent > 0)
       {
-        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),Mat_tmp);
         for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Mat_tmp * data.dAdq.col(j);
         for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j);
+          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Mat_tmp * data.dAdv.col(j);
         
-        M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
+        Mat_tmp.noalias() = J_cols.transpose() * data.doYcrb[i];
         for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.dVdq.col(j);
+          rnea_partial_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.dVdq.col(j);
         for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+          rnea_partial_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
       }
       
       if(parent>0)

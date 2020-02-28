@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_center_of_mass_derivatives_hxx__
@@ -36,6 +36,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
+      typedef Eigen::Matrix<Scalar,6,JointModel::NV,Options,6,6> Matrix6NV;
+      
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
 
@@ -46,8 +48,7 @@ namespace pinocchio
       Motion & vpc = data.v[0] = (parent>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]
       
-        typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6>::Type vxS =
-      SizeDepType<JointModel::NV>::middleCols(data.M6tmp,0,jmodel.nv());
+      Matrix6NV vxS(6,jmodel.nv());
       vxS = vpc.cross(jdata.S());
       
       dvcom_dqi.noalias() = (data.mass[i]/data.mass[0])*data.oMi[i].rotation()

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_rnea_hxx__
@@ -65,22 +65,24 @@ namespace pinocchio
 
   };
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
   struct RneaBackwardStep
-  : public fusion::JointUnaryVisitorBase< RneaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  : public fusion::JointUnaryVisitorBase< RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &
+                                  Data &,
+                                  const TangentVectorType &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data)
+                     Data & data,
+                     const Eigen::MatrixBase<TangentVectorType> & a)
     {
       typedef typename Model::JointIndex JointIndex;
       
@@ -88,6 +90,13 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
       
       jmodel.jointVelocitySelector(data.tau) = jdata.S().transpose()*data.f[i];
+      
+      // Add contribution of the roto-inertia effects
+      if(jmodel.nv() == 1)
+      {
+        jmodel.jointVelocitySelector(data.tau) += (model.rotorInertia[jmodel.idx_v()] * (model.rotorGearRatio[jmodel.idx_v()] * model.rotorGearRatio[jmodel.idx_v()])) * jmodel.jointVelocitySelector(a);
+      }
+        
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
@@ -115,16 +124,14 @@ namespace pinocchio
     typename Pass1::ArgsType arg1(model,data,q.derived(),v.derived(),a.derived());
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      Pass1::run(model.joints[i],data.joints[i],
-                 arg1);
+      Pass1::run(model.joints[i],data.joints[i],arg1);
     }
     
-    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
-    typename Pass2::ArgsType arg2(model,data);
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
+    typename Pass2::ArgsType arg2(model,data,a.derived());
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
-      Pass2::run(model.joints[i],data.joints[i],
-                 arg2);
+      Pass2::run(model.joints[i],data.joints[i],arg2);
     }
 
     return data.tau;
@@ -159,11 +166,11 @@ namespace pinocchio
       data.f[i] -= fext[i];
     }
     
-    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data));
+                 typename Pass2::ArgsType(model,data,a.derived()));
     }
 
     
@@ -472,10 +479,12 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
@@ -487,13 +496,13 @@ namespace pinocchio
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),Mat_tmp);
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Mat_tmp * data.dJ.col(j);
 
-      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
+      Mat_tmp.noalias() = Jcols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
 
       if(parent>0)
       {
