@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include <iostream>
@@ -116,8 +116,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
   
-  // Contact info
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   
   const double mu0 = 0.;
 
@@ -129,8 +129,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   = Eigen::MatrixXd::Zero(model.nv,model.nv);
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   
-  initContactDynamics(model,data,contact_infos);
-  contactDynamics(model,data,q,v,tau,contact_infos,mu0);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -175,36 +175,37 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   const std::string RF = "rleg6_joint";
   //  const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
-  //  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  contact_models_6D.push_back(ci_RF);
+  contact_models_6D6D.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_models_6D6D.push_back(ci_LF);
   
-  // Contact info
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos_6D;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  contact_infos_6D.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos_6D.push_back(ci_LF);
-  
-  initContactDynamics(model,data1,contact_infos_empty);
+  initContactDynamics(model,data1,contact_models_empty);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 0));
-  contactDynamics(model,data1,q,v,tau,contact_infos_empty);
+  contactDynamics(model,data1,q,v,tau,contact_models_empty);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
-  initContactDynamics(model,data1,contact_infos_6D);
+  initContactDynamics(model,data1,contact_models_6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 1*6));
-  contactDynamics(model,data1,q,v,tau,contact_infos_6D);
+  contactDynamics(model,data1,q,v,tau,contact_models_6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
   std::cout << "initContactDynamics" << std::endl;
-  initContactDynamics(model,data1,contact_infos_6D6D);
+  initContactDynamics(model,data1,contact_models_6D6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 2*6));
   std::cout << "contactDynamics" << std::endl;
-  contactDynamics(model,data1,q,v,tau,contact_infos_6D6D);
+  contactDynamics(model,data1,q,v,tau,contact_models_6D6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
-  initContactDynamics(model,data2,contact_infos_6D6D);
-  initContactDynamics(model,data2,contact_infos_6D);
-  initContactDynamics(model,data2,contact_infos_empty);
+  initContactDynamics(model,data2,contact_models_6D6D);
+  initContactDynamics(model,data2,contact_models_6D);
+  initContactDynamics(model,data2,contact_models_empty);
 }
 
 BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
@@ -228,16 +229,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   const std::string LF = "lleg6_joint";
 //  const Model::JointIndex LF_id = model.getJointId(LF);
   
-  // Contact info
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  contact_models.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].size();
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
   
@@ -268,8 +269,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
-  initContactDynamics(model,data,contact_infos);
-  contactDynamics(model,data,q,v,tau,contact_infos,mu0);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
@@ -303,9 +304,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   
   Eigen::DenseIndex constraint_id = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
+  for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const ContactInfo & cinfo = contact_infos[k];
+    const RigidContactModel & cinfo = contact_models[k];
     
     switch(cinfo.type)
     {
@@ -351,16 +352,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
   
-  // Contact info
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
-  contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  contact_models.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].size();
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
   
@@ -395,8 +396,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
-  initContactDynamics(model,data,contact_infos);
-  contactDynamics(model,data,q,v,tau,contact_infos,mu0);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
@@ -411,9 +412,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   
   Eigen::DenseIndex constraint_id = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
+  for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const ContactInfo & cinfo = contact_infos[k];
+    const RigidContactModel & cinfo = contact_models[k];
     
     switch(cinfo.type)
     {
@@ -457,16 +458,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  // Contact info
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_3D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  contact_models.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_3D,model.getFrameId(LF),WORLD);
+  contact_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].size();
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
   
@@ -497,8 +498,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
-  initContactDynamics(model,data,contact_infos);
-  contactDynamics(model,data,q,v,tau,contact_infos,mu0);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
   
   // Check that the decomposition is correct
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -511,9 +512,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   
   Eigen::DenseIndex constraint_id = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
+  for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const ContactInfo & cinfo = contact_infos[k];
+    const RigidContactModel & cinfo = contact_models[k];
     
     switch(cinfo.type)
     {
@@ -559,16 +560,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
   
-  // Contact info
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
-  contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
+  contact_models.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
-    constraint_dim += contact_infos[k].size();
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
   
@@ -601,8 +602,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
-  initContactDynamics(model,data,contact_infos);
-  contactDynamics(model,data,q,v,tau,contact_infos,mu0);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
   
   // Check that the decomposition is correct
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -616,9 +617,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
   Eigen::DenseIndex constraint_id = 0;
-  for(size_t k = 0; k < contact_infos.size(); ++k)
+  for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const ContactInfo & cinfo = contact_infos[k];
+    const RigidContactModel & cinfo = contact_models[k];
     
     switch(cinfo.type)
     {

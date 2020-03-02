@@ -29,12 +29,15 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,joints);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,a);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oa);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_drift);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_augmented);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,a_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,v);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ov);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,f);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,of);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,of_augmented);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,h);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oh);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oMi);
@@ -105,6 +108,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,bodyRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinematic_hessians);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,armature);
     }
     
   } // namespace serialization
