@@ -25,7 +25,7 @@ namespace pinocchio
   template<ContactType contact_type>
   struct contact_dim
   {
-    enum { value = -1 };
+    enum { value = 0 };
   };
   
   template<>
@@ -166,7 +166,7 @@ namespace pinocchio
         case CONTACT_6D:
           return contact_dim<CONTACT_6D>::value;
         default:
-          return -1;
+          return contact_dim<CONTACT_UNDEFINED>::value;
       }
       return -1;
     }
