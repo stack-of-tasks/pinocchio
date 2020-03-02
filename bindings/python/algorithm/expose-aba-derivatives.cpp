@@ -33,7 +33,7 @@ namespace pinocchio
       using namespace Eigen;
 
       bp::def("computeABADerivatives",
-              &computeABADerivatives<,
+              computeABADerivativesDefault,
               bp::args("model","data","q","v","tau"),
               "Computes the ABA derivatives, store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the joint acceleration vector output with respect to the joint configuration,\n"
