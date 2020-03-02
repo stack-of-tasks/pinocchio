@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(contact_operator_equal)
   pinocchio::buildModels::manipulator(manipulator_model);
   Data manipulator_data(manipulator_model);
 
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_info_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_info_empty;
   
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill(1.);
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
   ContactCholeskyDecomposition contact_chol_decomposition;
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_info_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_info_empty;
   contact_chol_decomposition.allocate(model,contact_info_empty);
   
   BOOST_CHECK(contact_chol_decomposition.D.size() == model.nv);
@@ -264,10 +264,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF));
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
   contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF));
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF));
   contact_infos.push_back(ci_LF);
 
   // Compute Mass Matrix
@@ -479,10 +479,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF));
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
   contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_3D,model.getFrameId(LF));
+  RigidContactModel ci_LF(CONTACT_3D,model.getFrameId(LF));
   contact_infos.push_back(ci_LF);
   
   // Compute Mass Matrix
@@ -665,10 +665,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
   contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
   contact_infos.push_back(ci_LF);
   
   // Compute Mass Matrix
@@ -737,10 +737,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) contact_infos;
-  ContactInfo ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
   contact_infos.push_back(ci_RF);
-  ContactInfo ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
   contact_infos.push_back(ci_LF);
   
   // Compute Mass Matrix

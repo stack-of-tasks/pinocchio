@@ -64,7 +64,7 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
       typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix) RowMatrix;
-      typedef RigidContactModelTpl<Scalar,Options> ContactInfo;
+      typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
       typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(IndexVector) VectorOfIndexVector;
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
@@ -99,15 +99,15 @@ namespace pinocchio
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
       ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model)
       {
-        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) empty_contact_infos;
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) empty_contact_infos;
         allocate(model,empty_contact_infos);
       }
       
       ///
-      /// \brief Constructor from a model and a collection of ContactInfo objects.
+      /// \brief Constructor from a model and a collection of RigidContactModel objects.
       ///
       /// \param[in] model Model of the kinematic tree
-      /// \param[in] contact_infos Vector of ContactInfo objects containing the contact information
+      /// \param[in] contact_infos Vector of RigidContactModel objects containing the contact information
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model,
@@ -120,7 +120,7 @@ namespace pinocchio
       /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U.
       ///
       /// \param[in] model Model of the kinematic tree
-      /// \param[in] contact_infos Vector of ContactInfo objects containing the contact information
+      /// \param[in] contact_infos Vector of RigidContactModel objects containing the contact information
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
@@ -157,7 +157,7 @@ namespace pinocchio
       ///
       /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
       ///        related to the system mass matrix and the Jacobians of the contact patches contained in
-      ///        the vector of ContactInfo named contact_infos.
+      ///        the vector of RigidContactModel named contact_infos.
       ///
       /// \param[in] model Model of the dynamical system
       /// \param[in] data Data related to model containing the computed mass matrix and the Jacobian of the kinematic tree

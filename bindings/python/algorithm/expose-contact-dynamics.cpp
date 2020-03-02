@@ -23,7 +23,7 @@ namespace pinocchio
                                                          const Eigen::VectorXd & q,
                                                          const Eigen::VectorXd & v,
                                                          const Eigen::VectorXd & tau,
-                                                         const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) & contact_infos,
+                                                         const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_infos,
                                                          const double mu = 0.0)
       {
         return contactDynamics(model, data, q, v, tau, contact_infos, mu);
@@ -45,17 +45,17 @@ namespace pinocchio
         
         ContactCholeskyDecompositionPythonVisitor<cholesky::ContactCholeskyDecomposition>::expose();
         
-        ContactInfoPythonVisitor<ContactInfo>::expose();
+        RigidContactModelPythonVisitor<RigidContactModel>::expose();
         
-        typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactInfo) ContactInfoVector;
-        StdVectorPythonVisitor<ContactInfo,Eigen::aligned_allocator<ContactInfo> >::expose("StdVec_ContactInfo");
+        typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) RigidContactModelVector;
+        StdVectorPythonVisitor<RigidContactModel,Eigen::aligned_allocator<RigidContactModel> >::expose("StdVec_RigidContactModel");
         
         ProximalSettingsPythonVisitor<ProximalSettings>::expose();
         
-        typedef Eigen::aligned_allocator<ContactInfo> ContactInfoAllocator;
+        typedef Eigen::aligned_allocator<RigidContactModel> RigidContactModelAllocator;
         
         bp::def("initContactDynamics",
-                &initContactDynamics<double,0,JointCollectionDefaultTpl,ContactInfoAllocator>,
+                &initContactDynamics<double,0,JointCollectionDefaultTpl,RigidContactModelAllocator>,
                 bp::args("model","data","contact_infos"),
                 "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
                 "This allows to avoid online memory allocation when running these algorithms.");

@@ -24,31 +24,31 @@ BOOST_AUTO_TEST_CASE(contact_info)
   using namespace pinocchio;
   
   // Check default constructor
-  ContactInfo ci1;
+  RigidContactModel ci1;
   BOOST_CHECK(ci1.type == CONTACT_UNDEFINED);
   BOOST_CHECK(ci1.size() == 0);
   
   // Check complete constructor
   SE3 M(SE3::Random());
-  ContactInfo ci2(CONTACT_3D,0,M);
+  RigidContactModel ci2(CONTACT_3D,0,M);
   BOOST_CHECK(ci2.type == CONTACT_3D);
   BOOST_CHECK(ci2.frame_id == 0);
   BOOST_CHECK(ci2.placement.isApprox(M));
   BOOST_CHECK(ci2.size() == 3);
   
   // Check contructor with two arguments
-  ContactInfo ci2prime(CONTACT_3D,0);
+  RigidContactModel ci2prime(CONTACT_3D,0);
   BOOST_CHECK(ci2prime.type == CONTACT_3D);
   BOOST_CHECK(ci2prime.frame_id == 0);
   BOOST_CHECK(ci2prime.placement.isIdentity());
   BOOST_CHECK(ci2prime.size() == 3);
   
   // Check default copy constructor
-  ContactInfo ci3(ci2);
+  RigidContactModel ci3(ci2);
   BOOST_CHECK(ci3 == ci2);
   
   // Check complete constructor 6D
-  ContactInfo ci4(CONTACT_6D,0,SE3::Identity());
+  RigidContactModel ci4(CONTACT_6D,0,SE3::Identity());
   BOOST_CHECK(ci4.type == CONTACT_6D);
   BOOST_CHECK(ci4.frame_id == 0);
   BOOST_CHECK(ci4.placement.isIdentity());

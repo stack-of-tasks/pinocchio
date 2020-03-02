@@ -8,7 +8,7 @@
 #include <eigenpy/memory.hpp>
 #include "pinocchio/algorithm/contact-info.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::ContactInfo)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::RigidContactModel)
 
 namespace pinocchio
 {
@@ -16,12 +16,12 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
-    template<typename ContactInfo>
-    struct ContactInfoPythonVisitor
-    : public boost::python::def_visitor< ContactInfoPythonVisitor<ContactInfo> >
+    template<typename RigidContactModel>
+    struct RigidContactModelPythonVisitor
+    : public boost::python::def_visitor< RigidContactModelPythonVisitor<RigidContactModel> >
     {
-      typedef typename ContactInfo::Scalar Scalar;
-      typedef typename ContactInfo::SE3 SE3;
+      typedef typename RigidContactModel::Scalar Scalar;
+      typedef typename RigidContactModel::SE3 SE3;
 
     public:
       
@@ -36,11 +36,11 @@ namespace pinocchio
                bp::arg("placement")),
               "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
         
-        .add_property("type",&ContactInfo::type,"Type of the contact.")
-        .add_property("frame_id",&ContactInfo::frame_id,"Index of the parent Frame in the model tree.")
-        .add_property("placement",&ContactInfo::placement,"Placement of the contact with respect to the parent Frame.")
+        .add_property("type",&RigidContactModel::type,"Type of the contact.")
+        .add_property("frame_id",&RigidContactModel::frame_id,"Index of the parent Frame in the model tree.")
+        .add_property("placement",&RigidContactModel::placement,"Placement of the contact with respect to the parent Frame.")
         
-        .def("size", &ContactInfo::size, "Size of the contact")
+        .def("size", &RigidContactModel::size, "Size of the contact")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
@@ -49,9 +49,9 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<ContactInfo>("ContactInfo",
+        bp::class_<RigidContactModel>("RigidContactModel",
                                 "Contact information container for contact dynamic algorithms.")
-        .def(ContactInfoPythonVisitor<ContactInfo>())
+        .def(RigidContactModelPythonVisitor<RigidContactModel>())
         ;
         
       }

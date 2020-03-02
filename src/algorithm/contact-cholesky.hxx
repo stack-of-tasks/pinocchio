@@ -22,14 +22,14 @@ namespace pinocchio
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
              const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos)
     {
-      typedef RigidContactModelTpl<S1,O1> ContactInfo;
-      typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
+      typedef RigidContactModelTpl<S1,O1> RigidContactModel;
+      typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
       
       nv = model.nv;
       num_contacts = (Eigen::DenseIndex)contact_infos.size();
       
       Eigen::DenseIndex num_total_constraints = 0;
-      for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
           it != contact_infos.end();
           ++it)
       {
@@ -92,11 +92,11 @@ namespace pinocchio
       
       // Fill nv_subtree_fromRow for constraints
       Eigen::DenseIndex row_id = 0;
-      for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
           it != contact_infos.end();
           ++it)
       {
-        const ContactInfo & cinfo = *it;
+        const RigidContactModel & cinfo = *it;
         const FrameIndex frame_id = cinfo.frame_id;
         const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
@@ -118,7 +118,7 @@ namespace pinocchio
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
         indexes.resize(total_dim); indexes.fill(default_sparsity_value);
         
-        const ContactInfo & cinfo = contact_infos[ee_id];
+        const RigidContactModel & cinfo = contact_infos[ee_id];
         const FrameIndex frame_id = cinfo.frame_id;
         const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
@@ -139,11 +139,11 @@ namespace pinocchio
       rowise_sparsity_pattern.clear();
       rowise_sparsity_pattern.resize((size_t)num_total_constraints,default_slice_vector);
       row_id = 0; size_t ee_id = 0;
-      for(typename ContactInfoVector::const_iterator it = contact_infos.begin();
+      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
           it != contact_infos.end();
           ++it, ++ee_id)
       {
-        const ContactInfo & cinfo = *it;
+        const RigidContactModel & cinfo = *it;
         const BooleanVector & indexes = extented_parents_fromRow[ee_id];
         const Eigen::DenseIndex contact_dim = cinfo.size();
 
@@ -191,7 +191,7 @@ namespace pinocchio
             const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos,
             const S1 mu)
     {
-      typedef RigidContactModelTpl<S1,O1> ContactInfo;
+      typedef RigidContactModelTpl<S1,O1> RigidContactModel;
       typedef MotionTpl<Scalar,Options> Motion;
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_infos.size() == num_contacts,
@@ -208,7 +208,7 @@ namespace pinocchio
       // Update frame placements if needed
       for(size_t f = 0; f < num_ee; ++f)
       {
-        const ContactInfo & cinfo = contact_infos[f];
+        const RigidContactModel & cinfo = contact_infos[f];
         if(cinfo.reference_frame == WORLD) continue; // skip useless computations
         
         const typename Model::FrameIndex & frame_id = cinfo.frame_id;
@@ -254,7 +254,7 @@ namespace pinocchio
           size_t ee_id = num_ee - k - 1; // start from the last end effector
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
-          const ContactInfo & cinfo = contact_infos[ee_id];
+          const RigidContactModel & cinfo = contact_infos[ee_id];
           const Eigen::DenseIndex constraint_dim = cinfo.size();
 
           if(indexes[jj])
