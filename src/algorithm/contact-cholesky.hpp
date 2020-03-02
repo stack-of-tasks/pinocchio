@@ -64,7 +64,7 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
       typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix) RowMatrix;
-      typedef ContactInfoTpl<Scalar,Options> ContactInfo;
+      typedef RigidContactModelTpl<Scalar,Options> ContactInfo;
       typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(IndexVector) VectorOfIndexVector;
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
@@ -111,7 +111,7 @@ namespace pinocchio
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                                      const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos)
+                                      const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos)
       {
         allocate(model,contact_infos);
       }
@@ -124,7 +124,7 @@ namespace pinocchio
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                    const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos);
+                    const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos);
       
       ///
       /// \brief Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.
@@ -168,8 +168,8 @@ namespace pinocchio
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                   const DataTpl<S1,O1,JointCollectionTpl> & data,
-                   const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos,
+                   DataTpl<S1,O1,JointCollectionTpl> & data,
+                   const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos,
                    const S1 mu = 0.);
       
       /// \brief Size of the decomposition

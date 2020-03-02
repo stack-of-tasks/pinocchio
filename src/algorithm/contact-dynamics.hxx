@@ -151,7 +151,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef ContactInfoTpl<Scalar,Options> ContactInfo;
+    typedef RigidContactModelTpl<Scalar,Options> ContactInfo;
     typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
     
     typename Data::TangentVectorType & a = data.ddq;

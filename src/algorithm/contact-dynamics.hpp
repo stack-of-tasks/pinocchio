@@ -28,7 +28,7 @@ namespace pinocchio
   inline void
   initContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                      const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos);
+                      const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_infos);
   
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
@@ -66,7 +66,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos,
+                  const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_infos,
                   const Scalar mu = 0.);
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>

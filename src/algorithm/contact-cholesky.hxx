@@ -20,9 +20,9 @@ namespace pinocchio
     void
     ContactCholeskyDecompositionTpl<Scalar,Options>::
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-             const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos)
+             const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos)
     {
-      typedef ContactInfoTpl<S1,O1> ContactInfo;
+      typedef RigidContactModelTpl<S1,O1> ContactInfo;
       typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
       
       nv = model.nv;
@@ -187,11 +187,12 @@ namespace pinocchio
     template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-            const DataTpl<S1,O1,JointCollectionTpl> & data,
-            const std::vector<ContactInfoTpl<S1,O1>,Allocator> & contact_infos,
+            DataTpl<S1,O1,JointCollectionTpl> & data,
+            const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos,
             const S1 mu)
     {
-      typedef ContactInfoTpl<S1,O1> ContactInfo;
+      typedef RigidContactModelTpl<S1,O1> ContactInfo;
+      typedef MotionTpl<Scalar,Options> Motion;
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_infos.size() == num_contacts,
                                      "The number of contacts inside contact_infos and the one during allocation do not match.");
