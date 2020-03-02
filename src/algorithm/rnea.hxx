@@ -479,7 +479,7 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];

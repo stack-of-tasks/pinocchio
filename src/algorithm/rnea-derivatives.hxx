@@ -79,7 +79,7 @@ namespace pinocchio
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
@@ -314,7 +314,7 @@ namespace pinocchio
                      const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,6,6> MatrixNV6;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];

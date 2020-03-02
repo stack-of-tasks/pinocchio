@@ -36,7 +36,7 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
-      typedef Eigen::Matrix<Scalar,6,JointModel::NV,Options,6,6> Matrix6NV;
+      typedef Eigen::Matrix<Scalar,6,JointModel::NV,Options,6,JointModel::NV==Eigen::Dynamic?6:JointModel::NV> Matrix6NV;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
