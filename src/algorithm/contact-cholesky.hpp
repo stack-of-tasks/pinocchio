@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_contact_cholesky_hpp__
 
 #include "pinocchio/multibody/model.hpp"
+#include "pinocchio/math/matrix-block.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
 namespace pinocchio
@@ -131,7 +132,8 @@ namespace pinocchio
       ///
       Matrix getInverseOperationalSpaceInertiaMatrix() const
       {
-        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
         const ConstBlockXpr U1
         = U.topLeftCorner(constraintDim(),constraintDim());
         
@@ -144,7 +146,8 @@ namespace pinocchio
       ///
       Matrix getOperationalSpaceInertiaMatrix() const
       {
-        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
         const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
         = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
         
