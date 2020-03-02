@@ -7,6 +7,8 @@
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/motion.hpp"
+#include "pinocchio/spatial/force.hpp"
 
 #include <limits>
 
