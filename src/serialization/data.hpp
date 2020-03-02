@@ -109,6 +109,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,bodyRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinematic_hessians);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,armature);
     }
     
   } // namespace serialization
