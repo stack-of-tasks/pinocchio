@@ -172,9 +172,39 @@ namespace pinocchio
     }
     
   };
+
+  ///
+  /// \brief Contact model structure containg all the info describing the rigid contact model
+  ///
+  template<typename _Scalar, int _Options>
+  struct RigidContactDataTpl
+  {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    typedef _Scalar Scalar;
+    enum { Options = _Options };
+    
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef MotionTpl<Scalar,Options> Motion;
+    typedef ForceTpl<Scalar,Options> Force;
+    
+    RigidContactDataTpl()
+    {}
+    
+    // data
+    
+    /// \brief Resulting contact forces
+    Force contact_force;
+    
+    /// \brief Current contact placement
+    SE3 contact_placement;
+    
+    /// \brief Current contact spatial velocity
+    Motion contact_velocity;
     
     /// \brief Current contact  spatial acceleration
     Motion contact_acceleration;
+    
     /// \brief Current contact drift acceleration
     Motion contact_acceleration_drift;
     
