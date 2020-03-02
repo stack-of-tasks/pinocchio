@@ -93,10 +93,7 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
         .def(bp::self -= bp::self)
-#pragma GCC diagnostic pop
         .def(-bp::self)
         
         .def(bp::self == bp::self)
