@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
