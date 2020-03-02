@@ -151,8 +151,8 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef RigidContactModelTpl<Scalar,Options> ContactInfo;
-    typedef std::vector<ContactInfo,Allocator> ContactInfoVector;
+    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
+    typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -201,7 +201,7 @@ namespace pinocchio
     for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
         it != contact_models.end(); ++it)
     {
-      const ContactInfo & contact_info = *it;
+      const RigidContactModel & contact_info = *it;
       const int contact_dim = contact_info.size();
 
       const typename Model::FrameIndex & frame_id = contact_info.frame_id;
@@ -293,7 +293,7 @@ namespace pinocchio
         it != contact_models.end(); ++it, current_id++)
     {
       typename Data::Force & fext = data.contact_forces[current_id];
-      const ContactInfo & contact_info = *it;
+      const RigidContactModel & contact_info = *it;
       const int contact_dim = contact_info.size();
       
       switch(contact_info.type)

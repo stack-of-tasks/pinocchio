@@ -150,7 +150,7 @@ namespace pinocchio
     /// \returns false if the two *this is not equal to other (at least type, parent or placement attributs is different).
     ///
     template<int OtherOptions>
-    bool operator!=(const ContactInfoTpl<Scalar,OtherOptions> & other) const
+    bool operator!=(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
     {
       return !(*this == other);
     }
