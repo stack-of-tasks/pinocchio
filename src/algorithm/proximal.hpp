@@ -27,6 +27,8 @@ namespace pinocchio
     : accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
     , mu(10.)
     , max_iter(10)
+    , residual(-1.)
+    , iter(0)
     {}
     
     ///
@@ -38,6 +40,8 @@ namespace pinocchio
     : accuracy(accuracy)
     , mu(mu)
     , max_iter(max_iter)
+    , residual(-1.)
+    , iter(0)
     {
       assert(accuracy >= 0. && "accuracy must be positive");
       assert(mu >= 0. && "mu must be positive");
@@ -54,6 +58,14 @@ namespace pinocchio
     
     /// \brief Maximal number of iterations.
     int max_iter;
+    
+    // data that can be modified by the algorithm
+    
+    /// \brief Final residual when the algorithm has converged or reached the maximal number of allowed iterations.
+    Scalar residual;
+    
+    /// \brief Final number of iteration of the algorithm when it has converged or reached the maximal number of allowed iterations.
+    int iter;
     
   };
   

@@ -36,6 +36,11 @@ namespace pinocchio
         .add_property("accuracy",&ProximalSettings::accuracy,"Minimum residual accuracy.")
         .add_property("mu",&ProximalSettings::mu,"Regularization parameter of the Proximal algorithms.")
         .add_property("max_iter",&ProximalSettings::max_iter,"Maximal number of iterations.")
+        
+        .add_property("residual",&ProximalSettings::residual,
+                      "Final residual when the algorithm has converged or reached the maximal number of allowed iterations.")
+        .add_property("iter",&ProximalSettings::iter,
+                      "Final number of iteration of the algorithm when it has converged or reached the maximal number of allowed iterations.")
         ;
       }
       
