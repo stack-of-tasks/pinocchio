@@ -189,6 +189,12 @@ namespace pinocchio
     typedef ForceTpl<Scalar,Options> Force;
     
     RigidContactDataTpl()
+    : contact_force(Force::Zero())
+    , contact_placement(SE3::Identity())
+    , contact_velocity(Motion::Zero())
+    , contact_acceleration(Motion::Zero())
+    , contact_acceleration_drift(Motion::Zero())
+    , contact_acceleration_deviation(Motion::Zero())
     {}
     
     // data
