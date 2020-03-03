@@ -2,8 +2,8 @@
 // Copyright (c) 2019 INRIA
 //
 
-#ifndef __pinocchio_multibody_visitior_joint_binary_visitor_hpp__
-#define __pinocchio_multibody_visitior_joint_binary_visitor_hpp__
+#ifndef __pinocchio_multibody_visitor_joint_binary_visitor_hpp__
+#define __pinocchio_multibody_visitor_joint_binary_visitor_hpp__
 
 #include <boost/variant.hpp>
 
@@ -209,4 +209,4 @@ namespace pinocchio
   } // namespace fusion
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_multibody_visitior_joint_binary_visitor_hpp__
+#endif // ifndef __pinocchio_multibody_visitor_joint_binary_visitor_hpp__
