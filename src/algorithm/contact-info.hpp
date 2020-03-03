@@ -209,7 +209,7 @@ namespace pinocchio
     Motion contact_acceleration_drift;
     
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
-    Motion contact_deviation;
+    Motion contact_acceleration_deviation;
   };
   
   typedef RigidContactModelTpl<double,0> RigidContactModel;
