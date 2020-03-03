@@ -30,12 +30,12 @@ namespace pinocchio
         .def(bp::init<Scalar,Scalar,int>
              ((bp::arg("accuracy"),
                bp::arg("mu"),
-               bp::arg("max_it")),
+               bp::arg("max_iter")),
               "Structure containing all the settings paramters for the proximal algorithms."))
         
         .add_property("accuracy",&ProximalSettings::accuracy,"Minimum residual accuracy.")
         .add_property("mu",&ProximalSettings::mu,"Regularization parameter of the Proximal algorithms.")
-        .add_property("max_it",&ProximalSettings::max_it,"Maximal number of iterations.")
+        .add_property("max_iter",&ProximalSettings::max_iter,"Maximal number of iterations.")
         ;
       }
       

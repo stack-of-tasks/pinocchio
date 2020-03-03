@@ -26,7 +26,7 @@ namespace pinocchio
     ProximalSettingsTpl()
     : accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
     , mu(10.)
-    , max_it(10)
+    , max_iter(10)
     {}
     
     ///
@@ -34,14 +34,14 @@ namespace pinocchio
     ///
     ProximalSettingsTpl(Scalar accuracy,
                         Scalar mu,
-                        int max_it)
+                        int max_iter)
     : accuracy(accuracy)
     , mu(mu)
-    , max_it(max_it)
+    , max_iter(max_iter)
     {
       assert(accuracy >= 0. && "accuracy must be positive");
       assert(mu >= 0. && "mu must be positive");
-      assert(max_it >= 1 && "max_it must be greater or equal to 1");
+      assert(max_iter >= 1 && "max_iter must be greater or equal to 1");
     }
     
     // data
@@ -53,7 +53,7 @@ namespace pinocchio
     Scalar mu;
     
     /// \brief Maximal number of iterations.
-    int max_it;
+    int max_iter;
     
   };
   
