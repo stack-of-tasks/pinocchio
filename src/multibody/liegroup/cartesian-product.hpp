@@ -88,9 +88,9 @@ namespace pinocchio
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
-                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<JacobianOut_t> & J) const
+    void dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       J12(J).setZero();
       J21(J).setZero();
