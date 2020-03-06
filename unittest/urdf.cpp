@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
   pinocchio::Model model;
-  pinocchio::urdf::buildModel(urdfTree, model);
+  pinocchio::urdf::buildModel(urdfTree.get(), model);
   
   BOOST_CHECK(model.nq == 31);
 }
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
   pinocchio::Model model;
-  pinocchio::urdf::buildModel(urdfTree, pinocchio::JointModelFreeFlyer(), model);
+  pinocchio::urdf::buildModel(urdfTree.get(), pinocchio::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }
