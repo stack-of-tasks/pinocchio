@@ -439,10 +439,10 @@ namespace pinocchio
         switch(type)
         {
           case COLLISION:
-            addLinkGeometryToGeomModel<::urdf::Collision >(tree, meshLoader, link, visitor, geomModel, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Collision >(tree, meshLoader, link, visitor, geomModel, package_dirs);
             break;
           case VISUAL:
-            addLinkGeometryToGeomModel<::urdf::Visual >(tree, meshLoader, link, visitor, geomModel, package_dirs);
+            addLinkGeometryToGeomModel< ::urdf::Visual >(tree, meshLoader, link, visitor, geomModel, package_dirs);
             break;
           default:
             break;

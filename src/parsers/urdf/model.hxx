@@ -421,7 +421,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const boost::shared_ptr<::urdf::ModelInterface> urdfTree,
+    buildModel(const boost::shared_ptr< ::urdf::ModelInterface> urdfTree,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
@@ -435,7 +435,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const boost::shared_ptr<::urdf::ModelInterface> urdfTree,
+    buildModel(const boost::shared_ptr< ::urdf::ModelInterface> urdfTree,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
     {
@@ -449,7 +449,7 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_CXX11_SUPPORT
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+    buildModel(const std::shared_ptr< ::urdf::ModelInterface> urdfTree,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
@@ -463,7 +463,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+    buildModel(const std::shared_ptr< ::urdf::ModelInterface> urdfTree,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose)
     {
