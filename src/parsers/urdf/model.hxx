@@ -325,6 +325,7 @@ namespace pinocchio
 
           typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
           typedef typename Model::JointCollection JointCollection;
+          typedef typename Model::JointModel JointModel;
 
           JointModel root_joint;
 
