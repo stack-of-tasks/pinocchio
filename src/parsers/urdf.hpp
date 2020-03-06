@@ -38,7 +38,7 @@ namespace pinocchio
     /// \brief Build the model from a URDF file with a particular joint as root of the model tree inside
     /// the model given as reference argument.
     ///
-    /// \param[in] filemane The URDF complete file path.
+    /// \param[in] filename The URDF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
@@ -55,7 +55,7 @@ namespace pinocchio
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
-    /// \param[in] filemane The URDF complete file path.
+    /// \param[in] filename The URDF complete file path.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
