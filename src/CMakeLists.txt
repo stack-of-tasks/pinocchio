@@ -8,7 +8,8 @@
 # ----------------------------------------------------
 
 SET(${PROJECT_NAME}_SOURCES
-  ${${PROJECT_NAME}_PARSERS_SOURCES}
+  parsers/urdf/model.cpp
+  parsers/urdf/geometry.cpp
 )
 
 # Extract the compile definitions of the project for export

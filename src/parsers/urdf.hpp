@@ -8,9 +8,14 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
-#include "pinocchio/parsers/urdf/types.hpp"
 
 /// \cond
+// forward declaration of the unique type from urdfdom which is expose (mostly
+// for backward compatibility).
+namespace urdf {
+  class ModelInterface;
+}
+
 namespace hpp
 {
   namespace fcl
@@ -72,7 +77,7 @@ namespace pinocchio
     ///       or ::urdf::parseURDFFile
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+    buildModel(const ::urdf::ModelInterface* urdfTree,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose = false);
@@ -89,7 +94,7 @@ namespace pinocchio
     ///       or ::urdf::parseURDFFile
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const ::urdf::ModelInterfaceSharedPtr & urdfTree,
+    buildModel(const ::urdf::ModelInterface* urdfTree,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose = false);
     
