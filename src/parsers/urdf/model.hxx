@@ -67,7 +67,7 @@ namespace pinocchio
               const SE3 & placement,
               const std::string & body_name) = 0;
 
-          virtual FrameIndex getJointFrameId (
+          virtual FrameIndex getBodyId (
               const std::string& frame_name) const = 0;
 
           UrdfVisitorBaseTpl () : log (NULL) {}
@@ -233,16 +233,14 @@ namespace pinocchio
             }
           }
 
-          FrameIndex getJointFrameId (const std::string& frame_name) const
+          FrameIndex getBodyId (const std::string& frame_name) const
           {
-            static const FrameType JOINT_OR_FIXED_JOINT = (FrameType)(JOINT | FIXED_JOINT);
-            if (model.existFrame(frame_name, JOINT_OR_FIXED_JOINT)) {
-              FrameIndex fid = model.getFrameId (frame_name, JOINT_OR_FIXED_JOINT);
-              assert(model.frames[fid].type == JOINT
-                  || model.frames[fid].type == FIXED_JOINT);
+            if (model.existFrame(frame_name, BODY)) {
+              FrameIndex fid = model.getFrameId (frame_name, BODY);
+              assert(model.frames[fid].type == BODY);
               return fid;
             } else
-              throw std::invalid_argument("Model does not have any joints named "
+              throw std::invalid_argument("Model does not have any body named "
                   + frame_name);
           }
 

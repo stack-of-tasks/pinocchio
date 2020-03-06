@@ -60,27 +60,14 @@ namespace pinocchio
         return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
       }
 
-      FrameIndex getParentJointFrame(const ::urdf::LinkConstSharedPtr link,
-                                     UrdfVisitorBase& model)
+      FrameIndex getParentLinkFrame(const ::urdf::LinkConstSharedPtr link,
+                                    UrdfVisitorBase& model)
       {
         PINOCCHIO_CHECK_INPUT_ARGUMENT(link && link->getParent());
-
-        FrameIndex id = -1;
-        std::string parent_joint_name;
-        if (!link->getParent()->parent_joint)
-        {
-          try {
-            id = model.getJointFrameId("root_joint");
-          } catch (const std::invalid_argument&) {
-            id = 0;
-          }
-        }
-        else
-          id = model.getJointFrameId(link->getParent()->parent_joint->name);
-
+        FrameIndex id = model.getBodyId(link->getParent()->name);
         return id;
       }
-      
+
       ///
       /// \brief Recursive procedure for reading the URDF tree.
       ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
@@ -110,7 +97,7 @@ namespace pinocchio
           const std::string & parent_link_name = link->getParent()->name;
           std::ostringstream joint_info;
 
-          FrameIndex parentFrameId = getParentJointFrame(link, model);
+          FrameIndex parentFrameId = getParentLinkFrame(link, model);
 
           // Transformation from the parent link to the joint origin
           const SE3 jointPlacement
@@ -267,7 +254,7 @@ namespace pinocchio
 
         ::urdf::LinkConstSharedPtr root_link = urdfTree->getRoot();
         model.addRootJoint(convertFromUrdf(root_link->inertial), root_link->name);
-        
+
         BOOST_FOREACH(::urdf::LinkConstSharedPtr child, root_link->child_links)
         {
           parseTree(child, model);
