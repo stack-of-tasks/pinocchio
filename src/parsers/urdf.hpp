@@ -9,9 +9,12 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+#include <memory>
+#endif
+
 /// \cond
-// forward declaration of the unique type from urdfdom which is expose (mostly
-// for backward compatibility).
+// forward declaration of the unique type from urdfdom which is expose.
 namespace urdf {
   class ModelInterface;
 }
@@ -77,7 +80,7 @@ namespace pinocchio
     ///       or ::urdf::parseURDFFile
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const ::urdf::ModelInterface* urdfTree,
+    buildModel(const boost::shared_ptr<::urdf::ModelInterface> urdfTree,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose = false);
@@ -94,10 +97,27 @@ namespace pinocchio
     ///       or ::urdf::parseURDFFile
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const ::urdf::ModelInterface* urdfTree,
+    buildModel(const boost::shared_ptr<::urdf::ModelInterface> urdfTree,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const bool verbose = false);
-    
+
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+    /// copydoc buildModel<Scalar,Options,JointCollectionTpl>(const boost::shared_ptr<::urdf::ModelInterface>, const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel &, ModelTpl<Scalar,Options,JointCollectionTpl> &, const bool verbose)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false);
+
+    /// copydoc buildModel<Scalar,Options,JointCollectionTpl>(const boost::shared_ptr<::urdf::ModelInterface>, ModelTpl<Scalar,Options,JointCollectionTpl> &, const bool verbose)
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::shared_ptr<::urdf::ModelInterface> urdfTree,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const bool verbose = false);
+#endif
+
     ///
     /// \brief Build the model from an XML stream with a particular joint as root of the model tree inside
     /// the model given as reference argument.
