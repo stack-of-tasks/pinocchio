@@ -1,7 +1,7 @@
-# 
+#
 # Copyright (c) 2015-2020 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
-# 
+#
 
 # ----------------------------------------------------
 # --- C++ --------------------------------------------
@@ -24,6 +24,7 @@ IF(UNIX)
     ENDIF(BUILD_WITH_COMMIT_VERSION)
     PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME} eigen3)
     TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})
+    TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 
     IF(URDFDOM_FOUND)
       PKG_CONFIG_USE_DEPENDENCY(${PROJECT_NAME} urdfdom)
@@ -36,7 +37,7 @@ IF(UNIX)
     ADD_HEADER_GROUP(HEADERS)
     ADD_SOURCE_GROUP(${PROJECT_NAME}_SOURCES)
 
-    INSTALL(TARGETS ${PROJECT_NAME} 
+    INSTALL(TARGETS ${PROJECT_NAME}
             EXPORT ${TARGETS_EXPORT_NAME}
             DESTINATION lib)
 ENDIF(UNIX)
