@@ -91,6 +91,46 @@ BOOST_AUTO_TEST_CASE ( build_model_from_XML )
   
   BOOST_CHECK(model.nq == 31);
 }
+  
+BOOST_AUTO_TEST_CASE ( check_tree_from_XML )
+{
+  // Read file as XML
+  std::string filestr(
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+      "<robot name=\"test\">"
+      "  <link name=\"base_link\"/>"
+      "  <link name=\"link_1\"/>"
+      "  <link name=\"link_2\"/>"
+      "  <joint name=\"joint_1\" type=\"fixed\">"
+      "    <origin xyz=\"1 0 0\"/>"
+      "    <axis xyz=\"0 0 1\"/>"
+      "    <parent link=\"base_link\"/>"
+      "    <child link=\"link_1\"/>"
+      "  </joint>"
+      "  <joint name=\"joint_2\" type=\"fixed\">"
+      "    <origin xyz=\"0 1 0\"/>"
+      "    <axis xyz=\"0 0 1\"/>"
+      "    <parent link=\"link_1\"/>"
+      "    <child link=\"link_2\"/>"
+      "  </joint>"
+      "</robot>"
+      );
+  
+  pinocchio::Model model;
+  pinocchio::urdf::buildModelFromXML(filestr, model);
+
+  pinocchio::JointIndex
+    base_link_id = model.getFrameId("base_link"),
+    link1_id     = model.getFrameId("link_1"),
+    link2_id     = model.getFrameId("link_2"),
+    joint1_id    = model.getFrameId("joint_1"),
+    joint2_id    = model.getFrameId("joint_2");
+
+  BOOST_CHECK_EQUAL(base_link_id, model.frames[joint1_id].previousFrame);
+  BOOST_CHECK_EQUAL(joint1_id   , model.frames[link1_id ].previousFrame);
+  BOOST_CHECK_EQUAL(link1_id    , model.frames[joint2_id].previousFrame);
+  BOOST_CHECK_EQUAL(joint2_id   , model.frames[link2_id ].previousFrame);
+}
 
 BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
 {
