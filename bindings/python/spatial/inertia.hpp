@@ -146,6 +146,7 @@ namespace pinocchio
         .def("FromSphere", &Inertia::FromSphere,
              bp::args("mass","radius"),
              "Returns the Inertia of an sphere with a given mass and of radius.")
+        .staticmethod("FromSphere")
         .def("FromEllipsoid", &Inertia::FromEllipsoid,
              bp::args("mass","length_x","length_y","length_z"),
              "Returns the Inertia of an ellipsoid shape with a given mass and of given dimensions the semi-axis of values length_{x,y,z}.")
