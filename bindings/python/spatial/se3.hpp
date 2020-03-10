@@ -105,7 +105,7 @@ namespace pinocchio
         .def("setRandom",&SE3PythonVisitor::setRandom,bp::arg("self"),
              "Set *this to a random placement.")
 
-        .def("inverse", bp::arg("self"), &SE3::inverse,
+        .def("inverse",  &SE3::inverse, bp::arg("self"),
              "Returns the inverse transform")
         
         .def("act", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::act,
