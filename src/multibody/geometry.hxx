@@ -19,7 +19,7 @@ namespace pinocchio
   
 #ifdef PINOCCHIO_WITH_HPP_FCL
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
-  , distanceRequest(true, 0, 0, fcl::GST_INDEP)
+  , distanceRequest(true)
   , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
   , collisionResults(geom_model.collisionPairs.size())

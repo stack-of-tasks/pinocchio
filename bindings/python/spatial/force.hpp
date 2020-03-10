@@ -81,13 +81,13 @@ namespace pinocchio
         .add_property("np",&ForcePythonVisitor::getVector)
         
         .def("se3Action",&Force::template se3Action<Scalar,Options>,
-             bp::args("M"),"Returns the result of the dual action of M on *this.")
+             bp::args("self","M"),"Returns the result of the dual action of M on *this.")
         .def("se3ActionInverse",&Force::template se3ActionInverse<Scalar,Options>,
-             bp::args("M"),"Returns the result of the dual action of the inverse of M on *this.")
+             bp::args("self","M"),"Returns the result of the dual action of the inverse of M on *this.")
         
-        .def("setZero",&ForcePythonVisitor::setZero,
+        .def("setZero",&ForcePythonVisitor::setZero,bp::arg("self"),
              "Set the linear and angular components of *this to zero.")
-        .def("setRandom",&ForcePythonVisitor::setRandom,
+        .def("setRandom",&ForcePythonVisitor::setRandom,bp::arg("self"),
              "Set the linear and angular components of *this to random values.")
         
         .def(bp::self + bp::self)
@@ -105,12 +105,12 @@ namespace pinocchio
         
         .def("isApprox",
              &call<Force>::isApprox,
-             isApproxForce_overload(bp::args("other","prec"),
+             isApproxForce_overload(bp::args("self","other","prec"),
                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
                                                                                            
         .def("isZero",
              &call<Force>::isZero,
-             isZero_overload(bp::args("prec"),
+             isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
         
         .def("Random",&Force::Random,"Returns a random Force.")
