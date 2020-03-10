@@ -228,6 +228,11 @@ namespace pinocchio
                         Vector3::Random(),
                         Symmetric3::RandomPositive());
     }
+    
+    static InertiaTpl FromSphere(const Scalar m, const Scalar radius)
+    {
+      return FromEllipsoid(m,radius,radius,radius);
+    }
 
     static InertiaTpl FromEllipsoid(const Scalar m, const Scalar x,
                                     const Scalar y, const Scalar z)

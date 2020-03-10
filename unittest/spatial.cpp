@@ -543,6 +543,15 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   // Test constructor (Matrix6)
   Inertia I1_bis(I1.matrix());
   BOOST_CHECK(I1.matrix().isApprox(I1_bis.matrix()));
+  
+  // Test Inertia from ellipsoid
+  const double sphere_mass = 5.;
+  const double sphere_radius = 2.;
+  I1 = Inertia::FromSphere(sphere_mass, sphere_radius);
+  const double L_sphere = 2./5. * sphere_mass * sphere_radius * sphere_radius;
+  BOOST_CHECK_SMALL(I1.mass() - sphere_mass, 1e-12);
+  BOOST_CHECK(I1.lever().isZero());
+  BOOST_CHECK(I1.inertia().matrix().isApprox(Symmetric3(L_sphere, 0., L_sphere , 0., 0., L_sphere).matrix()));
 
   // Test Inertia from ellipsoid
   I1 = Inertia::FromEllipsoid(2., 3., 4., 5.);
