@@ -87,59 +87,62 @@ namespace pinocchio
                       "Returns the homegeneous matrix of *this (acting on SE3).")
         .add_property("action",&SE3::toActionMatrix,
                       "Returns the action matrix of *this (acting on Motion).")
-        .def("toActionMatrix",&SE3::toActionMatrix,
+        .def("toActionMatrix",&SE3::toActionMatrix,bp::arg("self"),
              "Returns the action matrix of *this (acting on Motion).")
         .add_property("actionInverse",&SE3::toActionMatrixInverse,
                       "Returns the inverse of the action matrix of *this (acting on Motion).\n"
                       "This is equivalent to do m.inverse().action")
-        .def("toActionMatrixInverse",&SE3::toActionMatrixInverse,
+        .def("toActionMatrixInverse",&SE3::toActionMatrixInverse,bp::arg("self"),
              "Returns the inverse of the action matrix of *this (acting on Motion).\n"
              "This is equivalent to do m.inverse().toActionMatrix()")
         .add_property("dualAction",&SE3::toDualActionMatrix,
                       "Returns the dual action matrix of *this (acting on Force).")
-        .def("toDualActionMatrix",&SE3::toDualActionMatrix,
+        .def("toDualActionMatrix",&SE3::toDualActionMatrix,bp::arg("self"),
              "Returns the dual action matrix of *this (acting on Force).")
         
-        .def("setIdentity",&SE3PythonVisitor::setIdentity,"Set *this to the identity placement.")
-        .def("setRandom",&SE3PythonVisitor::setRandom,"Set *this to a random placement.")
+        .def("setIdentity",&SE3PythonVisitor::setIdentity,bp::arg("self"),
+             "Set *this to the identity placement.")
+        .def("setRandom",&SE3PythonVisitor::setRandom,bp::arg("self"),
+             "Set *this to a random placement.")
 
-        .def("inverse", &SE3::inverse)
+        .def("inverse", bp::arg("self"), &SE3::inverse,
+             "Returns the inverse transform")
         
         .def("act", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::act,
-             bp::args("point"),
+             bp::args("self","point"),
              "Returns a point which is the result of the entry point transforms by *this.")
         .def("actInv", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::actInv,
-             bp::args("point"),
+             bp::args("self","point"),
              "Returns a point which is the result of the entry point by the inverse of *this.")
         
         .def("act", (SE3 (SE3::*)(const SE3 & other) const) &SE3::act,
-             bp::args("M"), "Returns the result of *this * M.")
+             bp::args("self","M"), "Returns the result of *this * M.")
         .def("actInv", (SE3 (SE3::*)(const SE3 & other) const) &SE3::actInv,
-             bp::args("M"), "Returns the result of the inverse of *this times M.")
+             bp::args("self","M"), "Returns the result of the inverse of *this times M.")
         
         .def("act", (Motion (SE3::*)(const Motion &) const) &SE3::act,
-             bp::args("motion"), "Returns the result action of *this onto a Motion.")
+             bp::args("self","motion"), "Returns the result action of *this onto a Motion.")
         .def("actInv", (Motion (SE3::*)(const Motion &) const) &SE3::actInv,
-             bp::args("motion"), "Returns the result of the inverse of *this onto a Motion.")
+             bp::args("self","motion"), "Returns the result of the inverse of *this onto a Motion.")
         
         .def("act", (Force (SE3::*)(const Force &) const) &SE3::act,
-             bp::args("force"), "Returns the result of *this onto a Force.")
+             bp::args("self","force"), "Returns the result of *this onto a Force.")
         .def("actInv", (Force (SE3::*)(const Force &) const) &SE3::actInv,
-             bp::args("force"), "Returns the result of the inverse of *this onto an Inertia.")
+             bp::args("self","force"), "Returns the result of the inverse of *this onto an Inertia.")
         
         .def("act", (Inertia (SE3::*)(const Inertia &) const) &SE3::act,
-             bp::args("inertia"), "Returns the result of *this onto a Force.")
+             bp::args("self","inertia"), "Returns the result of *this onto a Force.")
         .def("actInv", (Inertia (SE3::*)(const Inertia &) const) &SE3::actInv,
-             bp::args("inertia"), "Returns the result of the inverse of *this onto an Inertia.")
+             bp::args("self","inertia"), "Returns the result of the inverse of *this onto an Inertia.")
         
         .def("isApprox",
              call<SE3>::isApprox,
-             isApproxSE3_overload(bp::args("other","prec"),
+             isApproxSE3_overload(bp::args("self","other","prec"),
                                   "Returns true if *this is approximately equal to other, within the precision given by prec."))
         
         .def("isIdentity",
              &SE3::isIdentity,
-             isIdentity_overload(bp::args("prec"),
+             isIdentity_overload(bp::args("self","prec"),
                                  "Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")

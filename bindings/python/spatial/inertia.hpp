@@ -82,36 +82,45 @@ namespace pinocchio
                       &InertiaPythonVisitor::setInertia,
                       "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the rotational inertia around the center of mass.")
         
-        .def("matrix",&Inertia::matrix)
+        .def("matrix",&Inertia::matrix,bp::arg("self"))
         .def("se3Action",&Inertia::se3Action,
-             bp::args("M"),"Returns the result of the action of M on *this.")
+             bp::args("self","M"),"Returns the result of the action of M on *this.")
         .def("se3ActionInverse",&Inertia::se3ActionInverse,
-             bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
+             bp::args("self","M"),"Returns the result of the action of the inverse of M on *this.")
         
-        .def("setIdentity",&Inertia::setIdentity,"Set *this to be the Identity inertia.")
-        .def("setZero",&Inertia::setZero,"Set all the components of *this to zero.")
-        .def("setRandom",&Inertia::setRandom,"Set all the components of *this to random values.")
+        .def("setIdentity",&Inertia::setIdentity,bp::arg("self"),
+             "Set *this to be the Identity inertia.")
+        .def("setZero",&Inertia::setZero,bp::arg("self"),
+             "Set all the components of *this to zero.")
+        .def("setRandom",&Inertia::setRandom,bp::arg("self"),
+             "Set all the components of *this to random values.")
         
         .def(bp::self + bp::self)
         .def(bp::self * bp::other<Motion>() )
         .add_property("np",&Inertia::matrix)
-        .def("vxiv",&Inertia::vxiv,bp::arg("Motion v"),"Returns the result of v x Iv.")
-        .def("vtiv",&Inertia::vtiv,bp::arg("Motion v"),"Returns the result of v.T * Iv.")
-        .def("vxi",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::vxi,bp::arg("Motion v"),"Returns the result of v x* I, a 6x6 matrix.")
-        .def("ivx",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::ivx,bp::arg("Motion v"),"Returns the result of I vx, a 6x6 matrix.")
-        .def("variation",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::variation,bp::arg("Motion v"),"Returns the time derivative of the inertia.")
+        .def("vxiv",&Inertia::vxiv,bp::args("self","v"),"Returns the result of v x Iv.")
+        .def("vtiv",&Inertia::vtiv,bp::args("self","v"),"Returns the result of v.T * Iv.")
+        .def("vxi",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::vxi,
+             bp::args("self","v"),
+             "Returns the result of v x* I, a 6x6 matrix.")
+        .def("ivx",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::ivx,
+             bp::args("self","v"),
+             "Returns the result of I vx, a 6x6 matrix.")
+        .def("variation",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::variation,
+             bp::args("self","v"),
+             "Returns the time derivative of the inertia.")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         
         .def("isApprox",
              call<Inertia>::isApprox,
-             isApproxInertia_overload(bp::args("other","prec"),
+             isApproxInertia_overload(bp::args("self","other","prec"),
                                       "Returns true if *this is approximately equal to other, within the precision given by prec."))
                                                                                                                          
         .def("isZero",
              call<Inertia>::isZero,
-             isZero_overload(bp::args("prec"),
+             isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Inertia, within the precision given by prec."))
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
@@ -121,16 +130,16 @@ namespace pinocchio
         .def("Random",&Inertia::Random,"Returns a random Inertia.")
         .staticmethod("Random")
         
-        .def("toDynamicParameters",&InertiaPythonVisitor::toDynamicParameters_proxy,
+        .def("toDynamicParameters",&InertiaPythonVisitor::toDynamicParameters_proxy,bp::arg("self"),
              "Returns the representation of the matrix as a vector of dynamic parameters."
               "\nThe parameters are given as v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
               "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter"
         )
         .def("FromDynamicParameters",&Inertia::template FromDynamicParameters<Eigen::VectorXd>,
-              bp::args("Dynamic parameters (size 10)"),
+              bp::args("dynamic_parameters"),
               "Builds and inertia matrix from a vector of dynamic parameters."
-              "\nThe parameters are given as v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
-              "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter"
+              "\nThe parameters are given as dynamic_parameters = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
+              "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter."
         )
         .staticmethod("FromDynamicParameters")
 
@@ -139,7 +148,7 @@ namespace pinocchio
              "Returns the Inertia of an sphere with a given mass and of radius.")
         .def("FromEllipsoid", &Inertia::FromEllipsoid,
              bp::args("mass","length_x","length_y","length_z"),
-             "Returns an Inertia of an ellipsoid shape with a mass and of dimension the semi axis of length_{x,y,z}.")
+             "Returns the Inertia of an ellipsoid shape with a given mass and of given dimensions the semi-axis of values length_{x,y,z}.")
         .staticmethod("FromEllipsoid")
         .def("FromCylinder", &Inertia::FromCylinder,
              bp::args("mass","radius","length"),
@@ -147,7 +156,7 @@ namespace pinocchio
         .staticmethod("FromCylinder")
         .def("FromBox", &Inertia::FromBox,
              bp::args("mass","length_x","length_y","length_z"),
-             "Returns an Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
+             "Returns the Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
         
         .def("__array__",&Inertia::matrix)

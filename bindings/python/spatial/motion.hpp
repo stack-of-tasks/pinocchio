@@ -85,22 +85,22 @@ namespace pinocchio
         .add_property("np",&MotionPythonVisitor::getVector)
         
         .def("se3Action",&Motion::template se3Action<Scalar,Options>,
-             bp::args("M"),"Returns the result of the action of M on *this.")
+             bp::args("self","M"),"Returns the result of the action of M on *this.")
         .def("se3ActionInverse",&Motion::template se3ActionInverse<Scalar,Options>,
-             bp::args("M"),"Returns the result of the action of the inverse of M on *this.")
+             bp::args("self","M"),"Returns the result of the action of the inverse of M on *this.")
         
         .add_property("action",&Motion::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
         .add_property("dualAction",&Motion::toDualActionMatrix,"Returns the dual action matrix of *this (acting on Force).")
         
-        .def("setZero",&MotionPythonVisitor::setZero,
+        .def("setZero",&MotionPythonVisitor::setZero,bp::arg("self"),
              "Set the linear and angular components of *this to zero.")
-        .def("setRandom",&MotionPythonVisitor::setRandom,
+        .def("setRandom",&MotionPythonVisitor::setRandom,bp::arg("self"),
              "Set the linear and angular components of *this to random values.")
         
         .def("cross",(Motion (Motion::*)(const Motion &) const) &Motion::cross,
-             bp::args("m"),"Action of *this onto another Motion m. Returns ¨*this x m.")
+             bp::args("self","m"),"Action of *this onto another Motion m. Returns ¨*this x m.")
         .def("cross",(Force (Motion::*)(const Force &) const) &Motion::cross,
-             bp::args("f"),"Dual action of *this onto a Force f. Returns *this x* f.")
+             bp::args("self","f"),"Dual action of *this onto a Force f. Returns *this x* f.")
         
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
@@ -119,12 +119,12 @@ namespace pinocchio
         
         .def("isApprox",
              call<Motion>::isApprox,
-             isApproxMotion_overload(bp::args("other","prec"),
+             isApproxMotion_overload(bp::args("self","other","prec"),
                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
                                                               
         .def("isZero",
              call<Motion>::isZero,
-             isZero_overload(bp::args("prec"),
+             isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Motion, within the precision given by prec."))
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
