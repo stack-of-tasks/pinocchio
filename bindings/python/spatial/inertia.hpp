@@ -134,6 +134,9 @@ namespace pinocchio
         )
         .staticmethod("FromDynamicParameters")
 
+        .def("FromSphere", &Inertia::FromSphere,
+             bp::args("mass","radius"),
+             "Returns the Inertia of an sphere with a given mass and of radius.")
         .def("FromEllipsoid", &Inertia::FromEllipsoid,
              bp::args("mass","length_x","length_y","length_z"),
              "Returns an Inertia of an ellipsoid shape with a mass and of dimension the semi axis of length_{x,y,z}.")
