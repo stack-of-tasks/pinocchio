@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_object_hpp__
@@ -30,14 +30,14 @@ namespace pinocchio
         .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
              (
-             bp::args("self","name","parent_frame index","parent_joint index","collision_geometry",
-                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath"),
+             bp::args("self","name","parent_frame","parent_joint","collision_geometry",
+                      "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
              "Full constructor of a GeometryObject."))
         .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
              (
-              bp::args("self","name","parent_joint index","collision_geometry",
-                      "placement", "meshPath", "meshScale", "overrideMaterial", "meshColor", "meshTexturePath"),
+              bp::args("self","name","parent_joint","collision_geometry",
+                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
               "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
               ))
         .add_property("meshScale",
@@ -78,10 +78,10 @@ namespace pinocchio
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-      static GeometryObject maker_capsule( const double radius , const double length)
+      static GeometryObject maker_capsule(const double radius, const double length)
       {
         return GeometryObject("",FrameIndex(0),JointIndex(0),
-                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule (radius, length)),
+                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)),
                               SE3::Identity());
 
       }
