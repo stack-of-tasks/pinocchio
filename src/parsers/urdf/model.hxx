@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -107,9 +107,9 @@ namespace pinocchio
             model.name = name;
           }
 
-          virtual void addRootJoint (const Inertia& Y, const std::string & body_name)
+          virtual void addRootJoint(const Inertia& Y, const std::string & body_name)
           {
-            addFixedJointAndBody(0, SE3::Identity(), "root_joint", Y, body_name);
+            appendBodyToJoint(0,Y,SE3::Identity(),body_name);
           }
 
           void addJointAndBody(
