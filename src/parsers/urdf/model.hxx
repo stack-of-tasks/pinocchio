@@ -218,15 +218,13 @@ namespace pinocchio
           {
             const Frame & frame = model.frames[fid];
             const SE3 & p = frame.placement * placement;
-            if(frame.parent > 0 && Y.mass() > Eigen::NumTraits<Scalar>::epsilon())
-            {
+            if(frame.parent >= 0 && !Y.isZero(Scalar(0)))
               model.appendBodyToJoint(frame.parent, Y, p);
-            }
 
             model.addBodyFrame(body_name, frame.parent, p, (int)fid);
             // Reference to model.frames[fid] can has changed because the vector
             // may have been reallocated.
-            if (model.frames[fid].parent > 0)
+            if (model.frames[fid].parent >= 0)
             {
               assert (   !hasNaN(model.inertias[model.frames[fid].parent].lever())
                   && !hasNaN(model.inertias[model.frames[fid].parent].inertia().data()));
