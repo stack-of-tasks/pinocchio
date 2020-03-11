@@ -78,11 +78,11 @@ namespace pinocchio
       void parseTree(::urdf::LinkConstSharedPtr link,
                      UrdfVisitorBase& model)
       {
-        typedef typename UrdfVisitorBase::Scalar Scalar;
-        typedef typename UrdfVisitorBase::SE3 SE3;
-        typedef typename UrdfVisitorBase::Vector Vector;
-        typedef typename UrdfVisitorBase::Vector3 Vector3;
-        typedef typename Model::FrameIndex FrameIndex;
+        typedef UrdfVisitorBase::Scalar Scalar;
+        typedef UrdfVisitorBase::SE3 SE3;
+        typedef UrdfVisitorBase::Vector Vector;
+        typedef UrdfVisitorBase::Vector3 Vector3;
+        typedef Model::FrameIndex FrameIndex;
 
         // Parent joint of the current body
         const ::urdf::JointConstSharedPtr joint =

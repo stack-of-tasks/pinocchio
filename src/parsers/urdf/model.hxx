@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -107,9 +107,12 @@ namespace pinocchio
             model.name = name;
           }
 
-          virtual void addRootJoint (const Inertia& Y, const std::string & body_name)
+          virtual void addRootJoint(const Inertia& Y, const std::string & body_name)
           {
             addFixedJointAndBody(0, SE3::Identity(), "root_joint", Y, body_name);
+//            appendBodyToJoint(0,Y,SE3::Identity(),body_name); TODO: change for the correct behavior, see https://github.com/stack-of-tasks/pinocchio/pull/1102 for discussions on the topic
+
+              
           }
 
           void addJointAndBody(
@@ -218,7 +221,8 @@ namespace pinocchio
           {
             const Frame & frame = model.frames[fid];
             const SE3 & p = frame.placement * placement;
-            if(frame.parent > 0 && Y.mass() > Eigen::NumTraits<Scalar>::epsilon())
+            assert(frame.parent >= 0);
+            if(!Y.isZero(Scalar(0)))
             {
               model.appendBodyToJoint(frame.parent, Y, p);
             }
@@ -226,7 +230,7 @@ namespace pinocchio
             model.addBodyFrame(body_name, frame.parent, p, (int)fid);
             // Reference to model.frames[fid] can has changed because the vector
             // may have been reallocated.
-            if (model.frames[fid].parent > 0)
+            assert (model.frames[fid].parent >= 0);
             {
               assert (   !hasNaN(model.inertias[model.frames[fid].parent].lever())
                   && !hasNaN(model.inertias[model.frames[fid].parent].inertia().data()));
@@ -332,10 +336,14 @@ namespace pinocchio
           UrdfVisitorWithRootJoint (Model& model, const JointModelBase<JointModel> & root_joint)
             : Base (model), root_joint (root_joint.derived()) {}
 
-          void addRootJoint (const Inertia& Y, const std::string & body_name)
+          void addRootJoint(const Inertia & Y, const std::string & body_name)
           {
             const Frame & frame = model.frames[0];
-
+              
+            PINOCCHIO_THROW(!model.existJointName("root_joint"),
+                            std::invalid_argument,
+                            "root_joint already exists as a joint in the kinematic tree.");
+            
             JointIndex idx = model.addJoint(frame.parent, root_joint,
                 SE3::Identity(), "root_joint"
                 //TODO ,max_effort,max_velocity,min_config,max_config
@@ -343,7 +351,7 @@ namespace pinocchio
             int res (model.addJointFrame(idx, 0));
             if (res == -1) {
               std::ostringstream oss;
-              oss << "root_joint already inserted as a frame. Current frames "
+              oss << "root_joint already inserted as a frame but of different type. Current frames "
                 "are [";
               for (typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
                   model.frames.begin (); it != model.frames.end (); ++it) {
