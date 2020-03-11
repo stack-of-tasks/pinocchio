@@ -331,10 +331,14 @@ namespace pinocchio
           UrdfVisitorWithRootJoint (Model& model, const JointModelBase<JointModel> & root_joint)
             : Base (model), root_joint (root_joint.derived()) {}
 
-          void addRootJoint (const Inertia& Y, const std::string & body_name)
+          void addRootJoint(const Inertia & Y, const std::string & body_name)
           {
             const Frame & frame = model.frames[0];
-
+              
+            PINOCCHIO_THROW(!model.existJointName("root_joint"),
+                            std::invalid_argument,
+                            "root_joint already exists as a joint in the kinematic tree.");
+            
             JointIndex idx = model.addJoint(frame.parent, root_joint,
                 SE3::Identity(), "root_joint"
                 //TODO ,max_effort,max_velocity,min_config,max_config
