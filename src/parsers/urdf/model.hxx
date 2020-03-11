@@ -343,7 +343,7 @@ namespace pinocchio
             int res (model.addJointFrame(idx, 0));
             if (res == -1) {
               std::ostringstream oss;
-              oss << "root_joint already inserted as a frame. Current frames "
+              oss << "root_joint already inserted as a frame but of different type. Current frames "
                 "are [";
               for (typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
                   model.frames.begin (); it != model.frames.end (); ++it) {
