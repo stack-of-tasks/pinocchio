@@ -185,4 +185,25 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
   BOOST_CHECK(model.nq == 38);
 }
 
+BOOST_AUTO_TEST_CASE(append_two_URDF_models)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, model);
+  
+  BOOST_CHECK(model.njoints == 30);
+  const int nframes = model.nframes;
+  const std::string filestr(
+                            "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+                            "<robot name=\"test\">"
+                            "  <link name=\"box\"/>"
+                            "</robot>"
+                            );
+  
+  pinocchio::urdf::buildModelFromXML(filestr, model);
+  BOOST_CHECK(model.njoints == 30);
+  BOOST_CHECK(nframes + 1 == model.nframes);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
