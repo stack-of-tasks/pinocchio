@@ -255,7 +255,7 @@ namespace pinocchio
     if(existFrame(frame.name))
     {
       FrameIndex frame_id = getFrameId(frame.name);
-      if(frames[frame_id].type == frame.type)
+      if(frames[frame_id] == frame)
         return (int)frame_id;
       else
         return -1;
