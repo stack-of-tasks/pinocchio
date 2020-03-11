@@ -109,7 +109,10 @@ namespace pinocchio
 
           virtual void addRootJoint(const Inertia& Y, const std::string & body_name)
           {
-            appendBodyToJoint(0,Y,SE3::Identity(),body_name);
+            addFixedJointAndBody(0, SE3::Identity(), "root_joint", Y, body_name);
+//            appendBodyToJoint(0,Y,SE3::Identity(),body_name); TODO: change for the correct behavior, see https://github.com/stack-of-tasks/pinocchio/pull/1102 for discussions on the topic
+
+              
           }
 
           void addJointAndBody(
@@ -220,7 +223,9 @@ namespace pinocchio
             const SE3 & p = frame.placement * placement;
             assert(frame.parent >= 0);
             if(!Y.isZero(Scalar(0)))
+            {
               model.appendBodyToJoint(frame.parent, Y, p);
+            }
 
             model.addBodyFrame(body_name, frame.parent, p, (int)fid);
             // Reference to model.frames[fid] can has changed because the vector
