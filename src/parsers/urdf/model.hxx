@@ -18,7 +18,8 @@ namespace pinocchio
 {
   namespace urdf
   {
-    namespace details {
+    namespace details
+    {
       typedef double urdf_value_type;
 
       template<typename _Scalar, int Options>
@@ -368,14 +369,14 @@ namespace pinocchio
 
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
 
-      void parseRootTree(const ::urdf::ModelInterface * urdfTree,
-                         UrdfVisitorBase& model);
+      void PINOCCHIO_DLLEXPORT parseRootTree(const ::urdf::ModelInterface * urdfTree,
+                                             UrdfVisitorBase & model);
 
-      void parseRootTree(const std::string & filename,
-                         UrdfVisitorBase& model);
+      void PINOCCHIO_DLLEXPORT parseRootTree(const std::string & filename,
+                                             UrdfVisitorBase & model);
 
-      void parseRootTreeFromXML(const std::string & xmlString,
-                                UrdfVisitorBase& model);
+      void PINOCCHIO_DLLEXPORT parseRootTreeFromXML(const std::string & xmlString,
+                                                    UrdfVisitorBase & model);
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
