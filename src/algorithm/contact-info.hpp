@@ -68,7 +68,7 @@ namespace pinocchio
     /// \brief Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL)
     ReferenceFrame reference_frame;
     
-    /// \brief Desired contact spatial placement
+    /// \brief Desired contact placement
     SE3 desired_contact_placement;
     
     /// \brief Desired contact spatial velocity

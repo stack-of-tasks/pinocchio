@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_contact_info_hpp__
@@ -30,15 +30,20 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>("Default constructor."))
-        .def(bp::init<ContactType,FrameIndex,SE3>
+        .def(bp::init<ContactType,FrameIndex,SE3,bp::optional<ReferenceFrame> >
              ((bp::arg("contact_type"),
                bp::arg("frame_id"),
-               bp::arg("placement")),
+               bp::arg("placement"),
+               bp::arg("reference_frame")),
               "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
         
         .add_property("type",&RigidContactModel::type,"Type of the contact.")
         .add_property("frame_id",&RigidContactModel::frame_id,"Index of the parent Frame in the model tree.")
         .add_property("placement",&RigidContactModel::placement,"Placement of the contact with respect to the parent Frame.")
+        .add_property("reference_frame",&RigidContactModel::reference_frame,"Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL).")
+        .add_property("desired_contact_placement",&RigidContactModel::desired_contact_placement,"Desired contact placement.")
+        .add_property("desired_contact_velocity",&RigidContactModel::desired_contact_velocity,"Desired contact spatial velocity.")
+        .add_property("desired_contact_acceleration",&RigidContactModel::desired_contact_acceleration,"Desired contact spatial acceleration.")
         
         .def("size", &RigidContactModel::size, "Size of the contact")
         
@@ -50,7 +55,7 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<RigidContactModel>("RigidContactModel",
-                                "Contact information container for contact dynamic algorithms.")
+                                      "Rigid contact model for contact dynamic algorithms.")
         .def(RigidContactModelPythonVisitor<RigidContactModel>())
         ;
         
