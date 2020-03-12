@@ -332,9 +332,16 @@ namespace pinocchio
                       const std::vector<ContactInfoTpl<Scalar,Options>,Allocator> & contact_infos)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    assert(q.size() == model.nq && "The joint configuration vector is not of right size");
-    assert(v.size() == model.nv && "The joint velocity vector is not of right size");
-    assert(tau.size() == model.nv && "The joint acceleration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq,
+                                   "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv,
+                                   "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv,
+                                   "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(settings.mu >= Scalar(0),
+                                   "mu has to be positive");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_models.size() == contact_data.size(),
+                                   "contact models and data size are not the same");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
