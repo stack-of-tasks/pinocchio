@@ -311,6 +311,15 @@ namespace pinocchio
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
     MatrixXs ddq_dv;
+
+    
+    MatrixXs dac_dq;
+
+    /// \brief Operational space inertia matrix;
+    MatrixXs osim;
+
+    /// \brief dlambda_dq;
+    MatrixXs dlambda_dq;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;
@@ -391,6 +400,10 @@ namespace pinocchio
     
     // Contact forces related to the contact dynamics algorithms
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) contact_forces;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) v_partial_dq;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) a_partial_dq;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) a_partial_dv;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) a_partial_da;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

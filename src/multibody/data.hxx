@@ -116,6 +116,7 @@ namespace pinocchio
 #else
   , kinematic_hessians(6,model.nv,model.nv)
 #endif
+  , contact_forces((std::size_t)model.njoints,Force::Zero())
   {
     typedef typename Model::JointIndex JointIndex;
     
