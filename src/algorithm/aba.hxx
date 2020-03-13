@@ -105,6 +105,226 @@ namespace pinocchio
 #endif
   } // namespace internal
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct AbaForwardStep1
+  : public fusion::JointUnaryVisitorBase< AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
+      
+      const JointIndex & parent = model.parents[i];
+      data.liMi[i] = model.jointPlacements[i] * jdata.M();
+      if(parent > 0)
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+      else
+        data.oMi[i] = data.liMi[i];
+      
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      
+      data.ov[i] = data.oMi[i].act(jdata.v());
+      if(parent > 0)
+        data.ov[i] += data.ov[parent];
+
+      data.oa[i] = data.oMi[i].act(jdata.c());
+      if(parent > 0)
+        data.oa[i] += (data.ov[parent] ^ data.ov[i]);
+
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYaba[i] = data.oYcrb[i].matrix();
+      data.of[i] = data.oYcrb[i].vxiv(data.ov[i]) - data.oYcrb[i] * model.gravity; // -f_ext
+    }
+    
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct AbaBackwardStep
+  : public fusion::JointUnaryVisitorBase< AbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Inertia Inertia;
+      typedef typename Data::Force Force;
+      typedef typename Data::Matrix6x Matrix6x;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent  = model.parents[i];
+      typename Inertia::Matrix6 & Ia = data.oYaba[i];
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      Force & fi = data.of[i];
+      
+      jmodel.jointVelocitySelector(data.u).noalias() -= Jcols.transpose()*fi.toVector();
+      
+      jdata.U().noalias() = Ia * Jcols;
+      jdata.StU().noalias() = Jcols.transpose() * jdata.U();
+      
+      internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+      jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
+      
+      if(parent > 0)
+      {
+        Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
+        
+        fi.toVector().noalias() += Ia * data.oa[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        data.oYaba[parent] += Ia;
+        data.of[parent] += fi;
+      }
+    }
+    
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct AbaForwardStep2
+  : public fusion::JointUnaryVisitorBase< AbaForwardStep2<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Matrix6x Matrix6x;
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      if(parent > 0)
+        data.oa[i] += data.oa[parent]; // does not take into account the gravity field
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.oa[i].toVector();
+      data.oa[i].toVector() += Jcols * jmodel.jointVelocitySelector(data.ddq);
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint acceleration vector is not of right size");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    data.u = tau;
+    
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+    }
+    
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+    }
+    
+    return data.ddq;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const container::aligned_vector<ForceDerived> & fext)
+
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint acceleration vector is not of right size");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    
+    data.u = tau;
+    
+    typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1;i<(JointIndex)model.njoints;++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      data.of[i] -= data.oMi[i].act(fext[i]);
+    }
+    
+    typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+    
+    typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+    }
+    
+    return data.ddq;
+  }
+
   namespace deprecated
   {
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
