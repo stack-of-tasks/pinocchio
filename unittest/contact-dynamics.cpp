@@ -66,7 +66,7 @@ pinocchio::Motion computeFrameAcc(const pinocchio::Model & model,
                                   const pinocchio::SE3 & placement = pinocchio::SE3::Identity())
 {
   using namespace pinocchio;
-  Model::JointIndex joint_id = model.frames[frame_id].parent;
+  const Model::JointIndex& joint_id = model.frames[frame_id].parent;
   Motion res(Motion::Zero());
   
   updateFramePlacement(model,data,frame_id);
