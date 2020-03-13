@@ -95,7 +95,15 @@ int main(int argc, const char ** argv)
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-    
+
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+  }
+  std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
+
+  
   double total_time = 0;  
   initContactDynamics(model,data,contact_infos_empty);
   SMOOTH(NBT)
