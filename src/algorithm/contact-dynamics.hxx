@@ -25,6 +25,16 @@ namespace pinocchio
   {
     data.contact_chol.allocate(model,contact_models);
     data.contact_vector_solution.resize(data.contact_chol.size());
+
+    data.lambda_c.resize(data.contact_chol.constraintDim());
+    
+    data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
+    data.v_partial_dq.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
+    data.a_partial_dq.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
+    data.a_partial_dv.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
+    data.a_partial_da.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -287,6 +297,11 @@ namespace pinocchio
     
     // Retrieve the joint space acceleration
     a = contact_vector_solution.tail(model.nv);
+
+    data.lambda_c = -contact_vector_solution.head(contact_chol.constraintDim());
+    
+    //Set contact forces to zero
+    std::fill(data.contact_forces.begin(), data.contact_forces.end(), Force::Zero());
     
     // Retrieve the contact forces
     Eigen::DenseIndex current_row_sol_id = 0;
