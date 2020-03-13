@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS
 //
 
 #ifndef __pinocchio_aba_hpp__
@@ -11,56 +11,61 @@
 
 namespace pinocchio
 {
-  ///
-  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType1 Type of the joint velocity vector.
-  /// \tparam TangentVectorType2 Type of the joint torque vector.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] v The joint velocity vector (dim model.nv).
-  /// \param[in] tau The joint torque vector (dim model.nv).
-  ///
-  /// \return The current joint acceleration stored in data.ddq.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-      const Eigen::MatrixBase<ConfigVectorType> & q,
-      const Eigen::MatrixBase<TangentVectorType1> & v,
-      const Eigen::MatrixBase<TangentVectorType2> & tau);
+  namespace deprecated
+  {
+    ///
+    /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+    /// This is the original implementation, considering all quantities to be expressed in the LOCAL coordinate systems of the joint frames.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
+    /// \tparam ConfigVectorType Type of the joint configuration vector.
+    /// \tparam TangentVectorType1 Type of the joint velocity vector.
+    /// \tparam TangentVectorType2 Type of the joint torque vector.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[in] q The joint configuration vector (dim model.nq).
+    /// \param[in] v The joint velocity vector (dim model.nv).
+    /// \param[in] tau The joint torque vector (dim model.nv).
+    ///
+    /// \return The current joint acceleration stored in data.ddq.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType1> & v,
+        const Eigen::MatrixBase<TangentVectorType2> & tau);
 
-  ///
-  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType1 Type of the joint velocity vector.
-  /// \tparam TangentVectorType2 Type of the joint torque vector.
-  /// \tparam ForceDerived Type of the external forces.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] v The joint velocity vector (dim model.nv).
-  /// \param[in] tau The joint torque vector (dim model.nv).
-  /// \param[in] fext Vector of external forces expressed in the local frame of the joints (dim model.njoints)
-  ///
-  /// \return The current joint acceleration stored in data.ddq.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
-  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-      const Eigen::MatrixBase<ConfigVectorType> & q,
-      const Eigen::MatrixBase<TangentVectorType1> & v,
-      const Eigen::MatrixBase<TangentVectorType2> & tau,
-      const container::aligned_vector<ForceDerived> & fext);
+    ///
+    /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model and the external forcess.
+    /// This is the original implementation, considering all quantities to be expressed in the LOCAL coordinate systems of the joint frames.
+    ///
+    /// \tparam JointCollection Collection of Joint types.
+    /// \tparam ConfigVectorType Type of the joint configuration vector.
+    /// \tparam TangentVectorType1 Type of the joint velocity vector.
+    /// \tparam TangentVectorType2 Type of the joint torque vector.
+    /// \tparam ForceDerived Type of the external forces.
+    ///
+    /// \param[in] model The model structure of the rigid body system.
+    /// \param[in] data The data structure of the rigid body system.
+    /// \param[in] q The joint configuration vector (dim model.nq).
+    /// \param[in] v The joint velocity vector (dim model.nv).
+    /// \param[in] tau The joint torque vector (dim model.nv).
+    /// \param[in] fext Vector of external forces expressed in the local frame of the joints (dim model.njoints)
+    ///
+    /// \return The current joint acceleration stored in data.ddq.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType1> & v,
+        const Eigen::MatrixBase<TangentVectorType2> & tau,
+        const container::aligned_vector<ForceDerived> & fext);
+  }
   
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
