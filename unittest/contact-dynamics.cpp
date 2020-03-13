@@ -173,6 +173,13 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   pinocchio::buildModels::humanoidRandom(model,true);
   pinocchio::Data data1(model), data2(model);
   
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
   const std::string RF = "rleg6_joint";
   //  const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
