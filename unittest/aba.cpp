@@ -133,22 +133,31 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
-  VectorXd q = VectorXd::Ones(model.nq);
-  q.segment<4>(3).normalize();
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
   
   tau = rnea(model, data_ref, q, v, a);
+  forwardKinematics(model, data_ref, q);
   aba(model, data, q, v, tau);
   
   for(size_t k = 1; k < (size_t)model.njoints; ++k)
   {
     BOOST_CHECK(data_ref.liMi[k].isApprox(data.liMi[k]));
-    BOOST_CHECK(data_ref.v[k].isApprox(data.v[k]));
+    BOOST_CHECK(data_ref.oMi[k].act(data_ref.v[k]).isApprox(data.ov[k]));
+    BOOST_CHECK((data_ref.oMi[k].act(data_ref.a_gf[k]) + model.gravity).isApprox(data.oa[k]));
   }
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+  
+  // Test against deprecated ABA
+  Data data_deprecated(model);
+  deprecated::aba(model, data_deprecated, q, v, tau);
+  BOOST_CHECK(data_deprecated.ddq.isApprox(data.ddq));
   
 }
 
@@ -161,8 +170,10 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   
   pinocchio::Data data(model);
   
-  VectorXd q = VectorXd::Random(model.nq);
-  q.segment<4>(3).normalize();
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
 
@@ -174,7 +185,6 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-
   VectorXd tau = data.M * a + data.nle;
   Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
   for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
@@ -185,6 +195,11 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   aba(model, data, q, v, tau, fext);
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+  
+  // Test against deprecated ABA
+  Data data_deprecated(model);
+  deprecated::aba(model, data_deprecated, q, v, tau, fext);
+  BOOST_CHECK(data_deprecated.ddq.isApprox(data.ddq));
 }
 
 BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
@@ -197,8 +212,10 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
   
-  VectorXd q = VectorXd::Ones(model.nq);
-  q.segment<4>(3).normalize();
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
