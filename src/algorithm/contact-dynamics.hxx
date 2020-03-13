@@ -1,9 +1,11 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_dynamics_hxx__
 #define __pinocchio_algorithm_contact_dynamics_hxx__
+
+#include "pinocchio/spatial/classic-acceleration.hpp"
 
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
