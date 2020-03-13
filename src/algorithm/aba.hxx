@@ -562,7 +562,8 @@ namespace pinocchio
       ColsBlock J_cols = jmodel.jointCols(data.J);
       J_cols = data.oMi[i].act(jdata.S());
       
-      data.Yaba[i] = model.inertias[i].matrix();
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYaba[i] = data.oYcrb[i].matrix();
     }
     
   };
@@ -589,23 +590,24 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent  = model.parents[i];
       
-      typename Inertia::Matrix6 & Ia = data.Yaba[i];
+      typename Inertia::Matrix6 & Ia = data.oYaba[i];
       typename Data::RowMatrixXs & Minv = data.Minv;
       typename Data::Matrix6x & Fcrb = data.Fcrb[0];
       typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
-
-      jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
-      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      
+      ColsBlock J_cols = jmodel.jointCols(data.J);
 
-      ColsBlock U_cols = jmodel.jointCols(data.IS);
-      forceSet::se3Action(data.oMi[i],jdata.U(),U_cols); // expressed in the world frame
+      jdata.U().noalias() = Ia * J_cols;
+      jdata.StU().noalias() = J_cols.transpose() * jdata.U();
+      
+      internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+      jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
 
       Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
       const int nv_children = data.nvSubtree[i] - jmodel.nv();
       if(nv_children > 0)
       {
-        ColsBlock J_cols = jmodel.jointCols(data.J);
         ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
         SDinv_cols.noalias() = J_cols * jdata.Dinv();
         
@@ -615,18 +617,21 @@ namespace pinocchio
         if(parent > 0)
         {
           FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
-          = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+          = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
           Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
         }
       }
       else
       {
         Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
-        = U_cols * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+        = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
       }
       
       if(parent > 0)
-        data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
+      {
+        Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
+        data.oYaba[parent] += Ia;
+      }
     }
   };
   
@@ -654,14 +659,12 @@ namespace pinocchio
       typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock UDinv_cols = jmodel.jointCols(data.UDinv);
-      forceSet::se3Action(data.oMi[i],jdata.UDinv(),UDinv_cols); // expressed in the world frame
       ColsBlock J_cols = jmodel.jointCols(data.J);
 
       if(parent > 0)
       {
         FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
-        = UDinv_cols.transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
+        = jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
         Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
         -= FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
       }
