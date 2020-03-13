@@ -151,11 +151,25 @@ namespace pinocchio
 //        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
         const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
         = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
-        
+
         U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
         Matrix res = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
-        
+
         return res;
+      }
+
+
+      template<typename MatrixType>
+      void getOperationalSpaceInertiaMatrix(const Eigen::MatrixBase<MatrixType> & res_) const
+      {
+        MatrixType& res = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res_);
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
+        = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
+
+        U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
+        res = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
       }
       
       ///
