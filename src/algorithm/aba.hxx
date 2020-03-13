@@ -234,21 +234,21 @@ namespace pinocchio
       data.a[0] = -model.gravity;
       data.u = tau;
       
-      typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+      typedef deprecated::AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
         Pass1::run(model.joints[i],data.joints[i],
                    typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
       }
       
-      typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+      typedef deprecated::AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
       for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
       {
         Pass2::run(model.joints[i],data.joints[i],
                    typename Pass2::ArgsType(model,data));
       }
 
-      typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+      typedef deprecated::AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
         Pass3::run(model.joints[i],data.joints[i],
@@ -279,7 +279,7 @@ namespace pinocchio
       data.a[0] = -model.gravity;
       data.u = tau;
       
-      typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+      typedef deprecated::AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
       for(JointIndex i=1;i<(JointIndex)model.njoints;++i)
       {
         Pass1::run(model.joints[i],data.joints[i],
@@ -287,14 +287,14 @@ namespace pinocchio
         data.f[i] -= fext[i];
       }
       
-      typedef AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+      typedef deprecated::AbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
       for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
       {
         Pass2::run(model.joints[i],data.joints[i],
                    typename Pass2::ArgsType(model,data));
       }
       
-      typedef AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+      typedef deprecated::AbaForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
       for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
       {
         Pass3::run(model.joints[i],data.joints[i],
