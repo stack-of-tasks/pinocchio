@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/spatial/classic-acceleration.hpp"
@@ -22,225 +23,83 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 using namespace Eigen;
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_CASE ( test_classic_derivatives )
+BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
 {
   using namespace Eigen;
   using namespace pinocchio;
-  
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model,true);
-  pinocchio::Data data(model), data_fd(model);
+
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  Data data(model), data_ref(model);
   
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill( 1.);
   VectorXd q = randomConfiguration(model);
   
   VectorXd v = VectorXd::Random(model.nv);
-  VectorXd a = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
   
   const std::string RF = "rleg6_joint";
-  JointIndex RF_id = model.getJointId(RF);
+  //  const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
-  JointIndex LF_id = model.getJointId(LF);
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
   
-  const double eps = 1e-8;
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  //contact_models.push_back(ci_RF);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
+  contact_models.push_back(ci_LF);
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
   
-  Data::Matrix6x
-  da_dq_fd(6,model.nv),
-  da_dv_fd(6,model.nv),
-  da_da_fd(6,model.nv);
+  const double mu0 = 0.;
+
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,mu0);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, mu0);  
+
+  //Data_ref
+  crba(model, data_ref, q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  computeABADerivatives(model, data_ref, q, v, tau, data.contact_forces);
   
-  Data::Matrix6x
-  da_dq(6,model.nv),
-  da_dv(6,model.nv),
-  da_da(6,model.nv);
+  MatrixXd
+    v_partial_dq(MatrixXd::Zero(6, model.nv)),
+                 a_partial_dq(MatrixXd::Zero(6, model.nv)),
+                 a_partial_dv(MatrixXd::Zero(6, model.nv)),
+                 a_partial_da(MatrixXd::Zero(6, model.nv));
   
-  Data::Matrix6x
-  v_partial_dq(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_dq(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_dv(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_da(Data::Matrix6x::Zero(6,model.nv));
-  
-  const Data::Matrix6x & v_partial_dv = a_partial_da;
-  
-  computeForwardKinematicsDerivatives(model,data,q,v,a);
-  getJointAccelerationDerivatives(model,data,RF_id,WORLD,
+  getJointAccelerationDerivatives(model, data_ref,
+                                  model.getJointId(LF),
+                                  LOCAL,
                                   v_partial_dq,
                                   a_partial_dq,
                                   a_partial_dv,
                                   a_partial_da);
+  MatrixXd K(model.nv+6, model.nv+6);
+  K << data_ref.M, a_partial_da.transpose(),
+    a_partial_da, MatrixXd::Zero(6,6);
+  MatrixXd Kinv = K.inverse();
+
+  MatrixXd J_LF(6, model.nv), J_LF2(6, model.nv);
+  J_LF.setZero(); J_LF2.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
+  MatrixXd osim((a_partial_da * data_ref.M.inverse() * a_partial_da.transpose()).inverse());
+  BOOST_CHECK(data.osim.isApprox(osim,1e-8));
+
+  MatrixXd df_dq = Kinv.bottomLeftCorner(6, model.nv)* data_ref.dtau_dq + Kinv.bottomRightCorner(6,6)*a_partial_dq;
   
-  const Motion & ov_RF = data.ov[RF_id];
-  da_dq.middleRows<3>(Motion::LINEAR)
-  = a_partial_dq.middleRows<3>(Motion::LINEAR)
-  - v_partial_dq.middleRows<3>(Motion::LINEAR).colwise().cross(ov_RF.angular())
-  + v_partial_dq.middleRows<3>(Motion::ANGULAR).colwise().cross(ov_RF.linear());
+  MatrixXd ddq_dq =  data_ref.M.inverse() * (-data_ref.dtau_dq +  a_partial_da.transpose() * df_dq);
   
-  // WORLD : position
-  VectorXd q_plus(q), v_eps(VectorXd::Zero(model.nv));
-  forwardKinematics(model,data_fd,q,v,a);
-  const Data::SE3 oMi_RF = data.oMi[RF_id];
-  const Data::Motion v_local_RF = data.v[RF_id];
-  const Data::Motion a_local_RF = data.a[RF_id];
-  const Motion::Vector3 acc_RF_world = classicAcceleration(oMi_RF.act(v_local_RF),
-                                                           oMi_RF.act(a_local_RF));
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    v_eps[k] = eps;
-    q_plus = integrate(model,q,v_eps);
-    forwardKinematics(model,data_fd,q_plus,v,a);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_world_plus = classicAcceleration(oMi_RF_plus.act(v_local_RF_plus),
-                                                                  oMi_RF_plus.act(a_local_RF_plus));
-    da_dq_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_world_plus - acc_RF_world)/eps;
-    
-    v_eps[k] = 0;
-  }
+  MatrixXd ddq_dq1 = -Kinv.topLeftCorner(model.nv, model.nv) * data_ref.dtau_dq - Kinv.topRightCorner(model.nv, 6) * a_partial_dq;
   
-  BOOST_CHECK(da_dq.middleRows<3>(Motion::LINEAR).isApprox(da_dq_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
-  
-  // WORLD : velocity
-  da_dv.middleRows<3>(Motion::LINEAR)
-  = a_partial_dv.middleRows<3>(Motion::LINEAR)
-  - v_partial_dv.middleRows<3>(Motion::LINEAR).colwise().cross(ov_RF.angular())
-  + v_partial_dv.middleRows<3>(Motion::ANGULAR).colwise().cross(ov_RF.linear());
-  
-  VectorXd v_plus(v);
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    v_plus = v;
-    v_plus[k] += eps;
-    forwardKinematics(model,data_fd,q,v_plus,a);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_world_plus = classicAcceleration(oMi_RF_plus.act(v_local_RF_plus),
-                                                                  oMi_RF_plus.act(a_local_RF_plus));
-    da_dv_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_world_plus - acc_RF_world)/eps;
-  }
-  
-  BOOST_CHECK(da_dv.middleRows<3>(Motion::LINEAR).isApprox(da_dv_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
-  
-  // WORLD : acceleration
-  da_da.middleRows<3>(Motion::LINEAR)
-  = a_partial_da.middleRows<3>(Motion::LINEAR);
-  
-  VectorXd a_plus(a);
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    a_plus = a;
-    a_plus[k] += eps;
-    forwardKinematics(model,data_fd,q,v,a_plus);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_world_plus = classicAcceleration(oMi_RF_plus.act(v_local_RF_plus),
-                                                                  oMi_RF_plus.act(a_local_RF_plus));
-    da_da_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_world_plus - acc_RF_world)/eps;
-  }
-  
-  BOOST_CHECK(da_da.middleRows<3>(Motion::LINEAR).isApprox(da_da_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
-  
-  // LOCAL
-  
-  Data::Matrix6x
-  da_dq_local_fd(6,model.nv),
-  da_dv_local_fd(6,model.nv),
-  da_da_local_fd(6,model.nv);
-  
-  Data::Matrix6x
-  da_dq_local(6,model.nv),
-  da_dv_local(6,model.nv),
-  da_da_local(6,model.nv);
-  
-  Data::Matrix6x
-  v_partial_dq_local(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_dq_local(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_dv_local(Data::Matrix6x::Zero(6,model.nv)),
-  a_partial_da_local(Data::Matrix6x::Zero(6,model.nv));
-  const Data::Matrix6x & v_partial_dv_local = a_partial_da_local;
-  
-  getJointAccelerationDerivatives(model,data,RF_id,LOCAL,
-                                  v_partial_dq_local,
-                                  a_partial_dq_local,
-                                  a_partial_dv_local,
-                                  a_partial_da_local);
-  
-  // LOCAL: position
-  
-  da_dq_local.middleRows<3>(Motion::LINEAR)
-  = a_partial_dq_local.middleRows<3>(Motion::LINEAR)
-  - v_partial_dq_local.middleRows<3>(Motion::LINEAR).colwise().cross(v_local_RF.angular())
-  + v_partial_dq_local.middleRows<3>(Motion::ANGULAR).colwise().cross(v_local_RF.linear());
-  
-  const Motion::Vector3 acc_RF_local = classicAcceleration(v_local_RF,a_local_RF);
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    v_eps[k] = eps;
-    q_plus = integrate(model,q,v_eps);
-    forwardKinematics(model,data_fd,q_plus,v,a);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
-                                                                  a_local_RF_plus);
-    da_dq_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
-    
-    v_eps[k] = 0;
-  }
-  
-  BOOST_CHECK(da_dq_local.middleRows<3>(Motion::LINEAR).isApprox(da_dq_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
-  
-  // LOCAL: velocity
-  
-  da_dv_local.middleRows<3>(Motion::LINEAR)
-  = a_partial_dv_local.middleRows<3>(Motion::LINEAR)
-  - v_partial_dv_local.middleRows<3>(Motion::LINEAR).colwise().cross(v_local_RF.angular())
-  + v_partial_dv_local.middleRows<3>(Motion::ANGULAR).colwise().cross(v_local_RF.linear());
-  
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    v_plus = v;
-    v_plus[k] += eps;
-    forwardKinematics(model,data_fd,q,v_plus,a);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
-                                                                  a_local_RF_plus);
-    da_dv_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
-  }
-  
-  BOOST_CHECK(da_dv_local.middleRows<3>(Motion::LINEAR).isApprox(da_dv_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
-  
-  // LOCAL: acceleration
-  
-  da_da_local.middleRows<3>(Motion::LINEAR)
-  = a_partial_da_local.middleRows<3>(Motion::LINEAR);
-  
-  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
-  {
-    a_plus = a;
-    a_plus[k] += eps;
-    forwardKinematics(model,data_fd,q,v,a_plus);
-    
-    const Data::SE3 oMi_RF_plus = data_fd.oMi[RF_id];
-    const Data::Motion v_local_RF_plus = data_fd.v[RF_id];
-    const Data::Motion a_local_RF_plus = data_fd.a[RF_id];
-    const Motion::Vector3 acc_RF_local_plus = classicAcceleration(v_local_RF_plus,
-                                                                  a_local_RF_plus);
-    da_da_local_fd.middleRows<3>(Motion::LINEAR).col(k) = (acc_RF_local_plus - acc_RF_local)/eps;
-  }
-  
-  BOOST_CHECK(da_da_local.middleRows<3>(Motion::LINEAR).isApprox(da_da_local_fd.middleRows<3>(Motion::LINEAR),sqrt(eps)));
+  BOOST_CHECK(df_dq.isApprox(data.dlambda_dq, 1e-8));
+  BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq, 1e-8));
+  BOOST_CHECK(ddq_dq.isApprox(ddq_dq1, 1e-8));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
-
