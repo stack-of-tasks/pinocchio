@@ -310,7 +310,7 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.gravity.angular().isZero(), "The gravity must be a pure force vector, no angular part");
+      assert(model.gravity.angular().isZero(), "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
