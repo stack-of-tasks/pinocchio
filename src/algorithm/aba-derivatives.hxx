@@ -272,7 +272,7 @@ namespace pinocchio
 
       // dtau/dv
       motionSet::inertiaAction(data.oYcrb[i],dAdv_cols,dFdv_cols);
-      dFdv_cols += data.doYcrb[i] * J_cols;
+      dFdv_cols.noalias() += data.doYcrb[i] * J_cols;
       
       rnea_partial_dv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
