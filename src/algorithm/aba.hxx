@@ -144,13 +144,13 @@ namespace pinocchio
       if(parent > 0)
         data.ov[i] += data.ov[parent];
 
-      data.oa[i] = data.oMi[i].act(jdata.c());
+      data.oa_gf[i] = data.oMi[i].act(jdata.c());
       if(parent > 0)
-        data.oa[i] += (data.ov[parent] ^ data.ov[i]);
+        data.oa_gf[i] += (data.ov[parent] ^ data.ov[i]);
 
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.oYaba[i] = data.oYcrb[i].matrix();
-      data.of[i] = data.oYcrb[i].vxiv(data.ov[i]) - data.oYcrb[i] * model.gravity; // -f_ext
+      data.of[i] = data.oYcrb[i].vxiv(data.ov[i]);// - data.oYcrb[i] * model.gravity; // -f_ext
     }
     
   };
@@ -197,7 +197,7 @@ namespace pinocchio
       {
         Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
         
-        fi.toVector().noalias() += Ia * data.oa[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        fi.toVector().noalias() += Ia * data.oa_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.oYaba[parent] += Ia;
         data.of[parent] += fi;
       }
@@ -231,11 +231,10 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      if(parent > 0)
-        data.oa[i] += data.oa[parent]; // does not take into account the gravity field
+      data.oa_gf[i] += data.oa_gf[parent]; // does not take into account the gravity field
       jmodel.jointVelocitySelector(data.ddq).noalias() =
-      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.oa[i].toVector();
-      data.oa[i].toVector() += Jcols * jmodel.jointVelocitySelector(data.ddq);
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.oa_gf[i].toVector();
+      data.oa_gf[i].toVector() += Jcols * jmodel.jointVelocitySelector(data.ddq);
     }
     
   };
@@ -255,6 +254,7 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
+    data.oa_gf[0] = -model.gravity;
     data.u = tau;
     
     typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
@@ -298,6 +298,7 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
+    data.oa_gf[0] = -model.gravity;
     data.u = tau;
     
     typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;

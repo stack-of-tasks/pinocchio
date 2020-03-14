@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   {
     BOOST_CHECK(data_ref.liMi[k].isApprox(data.liMi[k]));
     BOOST_CHECK(data_ref.oMi[k].act(data_ref.v[k]).isApprox(data.ov[k]));
-    BOOST_CHECK((data_ref.oMi[k].act(data_ref.a_gf[k]) + model.gravity).isApprox(data.oa[k]));
+    BOOST_CHECK((data_ref.oMi[k].act(data_ref.a_gf[k])).isApprox(data.oa_gf[k]));
   }
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
