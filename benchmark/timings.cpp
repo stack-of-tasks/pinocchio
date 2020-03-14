@@ -201,22 +201,21 @@ int main(int argc, const char ** argv)
       pinocchio::urdf::buildModel(filename,model);
   std::cout << "nq = " << model.nq << std::endl;
   
-  
-
   pinocchio::Data data(model);
   const VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs     (NBT);
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots  (NBT);
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) taus   (NBT);
   for(size_t i=0;i<NBT;++i)
-    {
-      qs[i]     = randomConfiguration(model,-qmax,qmax);
-      qdots[i]  = Eigen::VectorXd::Random(model.nv);
-      qddots[i] = Eigen::VectorXd::Random(model.nv);
-    }
+  {
+    qs[i]     = randomConfiguration(model,-qmax,qmax);
+    qdots[i]  = Eigen::VectorXd::Random(model.nv);
+    qddots[i] = Eigen::VectorXd::Random(model.nv);
+    taus[i] = Eigen::VectorXd::Random(model.nv);
+  }
 
- 
   timer.tic();
   SMOOTH(NBT)
     {
@@ -362,14 +361,14 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    deprecated::aba(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+    deprecated::aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA (classic) = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+    aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA (optimized) = \t"; timer.toc(std::cout,NBT);
   
@@ -414,6 +413,17 @@ int main(int argc, const char ** argv)
     computeMinverse(model,data,qs[_smooth]);
   }
   std::cout << "Minv = \t"; timer.toc(std::cout,NBT);
+  
+  total = 0;
+  SMOOTH(NBT)
+  {
+    aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+    timer.tic();
+    computeMinverse(model,data);
+    total += timer.toc(timer.DEFAULT_UNIT);
+  }
+  std::cout << "Minv (no update) = \t" << (total/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
 
   std::cout << "--" << std::endl;
   return 0;
