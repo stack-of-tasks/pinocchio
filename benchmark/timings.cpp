@@ -362,9 +362,16 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
+    deprecated::aba(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
+  }
+  std::cout << "ABA (classic) = \t"; timer.toc(std::cout,NBT);
+  
+  timer.tic();
+  SMOOTH(NBT)
+  {
     aba(model,data,qs[_smooth],qdots[_smooth], qddots[_smooth]);
   }
-  std::cout << "ABA = \t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA (optimized) = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
