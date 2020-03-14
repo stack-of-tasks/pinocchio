@@ -276,6 +276,46 @@ BOOST_AUTO_TEST_CASE ( test_computeMinverse )
   
 }
 
+BOOST_AUTO_TEST_CASE(test_computeMinverse_noupdate)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+  model.gravity.setZero();
+  
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  crba(model, data_ref, q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  MatrixXd Minv_ref(data_ref.M.inverse());
+
+  aba(model,data,q,v,tau);
+  computeMinverse(model, data);
+  BOOST_CHECK(data.Minv.topRows<6>().isApprox(Minv_ref.topRows<6>()));
+  
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+  = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK(data.Minv.isApprox(Minv_ref));
+  
+  Data data_ref2(model);
+  computeMinverse(model,data_ref2,q);
+  data_ref2.Minv.triangularView<Eigen::StrictlyLower>()
+  = data_ref2.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  BOOST_CHECK(data.Minv.isApprox(data_ref2.Minv));
+  
+}
+
 BOOST_AUTO_TEST_CASE(test_multiple_calls)
 {
   using namespace Eigen;

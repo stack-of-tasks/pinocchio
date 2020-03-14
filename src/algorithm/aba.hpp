@@ -135,6 +135,22 @@ namespace pinocchio
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q);
 
+  ///
+  /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
+  ///        Compared to the complete signature computeMinverse<Scalar,Options,ConfigVectorType>, this version assumes that ABA has been called first.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \return The inverse of the joint space inertia matrix stored in data.ddq.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
 
   PINOCCHIO_DEFINE_ALGO_CHECKER(ABA);
 

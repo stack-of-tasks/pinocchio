@@ -635,6 +635,58 @@ namespace pinocchio
       }
     }
   };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct ComputeMinverseBackwardStepNoUpdate
+  : public fusion::JointUnaryVisitorBase< ComputeMinverseBackwardStepNoUpdate<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      typename Data::RowMatrixXs & Minv = data.Minv;
+      typename Data::Matrix6x & Fcrb = data.Fcrb[0];
+      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+
+      Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
+      const int nv_children = data.nvSubtree[i] - jmodel.nv();
+      if(nv_children > 0)
+      {
+        ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+        SDinv_cols.noalias() = J_cols * jdata.Dinv();
+        Minv.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
+        = -SDinv_cols.transpose() * Fcrb.middleCols(jmodel.idx_v()+jmodel.nv(),nv_children);
+      
+        if(parent > 0)
+        {
+          FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
+          = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
+        }
+      }
+      else
+      {
+        Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
+        = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+      }
+    }
+  };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseForwardStep2
@@ -698,6 +750,34 @@ namespace pinocchio
     
     data.Fcrb[0].setZero();
     typedef ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
+    }
+
+    typedef ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+    }
+    
+    return data.Minv;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+    data.Minv.template triangularView<Eigen::Upper>().setZero();
+    
+    data.Fcrb[0].setZero();
+    typedef ComputeMinverseBackwardStepNoUpdate<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
