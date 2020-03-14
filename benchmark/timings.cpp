@@ -361,14 +361,14 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    deprecated::aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
+    aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA (classic) = \t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
+    optimized::aba(model,data,qs[_smooth],qdots[_smooth], taus[_smooth]);
   }
   std::cout << "ABA (optimized) = \t"; timer.toc(std::cout,NBT);
   
@@ -419,7 +419,7 @@ int main(int argc, const char ** argv)
   {
     aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
     timer.tic();
-    computeMinverse(model,data);
+    optimized::computeMinverse(model,data);
     total += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "Minv (no update) = \t" << (total/NBT)
