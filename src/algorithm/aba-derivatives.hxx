@@ -97,7 +97,6 @@ namespace pinocchio
       typename Inertia::Matrix6 & Ia = data.oYaba[i];
       
       Matrix6x & Fcrb = data.Fcrb[0];
-      Matrix6x & FcrbTmp = data.Fcrb.back();
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       Force & fi = data.of[i];
@@ -127,9 +126,7 @@ namespace pinocchio
         
         if(parent > 0)
         {
-          FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
-          = jdata.U() * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
-          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
+          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias() += jdata.U() * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);;
         }
       }
       else // This a leaf of the kinematic tree
@@ -191,15 +188,12 @@ namespace pinocchio
       oa = oa_gf + model.gravity;
       of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
 
-      typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
       MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
       
       if(parent > 0)
       {
-        FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
-        = jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
-        Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v())
-        -= FcrbTmp.topRows(jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+        Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
+        -= jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());;
       }
       
       data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias()
