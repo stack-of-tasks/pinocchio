@@ -13,13 +13,14 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>//, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator, class AllocatorData>//, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                                 const Eigen::MatrixBase<TangentVectorType1> & v,
                                                 const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_infos,
+                                                const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
+                                                const std::vector<RigidContactDataTpl<Scalar,Options>, AllocatorData> & contact_datas,
                                                 const Scalar mu/*,
                                                                       const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
@@ -52,7 +53,9 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
+    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
+    typedef std::vector<RigidContactData,AllocatorData> RigidContactDataVector;
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
 
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
@@ -61,35 +64,36 @@ namespace pinocchio
 
     size_t current_id = 0;
     Eigen::DenseIndex current_row_sol_id = 0;
-    
-    for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
-        it != contact_infos.end(); ++it, current_id++)
+    typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
+    for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d, current_id++)
     {
-      const RigidContactModel & contact_info = *it;
+      const RigidContactModel & contact_model = *it;
+      const RigidContactData & contact_data = *it_d;
 
-      //TODO: This is only for size 6. replace with contact_info::NC
+      //TODO: This is only for size 6. replace with contact_model::NC
       typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-      const typename Model::FrameIndex & frame_id = contact_info.frame_id;
+      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex & joint_id = frame.parent;
 
       //TODO: We don't need all these quantities. Remove those not needed.
       getJointAccelerationDerivatives(model, data,
                                       joint_id,
-                                      LOCAL,
-                                      data.v_partial_dq[current_id],
-                                      data.a_partial_dq[current_id],
-                                      data.a_partial_dv[current_id],
-                                      data.a_partial_da[current_id]);
+                                      LOCAL,/
+                                      contact_data.v_partial_dq,
+                                      contact_data.a_partial_dq,
+                                      contact_data.a_partial_dv,
+                                      contact_data.a_partial_da);
 
-      //TODO: replace with contact_info::nc
+      //TODO: replace with contact_model::nc
       RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq, current_row_sol_id);
 
       //TODO: Sparse
-      contact_dac_dq.noalias() = data.a_partial_da[current_id] * data.ddq_dq;
-      contact_dac_dq += data.a_partial_dq[current_id];
+      contact_dac_dq.noalias() = contact_data.a_partial_da * data.ddq_dq;
+      contact_dac_dq += contact_data.a_partial_dq;
 
-      //TODO: remplacer par contact_info::NC
+      //TODO: remplacer par contact_model::NC
       current_row_sol_id += 6;
     }
 
@@ -97,19 +101,20 @@ namespace pinocchio
 
     current_id = 0;
     current_row_sol_id = 0;
-    for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
-        it != contact_infos.end(); ++it, current_id++)
+    it_d = contact_datas.begin();
+    for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d, current_id++)
     {
-      const RigidContactModel & contact_info = *it;
-
-      //TODO: This is only for size 6. replace with contact_info::NC
+      const RigidContactModel & contact_model = *it;
+      const RigidContactData & contact_data = *it_d;
+      //TODO: This is only for size 6. replace with contact_model::NC
       typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
       
       RowsBlock contact_dlambdac_dq = SizeDepType<6>::middleRows(data.dlambda_dq,
                                                                  current_row_sol_id);
       //TODO: Sparse
-      data.dtau_dq.noalias() -= data.a_partial_da[current_id].transpose() * contact_dlambdac_dq;
-      //TODO: remplacer par contact_info::NC
+      data.dtau_dq.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dq;
+      //TODO: remplacer par contact_model::NC
       current_row_sol_id += 6;
     }
     data.ddq_dq.noalias() = -data.Minv*data.dtau_dq;

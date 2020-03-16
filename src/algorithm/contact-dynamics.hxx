@@ -31,10 +31,6 @@ namespace pinocchio
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
-    data.v_partial_dq.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
-    data.a_partial_dq.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
-    data.a_partial_dv.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
-    data.a_partial_da.resize(contact_models.size(),Data::Matrix6x::Zero(6,model.nv));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
