@@ -196,6 +196,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
     
     RigidContactDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
