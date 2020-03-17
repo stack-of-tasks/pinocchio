@@ -222,7 +222,21 @@ int main(int argc, const char ** argv)
     computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],
                           daba_dq,daba_dv,daba_dtau);
   }
-  std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA derivatives(q,v,tau)= \t"; timer.toc(std::cout,NBT);
+  
+  {
+    double total = 0;
+    SMOOTH(NBT)
+    {
+      optimized::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+      timer.tic();
+      optimized::computeABADerivatives(model,data,
+                                       daba_dq,daba_dv,daba_dtau);
+      total += timer.toc(timer.DEFAULT_UNIT);
+    }
+    std::cout << "ABA derivatives() = \t\t" << (total/NBT)
+              << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  }
   
   timer.tic();
   SMOOTH(NBT/100)
