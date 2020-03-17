@@ -467,8 +467,248 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
   
+  namespace optimized
+  {
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
+    struct ComputeABADerivativesBackwardStep1
+    : public fusion::JointUnaryVisitorBase< ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType> >
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      
+      typedef boost::fusion::vector<const Model &,
+                                    Data &,
+                                    MatrixType &>  ArgsType;
+      
+      template<typename JointModel>
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                       const Model & model,
+                       Data & data,
+                       const Eigen::MatrixBase<MatrixType> & Minv)
+      {
+        typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Matrix6x Matrix6x;
+        
+        const JointIndex & i = jmodel.id();
+        const JointIndex & parent = model.parents[i];
+
+        Matrix6x & Fcrb = data.Fcrb[0];
+
+        typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+        
+        typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+        const ColBlock J_cols = jmodel.jointCols(data.J);
+        
+        MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
+        
+        Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
+        const int nv_children = data.nvSubtree[i] - jmodel.nv();
+        if(nv_children > 0)
+        {
+          ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
+          SDinv_cols.noalias() = J_cols * jdata.Dinv();
+          
+          Minv_.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
+          = -SDinv_cols.transpose() * Fcrb.middleCols(jmodel.idx_v()+jmodel.nv(),nv_children);
+          
+          if(parent > 0)
+          {
+            Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias() += jdata.U() * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);;
+          }
+        }
+        else // This a leaf of the kinematic tree
+        {
+          Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
+          = jdata.U() * Minv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
+        }
+
+      }
+      
+    };
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType>
+    struct ComputeABADerivativesForwardStep2
+    : public fusion::JointUnaryVisitorBase< ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> >
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      
+      typedef ::pinocchio::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> SimilarBase;
+      
+      typedef boost::fusion::vector<const Model &,
+                                    Data &,
+                                    MatrixType &> ArgsType;
+      
+      template<typename JointModel>
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                       const Model & model,
+                       Data & data,
+                       MatrixType & Minv)
+      {
+        typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Matrix6x Matrix6x;
+        
+        const JointIndex & i = jmodel.id();
+        const JointIndex & parent = model.parents[i];
+        
+        const typename Data::Motion & ov = data.ov[i];
+        typename Data::Motion & oa = data.oa[i];
+        typename Data::Force & of = data.of[i];
+        const typename Data::Motion & oa_gf = data.oa_gf[i];
+        
+        typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
+        const ColsBlock J_cols = jmodel.jointCols(data.J);
+        
+        oa = oa_gf + model.gravity;
+        data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+        of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
+
+        MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
+        
+        if(parent > 0)
+        {
+          Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
+          -= jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());;
+        }
+        
+        data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias()
+        = J_cols * Minv_.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+        if(parent > 0)
+          data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
+        
+        ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+        ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+        ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        
+        motionSet::motionAction(ov,J_cols,dJ_cols);
+        motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
+        dAdv_cols = dJ_cols;
+        if(parent > 0)
+        {
+          motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
+          motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
+          dAdv_cols += dVdq_cols;
+        }
+        else
+          dVdq_cols.setZero();
+        
+        // computes variation of inertias
+        data.doYcrb[i] = data.oYcrb[i].variation(ov);
+        SimilarBase::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+      }
+    };
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+    typename MatrixType1, typename MatrixType2, typename MatrixType3>
+    inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                      const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                      const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+      assert(model.check(data) && "data is not consistent with model.");
+      
+      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+      
+      MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+      Minv_.template triangularView<Eigen::Upper>().setZero();
+      
+      data.Fcrb[0].setZero();
+      typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+      {
+        Pass2::run(model.joints[i],data.joints[i],
+                   typename Pass2::ArgsType(model,data,Minv_));
+      }
+      
+      typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+      {
+        Pass3::run(model.joints[i],data.joints[i],
+                   typename Pass3::ArgsType(model,data,Minv_));
+      }
+      
+      typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+      {
+        Pass4::run(model.joints[i],
+                   typename Pass4::ArgsType(model,data));
+      }
+      
+      Minv_.template triangularView<Eigen::StrictlyLower>()
+      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+      
+      PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+      PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+    }
+  
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+    typename MatrixType1, typename MatrixType2, typename MatrixType3>
+    inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                                      const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                      const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                      const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+      assert(model.check(data) && "data is not consistent with model.");
+      
+      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+      
+      MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+      Minv_.template triangularView<Eigen::Upper>().setZero();
+      
+      /// First, compute Minv and a, the joint acceleration vector
+      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+        data.of[i] -= data.oMi[i].act(fext[i]);
+      
+      data.Fcrb[0].setZero();
+      typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+      {
+        Pass2::run(model.joints[i],data.joints[i],
+                   typename Pass2::ArgsType(model,data,Minv_));
+      }
+      
+      typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+      {
+        Pass3::run(model.joints[i],data.joints[i],
+                   typename Pass3::ArgsType(model,data,Minv_));
+        data.of[i] -= data.oMi[i].act(fext[i]);
+      }
+      
+      typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+      {
+        Pass4::run(model.joints[i],
+                   typename Pass4::ArgsType(model,data));
+      }
+      
+      Minv_.template triangularView<Eigen::StrictlyLower>()
+      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+      
+      PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+      PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+    }
+  }
   
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_aba_derivatives_hxx__
-

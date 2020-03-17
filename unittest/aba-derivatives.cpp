@@ -2,8 +2,6 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -337,7 +335,6 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_vs_kinematics_derivatives)
   
   VectorXd tau = rnea(model,data_ref,q,v,a);
   
-  /// Check againt computeGeneralizedGravityDerivatives
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
@@ -353,6 +350,163 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_vs_kinematics_derivatives)
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
     BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
     BOOST_CHECK(data.oa[k].isApprox(data_ref.oa[k]));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd tau(VectorXd::Random(model.nv));
+
+  MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  optimized::aba(model,data,q,v,tau);
+  optimized::computeABADerivatives(model,data,
+                                   aba_partial_dq,aba_partial_dv,aba_partial_dtau);
+  
+  MatrixXd aba_partial_dq_ref(model.nv,model.nv); aba_partial_dq_ref.setZero();
+  MatrixXd aba_partial_dv_ref(model.nv,model.nv); aba_partial_dv_ref.setZero();
+  MatrixXd aba_partial_dtau_ref(model.nv,model.nv); aba_partial_dtau_ref.setZero();
+
+  computeABADerivatives(model,data_ref,q,v,tau,
+                        aba_partial_dq_ref,aba_partial_dv_ref,aba_partial_dtau_ref);
+  
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  BOOST_CHECK(data.Minv.isApprox(data_ref.Minv));
+  
+  BOOST_CHECK(aba_partial_dq.isApprox(aba_partial_dq_ref));
+  BOOST_CHECK(aba_partial_dv.isApprox(aba_partial_dv_ref));
+  BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_ref));
+  
+  // Test multiple calls
+  const int num_calls = 20;
+  optimized::aba(model,data,q,v,tau);
+  for(int it = 0; it < num_calls; ++it)
+  {
+    optimized::computeABADerivatives(model,data,
+                                     aba_partial_dq,aba_partial_dv,aba_partial_dtau);
+    
+    BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+    BOOST_CHECK(data.Minv.isApprox(data_ref.Minv));
+    
+    for(size_t joint_id = 1; joint_id < model.joints.size(); ++joint_id)
+    {
+      BOOST_CHECK(data.oMi[joint_id].isApprox(data_ref.oMi[joint_id]));
+      BOOST_CHECK(data.ov[joint_id].isApprox(data_ref.ov[joint_id]));
+      BOOST_CHECK(data.oa[joint_id].isApprox(data_ref.oa[joint_id]));
+      BOOST_CHECK(data.oa_gf[joint_id].isApprox(data_ref.oa_gf[joint_id]));
+      BOOST_CHECK(data.of[joint_id].isApprox(data_ref.of[joint_id]));
+      BOOST_CHECK(data.oh[joint_id].isApprox(data_ref.oh[joint_id]));
+      BOOST_CHECK(data.oYaba[joint_id].isApprox(data_ref.oYaba[joint_id]));
+      BOOST_CHECK(data.oYcrb[joint_id].isApprox(data_ref.oYcrb[joint_id]));
+    }
+    
+    BOOST_CHECK(data.J.isApprox(data_ref.J));
+    BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+    BOOST_CHECK(data.dVdq.isApprox(data_ref.dVdq));
+    BOOST_CHECK(data.dAdq.isApprox(data_ref.dAdq));
+    BOOST_CHECK(data.dAdv.isApprox(data_ref.dAdv));
+    BOOST_CHECK(data.dFdq.isApprox(data_ref.dFdq));
+    BOOST_CHECK(data.dFdv.isApprox(data_ref.dFdv));
+    BOOST_CHECK(data.dFda.isApprox(data_ref.dFda));
+    
+    BOOST_CHECK(aba_partial_dq.isApprox(aba_partial_dq_ref));
+    BOOST_CHECK(aba_partial_dv.isApprox(aba_partial_dv_ref));
+    BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_ref));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd tau(VectorXd::Random(model.nv));
+  
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
+  ForceVector fext((size_t)model.njoints);
+  for(ForceVector::iterator it = fext.begin(); it != fext.end(); ++it)
+    (*it).setRandom();
+
+  MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
+  MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
+  MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
+  
+  optimized::aba(model,data,q,v,tau,fext);
+  optimized::computeABADerivatives(model,data,fext,
+                                   aba_partial_dq,aba_partial_dv,aba_partial_dtau);
+  
+  MatrixXd aba_partial_dq_ref(model.nv,model.nv); aba_partial_dq_ref.setZero();
+  MatrixXd aba_partial_dv_ref(model.nv,model.nv); aba_partial_dv_ref.setZero();
+  MatrixXd aba_partial_dtau_ref(model.nv,model.nv); aba_partial_dtau_ref.setZero();
+
+  computeABADerivatives(model,data_ref,q,v,tau,fext,
+                        aba_partial_dq_ref,aba_partial_dv_ref,aba_partial_dtau_ref);
+  
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  BOOST_CHECK(data.Minv.isApprox(data_ref.Minv));
+  
+  BOOST_CHECK(aba_partial_dq.isApprox(aba_partial_dq_ref));
+  BOOST_CHECK(aba_partial_dv.isApprox(aba_partial_dv_ref));
+  BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_ref));
+  
+  // Test multiple calls
+  const int num_calls = 20;
+  optimized::aba(model,data,q,v,tau,fext);
+  for(int it = 0; it < num_calls; ++it)
+  {
+    optimized::computeABADerivatives(model,data,fext,
+                                     aba_partial_dq,aba_partial_dv,aba_partial_dtau);
+    
+    BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+    BOOST_CHECK(data.Minv.isApprox(data_ref.Minv));
+    
+    for(size_t joint_id = 1; joint_id < model.joints.size(); ++joint_id)
+    {
+      BOOST_CHECK(data.oMi[joint_id].isApprox(data_ref.oMi[joint_id]));
+      BOOST_CHECK(data.ov[joint_id].isApprox(data_ref.ov[joint_id]));
+      BOOST_CHECK(data.oa[joint_id].isApprox(data_ref.oa[joint_id]));
+      BOOST_CHECK(data.oa_gf[joint_id].isApprox(data_ref.oa_gf[joint_id]));
+      BOOST_CHECK(data.of[joint_id].isApprox(data_ref.of[joint_id]));
+      BOOST_CHECK(data.oh[joint_id].isApprox(data_ref.oh[joint_id]));
+      BOOST_CHECK(data.oYaba[joint_id].isApprox(data_ref.oYaba[joint_id]));
+      BOOST_CHECK(data.oYcrb[joint_id].isApprox(data_ref.oYcrb[joint_id]));
+    }
+    
+    BOOST_CHECK(data.J.isApprox(data_ref.J));
+    BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+    BOOST_CHECK(data.dVdq.isApprox(data_ref.dVdq));
+    BOOST_CHECK(data.dAdq.isApprox(data_ref.dAdq));
+    BOOST_CHECK(data.dAdv.isApprox(data_ref.dAdv));
+    BOOST_CHECK(data.dFdq.isApprox(data_ref.dFdq));
+    BOOST_CHECK(data.dFdv.isApprox(data_ref.dFdv));
+    BOOST_CHECK(data.dFda.isApprox(data_ref.dFda));
+    
+    BOOST_CHECK(aba_partial_dq.isApprox(aba_partial_dq_ref));
+    BOOST_CHECK(aba_partial_dv.isApprox(aba_partial_dv_ref));
+    BOOST_CHECK(aba_partial_dtau.isApprox(aba_partial_dtau_ref));
   }
 }
 
