@@ -154,6 +154,30 @@ BOOST_AUTO_TEST_CASE(test_aba_simple)
   aba(model, data_deprecated, q, v, tau);
   BOOST_CHECK(data_deprecated.ddq.isApprox(data.ddq));
   
+  // Test multiple calls
+  {
+    Data datas(model);
+    VectorXd a1 = aba(model,datas,q,v,tau);
+    VectorXd a2 = aba(model,datas,q,v,tau);
+    VectorXd a3 = aba(model,datas,q,v,tau);
+    
+    BOOST_CHECK(a1.isApprox(a2));
+    BOOST_CHECK(a1.isApprox(a3));
+    BOOST_CHECK(a2.isApprox(a3));
+  }
+    
+  // Test multiple calls
+  {
+    Data datas(model);
+    VectorXd a1 = optimized::aba(model,datas,q,v,tau);
+    VectorXd a2 = optimized::aba(model,datas,q,v,tau);
+    VectorXd a3 = optimized::aba(model,datas,q,v,tau);
+    
+    BOOST_CHECK(a1.isApprox(a2));
+    BOOST_CHECK(a1.isApprox(a3));
+    BOOST_CHECK(a2.isApprox(a3));
+  }
+  
 }
 
 BOOST_AUTO_TEST_CASE(test_aba_with_fext)
