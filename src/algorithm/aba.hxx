@@ -129,8 +129,10 @@ namespace pinocchio
                        const Eigen::MatrixBase<TangentVectorType> & v)
       {
         typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Motion Motion;
         
         const JointIndex & i = jmodel.id();
+        Motion & ov = data.ov[i];
         jmodel.calc(jdata.derived(),q.derived(),v.derived());
         
         const JointIndex & parent = model.parents[i];
@@ -142,17 +144,19 @@ namespace pinocchio
         
         jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
         
-        data.ov[i] = data.oMi[i].act(jdata.v());
+        ov = data.oMi[i].act(jdata.v());
         if(parent > 0)
-          data.ov[i] += data.ov[parent];
+          ov += data.ov[parent];
 
         data.oa_gf[i] = data.oMi[i].act(jdata.c());
         if(parent > 0)
-          data.oa_gf[i] += (data.ov[parent] ^ data.ov[i]);
+          data.oa_gf[i] += (data.ov[parent] ^ ov);
 
         data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
         data.oYaba[i] = data.oYcrb[i].matrix();
-        data.of[i] = data.oYcrb[i].vxiv(data.ov[i]);// - data.oYcrb[i] * model.gravity; // -f_ext
+        
+        data.oh[i] = data.oYcrb[i] * ov; // necessary for ABA derivatives
+        data.of[i] = ov.cross(data.oh[i]);
       }
       
     };
