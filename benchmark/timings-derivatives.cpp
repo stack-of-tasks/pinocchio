@@ -237,7 +237,20 @@ int main(int argc, const char ** argv)
   {
     computeMinverse(model,data,qs[_smooth]);
   }
-  std::cout << "M.inverse() from ABA = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "M.inverse(q) = \t\t"; timer.toc(std::cout,NBT);
+  
+  {
+    double total = 0;
+    SMOOTH(NBT)
+    {
+      optimized::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+      timer.tic();
+      optimized::computeMinverse(model,data);
+      total += timer.toc(timer.DEFAULT_UNIT);
+    }
+    std::cout << "M.inverse() from ABA = \t\t" << (total/NBT)
+              << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  }
   
   MatrixXd Minv(model.nv,model.nv); Minv.setZero();
   timer.tic();
