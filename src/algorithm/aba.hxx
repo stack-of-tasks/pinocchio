@@ -662,10 +662,9 @@ namespace pinocchio
         
         typename Data::RowMatrixXs & Minv = data.Minv;
         typename Data::Matrix6x & Fcrb = data.Fcrb[0];
-        typename Data::Matrix6x & FcrbTmp = data.Fcrb.back();
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
         
-        ColsBlock J_cols = jmodel.jointCols(data.J);
+        const ColsBlock J_cols = jmodel.jointCols(data.J);
         
         Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
         const int nv_children = data.nvSubtree[i] - jmodel.nv();
@@ -678,9 +677,8 @@ namespace pinocchio
           
           if(parent > 0)
           {
-            FcrbTmp.leftCols(data.nvSubtree[i]).noalias()
-            = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
-            Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]) += FcrbTmp.leftCols(data.nvSubtree[i]);
+            Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
+            += jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);;
           }
         }
         else
@@ -723,9 +721,11 @@ namespace pinocchio
         -= jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
       }
       
-      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias() = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias()
+      = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
       if(parent > 0)
-        data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()) += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
+        data.Fcrb[i].rightCols(model.nv - jmodel.idx_v())
+        += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
     }
     
   };
