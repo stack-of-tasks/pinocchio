@@ -225,12 +225,12 @@ int main(int argc, const char ** argv)
   std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
   
   timer.tic();
-  SMOOTH(NBT)
+  SMOOTH(NBT/100)
   {
     aba_fd(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],
            daba_dq,daba_dv,daba_dtau);
   }
-  std::cout << "ABA finite differences= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA finite differences= \t\t"; timer.toc(std::cout,NBT/100);
 
   timer.tic();
   SMOOTH(NBT)
