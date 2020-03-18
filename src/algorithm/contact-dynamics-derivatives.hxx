@@ -71,34 +71,72 @@ namespace pinocchio
       const RigidContactModel & contact_model = *it;
       const RigidContactData & contact_data = *it_d;
 
-      //TODO: This is only for size 6. replace with contact_model::NC
-      typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
       const typename Model::FrameIndex & frame_id = contact_model.frame_id;
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex & joint_id = frame.parent;
+      
+      //TODO: This is only for size 6. replace with contact_model::NC
+      switch(contact_model.type)
+      {
+      case CONTACT_6D:
+      {
+        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        //TODO: We don't need all these quantities. Remove those not needed.
+        getJointAccelerationDerivatives(model, data,
+                                        joint_id,
+                                        LOCAL,
+                                        contact_data.v_partial_dq,
+                                        contact_data.a_partial_dq,
+                                        contact_data.a_partial_dv,
+                                        contact_data.a_partial_da);
 
-      //TODO: We don't need all these quantities. Remove those not needed.
-      getJointAccelerationDerivatives(model, data,
-                                      joint_id,
-                                      LOCAL,/
-                                      contact_data.v_partial_dq,
-                                      contact_data.a_partial_dq,
-                                      contact_data.a_partial_dv,
-                                      contact_data.a_partial_da);
+        //TODO: replace with contact_model::nc
+        RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
+                                                              current_row_sol_id);
+        //TODO: Sparse
+        contact_dac_dq = contact_data.a_partial_dq;
+        contact_dac_dq.noalias() += contact_data.a_partial_da * data.ddq_dq;
 
-      //TODO: replace with contact_model::nc
-      RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq, current_row_sol_id);
+        
+        //TODO: remplacer par contact_model::NC
+        current_row_sol_id += 6;
+        break;
+      }
+      case CONTACT_3D:
+      {
+        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        //TODO: Specialize for the 3d case.
+        //TODO: We don't need all these quantities. Remove those not needed.
+        getJointAccelerationDerivatives(model, data,
+                                        joint_id,
+                                        LOCAL,
+                                        contact_data.v_partial_dq,
+                                        contact_data.a_partial_dq,
+                                        contact_data.a_partial_dv,
+                                        contact_data.a_partial_da);
 
-      //TODO: Sparse
-      contact_dac_dq.noalias() = contact_data.a_partial_da * data.ddq_dq;
-      contact_dac_dq += contact_data.a_partial_dq;
-
-      //TODO: remplacer par contact_model::NC
-      current_row_sol_id += 6;
+        //TODO: replace with contact_model::nc
+        RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq, current_row_sol_id);
+        
+        //TODO: Sparse
+        contact_dac_dq.noalias() = contact_data.a_partial_da.template topRows<3>() * data.ddq_dq;
+        //TODO: temporary Memory assignment
+        contact_dac_dq += cross(data.v[joint_id].angular(),
+                                contact_data.v_partial_dq.template topRows<3>());
+        contact_dac_dq += cross(data.v[joint_id].linear(),
+                                contact_data.v_partial_dq.template bottomRows<3>());
+        contact_dac_dq += contact_data.a_partial_dq.template topRows<3>();
+        //TODO: remplacer par contact_model::NC
+        current_row_sol_id += 3;
+        break;
+      }
+      default:
+        assert(false && "must never happen");
+        break;
+      }
     }
-
+    
     data.dlambda_dq.noalias() = -data.osim * data.dac_dq;
-
     current_id = 0;
     current_row_sol_id = 0;
     it_d = contact_datas.begin();
@@ -107,21 +145,44 @@ namespace pinocchio
     {
       const RigidContactModel & contact_model = *it;
       const RigidContactData & contact_data = *it_d;
-      //TODO: This is only for size 6. replace with contact_model::NC
-      typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
       
-      RowsBlock contact_dlambdac_dq = SizeDepType<6>::middleRows(data.dlambda_dq,
-                                                                 current_row_sol_id);
-      //TODO: Sparse
-      data.dtau_dq.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dq;
-      //TODO: remplacer par contact_model::NC
-      current_row_sol_id += 6;
+      switch(contact_model.type)
+      {
+      case CONTACT_6D:
+      {
+        //TODO: This is only for size 6. replace with contact_model::NC
+        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        
+        RowsBlock contact_dlambdac_dq = SizeDepType<6>::middleRows(data.dlambda_dq,
+                                                                   current_row_sol_id);
+        //TODO: Sparse
+        data.dtau_dq.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dq;
+        //TODO: remplacer par contact_model::NC
+        current_row_sol_id += 6;
+        break;
+      }
+      case CONTACT_3D:
+      {
+        //TODO: This is only for size 6. replace with contact_model::NC
+        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        
+        RowsBlock contact_dlambdac_dq = SizeDepType<3>::middleRows(data.dlambda_dq,
+                                                                   current_row_sol_id);
+        //TODO: Sparse
+        data.dtau_dq.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dq;
+        //TODO: remplacer par contact_model::NC
+        current_row_sol_id += 3;
+        break;
+      }      
+      default:
+        assert(false && "must never happen");
+        break;
+      }
     }
     data.ddq_dq.noalias() = -data.Minv*data.dtau_dq;
     //PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,data.ddq_dq).noalias() = data.Minv*data.dtau_dq;
-    
   }
-
+  
   
 } // namespace pinocchio
 
