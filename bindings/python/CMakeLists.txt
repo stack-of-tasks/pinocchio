@@ -41,8 +41,8 @@ IF(BUILD_PYTHON_INTERFACE)
   # The following quiet finding of Eigen is necessary to retrive 
   # the include directory when packaging Pinocchio in ROS
   find_package(Eigen3 QUIET)
-  if (EIGEN3_FOUND)
-    include_directories(${EIGEN3_INCLUDE_DIR})
+  if(EIGEN3_FOUND)
+    include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
   endif()
   SET(PKG_CONFIG_PYWRAP_REQUIRES "eigenpy >= 2.2.0")
   FOREACH(dep ${PKG_CONFIG_PYWRAP_REQUIRES})
