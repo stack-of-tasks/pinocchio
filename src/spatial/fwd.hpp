@@ -34,7 +34,7 @@ namespace pinocchio
    * \addtogroup pinocchio_spatial
    * @{
    */
-  
+
   template<typename Scalar, int Options=0> struct SE3Tpl;
 
   template<typename Derived> class MotionBase;
