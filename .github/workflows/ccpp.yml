@@ -47,5 +47,7 @@ jobs:
         export CMAKE_PREFIX_PATH=/usr/local
         cmake ..
         make
+        ./run_rnea
+        ./load_urdf
         cd ../../../build
         sudo make uninstall
