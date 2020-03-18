@@ -46,11 +46,18 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
-  //contact_models.push_back(ci_RF);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  contact_models.push_back(ci_LF);
+  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
 
+  contact_models.push_back(ci_LF);
+  contact_models.push_back(ci_RF);
+  RigidContactData cd_LF(model.nv);
+
+  RigidContactData cd_RF(model.nv);
+
+  contact_datas.push_back(cd_LF);
+  contact_datas.push_back(cd_RF);
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
@@ -60,46 +67,81 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,mu0);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, mu0);  
-
+  computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, contact_datas, mu0);  
+  
   //Data_ref
   crba(model, data_ref, q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   computeABADerivatives(model, data_ref, q, v, tau, data.contact_forces);
   
   MatrixXd
-    v_partial_dq(MatrixXd::Zero(6, model.nv)),
-                 a_partial_dq(MatrixXd::Zero(6, model.nv)),
-                 a_partial_dv(MatrixXd::Zero(6, model.nv)),
-                 a_partial_da(MatrixXd::Zero(6, model.nv));
+    vLF_partial_dq(MatrixXd::Zero(6, model.nv)),
+    aLF_partial_dq(MatrixXd::Zero(6, model.nv)),
+    aLF_partial_dv(MatrixXd::Zero(6, model.nv)),
+    aLF_partial_da(MatrixXd::Zero(6, model.nv));
+
+  MatrixXd
+    vRF_partial_dq(MatrixXd::Zero(6, model.nv)),
+    aRF_partial_dq(MatrixXd::Zero(6, model.nv)),
+    aRF_partial_dv(MatrixXd::Zero(6, model.nv)),
+    aRF_partial_da(MatrixXd::Zero(6, model.nv));
   
   getJointAccelerationDerivatives(model, data_ref,
                                   model.getJointId(LF),
                                   LOCAL,
-                                  v_partial_dq,
-                                  a_partial_dq,
-                                  a_partial_dv,
-                                  a_partial_da);
-  MatrixXd K(model.nv+6, model.nv+6);
-  K << data_ref.M, a_partial_da.transpose(),
-    a_partial_da, MatrixXd::Zero(6,6);
+                                  vLF_partial_dq,
+                                  aLF_partial_dq,
+                                  aLF_partial_dv,
+                                  aLF_partial_da);
+  getJointAccelerationDerivatives(model, data_ref,
+                                  model.getJointId(RF),
+                                  LOCAL,
+                                  vRF_partial_dq,
+                                  aRF_partial_dq,
+                                  aRF_partial_dv,
+                                  aRF_partial_da);
+
+  MatrixXd Jc(6+3, model.nv);
+  Jc << aLF_partial_da,
+    aRF_partial_da.template topRows<3>();
+  
+  MatrixXd K(model.nv+6+3, model.nv+6+3);
+  K << data_ref.M, Jc.transpose(),
+    Jc, MatrixXd::Zero(6+3,6+3);
   MatrixXd Kinv = K.inverse();
 
-  MatrixXd J_LF(6, model.nv), J_LF2(6, model.nv);
-  J_LF.setZero(); J_LF2.setZero();
+  MatrixXd J_LF(6, model.nv), J_RF(6, model.nv);
+  J_LF.setZero(); J_RF.setZero();
   getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
-  MatrixXd osim((a_partial_da * data_ref.M.inverse() * a_partial_da.transpose()).inverse());
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
+  MatrixXd osim((Jc * data_ref.M.inverse() * Jc.transpose()).inverse());
   BOOST_CHECK(data.osim.isApprox(osim,1e-8));
 
-  MatrixXd df_dq = Kinv.bottomLeftCorner(6, model.nv)* data_ref.dtau_dq + Kinv.bottomRightCorner(6,6)*a_partial_dq;
+  MatrixXd ac_partial_dq(6+3, model.nv);
   
-  MatrixXd ddq_dq =  data_ref.M.inverse() * (-data_ref.dtau_dq +  a_partial_da.transpose() * df_dq);
+  ac_partial_dq << aLF_partial_dq,
+    aRF_partial_dq.template topRows<3>()
+    + cross(data_ref.v[model.getJointId(RF)].angular(),
+            vRF_partial_dq.template topRows<3>())
+    + cross(data_ref.v[model.getJointId(RF)].linear(),
+            vRF_partial_dq.template bottomRows<3>());
+
+  MatrixXd dac_dq = ac_partial_dq - Jc * data_ref.Minv*data_ref.dtau_dq;
+
+  //std::cerr<<"data.dac_dq"<<std::endl<<data.dac_dq<<std::endl;
+  BOOST_CHECK(data.dac_dq.isApprox(dac_dq,1e-8));
+  BOOST_CHECK(Kinv.bottomLeftCorner(6+3, model.nv).isApprox(osim*Jc*data_ref.Minv,1e-8));
+
+  MatrixXd df_dq = Kinv.bottomLeftCorner(6+3, model.nv)* data_ref.dtau_dq +
+    Kinv.bottomRightCorner(6+3,6+3)*ac_partial_dq;
   
-  MatrixXd ddq_dq1 = -Kinv.topLeftCorner(model.nv, model.nv) * data_ref.dtau_dq - Kinv.topRightCorner(model.nv, 6) * a_partial_dq;
+  MatrixXd ddq_dq =  data_ref.M.inverse() * (-data_ref.dtau_dq +  Jc.transpose() * df_dq);
+  
+  //std::cerr<<"df_dq"<<std::endl<<df_dq<<std::endl;
+  //std::cerr<<"dlambda_dq"<<std::endl<<data.dlambda_dq<<std::endl;
   
   BOOST_CHECK(df_dq.isApprox(data.dlambda_dq, 1e-8));
   BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq, 1e-8));
-  BOOST_CHECK(ddq_dq.isApprox(ddq_dq1, 1e-8));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()
