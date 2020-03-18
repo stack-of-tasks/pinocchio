@@ -129,21 +129,21 @@ namespace pinocchio
         
         //TODO: Sparse
         contact_dac_dq.noalias() = contact_data.a_partial_da.template topRows<3>() * data.ddq_dq;
-        //TODO: temporary Memory assignment
-
-        contact_dac_dq += cross(data.v[joint_id].angular(),
-                                contact_data.v_partial_dq.template topRows<3>());
-        contact_dac_dq -= cross(data.v[joint_id].linear(),
-                                contact_data.v_partial_dq.template bottomRows<3>());
-        contact_dac_dq += contact_data.a_partial_dq.template topRows<3>();
-        //TODO: remplacer par contact_model::NC
-
         contact_dac_dvq.noalias() = contact_data.a_partial_da.template topRows<3>() * data.ddq_dv;
-        //TODO: temporary Memory assignment
-        contact_dac_dvq += cross(data.v[joint_id].angular(),
-                                 contact_data.a_partial_da.template topRows<3>());
-        contact_dac_dvq -= cross(data.v[joint_id].linear(),
-                                 contact_data.a_partial_da.template bottomRows<3>());
+
+
+        int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
+          contact_dac_dq.col(j) +=
+            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j));
+          contact_dac_dq.col(j) -=
+            data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
+          contact_dac_dvq.col(j) +=
+            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j));
+          contact_dac_dvq.col(j) -=
+            data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));  
+        }
+        contact_dac_dq += contact_data.a_partial_dq.template topRows<3>();
         contact_dac_dvq += contact_data.a_partial_dv.template topRows<3>();
 
         current_row_sol_id += 3;
