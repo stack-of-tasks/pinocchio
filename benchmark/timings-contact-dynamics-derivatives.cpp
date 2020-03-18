@@ -67,7 +67,7 @@ int main(int argc, const char ** argv)
   
   // Define contact infos structure
   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_empty;
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_infos_empty);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_6D;
