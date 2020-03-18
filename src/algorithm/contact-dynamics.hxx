@@ -29,12 +29,16 @@ namespace pinocchio
     data.lambda_c.resize(data.contact_chol.constraintDim());
     
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dlambda_dvq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dac_dvq.resize(data.contact_chol.constraintDim(), model.nv);
     data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
 
     data.lambda_c.setZero();
     data.dlambda_dq.setZero();
+    data.dlambda_dvq.setZero();
     data.dac_dq.setZero();
+    data.dac_dvq.setZero();
     data.osim.setZero();
 
   }

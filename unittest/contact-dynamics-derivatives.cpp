@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
     aRF_partial_dq.template topRows<3>()
     + cross(data_ref.v[model.getJointId(RF)].angular(),
             vRF_partial_dq.template topRows<3>())
-    + cross(data_ref.v[model.getJointId(RF)].linear(),
+    - cross(data_ref.v[model.getJointId(RF)].linear(),
             vRF_partial_dq.template bottomRows<3>());
 
   MatrixXd dac_dq = ac_partial_dq - Jc * data_ref.Minv*data_ref.dtau_dq;
