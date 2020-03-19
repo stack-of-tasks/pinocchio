@@ -321,6 +321,7 @@ namespace pinocchio
     /// \brief Partial derivative of the contact frame acceleration with respect to the joint params
     MatrixXs dac_dq;
     MatrixXs dac_dvq;
+    MatrixXs dac_daq;
 
     /// \brief Operational space inertia matrix;
     MatrixXs osim;

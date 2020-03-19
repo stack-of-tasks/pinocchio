@@ -62,9 +62,6 @@ namespace pinocchio
 
     data.contact_chol.getInverseMassMatrix(data.Minv);
 
-    //data.ddq_dq = -data.Minv*data.dtau_dq;
-    //data.ddq_dv = -data.Minv*data.dtau_dv;
-       
     size_t current_id = 0;
     Eigen::DenseIndex current_row_sol_id = 0;
     typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
@@ -98,18 +95,14 @@ namespace pinocchio
                                                               current_row_sol_id);
         RowsBlock contact_dac_dvq = SizeDepType<6>::middleRows(data.dac_dvq,
                                                                current_row_sol_id);
-        RowsBlock contact_dlambda_dq = SizeDepType<6>::middleRows(data.dlambda_dq,
+        RowsBlock contact_dac_daq = SizeDepType<6>::middleRows(data.dac_daq,
                                                                   current_row_sol_id);
 
-        //Temporary assignment of Jc*Minv
-        //TODO: Sparse!!
-        contact_dlambda_dq = contact_data.a_partial_da;
+        contact_dac_daq = contact_data.a_partial_da;
 
-        //TODO: Sparse
         contact_dac_dq = contact_data.a_partial_dq;
         contact_dac_dvq = contact_data.a_partial_dv;
-        //contact_dac_dvq.noalias() += contact_data.a_partial_da * data.ddq_dv;
-        //contact_dac_dq.noalias() += contact_data.a_partial_da * data.ddq_dq;
+
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
           contact_dac_dq.template topRows<3>().col(j) +=
@@ -142,18 +135,13 @@ namespace pinocchio
                                                               current_row_sol_id);
         RowsBlock contact_dac_dvq = SizeDepType<3>::middleRows(data.dac_dvq,
                                                                current_row_sol_id);
-        RowsBlock contact_dlambda_dq = SizeDepType<3>::middleRows(data.dlambda_dq,
+        RowsBlock contact_dac_daq = SizeDepType<3>::middleRows(data.dac_daq,
                                                                   current_row_sol_id);
 
-        //TODO: Sparse!!
-        contact_dlambda_dq.noalias() = contact_data.a_partial_da.template topRows<3>();
+        contact_dac_daq.noalias() = contact_data.a_partial_da.template topRows<3>();
 
         contact_dac_dq = contact_data.a_partial_dq.template topRows<3>();
         contact_dac_dvq = contact_data.a_partial_dv.template topRows<3>();
-
-        //TODO: Sparse
-        //contact_dac_dq.noalias() += contact_data.a_partial_da.template topRows<3>() * data.ddq_dq;
-        //contact_dac_dvq.noalias() += contact_data.a_partial_da.template topRows<3>() * data.ddq_dv;
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
@@ -172,80 +160,31 @@ namespace pinocchio
         break;
       }
     }
+    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
+    
+    //Temporary: dlambda_dvq stores J*Minv
+    //TODO: Sparse
+    data.dlambda_dvq.noalias() = data.dac_daq * data.Minv;
 
-    //Temporary: dlambda_dv stores J*Minv
-    data.dlambda_dvq.noalias() = data.dlambda_dq * data.Minv;
-
+    data.dlambda_dtau.noalias() = -data.osim * data.dlambda_dvq; //OUTPUT
+    data.ddq_dtau.noalias() = data.dlambda_dvq.transpose() * data.dlambda_dtau;
+    
+    data.ddq_dtau += data.Minv; //OUTPUT
+    
     data.dac_dq.noalias() -=  data.dlambda_dvq * data.dtau_dq;
     data.dac_dvq.noalias() -= data.dlambda_dvq * data.dtau_dv;
 
-    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
-
-    data.dlambda_dtau.noalias() = -data.osim * data.dlambda_dvq;
-    data.dlambda_dq.noalias()   = -data.osim * data.dac_dq;
-    data.dlambda_dvq.noalias()  = -data.osim * data.dac_dvq;
+    data.dlambda_dq.noalias()   = -data.osim * data.dac_dq; //OUTPUT
+    data.dlambda_dvq.noalias()  = -data.osim * data.dac_dvq; //OUTPUT
 
     data.dtau_dtau.setIdentity();
-    current_id = 0;
-    current_row_sol_id = 0;
-    it_d = contact_datas.begin();
-    for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
-        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d, current_id++)
-    {
-      const RigidContactModel & contact_model = *it;
-      const RigidContactData & contact_data = *it_d;
-      
-      switch(contact_model.type)
-      {
-      case CONTACT_6D:
-      {
-        //TODO: This is only for size 6. replace with contact_model::NC
-        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-        
-        RowsBlock contact_dlambdac_dq = SizeDepType<6>::middleRows(data.dlambda_dq,
-                                                                   current_row_sol_id);
-        RowsBlock contact_dlambdac_dvq = SizeDepType<6>::middleRows(data.dlambda_dvq,
-                                                                    current_row_sol_id);
-        RowsBlock contact_dlambdac_dtau = SizeDepType<6>::middleRows(data.dlambda_dtau,
-                                                                    current_row_sol_id);    
-        
-        //TODO: Sparse
-        data.dtau_dq.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dq;
-        data.dtau_dv.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dvq;
-        data.dtau_dtau.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dtau;
-        //TODO: remplacer par contact_model::NC
-        current_row_sol_id += 6;
-        break;
-      }
-      case CONTACT_3D:
-      {
-        //TODO: This is only for size 6. replace with contact_model::NC
-        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-        
-        RowsBlock contact_dlambdac_dq = SizeDepType<3>::middleRows(data.dlambda_dq,
-                                                                   current_row_sol_id);
-        RowsBlock contact_dlambdac_dvq = SizeDepType<3>::middleRows(data.dlambda_dvq,
-                                                                    current_row_sol_id);
-        RowsBlock contact_dlambdac_dtau = SizeDepType<3>::middleRows(data.dlambda_dtau,
-                                                                    current_row_sol_id);
-        //TODO: Sparse
-        data.dtau_dq.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dq;
-        data.dtau_dv.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dvq;
-        data.dtau_dtau.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dtau;
-        //TODO: remplacer par contact_model::NC
-        current_row_sol_id += 3;
-        break;
-      }      
-      default:
-        assert(false && "must never happen");
-        break;
-      }
-    }
 
-    data.ddq_dq.noalias() = -data.Minv*data.dtau_dq;
-    data.ddq_dv.noalias() = -data.Minv*data.dtau_dv;
-    data.ddq_dtau.noalias() = -data.Minv*data.dtau_dtau;
-    //PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,data.ddq_dq).noalias() = data.Minv*data.dtau_dq;
+    //TODO: SPARSE
+    data.dtau_dq.noalias() -= data.dac_daq.transpose() * data.dlambda_dq;
+    data.dtau_dv.noalias() -= data.dac_daq.transpose() * data.dlambda_dvq;
+    
+    data.ddq_dq.noalias() = -data.Minv*data.dtau_dq; //OUTPUT
+    data.ddq_dv.noalias() = -data.Minv*data.dtau_dv; //OUTPUT
   }
   
   
