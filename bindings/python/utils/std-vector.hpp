@@ -48,7 +48,7 @@ namespace pinocchio
           return bp::list(iterator()(vec));
         }
       };
-    }
+    } // namespace details
     
     ///
     /// \brief Register the conversion from a Python list to a std::vector

@@ -34,10 +34,10 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>("Default constructor."))
-        .def(bp::init<Model>(bp::arg("model"),"Constructor from a model."))
-        .def(bp::init<Model,RigidContactModelVector>((bp::arg("model"),bp::arg("contact_infos")),
-                                               "Constructor from a model and a collection of RigidContactModel objects."))
+        .def(bp::init<>(bp::arg("self"),"Default constructor."))
+        .def(bp::init<Model>(bp::args("self","model"),"Constructor from a model."))
+        .def(bp::init<Model,RigidContactModelVector>((bp::arg("self"),bp::arg("model"),bp::arg("contact_models")),
+                                                     "Constructor from a model and a collection of RigidContactModels."))
         
         .PINOCCHIO_ADD_PROPERTY_READONLY_BYVALUE(Self,U,"")
         .PINOCCHIO_ADD_PROPERTY_READONLY_BYVALUE(Self,D,"")
@@ -104,7 +104,8 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<ContactCholeskyDecomposition>("ContactCholeskyDecomposition",
-                                                 "Contact information container for contact dynamic algorithms.")
+                                                 "Contact information container for contact dynamic algorithms.",
+                                                 bp::no_init)
         .def(ContactCholeskyDecompositionPythonVisitor<ContactCholeskyDecomposition>())
         ;
         
