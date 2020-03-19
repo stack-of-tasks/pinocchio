@@ -387,7 +387,7 @@ namespace pinocchio
     VectorXs contact_vector_solution;
     
     // Contact forces related to the contact dynamics algorithms
-    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Force) contact_forces;
+    PINOCCHIO_ALIGNED_STD_VECTOR(Force) contact_forces;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
