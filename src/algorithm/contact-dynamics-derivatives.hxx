@@ -103,6 +103,17 @@ namespace pinocchio
 
         contact_dac_dvq = contact_data.a_partial_dv;
         contact_dac_dvq.noalias() += contact_data.a_partial_da * data.ddq_dv;
+
+        int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
+          contact_dac_dq.template topRows<3>().col(j) +=
+            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
+          contact_dac_dvq.template topRows<3>().col(j) +=
+            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
+        }
+        
         
         //TODO: remplacer par contact_model::NC
         current_row_sol_id += 6;
@@ -134,14 +145,12 @@ namespace pinocchio
 
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
-          contact_dac_dq.col(j) +=
-            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j));
-          contact_dac_dq.col(j) -=
-            data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
-          contact_dac_dvq.col(j) +=
-            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j));
-          contact_dac_dvq.col(j) -=
-            data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));  
+          contact_dac_dq.template topRows<3>().col(j) +=
+            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
+          contact_dac_dvq.template topRows<3>().col(j) +=
+            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
         }
         contact_dac_dq += contact_data.a_partial_dq.template topRows<3>();
         contact_dac_dvq += contact_data.a_partial_dv.template topRows<3>();
