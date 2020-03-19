@@ -179,9 +179,13 @@ namespace pinocchio
     data.dac_dq.noalias() -=  data.dlambda_dvq * data.dtau_dq;
     data.dac_dvq.noalias() -= data.dlambda_dvq * data.dtau_dv;
 
-    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);    
-    data.dlambda_dq.noalias() = -data.osim * data.dac_dq;
-    data.dlambda_dvq.noalias() = -data.osim * data.dac_dvq;
+    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
+
+    data.dlambda_dtau.noalias() = -data.osim * data.dlambda_dvq;
+    data.dlambda_dq.noalias()   = -data.osim * data.dac_dq;
+    data.dlambda_dvq.noalias()  = -data.osim * data.dac_dvq;
+
+    data.dtau_dtau.setIdentity();
     current_id = 0;
     current_row_sol_id = 0;
     it_d = contact_datas.begin();
@@ -202,11 +206,13 @@ namespace pinocchio
                                                                    current_row_sol_id);
         RowsBlock contact_dlambdac_dvq = SizeDepType<6>::middleRows(data.dlambda_dvq,
                                                                     current_row_sol_id);
+        RowsBlock contact_dlambdac_dtau = SizeDepType<6>::middleRows(data.dlambda_dtau,
+                                                                    current_row_sol_id);    
         
         //TODO: Sparse
         data.dtau_dq.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dq;
         data.dtau_dv.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dvq;
-
+        data.dtau_dtau.noalias() -= contact_data.a_partial_da.transpose() * contact_dlambdac_dtau;
         //TODO: remplacer par contact_model::NC
         current_row_sol_id += 6;
         break;
@@ -220,9 +226,12 @@ namespace pinocchio
                                                                    current_row_sol_id);
         RowsBlock contact_dlambdac_dvq = SizeDepType<3>::middleRows(data.dlambda_dvq,
                                                                     current_row_sol_id);
+        RowsBlock contact_dlambdac_dtau = SizeDepType<3>::middleRows(data.dlambda_dtau,
+                                                                    current_row_sol_id);
         //TODO: Sparse
         data.dtau_dq.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dq;
         data.dtau_dv.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dvq;
+        data.dtau_dtau.noalias() -= contact_data.a_partial_da.template topRows<3>().transpose() * contact_dlambdac_dtau;
         //TODO: remplacer par contact_model::NC
         current_row_sol_id += 3;
         break;
@@ -232,8 +241,10 @@ namespace pinocchio
         break;
       }
     }
+
     data.ddq_dq.noalias() = -data.Minv*data.dtau_dq;
     data.ddq_dv.noalias() = -data.Minv*data.dtau_dv;
+    data.ddq_dtau.noalias() = -data.Minv*data.dtau_dtau;
     //PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,data.ddq_dq).noalias() = data.Minv*data.dtau_dq;
   }
   

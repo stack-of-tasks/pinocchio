@@ -305,13 +305,19 @@ namespace pinocchio
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
     MatrixXs dtau_dv;
+
+    /// \brief Partial derivative of the joint torque vector (rnea) with respect to the joint torque.
+    MatrixXs dtau_dtau;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
     MatrixXs ddq_dq;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
     MatrixXs ddq_dv;
-
+    
+    /// \brief Partial derivative of the joint acceleration vector with respect to the joint torques.
+    MatrixXs ddq_dtau;
+    
     /// \brief Partial derivative of the contact frame acceleration with respect to the joint params
     MatrixXs dac_dq;
     MatrixXs dac_dvq;
@@ -322,6 +328,7 @@ namespace pinocchio
     /// \brief Partial derivatives of the contact lambdas wrt joint params;
     MatrixXs dlambda_dq;
     MatrixXs dlambda_dvq;
+    MatrixXs dlambda_dtau;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;
