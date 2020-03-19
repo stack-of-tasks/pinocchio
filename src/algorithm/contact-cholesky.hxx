@@ -259,7 +259,7 @@ namespace pinocchio
 
           if(indexes[jj])
           {
-            switch(cinfo.type)
+            switch(cinfo.reference_frame)
             {
               case WORLD:
               {
@@ -300,8 +300,24 @@ namespace pinocchio
                 
                 switch(cinfo.type)
                 {
-                  const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(contact_dim<CONTACT_3D>::value-_i-1 + LINEAR,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                  case CONTACT_3D:
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                    
+                  case CONTACT_6D:
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local.toVector()[contact_dim<CONTACT_6D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                    
+                  default:
+                    assert(false && "Must never happened");
                 }
                 break;
               } // end case LOCAL
@@ -318,14 +334,30 @@ namespace pinocchio
                 
                 switch(cinfo.type)
                 {
-                  const Eigen::DenseIndex _ii = current_row - _i;
-                  U(_ii,jj) = (data.J(contact_dim<CONTACT_6D>::value-_i-1,j) - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                  case CONTACT_3D:
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local_world_aligned.linear()[contact_dim<CONTACT_3D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                    
+                  case CONTACT_6D:
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local_world_aligned.toVector()[contact_dim<CONTACT_6D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                    
+                  default:
+                    assert(false && "Must never happened");
                 }
                 break;
               } // end case LOCAL_WORLD_ALIGNED
               default:
                 assert(false && "Must never happened");
-            }
+            } // end switch(cinfo.reference_frame)
 
           }
           current_row -= constraint_dim;
