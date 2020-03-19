@@ -169,7 +169,7 @@ namespace pinocchio
         = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
 
         U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
-        res = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
+        res.noalias() = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
       }
       
       ///
