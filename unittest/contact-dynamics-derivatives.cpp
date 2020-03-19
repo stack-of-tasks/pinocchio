@@ -209,10 +209,16 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
   MatrixXd ddq_partial_dtau_fd(model.nv,model.nv); ddq_partial_dtau_fd.setZero();
 
+  MatrixXd lambda_partial_dtau_fd(constraint_dim,model.nv); lambda_partial_dtau_fd.setZero();
+
   const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,mu0);
+  const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
   VectorXd ddq_plus(model.nv);
+
+  VectorXd lambda_plus(constraint_dim);
+  
   const double alpha = 1e-8;
   for(int k = 0; k < model.nv; ++k)
   {
@@ -234,8 +240,31 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
     v_plus[k] -= alpha;
   }
   
+  VectorXd tau_plus(tau);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += alpha;
+    contactDynamics(model,data_fd,q,v,tau_plus,contact_models,mu0);
+    lambda_plus = data_fd.lambda_c;
+    lambda_partial_dtau_fd.col(k) = (lambda_plus - lambda0)/alpha;
+    tau_plus[k] -= alpha;
+  }
+
+  tau_plus=tau;
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += alpha;
+    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,mu0);
+    
+    ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    tau_plus[k] -= alpha;
+  }
+
+  BOOST_CHECK(lambda_partial_dtau_fd.isApprox(data.dlambda_dtau,sqrt(alpha)));  
+
   BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
   BOOST_CHECK(ddq_partial_dv_fd.isApprox(data.ddq_dv,sqrt(alpha)));
+  BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
 
