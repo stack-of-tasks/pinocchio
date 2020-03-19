@@ -62,7 +62,8 @@ BOOST_AUTO_TEST_CASE(contact_info)
 pinocchio::Motion computeFrameAcc(const pinocchio::Model & model,
                                   pinocchio::Data & data,
                                   const pinocchio::Model::FrameIndex & frame_id,
-                                  pinocchio::ReferenceFrame reference_frame)
+                                  pinocchio::ReferenceFrame reference_frame,
+                                  const pinocchio::SE3 & placement = pinocchio::SE3::Identity())
 {
   using namespace pinocchio;
   Model::JointIndex joint_id = model.frames[frame_id].parent;
@@ -71,9 +72,11 @@ pinocchio::Motion computeFrameAcc(const pinocchio::Model & model,
   updateFramePlacement(model,data,frame_id);
   
   const Data::SE3 & oMf = data.oMf[frame_id];
+  const Data::SE3 oMc = oMf * placement;
   const Data::SE3 & oMi = data.oMi[joint_id];
   
-  const Data::SE3 iMf = oMi.inverse() * oMf;
+//  const Data::SE3 iMf = oMi.actInv(oMf);
+  const Data::SE3 iMc = oMi.actInv(oMc);
   const Motion ov = oMi.act(data.v[joint_id]);
   const Motion oa = oMi.act(data.a[joint_id]);
   
@@ -84,12 +87,12 @@ pinocchio::Motion computeFrameAcc(const pinocchio::Model & model,
       res.angular() = oa.angular();
       break;
     case LOCAL_WORLD_ALIGNED:
-      res.linear() = oMf.rotation() * classicAcceleration(data.v[joint_id],data.a[joint_id],iMf);
+      res.linear() = oMc.rotation() * classicAcceleration(data.v[joint_id],data.a[joint_id],iMc);
       res.angular() = oMi.rotation() * data.a[joint_id].angular();
       break;
     case LOCAL:
-      classicAcceleration(data.v[joint_id],data.a[joint_id],iMf,res.linear());
-      res.angular() = iMf.rotation().transpose() * data.a[joint_id].angular();
+      classicAcceleration(data.v[joint_id],data.a[joint_id],iMc,res.linear());
+      res.angular() = iMc.rotation().transpose() * data.a[joint_id].angular();
       break;
     default:
       break;
@@ -242,9 +245,11 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  ci_RF.placement.setRandom();
   contact_models.push_back(ci_RF);
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
   contact_models.push_back(ci_LF);
+  ci_LF.placement.setRandom();
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -265,8 +270,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   
   Eigen::VectorXd rhs_ref(constraint_dim);
   
-  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,model.getFrameId(RF),ci_RF.reference_frame).toVector();
-  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,model.getFrameId(LF),ci_LF.reference_frame).toVector();
+  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,model.getFrameId(RF),ci_RF.reference_frame,ci_RF.placement).toVector();
+  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,model.getFrameId(LF),ci_LF.reference_frame,ci_LF.placement).toVector();
 
   Eigen::MatrixXd KKT_matrix_ref
   = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
@@ -365,8 +370,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  ci_RF.placement.setRandom();
   contact_models.push_back(ci_RF);
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+//  ci_LF.placement.setRandom();
   contact_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
@@ -375,25 +382,30 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   const double mu0 = 0.;
   
-  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
-  J_ref.setZero();
-  
   computeAllTerms(model,data_ref,q,v);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
   data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   updateFramePlacements(model,data_ref);
+  
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  
   getFrameJacobian(model,data_ref,
                    ci_RF.frame_id,ci_RF.reference_frame,
-                   J_ref.middleRows<6>(0));
+                   Jtmp);
+  J_ref.middleRows<6>(0) = ci_RF.placement.inverse().toActionMatrix() * Jtmp;
+  
+  Jtmp.setZero();
   getFrameJacobian(model,data_ref,
                    ci_LF.frame_id,ci_LF.reference_frame,
-                   J_ref.middleRows<6>(6));
+                   Jtmp);
+  J_ref.middleRows<6>(6) = Jtmp;
   
   Eigen::VectorXd rhs_ref(constraint_dim);
-  
-  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame).toVector();
-  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame).toVector();
+  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame,ci_RF.placement).toVector();
+  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame,ci_LF.placement).toVector();
   
   Eigen::MatrixXd KKT_matrix_ref
   = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
