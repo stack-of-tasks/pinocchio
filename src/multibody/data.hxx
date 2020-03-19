@@ -25,12 +25,15 @@ namespace pinocchio
   : joints(0)
   , a((std::size_t)model.njoints,Motion::Zero())
   , oa((std::size_t)model.njoints,Motion::Zero())
+  , oa_drift((std::size_t)model.njoints,Motion::Zero())
+  , oa_augmented((std::size_t)model.njoints,Motion::Zero())
   , a_gf((std::size_t)model.njoints,Motion::Zero())
   , oa_gf((std::size_t)model.njoints,Motion::Zero())
   , v((std::size_t)model.njoints,Motion::Zero())
   , ov((std::size_t)model.njoints,Motion::Zero())
   , f((std::size_t)model.njoints,Force::Zero())
   , of((std::size_t)model.njoints,Force::Zero())
+  , of_augmented((std::size_t)model.njoints,Force::Zero())
   , h((std::size_t)model.njoints,Force::Zero())
   , oh((std::size_t)model.njoints,Force::Zero())
   , oMi((std::size_t)model.njoints,SE3::Identity())
@@ -220,12 +223,15 @@ namespace pinocchio
        data1.joints == data2.joints
     && data1.a == data2.a
     && data1.oa == data2.oa
+    && data1.oa_drift == data2.oa_drift
+    && data1.oa_augmented == data2.oa_augmented
     && data1.a_gf == data2.a_gf
     && data1.oa_gf == data2.oa_gf
     && data1.v == data2.v
     && data1.ov == data2.ov
     && data1.f == data2.f
     && data1.of == data2.of
+    && data1.of_augmented == data2.of_augmented
     && data1.h == data2.h
     && data1.oh == data2.oh
     && data1.oMi == data2.oMi

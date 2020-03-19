@@ -93,6 +93,14 @@ namespace pinocchio
     /// \brief Vector of joint accelerations expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa;
     
+    /// \brief Vector of joint accelerations expressed at the origin of the world.
+    ///        These accelerations are used in the context of augmented Lagrangian algorithms. 
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_drift;
+    
+    /// \brief Vector of joint accelerations expressed at the origin of the world.
+    ///        These accelerations are used in the context of augmented Lagrangian algorithms.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_augmented;
+    
     /// \brief Vector of joint accelerations due to the gravity field.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_gf;
     
@@ -112,6 +120,10 @@ namespace pinocchio
     /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) of;
+    
+    /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
+    ///        all external forces acting on the body. These forces are used in the context of augmented Lagrangian algorithms.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Force) of_augmented;
     
     /// \brief Vector of spatial momenta expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) h;
@@ -203,6 +215,9 @@ namespace pinocchio
     // ABA internal data
     /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA] expressed in the world coordinate frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba;  // TODO: change with dense symmetric matrix6
+    
+    /// \brief Articulated Body Inertia matrix with contact apparent inertia, of a given the subtree and expressed in the WORLD coordinate frame
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba_contact;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     TangentVectorType u;                  // Joint Inertia
@@ -372,6 +387,7 @@ namespace pinocchio
     // Rhs vector when solving the contact dynamics KKT problem
     VectorXs contact_vector_solution;
     
+    // Contact forces related to the contact dynamics algorithms
     PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Force) contact_forces;
     
     ///

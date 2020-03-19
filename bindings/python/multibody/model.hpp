@@ -16,6 +16,7 @@
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
+#include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
@@ -253,6 +254,8 @@ namespace pinocchio
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+        
+        .PINOCCHIO_ADD_STATIC_PROPERTY_READONLY_BYVALUE(Model,gravity981,"Default gravity field value on the Earth.")
         ;
       }
 
