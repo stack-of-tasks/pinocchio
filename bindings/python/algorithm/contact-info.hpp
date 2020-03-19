@@ -29,9 +29,11 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>("Default constructor."))
+        .def(bp::init<>(bp::arg("self"),
+                        "Default constructor."))
         .def(bp::init<ContactType,FrameIndex,SE3,bp::optional<ReferenceFrame> >
-             ((bp::arg("contact_type"),
+             ((bp::arg("self"),
+               bp::arg("contact_type"),
                bp::arg("frame_id"),
                bp::arg("placement"),
                bp::arg("reference_frame")),
@@ -55,7 +57,8 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<RigidContactModel>("RigidContactModel",
-                                      "Rigid contact model for contact dynamic algorithms.")
+                                      "Rigid contact model for contact dynamic algorithms.",
+                                      bp::no_init)
         .def(RigidContactModelPythonVisitor<RigidContactModel>())
         ;
         
