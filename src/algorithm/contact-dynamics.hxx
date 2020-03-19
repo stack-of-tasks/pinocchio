@@ -145,12 +145,15 @@ namespace pinocchio
                   const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
                   const Scalar mu)
   {
-    assert(q.size() == model.nq);
-    assert(v.size() == model.nv);
-    assert(tau.size() == model.nv);
     assert(model.check(data) && "data is not consistent with model.");
-    
-    assert(mu >= (Scalar)0 && "mu must be positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq,
+                                   "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv,
+                                   "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv,
+                                   "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
+                                   "mu has to be positive");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
