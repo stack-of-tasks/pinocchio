@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -13,7 +13,7 @@ namespace pinocchio
     
     void exposeFrame()
     {
-      FramePythonVisitor::expose();
+      FramePythonVisitor<Frame>::expose();
       StdAlignedVectorPythonVisitor<Frame>::expose("StdVec_Frame");
     }
     

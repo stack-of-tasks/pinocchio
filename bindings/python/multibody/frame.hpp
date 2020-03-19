@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_frame_hpp__
@@ -16,17 +16,20 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
+    template<typename Frame>
     struct FramePythonVisitor
-      : public boost::python::def_visitor< FramePythonVisitor >
+    : public boost::python::def_visitor< FramePythonVisitor<Frame> >
     {
+      typedef typename Frame::SE3 SE3;
+      
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
-                "Initialize from name, parent joint id, parent frame id and placement wrt parent joint."))
+          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType>((bp::arg("name"),bp::arg("parent_joint_id"), bp::args("parent_frame_id"), bp::arg("placement"), bp::arg("type")),
+                "Initialize from name, the parent joint id, the parent frame id, the placement wrt parent joint and the type (pinocchio.FrameType)."))
 
-          .def_readwrite("name", &Frame::name, "name  of the frame")
+          .def_readwrite("name", &Frame::name, "name of the frame")
           .def_readwrite("parent", &Frame::parent, "id of the parent joint")
           .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame") 
           .def_readwrite("placement",
