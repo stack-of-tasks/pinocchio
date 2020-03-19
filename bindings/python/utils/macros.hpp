@@ -21,4 +21,10 @@
                   ::boost::python::return_value_policy< ::boost::python::return_by_value>()),  \
       DOC)
 
+#define PINOCCHIO_ADD_STATIC_PROPERTY_READONLY_BYVALUE(STRUCT_NAME,PROPERTY_NAME,DOC)          \
+      add_static_property(#PROPERTY_NAME,                                                      \
+      make_getter(&STRUCT_NAME::PROPERTY_NAME,                                                 \
+                  ::boost::python::return_value_policy< ::boost::python::return_by_value>()),  \
+      DOC)
+
 #endif // ifndef __pinocchio_python_utils_macros_hpp__
