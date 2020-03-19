@@ -26,7 +26,7 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType>((bp::arg("name"),bp::arg("parent_joint_id"), bp::args("parent_frame_id"), bp::arg("placement"), bp::arg("type")),
+        .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType>((bp::arg("self"),bp::arg("name"),bp::arg("parent_joint_id"),bp::args("parent_frame_id"),bp::arg("placement"),bp::arg("type")),
                 "Initialize from name, the parent joint id, the parent frame id, the placement wrt parent joint and the type (pinocchio.FrameType)."))
 
           .def_readwrite("name", &Frame::name, "name of the frame")
@@ -50,7 +50,7 @@ namespace pinocchio
             ;
 
         bp::class_<Frame>("Frame",
-                          "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
+                          "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n",
                           bp::no_init
                          )
         .def(FramePythonVisitor())
