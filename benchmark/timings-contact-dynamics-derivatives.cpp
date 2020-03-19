@@ -4,6 +4,7 @@
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"

@@ -121,8 +121,12 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
   contact_chol_decomposition.compute(model,data,contact_models_empty,contact_datas_empty);
+
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
   BOOST_CHECK(data.M.isApprox(data_ref.M));
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
   BOOST_CHECK(data_ref.D.isApprox(contact_chol_decomposition.D.tail(model.nv)));
   BOOST_CHECK(data_ref.Dinv.isApprox(contact_chol_decomposition.Dinv.tail(model.nv)));
   BOOST_CHECK(data_ref.U.isApprox(contact_chol_decomposition.U.bottomRightCorner(model.nv,model.nv)));

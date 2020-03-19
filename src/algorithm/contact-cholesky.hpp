@@ -147,17 +147,10 @@ namespace pinocchio
       ///
       Matrix getOperationalSpaceInertiaMatrix() const
       {
-        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
-//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
-        const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
-        = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
-
-        U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
-        Matrix res = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
-
+        Matrix res(constraintDim(), constraintDim());
+        getOperationalSpaceInertiaMatrix(res);
         return res;
       }
-
 
       template<typename MatrixType>
       void getOperationalSpaceInertiaMatrix(const Eigen::MatrixBase<MatrixType> & res_) const
@@ -170,6 +163,19 @@ namespace pinocchio
 
         U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
         res.noalias() = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
+      }
+
+      template<typename MatrixType>
+      void getInverseMassMatrix(const Eigen::MatrixBase<MatrixType> & res_) const
+      {
+        MatrixType& res = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res_);
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U4
+          = U.bottomRightCorner(nv,nv).template triangularView<Eigen::UnitUpper>();
+
+        U4inv.setIdentity(); U4.solveInPlace(U4inv); // TODO: implement Sparse Inverse
+        res.noalias() = U4inv.adjoint()  * Dinv.tail(nv).asDiagonal() *  U4inv;
       }
       
       ///
@@ -373,6 +379,8 @@ namespace pinocchio
       
       /// \brief Inverse of the top left block of U
       mutable Matrix U1inv;
+      /// \brief Inverse of the bottom right block of U
+      mutable Matrix U4inv;
       
     };
     

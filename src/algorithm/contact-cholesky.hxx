@@ -40,6 +40,7 @@ namespace pinocchio
       }
       
       U1inv.resize(num_total_constraints,num_total_constraints);
+      U4inv.resize(nv,nv);
       
       const Eigen::DenseIndex total_dim = nv + num_total_constraints;
       
