@@ -65,6 +65,19 @@ class RobotWrapper(object):
     def centroidalMomentum(self, q, v):
         return pin.computeCentroidalMomentum(self.model, self.data, q, v)
 
+    def centroidalMap(self, q):
+        '''
+        Computes the centroidal momentum matrix which maps from the joint velocity vector to the centroidal momentum expressed around the center of mass.
+        '''
+        return pin.computeCentroidalMap(self.model, self.data, q)
+
+    def centroidal(self, q, v):
+        '''
+        Computes all the quantities related to the centroidal dynamics (hg, Ag and Ig), corresponding to the centroidal momentum, the centroidal map and the centroidal rigid inertia.
+        '''
+        pin.ccrba(self.model, self.data, q, v)
+        return (self.data.hg, self.data.Ag, self.data.Ig)
+
     def centroidalMomentumVariation(self, q, v, a):
         return pin.computeCentroidalMomentumTimeVariation(self.model, self.data, q, v, a)
 
