@@ -209,11 +209,10 @@ namespace pinocchio
     TangentVectorType ddq;
     
     // ABA internal data
-    /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
+    /// \brief Articulated Body Inertia matrix of the subtree expressed in the LOCAL coordinate frame of the joint
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Yaba;  // TODO: change with dense symmetric matrix6
     
-    // ABA internal data
-    /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA] expressed in the world coordinate frame
+    /// \brief Articulated Body Inertia matrix of the subtree expressed in the WORLD coordinate frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba;  // TODO: change with dense symmetric matrix6
     
     /// \brief Articulated Body Inertia matrix with contact apparent inertia, of a given the subtree and expressed in the WORLD coordinate frame
