@@ -7,7 +7,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
-#include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 
 namespace pinocchio
 {
@@ -187,8 +187,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const Eigen::MatrixBase<ConfigVectorType> & q);
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
   /// \brief Computes the time derivative of the Centroidal Momentum Matrix according to the current configuration and velocity vectors.
@@ -234,9 +234,9 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                        const Eigen::MatrixBase<ConfigVectorType> & q,
-                                        const Eigen::MatrixBase<TangentVectorType> & v);
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType> & v);
   
 } // namespace pinocchio
 
