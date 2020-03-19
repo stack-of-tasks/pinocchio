@@ -40,5 +40,47 @@ MACRO(ADD_TEST_CFLAGS target flag)
   SET_PROPERTY(TARGET ${target} APPEND_STRING PROPERTY COMPILE_FLAGS " ${flag}")
 ENDMACRO(ADD_TEST_CFLAGS)
 
+# timings
+# 
+ADD_BENCH(timings TRUE)
+IF(CPPADCG_FOUND)
+  ADD_BENCH(timings-cg TRUE)
+  SET_PROPERTY(TARGET timings-cg PROPERTY CXX_STANDARD 11)
+  PKG_CONFIG_USE_DEPENDENCY(timings-cg "cppadcg")
+  TARGET_LINK_LIBRARIES(timings-cg PUBLIC ${CMAKE_DL_LIBS})
+ENDIF(CPPADCG_FOUND)
+
+# timings
+# 
+ADD_BENCH(timings-cholesky TRUE)
+
+# timings derivatives
+ 
+ADD_BENCH(timings-derivatives TRUE)
+IF(CPPAD_FOUND)
+  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppad")
+ENDIF(CPPAD_FOUND)
+IF(CPPADCG_FOUND)
+  SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
+  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppadcg")
+ENDIF(CPPADCG_FOUND)
+
+# timings-eigen
+# 
+ADD_BENCH(timings-eigen)
+PKG_CONFIG_USE_DEPENDENCY(timings-eigen "eigen3")
+
+# timings-geometry
+# 
+IF(URDFDOM_FOUND AND HPP_FCL_FOUND)
+  ADD_BENCH(timings-geometry TRUE)
+ENDIF(URDFDOM_FOUND AND HPP_FCL_FOUND)
+
+# timings-jacobian
+#
+ADD_BENCH(timings-jacobian TRUE)
+
+# timings-contact-dynamics
+#
 ADD_BENCH(timings-contact-dynamics TRUE)
 ADD_BENCH(timings-contact-dynamics-derivatives TRUE)

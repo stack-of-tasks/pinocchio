@@ -43,9 +43,9 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
-OPTION(BUILD_BENCHMARK "Build the benchmarks" ON)
+OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION(BUILD_UTILS "Build the utils" OFF)
-OPTION(BUILD_PYTHON_INTERFACE "Build the Python binding" ON)
+OPTION(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON)
 OPTION(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF(DEFINED BUILD_UNIT_TESTS)
@@ -54,7 +54,7 @@ IF(DEFINED BUILD_UNIT_TESTS)
     we suggest that you delete your build folder and make a new one.")
   SET(BUILD_TESTING ${BUILD_UNIT_TESTS})
 ENDIF(DEFINED BUILD_UNIT_TESTS)
-SET(BUILD_TESTING OFF)#${BUILD_UNIT_TESTS})
+
 OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) of Pinocchio" OFF)
 
 # --- OPTIONAL DEPENDENCIES -------------------------
@@ -65,8 +65,6 @@ OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" 
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
-
-OPTION(ENABLE_VECTORIZATION "Initialize Eigen entries with NaN" ON)
 
 IF(BUILD_WITH_COLLISION_SUPPORT)
   SET(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
@@ -176,12 +174,6 @@ ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
 LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
-
-
-IF(ENABLE_VECTORIZATION)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-ENDIF()
-
 
 # Path to boost headers
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
