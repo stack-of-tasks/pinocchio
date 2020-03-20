@@ -170,18 +170,18 @@ namespace pinocchio
     ddq_partial_dtau_.noalias() = data.dlambda_dv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
     
-    data.dac_dq.noalias() -=  data.dlambda_dv * data.dtau_dq;
+    data.dac_dq.noalias() -= data.dlambda_dv * data.dtau_dq;
     data.dac_dv.noalias() -= data.dlambda_dv * data.dtau_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
 
     //TODO: SPARSE
-    data.dtau_dq.noalias() -= data.dac_da.transpose() * data.dlambda_dq;
-    data.dtau_dv.noalias() -= data.dac_da.transpose() * data.dlambda_dv;
+    data.dtau_dq.noalias() -= data.dac_da.transpose() * lambda_partial_dq;
+    data.dtau_dv.noalias() -= data.dac_da.transpose() * lambda_partial_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
   }
   
   
