@@ -111,7 +111,7 @@ int main(int argc, const char ** argv)
   {
     computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
-  std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA derivatives= \t\t\t"; timer.toc(std::cout,NBT);
 
   
   double total_time = 0;  
@@ -148,7 +148,7 @@ int main(int argc, const char ** argv)
     computeContactDynamicsDerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D,contact_datas_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D,6D} = \t\t" << (total_time/NBT)<<std::endl;  
+  std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
   return 0;
 }
 
