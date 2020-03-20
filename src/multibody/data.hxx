@@ -86,7 +86,6 @@ namespace pinocchio
   , dAdv(Matrix6x::Zero(6,model.nv))
   , dtau_dq(MatrixXs::Zero(model.nv,model.nv))
   , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
-  , dtau_dtau(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dtau(MatrixXs::Zero(model.nv,model.nv))

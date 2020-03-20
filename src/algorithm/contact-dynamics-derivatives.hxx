@@ -13,7 +13,7 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator, class AllocatorData>//, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator, class AllocatorData, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -21,23 +21,23 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<TangentVectorType2> & tau,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
                                                 const std::vector<RigidContactDataTpl<Scalar,Options>, AllocatorData> & contact_datas,
-                                                const Scalar mu/*,
-                                                                      const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
+                                                const Scalar mu,
+                                                const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
                                                 const Eigen::MatrixBase<MatrixType4> & lambda_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType5> & lambda_partial_dv,
-                                                const Eigen::MatrixBase<MatrixType6> & lambda_partial_dtau*/)
+                                                const Eigen::MatrixBase<MatrixType6> & lambda_partial_dtau)
   {
     const Eigen::DenseIndex& nc = data.contact_chol.constraintDim();
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
-    /*    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.rows() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dv.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dv.rows() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dtau.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dtau.rows() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dq.cols() == model.nv);
@@ -45,7 +45,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dv.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dv.rows() == nc);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);*/
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
     assert(model.check(data) && "data is not consistent with model.");
     assert(mu >= (Scalar)0 && "mu must be positive.");
     
@@ -62,11 +62,10 @@ namespace pinocchio
 
     data.contact_chol.getInverseMassMatrix(data.Minv);
 
-    size_t current_id = 0;
     Eigen::DenseIndex current_row_sol_id = 0;
     typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
     for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
-        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d, current_id++)
+        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d)
     {
       const RigidContactModel & contact_model = *it;
       const RigidContactData & contact_data = *it_d;
@@ -165,26 +164,24 @@ namespace pinocchio
     //Temporary: dlambda_dvq stores J*Minv
     //TODO: Sparse
     data.dlambda_dvq.noalias() = data.dac_daq * data.Minv;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dvq; //OUTPUT
 
-    data.dlambda_dtau.noalias() = -data.osim * data.dlambda_dvq; //OUTPUT
-    data.ddq_dtau.noalias() = data.dlambda_dvq.transpose() * data.dlambda_dtau;
-    
-    data.ddq_dtau += data.Minv; //OUTPUT
+    MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
+    ddq_partial_dtau_.noalias() = data.dlambda_dvq.transpose() * data.dlambda_dtau;
+    ddq_partial_dtau_ += data.Minv; //OUTPUT
     
     data.dac_dq.noalias() -=  data.dlambda_dvq * data.dtau_dq;
     data.dac_dvq.noalias() -= data.dlambda_dvq * data.dtau_dv;
 
-    data.dlambda_dq.noalias()   = -data.osim * data.dac_dq; //OUTPUT
-    data.dlambda_dvq.noalias()  = -data.osim * data.dac_dvq; //OUTPUT
-
-    data.dtau_dtau.setIdentity();
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dvq; //OUTPUT
 
     //TODO: SPARSE
     data.dtau_dq.noalias() -= data.dac_daq.transpose() * data.dlambda_dq;
     data.dtau_dv.noalias() -= data.dac_daq.transpose() * data.dlambda_dvq;
-    
-    data.ddq_dq.noalias() = -data.Minv*data.dtau_dq; //OUTPUT
-    data.ddq_dv.noalias() = -data.Minv*data.dtau_dv; //OUTPUT
+
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
   }
   
   

@@ -305,9 +305,6 @@ namespace pinocchio
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
     MatrixXs dtau_dv;
-
-    /// \brief Partial derivative of the joint torque vector (rnea) with respect to the joint torque.
-    MatrixXs dtau_dtau;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
     MatrixXs ddq_dq;
