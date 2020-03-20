@@ -151,8 +151,11 @@ namespace pinocchio
         const ConstBlockXpr U1
         = U.topLeftCorner(constraintDim(),constraintDim());
         
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
-        res_.noalias() = -U1 * D.head(constraintDim()).asDiagonal() * U1.adjoint();
+        OSIMinv_tmp.noalias() = D.head(constraintDim()).asDiagonal() * U1.adjoint();
+        res_.noalias() = -U1 * OSIMinv_tmp;
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
       }
       
       ///
@@ -174,8 +177,11 @@ namespace pinocchio
         const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U1
         = U.topLeftCorner(constraintDim(),constraintDim()).template triangularView<Eigen::UnitUpper>();
 
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
-        res.noalias() = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal() *  U1inv;
+        OSIMinv_tmp.noalias() = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal();
+        res.noalias() = OSIMinv_tmp *  U1inv;
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
 
       template<typename MatrixType>
@@ -187,8 +193,11 @@ namespace pinocchio
         const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U4
           = U.bottomRightCorner(nv,nv).template triangularView<Eigen::UnitUpper>();
 
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         U4inv.setIdentity(); U4.solveInPlace(U4inv); // TODO: implement Sparse Inverse
-        res.noalias() = U4inv.adjoint()  * Dinv.tail(nv).asDiagonal() *  U4inv;
+        Minv_tmp.noalias() = U4inv.adjoint()  * Dinv.tail(nv).asDiagonal();
+        res.noalias() = Minv_tmp *  U4inv;
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
       
       ///
@@ -394,6 +403,10 @@ namespace pinocchio
       mutable Matrix U1inv;
       /// \brief Inverse of the bottom right block of U
       mutable Matrix U4inv;
+      
+    private:
+      
+      mutable RowMatrix OSIMinv_tmp, Minv_tmp;
       
     };
     
