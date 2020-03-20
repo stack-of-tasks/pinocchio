@@ -138,8 +138,21 @@ namespace pinocchio
         const ConstBlockXpr U1
         = U.topLeftCorner(constraintDim(),constraintDim());
         
-        Matrix res = -U1 * D.head(constraintDim()).asDiagonal() * U1.adjoint();
+        Matrix res(constraintDim(), constraintDim());
+        getInverseOperationalSpaceInertiaMatrix(res);
         return res;
+      }
+ 
+      template<typename MatrixType>
+      void getInverseOperationalSpaceInertiaMatrix(const Eigen::MatrixBase<MatrixType> & res) const
+      {
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
+        const ConstBlockXpr U1
+        = U.topLeftCorner(constraintDim(),constraintDim());
+        
+        MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
+        res_.noalias() = -U1 * D.head(constraintDim()).asDiagonal() * U1.adjoint();
       }
       
       ///
