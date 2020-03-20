@@ -92,22 +92,22 @@ namespace pinocchio
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
-        RowsBlock contact_dac_dvq = SizeDepType<6>::middleRows(data.dac_dvq,
+        RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,
                                                                current_row_sol_id);
-        RowsBlock contact_dac_daq = SizeDepType<6>::middleRows(data.dac_daq,
+        RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
                                                                   current_row_sol_id);
 
-        contact_dac_daq = contact_data.a_partial_da;
+        contact_dac_da = contact_data.a_partial_da;
 
         contact_dac_dq = contact_data.a_partial_dq;
-        contact_dac_dvq = contact_data.a_partial_dv;
+        contact_dac_dv = contact_data.a_partial_dv;
 
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
           contact_dac_dq.template topRows<3>().col(j) +=
             data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
             - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
-          contact_dac_dvq.template topRows<3>().col(j) +=
+          contact_dac_dv.template topRows<3>().col(j) +=
             data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
             - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
         }
@@ -132,22 +132,22 @@ namespace pinocchio
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
-        RowsBlock contact_dac_dvq = SizeDepType<3>::middleRows(data.dac_dvq,
+        RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,
                                                                current_row_sol_id);
-        RowsBlock contact_dac_daq = SizeDepType<3>::middleRows(data.dac_daq,
+        RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
                                                                   current_row_sol_id);
 
-        contact_dac_daq.noalias() = contact_data.a_partial_da.template topRows<3>();
+        contact_dac_da.noalias() = contact_data.a_partial_da.template topRows<3>();
 
         contact_dac_dq = contact_data.a_partial_dq.template topRows<3>();
-        contact_dac_dvq = contact_data.a_partial_dv.template topRows<3>();
+        contact_dac_dv = contact_data.a_partial_dv.template topRows<3>();
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
           contact_dac_dq.template topRows<3>().col(j) +=
             data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
             - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
-          contact_dac_dvq.template topRows<3>().col(j) +=
+          contact_dac_dv.template topRows<3>().col(j) +=
             data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
             - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
         }
@@ -160,25 +160,25 @@ namespace pinocchio
       }
     }
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
-    
-    //Temporary: dlambda_dvq stores J*Minv
+
+    //Temporary: dlambda_dv stores J*Minv
     //TODO: Sparse
-    data.dlambda_dvq.noalias() = data.dac_daq * data.Minv;
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dvq; //OUTPUT
+    data.dlambda_dv.noalias() = data.dac_da * data.Minv;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dv; //OUTPUT
 
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
-    ddq_partial_dtau_.noalias() = data.dlambda_dvq.transpose() * lambda_partial_dtau;
+    ddq_partial_dtau_.noalias() = data.dlambda_dv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
     
-    data.dac_dq.noalias() -=  data.dlambda_dvq * data.dtau_dq;
-    data.dac_dvq.noalias() -= data.dlambda_dvq * data.dtau_dv;
+    data.dac_dq.noalias() -=  data.dlambda_dv * data.dtau_dq;
+    data.dac_dv.noalias() -= data.dlambda_dv * data.dtau_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dvq; //OUTPUT
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
 
     //TODO: SPARSE
-    data.dtau_dq.noalias() -= data.dac_daq.transpose() * data.dlambda_dq;
-    data.dtau_dv.noalias() -= data.dac_daq.transpose() * data.dlambda_dvq;
+    data.dtau_dq.noalias() -= data.dac_da.transpose() * data.dlambda_dq;
+    data.dtau_dv.noalias() -= data.dac_da.transpose() * data.dlambda_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT

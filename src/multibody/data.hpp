@@ -317,15 +317,15 @@ namespace pinocchio
     
     /// \brief Partial derivative of the contact frame acceleration with respect to the joint params
     MatrixXs dac_dq;
-    MatrixXs dac_dvq;
-    MatrixXs dac_daq;
+    MatrixXs dac_dv;
+    MatrixXs dac_da;
 
     /// \brief Operational space inertia matrix;
     MatrixXs osim;
 
     /// \brief Partial derivatives of the contact lambdas wrt joint params;
     MatrixXs dlambda_dq;
-    MatrixXs dlambda_dvq;
+    MatrixXs dlambda_dv;
     MatrixXs dlambda_dtau;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.

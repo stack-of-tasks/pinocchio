@@ -37,7 +37,7 @@ namespace pinocchio
                                                 const Scalar mu = Scalar(0.))
   {
     computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, contact_datas, mu, data.ddq_dq, data.ddq_dv, data.ddq_dtau,
-                                      data.dlambda_dq, data.dlambda_dvq, data.dlambda_dtau);
+                                      data.dlambda_dq, data.dlambda_dv, data.dlambda_dtau);
   };  
   
 } // namespace pinocchio
