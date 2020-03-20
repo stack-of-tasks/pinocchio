@@ -18,7 +18,21 @@ namespace pinocchio {}
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+  #ifndef EIGEN_RUNTIME_NO_MALLOC
+    #define EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+    #define EIGEN_RUNTIME_NO_MALLOC
+  #endif
+#endif
+  
 #include <Eigen/Core>
+
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+  #ifdef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+    #undef EIGEN_RUNTIME_NO_MALLOC
+    #undef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+  #endif
+#endif
 
 #include "pinocchio/eigen-macros.hpp"
 
