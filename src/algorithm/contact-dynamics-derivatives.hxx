@@ -167,7 +167,7 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dvq; //OUTPUT
 
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
-    ddq_partial_dtau_.noalias() = data.dlambda_dvq.transpose() * data.dlambda_dtau;
+    ddq_partial_dtau_.noalias() = data.dlambda_dvq.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
     
     data.dac_dq.noalias() -=  data.dlambda_dvq * data.dtau_dq;
