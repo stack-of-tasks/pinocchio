@@ -60,8 +60,6 @@ namespace pinocchio
 
     computeRNEADerivatives(model, data, q, v, data.ddq, data.contact_forces);
 
-    data.contact_chol.getInverseMassMatrix(data.Minv);
-
     Eigen::DenseIndex current_row_sol_id = 0;
     typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
     for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
@@ -160,6 +158,7 @@ namespace pinocchio
       }
     }
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
+    data.contact_chol.getInverseMassMatrix(data.Minv);
 
     //Temporary: dlambda_dv stores J*Minv
     //TODO: Sparse
