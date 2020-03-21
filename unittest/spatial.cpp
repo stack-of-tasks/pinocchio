@@ -966,6 +966,11 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   test_scalar_multiplication_cartesian_axis<0>::run();
   test_scalar_multiplication_cartesian_axis<1>::run();
   test_scalar_multiplication_cartesian_axis<2>::run();
+  
+  // test Vector value
+  BOOST_CHECK(XAxis::vector() == Vector3d::UnitX());
+  BOOST_CHECK(YAxis::vector() == Vector3d::UnitY());
+  BOOST_CHECK(ZAxis::vector() == Vector3d::UnitZ());
 }
 
 template<int axis>

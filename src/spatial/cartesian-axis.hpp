@@ -69,6 +69,19 @@ namespace pinocchio
         v3_[i] = i == axis ? Scalar(1) : Scalar(0);
     }
     
+    template<typename Scalar>
+    static Eigen::Matrix<Scalar,3,1> vector()
+    {
+      typedef Eigen::Matrix<Scalar,3,1> Vector3;
+      static const Vector3 vec = Vector3::Unit(axis);
+      return vec;
+    }
+    
+    static Eigen::Matrix<double,3,1> vector()
+    {
+      return vector<double>();
+    }
+    
   }; // struct CartesianAxis
   
   template<>
