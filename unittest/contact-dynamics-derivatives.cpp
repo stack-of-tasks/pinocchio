@@ -149,8 +149,8 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   //std::cerr<<"df_dq"<<std::endl<<df_dq<<std::endl;
   //std::cerr<<"dlambda_dq"<<std::endl<<data.dlambda_dq<<std::endl;
   
-  BOOST_CHECK(df_dq.isApprox(data.dlambda_dq, 1e-8));
-  BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq, 1e-8));
+  BOOST_CHECK(df_dq.isApprox(data.dlambda_dq));
+  BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq));
 }
 
 BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
