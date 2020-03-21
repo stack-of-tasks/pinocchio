@@ -1,6 +1,7 @@
 from .. import libpinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
+from numpy.linalg import norm
 
 from . import BaseVisualizer
 
@@ -71,6 +72,21 @@ class GepettoVisualizer(BaseVisualizer):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
         elif isinstance(geom, hppfcl.Cone):
             return gui.addCone(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Plane):
+            res = gui.createGroup(meshName)
+            if not res:
+                return False
+            planeName = meshName + "/plane"
+            res = gui.addFloor(planeName)
+            if not res:
+                return False
+            normal = geom.n
+            rot = pin.Quaternion.FromTwoVectors(normal,pin.ZAxis)
+            alpha = -geom.d / norm(normal,2)**2
+            trans = alpha * normal
+            plane_offset = pin.SE3(rot,trans)
+            gui.applyConfiguration(planeName,pin.SE3ToXYZQUATtuple(plane_offset))
+            return True
         else:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
