@@ -260,8 +260,8 @@ namespace pinocchio
       
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
       
-      typename Data::MatrixXs & rnea_partial_dq = data.dtau_dq;
-      typename Data::MatrixXs & rnea_partial_dv = data.dtau_dv;
+      typename Data::RowMatrixXs & rnea_partial_dq = data.dtau_dq;
+      typename Data::RowMatrixXs & rnea_partial_dv = data.dtau_dv;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       

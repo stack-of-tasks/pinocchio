@@ -301,10 +301,10 @@ namespace pinocchio
     Matrix6x dAdv;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint configuration.
-    MatrixXs dtau_dq;
+    RowMatrixXs dtau_dq;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
-    MatrixXs dtau_dv;
+    RowMatrixXs dtau_dv;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
     RowMatrixXs ddq_dq;
