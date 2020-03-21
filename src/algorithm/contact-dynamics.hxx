@@ -70,26 +70,26 @@ namespace pinocchio
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      
-      data.v[i] = jdata.v();
-      
       if(parent > 0)
-      {
         data.oMi[i] = data.oMi[parent] * data.liMi[i];
-        data.v[i] += data.liMi[i].actInv(data.v[parent]);
-      }
       else
         data.oMi[i] = data.liMi[i];
       
-      data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
+      ov = data.oMi[i].act(jdata.v());
       if(parent > 0)
-        data.a[i] += data.liMi[i].actInv(data.a[parent]);
+        ov += data.ov[parent];
+      
+      oa = data.oMi[i].act(jdata.c());
+      
+      if(parent > 0)
+      {
+        oa += (data.ov[parent] ^ ov);
+        oa += data.oa[parent];
+      }
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
       oYcrb = data.oMi[i].act(model.inertias[i]);
       
-      ov = data.oMi[i].act(data.v[i]);
-      oa = data.oMi[i].act(data.a[i]);
       oa_gf = oa - model.gravity; // add gravity contribution
       
       oh = oYcrb * ov;
@@ -111,6 +111,7 @@ namespace pinocchio
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
                      Data & data)
     {
@@ -119,7 +120,7 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
 
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
-      ColsBlock J_cols = jmodel.jointCols(data.J);
+      const ColsBlock J_cols = jmodel.jointCols(data.J);
       motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
@@ -220,25 +221,15 @@ namespace pinocchio
       iMcontact = frame.placement * contact_info.placement;
       oMcontact = oMi * iMcontact;
 
-      classicAcceleration(data.v[joint_id],
-                          data.a[joint_id],
-                          iMcontact,
+      classicAcceleration(data.ov[joint_id],
+                          data.oa[joint_id],
+                          oMcontact,
                           coriolis_centrifugal_acc_local);
-      // LINEAR
-      coriolis_centrifugal_acc.linear().noalias()
-      = oMcontact.rotation() * coriolis_centrifugal_acc_local;
-
-      // ANGULAR
-      coriolis_centrifugal_acc.angular().noalias()
-      = data.oMi[joint_id].rotation() * data.a[joint_id].angular();
       
       switch(contact_info.reference_frame)
       {
         case WORLD:
         {
-          data.ov[joint_id] = oMi.act(data.v[joint_id]);
-          data.oa[joint_id] = oMi.act(data.a[joint_id]);
-          
           // LINEAR
           classicAcceleration(data.ov[joint_id],
                               data.oa[joint_id],
@@ -251,9 +242,9 @@ namespace pinocchio
         case LOCAL_WORLD_ALIGNED:
         {
           // LINEAR
-          coriolis_centrifugal_acc.linear() = oMcontact.rotation() * coriolis_centrifugal_acc_local;
+          coriolis_centrifugal_acc.linear().noalias() = oMcontact.rotation() * coriolis_centrifugal_acc_local;
           // ANGULAR
-          coriolis_centrifugal_acc.angular().noalias() = oMi.rotation() * data.a[joint_id].angular();
+          coriolis_centrifugal_acc.angular() = data.oa[joint_id].angular();
           
           break;
         }
@@ -262,7 +253,7 @@ namespace pinocchio
           // LINEAR
           coriolis_centrifugal_acc.linear() = coriolis_centrifugal_acc_local;
           // ANGULAR
-          coriolis_centrifugal_acc.angular().noalias() = iMcontact.rotation().transpose() * data.a[joint_id].angular();
+          coriolis_centrifugal_acc.angular().noalias() = oMcontact.rotation().transpose() * data.oa[joint_id].angular();
           
           break;
         }
@@ -448,7 +439,7 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
-    struct ContactABABackwardStepAugmented
+  struct ContactABABackwardStepAugmented
   : public fusion::JointUnaryVisitorBase< ContactABABackwardStepAugmented<Scalar,Options,JointCollectionTpl,TangentVectorType> >
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

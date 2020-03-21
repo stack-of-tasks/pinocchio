@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   {
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
     BOOST_CHECK(data.liMi[k].isApprox(data_ref.liMi[k]));
-    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.oMi[k].act(data_ref.v[k])));
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
   }
   
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   {
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
     BOOST_CHECK(data.liMi[k].isApprox(data_ref.liMi[k]));
-    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.oMi[k].act(data_ref.v[k])));
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oMi[k].act(data_ref.a_gf[k])));
   }
   
