@@ -13,7 +13,7 @@ namespace pinocchio
 {
 
   /**
-   * \addtogroup multibody
+   * \addtogroup pinocchio_multibody
    * @{
    */
 

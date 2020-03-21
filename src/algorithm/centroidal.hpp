@@ -59,12 +59,10 @@ namespace pinocchio
     return computeCentroidalMomentum(model,data);
   }
   
+  /// \copydoc pinocchio::computeCentroidalMomentum
   ///
-  /// \brief This function has been renamed into computeCentroidalMomentum. This signature will be removed in a future release of Pinocchio.
+  /// \deprecated This function has been renamed into \ref computeCentroidalMomentum. This signature will be removed in a future release of Pinocchio.
   ///        Please consider using this new naming.
-  ///
-  /// \copydoc pinocchio::computeCentroidalMomentum<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType>
-  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConfigVectorType, typename TangentVectorType>
   PINOCCHIO_DEPRECATED
@@ -127,12 +125,10 @@ namespace pinocchio
     return computeCentroidalMomentumTimeVariation(model,data);
   }
 
+  /// \copydoc pinocchio::computeCentroidalMomentumTimeVariation
   ///
-  /// \brief This function has been renamed into computeCentroidalMomentumTimeVariation. This signature will be removed in a future release of Pinocchio.
+  /// \deprecated This function has been renamed into \ref computeCentroidalMomentumTimeVariation. This signature will be removed in a future release of Pinocchio.
   ///        Please consider using this new naming.
-  ///
-  /// \copydoc pinocchio::computeCentroidalMomentumTimeVariation<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2>
-  ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   PINOCCHIO_DEPRECATED

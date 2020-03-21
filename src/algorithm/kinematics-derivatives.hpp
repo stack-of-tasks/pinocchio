@@ -127,7 +127,7 @@ namespace pinocchio
 
   ///
   /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
-  ///        kinematic Hessian. This function assumes that the joint Jacobians (a.k.a data.J) has been computed first. \See computeJointJacobians
+  ///        kinematic Hessian. This function assumes that the joint Jacobians (a.k.a data.J) has been computed first. See \ref computeJointJacobians
   ///        for such a function.
   ///
   /// \tparam Scalar Scalar type of the kinematic model.

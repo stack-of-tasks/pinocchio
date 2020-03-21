@@ -60,7 +60,7 @@ namespace Eigen
   }
 } //namespace Eigen
 
-/// Source from #include <cppad/example/cppad_eigen.hpp>
+// Source from #include <cppad/example/cppad_eigen.hpp>
 namespace Eigen
 {
   template <class Base> struct NumTraits< CppAD::AD<Base> >
@@ -114,7 +114,7 @@ namespace Eigen
   };
 } // namespace Eigen
 
-/// Source from #include <cppad/example/cppad_eigen.hpp>
+// Source from #include <cppad/example/cppad_eigen.hpp>
 namespace CppAD
 {
   // functions that return references

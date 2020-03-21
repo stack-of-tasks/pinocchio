@@ -107,12 +107,12 @@ Therefore `tau` is `numpy` matrix object, and so are `q`, `v` and `a`.
 
 Before we move on, a little tip: in our examples, we generaly include the whole namespace `pinocchio` for clarity.
 However, if you feel like "pinocchio" is too long to type, the recommended shorthands are
-```
+```{.cpp}
 namespace pin = pinocchio;
 ```
 in C++
 and
-```
+```{.py}
 import pinocchio as pin
 ```
 in Python.

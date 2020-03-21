@@ -11,6 +11,29 @@
 
 namespace pinocchio
 {
+  /// \internal
+  namespace internal
+  {
+    /// \brief Default return type for the operation: Type*Scalar
+    template<typename Type, typename Scalar>
+    struct RHSScalarMultiplication
+    {
+      typedef Type ReturnType;
+    };
+    
+    /// \brief Default return type for the operation: Scalar*Type
+    template<typename Type, typename Scalar>
+    struct LHSScalarMultiplication
+    {
+      typedef Type ReturnType;
+    };
+  }
+  /// \endinternal
+
+  /**
+   * \addtogroup pinocchio_spatial
+   * @{
+   */
   
   template<typename Scalar, int Options=0> struct SE3Tpl;
 
@@ -29,27 +52,6 @@ namespace pinocchio
   template<typename Scalar, int Options=0> class InertiaTpl;
   template<typename Scalar, int Options=0> class Symmetric3Tpl;
   
-  namespace internal
-  {
-    /// \brief Default return type for the operation: Type*Scalar
-    template<typename Type, typename Scalar>
-    struct RHSScalarMultiplication
-    {
-      typedef Type ReturnType;
-    };
-    
-    /// \brief Default return type for the operation: Scalar*Type
-    template<typename Type, typename Scalar>
-    struct LHSScalarMultiplication
-    {
-      typedef Type ReturnType;
-    };
-  }
-
-  /**
-   * \addtogroup spatial
-   * @{
-   */
 
   typedef SE3Tpl        <double,0> SE3;
   typedef MotionTpl     <double,0> Motion;

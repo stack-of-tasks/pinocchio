@@ -12,7 +12,7 @@
 namespace pinocchio
 {
   ///
-  /// \brief Copy part of the data from <orig> to <dest>. Template parameter can be 
+  /// \brief Copy part of the data from \c origin to \c dest. Template parameter can be 
   /// used to select at which differential level the copy should occur.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -34,7 +34,7 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 //#include "pinocchio/algorithm/copy.hxx"
 
-
+/// \internal
 namespace pinocchio
 {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -67,5 +67,6 @@ namespace pinocchio
 
 
 } // namespace pinocchio
+/// \endinternal
 
 #endif // ifndef __pinocchio_copy_hpp__

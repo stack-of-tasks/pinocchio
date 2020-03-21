@@ -10,12 +10,14 @@
 namespace pinocchio
 {
 
+  /// \internal
+  enum { MAX_JOINT_NV = 6 };
+  /// \endinternal
+
   /**
-   * \addtogroup joint
+   * \addtogroup pinocchio_joint
    * @{
    */
-
-  enum { MAX_JOINT_NV = 6 };
   
   struct JointModelVoid {};
   struct JointDataVoid {};
