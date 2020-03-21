@@ -47,6 +47,8 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
     assert(model.check(data) && "data is not consistent with model.");
+
+    //TODO: mu is currently unused in implementation
     assert(mu >= (Scalar)0 && "mu must be positive.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -175,9 +177,72 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
 
-    //TODO: SPARSE
-    data.dtau_dq.noalias() -= data.dac_da.transpose() * lambda_partial_dq;
-    data.dtau_dv.noalias() -= data.dac_da.transpose() * lambda_partial_dv;
+    current_row_sol_id = 0;
+    for(typename RigidContactModelVector::const_iterator it = contact_models.begin(); it != contact_models.end(); ++it)
+    {
+      const RigidContactModel & contact_model = *it;
+      
+      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
+      const typename Model::Frame & frame = model.frames[frame_id];
+      const typename Model::JointIndex & joint_id = frame.parent;
+      
+      //TODO: This is only for size 6. replace with contact_model::NC
+      switch(contact_model.type)
+      {
+      case CONTACT_6D:
+      {
+        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::ConstType ConstRowsBlock;
+
+        //TODO: replace with contact_model::nc
+        RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
+                                                                   current_row_sol_id);
+
+        ConstRowsBlock contact_dlambda_dq = SizeDepType<6>::middleRows(lambda_partial_dq,
+                                                                  current_row_sol_id);
+        ConstRowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(lambda_partial_dv,
+                                                                  current_row_sol_id);
+        
+        int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+        {
+          data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
+          data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
+        }
+        current_row_sol_id += 6;
+        break;
+      }
+      case CONTACT_3D:
+      {
+        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::ConstType ConstRowsBlock;
+
+        //TODO: replace with contact_model::nc
+        RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
+                                                                   current_row_sol_id);
+
+        ConstRowsBlock contact_dlambda_dq = SizeDepType<3>::middleRows(lambda_partial_dq,
+                                                                  current_row_sol_id);
+        ConstRowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(lambda_partial_dv,
+                                                                  current_row_sol_id);
+        
+        int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+        for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+        {
+          data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
+          data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
+        }
+        current_row_sol_id += 3;
+        break;
+      }
+
+      default:
+        assert(false && "must never happen");
+        break;
+      }
+    }
+    //data.dtau_dq.noalias() -= data.dac_da.transpose() * lambda_partial_dq;
+    //data.dtau_dv.noalias() -= data.dac_da.transpose() * lambda_partial_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
