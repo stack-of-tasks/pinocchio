@@ -88,7 +88,7 @@ namespace pinocchio
   , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
-  , ddq_dtau(MatrixXs::Zero(model.nv,model.nv))
+  , ddq_dtau(RowMatrixXs::Zero(model.nv,model.nv))
   , iMf((std::size_t)model.njoints,SE3::Identity())
   , com((std::size_t)model.njoints,Vector3::Zero())
   , vcom((std::size_t)model.njoints,Vector3::Zero())
