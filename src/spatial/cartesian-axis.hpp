@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_cartesian_axis_hpp__
@@ -140,9 +140,14 @@ namespace pinocchio
     vout_[0] = -s*vin[1]; vout_[1] = s*vin[0]; vout_[2] = 0.;
   }
  
-  typedef CartesianAxis<0> AxisX;
-  typedef CartesianAxis<1> AxisY;
-  typedef CartesianAxis<2> AxisZ;
+  typedef CartesianAxis<0> XAxis;
+  typedef XAxis AxisX;
+
+  typedef CartesianAxis<1> YAxis;
+  typedef YAxis AxisY;
+
+  typedef CartesianAxis<2> ZAxis;
+  typedef ZAxis AxisZ;
 
 }
 

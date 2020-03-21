@@ -956,12 +956,12 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   const double alpha = 3;
   Vector3d v2(alpha*v);
   
-  BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
-  BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
-  BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
-  BOOST_CHECK(AxisX::alphaCross(alpha,v).isApprox(Vector3d::Unit(0).cross(v2)));
-  BOOST_CHECK(AxisY::alphaCross(alpha,v).isApprox(Vector3d::Unit(1).cross(v2)));
-  BOOST_CHECK(AxisZ::alphaCross(alpha,v).isApprox(Vector3d::Unit(2).cross(v2)));
+  BOOST_CHECK(XAxis::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
+  BOOST_CHECK(YAxis::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
+  BOOST_CHECK(ZAxis::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
+  BOOST_CHECK(XAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(0).cross(v2)));
+  BOOST_CHECK(YAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(1).cross(v2)));
+  BOOST_CHECK(ZAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(2).cross(v2)));
   
   test_scalar_multiplication_cartesian_axis<0>::run();
   test_scalar_multiplication_cartesian_axis<1>::run();

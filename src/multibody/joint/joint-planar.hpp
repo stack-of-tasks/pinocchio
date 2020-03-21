@@ -61,7 +61,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     MOTION_TYPEDEF_TPL(MotionPlanarTpl);
     
-    typedef CartesianAxis<2> AxisZ;
+    typedef CartesianAxis<2> ZAxis;
 
     MotionPlanarTpl() {}
     
@@ -121,7 +121,7 @@ namespace pinocchio
       // Linear
       // TODO: use v.angular() as temporary variable
       Vector3 v3_tmp;
-      AxisZ::alphaCross(wz(),m.translation(),v3_tmp);
+      ZAxis::alphaCross(wz(),m.translation(),v3_tmp);
       v3_tmp[0] += vx(); v3_tmp[1] += vy();
       v.linear().noalias() = m.rotation().transpose() * v3_tmp;
       
@@ -141,7 +141,7 @@ namespace pinocchio
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
       // Linear
-      AxisZ::alphaCross(-wz(),v.linear(),mout.linear());
+      ZAxis::alphaCross(-wz(),v.linear(),mout.linear());
       
       typename M1::ConstAngularType w_in = v.angular();
       typename M2::LinearType v_out = mout.linear();
@@ -151,7 +151,7 @@ namespace pinocchio
       v_out[2] += -w_in[1] * vx() + w_in[0] * vy() ;
       
       // Angular
-      AxisZ::alphaCross(-wz(),v.angular(),mout.angular());
+      ZAxis::alphaCross(-wz(),v.angular(),mout.angular());
     }
     
     template<typename M1>
