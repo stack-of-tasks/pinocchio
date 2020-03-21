@@ -93,9 +93,9 @@ namespace pinocchio
         RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
         RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,
-                                                               current_row_sol_id);
+                                                              current_row_sol_id);
         RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                                  current_row_sol_id);
+                                                              current_row_sol_id);
 
         contact_dac_da = contact_data.a_partial_da;
 
@@ -133,9 +133,9 @@ namespace pinocchio
         RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
         RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,
-                                                               current_row_sol_id);
+                                                              current_row_sol_id);
         RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                                  current_row_sol_id);
+                                                              current_row_sol_id);
 
         contact_dac_da.noalias() = contact_data.a_partial_da.template topRows<3>();
 
@@ -196,12 +196,12 @@ namespace pinocchio
 
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                                   current_row_sol_id);
+                                                              current_row_sol_id);
 
         ConstRowsBlock contact_dlambda_dq = SizeDepType<6>::middleRows(lambda_partial_dq,
-                                                                  current_row_sol_id);
+                                                                       current_row_sol_id);
         ConstRowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(lambda_partial_dv,
-                                                                  current_row_sol_id);
+                                                                       current_row_sol_id);
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
@@ -219,12 +219,12 @@ namespace pinocchio
 
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                                   current_row_sol_id);
+                                                              current_row_sol_id);
 
         ConstRowsBlock contact_dlambda_dq = SizeDepType<3>::middleRows(lambda_partial_dq,
-                                                                  current_row_sol_id);
+                                                                       current_row_sol_id);
         ConstRowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(lambda_partial_dv,
-                                                                  current_row_sol_id);
+                                                                       current_row_sol_id);
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])

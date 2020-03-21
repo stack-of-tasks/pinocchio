@@ -179,8 +179,8 @@ namespace pinocchio
 
         PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         U1inv.setIdentity(); U1.solveInPlace(U1inv); // TODO: implement Sparse Inverse
-        OSIMinv_tmp.noalias() = -U1inv.adjoint()  * Dinv.head(constraintDim()).asDiagonal();
-        res.noalias() = OSIMinv_tmp *  U1inv;
+        OSIMinv_tmp.noalias() = -U1inv.adjoint() * Dinv.head(constraintDim()).asDiagonal();
+        res.noalias() = OSIMinv_tmp * U1inv;
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
 
@@ -195,8 +195,8 @@ namespace pinocchio
 
         PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         U4inv.setIdentity(); U4.solveInPlace(U4inv); // TODO: implement Sparse Inverse
-        Minv_tmp.noalias() = U4inv.adjoint()  * Dinv.tail(nv).asDiagonal();
-        res.noalias() = Minv_tmp *  U4inv;
+        Minv_tmp.noalias() = U4inv.adjoint() * Dinv.tail(nv).asDiagonal();
+        res.noalias() = Minv_tmp * U4inv;
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
       
