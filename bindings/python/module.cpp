@@ -12,6 +12,7 @@
 #include "pinocchio/bindings/python/utils/registration.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/spatial/cartesian-axis.hpp"
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -45,6 +46,13 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   eigenpy::enableEigenPySpecific<Vector6d>();
   eigenpy::enableEigenPySpecific<Matrix6x>();
   eigenpy::enableEigenPySpecific<Matrix3x>();
+  
+  bp::scope().attr("XAxis")
+  = bp::object(bp::handle<>(eigenpy::EigenToPy<const pinocchio::XAxis::Vector3 &>::convert(pinocchio::XAxis::vector())));
+  bp::scope().attr("YAxis")
+  = bp::object(bp::handle<>(eigenpy::EigenToPy<const pinocchio::YAxis::Vector3 &>::convert(pinocchio::YAxis::vector())));
+  bp::scope().attr("ZAxis")
+  = bp::object(bp::handle<>(eigenpy::EigenToPy<const pinocchio::ZAxis::Vector3 &>::convert(pinocchio::ZAxis::vector())));
 
   exposeSE3();
   exposeForce();
