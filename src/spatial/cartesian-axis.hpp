@@ -14,6 +14,8 @@ namespace pinocchio
   struct CartesianAxis
   {
     enum { axis = _axis, dim = 3 };
+    
+    typedef Eigen::Matrix<double,3,1> Vector3;
 
     template<typename V3_in, typename V3_out>
     inline static void cross(const Eigen::MatrixBase<V3_in> & vin,
@@ -70,14 +72,14 @@ namespace pinocchio
     }
     
     template<typename Scalar>
-    static Eigen::Matrix<Scalar,3,1> vector()
+    static const Eigen::Matrix<Scalar,3,1> & vector()
     {
       typedef Eigen::Matrix<Scalar,3,1> Vector3;
       static const Vector3 vec = Vector3::Unit(axis);
       return vec;
     }
     
-    static Eigen::Matrix<double,3,1> vector()
+    static const Vector3 & vector()
     {
       return vector<double>();
     }
