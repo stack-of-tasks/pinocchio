@@ -91,7 +91,21 @@ namespace pinocchio
   bool computeCollision(const GeometryModel & geom_model,
                         GeometryData & geom_data,
                         const PairIndex & pairId);
-  
+
+  ///
+  /// Calls computeCollision for every active pairs of GeometryData.
+  ///
+  /// \param[in] geom_model: geometry model (const)
+  /// \param[out] geom_data: corresponding geometry data (nonconst) where collisions are computed
+  /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
+  ///
+  /// \warning if stopAtFirstcollision = true, then the collisions vector will
+  /// not be entirely fulfilled (of course).
+  ///
+  inline bool computeCollisions(const GeometryModel & geom_model,
+                                GeometryData & geom_data,
+                                const bool stopAtFirstCollision = true);
+
   ///
   /// Compute the forward kinematics, update the geometry placements and
   /// calls computeCollision for every active pairs of GeometryData.
@@ -105,8 +119,6 @@ namespace pinocchio
   /// \param[out] geom_data corresponding geometry data (nonconst) where distances are computed
   /// \param[in] q robot configuration.
   /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
-  /// \return When ComputeShortest is true, the index of the collision pair which has the shortest distance.
-  ///         When ComputeShortest is false, the number of collision pairs.
   ///
   /// \warning if stopAtFirstcollision = true, then the collisions vector will
   /// not be entirely fulfilled (of course).
@@ -158,7 +170,7 @@ namespace pinocchio
                                       const Eigen::MatrixBase<ConfigVectorType> & q);
   
   ///
-  /// Compute the forward kinematics, update the geometry placements and
+  /// Update the geometry placements and
   /// calls computeDistance for every active pairs of GeometryData.
   ///
   /// \tparam JointCollection Collection of Joint types.
