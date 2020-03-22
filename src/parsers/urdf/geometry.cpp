@@ -12,6 +12,7 @@ namespace pinocchio
 {
   namespace urdf
   {
+    /// \internal
     namespace details
     {
       struct UrdfTree
@@ -486,5 +487,6 @@ namespace pinocchio
             visitor, geomModel, hint_directories,type);
       }
     } // namespace details
+    /// \endinternal
   } // namespace urdf
 } // namespace pinocchio

@@ -73,7 +73,7 @@ namespace pinocchio
   
   inline bool computeCollisions(const GeometryModel & geom_model,
                                 GeometryData & geom_data,
-                                const bool stopAtFirstCollision = true)
+                                const bool stopAtFirstCollision)
   {
     bool isColliding = false;
     

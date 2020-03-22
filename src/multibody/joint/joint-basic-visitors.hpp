@@ -51,6 +51,7 @@ namespace pinocchio
    * @param[in]  jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
    * @param      jdata   The JointDataVariant we want to update
    * @param[in]  q       The full model's (in which the joint belongs to) configuration vector
+   * @param[in]  v       The full model's (in which the joint belongs to) velocity vector
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline void calc_first_order(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,

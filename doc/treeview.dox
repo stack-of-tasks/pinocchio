@@ -111,11 +111,11 @@ namespace pinocchio {
   // Modules organization
   //
 
-  /** \defgroup spatial Spatial */
-  /** \defgroup multibody Multibody */
-  /** \defgroup joint Joint */
-  /** \defgroup parsers Parsers */
-  /** \defgroup algorithms Algorithms */
+  /** \defgroup pinocchio_spatial Spatial */
+  /** \defgroup pinocchio_multibody Multibody */
+  /** \defgroup pinocchio_joint Joint */
+  /** \defgroup pinocchio_parsers Parsers */
+  /** \defgroup pinocchio_algorithms Algorithms */
 
   /// \namespace pinocchio::container
   /// \brief Specialized containers

@@ -200,7 +200,7 @@ namespace pinocchio
   }
 }
 
-/// Overloading of max operator
+// Overloading of max operator
 namespace pinocchio
 {
   namespace math

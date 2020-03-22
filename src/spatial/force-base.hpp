@@ -6,20 +6,15 @@
 #ifndef __pinocchio_force_base_hpp__
 #define __pinocchio_force_base_hpp__
 
-/**
- *
- *  This module represents a spatial force, e.g. a spatial impulse or force associated to a body.
- *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
- *
- *
- */
-
 namespace pinocchio
 {
   /**
    * @brief      Base interface for forces representation.
    * @details    The Class implements all
-   * \ingroup Force_group
+   * \ingroup pinocchio_spatial
+   *
+   *  This class hierarchy represents a spatial force, e.g. a spatial impulse or force associated to a body.
+   *  The spatial force is the mathematical representation of \f$ se^{*}(3) \f$, the dual of \f$ se(3) \f$.
    *
    * @tparam     Derived  { description }
    */

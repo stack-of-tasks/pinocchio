@@ -32,7 +32,7 @@ namespace pinocchio
   ///
   /// \brief Extract the type of the given model file according to its extension
   ///
-  /// \param[in] filemane The complete path to the model file.
+  /// \param[in] filename The complete path to the model file.
   ///
   /// \return The type of the extension of the model file
   ///

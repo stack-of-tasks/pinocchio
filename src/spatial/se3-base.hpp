@@ -8,7 +8,9 @@
 
 namespace pinocchio
 {
-  /** The rigid transform aMb can be seen in two ways:
+  /** \brief Base class for rigid transformation.
+   *
+   * The rigid transform aMb can be seen in two ways:
    *
    * - given a point p expressed in frame B by its coordinate vector \f$ ^bp \f$, \f$ ^aM_b \f$
    * computes its coordinates in frame A by \f$ ^ap = {}^aM_b {}^bp \f$.
@@ -21,6 +23,8 @@ namespace pinocchio
    * where \f$^aAB\f$ is the vector from origin A to origin B expressed in coordinates A.
    *
    * \cheatsheet \f$ {}^aM_c = {}^aM_b {}^bM_c \f$
+   *
+   * \ingroup pinocchio_spatial
    */
   template<class Derived>
   struct SE3Base
