@@ -93,18 +93,19 @@ namespace pinocchio
                         const PairIndex & pairId);
 
   ///
-  /// Calls computeCollision for every active pairs of GeometryData.
+  /// \brief Calls computeCollision for every active pairs of GeometryData. 
+  /// This function assumes that \ref updateGeometryPlacements has been called first.
   ///
   /// \param[in] geom_model: geometry model (const)
   /// \param[out] geom_data: corresponding geometry data (nonconst) where collisions are computed
-  /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
+  /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
   ///
   /// \warning if stopAtFirstcollision = true, then the collisions vector will
   /// not be entirely fulfilled (of course).
   ///
   inline bool computeCollisions(const GeometryModel & geom_model,
                                 GeometryData & geom_data,
-                                const bool stopAtFirstCollision = true);
+                                const bool stopAtFirstCollision = false);
 
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -114,15 +115,15 @@ namespace pinocchio
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   ///
   /// \param[in] model robot model (const)
-  /// \param[out] data corresponding data (nonconst) where FK results are stored
+  /// \param[out] data corresponding data (nonconst) where the forward kinematics results are stored
   /// \param[in] geom_model geometry model (const)
   /// \param[out] geom_data corresponding geometry data (nonconst) where distances are computed
   /// \param[in] q robot configuration.
-  /// \param[in] stopAtFirstCollision if true, stop the loop on pairs after the first collision.
+  /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
   ///
   /// \warning if stopAtFirstcollision = true, then the collisions vector will
   /// not be entirely fulfilled (of course).
-  /// \note A similar function is available without model, data and q, not recomputing the FK.
+  /// \note A similar function is available without model, data and q, not recomputing the forward kinematics.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
