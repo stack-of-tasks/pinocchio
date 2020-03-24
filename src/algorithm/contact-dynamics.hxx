@@ -80,7 +80,7 @@ namespace pinocchio
       Motion & oa = data.oa[i];
       Motion & oa_gf = data.oa_gf[i];
       
-      Inertia & oYcrb = data.oYcrb[i];
+      Inertia & oinertias = data.oinertias[i];
       
       Force & oh = data.oh[i];
       Force & of = data.of[i];
@@ -106,12 +106,14 @@ namespace pinocchio
       }
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
-      oYcrb = data.oMi[i].act(model.inertias[i]);
+      oinertias = data.oMi[i].act(model.inertias[i]);
       
       oa_gf = oa - model.gravity; // add gravity contribution
       
-      oh = oYcrb * ov;
-      of = oYcrb * oa_gf + ov.cross(oh);
+      oh = oinertias * ov;
+      of = oinertias * oa_gf + ov.cross(oh);
+
+      data.oYcrb[i] = data.oinertias[i];
     }
     
   };
