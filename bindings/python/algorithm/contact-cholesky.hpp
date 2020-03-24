@@ -25,8 +25,10 @@ namespace pinocchio
       typedef ContactCholeskyDecomposition Self;
       typedef typename ContactCholeskyDecomposition::Scalar Scalar;
       typedef typename ContactCholeskyDecomposition::RigidContactModel RigidContactModel;
+      typedef typename ContactCholeskyDecomposition::RigidContactData RigidContactData;
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) RigidContactModelVector;
+      typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) RigidContactDataVector;
 
     public:
       
@@ -55,18 +57,18 @@ namespace pinocchio
              "Returns the matrix resulting from the decomposition.")
         
         .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, const Scalar))&compute,
-             bp::args("self","model","data","contact_infos","mu"),
+             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactData &, const Scalar))&compute,
+             bp::args("self","model","data","contact_models","contact_datas","mu"),
              "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
-             "the vector of RigidContactModel named contact_infos. The decomposition is regularized with a factor mu.\n")
+             "the vector of RigidContactModel named contact_models. The decomposition is regularized with a factor mu.\n")
         
         .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &))&compute,
-             bp::args("self","model","data","contact_infos"),
+             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactData &))&compute,
+             bp::args("self","model","data","contact_models","contact_datas"),
              "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
-             "the vector of RigidContactModel named contact_infos.")
+             "the vector of RigidContactModel named contact_models.")
         
         .def("getInverseOperationalSpaceInertiaMatrix",
              &Self::getInverseOperationalSpaceInertiaMatrix,
@@ -117,14 +119,14 @@ namespace pinocchio
         return self.solve(mat);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & info, const Scalar mu)
+      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactData & contact_datas, const Scalar mu)
       {
-        self.compute(model,data,info,mu);
+        self.compute(model,data,contact_models,contact_datas,mu);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & info)
+      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactData & contact_datas)
       {
-        self.compute(model,data,info);
+        self.compute(model,data,contact_models,contact_datas);
       }
     };
     
@@ -132,6 +134,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_algorithm_contact_cholesky_hpp__
-
-
-

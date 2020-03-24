@@ -16,7 +16,6 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
-
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -67,7 +66,8 @@ BOOST_AUTO_TEST_CASE(contact_operator_equal)
   pinocchio::buildModels::manipulator(manipulator_model);
   Data manipulator_data(manipulator_model);
 
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_info_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
   
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill(1.);
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE(contact_operator_equal)
   crba(manipulator_model,manipulator_data,manipulator_q);
   
   ContactCholeskyDecomposition humanoid_chol(humanoid_model), manipulator_chol(manipulator_model);
-  humanoid_chol.compute(humanoid_model,humanoid_data,contact_info_empty);
-  manipulator_chol.compute(manipulator_model,manipulator_data,contact_info_empty);
+  humanoid_chol.compute(humanoid_model,humanoid_data,contact_models_empty,contact_datas_empty);
+  manipulator_chol.compute(manipulator_model,manipulator_data,contact_models_empty,contact_datas_empty);
   
   BOOST_CHECK(humanoid_chol == humanoid_chol);
   BOOST_CHECK(humanoid_chol != manipulator_chol);
@@ -105,8 +105,9 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
   ContactCholeskyDecomposition contact_chol_decomposition;
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_info_empty;
-  contact_chol_decomposition.allocate(model,contact_info_empty);
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
+  contact_chol_decomposition.allocate(model,contact_models_empty);
   
   BOOST_CHECK(contact_chol_decomposition.D.size() == model.nv);
   BOOST_CHECK(contact_chol_decomposition.Dinv.size() == model.nv);
@@ -119,7 +120,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
-  contact_chol_decomposition.compute(model,data,contact_info_empty);
+  contact_chol_decomposition.compute(model,data,contact_models_empty,contact_datas_empty);
   
   BOOST_CHECK(data.M.isApprox(data_ref.M));
   BOOST_CHECK(data_ref.D.isApprox(contact_chol_decomposition.D.tail(model.nv)));
@@ -265,11 +266,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
-  contact_infos.push_back(ci_RF);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF));
-  contact_infos.push_back(ci_LF);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidContactData(ci_LF));
 
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -299,7 +303,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
 
   Data data(model); crba(model,data,q);
   ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_infos);
+  contact_chol_decomposition.allocate(model, contact_models);
   
   ContactCholeskyDecompositionAccessor access(contact_chol_decomposition);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
@@ -310,7 +314,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
       BOOST_CHECK(access.getParents_fromRow()[k+constraint_dim] == data.parents_fromRow[(size_t)k]+constraint_dim);
   }
   
-  contact_chol_decomposition.compute(model,data,contact_infos);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
@@ -341,15 +345,15 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
   
   ContactCholeskyDecomposition contact_chol_decomposition_mu;
-  contact_chol_decomposition_mu.allocate(model, contact_infos);
-  contact_chol_decomposition_mu.compute(model,data,contact_infos,0.);
+  contact_chol_decomposition_mu.allocate(model, contact_models);
+  contact_chol_decomposition_mu.compute(model,data,contact_models,contact_datas,0.);
   
   BOOST_CHECK(contact_chol_decomposition_mu.D.isApprox(contact_chol_decomposition.D));
   BOOST_CHECK(contact_chol_decomposition_mu.Dinv.isApprox(contact_chol_decomposition.Dinv));
   BOOST_CHECK(contact_chol_decomposition_mu.U.isApprox(contact_chol_decomposition.U));
   
   const double mu = 0.1;
-  contact_chol_decomposition_mu.compute(model,data,contact_infos,mu);
+  contact_chol_decomposition_mu.compute(model,data,contact_models,contact_datas,mu);
   Data::MatrixXs H_mu(H);
   H_mu.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
   
@@ -480,11 +484,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
-  contact_infos.push_back(ci_RF);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_3D,model.getFrameId(LF));
-  contact_infos.push_back(ci_LF);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidContactData(ci_LF));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -514,7 +521,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   
   Data data(model); crba(model,data,q);
   ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_infos);
+  contact_chol_decomposition.allocate(model, contact_models);
   
   ContactCholeskyDecompositionAccessor access(contact_chol_decomposition);
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
@@ -525,7 +532,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
       BOOST_CHECK(access.getParents_fromRow()[k+constraint_dim] == data.parents_fromRow[(size_t)k]+constraint_dim);
   }
   
-  contact_chol_decomposition.compute(model,data,contact_infos);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
@@ -666,11 +673,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
-  contact_infos.push_back(ci_RF);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidContactData(ci_LF));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -701,8 +711,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   
   Data data(model); crba(model,data,q);
   ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_infos);
-  contact_chol_decomposition.compute(model,data,contact_infos);
+  contact_chol_decomposition.allocate(model, contact_models);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();
@@ -738,11 +748,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
-  contact_infos.push_back(ci_RF);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  contact_infos.push_back(ci_LF);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidContactData(ci_LF));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -773,8 +786,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   
   Data data(model); crba(model,data,q);
   ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_infos);
-  contact_chol_decomposition.compute(model,data,contact_infos);
+  contact_chol_decomposition.allocate(model, contact_models);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.triangularView<Eigen::StrictlyUpper>().transpose();

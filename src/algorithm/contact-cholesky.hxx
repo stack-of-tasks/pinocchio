@@ -20,17 +20,17 @@ namespace pinocchio
     void
     ContactCholeskyDecompositionTpl<Scalar,Options>::
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-             const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos)
+             const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_models)
     {
       typedef RigidContactModelTpl<S1,O1> RigidContactModel;
       typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
       
       nv = model.nv;
-      num_contacts = (Eigen::DenseIndex)contact_infos.size();
+      num_contacts = (Eigen::DenseIndex)contact_models.size();
       
       Eigen::DenseIndex num_total_constraints = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
-          it != contact_infos.end();
+      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+          it != contact_models.end();
           ++it)
       {
         PINOCCHIO_CHECK_INPUT_ARGUMENT(it->size() > 0,
@@ -39,8 +39,6 @@ namespace pinocchio
       }
       
       U1inv.resize(num_total_constraints,num_total_constraints);
-      
-      oMc.resize(contact_infos.size());
       
       const Eigen::DenseIndex total_dim = nv + num_total_constraints;
       
@@ -92,17 +90,17 @@ namespace pinocchio
       
       // Fill nv_subtree_fromRow for constraints
       Eigen::DenseIndex row_id = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
-          it != contact_infos.end();
+      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+          it != contact_models.end();
           ++it)
       {
-        const RigidContactModel & cinfo = *it;
-        const FrameIndex frame_id = cinfo.frame_id;
+        const RigidContactModel & cmodel = *it;
+        const FrameIndex frame_id = cmodel.frame_id;
         const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
         
         const Eigen::DenseIndex nv = joint.idx_v() + joint.nv();
-        for(Eigen::DenseIndex k = 0; k < cinfo.size(); ++k)
+        for(Eigen::DenseIndex k = 0; k < cmodel.size(); ++k)
         {
           nv_subtree_fromRow[row_id] = nv + (num_total_constraints - row_id);
           row_id++;
@@ -112,14 +110,14 @@ namespace pinocchio
      
       // Allocate and fill sparsity indexes
       static const bool default_sparsity_value = false;
-      extented_parents_fromRow.resize(contact_infos.size(),BooleanVector::Constant(total_dim,default_sparsity_value));
+      extented_parents_fromRow.resize(contact_models.size(),BooleanVector::Constant(total_dim,default_sparsity_value));
       for(size_t ee_id = 0; ee_id < extented_parents_fromRow.size(); ++ee_id)
       {
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
         indexes.resize(total_dim); indexes.fill(default_sparsity_value);
         
-        const RigidContactModel & cinfo = contact_infos[ee_id];
-        const FrameIndex frame_id = cinfo.frame_id;
+        const RigidContactModel & cmodel = contact_models[ee_id];
+        const FrameIndex frame_id = cmodel.frame_id;
         const JointIndex joint_id = model.frames[frame_id].parent;
         const typename Model::JointModel & joint = model.joints[joint_id];
         
@@ -139,13 +137,13 @@ namespace pinocchio
       rowise_sparsity_pattern.clear();
       rowise_sparsity_pattern.resize((size_t)num_total_constraints,default_slice_vector);
       row_id = 0; size_t ee_id = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_infos.begin();
-          it != contact_infos.end();
+      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+          it != contact_models.end();
           ++it, ++ee_id)
       {
-        const RigidContactModel & cinfo = *it;
+        const RigidContactModel & cmodel = *it;
         const BooleanVector & indexes = extented_parents_fromRow[ee_id];
-        const Eigen::DenseIndex contact_dim = cinfo.size();
+        const Eigen::DenseIndex contact_dim = cmodel.size();
 
         for(Eigen::DenseIndex k = 0; k < contact_dim; ++k)
         {
@@ -184,18 +182,23 @@ namespace pinocchio
     }
     
     template<typename Scalar, int Options>
-    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
             DataTpl<S1,O1,JointCollectionTpl> & data,
-            const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_infos,
+            const std::vector<RigidContactModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
+            std::vector<RigidContactDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
             const S1 mu)
     {
       typedef RigidContactModelTpl<S1,O1> RigidContactModel;
+      typedef RigidContactDataTpl<S1,O1> RigidContactData;
       typedef MotionTpl<Scalar,Options> Motion;
+      
       assert(model.check(data) && "data is not consistent with model.");
-      PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_infos.size() == num_contacts,
-                                     "The number of contacts inside contact_infos and the one during allocation do not match.");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
+                                     "The number of contacts inside contact_models and the one during allocation do not match.");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_datas.size() == num_contacts,
+                                     "The number of contacts inside contact_datas and the one during allocation do not match.");
       
       const Eigen::DenseIndex total_dim = size();
       const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
@@ -203,22 +206,22 @@ namespace pinocchio
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       const typename Data::MatrixXs & M = data.M;
       
-      const size_t num_ee = contact_infos.size();
+      const size_t num_ee = contact_models.size();
       
       // Update frame placements if needed
       for(size_t f = 0; f < num_ee; ++f)
       {
-        const RigidContactModel & cinfo = contact_infos[f];
-        if(cinfo.reference_frame == WORLD) continue; // skip useless computations
+        const RigidContactModel & cmodel = contact_models[f];
+        RigidContactData & cdata = contact_datas[f];
+        if(cmodel.reference_frame == WORLD) continue; // skip useless computations
         
-        const typename Model::FrameIndex & frame_id = cinfo.frame_id;
+        const typename Model::FrameIndex & frame_id = cmodel.frame_id;
         const typename Model::Frame & frame = model.frames[frame_id];
-        typename Data::SE3 & oMf = data.oMf[frame_id];
-        
+
         const typename Model::JointIndex & joint_id = model.frames[frame_id].parent;
         
-        oMf = data.oMi[joint_id] * frame.placement;
-        oMc[f] = oMf * cinfo.placement;
+        cdata.joint_contact_placement = frame.placement * cmodel.placement;
+        cdata.contact_placement = data.oMi[joint_id] * cdata.joint_contact_placement ;
       }
       
       // Core
@@ -254,12 +257,13 @@ namespace pinocchio
           size_t ee_id = num_ee - k - 1; // start from the last end effector
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
-          const RigidContactModel & cinfo = contact_infos[ee_id];
-          const Eigen::DenseIndex constraint_dim = cinfo.size();
+          const RigidContactModel & cmodel = contact_models[ee_id];
+          const RigidContactData & cdata = contact_datas[ee_id];
+          const Eigen::DenseIndex constraint_dim = cmodel.size();
 
           if(indexes[jj])
           {
-            switch(cinfo.reference_frame)
+            switch(cmodel.reference_frame)
             {
               case WORLD:
               {
@@ -267,7 +271,7 @@ namespace pinocchio
                 ColXpr Jcol = data.J.col(j);
                 MotionRef<ColXpr> Jcol_motion(Jcol);
                 
-                switch(cinfo.type)
+                switch(cmodel.type)
                 {
                   case CONTACT_3D:
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
@@ -293,12 +297,12 @@ namespace pinocchio
               case LOCAL:
               {
                 typedef typename Data::Matrix6x::ColXpr ColXpr;
-                ColXpr Jcol = data.J.col(j);
-                MotionRef<ColXpr> Jcol_motion(Jcol);
+                const ColXpr Jcol = data.J.col(j);
+                MotionRef<const ColXpr> Jcol_motion(Jcol);
                 
-                Motion Jcol_local(oMc[ee_id].actInv(Jcol_motion));
+                const Motion Jcol_local(cdata.contact_placement.actInv(Jcol_motion));
                 
-                switch(cinfo.type)
+                switch(cmodel.type)
                 {
                   case CONTACT_3D:
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
@@ -330,9 +334,9 @@ namespace pinocchio
                 // Contact frame placement wrt world
                 Motion Jcol_local_world_aligned(Jcol_motion);
                 Jcol_local_world_aligned.linear()
-                -= oMc[ee_id].translation().cross(Jcol_local_world_aligned.angular());
+                -= cdata.contact_placement.translation().cross(Jcol_local_world_aligned.angular());
                 
-                switch(cinfo.type)
+                switch(cmodel.type)
                 {
                   case CONTACT_3D:
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
@@ -357,7 +361,7 @@ namespace pinocchio
               } // end case LOCAL_WORLD_ALIGNED
               default:
                 assert(false && "Must never happened");
-            } // end switch(cinfo.reference_frame)
+            } // end switch(cmodel.reference_frame)
 
           }
           current_row -= constraint_dim;
