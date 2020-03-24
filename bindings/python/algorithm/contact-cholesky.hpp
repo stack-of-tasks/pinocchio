@@ -58,14 +58,14 @@ namespace pinocchio
              "Returns the matrix resulting from the decomposition.")
         
         .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactData &, const Scalar))&compute,
+             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactDataVector &, const Scalar))&compute,
              bp::args("self","model","data","contact_models","contact_datas","mu"),
              "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
              "the vector of RigidContactModel named contact_models. The decomposition is regularized with a factor mu.\n")
         
         .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactData &))&compute,
+             (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactDataVector &))&compute,
              bp::args("self","model","data","contact_models","contact_datas"),
              "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
@@ -120,12 +120,12 @@ namespace pinocchio
         return self.solve(mat);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactData & contact_datas, const Scalar mu)
+      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactDataVector & contact_datas, const Scalar mu)
       {
         self.compute(model,data,contact_models,contact_datas,mu);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactData & contact_datas)
+      static void compute(Self & self, const Model & model, Data & data, const RigidContactModelVector & contact_models, RigidContactDataVector & contact_datas)
       {
         self.compute(model,data,contact_models,contact_datas);
       }
