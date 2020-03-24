@@ -26,7 +26,6 @@ namespace pinocchio
   {
     data.contact_chol.allocate(model,contact_models);
     data.contact_vector_solution.resize(data.contact_chol.size());
-    data.contact_forces.resize(contact_models.size());
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -136,14 +135,15 @@ namespace pinocchio
     
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
+                  const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                  std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
                   const Scalar mu)
   {
     assert(model.check(data) && "data is not consistent with model.");
@@ -155,12 +155,15 @@ namespace pinocchio
                                    "The joint torque vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
                                    "mu has to be positive");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_models.size() == contact_datas.size(),
+                                   "The contact models and data do not have the same vector size.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::Motion Motion;
     
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
+    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -183,7 +186,6 @@ namespace pinocchio
     }
     
     // Retrieve the Centroidal Momemtum map
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Force Force;
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     
@@ -195,30 +197,31 @@ namespace pinocchio
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
 
     // Computes the Cholesky decomposition
-    contact_chol.compute(model,data,contact_models,mu);
+    contact_chol.compute(model,data,contact_models,contact_datas,mu);
 
     contact_vector_solution.tail(model.nv) = tau - data.nle;
 
     // Temporary variables
-    typename Data::SE3 oMcontact; // placement of the contact frame in the world frame
-    typename Data::SE3 iMcontact; // placement of the contact frame in the local frame of the joint
-    typename Data::Motion coriolis_centrifugal_acc; // Coriolis/centrifugal acceleration of the contact frame.
+    Motion coriolis_centrifugal_acc; // Coriolis/centrifugal acceleration of the contact frame.
     typename Motion::Vector3 coriolis_centrifugal_acc_local;
 
     Eigen::DenseIndex current_row_id = 0;
-    for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
-        it != contact_models.end(); ++it)
+    for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      const RigidContactModel & contact_info = *it;
-      const int contact_dim = contact_info.size();
+      const RigidContactModel & contact_model = contact_models[contact_id];
+      RigidContactData & contact_data = contact_datas[contact_id];
+      const int contact_dim = contact_model.size();
 
-      const typename Model::FrameIndex & frame_id = contact_info.frame_id;
+      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex & joint_id = frame.parent;
       const typename Data::SE3 & oMi = data.oMi[joint_id];
+      
+      SE3 & iMcontact = contact_data.joint_contact_placement;
+      SE3 & oMcontact = contact_data.contact_placement;
 
       // Update frame placement
-      iMcontact = frame.placement * contact_info.placement;
+      iMcontact = frame.placement * contact_model.placement;
       oMcontact = oMi * iMcontact;
 
       classicAcceleration(data.ov[joint_id],
@@ -226,7 +229,7 @@ namespace pinocchio
                           oMcontact,
                           coriolis_centrifugal_acc_local);
       
-      switch(contact_info.reference_frame)
+      switch(contact_model.reference_frame)
       {
         case WORLD:
         {
@@ -262,7 +265,7 @@ namespace pinocchio
           break;
       }
 
-      switch(contact_info.type)
+      switch(contact_model.type)
       {
         case CONTACT_3D:
           contact_vector_solution.segment(current_row_id,contact_dim) = -coriolis_centrifugal_acc.linear();
@@ -285,16 +288,15 @@ namespace pinocchio
     a = contact_vector_solution.tail(model.nv);
     
     // Retrieve the contact forces
-    size_t current_id = 0;
     Eigen::DenseIndex current_row_sol_id = 0;
-    for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
-        it != contact_models.end(); ++it, current_id++)
+    for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      typename Data::Force & fext = data.contact_forces[current_id];
-      const RigidContactModel & contact_info = *it;
-      const int contact_dim = contact_info.size();
+      const RigidContactModel & contact_model = contact_models[contact_id];
+      RigidContactData & contact_data = contact_datas[contact_id];
+      typename RigidContactData::Force & fext = contact_data.contact_force;
+      const int contact_dim = contact_model.size();
       
-      switch(contact_info.type)
+      switch(contact_model.type)
       {
         case CONTACT_3D:
         {
@@ -380,7 +382,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
   struct ContactABABackwardStep1
-: public fusion::JointUnaryVisitorBase< ContactABABackwardStep1<Scalar,Options,JointCollectionTpl,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< ContactABABackwardStep1<Scalar,Options,JointCollectionTpl,TangentVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -550,10 +552,7 @@ namespace pinocchio
     
     typedef typename Model::JointIndex JointIndex;
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef std::vector<RigidContactModel,ModelAllocator> RigidContactModelVector;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
-    typedef std::vector<RigidContactData,DataAllocator> RigidContactDataVector;
-    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Motion) MotionVector;
     typedef typename Data::Force Force;
     
     typedef ContactABAForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
@@ -613,7 +612,7 @@ namespace pinocchio
       }
       else
       {
-        data.of_augmented[joint_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.toVector()));
+        data.of_augmented[joint_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
       }
     }
 
@@ -698,11 +697,11 @@ namespace pinocchio
         // Update contact force value
         if(cmodel.type == CONTACT_3D)
         {
-          cdata.contact_force.linear() += settings.mu * cdata.contact_acceleration_deviation.linear();
+          cdata.contact_force.linear().noalias() += settings.mu * cdata.contact_acceleration_deviation.linear();
         }
         else
         {
-          cdata.contact_force.toVector() += settings.mu * cdata.contact_acceleration_deviation.toVector();
+          cdata.contact_force.toVector().noalias() += settings.mu * cdata.contact_acceleration_deviation.toVector();
         }
 
         // Add the contribution of the constraints to the force vector
@@ -715,7 +714,7 @@ namespace pinocchio
         }
         else
         {
-          data.of_augmented[joint_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.toVector()));
+          data.of_augmented[joint_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
         }
       }
       

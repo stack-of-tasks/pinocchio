@@ -12,7 +12,7 @@ namespace pinocchio
 {
 
   ///
-  /// \brief Init the forward dynamics data according to the contact information contained in contact_infos.
+  /// \brief Init the forward dynamics data according to the contact information contained in contact_models.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -22,13 +22,13 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] contact_infos Vector of contact information related to the problem.
+  /// \param[in] contact_models Vector of contact information related to the problem.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
   inline void
   initContactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                      const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_infos);
+                      const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models);
   
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
@@ -52,21 +52,22 @@ namespace pinocchio
   /// \param[in] q The joint configuration (size model.nq).
   /// \param[in] v The joint velocity (size model.nv).
   /// \param[in] tau The joint torque vector (size model.nv).
-  /// \param[in] contact_infos Vector of contact information related to the problem.
+  /// \param[in] contact_models Vector of contact information related to the problem.
   /// \param[in] mu Damping factor for cholesky decomposition. Set to zero if constraints are full rank.
   ///
   /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   contactDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_infos,
+                  const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                  std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
                   const Scalar mu = 0.);
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
