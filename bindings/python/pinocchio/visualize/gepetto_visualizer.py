@@ -72,7 +72,7 @@ class GepettoVisualizer(BaseVisualizer):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
         elif isinstance(geom, hppfcl.Cone):
             return gui.addCone(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
-        elif isinstance(geom, hppfcl.Plane):
+        elif isinstance(geom, hppfcl.Plane) or isinstance(geom, hppfcl.Halfspace):
             res = gui.createGroup(meshName)
             if not res:
                 return False
@@ -82,7 +82,7 @@ class GepettoVisualizer(BaseVisualizer):
                 return False
             normal = geom.n
             rot = pin.Quaternion.FromTwoVectors(normal,pin.ZAxis)
-            alpha = -geom.d / norm(normal,2)**2
+            alpha = geom.d / norm(normal,2)**2
             trans = alpha * normal
             plane_offset = pin.SE3(rot,trans)
             gui.applyConfiguration(planeName,pin.SE3ToXYZQUATtuple(plane_offset))
