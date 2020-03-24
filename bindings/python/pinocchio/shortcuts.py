@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 CNRS INRIA
+# Copyright (c) 2018-2020 CNRS INRIA
 #
 
 ## In this file, some shortcuts are provided ##
@@ -29,7 +29,7 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         model = pin.buildModelFromUrdf(filename, root_joint)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
-        print('Info: MeshLoader is ignored. Pinocchio as not been compiled against HPP-FCL.')
+        print('Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL.')
     if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
         print('Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed.')
     if package_dirs is None:
