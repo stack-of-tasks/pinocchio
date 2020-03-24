@@ -164,54 +164,7 @@ namespace pinocchio
 
     //Temporary: dlambda_dv stores J*Minv
     //TODO: Sparse
-    data.dlambda_dv.setZero();
-
-    current_row_sol_id = 0;
-    for(int i=0; i<data.contact_kinematic_sparsity.size(); ++i)
-    {
-      const RigidContactModel & contact_model = contact_models[i];
-      switch(contact_model.type)
-      {
-      case CONTACT_6D:
-      {
-        typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-        RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
-        RowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(data.dlambda_dv,
-                                                                  current_row_sol_id);
-        for(int j=0; j<data.contact_kinematic_sparsity[i].size(); ++j)
-        {
-          const Slice& kinematic_branch = data.contact_kinematic_sparsity[i][j];
-          contact_dlambda_dv.noalias() +=
-            contact_dac_da.middleCols(kinematic_branch.first_index, kinematic_branch.size)
-            * data.Minv.middleRows(kinematic_branch.first_index, kinematic_branch.size);
-        }
-        current_row_sol_id += 6;
-        break;
-      }
-      case CONTACT_3D:
-      {
-        typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-        RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
-        RowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(data.dlambda_dv,
-                                                                  current_row_sol_id);
-        for(int j=0; j<data.contact_kinematic_sparsity[i].size(); ++j)
-        {
-          const Slice& kinematic_branch = data.contact_kinematic_sparsity[i][j];
-          contact_dlambda_dv.noalias() +=
-            contact_dac_da.middleCols(kinematic_branch.first_index, kinematic_branch.size)
-            * data.Minv.middleRows(kinematic_branch.first_index, kinematic_branch.size);
-        }
-        current_row_sol_id += 3;
-        break;
-      }
-      default:
-        assert(false && "must never happen");
-        break;      
-      }
-    }
-    
+    data.dlambda_dv.noalias() = data.dac_da * data.Minv;
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dv; //OUTPUT
 
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
@@ -288,6 +241,8 @@ namespace pinocchio
         break;
       }
     }
+    //data.dtau_dq.noalias() -= data.dac_da.transpose() * lambda_partial_dq;
+    //data.dtau_dv.noalias() -= data.dac_da.transpose() * lambda_partial_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
