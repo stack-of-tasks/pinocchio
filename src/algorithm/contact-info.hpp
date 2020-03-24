@@ -39,6 +39,9 @@ namespace pinocchio
   {
     enum { value  = 6 };
   };
+
+  template<typename Scalar, int Options> struct RigidContactModelTpl;
+  template<typename Scalar, int Options> struct RigidContactDataTpl;
   
   ///
   /// \brief Contact model structure containg all the info describing the rigid contact model
@@ -50,6 +53,9 @@ namespace pinocchio
     
     typedef _Scalar Scalar;
     enum { Options = _Options };
+    
+    typedef RigidContactModelTpl ContactModel;
+    typedef RigidContactDataTpl<Scalar,Options> ContactData;
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
@@ -184,11 +190,14 @@ namespace pinocchio
     typedef _Scalar Scalar;
     enum { Options = _Options };
     
+    typedef RigidContactModelTpl<Scalar,Options> ContactModel;
+    typedef RigidContactDataTpl ContactData;
+    
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     
-    RigidContactDataTpl()
+    RigidContactDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
     , contact_placement(SE3::Identity())
     , contact_velocity(Motion::Zero())
@@ -202,20 +211,41 @@ namespace pinocchio
     /// \brief Resulting contact forces
     Force contact_force;
     
-    /// \brief Current contact placement
+    /// \brief Current contact placement with respect to the world frame
     SE3 contact_placement;
+    
+    /// \brief Contact placement with respect to the supporting joint frame
+    SE3 joint_contact_placement;
     
     /// \brief Current contact spatial velocity
     Motion contact_velocity;
     
-    /// \brief Current contact  spatial acceleration
+    /// \brief Current contact spatial acceleration
     Motion contact_acceleration;
     
-    /// \brief Current contact drift acceleration
+    /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects).
     Motion contact_acceleration_drift;
     
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
+    
+    bool operator==(const RigidContactDataTpl & other) const
+    {
+      return
+         contact_force == other.contact_force
+      && contact_placement == other.contact_placement
+      && joint_contact_placement == other.joint_contact_placement
+      && contact_velocity == other.contact_velocity
+      && contact_acceleration == other.contact_acceleration
+      && contact_acceleration_drift == other.contact_acceleration_drift
+      && contact_acceleration_deviation == other.contact_acceleration_deviation
+      ;
+    }
+    
+    bool operator!=(const RigidContactDataTpl & other) const
+    {
+      return !(*this == other);
+    }
   };
   
   typedef RigidContactModelTpl<double,0> RigidContactModel;
