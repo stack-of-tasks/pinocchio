@@ -60,9 +60,6 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-
-    typedef std::vector<Slice> SliceVector;
-    typedef std::vector<SliceVector> VectorOfSliceVector;
     
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
@@ -330,8 +327,6 @@ namespace pinocchio
     MatrixXs dlambda_dq;
     MatrixXs dlambda_dv;
     MatrixXs dlambda_dtau;
-
-    VectorOfSliceVector contact_kinematic_sparsity;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;

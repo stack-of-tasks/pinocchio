@@ -44,37 +44,9 @@ namespace pinocchio
     data.dac_dv.setZero();
     data.dac_da.setZero();
     data.osim.setZero();
-    
-    data.contact_kinematic_sparsity.resize(contact_models.size());
-
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
-    for (int i=0;i<contact_models.size(); i++)
-    {
-      const RigidContactModel & contact_model = contact_models[i];
-
-      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex & joint_id = frame.parent;
-      
-      Eigen::DenseIndex colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-      Eigen::DenseIndex slice_end = colRef;
-      for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
-        if (!(j-data.parents_fromRow[(size_t)j] == Eigen::DenseIndex(1)))
-        {
-          //Beginning of the slice.
-          const Eigen::DenseIndex& slice_start = j;
-          data.contact_kinematic_sparsity[i].push_back(Slice(slice_start, slice_end-slice_start+1));
-          slice_end = data.parents_fromRow[(size_t)j];
-        }
-      }
-      //Branch from Zero:
-      data.contact_kinematic_sparsity[i].push_back(Slice(Eigen::DenseIndex(0),
-                                                         slice_end-0+1));
-    }
 
   }
-
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct ContactDynamicsForwardStep
   : public fusion::JointUnaryVisitorBase< ContactDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
