@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2018-2019 CNRS INRIA
+# Copyright (c) 2018-2020 CNRS INRIA
 #
 
 ## In this file, some shortcuts are provided ##
 
 from . import libpinocchio_pywrap as pin
+from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 
 nle = pin.nonLinearEffects
 
@@ -27,9 +28,9 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
     else:
         model = pin.buildModelFromUrdf(filename, root_joint)
 
-    if verbose and not pin.WITH_HPP_FCL and meshLoader is not None:
-        print('Info: MeshLoader is ignored. Pinocchio as not been compiled against HPP-FCL.')
-    if verbose and not pin.WITH_HPP_FCL_BINDINGS and meshLoader is not None:
+    if verbose and not WITH_HPP_FCL and meshLoader is not None:
+        print('Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL.')
+    if verbose and not WITH_HPP_FCL_BINDINGS and meshLoader is not None:
         print('Info: MeshLoader is ignored. The HPP-FCL Python bindings have not been installed.')
     if package_dirs is None:
         package_dirs = []
@@ -40,7 +41,7 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         geometry_types = [geometry_types]
 
     for geometry_type in geometry_types:
-        if meshLoader is None or (not pin.WITH_HPP_FCL and not pin.WITH_HPP_FCL_BINDINGS):
+        if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
             geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs)
         else:
             geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs, meshLoader)

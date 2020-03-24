@@ -3,22 +3,17 @@
 #
 
 import numpy
-from .robot_wrapper import RobotWrapper
-from .libpinocchio_pywrap import __version__, __raw_version__
+from .libpinocchio_pywrap import *
 
 from . import utils
-from . import visualize
 from .explog import exp, log
-from .libpinocchio_pywrap import *
-from .deprecated import *
-from .shortcuts import *
 
 # Manually register submodules
 import sys
 sys.modules['pinocchio.rpy'] = rpy
 sys.modules['pinocchio.cholesky'] = cholesky
 
-if pin.WITH_HPP_FCL:
+if WITH_HPP_FCL:
   try:
     import hppfcl
     from hppfcl import Contact, StdVec_Contact, CollisionResult, StdVec_CollisionResult, DistanceResult, StdVec_DistanceResult, CollisionGeometry, MeshLoader, CachedMeshLoader
@@ -27,4 +22,8 @@ if pin.WITH_HPP_FCL:
     WITH_HPP_FCL_BINDINGS = False
 else:
   WITH_HPP_FCL_BINDINGS = False
-  
+
+from .robot_wrapper import RobotWrapper
+from .deprecated import *
+from .shortcuts import *
+from . import visualize
