@@ -52,6 +52,10 @@ namespace pinocchio
         
         .def("size", &RigidContactModel::size, "Size of the contact")
         
+        .def("createData",
+             &RigidContactModelPythonVisitor::createData,
+             "Create a Data object for the given model.")
+        
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         ;
@@ -62,7 +66,61 @@ namespace pinocchio
         bp::class_<RigidContactModel>("RigidContactModel",
                                       "Rigid contact model for contact dynamic algorithms.",
                                       bp::no_init)
-        .def(RigidContactModelPythonVisitor<RigidContactModel>())
+        .def(RigidContactModelPythonVisitor())
+        ;
+        
+      }
+      
+      static ContactData createData(const Self & self)
+      {
+        return ContactData(self);
+      }
+    };
+  
+    template<typename RigidContactData>
+    struct RigidContactDataPythonVisitor
+    : public boost::python::def_visitor< RigidContactDataPythonVisitor<RigidContactData> >
+    {
+      typedef typename RigidContactData::Scalar Scalar;
+      typedef typename RigidContactData::SE3 SE3;
+      typedef RigidContactData Self;
+      typedef typename RigidContactData::ContactModel ContactModel;
+
+    public:
+      
+      template<class PyClass>
+      void visit(PyClass& cl) const
+      {
+        cl
+        .def(bp::init<ContactModel>(bp::args("self","contact_model"),
+                                    "Default constructor."))
+        
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_force,
+                                "Contact force.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_placement,
+                                "Contact placement with respect to the WORLD frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,joint_contact_placement,
+                                "Contact placement with respect to the supporting JOINT frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_velocity,
+                                "Current contact Spatial velocity.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration,
+                                "Current contact Spatial acceleration.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_drift,
+                                "Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects).")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_deviation,
+                                "Contact deviation from the reference acceleration (a.k.a the error).")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        ;
+      }
+      
+      static void expose()
+      {
+        bp::class_<RigidContactData>("RigidContactData",
+                                     "Rigid contact data associated to a RigidContactModel for contact dynamic algorithms.",
+                                     bp::no_init)
+        .def(RigidContactDataPythonVisitor())
         ;
         
       }
