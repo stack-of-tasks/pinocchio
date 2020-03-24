@@ -120,6 +120,9 @@ namespace pinocchio
     /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) of;
+
+    /// \brief Spatial inertias of the body *i* expressed in the world frame.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
     
     /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
     ///        all external forces acting on the body. These forces are used in the context of augmented Lagrangian algorithms.
