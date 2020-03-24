@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 
 #include "pinocchio/bindings/python/utils/macros.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::cholesky::ContactCholeskyDecomposition)
 
