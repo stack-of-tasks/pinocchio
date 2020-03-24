@@ -14,21 +14,6 @@
 
 namespace pinocchio
 {
-
-  ///@{
-  /// \brief Data information related to the Sparsity structure of the Cholesky decompostion
-  ///        and the sparsity structure of the contact kinematics.
-  struct Slice
-  {
-    Slice(const Eigen::DenseIndex & first_index,
-          const Eigen::DenseIndex & size)
-    : first_index(first_index), size(size)
-    {}
-
-    Eigen::DenseIndex first_index;
-    Eigen::DenseIndex size;
-  };
-  
   /// \brief Type of contact
   enum ContactType
   {

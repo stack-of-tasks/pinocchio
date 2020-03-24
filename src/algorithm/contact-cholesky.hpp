@@ -70,7 +70,20 @@ namespace pinocchio
       typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(IndexVector) VectorOfIndexVector;
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
-          
+      
+      ///@{
+      /// \brief Data information related to the Sparsity structure of the Cholesky decompostion
+      struct Slice
+      {
+        Slice(const Eigen::DenseIndex & first_index,
+              const Eigen::DenseIndex & size)
+        : first_index(first_index), size(size)
+        {}
+        
+        Eigen::DenseIndex first_index;
+        Eigen::DenseIndex size;
+      };
+      
       typedef std::vector<Slice> SliceVector;
       typedef std::vector<SliceVector> VectorOfSliceVector;
       ///@}
