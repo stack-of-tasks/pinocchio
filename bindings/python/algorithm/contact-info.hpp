@@ -7,6 +7,7 @@
 
 #include <eigenpy/memory.hpp>
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/bindings/python/utils/macros.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::RigidContactModel)
 
@@ -22,6 +23,8 @@ namespace pinocchio
     {
       typedef typename RigidContactModel::Scalar Scalar;
       typedef typename RigidContactModel::SE3 SE3;
+      typedef RigidContactModel Self;
+      typedef typename RigidContactModel::ContactData ContactData;
 
     public:
       
@@ -39,13 +42,13 @@ namespace pinocchio
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
         
-        .add_property("type",&RigidContactModel::type,"Type of the contact.")
-        .add_property("frame_id",&RigidContactModel::frame_id,"Index of the parent Frame in the model tree.")
-        .add_property("placement",&RigidContactModel::placement,"Placement of the contact with respect to the parent Frame.")
-        .add_property("reference_frame",&RigidContactModel::reference_frame,"Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL).")
-        .add_property("desired_contact_placement",&RigidContactModel::desired_contact_placement,"Desired contact placement.")
-        .add_property("desired_contact_velocity",&RigidContactModel::desired_contact_velocity,"Desired contact spatial velocity.")
-        .add_property("desired_contact_acceleration",&RigidContactModel::desired_contact_acceleration,"Desired contact spatial acceleration.")
+        .PINOCCHIO_ADD_PROPERTY(Self,type,"Type of the contact.")
+        .PINOCCHIO_ADD_PROPERTY(Self,frame_id,"Index of the parent Frame in the model tree.")
+        .PINOCCHIO_ADD_PROPERTY(Self,placement,"Placement of the contact with respect to the parent Frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,reference_frame,"Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL).")
+        .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_placement,"Desired contact placement.")
+        .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_velocity,"Desired contact spatial velocity.")
+        .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_acceleration,"Desired contact spatial acceleration.")
         
         .def("size", &RigidContactModel::size, "Size of the contact")
         
