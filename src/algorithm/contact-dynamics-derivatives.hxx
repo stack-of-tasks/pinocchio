@@ -13,6 +13,181 @@
 namespace pinocchio
 {
 
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  struct ComputeContactDynamicsDerivativesForwardStep
+  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType1 &,
+                                  const TangentVectorType2 &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & a)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Motion Motion;
+
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      Motion & ov = data.ov[i];
+      Motion & oa = data.oa[i];
+      Motion & oa_gf = data.oa_gf[i];
+
+      data.a[i] = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+      if(parent > 0)
+      {
+        data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      }
+
+      oa = data.oMi[i].act(data.a[i]);
+      oa_gf = oa - model.gravity; // add gravity contribution
+      
+      data.of[i] = data.oinertias[i] * oa_gf + ov.cross(data.oh[i]);
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+      ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+
+      motionSet::motionAction(ov,J_cols,dJ_cols);
+      motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
+      dAdv_cols = dJ_cols;
+      if(parent > 0)
+      {
+        motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
+        motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
+        dAdv_cols.noalias() += dVdq_cols;
+      }
+      else
+      {
+        dVdq_cols.setZero();
+      }
+
+      // computes variation of inertias
+      data.doYcrb[i] = data.oinertias[i].variation(ov);
+      typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> RNEAForwardStepType;      
+      RNEAForwardStepType::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  struct ComputeContactDynamicDerivativesBackwardStep
+  : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,MatrixType1,MatrixType2,MatrixType3> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const MatrixType1 &,
+                                  const MatrixType2 &,
+                                  const MatrixType3 &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                     const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                     const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      // Temporary variables
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
+
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+      ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
+      ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
+
+      MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
+      MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
+
+      // dtau/dv
+      dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
+
+      rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      // dtau/dq
+      if(parent>0)
+      {
+        dFdq_cols.noalias() = data.doYcrb[i] * dVdq_cols;
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,dFdq_cols);
+      }
+      else
+        motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
+
+      rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
+
+      typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
+                                                 MatrixType1,MatrixType2,MatrixType3> RNEABackwardStep;
+      if(parent > 0)
+      {
+        RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
+        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+        {
+          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+          = YS  * data.dAdq.col(j)
+          + StY * data.dVdq.col(j);
+        }
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+        {
+          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+          = YS  * data.dAdv.col(j)
+          + StY * data.J.col(j);
+        }
+      }
+
+      if(parent>0)
+      {
+        data.doYcrb[parent] += data.doYcrb[i];
+        data.of[parent] += data.of[i];
+      }
+      
+      // Restore the status of dAdq_cols (remove gravity)
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.gravity.angular().isZero(), "The gravity must be a pure force vector, no angular part");
+      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
+      {
+        MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
+        MotionRef<typename ColsBlock::ColXpr> mout(dAdq_cols.col(k));
+        mout.linear() += model.gravity.linear().cross(min.angular());
+      }
+    }
+  };
+
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator, class AllocatorData, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -60,7 +235,30 @@ namespace pinocchio
     typedef std::vector<RigidContactData,AllocatorData> RigidContactDataVector;
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
 
-    computeRNEADerivatives(model, data, q, v, data.ddq, data.contact_forces);
+    data.oa_gf[0] = -model.gravity;
+    
+    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,typename Data::TangentVectorType> Pass1;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),data.ddq));
+      data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
+    }
+
+    const typename Data::RowMatrixXs& rnea_partial_dq = data.dtau_dq;
+    const typename Data::RowMatrixXs& rnea_partial_dv = data.dtau_dv;
+    const typename Data::RowMatrixXs& rnea_partial_da = data.M;
+
+    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
+                                               typename Data::RowMatrixXs,typename Data::RowMatrixXs,typename Data::RowMatrixXs> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],
+                 typename Pass2::ArgsType(model,data, rnea_partial_dq,
+                                          rnea_partial_dv, rnea_partial_da));
+    }    
+    
+    //computeRNEADerivatives(model, data, q, v, data.ddq, data.contact_forces);
 
     Eigen::DenseIndex current_row_sol_id = 0;
     typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
@@ -93,9 +291,9 @@ namespace pinocchio
         RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
         RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,
-                                                              current_row_sol_id);
+                                                               current_row_sol_id);
         RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
+                                                                  current_row_sol_id);
 
         contact_dac_da = contact_data.a_partial_da;
 
@@ -133,9 +331,9 @@ namespace pinocchio
         RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
         RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,
-                                                              current_row_sol_id);
+                                                               current_row_sol_id);
         RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
+                                                                  current_row_sol_id);
 
         contact_dac_da.noalias() = contact_data.a_partial_da.template topRows<3>();
 
@@ -196,12 +394,12 @@ namespace pinocchio
 
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
+                                                                   current_row_sol_id);
 
         ConstRowsBlock contact_dlambda_dq = SizeDepType<6>::middleRows(lambda_partial_dq,
-                                                                       current_row_sol_id);
+                                                                  current_row_sol_id);
         ConstRowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(lambda_partial_dv,
-                                                                       current_row_sol_id);
+                                                                  current_row_sol_id);
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
@@ -219,12 +417,12 @@ namespace pinocchio
 
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                              current_row_sol_id);
+                                                                   current_row_sol_id);
 
         ConstRowsBlock contact_dlambda_dq = SizeDepType<3>::middleRows(lambda_partial_dq,
-                                                                       current_row_sol_id);
+                                                                  current_row_sol_id);
         ConstRowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(lambda_partial_dv,
-                                                                       current_row_sol_id);
+                                                                  current_row_sol_id);
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
@@ -241,8 +439,6 @@ namespace pinocchio
         break;
       }
     }
-    //data.dtau_dq.noalias() -= data.dac_da.transpose() * lambda_partial_dq;
-    //data.dtau_dv.noalias() -= data.dac_da.transpose() * lambda_partial_dv;
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
