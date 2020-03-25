@@ -192,4 +192,16 @@ namespace Eigen
 
 #endif // ifndef BOOST_MP_EIGEN_HPP
 
+namespace pinocchio
+{
+  namespace internal
+  {
+    template<typename Scalar, class Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
+    struct gain_precision<Scalar,boost::multiprecision::number<Backend, ExpressionTemplates> >
+    {
+      static const bool value = true;
+    };
+  }
+}
+
 #endif // ifndef __pinocchio_math_mutliprecision_hpp__
