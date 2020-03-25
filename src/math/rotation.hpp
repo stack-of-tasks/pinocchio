@@ -48,6 +48,11 @@ namespace pinocchio
     res_.diagonal() = (cos1_axis.cwiseProduct(axis)).array() + cos_value;
   }
 
+  ///
+  /// \brief Orthogonormalization procedure for a rotation matrix (closed enough to SO(3)).
+  ///
+  /// \param[in,out] rot A 3x3 matrix to orthonormalize
+  ///
   template<typename Matrix3>
   void normalizeRotation(const Eigen::MatrixBase<Matrix3> & rot)
   {
