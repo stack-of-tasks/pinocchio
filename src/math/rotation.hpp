@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_rotation_hpp__
@@ -45,6 +45,15 @@ namespace pinocchio
     res_.coeffRef(2,1) = tmp + sin_axis.x();
     
     res_.diagonal() = (cos1_axis.cwiseProduct(axis)).array() + cos_value;
+  }
+
+  template<typename Matrix3>
+  void normalizeRotation(const Eigen::MatrixBase<Matrix3> & rot)
+  {
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    Matrix3 & rot_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,rot);
+    
+    rot_.colwise().normalize();
   }
 }
 
