@@ -289,7 +289,7 @@ namespace pinocchio
       
       // During the cast, it may appear that the matrix is not normalized correctly.
       // Force the normalization of the rotation part of the matrix.
-      if(!internal::is_same_type<NewScalar,Scalar>::value)
+      if(internal::gain_precision<Scalar,NewScalar>::value)
         res.normalize();
       return res;
     }
@@ -301,7 +301,7 @@ namespace pinocchio
     
     void normalize()
     {
-      normalizeRotation(rot);
+      rot = orthogonalProjection(rot);
     }
     
     PlainType normalized() const
