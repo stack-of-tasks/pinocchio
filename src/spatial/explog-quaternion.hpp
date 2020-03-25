@@ -161,15 +161,15 @@ namespace pinocchio
       {
         Scalar c, s;
         SINCOS(theta,&s,&c);
-        Jout.template topRows<3>().noalias() = ((0.5/n2) * (c - 2*s/n)) * v * v.transpose();
+        Jout.template topRows<3>().noalias() = ((Scalar(0.5)/n2) * (c - 2*s/n)) * v * v.transpose();
         Jout.template topRows<3>().diagonal().array() += s/n;
         Jout.template bottomRows<1>().noalias() = -s/(2*n) * v.transpose();
       }
       else
       {
-        Jout.template topRows<3>().noalias() =  (-1./12. + n2/480.) * v * v.transpose();
+        Jout.template topRows<3>().noalias() =  (-Scalar(1)/Scalar(12) + n2/Scalar(480)) * v * v.transpose();
         Jout.template topRows<3>().diagonal().array() += Scalar(0.5) * (1 - theta2/6);
-        Jout.template bottomRows<1>().noalias() = (Scalar(-0.25) * (1 - theta2/6)) * v.transpose();
+        Jout.template bottomRows<1>().noalias() = (Scalar(-0.25) * (Scalar(1) - theta2/6)) * v.transpose();
         
       }
     }
