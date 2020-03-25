@@ -412,8 +412,8 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   
   const double eps = 1e-6;
   Force bf_approx(bf);
-  bf_approx.linear()[0] += eps/2.;
-  BOOST_CHECK(bf_approx.isApprox(bf,eps));
+  bf_approx.linear()[0] += 2.*eps;
+  BOOST_CHECK(!bf_approx.isApprox(bf,eps));
   
   // Test ref() method
   {
