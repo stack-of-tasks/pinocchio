@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -8,6 +8,7 @@
 
 #include <Eigen/Geometry>
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/math/rotation.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
 
 namespace pinocchio
@@ -285,6 +286,26 @@ namespace pinocchio
       typedef SE3Tpl<NewScalar,Options> ReturnType;
       ReturnType res(rot.template cast<NewScalar>(),
                      trans.template cast<NewScalar>());
+      
+      // During the cast, it may appear that the matrix is not normalized correctly.
+      // Force the normalization of the rotation part of the matrix.
+      res.normalize();
+      return res;
+    }
+    
+    bool isNormalized(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
+    {
+      return (rot.transpose()*rot).eval().isIdentity(prec);
+    }
+    
+    void normalize()
+    {
+      normalizeRotation(rot);
+    }
+    
+    PlainType normalized() const
+    {
+      PlainType res(*this); res.normalize();
       return res;
     }
     
