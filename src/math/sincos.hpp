@@ -12,7 +12,7 @@
 namespace pinocchio
 {
   // Forward declaration
-  template<typename S1, typename S2 = S1, typename S3 = S1, bool value = boost::is_floating_point<S1>::value & boost::is_floating_point<S2>::value & boost::is_floating_point<S3>::value> struct SINCOSAlgo;
+  template<typename S1, typename S2 = S1, typename S3 = S1> struct SINCOSAlgo;
   
   ///
   /// \brief Computes sin/cos values of a given input scalar.
@@ -20,8 +20,8 @@ namespace pinocchio
   /// \tparam Scalar Type of the input/output variables
   ///
   /// \param[in] a The input scalar from which we evalute the sin and cos.
-  /// \param[inout] sa Variable containing the sin of a.
-  /// \param[inout] ca Variable containing the cos of a.
+  /// \param[out] sa Variable containing the sin of a.
+  /// \param[out] ca Variable containing the cos of a.
   ///
   template<typename S1, typename S2, typename S3>
   void SINCOS(const S1 & a, S2 * sa, S3 * ca)
@@ -30,12 +30,13 @@ namespace pinocchio
   }
   
   /// \brief Generic evaluation of sin/cos functions.
-  template<typename S1, typename S2, typename S3, bool>
+  template<typename S1, typename S2, typename S3>
   struct SINCOSAlgo
   {
     static void run(const S1 & a, S2 * sa, S3 * ca)
-    {   
-      (*sa) = std::sin(a); (*ca) = std::cos(a);
+    {
+      using std::sin; using std::cos;
+      (*sa) = sin(a); (*ca) = cos(a);
     }   
   };  
 
@@ -82,16 +83,6 @@ namespace pinocchio
 #else // if sincosl specialization does not exist
       (*sa) = std::sin(a); (*ca) = std::cos(a);
 #endif
-    }
-  };
-
-  /// \brief Implementation for overloaded scalar types (e.g. Automatic Differentiation).
-  template<typename S1, typename S2, typename S3>
-  struct SINCOSAlgo<S1, S2, S3, false >
-  {
-    static void run(const S1 & a, S2 * sa, S3 * ca)
-    {
-      (*sa) = sin(a); (*ca) = cos(a);
     }
   };
   
