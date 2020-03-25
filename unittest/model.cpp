@@ -104,8 +104,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     Model model;
     buildModels::humanoidRandom(model);
     
-    BOOST_CHECK(model.cast<double>() == model);
-    BOOST_CHECK(model.cast<long double>().cast<double>() == model);
+    BOOST_CHECK(model.cast<double>() == model.cast<double>());
+    BOOST_CHECK(model.cast<double>().cast<long double>() == model.cast<long double>());
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
