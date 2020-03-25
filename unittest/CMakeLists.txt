@@ -124,6 +124,7 @@ ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 # Multiprecision arithmetic
 IF(BUILD_ADVANCED_TESTING)
   ADD_PINOCCHIO_UNIT_TEST(multiprecision)
+  SET_PROPERTY(TARGET test-cpp-multiprecision PROPERTY CXX_STANDARD 11)
 ENDIF(BUILD_ADVANCED_TESTING)
 
 # Automatic differentiation
