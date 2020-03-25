@@ -7,7 +7,7 @@
 #define __spatial_explog_hpp__
 
 #include <Eigen/Geometry>
-
+#include <iostream>
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/math/fwd.hpp"
@@ -338,6 +338,9 @@ namespace pinocchio
     return exp6(nu);
   }
 
+  template<typename Scalar, int Options, bool value=boost::is_floating_point<Scalar>::value>
+  struct log6Algo;
+
   /// \brief Log: SE3 -> se3.
   ///
   /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
@@ -346,35 +349,14 @@ namespace pinocchio
   ///
   /// \return The twist associated to the rigid transformation during time 1.
   ///
-  template <typename Scalar, int Options>
+  template<typename Scalar, int Options>
   MotionTpl<Scalar,Options>
   log6(const SE3Tpl<Scalar,Options> & M)
   {
-    typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
-    typedef typename SE3::Vector3 Vector3;
-
-    typename SE3::ConstAngularRef R = M.rotation();
-    typename SE3::ConstLinearRef p = M.translation();
-    
-    Scalar t;
-    Vector3 w(log3(R,t)); // t in [0,π]
-    const Scalar t2 = t*t;
-    Scalar alpha, beta;
-    if (t < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
-      beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
-    }
-    else
-    {
-      Scalar st,ct; SINCOS(t,&st,&ct);
-      alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
-      beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
-    }
-    
-    return Motion(alpha * p - Scalar(0.5) * w.cross(p) + beta * w.dot(p) * w,
-                  w);
+    Motion mout(Motion::Zero());
+    log6Algo<Scalar,Options>::run(M, mout);
+    return mout;
   }
 
   /// \brief Log: SE3 -> se3.
@@ -390,11 +372,47 @@ namespace pinocchio
   log6(const Eigen::MatrixBase<Matrix4Like> & M)
   {
     PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix4Like, M, 4, 4);
-
-    SE3Tpl<typename Matrix4Like::Scalar,Eigen::internal::traits<Matrix4Like>::Options> m(M);
-    return log6(m);
+    typedef typename Matrix4Like::Scalar Scalar;
+    typedef MotionTpl<Scalar, Eigen::internal::traits<Matrix4Like>::Options> Motion;    
+    SE3Tpl<Scalar,Eigen::internal::traits<Matrix4Like>::Options> m(M);
+    Motion mout(Motion::Zero());
+    log6Algo<Scalar,Eigen::internal::traits<Matrix4Like>::Options>::run(m, mout);    
+    return mout;
   }
 
+  //\brief Generic evaluation of log6 function
+  template<typename Scalar, int Options, bool>
+  struct log6Algo
+  {
+    static void run(const SE3Tpl<Scalar,Options> & M, MotionTpl<Scalar,Options>& mout)
+    {
+      typedef SE3Tpl<Scalar,Options> SE3;
+      typedef MotionTpl<Scalar,Options> Motion;
+      typedef typename SE3::Vector3 Vector3;
+      
+      typename SE3::ConstAngularRef R = M.rotation();
+      typename SE3::ConstLinearRef p = M.translation();
+      
+      Scalar t;
+      Vector3 w(log3(R,t)); // t in [0,π]
+      const Scalar t2 = t*t;
+      Scalar alpha, beta;
+      if (t < TaylorSeriesExpansion<Scalar>::template precision<3>())
+      {
+        alpha = Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720);
+        beta = Scalar(1)/Scalar(12) + t2/Scalar(720);
+      }
+      else
+      {
+        Scalar st,ct; SINCOS(t,&st,&ct);
+        alpha = t*st/(Scalar(2)*(Scalar(1)-ct));
+        beta = Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct));
+      }
+      mout.linear() = alpha * p - Scalar(0.5) * w.cross(p) + beta * w.dot(p) * w;
+      mout.angular() = w;
+    }
+  };
+  
   /// \brief Derivative of exp6
   /// Computed as the inverse of Jlog6
   template<typename MotionDerived, typename Matrix6Like>
