@@ -367,7 +367,7 @@ namespace pinocchio
     {
       const InertiaTpl& Ya = *this;
       const Scalar & mab = Ya.mass()+Yb.mass();
-      const Scalar mab_inv = 1./mab;
+      const Scalar mab_inv = Scalar(1)/mab;
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);

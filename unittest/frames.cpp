@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(cast)
   Frame frame("toto",0,0,SE3::Random(),OP_FRAME);
   
   BOOST_CHECK(frame.cast<double>() == frame);
-  BOOST_CHECK(frame.cast<long double>().cast<double>() == frame);
+  BOOST_CHECK(frame.cast<double>().cast<long double>() == frame.cast<long double>());
 }
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )

@@ -183,15 +183,15 @@ namespace pinocchio
     }
     
     template<typename S2, int O2>
-    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
+    typename SE3GroupAction<Derived>::ReturnType
+    se3Action_impl(const SE3Tpl<S2,O2> & m) const
     {
-      MotionPlain res;
+      typename SE3GroupAction<Derived>::ReturnType res;
       se3Action_impl(m,res);
       return res;
     }
     
     template<typename S2, int O2, typename D2>
-    EIGEN_STRONG_INLINE
     void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.linear().noalias() = m.rotation().transpose()*(linear()-m.translation().cross(angular()));
@@ -199,9 +199,10 @@ namespace pinocchio
     }
     
     template<typename S2, int O2>
-    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
+    typename SE3GroupAction<Derived>::ReturnType
+    se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
     {
-      MotionPlain res;
+      typename SE3GroupAction<Derived>::ReturnType res;
       se3ActionInverse_impl(m,res);
       return res;
     }

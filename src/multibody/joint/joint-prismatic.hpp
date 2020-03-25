@@ -207,7 +207,6 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_SE3_TYPEDEF_TPL(TransformPrismaticTpl);
-    typedef typename traits<TransformPrismaticTpl>::PlainType PlainType;
     
     typedef SpatialAxis<axis+LINEAR> Axis;
     typedef typename Axis::CartesianAxis3 CartesianAxis3;
@@ -612,7 +611,7 @@ namespace pinocchio
     void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
     {
       data.U = I.col(Inertia::LINEAR + axis);
-      data.Dinv[0] = 1./I(Inertia::LINEAR + axis, Inertia::LINEAR + axis);
+      data.Dinv[0] = Scalar(1)/I(Inertia::LINEAR + axis, Inertia::LINEAR + axis);
       data.UDinv.noalias() = data.U * data.Dinv[0];
       
       if (update_I)

@@ -95,6 +95,21 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   
   BOOST_CHECK(Minv.actInv(Minv).isIdentity());
   BOOST_CHECK(M.actInv(identity).isApprox(Minv));
+  
+  // Test normalization
+  {
+    const double prec = Eigen::NumTraits<double>::dummy_precision();
+    SE3 M(SE3::Random());
+    M.rotation() += prec * SE3::Matrix3::Random();
+    BOOST_CHECK(!M.isNormalized());
+    
+    SE3 M_normalized = M.normalized();
+    BOOST_CHECK(M_normalized.isNormalized());
+    
+    M.normalize();
+    BOOST_CHECK(M.isNormalized());
+  }
+  
 }
 
 BOOST_AUTO_TEST_CASE ( test_Motion )
@@ -397,8 +412,8 @@ BOOST_AUTO_TEST_CASE ( test_Force )
   
   const double eps = 1e-6;
   Force bf_approx(bf);
-  bf_approx.linear()[0] += eps/2.;
-  BOOST_CHECK(bf_approx.isApprox(bf,eps));
+  bf_approx.linear()[0] += 2.*eps;
+  BOOST_CHECK(!bf_approx.isApprox(bf,eps));
   
   // Test ref() method
   {

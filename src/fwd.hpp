@@ -13,6 +13,8 @@ namespace pinocchio {}
 #include "pinocchio/warning.hpp"
 #include "pinocchio/config.hpp"
 
+#include "pinocchio/utils/helpers.hpp"
+
 #include "pinocchio/container/boost-container-limits.hpp"
 
 #include <Eigen/Core>
