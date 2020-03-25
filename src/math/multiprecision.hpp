@@ -7,6 +7,10 @@
 
 #include "pinocchio/math/fwd.hpp"
 
+#ifndef PINOCCHIO_WITH_CXX11_SUPPORT
+  #error C++11 compiler required.
+#endif
+
 #include <boost/multiprecision/number.hpp>
 #include <Eigen/Dense>
 
@@ -98,20 +102,61 @@ namespace Eigen
   {
   };
 
+#define BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(A)                                                                                                                                                                           \
+   template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, typename BinaryOp>                                                                                                  \
+   struct ScalarBinaryOpTraits<boost::multiprecision::number<Backend, ExpressionTemplates>, A, BinaryOp>                                                                                                               \
+   {                                                                                                                                                                                                                   \
+      /*static_assert(boost::multiprecision::is_compatible_arithmetic_type<A, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");*/ \
+      typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;                                                                                                                                  \
+   };                                                                                                                                                                                                                  \
+   template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, typename BinaryOp>                                                                                                  \
+   struct ScalarBinaryOpTraits<A, boost::multiprecision::number<Backend, ExpressionTemplates>, BinaryOp>                                                                                                               \
+   {                                                                                                                                                                                                                   \
+      /*static_assert(boost::multiprecision::is_compatible_arithmetic_type<A, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");*/ \
+      typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;                                                                                                                                  \
+   };
+
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(float)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(double)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(long double)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(char)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(unsigned char)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(signed char)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(short)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(unsigned short)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(int)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(unsigned int)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(long)
+  BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(unsigned long)
+
+  template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, class tag, class Arg1, class Arg2, class Arg3, class Arg4, typename BinaryOp>
+  struct ScalarBinaryOpTraits<boost::multiprecision::number<Backend, ExpressionTemplates>, boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, BinaryOp>
+  {
+    static_assert(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
+    typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
+  };
+
+  template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, typename BinaryOp>
+  struct ScalarBinaryOpTraits<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, boost::multiprecision::number<Backend, ExpressionTemplates>, BinaryOp>
+  {
+    static_assert(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
+    typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
+  };
+
   namespace internal
   {
 
     template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, class tag, class Arg1, class Arg2, class Arg3, class Arg4>
     struct scalar_product_traits<boost::multiprecision::number<Backend, ExpressionTemplates>, boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
     {
-//      BOOST_STATIC_ASSERT(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
+      static_assert(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
       typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
     };
 
     template <class tag, class Arg1, class Arg2, class Arg3, class Arg4, class Backend, boost::multiprecision::expression_template_option ExpressionTemplates>
     struct scalar_product_traits<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, boost::multiprecision::number<Backend, ExpressionTemplates> >
     {
-//      BOOST_STATIC_ASSERT(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
+      static_assert(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
       typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
     };
 
