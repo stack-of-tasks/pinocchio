@@ -6,6 +6,7 @@
 #define __pinocchio_autodiff_ccpad_hpp__
 
 #include "pinocchio/math/fwd.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
@@ -136,7 +137,14 @@ namespace pinocchio
   struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
+    //using Base::precision;
+
+    template<int degree>
+    static CppAD::AD<Scalar> precision()
+    {
+      return CppAD::AD<Scalar>(Base::template precision<degree>());
+    }
+
   };
 
   /// \brief Implementation of log6 for overloaded CppAD type.
@@ -159,10 +167,10 @@ namespace pinocchio
       const ADScalar t2 = t*t;
       ADScalar alpha, beta;
       ADScalar st,ct; SINCOS(t,&st,&ct);
-      alpha = CppAD::CondExpLt(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
+      alpha = CppAD::CondExpLt<Scalar>(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
                                /*true*/ ADScalar(1) - t2/ADScalar(12) - t2*t2/ADScalar(720),
                                /*false*/ t*st/(ADScalar(2)*(ADScalar(1)-ct)));
-      beta = CppAD::CondExpLt(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
+      beta = CppAD::CondExpLt<Scalar>(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
                               /*true*/ADScalar(1)/ADScalar(12) + t2/ADScalar(720),
                               /*false*/ADScalar(1)/t2 - st/(ADScalar(2)*t*(ADScalar(1)-ct)));
       mout.linear() = alpha * p - ADScalar(0.5) * w.cross(p) + beta * w.dot(p) * w;

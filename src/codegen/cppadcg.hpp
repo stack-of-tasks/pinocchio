@@ -71,7 +71,13 @@ namespace pinocchio
   struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> > : TaylorSeriesExpansion<Scalar>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
+
+    template<int degree>
+    static CppAD::cg::CG<Scalar> precision()
+    {
+      return CppAD::cg::CG<Scalar>(Base::template precision<degree>());
+    }
+
   };
 } // namespace pinocchio
 
