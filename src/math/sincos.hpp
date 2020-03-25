@@ -6,7 +6,6 @@
 #ifndef __pinocchio_math_sincos_hpp__
 #define __pinocchio_math_sincos_hpp__
 
-#include <boost/type_traits.hpp>
 #include <cmath>
 
 namespace pinocchio
