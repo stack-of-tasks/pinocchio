@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,mu0);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, contact_datas, mu0);  
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_datas, mu0);  
   
   //Data_ref
   crba(model, data_ref, q);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   contactDynamics(model,data,q,v,tau,contact_models,mu0);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, q, v, tau, contact_models, contact_datas, mu0);  
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_datas, mu0);  
 
 
   //Data_fd

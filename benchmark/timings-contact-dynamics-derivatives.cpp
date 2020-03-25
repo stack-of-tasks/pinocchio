@@ -120,8 +120,7 @@ int main(int argc, const char ** argv)
   {
     contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_empty);
     timer.tic();
-    computeContactDynamicsDerivatives(model, data,qs[_smooth],
-                                      qdots[_smooth],taus[_smooth],
+    computeContactDynamicsDerivatives(model, data,
                                       contact_infos_empty,
                                       contact_datas_empty);
     total_time += timer.toc(timer.DEFAULT_UNIT);
@@ -134,7 +133,7 @@ int main(int argc, const char ** argv)
   {
     contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D,contact_datas_6D);
+    computeContactDynamicsDerivatives(model,data,contact_infos_6D,contact_datas_6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
@@ -145,7 +144,7 @@ int main(int argc, const char ** argv)
   {
     contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D,contact_datas_6D6D);
+    computeContactDynamicsDerivatives(model,data, contact_infos_6D6D,contact_datas_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  

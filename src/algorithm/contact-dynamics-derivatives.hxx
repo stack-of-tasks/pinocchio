@@ -14,28 +14,22 @@ namespace pinocchio
 {
 
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeContactDynamicsDerivativesForwardStep
-  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
+  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const ConfigVectorType &,
-                                  const TangentVectorType1 &,
-                                  const TangentVectorType2 &
+                                  Data &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q,
-                     const Eigen::MatrixBase<TangentVectorType1> & v,
-                     const Eigen::MatrixBase<TangentVectorType2> & a)
+                     Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
@@ -45,7 +39,7 @@ namespace pinocchio
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       Motion & oa_gf = data.oa_gf[i];
-
+      const typename Data::TangentVectorType& a = data.ddq;
       data.a[i] = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
       if(parent > 0)
       {
@@ -80,32 +74,26 @@ namespace pinocchio
 
       // computes variation of inertias
       data.doYcrb[i] = data.oinertias[i].variation(ov);
-      typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> RNEAForwardStepType;      
+      typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,typename Data::ConfigVectorType,typename Data::TangentVectorType,typename Data::TangentVectorType> RNEAForwardStepType;
       RNEAForwardStepType::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
     }
   };
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeContactDynamicDerivativesBackwardStep
-  : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,MatrixType1,MatrixType2,MatrixType3> >
+  : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const MatrixType1 &,
-                                  const MatrixType2 &,
-                                  const MatrixType3 &
+                                  Data &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
-                     const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
-                     const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
+                     Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
@@ -126,8 +114,8 @@ namespace pinocchio
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
 
-      MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
-      MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
+      typename Data::RowMatrixXs& rnea_partial_dq_ = data.dtau_dq;//PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
+      typename Data::RowMatrixXs& rnea_partial_dv_ = data.dtau_dv;//PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
 
       // dtau/dv
       dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
@@ -151,7 +139,9 @@ namespace pinocchio
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
 
       typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
-                                                 MatrixType1,MatrixType2,MatrixType3> RNEABackwardStep;
+                                                 typename Data::RowMatrixXs,
+                                                 typename Data::RowMatrixXs,
+                                                 typename Data::RowMatrixXs> RNEABackwardStep;
       if(parent > 0)
       {
         RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
@@ -188,12 +178,11 @@ namespace pinocchio
   };
 
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class Allocator, class AllocatorData, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator,
+           class AllocatorData, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
+           typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const Eigen::MatrixBase<ConfigVectorType> & q,
-                                                const Eigen::MatrixBase<TangentVectorType1> & v,
-                                                const Eigen::MatrixBase<TangentVectorType2> & tau,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
                                                 const std::vector<RigidContactDataTpl<Scalar,Options>, AllocatorData> & contact_datas,
                                                 const Scalar mu,
@@ -206,9 +195,6 @@ namespace pinocchio
   {
     const Eigen::DenseIndex& nc = data.contact_chol.constraintDim();
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.rows() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dv.cols() == model.nv);
@@ -237,28 +223,21 @@ namespace pinocchio
 
     data.oa_gf[0] = -model.gravity;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,typename Data::TangentVectorType> Pass1;
+    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived(),v.derived(),data.ddq));
+                 typename Pass1::ArgsType(model,data));
       data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
     }
 
-    const typename Data::RowMatrixXs& rnea_partial_dq = data.dtau_dq;
-    const typename Data::RowMatrixXs& rnea_partial_dv = data.dtau_dv;
-    const typename Data::RowMatrixXs& rnea_partial_da = data.M;
-
-    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
-                                               typename Data::RowMatrixXs,typename Data::RowMatrixXs,typename Data::RowMatrixXs> Pass2;
+    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
-                 typename Pass2::ArgsType(model,data, rnea_partial_dq,
-                                          rnea_partial_dv, rnea_partial_da));
+                 typename Pass2::ArgsType(model,data));
     }    
-    
-    //computeRNEADerivatives(model, data, q, v, data.ddq, data.contact_forces);
+
 
     Eigen::DenseIndex current_row_sol_id = 0;
     typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
