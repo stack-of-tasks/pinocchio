@@ -7,6 +7,7 @@
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/sign.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -88,9 +89,7 @@ namespace pinocchio
     
     ReturnType res = svd.matrixU() * svd.matrixV().transpose();
     const Scalar det = res.determinant();
-    const Scalar sign = (det > Scalar(0)) - (det < Scalar(0)); // Robust sign function
-    assert(sign != Scalar(0));
-    res.col(2) *= sign;
+    res.col(2) *= sign(det);
     return res;
   }
 }
