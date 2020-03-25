@@ -102,6 +102,7 @@ namespace Eigen
   {
   };
 
+#if EIGEN_VERSION_AT_LEAST(3,2,93)
 #define BOOST_MP_EIGEN_SCALAR_TRAITS_DECL(A)                                                                                                                                                                           \
    template <class Backend, boost::multiprecision::expression_template_option ExpressionTemplates, typename BinaryOp>                                                                                                  \
    struct ScalarBinaryOpTraits<boost::multiprecision::number<Backend, ExpressionTemplates>, A, BinaryOp>                                                                                                               \
@@ -142,6 +143,7 @@ namespace Eigen
     static_assert(boost::is_convertible<typename boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>::result_type, boost::multiprecision::number<Backend, ExpressionTemplates> >::value, "Interoperability with this arithmetic type is not supported.");
     typedef boost::multiprecision::number<Backend, ExpressionTemplates> ReturnType;
   };
+#endif
 
   namespace internal
   {
