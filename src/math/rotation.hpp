@@ -8,6 +8,7 @@
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/matrix.hpp"
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 namespace pinocchio
 {
@@ -53,7 +54,11 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     Matrix3 & rot_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3,rot);
     
-    rot_.colwise().normalize();
+    typedef typename Matrix3::Scalar Scalar;
+    enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options };
+    typedef Eigen::Quaternion<Scalar,Options> Quaternion;
+    Quaternion quat(rot); quat.normalize();
+    rot_ = quat.toRotationMatrix();
   }
 }
 
