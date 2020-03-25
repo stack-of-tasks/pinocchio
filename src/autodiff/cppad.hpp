@@ -138,6 +138,40 @@ namespace pinocchio
     typedef TaylorSeriesExpansion<Scalar> Base;
     using Base::precision;
   };
+
+  /// \brief Implementation of log6 for overloaded CppAD type.
+  template<typename Scalar, int Options>
+  struct log6Algo<CppAD::AD<Scalar>, Options, false>
+  {
+    static void run(const SE3Tpl<CppAD::AD<Scalar>,Options> & M,
+                    MotionTpl<CppAD::AD<Scalar>,Options>& mout)
+    {
+      typedef CppAD::AD<Scalar> ADScalar;
+      typedef SE3Tpl<ADScalar,Options> SE3;
+      typedef MotionTpl<ADScalar,Options> Motion;
+      typedef typename SE3::Vector3 Vector3;
+      
+      typename SE3::ConstAngularRef R = M.rotation();
+      typename SE3::ConstLinearRef p = M.translation();
+      
+      ADScalar t;
+      Vector3 w(log3(R,t)); // t in [0,π]
+      const ADScalar t2 = t*t;
+      ADScalar alpha, beta;
+      ADScalar st,ct; SINCOS(t,&st,&ct);
+      alpha = CppAD::CondExpLt(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
+                               /*true*/ ADScalar(1) - t2/ADScalar(12) - t2*t2/ADScalar(720),
+                               /*false*/ t*st/(ADScalar(2)*(ADScalar(1)-ct)));
+      beta = CppAD::CondExpLt(t, TaylorSeriesExpansion<ADScalar>::template precision<3>(),
+                              /*true*/ADScalar(1)/ADScalar(12) + t2/ADScalar(720),
+                              /*false*/ADScalar(1)/t2 - st/(ADScalar(2)*t*(ADScalar(1)-ct)));
+      mout.linear() = alpha * p - ADScalar(0.5) * w.cross(p) + beta * w.dot(p) * w;
+      mout.angular() = w;
+    }
+  };
+
+
+  
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_autodiff_ccpad_hpp__
