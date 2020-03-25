@@ -206,7 +206,6 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_SE3_TYPEDEF_TPL(TransformTranslationTpl);
-    typedef typename traits<TransformTranslationTpl>::PlainType PlainType;
     typedef typename traits<TransformTranslationTpl>::Vector3 Vector3;
     
     TransformTranslationTpl() {}

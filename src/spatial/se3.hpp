@@ -18,10 +18,11 @@ typedef TYPENAME traits<Derived>::ConstAngularRef ConstAngularRef; \
 typedef TYPENAME traits<Derived>::ConstLinearRef ConstLinearRef; \
 typedef TYPENAME traits<Derived>::ActionMatrixType ActionMatrixType; \
 typedef TYPENAME traits<Derived>::HomogeneousMatrixType HomogeneousMatrixType; \
+typedef TYPENAME traits<Derived>::PlainType PlainType; \
 enum {  \
-Options = traits<Derived>::Options,  \
-LINEAR = traits<Derived>::LINEAR,  \
-ANGULAR = traits<Derived>::ANGULAR \
+  Options = traits<Derived>::Options,  \
+  LINEAR = traits<Derived>::LINEAR,  \
+  ANGULAR = traits<Derived>::ANGULAR \
 }
 
 #define PINOCCHIO_SE3_TYPEDEF_TPL(Derived) \

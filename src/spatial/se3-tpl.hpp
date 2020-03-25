@@ -35,6 +35,7 @@ namespace pinocchio
     typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector3) ConstLinearRef;
     typedef Matrix6 ActionMatrixType;
     typedef Matrix4 HomogeneousMatrixType;
+    typedef SE3Tpl<Scalar,Options> PlainType;
   }; // traits SE3Tpl
   
   template<typename _Scalar, int _Options>

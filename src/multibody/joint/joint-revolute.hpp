@@ -87,7 +87,6 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     PINOCCHIO_SE3_TYPEDEF_TPL(TransformRevoluteTpl);
-    typedef typename traits<TransformRevoluteTpl>::PlainType PlainType;
     
     TransformRevoluteTpl() {}
     TransformRevoluteTpl(const Scalar & sin, const Scalar & cos)
