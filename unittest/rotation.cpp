@@ -1,6 +1,8 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
+
+#include <iostream>
 
 #include <pinocchio/math/rotation.hpp>
 #include <pinocchio/math/sincos.hpp>
@@ -29,6 +31,36 @@ BOOST_AUTO_TEST_CASE(test_toRotationMatrix)
     Eigen::Matrix3d rot_ref = Eigen::AngleAxisd(theta,axis).toRotationMatrix();
     
     BOOST_CHECK(rot.isApprox(rot_ref));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_orthogonal_projection)
+{
+  using namespace pinocchio;
+  const int max_tests = 1e5;
+  
+  typedef Eigen::Vector4d Vector4;
+  typedef Eigen::Quaterniond Quaternion;
+  typedef Eigen::Matrix3d Matrix3;
+  
+  for(int k = 0; k < max_tests; ++k)
+  {
+    const Vector4 vec4 = Vector4::Random();
+    const Quaternion quat(vec4.normalized());
+    
+    const Matrix3 rot = quat.toRotationMatrix();
+    
+    Matrix3 rot_proj = orthogonalProjection(rot);
+    BOOST_CHECK(rot.isApprox(rot_proj));
+  }
+  
+  for(int k = 0; k < max_tests; ++k)
+  {
+    const Matrix3 mat = Matrix3::Random();
+    
+    Matrix3 rot_proj = orthogonalProjection(mat);
+    BOOST_CHECK((rot_proj.transpose()*rot_proj).isIdentity());
+    BOOST_CHECK(fabs(rot_proj.determinant() - 1.) <= Eigen::NumTraits<double>::dummy_precision());
   }
 }
 

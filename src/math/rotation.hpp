@@ -7,8 +7,10 @@
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/matrix.hpp"
+
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/SVD>
 
 namespace pinocchio
 {
@@ -64,6 +66,32 @@ namespace pinocchio
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
     Quaternion quat(rot); quat.normalize();
     rot_ = quat.toRotationMatrix();
+  }
+
+  ///
+  /// \brief Orthogonal projection of a matrix on the SO(3) manifold.
+  ///
+  /// \param[in] mat A 3x3 matrix to project on SO(3).
+  ///
+  /// \returns the orthogonal projection of mat on SO(3)
+  ///
+  template<typename Matrix3>
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)
+  orthogonalProjection(const Eigen::MatrixBase<Matrix3> & mat)
+  {
+    EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
+    typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3) ReturnType;
+    typedef typename Matrix3::Scalar Scalar;
+    
+    typedef Eigen::JacobiSVD<Matrix3> SVD;
+    SVD svd(mat,Eigen::ComputeFullU | Eigen::ComputeFullV);
+    
+    ReturnType res = svd.matrixU() * svd.matrixV().transpose();
+    const Scalar det = res.determinant();
+    const Scalar sign = (det > Scalar(0)) - (det < Scalar(0)); // Robust sign function
+    assert(sign != Scalar(0));
+    res.col(2) *= sign;
+    return res;
   }
 }
 
