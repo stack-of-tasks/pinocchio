@@ -26,42 +26,42 @@ namespace pinocchio
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
-      static const Scalar PI_value = PI<Scalar>();
+      static const Scalar PI_value = PI<_Scalar>();
       
       const Scalar tr = R.trace();
-      theta = CppAD::CondExpLt<Scalar>(tr, Scalar(-1),
-                                       PI_value,
-                                       CppAD::CondExpGt<Scalar>(tr, Scalar(3),
-                                                                Scalar(0),
-                                                                math::acos((tr - Scalar(1))/Scalar(2))));
+      theta = CppAD::CondExpLt<_Scalar>(tr, Scalar(-1),
+                                        PI_value,
+                                        CppAD::CondExpGt<_Scalar>(tr, Scalar(3),
+                                                                  Scalar(0),
+                                                                  math::acos((tr - Scalar(1))/Scalar(2))));
       
       const Scalar cphi = cos(theta - PI_value);
       const Scalar beta = theta*theta / (Scalar(1) + cphi);
       Vector3 tmp((R.diagonal().array() + cphi) * beta);
-      const Scalar t = CppAD::CondExpGt<Scalar>(theta,
-                                                TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                theta / sin(theta),
-                                                Scalar(1)) / Scalar(2);
-                                                
+      const Scalar t = CppAD::CondExpGt<_Scalar>(theta,
+                                                 TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                 theta / sin(theta),
+                                                 Scalar(1)) / Scalar(2);
+      
       Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
       
-      res_(0) = CppAD::CondExpGe<Scalar>(theta,
-                                         PI_value-Scalar(1e-2),
-                                         CppAD::CondExpGt<Scalar>(R (2, 1), R (1, 2), Scalar(1), Scalar(-1)) *
-                                         CppAD::CondExpGt<Scalar>(tmp[0], Scalar(0), sqrt(tmp[0]), Scalar(0)),
-                                         t * (R (2, 1) - R (1, 2)));
+      res_(0) = CppAD::CondExpGe<_Scalar>(theta,
+                                          PI_value-Scalar(1e-2),
+                                          CppAD::CondExpGt<_Scalar>(R (2, 1), R (1, 2), Scalar(1), Scalar(-1)) *
+                                          CppAD::CondExpGt<_Scalar>(tmp[0], Scalar(0), sqrt(tmp[0]), Scalar(0)),
+                                          t * (R (2, 1) - R (1, 2)));
       
-      res_(1) = CppAD::CondExpGe<Scalar>(theta,
-                                         PI_value-Scalar(1e-2),
-                                         CppAD::CondExpGt<Scalar>(R (0, 2), R (2, 0), Scalar(1), Scalar(-1)) *
-                                         CppAD::CondExpGt<Scalar>(tmp[1], Scalar(0), sqrt(tmp[1]), Scalar(0)),
-                                         t * (R (0, 2) - R (2, 0)));
+      res_(1) = CppAD::CondExpGe<_Scalar>(theta,
+                                          PI_value-Scalar(1e-2),
+                                          CppAD::CondExpGt<_Scalar>(R (0, 2), R (2, 0), Scalar(1), Scalar(-1)) *
+                                          CppAD::CondExpGt<_Scalar>(tmp[1], Scalar(0), sqrt(tmp[1]), Scalar(0)),
+                                          t * (R (0, 2) - R (2, 0)));
       
-      res_(2) = CppAD::CondExpGe<Scalar>(theta,
-                                         PI_value-Scalar(1e-2),
-                                         CppAD::CondExpGt<Scalar>(R (1, 0), R (0, 1), Scalar(1), Scalar(-1)) *
-                                         CppAD::CondExpGt<Scalar>(tmp[2], Scalar(0), sqrt(tmp[2]), Scalar(0)),
-                                         t * (R (1, 0) - R (0, 1)));
+      res_(2) = CppAD::CondExpGe<_Scalar>(theta,
+                                          PI_value-Scalar(1e-2),
+                                          CppAD::CondExpGt<_Scalar>(R (1, 0), R (0, 1), Scalar(1), Scalar(-1)) *
+                                          CppAD::CondExpGt<_Scalar>(tmp[2], Scalar(0), sqrt(tmp[2]), Scalar(0)),
+                                          t * (R (1, 0) - R (0, 1)));
     }
   };
 
@@ -83,25 +83,25 @@ namespace pinocchio
       Scalar ct,st; SINCOS(theta,&st,&ct);
       const Scalar st_1mct = st/(Scalar(1)-ct);
 
-      const Scalar alpha = CppAD::CondExpLt<Scalar>(theta,
-                                                    TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                    Scalar(1)/Scalar(12) + theta*theta / Scalar(720),
-                                                    Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta));
+      const Scalar alpha = CppAD::CondExpLt<_Scalar>(theta,
+                                                     TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                     Scalar(1)/Scalar(12) + theta*theta / Scalar(720),
+                                                     Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta));
       
       Jlog_.noalias() = alpha * log * log.transpose();
       
-      Jlog_.diagonal()[0] = CppAD::CondExpLt<Scalar>(theta,
-                                                     TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                     Jlog_.diagonal()[0] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
-                                                     Jlog_.diagonal()[0] + Scalar(0.5) * (theta*st_1mct));
-      Jlog_.diagonal()[1] = CppAD::CondExpLt<Scalar>(theta,
-                                                     TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                     Jlog_.diagonal()[1] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
-                                                     Jlog_.diagonal()[1] + Scalar(0.5) * (theta*st_1mct));
-      Jlog_.diagonal()[2] = CppAD::CondExpLt<Scalar>(theta,
-                                                     TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                     Jlog_.diagonal()[2] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
-                                                     Jlog_.diagonal()[2] + Scalar(0.5) * (theta*st_1mct));
+      Jlog_.diagonal()[0] = CppAD::CondExpLt<_Scalar>(theta,
+                                                      TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                      Jlog_.diagonal()[0] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
+                                                      Jlog_.diagonal()[0] + Scalar(0.5) * (theta*st_1mct));
+      Jlog_.diagonal()[1] = CppAD::CondExpLt<_Scalar>(theta,
+                                                      TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                      Jlog_.diagonal()[1] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
+                                                      Jlog_.diagonal()[1] + Scalar(0.5) * (theta*st_1mct));
+      Jlog_.diagonal()[2] = CppAD::CondExpLt<_Scalar>(theta,
+                                                      TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                      Jlog_.diagonal()[2] + Scalar(0.5) * (2 - theta*theta / Scalar(6)),
+                                                      Jlog_.diagonal()[2] + Scalar(0.5) * (theta*st_1mct));
 
       addSkew(Scalar(0.5) * log, Jlog_);
     }
@@ -127,14 +127,14 @@ namespace pinocchio
       Scalar alpha, beta;
       Scalar st,ct; SINCOS(t,&st,&ct);
       
-      alpha = CppAD::CondExpLt<Scalar>(t,
-                                       TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                       Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720),
-                                       t*st/(Scalar(2)*(Scalar(1)-ct)));
-      beta = CppAD::CondExpLt<Scalar>(t,
-                                      TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                      Scalar(1)/Scalar(12) + t2/Scalar(720),
-                                      Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct)));
+      alpha = CppAD::CondExpLt<_Scalar>(t,
+                                        TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                        Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720),
+                                        t*st/(Scalar(2)*(Scalar(1)-ct)));
+      beta = CppAD::CondExpLt<_Scalar>(t,
+                                       TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                       Scalar(1)/Scalar(12) + t2/Scalar(720),
+                                       Scalar(1)/t2 - st/(Scalar(2)*t*(Scalar(1)-ct)));
       
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + beta * w.dot(p) * w;
       mout.angular() = w;
@@ -181,15 +181,15 @@ namespace pinocchio
       Scalar st,ct; SINCOS (t, &st, &ct);
       const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
       
-      beta = CppAD::CondExpLt<Scalar>(t,
-                                      TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                      Scalar(1)/Scalar(12) + t2/Scalar(720),
-                                      t2inv - st*tinv*inv_2_2ct);
+      beta = CppAD::CondExpLt<_Scalar>(t,
+                                       TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                       Scalar(1)/Scalar(12) + t2/Scalar(720),
+                                       t2inv - st*tinv*inv_2_2ct);
       
-      beta_dot_over_theta = CppAD::CondExpLt<Scalar>(t,
-                                                     TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                     Scalar(1)/Scalar(360),
-                                                     -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
+      beta_dot_over_theta = CppAD::CondExpLt<_Scalar>(t,
+                                                      TaylorSeriesExpansion<_Scalar>::template precision<3>(),
+                                                      Scalar(1)/Scalar(360),
+                                                      -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
       Scalar wTp = w.dot(p);
 
