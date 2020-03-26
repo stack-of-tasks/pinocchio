@@ -124,6 +124,8 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   ///
   /// \brief Full constructor.
   ///
@@ -160,7 +162,10 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
+#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   ///
   /// \brief Reduced constructor.
   /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
@@ -196,12 +201,16 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
-  
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   GeometryObject(const GeometryObject & other)
   : fcl(geometry)
   {
     *this = other;
   }
+#pragma GCC diagnostic pop
 
   GeometryObject & operator=(const GeometryObject & other)
   {
