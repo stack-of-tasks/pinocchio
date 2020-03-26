@@ -63,7 +63,17 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
       assert(v.size() == 6);
     }
-    
+
+    ForceTpl(const ForceTpl & clone) // Copy constructor
+    : m_data(clone.toVector())
+    {}
+
+    ForceTpl& operator=(const ForceTpl & clone)  // Copy assignment operator
+    {
+      m_data = clone.toVector();
+      return *this;
+    }
+
     template<int O2>
     explicit ForceTpl(const ForceTpl<Scalar,O2> & clone)
     : m_data(clone.toVector())
