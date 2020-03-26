@@ -1278,6 +1278,42 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
       BOOST_CHECK(jmodel_any != jmodel.derived());
       BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
     }
+
+    template<typename Scalar, int Options>
+    static void test(const JointModelRevoluteUnalignedTpl<Scalar,Options> & jmodel)
+    {
+      typedef JointModelRevoluteUnalignedTpl<Scalar,Options> JointModel;
+      JointModel jmodel_copy = jmodel.derived();
+      BOOST_CHECK(jmodel_copy == jmodel.derived());
+
+      JointModel jmodel_any(jmodel.axis);
+      BOOST_CHECK(jmodel_any != jmodel.derived());
+      BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
+    }
+
+    template<typename Scalar, int Options>
+    static void test(const JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> & jmodel)
+    {
+      typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+      JointModel jmodel_copy = jmodel.derived();
+      BOOST_CHECK(jmodel_copy == jmodel.derived());
+
+      JointModel jmodel_any(jmodel.axis);
+      BOOST_CHECK(jmodel_any != jmodel.derived());
+      BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
+    }
+
+    template<typename Scalar, int Options>
+    static void test(const JointModelPrismaticUnalignedTpl<Scalar,Options> & jmodel)
+    {
+      typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModel;
+      JointModel jmodel_copy = jmodel.derived();
+      BOOST_CHECK(jmodel_copy == jmodel.derived());
+
+      JointModel jmodel_any(jmodel.axis);
+      BOOST_CHECK(jmodel_any != jmodel.derived());
+      BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
+    }
   };
   
   BOOST_AUTO_TEST_CASE(isEqual)
