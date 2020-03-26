@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -13,7 +13,7 @@
 #include "pinocchio/autodiff/cppad.hpp"
 
 #ifndef PINOCCHIO_WITH_CXX11_SUPPORT
-   #error CppADCodeGen requires C++11 or more
+  #error CppADCodeGen requires C++11 or more
 #endif
 
 namespace boost
@@ -25,11 +25,14 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar> {
+        struct constant_pi< CppAD::cg::CG<Scalar> > : constant_pi<Scalar>
+        {
+          typedef CppAD::cg::CG<Scalar> CGScalar;
+          
           template <int N>
-          static inline CppAD::cg::CG<Scalar> get(const mpl::int_<N>& n)
+          static inline CGScalar get(const mpl::int_<N>& n)
           {
-            return CppAD::cg::CG<Scalar>(constant_pi<Scalar>::get(n));
+            return CGScalar(constant_pi<Scalar>::get(n));
           }
         };
       }
@@ -59,23 +62,24 @@ namespace Eigen
 namespace CppAD
 {
   template <class Scalar>
-  bool isfinite(const cg::CG<Scalar> &x) { return std::isfinite(x.getValue()); } 
+  bool isfinite(const cg::CG<Scalar> & x) { return std::isfinite(x.getValue()); }
   
   template <class Scalar>
-  bool isfinite(const AD<Scalar>  &x) { return isfinite(Value(x)); }
+  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
 }
 
 namespace pinocchio
 {
   template<typename Scalar>
-  struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> > : TaylorSeriesExpansion<Scalar>
+  struct TaylorSeriesExpansion< CppAD::cg::CG<Scalar> >
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
+    typedef CppAD::cg::CG<Scalar> CGScalar;
 
     template<int degree>
-    static CppAD::cg::CG<Scalar> precision()
+    static CGScalar precision()
     {
-      return CppAD::cg::CG<Scalar>(Base::template precision<degree>());
+      return CGScalar(Base::template precision<degree>());
     }
 
   };
