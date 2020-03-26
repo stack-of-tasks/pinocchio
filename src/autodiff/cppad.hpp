@@ -178,6 +178,58 @@ namespace pinocchio
     }
   };
 
+  //\brief Generic evaluation of log3 function
+  template<typename ADMatrix3Like, typename _Scalar>
+  struct log3Algo<ADMatrix3Like, CppAD::AD<_Scalar>, false>
+  {
+    static void run(const Eigen::MatrixBase<ADMatrix3Like> & R,
+                    typename ADMatrix3Like::Scalar & theta,
+                    Eigen::Matrix<typename ADMatrix3Like::Scalar,3,1,
+                    PINOCCHIO_EIGEN_PLAIN_TYPE(ADMatrix3Like)::Options>& res)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(ADMatrix3Like, R, 3, 3);
+
+      typedef typename ADMatrix3Like::Scalar ADScalar;
+      typedef typename ADMatrix3Like::Scalar::value_type Scalar;
+      
+      typedef Eigen::Matrix<ADScalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(ADMatrix3Like)::Options> ADVector3;
+    
+      static const ADScalar PI_value = PI<ADScalar>();
+      const ADScalar tr = R.trace();
+      theta = CppAD::CondExpLt<Scalar>(tr, ADScalar(-1),
+                                       PI_value,
+                                       CppAD::CondExpGt<Scalar>(tr, Scalar(3),
+                                                                ADScalar(0),
+                                                                math::acos((tr - ADScalar(1))/ADScalar(2))));
+                                       
+      assert(theta == theta && "theta contains some NaN"); // theta != NaN
+
+      const ADScalar cphi = cos(theta - PI_value);
+      const ADScalar beta  = theta*theta / ( ADScalar(1) + cphi );
+      ADVector3 tmp((R.diagonal().array() + cphi) * beta);
+      const ADScalar t = CppAD::CondExpGt<Scalar>(theta, TaylorSeriesExpansion<ADScalar>::template precision<3>()
+                                                  ,theta / sin(theta)
+                                                  ,ADScalar(1)) / ADScalar(2);
+      
+      res(0) = CppAD::CondExpGt<Scalar>(theta, PI_value-Scalar(1e-2),
+                                        CppAD::CondExpGt<Scalar>(R (2, 1), R (1, 2), ADScalar(1), ADScalar(-1)) *
+                                        CppAD::CondExpGt<Scalar>(tmp[0], ADScalar(0), sqrt(tmp[0]), ADScalar(0)),
+                                        t * (R (2, 1) - R (1, 2)));
+      
+      res(1) = CppAD::CondExpGt<Scalar>(theta, PI_value-Scalar(1e-2),
+                                        CppAD::CondExpGt<Scalar>(R (0, 2), R (2, 0), ADScalar(1), ADScalar(-1)) *
+                                        CppAD::CondExpGt<Scalar>(tmp[1], ADScalar(0), sqrt(tmp[1]), ADScalar(0)),
+                                        t * (R (0, 2) - R (2, 0)));
+      
+      res(2) = CppAD::CondExpGt<Scalar>(theta, PI_value-Scalar(1e-2),
+                                        CppAD::CondExpGt<Scalar>(R (1, 0), R (0, 1), ADScalar(1), ADScalar(-1)) *
+                                        CppAD::CondExpGt<Scalar>(tmp[2], ADScalar(0), sqrt(tmp[2]), ADScalar(0)),
+                                        t * (R (1, 0) - R (0, 1)));
+    }
+  };
+
+
+  
 
   
 } // namespace pinocchio
