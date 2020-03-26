@@ -56,7 +56,10 @@ namespace pinocchio
   /// param[in]  geom_model The geometry model containing the collision objects.
   /// param[in]  meshScale The scale to be applied to each GeometryObject
   ///
+  /// \deprecated This function is now deprecated without replacement.
+  ///
   template<typename Vector3Like>
+  PINOCCHIO_DEPRECATED
   inline void setGeometryMeshScales(GeometryModel & geom_model, const Eigen::MatrixBase<Vector3Like> & meshScale)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
@@ -70,9 +73,13 @@ namespace pinocchio
   /// param[in]  geom_model The geometry model containing the collision objects.
   /// param[in]  meshScale The scale, to be applied to each GeometryObject, equally in all directions
   ///
+  /// \deprecated This function is now deprecated without replacement.
+  ///
+  PINOCCHIO_DEPRECATED
   inline void setGeometryMeshScales(GeometryModel & geom_model, const double meshScale)
   {
-    setGeometryMeshScales(geom_model, Eigen::Vector3d::Constant(meshScale));
+    for(GeomIndex index=0; index<geom_model.ngeoms; index++)
+      geom_model.geometryObjects[index].meshScale.setConstant(meshScale);
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
