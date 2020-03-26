@@ -188,9 +188,17 @@ namespace pinocchio
     : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
-    InertiaTpl(const InertiaTpl & clone)  // Clone constructor for std::vector 
+    InertiaTpl(const InertiaTpl & clone)  // Copy constructor
     : m_mass(clone.mass()), m_com(clone.lever()), m_inertia(clone.inertia())
     {}
+
+    InertiaTpl& operator=(const InertiaTpl & clone)  // Copy assignment operator
+    {
+      m_mass = clone.mass();
+      m_com = clone.lever();
+      m_inertia = clone.inertia();
+      return *this;
+    }
 
     template<int O2>
     InertiaTpl(const InertiaTpl<Scalar,O2> & clone)
