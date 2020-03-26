@@ -66,6 +66,14 @@ namespace pinocchio
       return res;
     }
   }
+
+  
+  /// \brief Forward Declaration
+  template<typename Matrix3Like,
+           typename Scalar = typename Matrix3Like::Scalar,
+           bool value=boost::is_floating_point<typename Matrix3Like::Scalar>::value>
+  struct log3Algo;
+
   
   /// \brief Same as \ref log3
   ///
@@ -79,46 +87,60 @@ namespace pinocchio
   log3(const Eigen::MatrixBase<Matrix3Like> & R,
        typename Matrix3Like::Scalar & theta)
   {
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
-
-    typedef typename Matrix3Like::Scalar Scalar;
-    typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
-    
-    static const Scalar PI_value = PI<Scalar>();
-    
+    typedef Eigen::Matrix<typename Matrix3Like::Scalar,3,1,
+                          PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     Vector3 res;
-    const Scalar tr = R.trace();
-    if(tr > Scalar(3))       theta = 0; // acos((3-1)/2)
-    else if(tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
-    else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
-    assert(theta == theta && "theta contains some NaN"); // theta != NaN
-    
-    // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
-    if(theta >= PI_value - 1e-2)
-    {
-      // 1e-2: A low value is not required since the computation is
-      // using explicit formula. However, the precision of this method
-      // is the square root of the precision with the antisymmetric
-      // method (Nominal case).
-      const Scalar cphi = cos(theta - PI_value);
-      const Scalar beta  = theta*theta / ( Scalar(1) + cphi );
-      Vector3 tmp((R.diagonal().array() + cphi) * beta);
-      res(0) = (R (2, 1) > R (1, 2) ? Scalar(1) : Scalar(-1)) * (tmp[0] > Scalar(0) ? sqrt(tmp[0]) : Scalar(0));
-      res(1) = (R (0, 2) > R (2, 0) ? Scalar(1) : Scalar(-1)) * (tmp[1] > Scalar(0) ? sqrt(tmp[1]) : Scalar(0));
-      res(2) = (R (1, 0) > R (0, 1) ? Scalar(1) : Scalar(-1)) * (tmp[2] > Scalar(0) ? sqrt(tmp[2]) : Scalar(0));    }
-    else
-    {
-      const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<3>())
-                        ? theta / sin(theta)
-                        : Scalar(1)) / Scalar(2);
-      res(0) = t * (R (2, 1) - R (1, 2));
-      res(1) = t * (R (0, 2) - R (2, 0));
-      res(2) = t * (R (1, 0) - R (0, 1));
-
-    }
-    
+    log3Algo<Matrix3Like>::run(R, theta, res);
     return res;
   }
+
+  //\brief Generic evaluation of log3 function
+  template<typename Matrix3Like, typename _Scalar, bool>
+  struct log3Algo
+  {
+    static void run(const Eigen::MatrixBase<Matrix3Like> & R,
+                    typename Matrix3Like::Scalar & theta,
+                    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,
+                          PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>& res)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
+
+      typedef typename Matrix3Like::Scalar Scalar;
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+    
+      static const Scalar PI_value = PI<Scalar>();
+    
+      const Scalar tr = R.trace();
+      if(tr > Scalar(3))       theta = Scalar(0); // acos((3-1)/2)
+      else if(tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
+      else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
+      assert(theta == theta && "theta contains some NaN"); // theta != NaN
+      
+      // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
+      if(theta >= PI_value - 1e-2)
+      {
+        // 1e-2: A low value is not required since the computation is
+        // using explicit formula. However, the precision of this method
+        // is the square root of the precision with the antisymmetric
+        // method (Nominal case).
+        const Scalar cphi = cos(theta - PI_value);
+        const Scalar beta  = theta*theta / ( Scalar(1) + cphi );
+        Vector3 tmp((R.diagonal().array() + cphi) * beta);
+        res(0) = (R (2, 1) > R (1, 2) ? Scalar(1) : Scalar(-1)) * (tmp[0] > Scalar(0) ? sqrt(tmp[0]) : Scalar(0));
+        res(1) = (R (0, 2) > R (2, 0) ? Scalar(1) : Scalar(-1)) * (tmp[1] > Scalar(0) ? sqrt(tmp[1]) : Scalar(0));
+        res(2) = (R (1, 0) > R (0, 1) ? Scalar(1) : Scalar(-1)) * (tmp[2] > Scalar(0) ? sqrt(tmp[2]) : Scalar(0));    }
+      else
+      {
+        const Scalar t = ((theta > TaylorSeriesExpansion<Scalar>::template precision<3>())
+                          ? theta / sin(theta)
+                          : Scalar(1)) / Scalar(2);
+        res(0) = t * (R (2, 1) - R (1, 2));
+        res(1) = t * (R (0, 2) - R (2, 0));
+        res(2) = t * (R (1, 0) - R (0, 1));
+
+      }
+    }
+  };
   
   /// \brief Log: SO3 -> so3.
   ///
