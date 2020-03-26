@@ -7,7 +7,6 @@
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/matrix.hpp"
-#include "pinocchio/math/sign.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -82,14 +81,13 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3) ReturnType;
-    typedef typename Matrix3::Scalar Scalar;
-    
+
     typedef Eigen::JacobiSVD<Matrix3> SVD;
-    SVD svd(mat,Eigen::ComputeFullU | Eigen::ComputeFullV);
+    const SVD svd(mat,Eigen::ComputeFullU | Eigen::ComputeFullV);
     
-    ReturnType res = svd.matrixU() * svd.matrixV().transpose();
-    const Scalar det = res.determinant();
-    res.col(2) *= sign(det);
+    ReturnType res;
+    res.template leftCols<2>().noalias() = svd.matrixU() * svd.matrixV().transpose().template leftCols<2>();
+    res.col(2).noalias() = res.col(0).cross(res.col(1));
     return res;
   }
 }
