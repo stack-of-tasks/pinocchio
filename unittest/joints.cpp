@@ -650,7 +650,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
   BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
   BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  BOOST_CHECK (expected_c_J.isApprox((Motion) joint_data.c, 1e-12));
 
   // -------
   q << 1.;
@@ -668,7 +668,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
   BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
   BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
-  BOOST_CHECK (expected_c_J.toVector ().isApprox(((Motion) joint_data.c).toVector(), 1e-12));
+  BOOST_CHECK (expected_c_J.isApprox((Motion) joint_data.c, 1e-12));
 }
 
 BOOST_AUTO_TEST_CASE ( test_rnea )
