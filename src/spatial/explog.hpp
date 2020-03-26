@@ -1,13 +1,11 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __spatial_explog_hpp__
-#define __spatial_explog_hpp__
+#ifndef __pinocchio_spatial_explog_hpp__
+#define __pinocchio_spatial_explog_hpp__
 
-#include <Eigen/Geometry>
-#include <iostream>
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/math/fwd.hpp"
@@ -16,6 +14,10 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/skew.hpp"
 #include "pinocchio/spatial/se3.hpp"
+
+#include <Eigen/Geometry>
+
+#include "pinocchio/spatial/log-fwd.hpp"
 
 namespace pinocchio
 {
@@ -623,4 +625,4 @@ namespace pinocchio
 
 #include "pinocchio/spatial/explog-quaternion.hpp"
 
-#endif //#ifndef __spatial_explog_hpp__
+#endif //#ifndef __pinocchio_spatial_explog_hpp__
