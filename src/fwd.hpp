@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_fwd_hpp__
@@ -14,6 +14,7 @@ namespace pinocchio {}
 #include "pinocchio/config.hpp"
 
 #include "pinocchio/utils/helpers.hpp"
+#include "pinocchio/utils/cast.hpp"
 
 #include "pinocchio/container/boost-container-limits.hpp"
 

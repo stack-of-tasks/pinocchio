@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_autodiff_ccpad_hpp__
@@ -28,11 +28,14 @@ namespace boost
       namespace detail
       {
         template<typename Scalar>
-        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar> {
+        struct constant_pi< CppAD::AD<Scalar> > : constant_pi<Scalar>
+        {
+          typedef CppAD::AD<Scalar> ADScalar;
+          
           template <int N>
-          static inline CppAD::AD<Scalar> get(const mpl::int_<N>& n)
+          static inline ADScalar get(const mpl::int_<N>& n)
           {
-            return CppAD::AD<Scalar>(constant_pi<Scalar>::get(n));
+            return ADScalar(constant_pi<Scalar>::get(n));
           }
 
         };
@@ -136,8 +139,18 @@ namespace pinocchio
   struct TaylorSeriesExpansion< CppAD::AD<Scalar> > : TaylorSeriesExpansion<Scalar>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
+    typedef CppAD::AD<Scalar> ADScalar;
+
+    template<int degree>
+    static ADScalar precision()
+    {
+      return ADScalar(Base::template precision<degree>());
+    }
+
   };
+  
 } // namespace pinocchio
+
+#include "pinocchio/autodiff/cppad/spatial/log.hxx"
 
 #endif // #ifndef __pinocchio_autodiff_ccpad_hpp__

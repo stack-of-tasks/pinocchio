@@ -289,7 +289,7 @@ namespace pinocchio
       
       // During the cast, it may appear that the matrix is not normalized correctly.
       // Force the normalization of the rotation part of the matrix.
-      if(static_cast<NewScalar>(Eigen::NumTraits<Scalar>::epsilon()) > Eigen::NumTraits<NewScalar>::epsilon())
+      if(pinocchio::cast<NewScalar>(Eigen::NumTraits<Scalar>::epsilon()) > Eigen::NumTraits<NewScalar>::epsilon())
         res.normalize();
       return res;
     }
