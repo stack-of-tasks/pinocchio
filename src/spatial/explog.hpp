@@ -207,6 +207,11 @@ namespace pinocchio
     Jout.noalias() += c * r * r.transpose();
   }
 
+  template<typename Scalar, typename Vector3Like, typename Matrix3Like,
+           bool value=boost::is_floating_point<Scalar>::value>
+  struct Jlog3Algo;
+
+  
   /** \brief Derivative of log3
    *
    *  \param[in] theta the angle value.
@@ -224,37 +229,49 @@ namespace pinocchio
              const Eigen::MatrixBase<Vector3Like> & log,
              const Eigen::MatrixBase<Matrix3Like> & Jlog)
   {
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like,  log, 3, 1);
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jlog, 3, 3);
-
-    Matrix3Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog);
-
-    if (theta < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      const Scalar alpha = Scalar(1)/Scalar(12) + theta*theta / Scalar(720);
-      Jout.noalias() = alpha * log * log.transpose();
-      
-      Jout.diagonal().array() += Scalar(0.5) * (2 - theta*theta / Scalar(6));
-      
-      // Jlog += r_{\times}/2
-      addSkew(Scalar(0.5) * log, Jlog);
-    }
-    else
-    {
-      // Jlog = alpha I
-      Scalar ct,st; SINCOS(theta,&st,&ct);
-      const Scalar st_1mct = st/(Scalar(1)-ct);
-      
-      const Scalar alpha = Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta);
-      Jout.noalias() = alpha * log * log.transpose();
-
-      Jout.diagonal().array() += Scalar(0.5) * (theta*st_1mct);
-
-      // Jlog += r_{\times}/2
-      addSkew(Scalar(0.5) * log, Jlog);
-    }
+    Jlog3Algo<Scalar, Vector3Like, Matrix3Like>::run(theta, log, Jlog);
   }
 
+  //\brief Generic evaluation of Jlog3 function
+  template<typename Scalar, typename Vector3Like, typename Matrix3Like, bool>
+  struct Jlog3Algo
+  {
+    static void run(const Scalar & theta,
+                    const Eigen::MatrixBase<Vector3Like> & log,
+                    const Eigen::MatrixBase<Matrix3Like> & Jlog)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like,  log, 3, 1);
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, Jlog, 3, 3);
+       
+      Matrix3Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog);
+      
+      if (theta < TaylorSeriesExpansion<Scalar>::template precision<3>())
+      {
+        const Scalar alpha = Scalar(1)/Scalar(12) + theta*theta / Scalar(720);
+        Jout.noalias() = alpha * log * log.transpose();
+        
+        Jout.diagonal().array() += Scalar(0.5) * (2 - theta*theta / Scalar(6));
+        
+        /// Jlog += r_{\times}/2
+          addSkew(Scalar(0.5) * log, Jlog);
+      }
+      else
+      {
+        // Jlog = alpha I
+        Scalar ct,st; SINCOS(theta,&st,&ct);
+        const Scalar st_1mct = st/(Scalar(1)-ct);
+        
+        const Scalar alpha = Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta);
+        Jout.noalias() = alpha * log * log.transpose();
+        
+        Jout.diagonal().array() += Scalar(0.5) * (theta*st_1mct);
+        
+        // Jlog += r_{\times}/2
+        addSkew(Scalar(0.5) * log, Jlog);
+      }
+    }
+  };
+  
   /** \brief Derivative of log3
    *
    *  \param[in] R the rotation matrix.
@@ -435,6 +452,7 @@ namespace pinocchio
     }
   };
   
+ 
   /// \brief Derivative of exp6
   /// Computed as the inverse of Jlog6
   template<typename MotionDerived, typename Matrix6Like>
@@ -489,6 +507,13 @@ namespace pinocchio
     Jout.template bottomLeftCorner<3,3>().setZero();
   }
 
+  ///\brief Forward Declaration
+  template<typename Scalar, int Options, typename Matrix6Like,
+           bool value=boost::is_floating_point<Scalar>::value>
+  struct Jlog6Algo;
+
+
+  
   /** \brief Derivative of log6
    *  \f[
    *  \left(\begin{array}{cc}
@@ -513,62 +538,73 @@ namespace pinocchio
   void Jlog6(const SE3Tpl<Scalar, Options> & M,
              const Eigen::MatrixBase<Matrix6Like> & Jlog)
   {
-    PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix6Like, Jlog, 6, 6);
-
-    typedef SE3Tpl<Scalar,Options> SE3;
-    typedef typename SE3::Vector3 Vector3;
-    Matrix6Like & value = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog);
-
-    typename SE3::ConstAngularRef R = M.rotation();
-    typename SE3::ConstLinearRef p = M.translation();
-    
-    Scalar t;
-    Vector3 w(log3(R,t));
-    
-    // value is decomposed as following:
-    // value = [ A, B;
-    //           C, D ]
-    typedef Eigen::Block<Matrix6Like,3,3> Block33;
-    Block33 A = value.template topLeftCorner<3,3>();
-    Block33 B = value.template topRightCorner<3,3>();
-    Block33 C = value.template bottomLeftCorner<3,3>();
-    Block33 D = value.template bottomRightCorner<3,3>();
-    
-    Jlog3(t, w, A);
-    D = A;
-
-    const Scalar t2 = t*t;
-    Scalar beta, beta_dot_over_theta;
-    if(t < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
-      beta_dot_over_theta = Scalar(1)/Scalar(360);
-    }
-    else
-    {
-      const Scalar tinv = Scalar(1)/t,
-                   t2inv = tinv*tinv;
-      Scalar st,ct; SINCOS (t, &st, &ct);
-      const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
-
-      beta = t2inv - st*tinv*inv_2_2ct;
-      beta_dot_over_theta = -Scalar(2)*t2inv*t2inv +
-        (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
-    }
-
-    Scalar wTp = w.dot(p);
-
-    Vector3 v3_tmp((beta_dot_over_theta*wTp)*w - (t2*beta_dot_over_theta+Scalar(2)*beta)*p);
-    // C can be treated as a temporary variable
-    C.noalias() = v3_tmp * w.transpose();
-    C.noalias() += beta * w * p.transpose();
-    C.diagonal().array() += wTp * beta;
-    addSkew(Scalar(.5)*p,C);
-    
-    B.noalias() = C * A;
-    C.setZero();
+    Jlog6Algo<Scalar, Options, Matrix6Like>::run(M, Jlog);
   }
 
+  template<typename Scalar, int Options, typename Matrix6Like, bool>
+  struct Jlog6Algo
+  {
+    static void run(const SE3Tpl<Scalar, Options> & M,
+                    const Eigen::MatrixBase<Matrix6Like> & Jlog)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix6Like, Jlog, 6, 6);
+
+      typedef SE3Tpl<Scalar,Options> SE3;
+      typedef typename SE3::Vector3 Vector3;
+      Matrix6Like & value = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog);
+
+      typename SE3::ConstAngularRef R = M.rotation();
+      typename SE3::ConstLinearRef p = M.translation();
+
+      Scalar t;
+      Vector3 w(log3(R,t));
+
+      // value is decomposed as following:
+      // value = [ A, B;
+      //           C, D ]
+      typedef Eigen::Block<Matrix6Like,3,3> Block33;
+      Block33 A = value.template topLeftCorner<3,3>();
+      Block33 B = value.template topRightCorner<3,3>();
+      Block33 C = value.template bottomLeftCorner<3,3>();
+      Block33 D = value.template bottomRightCorner<3,3>();
+
+      Jlog3(t, w, A);
+      D = A;
+
+      const Scalar t2 = t*t;
+      Scalar beta, beta_dot_over_theta;
+      if(t < TaylorSeriesExpansion<Scalar>::template precision<3>())
+      {
+        beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
+        beta_dot_over_theta = Scalar(1)/Scalar(360);
+      }
+      else
+      {
+        const Scalar tinv = Scalar(1)/t,
+                     t2inv = tinv*tinv;
+        Scalar st,ct; SINCOS (t, &st, &ct);
+        const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
+
+        beta = t2inv - st*tinv*inv_2_2ct;
+        beta_dot_over_theta = -Scalar(2)*t2inv*t2inv +
+          (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
+      }
+
+      Scalar wTp = w.dot(p);
+
+      Vector3 v3_tmp((beta_dot_over_theta*wTp)*w - (t2*beta_dot_over_theta+Scalar(2)*beta)*p);
+      // C can be treated as a temporary variable
+      C.noalias() = v3_tmp * w.transpose();
+      C.noalias() += beta * w * p.transpose();
+      C.diagonal().array() += wTp * beta;
+      addSkew(Scalar(.5)*p,C);
+
+      B.noalias() = C * A;
+      C.setZero();
+    }
+  };
+
+  
   template<typename Scalar, int Options>
   template<typename OtherScalar>
   SE3Tpl<Scalar,Options> SE3Tpl<Scalar,Options>::Interpolate(const SE3Tpl & A,
