@@ -1192,7 +1192,22 @@ BOOST_AUTO_TEST_SUITE_END()
       return jmodel;
     }
   };
-  
+
+  template<typename Scalar, int Options>
+  struct init<pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
+  {
+    typedef pinocchio::JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModel;
+    
+    static JointModel run()
+    {
+      typedef typename JointModel::Vector3 Vector3;
+      JointModel jmodel(Vector3::Random().normalized());
+      
+      jmodel.setIndexes(0,0,0);
+      return jmodel;
+    }
+  };
+
   template<typename Scalar, int Options>
   struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
   {
