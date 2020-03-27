@@ -152,3 +152,12 @@ kineticEnergy.__doc__ += '\n' + pin.computeKineticEnergy.__doc__
 from .utils import npToTTuple, npToTuple
 pin.rpy.npToTTuple = deprecated("This function was moved to the utils submodule.")(npToTTuple)
 pin.rpy.npToTuple = deprecated("This function was moved to the utils submodule.")(npToTuple)
+
+# Marked as deprecated on 26 Mar 2020
+@deprecated("This function is now deprecated without replacement.")
+def setGeometryMeshScales(geom_model, mesh_scale):
+  import numpy as np
+  if not isinstance(mesh_scale, np.ndarray):
+    mesh_scale = np.array([mesh_scale]*3)
+  for geom in geom_model.geometryObjects:
+    geom.meshScale = mesh_scale

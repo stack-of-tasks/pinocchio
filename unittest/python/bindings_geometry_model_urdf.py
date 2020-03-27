@@ -1,6 +1,5 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import os
 
 def checkGeom(geom1,geom2):

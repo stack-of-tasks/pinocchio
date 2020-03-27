@@ -80,7 +80,12 @@ namespace pinocchio
     : m_constraint(constraint)
     , m_scaling_factor(scaling_factor)
     {}
-    
+
+    ScaledConstraint(const ScaledConstraint & other)
+    : m_constraint(other.m_constraint)
+    , m_scaling_factor(other.m_scaling_factor)
+    {}
+
     ScaledConstraint & operator=(const ScaledConstraint & other)
     {
       m_constraint = other.m_constraint;

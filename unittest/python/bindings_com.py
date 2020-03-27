@@ -1,7 +1,6 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero
 import numpy as np
 
@@ -11,7 +10,7 @@ class TestComBindings(TestCase):
         self.model = pin.buildSampleModelHumanoidRandom()
         self.data = self.model.createData()
 
-        qmax = np.matrix(np.full((self.model.nq,1),np.pi))
+        qmax = np.full((self.model.nq,1),np.pi)
         self.q = pin.randomConfiguration(self.model,-qmax,qmax)
 
     def test_mass(self):

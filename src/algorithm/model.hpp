@@ -12,7 +12,6 @@ namespace pinocchio
 {
   /**
    *  \brief Append a child model into a parent model, after a specific frame given by its index.
-   *  the model given as reference argument.
    *
    *  \param[in] modelA the parent model.
    *  \param[in] modelB the child model.

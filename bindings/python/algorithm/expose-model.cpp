@@ -14,15 +14,16 @@ namespace pinocchio
     namespace bp = boost::python;
   
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    bp::tuple appendModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
-                          const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
-                          const GeometryModel & geomModelA,
-                          const GeometryModel & geomModelB,
-                          const FrameIndex frameInModelA,
-                          const SE3Tpl<Scalar,Options> & aMb)
+    bp::tuple appendModel_proxy(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelA,
+                                const ModelTpl<Scalar,Options,JointCollectionTpl> & modelB,
+                                const GeometryModel & geomModelA,
+                                const GeometryModel & geomModelB,
+                                const FrameIndex frameInModelA,
+                                const SE3Tpl<Scalar,Options> & aMb)
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-      Model model; GeometryModel geom_model;
+      Model model;
+      GeometryModel geom_model;
       
       appendModel(modelA,modelB,geomModelA,geomModelB,frameInModelA,aMb,model,geom_model);
       
@@ -59,7 +60,7 @@ namespace pinocchio
               " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
       
       bp::def("appendModel",
-              (bp::tuple (*)(const Model &, const Model &, const GeometryModel &, const GeometryModel &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
+              &appendModel_proxy<double,0,JointCollectionDefaultTpl>,
               bp::args("modelA","modelB","frame_in_modelA","aMb"),
               "Append a child (geometry) model into a parent (geometry) model, after a specific frame given by its index.\n\n"
               " modelA: the parent model\n"

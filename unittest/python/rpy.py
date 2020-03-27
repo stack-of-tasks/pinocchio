@@ -3,7 +3,6 @@ from math import pi
 
 import numpy as np
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 
 from pinocchio.utils import npToTuple
 from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate
@@ -20,8 +19,8 @@ class TestRPY(TestCase):
 
     def test_rotate(self):
         self.assertApprox(rotate('x', pi / 2), np.array([[1., 0., 0.],[0., 0., -1.],[0., 1., 0.]]))
-        self.assertApprox(rotate('x', pi) * rotate('y', pi), rotate('z', pi))
-        m = rotate('x', pi / 3) * rotate('y', pi / 5) * rotate('y', pi / 7)
+        self.assertApprox(rotate('x', pi).dot(rotate('y', pi)), rotate('z', pi))
+        m = rotate('x', pi / 3).dot(rotate('y', pi / 5)).dot(rotate('y', pi / 7))
         self.assertApprox(rpyToMatrix(matrixToRpy(m)), m)
         rpy = np.array(list(range(3))) * pi / 2
         self.assertApprox(matrixToRpy(rpyToMatrix(rpy)), rpy)

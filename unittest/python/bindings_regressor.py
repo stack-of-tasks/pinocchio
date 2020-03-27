@@ -1,7 +1,6 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 from pinocchio.utils import rand, zero
 import numpy as np
 
@@ -26,7 +25,7 @@ class TestRegressorBindings(TestCase):
             phi[4*k-3:4*k] = Y.mass * Y.lever
 
         static_com_ref = pin.centerOfMass(model,data_ref,q)
-        static_com = data.staticRegressor * phi
+        static_com = data.staticRegressor.dot(phi)
 
         self.assertApprox(static_com, static_com_ref)
 
@@ -37,7 +36,7 @@ class TestRegressorBindings(TestCase):
 
         f = I*a + I.vxiv(v)
 
-        f_regressor = pin.bodyRegressor(v,a) * I.toDynamicParameters()
+        f_regressor = pin.bodyRegressor(v,a).dot(I.toDynamicParameters())
         
         self.assertApprox(f_regressor, f.vector)
 
@@ -55,7 +54,7 @@ class TestRegressorBindings(TestCase):
 
         f = data.f[JOINT_ID]
 
-        f_regressor = pin.jointBodyRegressor(model,data,JOINT_ID) * model.inertias[JOINT_ID].toDynamicParameters()
+        f_regressor = pin.jointBodyRegressor(model,data,JOINT_ID).dot(model.inertias[JOINT_ID].toDynamicParameters())
 
         self.assertApprox(f_regressor, f.vector)
 
@@ -78,7 +77,7 @@ class TestRegressorBindings(TestCase):
         f = framePlacement.actInv(data.f[JOINT_ID])
         I = framePlacement.actInv(model.inertias[JOINT_ID])
 
-        f_regressor = pin.frameBodyRegressor(model,data,FRAME_ID) * I.toDynamicParameters()
+        f_regressor = pin.frameBodyRegressor(model,data,FRAME_ID).dot(I.toDynamicParameters())
 
         self.assertApprox(f_regressor, f.vector)
 
@@ -102,7 +101,7 @@ class TestRegressorBindings(TestCase):
 
         pin.computeJointTorqueRegressor(model,data,q,v,a)
 
-        tau_regressor = data.jointTorqueRegressor * params
+        tau_regressor = data.jointTorqueRegressor.dot(params)
 
         self.assertApprox(tau_regressor, data_ref.tau)
 

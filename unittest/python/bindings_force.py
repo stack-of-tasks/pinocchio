@@ -1,6 +1,5 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import numpy as np
 from pinocchio.utils import zero,rand
 
@@ -55,10 +54,10 @@ class TestForceBindings(unittest.TestCase):
     def test_se3_action(self):
         f = pin.Force.Random()
         m = pin.SE3.Random()
-        self.assertTrue(np.allclose((m * f).vector,  np.linalg.inv(m.action.T) * f.vector))
-        self.assertTrue(np.allclose(m.act(f).vector, np.linalg.inv(m.action.T) * f.vector))
-        self.assertTrue(np.allclose((m.actInv(f)).vector, m.action.T * f.vector))
-        v = pin.Motion(np.vstack([f.vector[3:], f.vector[:3]]))
+        self.assertTrue(np.allclose((m * f).vector,  np.linalg.inv(m.action.T).dot(f.vector)))
+        self.assertTrue(np.allclose(m.act(f).vector, np.linalg.inv(m.action.T).dot(f.vector)))
+        self.assertTrue(np.allclose((m.actInv(f)).vector, m.action.T.dot(f.vector)))
+        v = pin.Motion(np.concatenate([f.vector[3:], f.vector[:3]]))
         self.assertTrue(np.allclose((v ^ f).vector, zero(6)))
 
     def test_conversion(self):

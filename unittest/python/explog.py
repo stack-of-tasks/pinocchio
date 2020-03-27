@@ -3,7 +3,6 @@ import math
 
 import numpy as np
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 
 from pinocchio.utils import rand, zero, eye
 from pinocchio.explog import exp, log

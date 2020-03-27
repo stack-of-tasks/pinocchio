@@ -1,7 +1,5 @@
 import unittest
 
-import pinocchio as pin
-pin.switchToNumpyMatrix()
 from pinocchio.utils import isapprox
 
 def tracefunc(frame, event, arg):

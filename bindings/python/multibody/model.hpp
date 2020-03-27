@@ -243,8 +243,7 @@ namespace pinocchio
         
         .def("existFrame",&Model::existFrame,existFrame_overload(bp::args("name","type"),"Returns true if the frame given by its name exists inside the Model with the given type."))
         
-        .def("addFrame",(bool (Model::*)(const std::string &,const JointIndex, const FrameIndex, const SE3 &,const FrameType &)) &Model::addFrame,bp::args("name","parent_id","placement","type"),"Add a frame to the vector of frames. See also Frame for more details. Returns False if the frame already exists.")
-        .def("addFrame",(bool (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
+        .def("addFrame",(int (Model::*)(const Frame &)) &Model::addFrame,bp::args("frame"),"Add a frame to the vector of frames.")
         
         .def("createData",
              &ModelPythonVisitor::createData,
