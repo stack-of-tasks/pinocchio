@@ -26,8 +26,8 @@ namespace pinocchio
       static const Scalar PI_value = PI<Scalar>();
     
       const Scalar tr = R.trace();
-      if(tr > Scalar(3))       theta = Scalar(0); // acos((3-1)/2)
-      else if(tr < Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
+      if(tr >= Scalar(3))       theta = Scalar(0); // acos((3-1)/2)
+      else if(tr <= Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
       else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
       assert(theta == theta && "theta contains some NaN"); // theta != NaN
       
@@ -40,9 +40,9 @@ namespace pinocchio
         // using explicit formula. However, the precision of this method
         // is the square root of the precision with the antisymmetric
         // method (Nominal case).
-        const Scalar cphi = cos(theta - PI_value);
+        const Scalar cphi = -(tr - Scalar(1))/Scalar(2);
         const Scalar beta = theta*theta / (Scalar(1) + cphi);
-        Vector3 tmp((R.diagonal().array() + cphi) * beta);
+        const Vector3 tmp((R.diagonal().array() + cphi) * beta);
         res_(0) = (R (2, 1) > R (1, 2) ? Scalar(1) : Scalar(-1)) * (tmp[0] > Scalar(0) ? sqrt(tmp[0]) : Scalar(0));
         res_(1) = (R (0, 2) > R (2, 0) ? Scalar(1) : Scalar(-1)) * (tmp[1] > Scalar(0) ? sqrt(tmp[1]) : Scalar(0));
         res_(2) = (R (1, 0) > R (0, 1) ? Scalar(1) : Scalar(-1)) * (tmp[2] > Scalar(0) ? sqrt(tmp[2]) : Scalar(0));
