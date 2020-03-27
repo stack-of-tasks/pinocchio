@@ -35,9 +35,9 @@ namespace pinocchio
                                                                   Scalar(0),
                                                                   math::acos((tr - Scalar(1))/Scalar(2))));
       
-      const Scalar cphi = cos(theta - PI_value);
+      const Scalar cphi = -(tr - Scalar(1))/Scalar(2);
       const Scalar beta = theta*theta / (Scalar(1) + cphi);
-      Vector3 tmp((R.diagonal().array() + cphi) * beta);
+      const Vector3 tmp((R.diagonal().array() + cphi) * beta);
       const Scalar t = CppAD::CondExpGt<_Scalar>(theta,
                                                  TaylorSeriesExpansion<_Scalar>::template precision<3>(),
                                                  theta / sin(theta),
