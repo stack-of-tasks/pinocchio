@@ -1,7 +1,7 @@
 import unittest
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 
 from test_case import PinocchioTestCase as TestCase
 

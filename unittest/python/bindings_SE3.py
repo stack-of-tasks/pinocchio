@@ -1,10 +1,10 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 import numpy as np
 from pinocchio.utils import eye,zero,rand
 
-ones = lambda n: np.matrix(np.ones([n, 1] if isinstance(n, int) else n), np.double)
+ones = lambda n: np.ones([n, 1] if isinstance(n, int) else n)
 
 class TestSE3Bindings(unittest.TestCase):
 
@@ -59,7 +59,7 @@ class TestSE3Bindings(unittest.TestCase):
         aXb = amb.action
         self.assertTrue(np.allclose(aXb[:3,:3], amb.rotation)) # top left 33 corner = rotation of amb
         self.assertTrue(np.allclose(aXb[3:,3:], amb.rotation)) # bottom right 33 corner = rotation of amb
-        tblock = pin.skew(amb.translation)*amb.rotation
+        tblock = pin.skew(amb.translation).dot(amb.rotation)
         self.assertTrue(np.allclose(aXb[:3,3:], tblock))       # top right 33 corner = translation + rotation
         self.assertTrue(np.allclose(aXb[3:,:3], zero([3,3])))  # bottom left 33 corner = 0
 
@@ -80,7 +80,7 @@ class TestSE3Bindings(unittest.TestCase):
         aMc = amc.homogeneous
         cMa = np.linalg.inv(aMc)
 
-        self.assertTrue(np.allclose(aMb*bMc, aMc))
+        self.assertTrue(np.allclose(aMb.dot(bMc), aMc))
         self.assertTrue(np.allclose(cma.homogeneous,cMa))
 
     def test_internal_product_vs_action(self):
@@ -94,7 +94,7 @@ class TestSE3Bindings(unittest.TestCase):
         aXc = amc.action
         cXa = np.linalg.inv(aXc)
 
-        self.assertTrue(np.allclose(aXb*bXc, aXc))
+        self.assertTrue(np.allclose(aXb.dot(bXc), aXc))
         self.assertTrue(np.allclose(cma.action,cXa))
 
     def test_point_action(self):
@@ -105,12 +105,12 @@ class TestSE3Bindings(unittest.TestCase):
         p = p_homogeneous[0:3].copy()
 
         # act
-        self.assertTrue(np.allclose(amb.act(p),(aMb*p_homogeneous)[0:3]))
+        self.assertTrue(np.allclose(amb.act(p),(aMb.dot(p_homogeneous))[0:3]))
 
         # actinv
         bMa = np.linalg.inv(aMb)
         bma = amb.inverse()
-        self.assertTrue(np.allclose(bma.act(p), (bMa * p_homogeneous)[0:3]))
+        self.assertTrue(np.allclose(bma.act(p), (bMa.dot(p_homogeneous))[0:3]))
 
     def test_conversions(self):
         def compute (m):

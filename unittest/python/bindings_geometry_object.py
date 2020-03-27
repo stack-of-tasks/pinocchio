@@ -1,6 +1,6 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 import numpy as np
 
 @unittest.skipUnless(pin.WITH_HPP_FCL,"Needs HPP-FCL")

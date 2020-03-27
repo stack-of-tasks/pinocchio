@@ -1,6 +1,6 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 import numpy as np
 from pinocchio.utils import eye,zero,rand
 
@@ -71,10 +71,10 @@ class TestInertiaBindings(TestCase):
         m = pin.SE3.Random()
         Y = pin.Inertia.Random()
         v = pin.Motion.Random()
-        self.assertTrue(np.allclose((Y * v).vector, Y.matrix() * v.vector))
-        self.assertTrue(np.allclose((m * Y).matrix(),  m.inverse().action.T * Y.matrix() * m.inverse().action))
-        self.assertTrue(np.allclose(m.act(Y).matrix(), m.inverse().action.T * Y.matrix() * m.inverse().action))
-        self.assertTrue(np.allclose((m.actInv(Y)).matrix(), m.action.T * Y.matrix() * m.action))
+        self.assertTrue(np.allclose((Y * v).vector, Y.matrix().dot(v.vector)))
+        self.assertTrue(np.allclose((m * Y).matrix(),  m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action)))
+        self.assertTrue(np.allclose(m.act(Y).matrix(), m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action)))
+        self.assertTrue(np.allclose((m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action)))
 
     def test_dynamic_parameters(self):
         I = pin.Inertia.Random()
@@ -84,8 +84,8 @@ class TestInertiaBindings(TestCase):
         self.assertApprox(v[0], I.mass)
         self.assertApprox(v[1:4], I.mass * I.lever)
 
-        I_o = I.inertia + I.mass * pin.skew(I.lever).transpose() * pin.skew(I.lever)
-        I_ov = np.matrix(
+        I_o = I.inertia + I.mass * pin.skew(I.lever).transpose().dot(pin.skew(I.lever))
+        I_ov = np.array(
                 [[float(v[4]), float(v[5]), float(v[7])],
                  [float(v[5]), float(v[6]), float(v[8])],
                  [float(v[7]), float(v[8]), float(v[9])]

@@ -1,6 +1,6 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 from pinocchio.utils import np, npl, rand, zero
 
 from test_case import PinocchioTestCase as TestCase
@@ -17,27 +17,17 @@ class TestSE3(TestCase):
 
     def test_se3(self):
         R, p, m = self.R, self.p, self.m
-        X = np.vstack([np.hstack([R, pin.skew(p) * R]), np.hstack([zero([3, 3]), R])])
+        X = np.vstack([np.hstack([R, pin.skew(p).dot(R)]), np.hstack([zero([3, 3]), R])])
         self.assertApprox(m.action, X)
-        M = np.vstack([np.hstack([R, p]), np.matrix([0., 0., 0., 1.], np.double)])
+        M = np.vstack([np.hstack([R, np.expand_dims(p,1)]), np.array([[0., 0., 0., 1.]])])
         self.assertApprox(m.homogeneous, M)
         m2 = pin.SE3.Random()
-        self.assertApprox((m * m2).homogeneous, m.homogeneous * m2.homogeneous)
+        self.assertApprox((m * m2).homogeneous, m.homogeneous.dot(m2.homogeneous))
         self.assertApprox((~m).homogeneous, npl.inv(m.homogeneous))
 
         p = rand(3)
-        self.assertApprox(m * p, m.rotation * p + m.translation)
-        self.assertApprox(m.actInv(p), m.rotation.T * p - m.rotation.T * m.translation)
-
-        ## not supported
-        # p = np.vstack([p, 1])
-        # self.assertApprox(m * p, m.homogeneous * p)
-        # self.assertApprox(m.actInv(p), npl.inv(m.homogeneous) * p)
-
-        ## not supported
-        # p = rand(6)
-        # self.assertApprox(m * p, m.action * p)
-        # self.assertApprox(m.actInv(p), npl.inv(m.action) * p)
+        self.assertApprox(m * p, m.rotation.dot(p) + m.translation)
+        self.assertApprox(m.actInv(p), m.rotation.T.dot(p) - m.rotation.T.dot(m.translation))
 
         # Currently, the different cases do not throw the same exception type.
         # To have a more robust test, only Exception is checked.
@@ -54,11 +44,11 @@ class TestSE3(TestCase):
         m = self.m
         self.assertApprox(pin.Motion.Zero().vector, zero(6))
         v = pin.Motion.Random()
-        self.assertApprox((m * v).vector, m.action * v.vector)
-        self.assertApprox((m.actInv(v)).vector, npl.inv(m.action) * v.vector)
+        self.assertApprox((m * v).vector, m.action.dot(v.vector))
+        self.assertApprox((m.actInv(v)).vector, npl.inv(m.action).dot(v.vector))
         vv = v.linear
         vw = v.angular
-        self.assertApprox(v.vector, np.vstack([vv, vw]))
+        self.assertApprox(v.vector, np.concatenate([vv, vw]))
         self.assertApprox((v ^ v).vector, zero(6))
 
     def test_force(self):
@@ -67,12 +57,12 @@ class TestSE3(TestCase):
         f = pin.Force.Random()
         ff = f.linear
         ft = f.angular
-        self.assertApprox(f.vector, np.vstack([ff, ft]))
+        self.assertApprox(f.vector, np.concatenate([ff, ft]))
 
-        self.assertApprox((m * f).vector, npl.inv(m.action.T) * f.vector)
-        self.assertApprox((m.actInv(f)).vector, m.action.T * f.vector)
+        self.assertApprox((m * f).vector, npl.inv(m.action.T).dot(f.vector))
+        self.assertApprox((m.actInv(f)).vector, m.action.T.dot(f.vector))
         v = pin.Motion.Random()
-        f = pin.Force(np.vstack([v.vector[3:], v.vector[:3]]))
+        f = pin.Force(np.concatenate([v.vector[3:], v.vector[:3]]))
         self.assertApprox((v ^ f).vector, zero(6))
 
     def test_inertia(self):
@@ -82,9 +72,9 @@ class TestSE3(TestCase):
         Y = Y1 + Y2
         self.assertApprox(Y1.matrix() + Y2.matrix(), Y.matrix())
         v = pin.Motion.Random()
-        self.assertApprox((Y * v).vector, Y.matrix() * v.vector)
-        self.assertApprox((m * Y).matrix(), m.inverse().action.T * Y.matrix() * m.inverse().action)
-        self.assertApprox((m.actInv(Y)).matrix(), m.action.T * Y.matrix() * m.action)
+        self.assertApprox((Y * v).vector, Y.matrix().dot(v.vector))
+        self.assertApprox((m * Y).matrix(), m.inverse().action.T.dot(Y.matrix()).dot(m.inverse().action))
+        self.assertApprox((m.actInv(Y)).matrix(), m.action.T.dot(Y.matrix()).dot(m.action))
 
     def test_cross(self):
         m = pin.Motion.Random()

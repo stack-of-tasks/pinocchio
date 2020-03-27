@@ -4,7 +4,7 @@ import numpy as np
 from numpy.random import rand
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
+pin.switchToNumpyArray()
 from pinocchio import skew, unSkew
 
 from test_case import PinocchioTestCase
