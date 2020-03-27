@@ -1,6 +1,5 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyArray()
 import numpy as np
 
 class TestJointCompositeBindings(unittest.TestCase):

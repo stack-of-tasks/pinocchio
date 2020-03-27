@@ -1,6 +1,5 @@
 import unittest
 import pinocchio as pin
-pin.switchToNumpyArray()
 from pinocchio.utils import np, npl, rand, zero
 
 from test_case import PinocchioTestCase as TestCase

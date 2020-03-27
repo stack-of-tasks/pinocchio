@@ -3,7 +3,6 @@ from math import pi
 
 import numpy as np
 import pinocchio as pin
-pin.switchToNumpyArray()
 
 from pinocchio.utils import npToTuple
 from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate

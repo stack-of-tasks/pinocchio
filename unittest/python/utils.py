@@ -3,7 +3,6 @@ from math import sqrt
 
 import numpy as np
 import pinocchio as pin
-pin.switchToNumpyArray()
 from pinocchio.utils import isapprox
 
 from test_case import PinocchioTestCase as TestCase
