@@ -5,11 +5,14 @@
 #ifndef __pinocchio_python_data_hpp__
 #define __pinocchio_python_data_hpp__
 
+#include <boost/python.hpp>
+
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/serialization/data.hpp"
 
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <eigenpy/exception.hpp>
+
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
@@ -182,8 +185,6 @@ namespace pinocchio
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
         StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
         StdVectorPythonVisitor<int>::expose("StdVec_int");
-        
-        eigenpy::enableEigenPySpecific<Data::RowMatrixXs>();
       }
 
     };
@@ -191,4 +192,3 @@ namespace pinocchio
   }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_data_hpp__
-
