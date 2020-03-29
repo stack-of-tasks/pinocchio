@@ -5,8 +5,8 @@
 #ifndef __pinocchio_python_joint_dense_hpp__
 #define __pinocchio_python_joint_dense_hpp__
 
+#include <boost/python.hpp>
 #include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 

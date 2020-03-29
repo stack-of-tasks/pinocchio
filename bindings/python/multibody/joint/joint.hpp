@@ -1,12 +1,11 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_joint_hpp__
 #define __pinocchio_python_joint_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <boost/python.hpp>
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"

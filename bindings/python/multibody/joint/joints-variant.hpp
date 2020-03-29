@@ -1,12 +1,12 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_joints_variant_hpp__
 #define __pinocchio_python_joints_variant_hpp__
 
-#include <eigenpy/exception.hpp>
-#include <eigenpy/eigenpy.hpp>
+#include <boost/python.hpp>
+
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-datas.hpp"
