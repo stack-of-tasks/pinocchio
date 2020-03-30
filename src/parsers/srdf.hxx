@@ -31,6 +31,8 @@ namespace pinocchio
                                 std::istream & stream,
                                 const bool verbose = false)
       {
+        typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+        
         // Read xml stream
         using boost::property_tree::ptree;
         ptree pt;
