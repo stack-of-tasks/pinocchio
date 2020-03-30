@@ -13,8 +13,6 @@ namespace pinocchio
   namespace srdf
   {
     
-#ifdef PINOCCHIO_WITH_HPP_FCL
-    
     ///
     /// \brief Deactive all possible collision pairs mentioned in the SRDF file.
     ///        It throws if the SRDF file is incorrect.
@@ -44,8 +42,6 @@ namespace pinocchio
                                      const std::string & xmlString,
                                      const bool verbose = false);
     
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
-
     ///
     /// \brief Get the reference configurations of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect. The reference configurations are
@@ -76,7 +72,6 @@ namespace pinocchio
                                        std::istream & xmlStream,
                                        const bool verbose = false);
       
-    
     ///
     /// \brief Load the rotor params of a given model associated to a SRDF file.
     ///        It throws if the SRDF file is incorrect.
