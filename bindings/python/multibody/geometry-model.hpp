@@ -61,7 +61,6 @@ namespace pinocchio
              &GeometryModelPythonVisitor::createData,
              bp::arg("self"),
              "Create a GeometryData associated to the current model.")
-#ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
@@ -82,8 +81,7 @@ namespace pinocchio
         .def("findCollisionPair", &GeometryModel::findCollisionPair,
              bp::args("collision_pair"),
              "Return the index of a collision pair.")
-#endif // PINOCCHIO_WITH_HPP_FCL
-        
+
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         ;
