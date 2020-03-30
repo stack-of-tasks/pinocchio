@@ -5,10 +5,7 @@
 #ifndef __pinocchio_multibody_geometry_hxx__
 #define __pinocchio_multibody_geometry_hxx__
 
-#include <iostream>
-#include <map>
-#include <list>
-#include <utility>
+#include "pinocchio/multibody/model.hpp"
 
 /// @cond DEV
 
@@ -125,8 +122,6 @@ namespace pinocchio
     return os;
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  
   inline void GeometryModel::addCollisionPair(const CollisionPair & pair)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
@@ -196,7 +191,6 @@ namespace pinocchio
     activeCollisionPairs[pairId] = false;
   }
 
-#endif //PINOCCHIO_WITH_HPP_FCL
 } // namespace pinocchio
 
 /// @endcond

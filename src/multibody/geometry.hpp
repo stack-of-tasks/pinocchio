@@ -6,10 +6,8 @@
 #define __pinocchio_multibody_geometry_hpp__
 
 #include "pinocchio/multibody/fcl.hpp"
-#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
-
-#include <iostream>
 
 #include <boost/foreach.hpp>
 #include <map>
@@ -84,7 +82,6 @@ namespace pinocchio
      */
     bool existGeometryName(const std::string & name) const;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Add a collision pair into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
@@ -131,8 +128,7 @@ namespace pinocchio
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
     
-#endif // PINOCCHIO_WITH_HPP_FCL
-    
+
     ///
     /// \brief Returns true if *this and other are equal.
     ///
