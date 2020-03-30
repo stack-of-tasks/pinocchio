@@ -1,3 +1,7 @@
+//
+// Copyright (c) 2015-2020 CNRS INRIA
+//
+
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/types.hpp"
 #include "pinocchio/parsers/utils.hpp"
