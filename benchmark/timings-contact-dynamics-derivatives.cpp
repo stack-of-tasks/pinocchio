@@ -56,11 +56,11 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   
   RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidContactData cd_RF_6D(model.nv);
+  RigidContactData cd_RF_6D;
   //RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
   
   RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactData cd_LF_6D(model.nv);
+  RigidContactData cd_LF_6D;
   // RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
   
   //RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);

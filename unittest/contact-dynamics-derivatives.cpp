@@ -53,9 +53,8 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
 
   contact_models.push_back(ci_LF);
   contact_models.push_back(ci_RF);
-  RigidContactData cd_LF(model.nv);
-
-  RigidContactData cd_RF(model.nv);
+  RigidContactData cd_LF;
+  RigidContactData cd_RF;
 
   contact_datas.push_back(cd_LF);
   contact_datas.push_back(cd_RF);
@@ -182,9 +181,9 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
 
   contact_models.push_back(ci_LF);
   contact_models.push_back(ci_RF);
-  RigidContactData cd_LF(model.nv);
+  RigidContactData cd_LF;
 
-  RigidContactData cd_RF(model.nv);
+  RigidContactData cd_RF;
 
   contact_datas.push_back(cd_LF);
   contact_datas.push_back(cd_RF);
