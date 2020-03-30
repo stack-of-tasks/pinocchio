@@ -258,35 +258,32 @@ namespace pinocchio
       {
         typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
         //TODO: We don't need all these quantities. Remove those not needed.
-        getJointAccelerationDerivatives(model, data,
-                                        joint_id,
-                                        LOCAL,
-                                        contact_data.v_partial_dq,
-                                        contact_data.a_partial_dq,
-                                        contact_data.a_partial_dv,
-                                        contact_data.a_partial_da);
-
-        //TODO: replace with contact_model::nc
+        typename Data::Matrix6x& contact_dvc_dq_tmp = data.dFda;
         RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
                                                               current_row_sol_id);
         RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,
-                                                               current_row_sol_id);
+                                                              current_row_sol_id);
         RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                                  current_row_sol_id);
+                                                              current_row_sol_id);
 
-        contact_dac_da = contact_data.a_partial_da;
+        getJointAccelerationDerivatives(model, data,
+                                        joint_id,
+                                        LOCAL,
+                                        contact_dvc_dq_tmp,
+                                        contact_dac_dq,
+                                        contact_dac_dv,
+                                        contact_dac_da);
 
-        contact_dac_dq = contact_data.a_partial_dq;
-        contact_dac_dv = contact_data.a_partial_dv;
+        //TODO: replace with contact_model::nc
 
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
           contact_dac_dq.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
+            data.v[joint_id].angular().cross(contact_dvc_dq_tmp.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_dvc_dq_tmp.template bottomRows<3>().col(j));
           contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
+            data.v[joint_id].angular().cross(contact_dac_da.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(contact_dac_da.template bottomRows<3>().col(j));
         }
 
         //TODO: remplacer par contact_model::NC
@@ -298,13 +295,18 @@ namespace pinocchio
         typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
         //TODO: Specialize for the 3d case.
         //TODO: We don't need all these quantities. Remove those not needed.
+        typename Data::Matrix6x& v_partial_dq_tmp = data.dFda;
+        typename Data::Matrix6x& a_partial_dq_tmp = data.SDinv;
+        typename Data::Matrix6x& a_partial_dv_tmp = data.UDinv;
+        typename Data::Matrix6x& a_partial_da_tmp = data.IS;
+
         getJointAccelerationDerivatives(model, data,
                                         joint_id,
                                         LOCAL,
-                                        contact_data.v_partial_dq,
-                                        contact_data.a_partial_dq,
-                                        contact_data.a_partial_dv,
-                                        contact_data.a_partial_da);
+                                        v_partial_dq_tmp,
+                                        a_partial_dq_tmp,
+                                        a_partial_dv_tmp,
+                                        a_partial_da_tmp);
 
         //TODO: replace with contact_model::nc
         RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
@@ -314,19 +316,18 @@ namespace pinocchio
         RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
                                                                   current_row_sol_id);
 
-        contact_dac_da.noalias() = contact_data.a_partial_da.template topRows<3>();
-
-        contact_dac_dq = contact_data.a_partial_dq.template topRows<3>();
-        contact_dac_dv = contact_data.a_partial_dv.template topRows<3>();
+        contact_dac_da = a_partial_da_tmp.template topRows<3>();
+        contact_dac_dq = a_partial_dq_tmp.template topRows<3>();
+        contact_dac_dv = a_partial_dv_tmp.template topRows<3>();
         
         int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
         for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
           contact_dac_dq.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_data.v_partial_dq.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_data.v_partial_dq.template bottomRows<3>().col(j));
+            data.v[joint_id].angular().cross(v_partial_dq_tmp.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(v_partial_dq_tmp.template bottomRows<3>().col(j));
           contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_data.a_partial_da.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_data.a_partial_da.template bottomRows<3>().col(j));
+            data.v[joint_id].angular().cross(a_partial_da_tmp.template topRows<3>().col(j))
+            - data.v[joint_id].linear().cross(a_partial_da_tmp.template bottomRows<3>().col(j));
         }
         current_row_sol_id += 3;
         break;
