@@ -29,14 +29,14 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>("Default constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .add_property("ngeoms", &GeometryModel::ngeoms, "Number of geometries contained in the Geometry Model.")
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
 
         .def("addGeometryObject",
              static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &)>(&GeometryModel::addGeometryObject),
-             bp::arg("geometry_object"),
+             bp::args("self","geometry_object"),
              "Add a GeometryObject to a GeometryModel.\n"
              "Parameters\n"
              "\tgeometry_object : a GeometryObject\n")
