@@ -91,6 +91,10 @@ class GepettoVisualizer(BaseVisualizer):
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 success = self.loadPrimitive(meshName, geometry_object)
             else:
+                if meshName == "":
+                    msg = "Display of geometric primitives is supported only if pinocchio is build with HPP-FCL bindings."
+                    warnings.warn(msg, category=UserWarning, stacklevel=2)
+                    return
                 success = gui.addMesh(meshName, meshPath)
             if not success:
                 return
