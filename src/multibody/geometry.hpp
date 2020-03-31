@@ -231,19 +231,17 @@ namespace pinocchio
     ///
     PairIndex collisionPairIndex;
 
-    typedef std::vector<GeomIndex> GeomIndexList;
-
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
-    /// 
+    ///
     /// The map lists the collision GeometryObjects associated to a given joint Id.
     ///  Inner objects can be seen as geometry objects that directly move when the associated joint moves
-    std::map < JointIndex, GeomIndexList >  innerObjects;
+    std::map<JointIndex,GeomIndexList>  innerObjects;
 
     /// \brief A list of associated collision GeometryObjects to a given joint Id
     ///
     /// Outer objects can be seen as geometry objects that may often be
     /// obstacles to the Inner objects of given joint
-    std::map < JointIndex, GeomIndexList >  outerObjects;
+    std::map<JointIndex,GeomIndexList>  outerObjects;
 #endif // PINOCCHIO_WITH_HPP_FCL   
 
     GeometryData(const GeometryModel & geomModel);
