@@ -21,6 +21,7 @@ namespace pinocchio
   , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
+#endif // PINOCCHIO_WITH_HPP_FCL
   , innerObjects()
   , outerObjects()
   {
@@ -31,10 +32,7 @@ namespace pinocchio
     }
     fillInnerOuterObjectMaps(geom_model);
   }
-#else
-  {}
-#endif // PINOCCHIO_WITH_HPP_FCL   
-  
+
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)

@@ -230,6 +230,7 @@ namespace pinocchio
     /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
+#endif // PINOCCHIO_WITH_HPP_FCL   
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
     ///
@@ -242,7 +243,6 @@ namespace pinocchio
     /// Outer objects can be seen as geometry objects that may often be
     /// obstacles to the Inner objects of given joint
     std::map<JointIndex,GeomIndexList>  outerObjects;
-#endif // PINOCCHIO_WITH_HPP_FCL   
 
     GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
