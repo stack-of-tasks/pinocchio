@@ -74,7 +74,6 @@ namespace pinocchio
                         boost::bind(&GeometryObject::name, _1) == name) != geometryObjects.end();
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
@@ -88,7 +87,6 @@ namespace pinocchio
       outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
     }
   }
-#endif
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryModel & geomModel)
   {
