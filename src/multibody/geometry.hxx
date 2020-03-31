@@ -25,11 +25,13 @@ namespace pinocchio
   , innerObjects()
   , outerObjects()
   {
+#ifdef PINOCCHIO_WITH_HPP_FCL
     collisionObjects.reserve(geom_model.geometryObjects.size());
     BOOST_FOREACH(const GeometryObject & geom_object, geom_model.geometryObjects)
     {
       collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
     }
+#endif
     fillInnerOuterObjectMaps(geom_model);
   }
 
