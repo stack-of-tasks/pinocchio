@@ -46,7 +46,7 @@ namespace pinocchio
     }; // struct CollisionPairPythonVisitor
 
     struct GeometryDataPythonVisitor
-      : public boost::python::def_visitor< GeometryDataPythonVisitor >
+    : public boost::python::def_visitor< GeometryDataPythonVisitor >
     {
       
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -61,11 +61,11 @@ namespace pinocchio
                       &GeometryData::oMg,
                       "Vector of collision objects placement relative to the world frame.\n"
                       "note: These quantities have to be updated by calling updateGeometryPlacements.")
-        
-#ifdef PINOCCHIO_WITH_HPP_FCL
         .def_readonly("activeCollisionPairs",
                       &GeometryData::activeCollisionPairs,
                       "Vector of active CollisionPairs")
+        
+#ifdef PINOCCHIO_WITH_HPP_FCL
         .def_readonly("distanceRequest",
                       &GeometryData::distanceRequest,
                       "Defines which information should be computed by FCL for distance computations")
@@ -86,6 +86,7 @@ namespace pinocchio
                       &GeometryData::radius,
                       "Vector of radius of bodies, i.e. the distance between the further point of the geometry object from the joint center.\n"
                       "note: This radius information might be usuful in continuous collision checking")
+#endif // PINOCCHIO_WITH_HPP_FCL
         
         .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
              bp::args("self","GeometryModel"),
@@ -98,9 +99,6 @@ namespace pinocchio
         .def("deactivateCollisionPair",&GeometryData::deactivateCollisionPair,
              bp::args("self","pair_id"),
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
-
-#endif // PINOCCHIO_WITH_HPP_FCL
-        
         ;
       }
              

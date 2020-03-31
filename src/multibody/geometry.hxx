@@ -13,9 +13,8 @@ namespace pinocchio
 {
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
-  
-#ifdef PINOCCHIO_WITH_HPP_FCL
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
+#ifdef PINOCCHIO_WITH_HPP_FCL
   , distanceRequest(true)
   , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
@@ -67,8 +66,6 @@ namespace pinocchio
                    );
     return GeomIndex(it - geometryObjects.begin());
   }
-
-
 
   inline bool GeometryModel::existGeometryName(const std::string & name) const
   {

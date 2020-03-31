@@ -172,6 +172,7 @@ namespace pinocchio
     enum { Options = 0 };
     
     typedef SE3Tpl<Scalar,Options> SE3;
+    typedef std::vector<GeomIndex> GeomIndexList;
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
@@ -182,6 +183,11 @@ namespace pinocchio
     ///
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) oMg;
 
+    ///
+    /// \brief Vector of collision pairs.
+    ///
+    std::vector<bool> activeCollisionPairs;
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
@@ -190,11 +196,6 @@ namespace pinocchio
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
     std::vector<fcl::CollisionObject> collisionObjects;
-
-    ///
-    /// \brief Vector of collision pairs.
-    ///
-    std::vector<bool> activeCollisionPairs;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -223,7 +224,7 @@ namespace pinocchio
     std::vector<double> radius;
 
     ///
-    /// \brief index of the collision pair
+    /// \brief Index of the collision pair
     ///
     /// It is used by some method to return additional information. For instance,
     /// the algo computeCollisions() sets it to the first colliding pair.
@@ -247,8 +248,6 @@ namespace pinocchio
 
     GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
-
-#ifdef PINOCCHIO_WITH_HPP_FCL
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
     /// collisionPairs. 
@@ -287,7 +286,6 @@ namespace pinocchio
     ///
     void deactivateCollisionPair(const PairIndex pairId);
 
-#endif //PINOCCHIO_WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
   }; // struct GeometryData
