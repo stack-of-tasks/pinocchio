@@ -23,8 +23,6 @@ namespace pinocchio
 {
   namespace srdf
   {
-    
-#ifdef PINOCCHIO_WITH_HPP_FCL
     namespace details
     {
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -33,6 +31,8 @@ namespace pinocchio
                                 std::istream & stream,
                                 const bool verbose = false)
       {
+        typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+        
         // Read xml stream
         using boost::property_tree::ptree;
         ptree pt;
@@ -129,8 +129,6 @@ namespace pinocchio
       details::removeCollisionPairs(model, geom_model, srdf_stream, verbose);
     }
     
-#endif // ifdef PINOCCHIO_WITH_HPP_FCL
-    
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     bool loadRotorParameters(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const std::string & filename,
@@ -210,8 +208,8 @@ namespace pinocchio
       typedef typename Model::ConfigVectorType ConfigVectorType;
       
       typedef boost::fusion::vector<const std::string&,
-                             const ConfigVectorType&,
-                             ConfigVectorType&> ArgsType;
+                                    const ConfigVectorType&,
+                                    ConfigVectorType&> ArgsType;
 
       template<typename JointModel>
       static void algo(const JointModelBase<JointModel> & joint,
@@ -225,9 +223,9 @@ namespace pinocchio
       private:
       template<int axis>
       static void _algo (const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
-                       const std::string& joint_name,
-                       const ConfigVectorType& fromXML,
-                       ConfigVectorType& config)
+                         const std::string& joint_name,
+                         const ConfigVectorType& fromXML,
+                         ConfigVectorType& config)
       {
         typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelRUB;
         PINOCCHIO_STATIC_ASSERT(JointModelRUB::NQ == 2, JOINT_MODEL_REVOLUTE_SHOULD_HAVE_2_PARAMETERS);
@@ -235,16 +233,16 @@ namespace pinocchio
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
         else {
           SINCOS(fromXML[0],
-              &config[joint.idx_q()+1],
-              &config[joint.idx_q()+0]);
+                 &config[joint.idx_q()+1],
+                 &config[joint.idx_q()+0]);
         }
       }
 
       template<typename JointModel>
       static void _algo (const JointModel & joint,
-                       const std::string& joint_name,
-                       const ConfigVectorType& fromXML,
-                       ConfigVectorType& config)
+                         const std::string& joint_name,
+                         const ConfigVectorType& fromXML,
+                         ConfigVectorType& config)
       {
         if (joint.nq() != fromXML.size())
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;

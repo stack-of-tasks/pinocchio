@@ -29,14 +29,14 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>("Default constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .add_property("ngeoms", &GeometryModel::ngeoms, "Number of geometries contained in the Geometry Model.")
         .add_property("geometryObjects",
                       &GeometryModel::geometryObjects,"Vector of geometries objects.")
 
         .def("addGeometryObject",
              static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &)>(&GeometryModel::addGeometryObject),
-             bp::arg("geometry_object"),
+             bp::args("self","geometry_object"),
              "Add a GeometryObject to a GeometryModel.\n"
              "Parameters\n"
              "\tgeometry_object : a GeometryObject\n")
@@ -61,7 +61,6 @@ namespace pinocchio
              &GeometryModelPythonVisitor::createData,
              bp::arg("self"),
              "Create a GeometryData associated to the current model.")
-#ifdef PINOCCHIO_WITH_HPP_FCL
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
@@ -82,8 +81,7 @@ namespace pinocchio
         .def("findCollisionPair", &GeometryModel::findCollisionPair,
              bp::args("collision_pair"),
              "Return the index of a collision pair.")
-#endif // PINOCCHIO_WITH_HPP_FCL
-        
+
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         ;

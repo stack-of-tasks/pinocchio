@@ -6,10 +6,8 @@
 #define __pinocchio_multibody_geometry_hpp__
 
 #include "pinocchio/multibody/fcl.hpp"
-#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
-
-#include <iostream>
 
 #include <boost/foreach.hpp>
 #include <map>
@@ -84,7 +82,6 @@ namespace pinocchio
      */
     bool existGeometryName(const std::string & name) const;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Add a collision pair into the vector of collision_pairs.
     ///        The method check before if the given CollisionPair is already included.
@@ -131,8 +128,7 @@ namespace pinocchio
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
     
-#endif // PINOCCHIO_WITH_HPP_FCL
-    
+
     ///
     /// \brief Returns true if *this and other are equal.
     ///
@@ -176,6 +172,7 @@ namespace pinocchio
     enum { Options = 0 };
     
     typedef SE3Tpl<Scalar,Options> SE3;
+    typedef std::vector<GeomIndex> GeomIndexList;
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
@@ -186,6 +183,11 @@ namespace pinocchio
     ///
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) oMg;
 
+    ///
+    /// \brief Vector of collision pairs.
+    ///
+    std::vector<bool> activeCollisionPairs;
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Collision objects (ie a fcl placed geometry).
@@ -194,11 +196,6 @@ namespace pinocchio
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
     std::vector<fcl::CollisionObject> collisionObjects;
-
-    ///
-    /// \brief Vector of collision pairs.
-    ///
-    std::vector<bool> activeCollisionPairs;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -227,32 +224,28 @@ namespace pinocchio
     std::vector<double> radius;
 
     ///
-    /// \brief index of the collision pair
+    /// \brief Index of the collision pair
     ///
     /// It is used by some method to return additional information. For instance,
     /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
-
-    typedef std::vector<GeomIndex> GeomIndexList;
+#endif // PINOCCHIO_WITH_HPP_FCL   
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
-    /// 
+    ///
     /// The map lists the collision GeometryObjects associated to a given joint Id.
     ///  Inner objects can be seen as geometry objects that directly move when the associated joint moves
-    std::map < JointIndex, GeomIndexList >  innerObjects;
+    std::map<JointIndex,GeomIndexList>  innerObjects;
 
     /// \brief A list of associated collision GeometryObjects to a given joint Id
     ///
     /// Outer objects can be seen as geometry objects that may often be
     /// obstacles to the Inner objects of given joint
-    std::map < JointIndex, GeomIndexList >  outerObjects;
-#endif // PINOCCHIO_WITH_HPP_FCL   
+    std::map<JointIndex,GeomIndexList>  outerObjects;
 
     GeometryData(const GeometryModel & geomModel);
     ~GeometryData() {};
-
-#ifdef PINOCCHIO_WITH_HPP_FCL
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
     /// collisionPairs. 
@@ -291,7 +284,6 @@ namespace pinocchio
     ///
     void deactivateCollisionPair(const PairIndex pairId);
 
-#endif //PINOCCHIO_WITH_HPP_FCL
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
   }; // struct GeometryData

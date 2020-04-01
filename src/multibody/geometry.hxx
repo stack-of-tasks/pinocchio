@@ -5,10 +5,7 @@
 #ifndef __pinocchio_multibody_geometry_hxx__
 #define __pinocchio_multibody_geometry_hxx__
 
-#include <iostream>
-#include <map>
-#include <list>
-#include <utility>
+#include "pinocchio/multibody/model.hpp"
 
 /// @cond DEV
 
@@ -16,29 +13,28 @@ namespace pinocchio
 {
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
-  
-#ifdef PINOCCHIO_WITH_HPP_FCL
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
+#ifdef PINOCCHIO_WITH_HPP_FCL
   , distanceRequest(true)
   , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
   , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
+#endif // PINOCCHIO_WITH_HPP_FCL
   , innerObjects()
   , outerObjects()
   {
+#ifdef PINOCCHIO_WITH_HPP_FCL
     collisionObjects.reserve(geom_model.geometryObjects.size());
     BOOST_FOREACH(const GeometryObject & geom_object, geom_model.geometryObjects)
     {
       collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
     }
+#endif
     fillInnerOuterObjectMaps(geom_model);
   }
-#else
-  {}
-#endif // PINOCCHIO_WITH_HPP_FCL   
-  
+
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
@@ -71,8 +67,6 @@ namespace pinocchio
     return GeomIndex(it - geometryObjects.begin());
   }
 
-
-
   inline bool GeometryModel::existGeometryName(const std::string & name) const
   {
     return std::find_if(geometryObjects.begin(),
@@ -80,7 +74,6 @@ namespace pinocchio
                         boost::bind(&GeometryObject::name, _1) == name) != geometryObjects.end();
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::fillInnerOuterObjectMaps(const GeometryModel & geomModel)
   {
     innerObjects.clear();
@@ -94,7 +87,6 @@ namespace pinocchio
       outerObjects[geomModel.geometryObjects[pair.first].parentJoint].push_back(pair.second);
     }
   }
-#endif
 
   inline std::ostream & operator<< (std::ostream & os, const GeometryModel & geomModel)
   {
@@ -125,8 +117,6 @@ namespace pinocchio
     return os;
   }
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
-  
   inline void GeometryModel::addCollisionPair(const CollisionPair & pair)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.first < ngeoms,
@@ -196,7 +186,6 @@ namespace pinocchio
     activeCollisionPairs[pairId] = false;
   }
 
-#endif //PINOCCHIO_WITH_HPP_FCL
 } // namespace pinocchio
 
 /// @endcond

@@ -14,7 +14,6 @@ namespace pinocchio
 
     namespace bp = boost::python;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
     BOOST_PYTHON_FUNCTION_OVERLOADS(removeCollisionPairs_overload,
                                     srdf::removeCollisionPairs,
                                     3,4)
@@ -22,8 +21,7 @@ namespace pinocchio
     BOOST_PYTHON_FUNCTION_OVERLOADS(removeCollisionPairsFromXML_overload,
                                     srdf::removeCollisionPairsFromXML,
                                     3,4)
-#endif
-  
+
     BOOST_PYTHON_FUNCTION_OVERLOADS(loadReferenceConfigurations_overload,
                                     srdf::loadReferenceConfigurations,
                                     2,3)
@@ -47,7 +45,6 @@ namespace pinocchio
     void exposeSRDFParser()
     {
 
-#ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("removeCollisionPairs",
               static_cast<void (*)(const Model &, GeometryModel &, const std::string &, const bool)>(&srdf::removeCollisionPairs),
               removeCollisionPairs_overload(bp::args("model", "geom_model","srdf_filename", "verbose"),
@@ -69,8 +66,7 @@ namespace pinocchio
                                                    "\tsrdf_xml_stream: XML stream containing the SRDF information with the collision pairs to remove\n"
                                                    "\tverbose: [optional] display to the current terminal some internal information"
                                                    ));
-#endif
-      
+
       bp::def("loadReferenceConfigurations",
               static_cast<void (*)(Model &, const std::string &, const bool)>(&srdf::loadReferenceConfigurations),
               loadReferenceConfigurations_overload(bp::args("model","srdf_filename","verbose"),
