@@ -68,11 +68,13 @@ class MeshcatVisualizer(BaseVisualizer):
         return obj
 
     def loadMesh(self, geometry_object):
-    
+
         import meshcat.geometry
 
         # Mesh path is empty if Pinocchio is built without HPP-FCL bindings
         if geometry_object.meshPath == "":
+            msg = "Display of geometric primitives is supported only if pinocchio is build with HPP-FCL bindings."
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
             return None
 
         # Get file type from filename extension.
