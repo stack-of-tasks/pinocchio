@@ -31,6 +31,7 @@ namespace pinocchio
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dtau.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dvc_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dac_dv.resize(data.contact_chol.constraintDim(), model.nv);
     data.dac_da.resize(data.contact_chol.constraintDim(), model.nv);
@@ -40,6 +41,7 @@ namespace pinocchio
     data.dlambda_dq.setZero();
     data.dlambda_dv.setZero();
     data.dlambda_dtau.setZero();
+    data.dvc_dq.setZero();
     data.dac_dq.setZero();
     data.dac_dv.setZero();
     data.dac_da.setZero();
