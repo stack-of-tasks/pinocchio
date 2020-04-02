@@ -47,17 +47,13 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
   RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
 
   contact_models.push_back(ci_LF);
   contact_models.push_back(ci_RF);
-  RigidContactData cd_LF;
-  RigidContactData cd_RF;
 
-  contact_datas.push_back(cd_LF);
-  contact_datas.push_back(cd_RF);
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
@@ -67,7 +63,7 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,mu0);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_datas, mu0);  
+  computeContactDynamicsDerivatives(model, data, contact_models, mu0);  
   
   //Data_ref
   crba(model, data_ref, q);
@@ -136,7 +132,8 @@ BOOST_AUTO_TEST_CASE ( test_sparse_contact_dynamics_derivatives )
 
   MatrixXd dac_dq = ac_partial_dq - Jc * data_ref.Minv*data_ref.dtau_dq;
 
-  //std::cerr<<"data.dac_dq"<<std::endl<<data.dac_dq<<std::endl;
+  std::cerr<<"data.dac_dq-dac_dq"<<std::endl<<std::endl;
+  std::cerr<<data.dac_dq - dac_dq<<std::endl<<std::endl;
   BOOST_CHECK(data.dac_dq.isApprox(dac_dq,1e-8));
   BOOST_CHECK(Kinv.bottomLeftCorner(6+3, model.nv).isApprox(osim*Jc*data_ref.Minv,1e-8));
 
@@ -175,18 +172,13 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
   RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
 
   contact_models.push_back(ci_LF);
   contact_models.push_back(ci_RF);
-  RigidContactData cd_LF;
 
-  RigidContactData cd_RF;
-
-  contact_datas.push_back(cd_LF);
-  contact_datas.push_back(cd_RF);
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
@@ -198,7 +190,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   contactDynamics(model,data,q,v,tau,contact_models,mu0);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_datas, mu0);  
+  computeContactDynamicsDerivatives(model, data, contact_models, mu0);  
 
 
   //Data_fd
