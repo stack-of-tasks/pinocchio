@@ -178,13 +178,11 @@ namespace pinocchio
   };
 
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator,
-           class AllocatorData, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
            typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models,
-                                                const std::vector<RigidContactDataTpl<Scalar,Options>, AllocatorData> & contact_datas,
                                                 const Scalar mu,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
@@ -218,7 +216,6 @@ namespace pinocchio
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
-    typedef std::vector<RigidContactData,AllocatorData> RigidContactDataVector;
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
 
     data.oa_gf[0] = -model.gravity;
@@ -240,12 +237,10 @@ namespace pinocchio
 
 
     Eigen::DenseIndex current_row_sol_id = 0;
-    typename RigidContactDataVector::const_iterator it_d = contact_datas.begin();
     for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
-        (it != contact_models.end() && it_d != contact_datas.end()); ++it, ++it_d)
+        it != contact_models.end(); ++it)
     {
       const RigidContactModel & contact_model = *it;
-      const RigidContactData & contact_data = *it_d;
 
       const typename Model::FrameIndex & frame_id = contact_model.frame_id;
       const typename Model::Frame & frame = model.frames[frame_id];
@@ -341,17 +336,18 @@ namespace pinocchio
     data.contact_chol.getInverseMassMatrix(data.Minv);
 
     //Temporary: dlambda_dv stores J*Minv
-    //TODO: Sparse
-    data.dlambda_dv.noalias() = data.dac_da * data.Minv;
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * data.dlambda_dv; //OUTPUT
+    typename Data::MatrixXs& JMinv = data.dlambda_dv;
+
+    JMinv.noalias() = data.dac_da * data.Minv;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * JMinv; //OUTPUT
 
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
-    ddq_partial_dtau_.noalias() = data.dlambda_dv.transpose() * lambda_partial_dtau;
+    ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
     
-    data.dac_dq.noalias() -= data.dlambda_dv * data.dtau_dq;
-    data.dac_dv.noalias() -= data.dlambda_dv * data.dtau_dv;
-
+    data.dac_dq.noalias() -= JMinv * data.dtau_dq;
+    data.dac_dv.noalias() -= JMinv * data.dtau_dv;
+    
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
 
