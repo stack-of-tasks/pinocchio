@@ -321,8 +321,8 @@ namespace pinocchio
                 joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), (Eigen::DenseIndex)config_vec.size());
 
                 typedef LoadReferenceConfigurationStep<Scalar, Options, JointCollectionTpl> LoadReferenceConfigurationStep_t;
-                LoadReferenceConfigurationStep_t::run (joint,
-                    typename LoadReferenceConfigurationStep_t::ArgsType (joint_name, joint_config, ref_config));
+                LoadReferenceConfigurationStep_t::algo(joint,
+                    typename LoadReferenceConfigurationStep_t::ArgsType(joint_name, joint_config, ref_config));
                 if (verbose)
                 {
                   std::cout << "(" << joint_name << " , " << joint_config.transpose() << ")" << std::endl;
