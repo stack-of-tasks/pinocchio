@@ -164,7 +164,7 @@ namespace pinocchio
     data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers related to the contact impulses
-    impulse_c.noalias() = (-r_coeff - 1.) * (J * v_before);
+    impulse_c.noalias() = (-r_coeff - Scalar(1)) * (J * v_before);
     data.llt_JMinvJt.solveInPlace(impulse_c);
     
     // Compute the joint velocity after impacts

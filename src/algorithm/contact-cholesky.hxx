@@ -697,7 +697,7 @@ namespace pinocchio
         VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
         
         const Eigen::DenseIndex last_col = std::min(col-1,chol_dim-2); // You can start from nv-2 (no child in nv-1)
-        vec_[col] = 1.;
+        vec_[col] = Scalar(1);
         vec_.tail(chol_dim - col - 1).setZero();
 
         // TODO: exploit the sparsity pattern of the first rows of U
