@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_crba_hxx__
@@ -153,12 +153,12 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       const JointIndex & i = jmodel.id();
       
-      /* F[1:6,i] = Y*S */
+      // Centroidal momentum map
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       ColsBlock J_cols = jmodel.jointCols(data.J);
       motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       
-      /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
+      // Joint Space Inertia Matrix
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
@@ -220,7 +220,8 @@ namespace pinocchio
     typedef CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      Pass2::run(model.joints[i],typename Pass2::ArgsType(model,data));
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data));
     }
     
     // Retrieve the Centroidal Momemtum map
