@@ -217,21 +217,22 @@ namespace pinocchio
                        const ConfigVectorType& fromXML,
                        ConfigVectorType& config)
       {
-        _algo (joint.derived(), joint_name, fromXML, config);
+        run(joint.derived(), joint_name, fromXML, config);
       }
 
       private:
       template<int axis>
-      static void _algo (const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
-                         const std::string& joint_name,
-                         const ConfigVectorType& fromXML,
-                         ConfigVectorType& config)
+      static void run(const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
+                      const std::string& joint_name,
+                      const ConfigVectorType& fromXML,
+                      ConfigVectorType& config)
       {
         typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelRUB;
         PINOCCHIO_STATIC_ASSERT(JointModelRUB::NQ == 2, JOINT_MODEL_REVOLUTE_SHOULD_HAVE_2_PARAMETERS);
         if (fromXML.size() != 1)
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
-        else {
+        else
+        {
           SINCOS(fromXML[0],
                  &config[joint.idx_q()+1],
                  &config[joint.idx_q()+0]);
@@ -239,12 +240,12 @@ namespace pinocchio
       }
 
       template<typename JointModel>
-      static void _algo (const JointModel & joint,
-                         const std::string& joint_name,
-                         const ConfigVectorType& fromXML,
-                         ConfigVectorType& config)
+      static void run(const JointModel & joint,
+                      const std::string& joint_name,
+                      const ConfigVectorType & fromXML,
+                      ConfigVectorType & config)
       {
-        if (joint.nq() != fromXML.size())
+        if(joint.nq() != fromXML.size())
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
         else
           config.segment(joint.idx_q(),joint.nq()) = fromXML;
