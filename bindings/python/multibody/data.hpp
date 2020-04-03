@@ -185,8 +185,6 @@ namespace pinocchio
         StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
         StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
         StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
-        
-        eigenpy::enableEigenPySpecific<Data::RowMatrixXs>();
       }
 
     };
