@@ -159,6 +159,9 @@ namespace pinocchio
               {
                 max_effort << joint->limits->effort;
                 max_velocity << joint->limits->velocity;
+              } else {
+                max_effort << infty;
+                max_velocity << infty;
               }
 
               model.addJointAndBody(UrdfVisitorBase::CONTINUOUS, axis,
