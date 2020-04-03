@@ -389,6 +389,9 @@ namespace pinocchio
     // Contact forces related to the contact dynamics algorithms
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) contact_forces;
     
+    // Internal information to pre-comptute the contribution of the rotor inertia to the mass matrix or its inverse
+    VectorXs armature;
+    
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///

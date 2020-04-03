@@ -113,6 +113,7 @@ namespace pinocchio
 #else
   , kinematic_hessians(6,model.nv,model.nv)
 #endif
+  , armature(model.nv)
   {
     typedef typename Model::JointIndex JointIndex;
     
@@ -135,6 +136,10 @@ namespace pinocchio
     a_gf[0] = -model.gravity;
     
     kinematic_hessians.setZero();
+    
+    /* Computes the rotor inertia contribution to the mass matrix or its inverse */
+    armature.array()
+    = model.rotorInertia.array() * model.rotorGearRatio.array().square();
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -301,6 +306,7 @@ namespace pinocchio
     && data1.staticRegressor == data2.staticRegressor
     && data1.bodyRegressor == data2.bodyRegressor
     && data1.jointTorqueRegressor == data2.jointTorqueRegressor
+    && data1.armature == data2.armature
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
