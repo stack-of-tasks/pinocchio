@@ -217,15 +217,15 @@ namespace pinocchio
                        const ConfigVectorType& fromXML,
                        ConfigVectorType& config)
       {
-        run(joint.derived(), joint_name, fromXML, config);
+        algo_impl(joint.derived(), joint_name, fromXML, config);
       }
 
-      private:
+    private:
       template<int axis>
-      static void run(const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
-                      const std::string& joint_name,
-                      const ConfigVectorType& fromXML,
-                      ConfigVectorType& config)
+      static void algo_impl(const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
+                            const std::string& joint_name,
+                            const ConfigVectorType& fromXML,
+                            ConfigVectorType& config)
       {
         typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelRUB;
         PINOCCHIO_STATIC_ASSERT(JointModelRUB::NQ == 2, JOINT_MODEL_REVOLUTE_SHOULD_HAVE_2_PARAMETERS);
@@ -240,10 +240,10 @@ namespace pinocchio
       }
 
       template<typename JointModel>
-      static void run(const JointModel & joint,
-                      const std::string& joint_name,
-                      const ConfigVectorType & fromXML,
-                      ConfigVectorType & config)
+      static void algo_impl(const JointModel & joint,
+                            const std::string& joint_name,
+                            const ConfigVectorType & fromXML,
+                            ConfigVectorType & config)
       {
         if(joint.nq() != fromXML.size())
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
@@ -321,7 +321,7 @@ namespace pinocchio
                 joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), (Eigen::DenseIndex)config_vec.size());
 
                 typedef LoadReferenceConfigurationStep<Scalar, Options, JointCollectionTpl> LoadReferenceConfigurationStep_t;
-                LoadReferenceConfigurationStep_t::algo(joint,
+                LoadReferenceConfigurationStep_t::run(joint,
                     typename LoadReferenceConfigurationStep_t::ArgsType(joint_name, joint_config, ref_config));
                 if (verbose)
                 {
