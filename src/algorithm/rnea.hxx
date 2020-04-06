@@ -448,12 +448,12 @@ namespace pinocchio
       
       // computes S expressed at the world frame
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock Jcols = jmodel.jointCols(data.J);
-      Jcols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
 
       // computes vxS expressed at the world frame
-      ColsBlock dJcols = jmodel.jointCols(data.dJ);
-      motionSet::motionAction(data.ov[i],Jcols,dJcols);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
 
       // computes vxI
       typedef typename Data::Inertia Inertia;
@@ -487,20 +487,21 @@ namespace pinocchio
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock dJcols = jmodel.jointCols(data.dJ);
-      ColsBlock Jcols = jmodel.jointCols(data.J);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
-      motionSet::inertiaAction(data.oYcrb[i],dJcols,jmodel.jointCols(data.dFdv));
-      jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
+      motionSet::inertiaAction(data.oYcrb[i],dJ_cols,jmodel.jointCols(data.dFdv));
+      jmodel.jointCols(data.dFdv).noalias() += data.vxI[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),Mat_tmp);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Mat_tmp * data.dJ.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
 
-      Mat_tmp.noalias() = Jcols.transpose() * data.vxI[i];
+      Mat_tmp.noalias() = J_cols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
 
@@ -510,15 +511,6 @@ namespace pinocchio
         data.vxI[parent] += data.vxI[i];
       }
       
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
