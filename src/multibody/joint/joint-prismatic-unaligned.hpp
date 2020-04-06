@@ -426,10 +426,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-    
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
   template<typename Scalar, int Options>
@@ -445,6 +445,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Transformation_t M;
     Constraint_t S;
     Motion_t v;
@@ -457,7 +460,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataPrismaticUnalignedTpl()
-    : M(Transformation_t::Vector3::Zero())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , S(Constraint_t::Vector3::Zero())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0)
     , U(U_t::Zero())
@@ -468,10 +473,14 @@ namespace pinocchio
     
     template<typename Vector3Like>
     JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M()
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , S(axis)
     , v(axis,(Scalar)0)
-    , U(U_t::Zero()), Dinv(D_t::Zero()), UDinv(UD_t::Zero())
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
     , StU(D_t::Zero())
     {}
 
@@ -531,10 +540,8 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar Scalar;
-      const Scalar & q = qs[idx_q()];
-
-      data.M.translation().noalias() = axis * q;
+      data.joint_q[0] = qs[idx_q()];
+      data.M.translation().noalias() = axis * data.joint_q[0];
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -544,9 +551,8 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      typedef typename TangentVector::Scalar S2;
-      const S2 & v = vs[idx_v()];
-      data.v.linearRate() = v;
+      data.joint_v[0] = vs[idx_v()];
+      data.v.linearRate() = data.joint_v[0];
     }
     
     template<typename Matrix6Like>

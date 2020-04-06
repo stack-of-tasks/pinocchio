@@ -151,8 +151,12 @@ namespace pinocchio
     void setValues(const OtherScalar & sin, const OtherScalar & cos)
     { m_sin = sin; m_cos = cos; }
 
-    LinearType translation() const { return LinearType::PlainObject::Zero(3); };
-    AngularType rotation() const {
+    LinearType translation() const
+    {
+      return LinearType::PlainObject::Zero(3);
+    }
+    AngularType rotation() const
+    {
       AngularType m(AngularType::Identity(3));
       _setRotation (m);
       return m;
@@ -618,10 +622,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
   template<typename Scalar, int Options, int axis>
@@ -633,12 +637,16 @@ namespace pinocchio
   { typedef JointRevoluteTpl<Scalar,Options,axis> JointDerived; };
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointDataRevoluteTpl : public JointDataBase< JointDataRevoluteTpl<_Scalar,_Options,axis> >
+  struct JointDataRevoluteTpl
+  : public JointDataBase< JointDataRevoluteTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -652,7 +660,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataRevoluteTpl()
-    : M((Scalar)0,(Scalar)1)
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M((Scalar)0,(Scalar)1)
     , v((Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -697,10 +707,8 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar OtherScalar;
-      
-      const OtherScalar & q = qs[idx_q()];
-      OtherScalar ca,sa; SINCOS(q,&sa,&ca);
+      data.joint_q[0] = qs[idx_q()];
+      Scalar ca,sa; SINCOS(data.joint_q[0],&sa,&ca);
       data.M.setValues(sa,ca);
     }
 
@@ -712,7 +720,8 @@ namespace pinocchio
     {
       calc(data,qs.derived());
 
-      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
+      data.joint_v[0] = vs[idx_v()];
+      data.v.angularRate() = data.joint_v[0];
     }
     
     template<typename Matrix6Like>

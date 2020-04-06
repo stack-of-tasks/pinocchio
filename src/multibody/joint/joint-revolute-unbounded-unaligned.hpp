@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_joint_revolute_unbounded_unaligned_hpp__
@@ -63,6 +63,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Transformation_t M;
     Constraint_t S;
     Motion_t v;
@@ -75,7 +78,9 @@ namespace pinocchio
     D_t StU;
     
     JointDataRevoluteUnboundedUnalignedTpl()
-    : M(Transformation_t::Identity())
+    : joint_q(Scalar(1),Scalar(0))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(Constraint_t::Vector3::Zero())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0)
     , U(U_t::Zero())
@@ -86,7 +91,9 @@ namespace pinocchio
     
     template<typename Vector3Like>
     JointDataRevoluteUnboundedUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(Transformation_t::Identity())
+    : joint_q(Scalar(1),Scalar(0))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(axis)
     , v(axis,(Scalar)0)
     , U(U_t::Zero())
@@ -148,12 +155,10 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar OtherScalar;
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type
-      & q = qs.template segment<NQ>(idx_q());
+      data.joint_q = qs.template segment<NQ>(idx_q());
       
-      const OtherScalar & ca = q(0);
-      const OtherScalar & sa = q(1);
+      const Scalar & ca = data.joint_q(0);
+      const Scalar & sa = data.joint_q(1);
       
       toRotationMatrix(axis,ca,sa,data.M.rotation());
     }
@@ -164,7 +169,8 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
+      data.joint_v[0] = vs[idx_v()];
+      data.v.angularRate() = data.joint_v[0];
     }
     
     template<typename Matrix6Like>
@@ -195,7 +201,7 @@ namespace pinocchio
 
     // data
     ///
-    /// \brief 3d main axis of the joint.
+    /// \brief axis of rotation of the joint.
     ///
     Vector3 axis;
   }; // struct JointModelRevoluteUnboundedUnalignedTpl

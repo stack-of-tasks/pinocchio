@@ -304,6 +304,56 @@ namespace pinocchio
   //
   // Visitors on JointDatas
   //
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointQVisitor
+  : boost::static_visitor< typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t >
+  {
+    typedef typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t ReturnType;
+    
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return jdata.joint_q();
+    }
+    
+    static ReturnType run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+    {
+      return boost::apply_visitor(JointQVisitor(), jdata);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t
+  joint_q(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  {
+    return JointQVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
+  }
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  struct JointVVisitor
+  : boost::static_visitor< typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t >
+  {
+    typedef typename JointDataTpl<Scalar,Options,JointCollectionTpl>::TangentVector_t ReturnType;
+    
+    template<typename JointDataDerived>
+    ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
+    {
+      return jdata.joint_v();
+    }
+    
+    static ReturnType run(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+    {
+      return boost::apply_visitor(JointVVisitor(), jdata);
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::TangentVector_t
+  joint_v(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  {
+    return JointVVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
+  }
   
   /**
    * @brief      JointConstraintVisitor visitor

@@ -10,7 +10,9 @@
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
 #include "pinocchio/spatial/inertia.hpp"
+
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/rotation.hpp"
 
 namespace pinocchio
 {
@@ -448,10 +450,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-    
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
     
   };
 
@@ -471,6 +473,9 @@ namespace pinocchio
     typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Transformation_t M;
     Constraint_t S;
@@ -484,7 +489,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataRevoluteUnalignedTpl()
-    : M(Transformation_t::Identity())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(Constraint_t::Vector3::Zero())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0)
     , U(U_t::Zero())
@@ -495,7 +502,9 @@ namespace pinocchio
     
     template<typename Vector3Like>
     JointDataRevoluteUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(Transformation_t::Identity())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(axis)
     , v(axis,(Scalar)NAN)
     , U(U_t::Zero())
@@ -556,12 +565,9 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar OtherScalar;
-      typedef Eigen::AngleAxis<Scalar> AngleAxis;
+      data.joint_q[0] = qs[idx_q()];
       
-      const OtherScalar & q = qs[idx_q()];
-      
-      data.M.rotation(AngleAxis(q,axis).toRotationMatrix());
+      toRotationMatrix(axis,data.joint_q[0],data.M.rotation());
     }
 
     template<typename ConfigVector, typename TangentVector>

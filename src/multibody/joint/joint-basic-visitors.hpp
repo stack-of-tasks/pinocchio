@@ -179,6 +179,27 @@ namespace pinocchio
   // Visitors on JointDatas
   //
   
+  /**
+   * @brief      Visit a JointDataVariant through JointConfigVisitor to get the joint configuration vector
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The current value of the joint configuration vector
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t
+  joint_q(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+  
+  /**
+   * @brief      Visit a JointDataVariant through JointConfigVisitor to get the joint velocity vector
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The current value of the joint velocity vector
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::TangentVector_t
+  joint_v(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
   /**
    * @brief      Visit a JointDataVariant through JointConstraintVisitor to get the joint constraint 

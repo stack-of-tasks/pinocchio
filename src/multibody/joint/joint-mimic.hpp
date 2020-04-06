@@ -284,10 +284,10 @@ namespace pinocchio
     typedef typename traits<Joint>::D_t D_t;
     typedef typename traits<Joint>::UD_t UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-    
     typedef typename traits<Joint>::ConfigVector_t ConfigVector_t;
     typedef typename traits<Joint>::TangentVector_t TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<class Joint>
@@ -311,8 +311,8 @@ namespace pinocchio
     
     JointDataMimic()
     : m_scaling((Scalar)0)
-    , m_q_transform(ConfigVector_t::Zero())
-    , m_v_transform(TangentVector_t::Zero())
+    , joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
     , S((Scalar)0)
     {}
     
@@ -327,8 +327,8 @@ namespace pinocchio
     {
       m_jdata_ref = other.m_jdata_ref;
       m_scaling = other.m_scaling;
-      m_q_transform = other.m_q_transform;
-      m_v_transform = other.m_v_transform;
+      joint_q = other.joint_q;
+      joint_v = other.joint_v;
       S = Constraint_t(m_jdata_ref.S,other.m_scaling);
       return *this;
     }
@@ -338,8 +338,8 @@ namespace pinocchio
       return Base::isEqual(other)
       && m_jdata_ref == other.m_jdata_ref
       && m_scaling == other.m_scaling
-      && m_q_transform == other.m_q_transform
-      && m_v_transform == other.m_v_transform
+      && joint_q == other.joint_q
+      && joint_v == other.joint_v
       ;
     }
     
@@ -354,6 +354,12 @@ namespace pinocchio
     }
     
     // Accessors
+    ConfigVectorTypeConstRef joint_q_accessor() const { return joint_q; }
+    ConfigVectorTypeRef joint_q_accessor() { return joint_q; }
+    
+    TangentVectorTypeConstRef joint_v_accessor() const { return joint_v; }
+    TangentVectorTypeRef joint_v_accessor() { return joint_v; }
+    
     ConstraintTypeConstRef S_accessor() const { return S; }
     ConstraintTypeRef S_accessor() { return S; }
     
@@ -387,11 +393,11 @@ namespace pinocchio
     const Scalar & scaling() const { return m_scaling; }
     Scalar & scaling() { return m_scaling; }
     
-    ConfigVector_t & jointConfiguration() { return m_q_transform; }
-    const ConfigVector_t & jointConfiguration() const { return m_q_transform; }
+    ConfigVector_t & jointConfiguration() { return joint_q; }
+    const ConfigVector_t & jointConfiguration() const { return joint_q; }
     
-    TangentVector_t & jointVelocity() { return m_v_transform; }
-    const TangentVector_t & jointVelocity() const { return m_v_transform; }
+    TangentVector_t & jointVelocity() { return joint_v; }
+    const TangentVector_t & jointVelocity() const { return joint_v; }
     
   protected:
     
@@ -399,9 +405,9 @@ namespace pinocchio
     Scalar m_scaling;
     
     /// \brief Transform configuration vector
-    ConfigVector_t m_q_transform;
+    ConfigVector_t joint_q;
     /// \brief Transform velocity vector.
-    TangentVector_t m_v_transform;
+    TangentVector_t joint_v;
     
   public:
     
@@ -475,8 +481,8 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.m_q_transform);
-      m_jmodel_ref.calc(jdata.m_jdata_ref,jdata.m_q_transform);
+                           m_scaling,m_offset,jdata.joint_q);
+      m_jmodel_ref.calc(jdata.m_jdata_ref,jdata.joint_q);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -488,11 +494,11 @@ namespace pinocchio
       typedef typename ConfigVectorAffineTransform<JointDerived>::Type AffineTransform;
       
       AffineTransform::run(qs.head(m_jmodel_ref.nq()),
-                           m_scaling,m_offset,jdata.m_q_transform);
-      jdata.m_v_transform = m_scaling * vs.head(m_jmodel_ref.nv());
+                           m_scaling,m_offset,jdata.joint_q);
+      jdata.joint_v = m_scaling * vs.head(m_jmodel_ref.nv());
       m_jmodel_ref.calc(jdata.m_jdata_ref,
-                        jdata.m_q_transform,
-                        jdata.m_v_transform);
+                        jdata.joint_q,
+                        jdata.joint_v);
     }
     
     template<typename Matrix6Like>

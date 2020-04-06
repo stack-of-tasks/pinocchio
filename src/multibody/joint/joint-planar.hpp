@@ -420,11 +420,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<typename Scalar, int Options>
@@ -440,6 +440,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
@@ -451,8 +454,10 @@ namespace pinocchio
     UD_t UDinv;
     D_t StU;
 
-    JointDataPlanarTpl ()
-    : M(Transformation_t::Identity())
+    JointDataPlanarTpl()
+    : joint_q(Scalar(0),Scalar(0),Scalar(1),Scalar(0))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -497,15 +502,14 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar Scalar;
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
+      data.joint_q = qs.template segment<NQ>(idx_q());
 
       const Scalar
-      &c_theta = q(2),
-      &s_theta = q(3);
+      & c_theta = data.joint_q(2),
+      & s_theta = data.joint_q(3);
 
       data.M.rotation().template topLeftCorner<2,2>() << c_theta, -s_theta, s_theta, c_theta;
-      data.M.translation().template head<2>() = q.template head<2>();
+      data.M.translation().template head<2>() = data.joint_q.template head<2>();
 
     }
 
@@ -516,11 +520,13 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type & q_dot = vs.template segment<NV>(idx_v ());
+      data.joint_v = vs.template segment<NV>(idx_v());
 
+#define q_dot data.joint_v
       data.v.vx() = q_dot(0);
       data.v.vy() = q_dot(1);
       data.v.wz() = q_dot(2);
+#undef q_dot
     }
     
     template<typename Matrix6Like>

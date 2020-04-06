@@ -11,6 +11,10 @@
   
 #define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,TYPENAME)              \
   PINOCCHIO_JOINT_MODEL_TYPEDEF_GENERIC(Joint,TYPENAME); \
+typedef TYPENAME traits<Joint>::ConfigVectorTypeConstRef ConfigVectorTypeConstRef;      \
+typedef TYPENAME traits<Joint>::ConfigVectorTypeRef ConfigVectorTypeRef;      \
+typedef TYPENAME traits<Joint>::TangentVectorTypeConstRef TangentVectorTypeConstRef;      \
+typedef TYPENAME traits<Joint>::TangentVectorTypeRef TangentVectorTypeRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeRef ConstraintTypeRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
@@ -44,6 +48,10 @@
 #endif
   
 #define PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR \
+  ConfigVectorTypeConstRef joint_q_accessor() const { return joint_q; } \
+  ConfigVectorTypeRef joint_q_accessor() { return joint_q; } \
+  TangentVectorTypeConstRef joint_v_accessor() const { return joint_v; } \
+  TangentVectorTypeRef joint_v_accessor() { return joint_v; } \
   ConstraintTypeConstRef S_accessor() const { return S; } \
   ConstraintTypeRef S_accessor() { return S; } \
   TansformTypeConstRef M_accessor() const { return M; } \
@@ -62,6 +70,10 @@
   DTypeRef StU_accessor() { return StU; } \
   
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
+  typedef const ConfigVector_t & ConfigVectorTypeConstRef; \
+  typedef ConfigVector_t & ConfigVectorTypeRef; \
+  typedef const TangentVector_t & TangentVectorTypeConstRef; \
+  typedef TangentVector_t & TangentVectorTypeRef; \
   typedef const Constraint_t & ConstraintTypeConstRef; \
   typedef Constraint_t & ConstraintTypeRef; \
   typedef const Transformation_t & TansformTypeConstRef; \
@@ -90,6 +102,12 @@ namespace pinocchio
 
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived & derived() const { return *static_cast<const Derived*>(this); }
+    
+    ConfigVectorTypeConstRef joint_q() const     { return derived().joint_q_accessor(); }
+    ConfigVectorTypeRef joint_q()     { return derived().joint_q_accessor(); }
+    
+    TangentVectorTypeConstRef joint_v() const     { return derived().joint_v_accessor(); }
+    TangentVectorTypeRef joint_v()     { return derived().joint_v_accessor(); }
 
     ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
     ConstraintTypeRef S()     { return derived().S_accessor(); }
@@ -132,7 +150,10 @@ namespace pinocchio
     /// \brief Default operator== implementation
     bool isEqual(const JointDataBase<Derived> & other) const
     {
-      return S() == other.S()
+      return
+             joint_q() == other.joint_q()
+          && joint_v() == other.joint_v()
+          && S() == other.S()
           && M() == other.M()
           && v() == other.v()
           && c() == other.c()

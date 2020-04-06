@@ -353,11 +353,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<typename Scalar, int Options>
@@ -369,13 +369,17 @@ namespace pinocchio
   { typedef JointSphericalTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointDataSphericalTpl : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
+  struct JointDataSphericalTpl
+  : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -388,8 +392,10 @@ namespace pinocchio
     UD_t UDinv;
     D_t StU;
 
-    JointDataSphericalTpl ()
-    : M(Transformation_t::Identity())
+    JointDataSphericalTpl()
+    : joint_q(Scalar(0),Scalar(0),Scalar(0),Scalar(1))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -439,6 +445,7 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::QuaternionBase<QuaternionDerived> & quat) const
     {
+      data.joint_q = quat.coeffs();
       data.M.rotation(quat.matrix());
     }
     
@@ -471,8 +478,8 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      
-      data.v.angular() = vs.template segment<NV>(idx_v());
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v.angular() = data.joint_v;
     }
     
     template<typename Matrix6Like>

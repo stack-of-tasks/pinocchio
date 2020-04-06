@@ -47,6 +47,9 @@ namespace boost
                      pinocchio::JointDataBase<Derived> & joint_data,
                      const unsigned int /*version*/)
       {
+        ar & make_nvp("joint_q",joint_data.joint_q());
+        ar & make_nvp("joint_v",joint_data.joint_v());
+        
         ar & make_nvp("S",joint_data.S());
         ar & make_nvp("M",joint_data.M());
         ar & make_nvp("v",joint_data.v());
@@ -188,8 +191,6 @@ namespace boost
       
       ar & make_nvp("jdata",joint.jdata());
       ar & make_nvp("scaling",joint.scaling());
-      ar & make_nvp("jointConfiguration",joint.jointConfiguration());
-      ar & make_nvp("jointVelocity",joint.jointVelocity());
     }
     
   }

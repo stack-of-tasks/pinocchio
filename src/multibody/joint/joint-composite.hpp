@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_composite_hpp__
-#define __pinocchio_joint_composite_hpp__
+#ifndef __pinocchio_multibody_joint_composite_hpp__
+#define __pinocchio_multibody_joint_composite_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -42,11 +42,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -79,6 +79,8 @@ namespace pinocchio
     : joints()
     , iMlast(0)
     , pjMi(0)
+    , joint_q(ConfigVector_t::Zero(0))
+    , joint_v(TangentVector_t::Zero(0))
     , S(0)
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
@@ -88,8 +90,10 @@ namespace pinocchio
     {}
 
     
-    JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
+    JointDataCompositeTpl(const JointDataVector & joint_data, const int nq, const int nv)
     : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
+    , joint_q(ConfigVector_t::Zero(nq))
+    , joint_v(TangentVector_t::Zero(nv))
     , S(Constraint_t::Zero(nv))
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
@@ -108,6 +112,9 @@ namespace pinocchio
 
     /// \brief Transforms from previous joint to joint i
     PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) pjMi;
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -502,4 +509,4 @@ namespace boost
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/joint/joint-composite.hxx"
 
-#endif // ifndef __pinocchio_joint_composite_hpp__
+#endif // ifndef __pinocchio_multibody_joint_composite_hpp__

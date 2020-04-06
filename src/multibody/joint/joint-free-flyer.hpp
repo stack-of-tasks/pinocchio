@@ -157,11 +157,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<typename Scalar, int Options>
@@ -180,6 +180,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Constraint_t S;
     Transformation_t M;
     Motion_t v;
@@ -192,13 +195,17 @@ namespace pinocchio
     D_t StU;
     
     JointDataFreeFlyerTpl()
-    : M(Transformation_t::Identity())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Identity())
     , StU(D_t::Zero())
-    {}
+    {
+      joint_q[6] = Scalar(1);
+    }
 
     static std::string classname() { return std::string("JointDataFreeFlyer"); }
     std::string shortname() const { return classname(); }
@@ -250,28 +257,15 @@ namespace pinocchio
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
-              const typename Eigen::PlainObjectBase<ConfigVector> & qs) const
-    {
-      typedef typename Eigen::Quaternion<typename ConfigVector::Scalar,ConfigVector::Options> Quaternion;
-      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
-      
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
-      ConstQuaternionMap quat(q.template tail<4>().data());
-      
-      calc(data,q.template head<3>(),quat);
-    }
-    
-    template<typename ConfigVector>
-    EIGEN_DONT_INLINE
-    void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
       typedef typename Eigen::Quaternion<Scalar,Options> Quaternion;
+      typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
       
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type q = qs.template segment<NQ>(idx_q());
-      const Quaternion quat(q.template tail<4>());
+      data.joint_q = qs.template segment<NQ>(idx_q());
+      ConstQuaternionMap quat(data.joint_q.template tail<4>().data());
       
-      calc(data,q.template head<3>(),quat);
+      calc(data,data.joint_q.template head<3>(),quat);
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -282,7 +276,8 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v = vs.template segment<NV>(idx_v());
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v = data.joint_v;
     }
     
     template<typename Matrix6Like>

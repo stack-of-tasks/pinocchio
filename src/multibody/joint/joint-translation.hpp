@@ -430,11 +430,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   }; // traits JointTranslationTpl
   
   template<typename Scalar, int Options>
@@ -454,6 +454,9 @@ namespace pinocchio
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -467,7 +470,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataTranslationTpl()
-    : M(Transformation_t::Vector3::Zero())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -501,7 +506,8 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.M.translation() = this->jointConfigSelector(qs);
+      data.joint_q = this->jointConfigSelector(qs);
+      data.M.translation() = data.joint_q;
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -511,7 +517,8 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v.linear() = this->jointVelocitySelector(vs);
+      data.joint_v = this->jointVelocitySelector(vs);
+      data.v.linear() = data.joint_v;
     }
     
     template<typename Matrix6Like>

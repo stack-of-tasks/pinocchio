@@ -263,11 +263,11 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
   template<typename Scalar, int Options>
@@ -279,12 +279,16 @@ namespace pinocchio
   { typedef JointSphericalZYXTpl<Scalar,Options> JointDerived; };
 
   template<typename _Scalar, int _Options>
-  struct JointDataSphericalZYXTpl : public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
+  struct JointDataSphericalZYXTpl
+: public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
     
     Constraint_t S;
     Transformation_t M;
@@ -298,7 +302,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataSphericalZYXTpl ()
-    : S(Constraint_t::Matrix3::Zero())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , S(Constraint_t::Matrix3::Zero())
     , M(Transformation_t::Identity())
     , v(Motion_t::Vector3::Zero())
     , c(Bias_t::Vector3::Zero())
@@ -334,15 +340,13 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
-      
-      typedef typename ConfigVector::Scalar S2;
+      data.joint_q = qs.template segment<NQ>(idx_q());
 
-      S2 c0,s0; SINCOS(q(0), &s0, &c0);
-      S2 c1,s1; SINCOS(q(1), &s1, &c1);
-      S2 c2,s2; SINCOS(q(2), &s2, &c2);
+      Scalar c0,s0; SINCOS(data.joint_q(0), &s0, &c0);
+      Scalar c1,s1; SINCOS(data.joint_q(1), &s1, &c1);
+      Scalar c2,s2; SINCOS(data.joint_q(2), &s2, &c2);
 
-      data.M.rotation () << c0 * c1,
+      data.M.rotation() << c0 * c1,
                 c0 * s1 * s2 - s0 * c2,
                 c0 * s1 * c2 + s0 * s2,
                 s0 * c1,
@@ -363,15 +367,13 @@ namespace pinocchio
               const typename Eigen::MatrixBase<ConfigVector> & qs,
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type & q = qs.template segment<NQ>(idx_q());
+      data.joint_q = qs.template segment<NQ>(idx_q());
       
-      typedef typename ConfigVector::Scalar S2;
+      Scalar c0,s0; SINCOS(data.joint_q(0), &s0, &c0);
+      Scalar c1,s1; SINCOS(data.joint_q(1), &s1, &c1);
+      Scalar c2,s2; SINCOS(data.joint_q(2), &s2, &c2);
       
-      S2 c0,s0; SINCOS(q(0), &s0, &c0);
-      S2 c1,s1; SINCOS(q(1), &s1, &c1);
-      S2 c2,s2; SINCOS(q(2), &s2, &c2);
-      
-      data.M.rotation () << c0 * c1,
+      data.M.rotation() << c0 * c1,
           c0 * s1 * s2 - s0 * c2,
           c0 * s1 * c2 + s0 * s2,
           s0 * c1,
@@ -386,14 +388,14 @@ namespace pinocchio
       c1 * s2, c2, Scalar(0),
       c1 * c2, -s2, Scalar(0);
     
-      typename TangentVector::template ConstFixedSegmentReturnType<NV>::Type
-      & q_dot = vs.template segment<NV>(idx_v());
-
-      data.v().noalias() = data.S.angularSubspace() * q_dot;
-
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v().noalias() = data.S.angularSubspace() * data.joint_v;
+      
+#define q_dot data.joint_v
       data.c()(0) = -c1 * q_dot(0) * q_dot(1);
       data.c()(1) = -s1 * s2 * q_dot(0) * q_dot(1) + c1 * c2 * q_dot(0) * q_dot(2) - s2 * q_dot(1) * q_dot(2);
       data.c()(2) = -s1 * c2 * q_dot(0) * q_dot(1) - c1 * s2 * q_dot(0) * q_dot(2) - c2 * q_dot(1) * q_dot(2);
+#undef q_dot
     }
     
     template<typename Matrix6Like>

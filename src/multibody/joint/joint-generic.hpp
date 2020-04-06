@@ -60,6 +60,11 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
+    
+    typedef ConfigVector_t ConfigVectorTypeConstRef;
+    typedef ConfigVector_t ConfigVectorTypeRef;
+    typedef TangentVector_t TangentVectorTypeConstRef;
+    typedef TangentVector_t TangentVectorTypeRef;
   };
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
@@ -91,6 +96,8 @@ namespace pinocchio
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
+    ConfigVector_t      joint_q() const  { return pinocchio::joint_q(*this); }
+    TangentVector_t      joint_v() const  { return pinocchio::joint_v(*this); }
     Constraint_t      S() const  { return constraint_xd(*this); }
     Transformation_t  M() const  { return joint_transform(*this); }
     Motion_t          v() const  { return motion(*this); }
@@ -118,6 +125,8 @@ namespace pinocchio
     }
     
     // Define all the standard accessors
+    ConfigVector_t joint_q_accessor() const { return joint_q(); }
+    TangentVector_t joint_v_accessor() const { return joint_v(); }
     Constraint_t S_accessor() const { return S(); }
     Transformation_t M_accessor() const { return M(); }
     Motion_t v_accessor() const { return v(); }

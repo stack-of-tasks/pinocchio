@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_joint_dense_hpp__
@@ -34,6 +34,8 @@ namespace pinocchio
         .add_property("nv",&JointModelDerivedPythonVisitor::getNv)
         .def("setIndexes",&JointModelDerived::setIndexes)
         .def("shortname",&JointModelDerived::shortname)
+        .def("classname",&JointModelDerived::classname)
+        .staticmethod("classname")
         ;
       }
 
@@ -62,6 +64,8 @@ namespace pinocchio
       {
         cl
           // All are add_properties cause ReadOnly
+          .add_property("joint_q",&JointDataDerivedPythonVisitor::get_joint_q)
+          .add_property("joint_v",&JointDataDerivedPythonVisitor::get_joint_v)
           .add_property("S",&JointDataDerivedPythonVisitor::getS)
           .add_property("M",&JointDataDerivedPythonVisitor::getM)
           .add_property("v",&JointDataDerivedPythonVisitor::getv)
@@ -73,6 +77,10 @@ namespace pinocchio
         ;
       }
 
+      static typename JointDataDerived::ConfigVector_t get_joint_q(const JointDataDerived & self )
+      { return self.joint_q_accessor(); }
+      static typename JointDataDerived::TangentVector_t get_joint_v(const JointDataDerived & self )
+      { return self.joint_v_accessor(); }
       static typename JointDataDerived::Constraint_t getS(const JointDataDerived & self )
       { return self.S_accessor(); }
       static typename JointDataDerived::Transformation_t getM(const JointDataDerived & self )
@@ -93,11 +101,8 @@ namespace pinocchio
 
       }
 
-    }; 
-    
-
+    };
 
   }} // namespace pinocchio::python
 
 #endif // ifndef __pinocchio_python_joint_dense_hpp__
-

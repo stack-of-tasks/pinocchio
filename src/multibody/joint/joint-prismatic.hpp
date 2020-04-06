@@ -520,10 +520,10 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
   template<typename Scalar, int Options, int axis>
@@ -535,12 +535,16 @@ namespace pinocchio
   { typedef JointPrismaticTpl<Scalar,Options,axis> JointDerived; };
 
   template<typename _Scalar, int _Options, int axis>
-  struct JointDataPrismaticTpl : public JointDataBase< JointDataPrismaticTpl<_Scalar,_Options,axis> >
+  struct JointDataPrismaticTpl
+: public JointDataBase< JointDataPrismaticTpl<_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -554,7 +558,9 @@ namespace pinocchio
     D_t StU;
 
     JointDataPrismaticTpl()
-    : M((Scalar)0)
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M((Scalar)0)
     , v((Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -596,9 +602,8 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar Scalar;
-      const Scalar & q = qs[idx_q()];
-      data.M.displacement() = q;
+      data.joint_q[0] = qs[idx_q()];
+      data.M.displacement() = data.joint_q[0];
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -608,9 +613,8 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      typedef typename TangentVector::Scalar S2;
-      const S2 & v = vs[idx_v()];
-      data.v.linearRate() = v;
+      data.joint_v[0] = vs[idx_v()];
+      data.v.linearRate() = data.joint_v[0];
     }
     
     template<typename Matrix6Like>
