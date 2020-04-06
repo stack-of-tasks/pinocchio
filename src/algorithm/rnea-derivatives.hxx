@@ -2,8 +2,8 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_rnea_derivatives_hxx__
-#define __pinocchio_rnea_derivatives_hxx__
+#ifndef __pinocchio_algorithm_rnea_derivatives_hxx__
+#define __pinocchio_algorithm_rnea_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -509,4 +509,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_rnea_derivatives_hxx__
+#endif // ifndef __pinocchio_algorithm_rnea_derivatives_hxx__

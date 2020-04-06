@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_rnea_hxx__
-#define __pinocchio_rnea_hxx__
+#ifndef __pinocchio_algorithm_rnea_hxx__
+#define __pinocchio_algorithm_rnea_hxx__
 
 /// @cond DEV
 
@@ -94,7 +94,7 @@ namespace pinocchio
       // Add contribution of the roto-inertia effects
       if(jmodel.nv() == 1)
       {
-        jmodel.jointVelocitySelector(data.tau) += (model.rotorInertia[jmodel.idx_v()] * (model.rotorGearRatio[jmodel.idx_v()] * model.rotorGearRatio[jmodel.idx_v()])) * jmodel.jointVelocitySelector(a);
+        jmodel.jointVelocitySelector(data.tau) += (model.rotorInertia[jmodel.idx_v()] * (model.rotorGearRatio[jmodel.idx_v()] * model.rotorGearRatio[ijmodel.idx_v()])) * jmodel.jointVelocitySelector(a);
       }
         
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
@@ -557,4 +557,4 @@ namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_rnea_hxx__
+#endif // ifndef __pinocchio_algorithm_rnea_hxx__
