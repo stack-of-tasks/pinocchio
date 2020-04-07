@@ -116,6 +116,10 @@ namespace pinocchio
     /// \brief Map of reference configurations, indexed by user given names.
     ConfigVectorMap referenceConfigurations;
 
+    /// \brief Vector of armature values expressed at the joint level
+    /// This vector may contain the contribution of rotor inertia effects for instance.
+    VectorXs armature;
+    
     /// \brief Vector of rotor inertia parameters
     VectorXs rotorInertia;
     
@@ -206,6 +210,7 @@ namespace pinocchio
       res.nvs = nvs;
       
       // Eigen Vectors
+      res.armature = armature.template cast<NewScalar>();
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
       res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
       res.effortLimit = effortLimit.template cast<NewScalar>();
@@ -281,6 +286,10 @@ namespace pinocchio
         if(it->second != it_other->second)
           return false;
       }
+      if(other.armature.size() != armature.size())
+        return false;
+      res &= other.armature == armature;
+      if(!res) return res;
 
       if(other.rotorInertia.size() != rotorInertia.size())
         return false;

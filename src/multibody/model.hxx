@@ -110,6 +110,8 @@ namespace pinocchio
       upperPositionLimit.conservativeResize(nq);
       jmodel.jointConfigSelector(upperPositionLimit) = max_config;
       
+      armature.conservativeResize(nv);
+      jmodel.jointVelocitySelector(armature).setZero();
       rotorInertia.conservativeResize(nv);
       jmodel.jointVelocitySelector(rotorInertia).setZero();
       rotorGearRatio.conservativeResize(nv);
