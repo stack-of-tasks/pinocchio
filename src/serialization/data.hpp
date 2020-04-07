@@ -99,6 +99,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,Jcom);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinetic_energy);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,potential_energy);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,mechanical_energy);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,JMinvJt);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,lambda_c);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,torque_residual);
