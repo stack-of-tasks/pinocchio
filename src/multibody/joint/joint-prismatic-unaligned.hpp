@@ -555,11 +555,14 @@ namespace pinocchio
       data.v.linearRate() = data.joint_v[0];
     }
     
-    template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    template<typename VectorLike, typename Matrix6Like>
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.noalias() = I.template block<6,3> (0,Inertia::LINEAR) * axis;
-      data.Dinv[0] = Scalar(1)/axis.dot(data.U.template segment <3> (Inertia::LINEAR));
+      data.Dinv[0] = Scalar(1)/(axis.dot(data.U.template segment <3> (Inertia::LINEAR)) + armature[0]);
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)

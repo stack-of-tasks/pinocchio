@@ -280,20 +280,21 @@ namespace pinocchio
       data.v = data.joint_v;
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U = I;
+      data.StU = I;
+      data.StU.diagonal() += armature;
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      I.llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(I.derived(),data.Dinv);
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
+      data.UDinv.noalias() = I * data.Dinv;
       
-      if (update_I)
-        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).setZero();
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
 
     static std::string classname() { return std::string("JointModelFreeFlyer"); }

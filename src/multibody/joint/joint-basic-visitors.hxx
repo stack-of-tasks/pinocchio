@@ -106,37 +106,42 @@ namespace pinocchio
    * @brief      JointCalcAbaVisitor fusion visitor
    */
   
-  template<typename Matrix6Type>
+  template<typename VectorLike, typename Matrix6Type>
   struct JointCalcAbaVisitor
-  : fusion::JointUnaryVisitorBase< JointCalcAbaVisitor<Matrix6Type> >
+  : fusion::JointUnaryVisitorBase< JointCalcAbaVisitor<VectorLike,Matrix6Type> >
   {
     
-    typedef boost::fusion::vector<Matrix6Type &,
-                                  const bool &> ArgsType;
+    typedef boost::fusion::vector<const VectorLike &,
+                                  Matrix6Type &,
+                                  bool> ArgsType;
 
     template<typename JointModel>
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
                      pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Eigen::MatrixBase<VectorLike> & armature,
                      const Eigen::MatrixBase<Matrix6Type> & I,
-                     const bool & update_I
+                     bool update_I
                      )
     {
-      Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
-      jmodel.calc_aba(jdata.derived(),I_,update_I);
+      jmodel.calc_aba(jdata.derived(),
+                      armature.derived(),
+                      PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I),
+                      update_I);
     }
 
   };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename Matrix6Type>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename VectorLike, typename Matrix6Type>
   inline void calc_aba(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                        JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
+                       const Eigen::MatrixBase<VectorLike> & armature,
                        const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I)
   {
-    typedef JointCalcAbaVisitor<Matrix6Type> Algo;
-    
-    Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
-    Algo::run(jmodel, jdata, typename Algo::ArgsType(I_, update_I) );
+    typedef JointCalcAbaVisitor<VectorLike,Matrix6Type> Algo;
+    Algo::run(jmodel, jdata, typename Algo::ArgsType(PINOCCHIO_EIGEN_CONST_CAST(VectorLike,armature),
+                                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I),
+                                                     update_I) );
   }
   
   /**

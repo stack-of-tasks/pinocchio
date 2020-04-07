@@ -501,13 +501,15 @@ namespace pinocchio
                         jdata.joint_v);
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       // TODO: fixme
       m_jmodel_ref.calc_aba(data.m_jdata_ref,
+                            armature,
                             PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
                             update_I);
     }

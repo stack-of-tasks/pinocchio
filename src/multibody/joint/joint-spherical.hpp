@@ -482,29 +482,21 @@ namespace pinocchio
       data.v.angular() = data.joint_v;
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
+      data.StU = data.U.template middleRows<3>(Inertia::ANGULAR);
+      data.StU.diagonal() += armature;
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::ANGULAR),data.Dinv);
-      
-      data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
-      data.UDinv.template middleRows<3>(Inertia::LINEAR).noalias() = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
-      
-      if (update_I)
-      {
-        Matrix6Like & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I);
-        I_.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
-        -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I_.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
-        I_.template block<6,3>(0,Inertia::ANGULAR).setZero();
-        I_.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
-      }
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
+      data.UDinv.noalias() = data.U * data.Dinv;
+
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
     
     static std::string classname() { return std::string("JointModelSpherical"); }

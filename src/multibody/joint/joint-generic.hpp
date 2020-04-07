@@ -214,9 +214,17 @@ namespace pinocchio
               const Eigen::MatrixBase<TangentVector> & v) const
     { calc_first_order(*this,data,q,v); }
     
-    template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
-    { ::pinocchio::calc_aba(*this,data,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
+    template<typename VectorLike, typename Matrix6Like>
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
+    {
+      ::pinocchio::calc_aba(*this,data,
+                            armature.derived(),
+                            PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                            update_I);
+    }
     
     std::string shortname() const { return ::pinocchio::shortname(*this); }
     static std::string classname() { return "JointModel"; }

@@ -173,13 +173,14 @@ namespace pinocchio
       data.v.angularRate() = data.joint_v[0];
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * axis;
-      data.Dinv[0] = (Scalar)(1)/axis.dot(data.U.template segment<3>(Motion::ANGULAR));
+      data.Dinv[0] = Scalar(1)/(axis.dot(data.U.template segment<3>(Motion::ANGULAR)) + armature[0]);
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)

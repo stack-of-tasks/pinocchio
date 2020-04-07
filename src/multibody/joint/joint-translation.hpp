@@ -521,29 +521,23 @@ namespace pinocchio
       data.v.linear() = data.joint_v;
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U = I.template middleCols<3>(Inertia::LINEAR);
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.U.template middleRows<3>(Inertia::LINEAR).llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::LINEAR),data.Dinv);
+      data.StU = data.U.template middleRows<3>(Inertia::LINEAR);
+      data.StU.diagonal() += armature;
       
-      data.UDinv.template middleRows<3>(Inertia::LINEAR).setIdentity(); // can be put in data constructor
-      data.UDinv.template middleRows<3>(Inertia::ANGULAR).noalias() = data.U.template middleRows<3>(Inertia::ANGULAR) * data.Dinv;
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
-      if (update_I)
-      {
-        Matrix6Like & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I);
-        I_.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR)
-        -= data.UDinv.template middleRows<3>(Inertia::ANGULAR) * I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-        I_.template middleCols<3>(Inertia::LINEAR).setZero();
-        I_.template block<3,3>(Inertia::LINEAR,Inertia::ANGULAR).setZero();
-      }
+      data.UDinv.noalias() = data.U * data.Dinv;
+      
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
     
     static std::string classname() { return std::string("JointModelTranslation"); }

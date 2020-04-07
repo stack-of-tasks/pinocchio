@@ -66,14 +66,16 @@ namespace pinocchio
    * @tparam JointCollection    Collection of Joint types.
    * @tparam Matrix6Type        A matrix 6x6 like Eigen container.
    *
-   * @param[in]         jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
-   * @param[inout]      jdata   The JointDataVariant we want to update
-   * @param[inout]      I       Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix
+   * @param[in]         jmodel      The corresponding JointModelVariant to the JointDataVariant we want to update
+   * @param[in,out]     jdata        The JointDataVariant we want to update
+   * @param[in]         armature  Armature related to the current joint.
+   * @param[in,out]     I                 Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix   *
    * @param[in]         update_I  If I should be updated or not
    */
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename Matrix6Type>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename VectorLike, typename Matrix6Type>
   inline void calc_aba(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                        JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
+                       const Eigen::MatrixBase<VectorLike> & armature,
                        const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I);
 

@@ -398,17 +398,16 @@ namespace pinocchio
 #undef q_dot
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * data.S.angularSubspace();
       data.StU.noalias() = data.S.angularSubspace().transpose() * data.U.template middleRows<3>(Motion::ANGULAR);
+      data.StU.diagonal() += armature;
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.StU.llt().solveInPlace(data.Dinv);
       internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
       data.UDinv.noalias() = data.U * data.Dinv;

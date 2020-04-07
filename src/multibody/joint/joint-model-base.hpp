@@ -91,12 +91,16 @@ namespace pinocchio
       derived().calc(data,qs.derived(),vs.derived());
     }
     
-    template<typename Matrix6Type>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
-                  const Eigen::MatrixBase<Matrix6Type> & I,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I = false) const
     {
-      derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
+      derived().calc_aba(data,
+                         armature.derived(),
+                         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                         update_I);
     }
 
     int nv()    const { return derived().nv_impl(); }
