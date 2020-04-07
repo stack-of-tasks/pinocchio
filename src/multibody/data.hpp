@@ -331,11 +331,14 @@ namespace pinocchio
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertial frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
-    /// \brief Kinetic energy of the model.
+    /// \brief Kinetic energy of the system.
     Scalar kinetic_energy;
     
-    /// \brief Potential energy of the model.
+    /// \brief Potential energy of the system.
     Scalar potential_energy;
+    
+    /// \brief Mechanical energy of the system.
+    Scalar mechanical_energy;
     
     // Temporary variables used in forward dynamics
     

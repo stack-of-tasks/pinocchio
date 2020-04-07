@@ -163,6 +163,48 @@ namespace pinocchio {
     else
       return computePotentialEnergy(model,data);
   }
+
+  ///
+  /// \brief Computes the mechanical energy of the system stored in data.mechanical_energy.
+  ///        The result is accessible through data.kinetic_energy.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \return The total mechanal energy of the system in [J].
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline Scalar
+  computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
+  ///
+  /// \brief Computes the mechanical energy of the system stored in data.mechanical_energy.
+  ///        The result is accessible through data.kinetic_energy.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType Type of the joint velocity vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] q The joint configuration vector (dim model.nq).
+  /// \param[in] v The joint velocity vector (dim model.nv).
+  ///
+  /// \return The total mechanal energy of the system in [J].
+  ///         The fonctions also computes the data.kinetic_energy and data.potential_energy.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  inline Scalar computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                        const Eigen::MatrixBase<ConfigVectorType> & q,
+                                        const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    forwardKinematics(model,data,q,v);
+    return computeMechanicalEnergy(model,data);
+  }
 }
 
 #include "pinocchio/algorithm/energy.hxx"

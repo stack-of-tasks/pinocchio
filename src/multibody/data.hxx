@@ -94,8 +94,9 @@ namespace pinocchio
   , acom((std::size_t)model.njoints,Vector3::Zero())
   , mass((std::size_t)model.njoints,(Scalar)(-1))
   , Jcom(Matrix3x::Zero(3,model.nv))
-  , kinetic_energy((Scalar)-1)
-  , potential_energy((Scalar)-1)
+  , kinetic_energy(Scalar(0))
+  , potential_energy(Scalar(0))
+  , mechanical_energy(Scalar(0))
   , JMinvJt()
   , llt_JMinvJt()
   , lambda_c()
@@ -293,6 +294,7 @@ namespace pinocchio
     && data1.Jcom == data2.Jcom
     && data1.kinetic_energy == data2.kinetic_energy
     && data1.potential_energy == data2.potential_energy
+    && data1.mechanical_energy == data2.mechanical_energy
     && data1.JMinvJt == data2.JMinvJt
     && data1.lambda_c == data2.lambda_c
     && data1.torque_residual == data2.torque_residual
