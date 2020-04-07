@@ -180,6 +180,10 @@ namespace pinocchio
         .add_property("names",&Model::names)
         .add_property("name",&Model::name)
         .add_property("referenceConfigurations", &Model::referenceConfigurations)
+        .add_property("armature",
+                      make_getter(&Model::armature, bp::return_value_policy<bp::return_by_value>()),
+                      make_setter(&Model::armature, bp::return_value_policy<bp::return_by_value>()),
+                      "Armatude vector.")
         .add_property("rotorInertia",
                       make_getter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
                       make_setter(&Model::rotorInertia, bp::return_value_policy<bp::return_by_value>()),
