@@ -109,6 +109,8 @@ namespace pinocchio
       jdata.U().noalias() = Ia * J_cols;
       jdata.StU().noalias() = J_cols.transpose() * jdata.U();
       
+      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+      
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
       jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
       

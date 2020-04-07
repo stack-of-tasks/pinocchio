@@ -455,6 +455,10 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da).diagonal() += model.armature;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
@@ -504,6 +508,10 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
+    data.M.diagonal() += model.armature;
   }
   
 

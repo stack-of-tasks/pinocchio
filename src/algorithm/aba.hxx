@@ -196,6 +196,9 @@ namespace pinocchio
         jdata.U().noalias() = Ia * Jcols;
         jdata.StU().noalias() = Jcols.transpose() * jdata.U();
         
+        // Account for the rotor inertia contribution
+        jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+        
         internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
         
@@ -399,7 +402,9 @@ namespace pinocchio
       typename Inertia::Matrix6 & Ia = data.Yaba[i];
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
-      jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
+      jmodel.calc_aba(jdata.derived(),
+                      jmodel.jointVelocitySelector(model.armature),
+                      Ia, parent > 0);
       
       if (parent > 0)
       {
@@ -603,6 +608,9 @@ namespace pinocchio
 
       jdata.U().noalias() = Ia * J_cols;
       jdata.StU().noalias() = J_cols.transpose() * jdata.U();
+      
+      // Account for the rotor inertia contribution
+      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
       
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
       jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();

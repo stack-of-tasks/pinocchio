@@ -80,7 +80,7 @@ namespace pinocchio
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-
+      
       const JointIndex & parent = model.parents[i];
       if(parent>0)
       {
@@ -194,6 +194,9 @@ namespace pinocchio
                    typename Pass2::ArgsType(model,data));
       }
       
+      // Add the armature contribution
+      data.M.diagonal() += model.armature;
+      
       return data.M;
     }
   }
@@ -220,9 +223,12 @@ namespace pinocchio
     typedef CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
-      Pass2::run(model.joints[i],data.joints[i],
+      Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
+    
+    // Add the armature contribution
+    data.M.diagonal() += model.armature;
     
     // Retrieve the Centroidal Momemtum map
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

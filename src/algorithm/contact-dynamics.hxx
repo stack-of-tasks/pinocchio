@@ -185,6 +185,9 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data));
     }
     
+    // Add the armature contribution
+    data.M.diagonal() += model.armature;
+    
     // Retrieve the Centroidal Momemtum map
     typedef typename Data::Force Force;
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
@@ -422,8 +425,7 @@ namespace pinocchio
       jdata.StU().noalias() = Jcols.transpose() * jdata.U();
       
       // Account for the rotor inertia contribution
-      if(jmodel.nv() == 1)
-        jdata.StU() += jmodel.jointVelocitySelector(data.armature).asDiagonal();
+      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
       
       internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
       jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();

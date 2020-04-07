@@ -5,12 +5,34 @@
 #ifndef __pinocchio_algorithm_energy_hxx__
 #define __pinocchio_algorithm_energy_hxx__
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
 namespace pinocchio
 {
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct KineticEnergyAlgoForwardStep
+  : public fusion::JointUnaryVisitorBase< KineticEnergyAlgoForwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+    Data &
+    > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      const JointIndex & i = jmodel.id();
+      data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
+      data.kinetic_energy += (jmodel.jointVelocitySelector(model.armature).array() * jdata.joint_v().array().square()).sum();
+    }
+    
+  };
    
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline Scalar
@@ -23,10 +45,12 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
 
     data.kinetic_energy = Scalar(0);
-    
+    typedef KineticEnergyAlgoForwardStep<Scalar,Options,JointCollectionTpl> Pass;
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
-      data.kinetic_energy += model.inertias[i].vtiv(data.v[i]);
-    
+    {
+      Pass::run(model.joints[i],data.joints[i],
+                typename Pass::ArgsType(model,data));
+    }
     data.kinetic_energy *= .5;
     
     return data.kinetic_energy;
@@ -58,4 +82,3 @@ namespace pinocchio
   }
 }
 #endif // __pinocchio_algorithm_energy_hxx__
-

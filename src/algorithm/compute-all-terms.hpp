@@ -153,7 +153,6 @@ namespace pinocchio
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
       = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
-
       jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose()*data.f[i];
       if(parent>0)
       {
@@ -235,6 +234,9 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data));
     }
     
+    // Add the armature contribution
+    data.M.diagonal() += model.armature;
+    
     // CoM
     data.com[0] /= data.mass[0];
     data.vcom[0] /= data.mass[0];
@@ -243,8 +245,7 @@ namespace pinocchio
     data.Jcom /= data.mass[0];
     
     // Energy
-    computeKineticEnergy(model, data);
-    computePotentialEnergy(model, data);
+    computeMechanicalEnergy(model, data);
 
   }
 } // namespace pinocchio

@@ -43,7 +43,6 @@ namespace pinocchio
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
 
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-//      data.liMi[i].setIdentity();
 
       data.v[i] = jdata.v();
       if(parent>0)
@@ -73,16 +72,14 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const TangentVectorType &
+                                  Data &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<TangentVectorType> & a)
+                     Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
       
@@ -91,12 +88,6 @@ namespace pinocchio
       
       jmodel.jointVelocitySelector(data.tau) = jdata.S().transpose()*data.f[i];
       
-      // Add contribution of the roto-inertia effects
-      if(jmodel.nv() == 1)
-      {
-        jmodel.jointVelocitySelector(data.tau) += (model.rotorInertia[jmodel.idx_v()] * (model.rotorGearRatio[jmodel.idx_v()] * model.rotorGearRatio[ijmodel.idx_v()])) * jmodel.jointVelocitySelector(a);
-      }
-        
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
@@ -128,11 +119,14 @@ namespace pinocchio
     }
     
     typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
-    typename Pass2::ArgsType arg2(model,data,a.derived());
+    typename Pass2::ArgsType arg2(model,data);
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],arg2);
     }
+    
+    // Add rotorinertia contribution
+    data.tau.array() += model.armature.array() * a.array(); // Check if there is memory allocation
 
     return data.tau;
   }
@@ -170,9 +164,11 @@ namespace pinocchio
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data,a.derived()));
+                 typename Pass2::ArgsType(model,data));
     }
-
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
     
     return data.tau;
   }
