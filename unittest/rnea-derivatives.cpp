@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives)
   VectorXd v(VectorXd::Zero(model.nv));
   VectorXd a(VectorXd::Zero(model.nv));
   
-  /// Check againt non-derivative algo
+  // Check againt non-derivative algo
   MatrixXd g_partial_dq(model.nv,model.nv); g_partial_dq.setZero();
   computeGeneralizedGravityDerivatives(model,data,q,g_partial_dq);
   
@@ -87,9 +87,6 @@ BOOST_AUTO_TEST_CASE(test_generalized_gravity_derivatives_fext)
   
   VectorXd tau0 = computeStaticTorque(model,data_fd,q,fext);
   BOOST_CHECK(data.tau.isApprox(tau0));
-  
-  std::cout << "data.tau: " << data.tau.transpose() << std::endl;
-  std::cout << "tau0: " << tau0.transpose() << std::endl;
 
   MatrixXd static_vec_partial_dq_fd(model.nv,model.nv);
 
@@ -117,6 +114,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   Model model;
   buildModels::humanoidRandom(model);
+  model.armature = VectorXd::Random(model.nv) + VectorXd::Ones(model.nv);
   
   Data data(model), data_fd(model), data_ref(model);
   
@@ -280,11 +278,11 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   computeJointJacobiansTimeVariation(model,data_ref,q,v);
   BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
   crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   rnea_partial_da.triangularView<Eigen::StrictlyLower>()
   = rnea_partial_da.transpose().triangularView<Eigen::StrictlyLower>();
-  data_ref.M.triangularView<Eigen::StrictlyLower>()
-  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   BOOST_CHECK(rnea_partial_da.isApprox(data_ref.M));
 
   BOOST_CHECK(data.tau.isApprox(tau0));

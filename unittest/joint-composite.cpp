@@ -85,8 +85,9 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   Inertia::Matrix6 I1(Inertia::Random().matrix());
   Inertia::Matrix6 I2 = I1;
 
-  jmodel.calc_aba(jdata,I1,true);
-  jmodel_composite.calc_aba(jdata_composite,I2,true);
+  const Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
+  jmodel.calc_aba(jdata,armature,I1,true);
+  jmodel_composite.calc_aba(jdata_composite,armature,I2,true);
 
   double prec = 1e-10; // higher tolerance to errors due to possible numerical imprecisions
   

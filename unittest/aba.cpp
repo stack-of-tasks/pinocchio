@@ -22,6 +22,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 template<typename JointModel>
 void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
 {
+  std::cout << "shortname: " << jmodel.shortname() << std::endl;
   typedef typename pinocchio::JointModelBase<JointModel>::JointDataDerived JointData;
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
@@ -34,18 +35,22 @@ void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
   ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
   pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Random().matrix());
   pinocchio::Inertia::Matrix6 I_check = I;
+  const Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
 
   jmodel.calc(jdata,q);
-  jmodel.calc_aba(jdata,I,true);
+  jmodel.calc_aba(jdata,armature,I,true);
 
+  std::cout << "armature: " << armature.transpose() << std::endl;
   Eigen::MatrixXd S = jdata.S.matrix();
   Eigen::MatrixXd U_check = I_check*S;
-  Eigen::MatrixXd D_check = S.transpose()*U_check;
-  Eigen::MatrixXd Dinv_check = D_check.inverse();
+  Eigen::MatrixXd StU_check = S.transpose()*U_check; StU_check.diagonal() += armature;
+  Eigen::MatrixXd Dinv_check = StU_check.inverse();
   Eigen::MatrixXd UDinv_check = U_check*Dinv_check;
-  Eigen::MatrixXd update_check = U_check*Dinv_check*U_check.transpose();
+  Eigen::MatrixXd update_check = UDinv_check*U_check.transpose();
   I_check -= update_check;
 
+  std::cout << "I_check:\n" << I_check << std::endl;
+  std::cout << "I:\n" << I << std::endl;
   BOOST_CHECK(jdata.U.isApprox(U_check));
   BOOST_CHECK(jdata.Dinv.isApprox(Dinv_check));
   BOOST_CHECK(jdata.UDinv.isApprox(UDinv_check));
@@ -55,7 +60,7 @@ void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
   // where the correct result is exacly zero and isApprox would fail.
   // Only for this single case, we use the infinity norm of the difference
   if(jmodel.shortname() == "JointModelFreeFlyer")
-    BOOST_CHECK((I-I_check).lpNorm<Eigen::Infinity>() < Eigen::NumTraits<double>::dummy_precision());
+    BOOST_CHECK((I-I_check).isZero());
   else
     BOOST_CHECK(I.isApprox(I_check));
 }
@@ -359,6 +364,24 @@ BOOST_AUTO_TEST_CASE(test_multiple_calls)
   }
   
   BOOST_CHECK(data1.Minv.isApprox(data2.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.armature = Eigen::VectorXd::Random(model.nv) + Eigen::VectorXd::Constant(model.nv,1.);
+  
+  pinocchio::Data data(model), data_ref(model);
+  
+  Eigen::VectorXd q = randomConfiguration(model);
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  computeMinverse(model,data,q);
+  data.Minv.triangularView<Eigen::StrictlyLower>() = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK((data.Minv*data_ref.M).isIdentity());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

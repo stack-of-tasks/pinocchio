@@ -25,19 +25,20 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   Eigen::VectorXd q1, q2;
   Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv()));
   Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
+  Eigen::VectorXd armature = Eigen::VectorXd::Random(jdata.S().nv()) + Eigen::VectorXd::Ones(jdata.S().nv());
   bool update_I = false;
 
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
 
   jmodel.calc(jdata.derived(), q1, v1);
-  jmodel.calc_aba(jdata.derived(), Ia, update_I);
+  jmodel.calc_aba(jdata.derived(), armature, Ia, update_I);
 
   pinocchio::JointModel jma(jmodel);
   pinocchio::JointData jda(jdata.derived());
 
   jma.calc(jda, q1, v1);
-  jma.calc_aba(jda, Ia, update_I);
+  jma.calc_aba(jda, armature, Ia, update_I);
 
   std::string error_prefix("JointModel on " + jma.shortname());
   BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
@@ -357,8 +358,10 @@ struct TestJointOperatorEqual
     JointData jdata = jmodel.createData();
     
     jmodel.calc(jdata,q,v);
+
+    Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
     Inertia::Matrix6 I = Inertia::Matrix6::Identity();
-    jmodel.calc_aba(jdata,I,false);
+    jmodel.calc_aba(jdata,armature,I,false);
     test(jdata);
   }
   

@@ -4,6 +4,7 @@
 
 #include "pinocchio/algorithm/energy.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
@@ -20,15 +21,15 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   using namespace Eigen;
   using namespace pinocchio;
   
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
-  pinocchio::Data data(model);
+  Model model;
+  buildModels::humanoidRandom(model);
+  Data data(model);
   
   const VectorXd qmax = VectorXd::Ones(model.nq);
   VectorXd q = randomConfiguration(model,-qmax,qmax);
-  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd v = VectorXd::Random(model.nv);
 
-  data.M.fill(0);  crba(model,data,q);
+  crba(model,data,q);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
@@ -38,14 +39,40 @@ BOOST_AUTO_TEST_CASE(test_kinetic_energy)
   BOOST_CHECK_SMALL(kinetic_energy_ref - kinetic_energy, 1e-12);
 }
 
+BOOST_AUTO_TEST_CASE(test_kinetic_energy_with_armature)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  Data data(model), data_ref(model);
+  
+  model.armature = VectorXd::Random(model.nv) + VectorXd::Ones(model.nv);
+  
+  const VectorXd qmax = VectorXd::Ones(model.nq);
+  VectorXd q = randomConfiguration(model,-qmax,qmax);
+  VectorXd v = VectorXd::Random(model.nv);
+
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  double kinetic_energy_ref = 0.5 * v.transpose() * data_ref.M * v;
+  double kinetic_energy = computeKineticEnergy(model, data, q, v);
+  
+  BOOST_CHECK_SMALL(kinetic_energy_ref - kinetic_energy,
+                    Eigen::NumTraits<double>::dummy_precision());
+}
+
 BOOST_AUTO_TEST_CASE(test_potential_energy)
 {
   using namespace Eigen;
   using namespace pinocchio;
   
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model);
-  pinocchio::Data data(model), data_ref(model);
+  Model model;
+  buildModels::humanoidRandom(model);
+  Data data(model), data_ref(model);
   
   const VectorXd qmax = VectorXd::Ones(model.nq);
   VectorXd q = randomConfiguration(model,-qmax,qmax);
@@ -55,7 +82,10 @@ BOOST_AUTO_TEST_CASE(test_potential_energy)
   
   double potential_energy_ref = -data_ref.mass[0] * (data_ref.com[0].dot(model.gravity.linear()));
   
-  BOOST_CHECK_SMALL(potential_energy_ref - potential_energy, 1e-12);
+  BOOST_CHECK_SMALL(potential_energy_ref - potential_energy,
+                    Eigen::NumTraits<double>::dummy_precision());
+}
+
 BOOST_AUTO_TEST_CASE(test_mechanical_energy)
 {
   using namespace Eigen;

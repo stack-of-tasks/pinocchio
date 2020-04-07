@@ -501,7 +501,7 @@ struct TestJointData
     
     jmodel.calc(jdata,q_random,v_random);
     pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
-    jmodel.calc_aba(jdata,I,false);
+    jmodel.calc_aba(jdata,Eigen::VectorXd::Zero(jmodel.nv()),I,false);
     test(jdata);
   }
   
@@ -528,7 +528,7 @@ struct TestJointData
     
     jmodel.calc(jdata,q_random,v_random);
     pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
-    jmodel.calc_aba(jdata,I,false);
+    jmodel.calc_aba(jdata,Eigen::VectorXd::Zero(jmodel.nv()),I,false);
     
     test(jdata);
   }
@@ -555,7 +555,7 @@ struct TestJointData
     
     jmodel_mimic.calc(jdata_mimic,q_random,v_random);
     pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Matrix6::Identity());
-    jmodel_mimic.calc_aba(jdata_mimic,I,false);
+    jmodel_mimic.calc_aba(jdata_mimic,Eigen::VectorXd::Zero(jmodel.nv()),I,false);
     test(jdata_mimic);
   }
   
