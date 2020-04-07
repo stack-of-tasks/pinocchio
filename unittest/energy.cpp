@@ -56,6 +56,28 @@ BOOST_AUTO_TEST_CASE(test_potential_energy)
   double potential_energy_ref = -data_ref.mass[0] * (data_ref.com[0].dot(model.gravity.linear()));
   
   BOOST_CHECK_SMALL(potential_energy_ref - potential_energy, 1e-12);
+BOOST_AUTO_TEST_CASE(test_mechanical_energy)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  Data data(model), data_ref(model);
+  
+  const VectorXd qmax = VectorXd::Ones(model.nq);
+  VectorXd q = randomConfiguration(model,-qmax,qmax);
+  VectorXd v = VectorXd::Random(model.nv);
+
+  computeKineticEnergy(model,data_ref,q,v);
+  computePotentialEnergy(model,data_ref,q);
+  
+  const double mechanical_energy_ref = data_ref.kinetic_energy + data_ref.potential_energy;
+  double mechanical_energy = computeMechanicalEnergy(model, data, q, v);
+  
+  BOOST_CHECK_SMALL(mechanical_energy_ref - mechanical_energy,
+                    Eigen::NumTraits<double>::dummy_precision());
+}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
