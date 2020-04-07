@@ -169,13 +169,13 @@ namespace pinocchio
           {
             if (joint.first == "joint")
             {
-              std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
-              const Scalar rotor_mass = (Scalar)joint.second.get<double>("<xmlattr>.mass");
-              const Scalar rotor_gr = (Scalar)joint.second.get<double>("<xmlattr>.gear_ratio");
+              const std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
+              const Scalar rotor_inertia = (Scalar)joint.second.get<double>("<xmlattr>.mass");
+              const Scalar rotor_gear_ratio = (Scalar)joint.second.get<double>("<xmlattr>.gear_ratio");
               if (verbose)
               {
                 std::cout << "(" << joint_name << " , " <<
-                rotor_mass << " , " << rotor_gr << ")" << std::endl;
+                rotor_inertia << " , " << rotor_gear_ratio << ")" << std::endl;
               }
               // Search in model the joint and its config id
               typename Model::JointIndex joint_id = model.getJointId(joint_name);
@@ -184,8 +184,10 @@ namespace pinocchio
               {
                 const JointModel & joint = model.joints[joint_id];
                 PINOCCHIO_CHECK_INPUT_ARGUMENT(joint.nv()==1);
-                model.rotorInertia(joint.idx_v()) = rotor_mass;
-                model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
+                
+                model.armature[joint.idx_v()] += rotor_inertia * rotor_gear_ratio * rotor_gear_ratio;
+                model.rotorInertia(joint.idx_v()) = rotor_inertia;
+                model.rotorGearRatio(joint.idx_v()) = rotor_gear_ratio;  // joint with 1 dof
               }
               else
               {
