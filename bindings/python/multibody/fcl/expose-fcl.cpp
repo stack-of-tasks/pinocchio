@@ -5,8 +5,6 @@
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/fcl/transform.hpp"
 
-#include "pinocchio/bindings/python/utils/std-vector.hpp"
-
 namespace pinocchio
 {
   namespace python
@@ -14,7 +12,7 @@ namespace pinocchio
     void exposeFCL()
     {
       namespace bp = boost::python;
-      bp::import ("hppfcl");
+      bp::import("hppfcl");
       
       typedef ::hpp::fcl::Transform3f Transform3f;
       

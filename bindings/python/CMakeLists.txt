@@ -81,7 +81,6 @@ IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
     multibody/fcl/transform.hpp
     )
-
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     multibody/fcl/expose-fcl.cpp
     )
