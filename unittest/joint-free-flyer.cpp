@@ -16,16 +16,16 @@
 
 using namespace pinocchio;
 
-template<typename D>
-void addJointAndBody(Model & model,
-                     const JointModelBase<D> & jmodel,
-                     const Model::JointIndex parent_id,
-                     const SE3 & joint_placement,
-                     const std::string & joint_name,
-                     const Inertia & Y)
-{
-  Model::JointIndex idx;
+BOOST_AUTO_TEST_SUITE(JointFreeFlyer)
   
-  idx = model.addJoint(parent_id,jmodel,joint_placement,joint_name);
-  model.appendBodyToJoint(idx,Y);
+BOOST_AUTO_TEST_CASE(spatial)
+{
+  Motion v(Motion::Random());
+  
+  ConstraintIdentityTpl<double,0> constraint;
+  Motion Sv = constraint * v.toVector();
+  
+  BOOST_CHECK(Sv == v);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
