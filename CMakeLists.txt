@@ -33,7 +33,7 @@ INCLUDE(cmake/python.cmake)
 INCLUDE(cmake/ide.cmake)
 INCLUDE(cmake/apple.cmake)
 
-# If needed, fix CMake policy for APPLE systems
+# If needed, set CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
 
 IF(WIN32)
@@ -43,10 +43,10 @@ ELSE(WIN32)
 ENDIF(WIN32)
 
 # --- OPTIONS ----------------------------------------
-OPTION (BUILD_BENCHMARK "Build the benchmarks" OFF)
-OPTION (BUILD_UTILS "Build the utils" OFF)
-OPTION (BUILD_PYTHON_INTERFACE "Build the python binding" ON)
-OPTION (BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
+OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
+OPTION(BUILD_UTILS "Build the utils" OFF)
+OPTION(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+OPTION(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF(DEFINED BUILD_UNIT_TESTS)
   MESSAGE(AUTHOR_WARNING "BUILD_UNIT_TESTS is deprecated. Use BUILD_TESTING instead.\
@@ -104,7 +104,7 @@ ENDIF(BUILD_WITH_URDF_SUPPORT)
 IF(${URDFDOM_VERSION} VERSION_GREATER "0.4.2")
   SET(CMAKE_CXX_STANDARD 11)
   SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-  MESSAGE("-- Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
+  MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
 ENDIF(${URDFDOM_VERSION} VERSION_GREATER "0.4.2")
 
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
@@ -149,7 +149,7 @@ ENDIF(BUILD_PYTHON_INTERFACE)
 IF(BUILD_WITH_HPP_FCL_SUPPORT)
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_HPP_FCL)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_HPP_FCL")
-  ADD_REQUIRED_DEPENDENCY("hpp-fcl >= 1.3.0")
+  ADD_REQUIRED_DEPENDENCY("hpp-fcl >= 1.4.0")
   # Check whether hpp-fcl python bindings are available.
   SET(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS FALSE)
   IF(BUILD_PYTHON_INTERFACE)
