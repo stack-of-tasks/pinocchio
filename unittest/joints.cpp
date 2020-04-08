@@ -21,30 +21,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-//#define VERBOSE
-
 using namespace pinocchio;
-
-template<typename JointData>
-void printOutJointData(const Eigen::VectorXd & q,
-                       const Eigen::VectorXd & v,
-                       const JointDataBase<JointData> & joint_data)
-{
-  PINOCCHIO_UNUSED_VARIABLE(q);
-  PINOCCHIO_UNUSED_VARIABLE(v);
-  PINOCCHIO_UNUSED_VARIABLE(joint_data);
-  
-#ifdef VERBOSE
-  using namespace std;
-  
-  cout << "q: " << q.transpose () << endl;
-  cout << "v: " << v.transpose () << endl;
-  cout << "Joint configuration:" << endl << joint_data.M() << endl;
-  cout << "v_J:\n" << (Motion) joint_data.v() << endl;
-  cout << "c_J:\n" << (Motion) joint_data.c() << endl;
-#endif
-}
-
 
 template<typename D>
 void addJointAndBody(Model & model,
@@ -645,8 +622,6 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
 
   joint_model.calc (joint_data, q, q_dot);
 
-  printOutJointData <JointDataPX> (q, q_dot, joint_data);
-
   BOOST_CHECK (expected_configuration.rotation ().isApprox(joint_data.M.rotation(), 1e-12));
   BOOST_CHECK (expected_configuration.translation ().isApprox(joint_data.M.translation (), 1e-12));
   BOOST_CHECK (expected_v_J.toVector ().isApprox(((Motion) joint_data.v).toVector(), 1e-12));
@@ -656,10 +631,7 @@ BOOST_AUTO_TEST_CASE ( test_kinematics )
   q << 1.;
   q_dot << 1.;
 
-
   joint_model.calc (joint_data, q, q_dot);
-
-  printOutJointData <JointDataPX> (q, q_dot, joint_data);
 
   expected_configuration.translation () << 1, 0, 0;
 
