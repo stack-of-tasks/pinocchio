@@ -3,16 +3,8 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#include <iostream>
-
 #include "pinocchio/math/fwd.hpp"
-#include "pinocchio/spatial/force.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -20,6 +12,7 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #include <boost/test/unit_test.hpp>
+#include <iostream>
 
 using namespace pinocchio;
 
@@ -42,10 +35,10 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnaligned)
 BOOST_AUTO_TEST_CASE(vsRX)
 {
   using namespace pinocchio;
-  typedef Eigen::Matrix <double, 3, 1> Vector3;
-  typedef Eigen::Matrix <double, 3, 3> Matrix3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
 
-  Eigen::Vector3d axis;
+  Vector3 axis;
   axis << 1.0, 0.0, 0.0;
 
   Model modelRX, modelRevoluteUnaligned;
@@ -1431,4 +1424,3 @@ BOOST_AUTO_TEST_SUITE(JointModelBase_test)
   }
   
 BOOST_AUTO_TEST_SUITE_END()
-  
