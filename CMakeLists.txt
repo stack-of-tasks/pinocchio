@@ -45,7 +45,7 @@ ENDIF(WIN32)
 # --- OPTIONS ----------------------------------------
 OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION(BUILD_UTILS "Build the utils" OFF)
-OPTION(BUILD_PYTHON_INTERFACE "Build the python binding" ON)
+OPTION(BUILD_PYTHON_INTERFACE "Build the Python binding" ON)
 OPTION(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF(DEFINED BUILD_UNIT_TESTS)
@@ -59,10 +59,10 @@ OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) o
 
 # --- OPTIONAL DEPENDENCIES -------------------------
 OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
-OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the Collision support (required HPP-FCL)" OFF)
-OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the Automatic Differentiation support" OFF)
-OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the CASADI support" OFF)
-OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the Code Generation support" OFF)
+OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required HPP-FCL)" OFF)
+OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
+OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
+OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 
@@ -159,9 +159,9 @@ IF(BUILD_WITH_HPP_FCL_SUPPORT)
       ERROR_QUIET)
     IF(_hpp_fcl_python_bindings_not_found EQUAL 0)
       SET(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS TRUE)
-      MESSAGE(STATUS "Found hpp-fcl python bindings.")
+      MESSAGE(STATUS "Found hpp-fcl Python bindings.")
     ELSE()
-      MESSAGE(STATUS "Did not find hpp-fcl python bindings.")
+      MESSAGE(STATUS "hpp-fcl Python bindings NOT found.")
     ENDIF()
     UNSET(_hpp_fcl_python_bindings_not_found)
   ENDIF(BUILD_PYTHON_INTERFACE)
