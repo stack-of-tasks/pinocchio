@@ -92,6 +92,7 @@ namespace pinocchio
               loadRotorParameters_overload(bp::args("model","srdf_filename","verbose"),
                                            "Load the rotor parameters of a given model from a SRDF file.\n"
                                            "Results are stored in model.rotorInertia and model.rotorGearRatio."
+                                           "This function also fills the armature of the model."
                                            "Parameters:\n"
                                            "\tmodel: model of the robot\n"
                                            "\tsrdf_filename: path to the SRDF file containing the rotor parameters\n"
