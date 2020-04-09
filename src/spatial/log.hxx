@@ -25,10 +25,19 @@ namespace pinocchio
     
       static const Scalar PI_value = PI<Scalar>();
     
-      const Scalar tr = R.trace();
-      if(tr >= Scalar(3))       theta = Scalar(0); // acos((3-1)/2)
-      else if(tr <= Scalar(-1)) theta = PI_value; // acos((-1-1)/2)
-      else                     theta = math::acos((tr - Scalar(1))/Scalar(2));
+      Scalar tr = R.trace();
+      if(tr >= Scalar(3))
+      {
+        tr = Scalar(3); // clip value
+        theta = Scalar(0); // acos((3-1)/2)
+      }
+      else if(tr <= Scalar(-1))
+      {
+        tr = Scalar(-1); // clip value
+        theta = PI_value; // acos((-1-1)/2)
+      }
+      else
+        theta = math::acos((tr - Scalar(1))/Scalar(2));
       assert(theta == theta && "theta contains some NaN"); // theta != NaN
       
       Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
