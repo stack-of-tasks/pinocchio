@@ -28,5 +28,19 @@ BOOST_AUTO_TEST_CASE(test_assignQuaternion)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_uniformRandom)
+{
+  srand(0);
+
+  using namespace pinocchio;
+  Eigen::Quaternion<double> q;
+
+  for (int i = 0; i < (1 << 10); ++i) {
+    quaternion::uniformRandom(q);
+    BOOST_CHECK_MESSAGE((q.coeffs().array().abs() <= 1).all(),
+        "Quaternion coeffs out of bounds: " << i << ' ' << q.coeffs().transpose());
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
