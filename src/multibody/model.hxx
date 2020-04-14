@@ -251,21 +251,16 @@ namespace pinocchio
   inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
   addFrame(const Frame & frame)
   {
-    // Check if the frame.name exists
-    if(existFrame(frame.name))
+    // Check if the frame.name exists with the same type
+    if(existFrame(frame.name,frame.type))
     {
-      FrameIndex frame_id = getFrameId(frame.name);
-      if(frames[frame_id] == frame)
-        return (int)frame_id;
-      else
-        return -1;
+      FrameIndex frame_id = getFrameId(frame.name,frame.type);
+      return (int)frame_id;
     }
-    else // does not exist, so add the Frame to the kinematic tree
-    {
-      frames.push_back(frame);
-      nframes++;
-      return nframes - 1;
-    }
+    // else: we must add a new frames to the current stack
+    frames.push_back(frame);
+    nframes++;
+    return nframes - 1;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
