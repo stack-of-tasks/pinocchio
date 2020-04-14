@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include <iostream>
@@ -224,6 +224,14 @@ BOOST_AUTO_TEST_CASE(append_two_URDF_models_with_root_joint)
   
   BOOST_CHECK_THROW(pinocchio::urdf::buildModelFromXML(filestr, pinocchio::JointModelFreeFlyer(), model),
                     std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(check_specific_models)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/baxter_simple.urdf");
+
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename, model);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
