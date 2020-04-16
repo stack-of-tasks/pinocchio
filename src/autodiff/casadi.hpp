@@ -33,7 +33,13 @@ namespace pinocchio
   : TaylorSeriesExpansion<Scalar>
   {
     typedef TaylorSeriesExpansion<Scalar> Base;
-    using Base::precision;
+
+    template<int degree>
+    static ::casadi::Matrix<Scalar> precision()
+    {
+      return ::casadi::Matrix<Scalar>(Base::template precision<degree>());
+    }
+    
   };
 }
 
@@ -94,9 +100,9 @@ namespace Eigen
       MulCost               = 2
     };
     
-    static double epsilon()
+    static casadi::Matrix<Scalar> epsilon()
     {
-      return std::numeric_limits<double>::epsilon();
+      return casadi::Matrix<Scalar>(std::numeric_limits<double>::epsilon());
     }
     
     static double dummy_precision()
@@ -338,34 +344,36 @@ namespace pinocchio
 {
   namespace internal
   {
-//    template<typename if_type, typename Scalar, typename else_type>
-//    struct traits<if_then_else_impl<if_type,::casadi::Matrix<Scalar>,else_type> >
-//    {
-//      typedef ::casadi::Matrix<Scalar> ReturnType;
-//    };
-//
-//    template<typename if_type, typename Scalar, typename then_type>
-//    struct traits<if_then_else_impl<if_type,then_type,::casadi::Matrix<Scalar>> >
-//    {
-//      typedef ::casadi::Matrix<Scalar> ReturnType;
-//    };
 
-    template<typename Scalar>
-    struct traits<if_condition_impl< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>,is_floating_point<false> > >
-    {
-      typedef ::casadi::Matrix<Scalar> ReturnType;
-    };
-    
     template<typename Scalar, typename then_type, typename else_type>
-    struct if_then_else_impl< ::casadi::Matrix<Scalar>,then_type,else_type>
+    struct if_then_else_impl< ::casadi::Matrix<Scalar>, ::casadi::Matrix<Scalar>,then_type,else_type, is_floating_point<false> >
     {
-      typedef typename traits<if_then_else_impl>::ReturnType ReturnType;
+      typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
       
-      static inline ReturnType run(const ::casadi::Matrix<Scalar> & condition,
+      static inline ReturnType run(const CompareOp op,
+                                   const ::casadi::Matrix<Scalar> & if_left_value,
+                                   const ::casadi::Matrix<Scalar> & if_right_value,
                                    const then_type & then_value,
                                    const else_type & else_value)
       {
-        return ReturnType::if_else(condition,then_value,else_value);
+        switch(op)
+        {
+        case LT:
+          return ::casadi::Matrix<Scalar>::if_else(if_left_value < if_right_value,then_value,else_value);
+          break;
+        case LE:
+          return ::casadi::Matrix<Scalar>::if_else(if_left_value <= if_right_value,then_value,else_value);
+          break;
+        case EQ:
+          return ::casadi::Matrix<Scalar>::if_else(if_left_value == if_right_value,then_value,else_value);
+          break;
+        case GE:
+          return ::casadi::Matrix<Scalar>::if_else(if_left_value >= if_right_value,then_value,else_value);
+          break;
+        case GT:
+          return ::casadi::Matrix<Scalar>::if_else(if_left_value > if_right_value,then_value,else_value);
+          break;
+        }
       }
     };
   }
