@@ -119,16 +119,11 @@ namespace pinocchio
       Scalar1 t = SO2_t::log(R);
       const Scalar1 tabs = math::fabs(t);
       const Scalar1 t2 = t*t;
+      Scalar1 st,ct; SINCOS(tabs, &st, &ct);
       Scalar1 alpha;
-      if (tabs < 1e-4)
-      {
-        alpha = 1 - t2/12 - t2*t2/720;
-      }
-      else
-      {
-        Scalar1 st,ct; SINCOS(tabs, &st, &ct);
-        alpha = tabs*st/(2*(1-ct));
-      }
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                     1 - t2/12 - t2*t2/720,
+                                     tabs*st/(2*(1-ct)));
 
       vout.template head<2>().noalias() = alpha * p;
       vout(0) += t/2 * p(1);
@@ -152,21 +147,16 @@ namespace pinocchio
       Scalar1 t = SO2_t::log(R);
       const Scalar1 tabs = math::fabs(t);
       Scalar1 alpha, alpha_dot;
-      if (tabs < 1e-4)
-      {
-        Scalar1 t2 = t*t;
-        alpha = 1 - t2/12;
-        alpha_dot = - t / 6 - t2*t / 180;
-      }
-      else
-      {
-        Scalar1 st,ct; SINCOS(t, &st, &ct);
-        Scalar1 inv_2_1_ct = 0.5 / (1-ct);
-        // t * sin(t) / (2 * (1 - cos(t)) )
-        alpha = t*st*inv_2_1_ct;
-        // [ ( 1 - cos(t) ) * sin(t) + t * cos(t) - 1 ] / (2 * (1 - cos(t))^2 )
-        alpha_dot = (st-t) * inv_2_1_ct;
-      }
+      Scalar1 t2 = t*t;
+      Scalar1 st,ct; SINCOS(t, &st, &ct);
+      Scalar1 inv_2_1_ct = 0.5 / (1-ct);
+        
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                     1 - t2/12,
+                                     t*st*inv_2_1_ct);
+      alpha_dot = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                         - t / 6 - t2*t / 180,
+                                         (st-t) * inv_2_1_ct);
 
       typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
