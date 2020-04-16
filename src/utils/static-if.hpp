@@ -6,11 +6,66 @@
 #define __pinocchio_utils_static_if_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include <boost/type_traits.hpp>
 
 namespace pinocchio
 {
   namespace internal
   {
+
+    enum CompareOp {LT, LE, EQ, GE, GT};
+
+    template<bool> struct is_floating_point {};
+    
+    //Forward Declaration
+    template<typename left_type, typename right_type, typename B = is_floating_point<(boost::is_floating_point<left_type>::value && boost::is_floating_point<right_type>::value)> >
+    struct if_condition_impl;
+
+    template<typename same_left_right_type>
+    struct traits<if_condition_impl<same_left_right_type,same_left_right_type,is_floating_point<true> > >
+    {
+      typedef bool ReturnType;
+    };
+    
+    template<typename same_left_right_type>
+    struct if_condition_impl<same_left_right_type,same_left_right_type, is_floating_point<boost::is_floating_point<same_left_right_type>::value> >
+    {
+      typedef typename internal::traits<if_condition_impl>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const same_left_right_type& left_value,
+                                   const same_left_right_type& right_value,
+                                   CompareOp op)
+      {
+        switch(op)
+        {
+        case LT:
+          return left_value < right_value;
+          break;
+        case LE:
+          return left_value <= right_value;
+          break;
+        case EQ:
+          return left_value == right_value;
+          break;
+        case GE:
+          return left_value >= right_value;
+          break;
+        case GT:
+          return left_value > right_value;
+          break;          
+        }
+      }
+    };
+    
+    //General implementation of Cond Exp
+    template<typename left_type, typename right_type>
+    inline typename if_condition_impl<left_type,right_type>::ReturnType
+    if_condition(const left_type & left_value,
+                 const right_type & right_value,
+                 const CompareOp op)
+    {
+      return if_condition_impl<left_type,right_type>::run(left_value, right_value, op);
+    }      
     
     template<typename if_type, typename then_type, typename else_type>
     struct if_then_else_impl;

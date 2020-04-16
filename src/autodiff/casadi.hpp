@@ -349,6 +349,12 @@ namespace pinocchio
 //    {
 //      typedef ::casadi::Matrix<Scalar> ReturnType;
 //    };
+
+    template<typename Scalar>
+    struct traits<if_condition_impl< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>,is_floating_point<false> > >
+    {
+      typedef ::casadi::Matrix<Scalar> ReturnType;
+    };
     
     template<typename Scalar, typename then_type, typename else_type>
     struct if_then_else_impl< ::casadi::Matrix<Scalar>,then_type,else_type>
