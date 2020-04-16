@@ -42,31 +42,25 @@ namespace pinocchio
     const Scalar t2 = v.squaredNorm();
     
     const Scalar t = math::sqrt(t2);
-    if(t > TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      Scalar ct,st; SINCOS(t,&st,&ct);
-      const Scalar alpha_vxvx = (1 - ct)/t2;
-      const Scalar alpha_vx = (st)/t;
-      Matrix3 res(alpha_vxvx * v * v.transpose());
-      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
-      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
-      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
-      res.diagonal().array() += ct;
+    Scalar ct,st; SINCOS(t,&st,&ct);
+
+    const Scalar alpha_vxvx = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                                     (1 - ct)/t2,
+                                                     Scalar(1)/Scalar(2) - t2/24);
+    const Scalar alpha_vx = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                                   (st)/t,
+                                                   Scalar(1) - t2/6);
+    Matrix3 res(alpha_vxvx * v * v.transpose());
+    res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
+    res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
+    res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
+
+    ct = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                ct,
+                                Scalar(1) - t2/2);
+    res.diagonal().array() += ct;   
       
-      return res;
-    }
-    else
-    {
-      const Scalar alpha_vxvx = Scalar(1)/Scalar(2) - t2/24;
-      const Scalar alpha_vx = Scalar(1) - t2/6;
-      Matrix3 res(alpha_vxvx * v * v.transpose());
-      res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
-      res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
-      res.coeffRef(1,2) -= alpha_vx * v[0]; res.coeffRef(2,1) += alpha_vx * v[0];
-      res.diagonal().array() += Scalar(1) - t2/2;
-      
-      return res;
-    }
+    return res;
   }
   
   /// \brief Same as \ref log3
@@ -123,26 +117,22 @@ namespace pinocchio
     Matrix3Like & Jout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jexp);
     typedef typename Matrix3Like::Scalar Scalar;
 
-    Scalar n2 = r.squaredNorm(),a,b,c;
-    Scalar n = math::sqrt(n2);
+    const Scalar n2 = r.squaredNorm();
+    const Scalar n = math::sqrt(n2);
+    const Scalar n_inv = Scalar(1)/n;
+    const Scalar n2_inv = n_inv * n_inv;
+    Scalar cn,sn; SINCOS(n,&sn,&cn);
+
+    const Scalar a = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(), 
+                                            Scalar(1) - n2/Scalar(6),
+                                            sn*n_inv);
+    const Scalar b = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                            - Scalar(1)/Scalar(2) - n2/Scalar(24),
+                                            - (1-cn)*n2_inv);
+    const Scalar c = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                            Scalar(1)/Scalar(6) - n2/Scalar(120),
+                                            n2_inv * (1 - a));
     
-    if (n < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      a =   Scalar(1)           - n2/Scalar(6);
-      b = - Scalar(1)/Scalar(2) - n2/Scalar(24);
-      c =   Scalar(1)/Scalar(6) - n2/Scalar(120);
-    }
-    else
-    {
-      Scalar n_inv = Scalar(1)/n;
-      Scalar n2_inv = n_inv * n_inv;
-      Scalar cn,sn; SINCOS(n,&sn,&cn);
-
-      a = sn*n_inv;
-      b = - (1-cn)*n2_inv;
-      c = n2_inv * (1 - a);
-    }
-
     Jout.diagonal().setConstant(a);
 
     Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
@@ -341,23 +331,19 @@ namespace pinocchio
     Jexp3(w, Jout.template bottomRightCorner<3,3>());
     Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
 
-    Scalar beta, beta_dot_over_theta;
-    if (t < TaylorSeriesExpansion<Scalar>::template precision<3>())
-    {
-      beta                = Scalar(1)/Scalar(12) + t2/Scalar(720);
-      beta_dot_over_theta = Scalar(1)/Scalar(360);
-    }
-    else
-    {
-      const Scalar tinv = Scalar(1)/t,
-                   t2inv = tinv*tinv;
-      Scalar st,ct; SINCOS (t, &st, &ct);
-      const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
-
-      beta = t2inv - st*tinv*inv_2_2ct;
-      beta_dot_over_theta = -Scalar(2)*t2inv*t2inv +
-        (Scalar(1) + st*tinv) * t2inv * inv_2_2ct;
-    }
+    const Scalar tinv = Scalar(1)/t,
+                 t2inv = tinv*tinv;
+    Scalar st,ct; SINCOS (t, &st, &ct);
+    const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
+    
+    
+    const Scalar beta = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                               Scalar(1)/Scalar(12) + t2/Scalar(720),
+                                               t2inv - st*tinv*inv_2_2ct);
+    
+    const Scalar beta_dot_over_theta = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                                              Scalar(1)/Scalar(360),
+                                                              -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
     Vector3 p (Jout.template topLeftCorner<3,3>().transpose() * v);
     Scalar wTp (w.dot (p));
