@@ -48,7 +48,7 @@ namespace pinocchio
       using ::pinocchio::internal::if_then_else;
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
-        quat_out.coeffs().coeffRef(k) = if_then_else(t2 > ts_prec,
+        quat_out.coeffs().coeffRef(k) = if_then_else(::pinocchio::internal::GT, t2, ts_prec,
                                                      quat_then.coeffs().coeffRef(k),
                                                      quat_else.coeffs().coeffRef(k));
       }

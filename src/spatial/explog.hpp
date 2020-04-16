@@ -228,19 +228,19 @@ namespace pinocchio
     Scalar ct,st; SINCOS(t,&st,&ct);
     const Scalar inv_t2 = Scalar(1)/t2;
     
-    alpha_wxv = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+    alpha_wxv = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                        Scalar(1)/Scalar(2) - t2/24,
                                        (Scalar(1) - ct)*inv_t2);
     
-    alpha_v = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+    alpha_v = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                      Scalar(1) - t2/6,
                                      (st)/t);
     
-    alpha_w = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+    alpha_w = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                      (Scalar(1)/Scalar(6) - t2/120),
                                      (Scalar(1) - alpha_v)*inv_t2);
     
-    diagonal_term = internal::if_then_else(t<TaylorSeriesExpansion<Scalar>::template precision<3>(),
+    diagonal_term = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                            Scalar(1) - t2/2,
                                            ct);
     

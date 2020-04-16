@@ -73,11 +73,11 @@ namespace pinocchio
         vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
         Scalar omega_abs = math::fabs(omega);
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(omega_abs > 1e-14,
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14),
                                                                              vcross.coeff(0),
                                                                              v.coeff(0));
         
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(omega_abs > 1e-14,
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14),
                                                                              vcross.coeff(1),
                                                                              v.coeff(1));
       }
@@ -490,7 +490,7 @@ namespace pinocchio
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
-        res_quat.coeffs().coeffRef(k) = if_then_else(dot_product < 0,
+        res_quat.coeffs().coeffRef(k) = if_then_else(internal::LT, dot_product, Scalar(0),
                                                      -res_quat.coeffs().coeff(k),
                                                       res_quat.coeffs().coeff(k));
       }
