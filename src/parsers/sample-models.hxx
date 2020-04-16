@@ -69,41 +69,41 @@ namespace pinocchio
         Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
         Inertia Iarm(1.,typename Inertia::Vector3(0,0,.5),Inertia::Matrix3::Identity());
         CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
-        TV vmax = TV::Constant(-10),   taumax = TV::Constant(10);
+        TV vmax = TV::Constant( 10),   taumax = TV::Constant(10);
         
         idx = model.addJoint(idx,typename JC::JointModelRX(),Mroot,
-                             pre+"shoulder1_joint",vmax,taumax,qmin,qmax);
+                             pre+"shoulder1_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Ijoint);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"shoulder1_body",idx);
         
         idx = model.addJoint(idx,typename JC::JointModelRY(),I4,
-                             pre+"shoulder2_joint",vmax,taumax,qmin,qmax);
+                             pre+"shoulder2_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Ijoint);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"shoulder2_body",idx);
         
         idx = model.addJoint(idx,typename JC::JointModelRZ(),I4,
-                             pre+"shoulder3_joint",vmax,taumax,qmin,qmax);
+                             pre+"shoulder3_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Iarm);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"upperarm_body",idx);
         
         idx = model.addJoint(idx,typename JC::JointModelRY(),Marm,
-                             pre+"elbow_joint",vmax,taumax,qmin,qmax);
+                             pre+"elbow_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Iarm);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"lowerarm_body",idx);
         model.addBodyFrame(pre+"elbow_body",idx);
         
         idx = model.addJoint(idx,typename JC::JointModelRX(),Marm,
-                             pre+"wrist1_joint",vmax,taumax,qmin,qmax);
+                             pre+"wrist1_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Ijoint);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"wrist1_body",idx);
         
         idx = model.addJoint(idx,typename JC::JointModelRY(),I4,
-                             pre+"wrist2_joint",vmax,taumax,qmin,qmax);
+                             pre+"wrist2_joint",taumax,vmax,qmin,qmax);
         model.appendBodyToJoint(idx,Iarm);
         model.addJointFrame(idx);
         model.addBodyFrame(pre+"effector_body",idx);
@@ -309,7 +309,7 @@ namespace pinocchio
       Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
       Inertia Iarm(1.,typename Inertia::Vector3(0,0,.5),Inertia::Matrix3::Identity());
       CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
-      TV vmax = TV::Constant(-10),   taumax = TV::Constant(10);
+      TV vmax = TV::Constant( 10),   taumax = TV::Constant(10);
       
       /* --- Free flyer --- */
       if(usingFF)
@@ -344,13 +344,13 @@ namespace pinocchio
       
       /* --- Chest --- */
       idx = model.addJoint(ffidx,typename JC::JointModelRX(),I4 ,"chest1_joint",
-                           vmax,taumax,qmin,qmax);
+                           taumax,vmax,qmin,qmax);
       model.appendBodyToJoint(idx,Ijoint);
       model.addJointFrame(idx);
       model.addBodyFrame("chest1_body",idx);
       
       idx = model.addJoint(idx,typename JC::JointModelRY(),I4 ,"chest2_joint",
-                           vmax,taumax,qmin,qmax);
+                           taumax,vmax,qmin,qmax);
       model.appendBodyToJoint(idx,Iarm);
       model.addJointFrame(idx);
       model.addBodyFrame("chest2_body",idx);
@@ -360,13 +360,13 @@ namespace pinocchio
       /* --- Head --- */
       idx = model.addJoint(idx,typename JC::JointModelRX(),
                            SE3(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ()),
-                           "head1_joint",    vmax,taumax,qmin,qmax);
+                           "head1_joint",    taumax,vmax,qmin,qmax);
       model.appendBodyToJoint(idx,Ijoint);
       model.addJointFrame(idx);
       model.addBodyFrame("head1_body",idx);
       
       idx = model.addJoint(idx,typename JC::JointModelRY(),I4 ,"head2_joint",
-                           vmax,taumax,qmin,qmax);
+                           taumax,vmax,qmin,qmax);
       model.appendBodyToJoint(idx,Iarm);
       model.addJointFrame(idx);
       model.addBodyFrame("head2_body",idx);
