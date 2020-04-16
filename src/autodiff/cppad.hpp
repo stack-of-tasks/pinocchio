@@ -133,6 +133,8 @@ namespace CppAD
   {  return x * x; }
 } // namespace CppAD
 
+#include "pinocchio/utils/static-if.hpp"
+
 namespace pinocchio
 {
   template<typename Scalar>
@@ -148,6 +150,41 @@ namespace pinocchio
     }
 
   };
+
+  namespace internal
+  {
+    template<typename Scalar, typename then_type, typename else_type>
+    struct if_then_else_impl< CppAD::AD<Scalar>, CppAD::AD<Scalar>,then_type,else_type, is_floating_point<false> >
+    {
+      typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
+      
+      static inline ReturnType run(const CompareOp op,
+                                   const CppAD::AD<Scalar> & if_left_value,
+                                   const CppAD::AD<Scalar> & if_right_value,
+                                   const then_type & then_value,
+                                   const else_type & else_value)
+      {
+        switch(op)
+        {
+        case LT:
+          return CppAD::CondExpLt<Scalar>(if_left_value, if_right_value,then_value,else_value);
+          break;
+        case LE:
+          return CppAD::CondExpLe<Scalar>(if_left_value, if_right_value,then_value,else_value);
+          break;
+        case EQ:
+          return CppAD::CondExpEq<Scalar>(if_left_value, if_right_value,then_value,else_value);
+          break;
+        case GE:
+          return CppAD::CondExpGe<Scalar>(if_left_value, if_right_value,then_value,else_value);
+          break;
+        case GT:
+          return CppAD::CondExpGt<Scalar>(if_left_value, if_right_value,then_value,else_value);
+          break;
+        }
+      }
+    };
+  }
   
 } // namespace pinocchio
 
