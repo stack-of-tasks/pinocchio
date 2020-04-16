@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_parsers_urdf_types_hpp__
@@ -65,7 +65,7 @@ namespace urdf
   PINOCCHIO_URDF_SHARED_PTR(T) static_pointer_cast(PINOCCHIO_URDF_SHARED_PTR(U) const & r)
   {
 #ifdef PINOCCHIO_URDFDOM_USE_STD_SHARED_PTR
-    return std:static_pointer_cast<T>(r);
+    return std::static_pointer_cast<T>(r);
 #else
     return boost::static_pointer_cast<T>(r);
 #endif
