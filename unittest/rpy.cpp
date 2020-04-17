@@ -58,6 +58,50 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
     BOOST_CHECK(-M_PI <= v[2] && v[2] <= M_PI);
   }
 
+  // Test singular case theta = pi/2
+  {
+    double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    Eigen::Matrix3d Rp;
+    Rp <<  0.0, 0.0, 1.0,
+           0.0, 1.0, 0.0,
+          -1.0, 0.0, 0.0;
+    const Eigen::Matrix3d R = Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ()).toRotationMatrix()
+                            * Rp
+                            * Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX()).toRotationMatrix();
+
+    const Eigen::Vector3d v = pinocchio::rpy::matrixToRpy(R);
+    Eigen::Matrix3d Rprime = pinocchio::rpy::rpyToMatrix(v);
+
+    BOOST_CHECK(Rprime.isApprox(R));
+    BOOST_CHECK(-M_PI <= v[0] && v[0] <= M_PI);
+    BOOST_CHECK(-M_PI/2 <= v[1] && v[1] <= M_PI/2);
+    BOOST_CHECK(-M_PI <= v[2] && v[2] <= M_PI);
+  }
+
+  // Test singular case theta = -pi/2
+  {
+    double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    Eigen::Matrix3d Rp;
+    Rp << 0.0, 0.0, -1.0,
+          0.0, 1.0,  0.0,
+          1.0, 0.0,  0.0;
+    const Eigen::Matrix3d R = Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ()).toRotationMatrix()
+                            * Rp
+                            * Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX()).toRotationMatrix();
+    Eigen::Vector3d rpy;
+    rpy << r, (-M_PI/2), y;
+
+    const Eigen::Vector3d v = pinocchio::rpy::matrixToRpy(R);
+    Eigen::Matrix3d Rprime = pinocchio::rpy::rpyToMatrix(v);
+
+    BOOST_CHECK(Rprime.isApprox(R));
+    BOOST_CHECK(-M_PI <= v[0] && v[0] <= M_PI);
+    BOOST_CHECK(-M_PI/2 <= v[1] && v[1] <= M_PI/2);
+    BOOST_CHECK(-M_PI <= v[2] && v[2] <= M_PI);
+  }
+
   for(int k = 0; k < n ; ++k)
   {
     double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
