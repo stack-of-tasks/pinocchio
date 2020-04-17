@@ -88,7 +88,7 @@ ENDIF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 
 LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 
-# Headers of the python binding
+# Headers of the Python bindings
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
@@ -102,7 +102,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/utils")
 SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PYTHON_HEADERS}" "bindings/python")
 
-# Headers of the python parser
+# Headers of the Python parser
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/python")
 SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}" "")
 
@@ -142,7 +142,7 @@ IF(BUILD_PYTHON_INTERFACE)
   ENDIF(CPPADCG_FOUND)
 
   IF(APPLE)
-    # We need to change the extension for python bindings
+    # We need to change the extension for Python bindings
     SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES SUFFIX ".so")
   ENDIF(APPLE)
 
