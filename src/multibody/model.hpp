@@ -213,13 +213,11 @@ namespace pinocchio
       res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
       res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
 
-      typename ReturnType::ConfigVectorMap::iterator rit = res.referenceConfigurations.begin();
       typename ConfigVectorMap::const_iterator it;
       for (it = referenceConfigurations.begin();
            it != referenceConfigurations.end(); it++ )
       {
-        rit->second = it->second.template cast<NewScalar>();
-        rit++;
+        res.referenceConfigurations.insert(std::make_pair(it->first, it->second.template cast<NewScalar>()));
       }
         
       // reserve vectors
