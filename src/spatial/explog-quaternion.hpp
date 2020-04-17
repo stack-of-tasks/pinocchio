@@ -91,31 +91,25 @@ namespace pinocchio
       const Scalar norm_squared = quat.vec().squaredNorm();
       const Scalar norm = math::sqrt(norm_squared);
       static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
-      if(norm_squared < ts_prec)
-      {
-        const Scalar y_x = norm / quat.w();
-        theta = (1 - y_x * y_x / 3) * y_x;
-        res.noalias() = (Scalar(1) + norm_squared / (6 * quat.w() * quat.w())) * quat.vec();
-      }
-      else
-      {
-        static const Scalar PI_value = PI<Scalar>();
-        Scalar theta_2;
-        // Here, y is always positive
-        if(quat.w() >= 0.) // x >= 0. in atan2(y,x)
-        {
-          theta_2 = math::atan2(norm,quat.w());
-          theta = 2.*theta_2;
-          res.noalias() = (theta / math::sin(theta_2)) * quat.vec();
-        }
-        else
-        { // We take here the oposite as we want to have theta in [-pi;pi];
-          theta_2 = PI_value - math::atan2(norm,quat.w());
-          theta = 2.*theta_2;
-          res.noalias() = -(theta / math::sin(theta_2)) * quat.vec();
-        }
-      }
+
+      const Scalar y_x = norm / quat.w();
+      static const Scalar PI_value = PI<Scalar>();
+      using ::pinocchio::internal::if_then_else;
+      using ::pinocchio::internal::GE;
+      using ::pinocchio::internal::LT;
+        
+      const Scalar theta_2 = if_then_else(GE, quat.w(), Scalar(0),
+                                          math::atan2(norm,quat.w()),
+                                          PI_value - math::atan2(norm,quat.w()));
       
+      theta = if_then_else(LT, norm_squared, ts_prec,
+                           (Scalar(1) - y_x * y_x / Scalar(3)) * y_x,
+                           Scalar(2.)*theta_2);
+      for(Eigen::DenseIndex k = 0; k < 3; ++k) {
+        res.coeffs().coeffRef(k) = if_then_else(LT, norm_squared, ts_prec,
+                                                (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec().coeffs().coeff(k),
+                                                (theta / math::sin(theta_2)) * quat.vec().coeffs().coeff(k));
+      }
       return res;
     }
     
