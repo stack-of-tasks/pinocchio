@@ -12,7 +12,7 @@
 #include <Eigen/Core>
 
 namespace boost { namespace math { namespace constants { namespace detail {
-  template<typename Scalar>
+  template<>
   struct constant_pi<::casadi::SX> : constant_pi<double> {};
 
   template<typename Scalar>
