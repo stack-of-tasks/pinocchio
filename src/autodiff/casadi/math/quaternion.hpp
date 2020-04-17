@@ -15,7 +15,7 @@ namespace pinocchio
     {
       
       template<typename _Scalar>
-      struct quaternionbase_assign_impl< ::casadi::Matrix<_Scalar> >
+      struct quaternionbase_assign_impl< ::casadi::Matrix<_Scalar>, false >
       {
         typedef ::casadi::Matrix<_Scalar> Scalar;
         template<typename Matrix3, typename QuaternionDerived>
