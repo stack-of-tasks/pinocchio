@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_explog_quaternion_hpp__
@@ -105,10 +105,11 @@ namespace pinocchio
       theta = if_then_else(LT, norm_squared, ts_prec,
                            (Scalar(1) - y_x * y_x / Scalar(3)) * y_x,
                            Scalar(2.)*theta_2);
-      for(Eigen::DenseIndex k = 0; k < 3; ++k) {
-        res.coeffs().coeffRef(k) = if_then_else(LT, norm_squared, ts_prec,
-                                                (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec().coeffs().coeff(k),
-                                                (theta / math::sin(theta_2)) * quat.vec().coeffs().coeff(k));
+      for(Eigen::DenseIndex k = 0; k < 3; ++k)
+      {
+        res.coeffs()[k] = if_then_else(LT, norm_squared, ts_prec,
+                                       (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k],
+                                       (theta / math::sin(theta_2)) * quat.vec()[k]);
       }
       return res;
     }
