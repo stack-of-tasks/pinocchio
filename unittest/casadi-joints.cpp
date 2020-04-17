@@ -1,13 +1,12 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/autodiff/casadi.hpp"
+
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
-
-#include <casadi/casadi.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
