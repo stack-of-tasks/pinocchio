@@ -156,5 +156,6 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/spatial/se3-tpl.hpp"
 #include "pinocchio/autodiff/cppad/spatial/log.hxx"
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
+#include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_ccpad_hpp__
