@@ -31,7 +31,7 @@ jobs:
         git clone https://github.com/casadi/casadi.git -b 3.5.0 --depth 1
         cd casadi
         mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_EXAMPLES=OFF
         sudo make install
         cd ../../..
     - name: Run cmake
