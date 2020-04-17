@@ -101,6 +101,11 @@ namespace pinocchio
       const Scalar theta_2 = if_then_else(GE, quat.w(), Scalar(0),
                                           math::atan2(norm,quat.w()),
                                           PI_value - math::atan2(norm,quat.w()));
+
+      const Scalar pos_neg = if_then_else(GE, quat.w(), Scalar(0),
+                                          Scalar(+1),
+                                          Scalar(-1));
+
       
       theta = if_then_else(LT, norm_squared, ts_prec,
                            (Scalar(1) - y_x * y_x / Scalar(3)) * y_x,
@@ -109,7 +114,7 @@ namespace pinocchio
       {
         res[k] = if_then_else(LT, norm_squared, ts_prec,
                               (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k],
-                              (theta / math::sin(theta_2)) * quat.vec()[k]);
+                              pos_neg*(theta / math::sin(theta_2)) * quat.vec()[k]);
       }
       return res;
     }
