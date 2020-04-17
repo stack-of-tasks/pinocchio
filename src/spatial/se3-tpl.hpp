@@ -331,6 +331,13 @@ namespace pinocchio
 
   namespace internal
   {
+    template<typename Scalar, int Options>
+    struct cast_call_normalize_method<SE3Tpl<Scalar,Options>,Scalar,Scalar>
+    {
+      template<typename T>
+      static void run(T &) {}
+    };
+  
     template<typename Scalar, int Options, typename NewScalar>
     struct cast_call_normalize_method<SE3Tpl<Scalar,Options>,NewScalar,Scalar>
     {
