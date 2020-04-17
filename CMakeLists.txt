@@ -220,6 +220,8 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/casadi/spatial")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/spatial")
 

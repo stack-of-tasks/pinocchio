@@ -382,4 +382,6 @@ namespace pinocchio
   } // namespace internal
 }
 
+#include "pinocchio/autodiff/casadi/spatial/se3-tpl.hpp"
+
 #endif // #ifndef __pinocchio_autodiff_casadi_hpp__
