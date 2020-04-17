@@ -48,11 +48,14 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
     Eigen::Quaterniond quat;
     pinocchio::quaternion::uniformRandom(quat);
     const Eigen::Matrix3d R = quat.toRotationMatrix();
-    
+
     const Eigen::Vector3d v = pinocchio::rpy::matrixToRpy(R);
     Eigen::Matrix3d Rprime = pinocchio::rpy::rpyToMatrix(v);
-    
+
     BOOST_CHECK(Rprime.isApprox(R));
+    BOOST_CHECK(-M_PI <= v[0] && v[0] <= M_PI);
+    BOOST_CHECK(-M_PI/2 <= v[1] && v[1] <= M_PI/2);
+    BOOST_CHECK(-M_PI <= v[2] && v[2] <= M_PI);
   }
 
   for(int k = 0; k < n ; ++k)
