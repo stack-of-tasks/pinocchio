@@ -28,7 +28,7 @@ jobs:
     - name: Install casadi
       run: |
         mkdir third-party && cd third-party
-        git clone https://github.com/casadi/casadi.git -b 3.4.5 --depth 1
+        git clone https://github.com/casadi/casadi.git -b 3.5.0 --depth 1
         cd casadi
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
