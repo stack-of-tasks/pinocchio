@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -99,6 +99,13 @@ namespace pinocchio
   #define SPATIAL_TYPEDEF_NO_TEMPLATE(derived)              \
     SPATIAL_TYPEDEF_TEMPLATE_GENERIC(derived,PINOCCHIO_MACRO_EMPTY_ARG)
 
+  namespace internal
+  {
+    // for certain Scalar type, it might be needed to proceed to call some normalization procedure
+    // in when performing a cast. This struct is an helper to support such modality.
+    template<typename Class, typename NewScalar, typename Scalar>
+    struct cast_call_normalize_method;
+  }
 
 } // namespace pinocchio
 
