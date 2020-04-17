@@ -54,6 +54,20 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
     
     BOOST_CHECK(Rprime.isApprox(R));
   }
+
+  for(int k = 0; k < n ; ++k)
+  {
+    double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    double p = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/M_PI)) - (M_PI/2);
+    double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+    Eigen::Vector3d rpy;
+    rpy << r, p, y;
+
+    const Eigen::Matrix3d R = pinocchio::rpy::rpyToMatrix(rpy);
+    const Eigen::Vector3d rpy2 = pinocchio::rpy::matrixToRpy(R);
+
+    BOOST_CHECK(rpy.isApprox(rpy2));
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
