@@ -108,17 +108,17 @@ namespace Eigen
     
     static casadi::Matrix<Scalar> dummy_precision()
     {
-      return NumTraits<double>::dummy_precision();
+      return casadi::Matrix<Scalar>(NumTraits<double>::dummy_precision());
     }
     
     static casadi::Matrix<Scalar> highest()
     {
-      return std::numeric_limits<double>::max();
+      return casadi::Matrix<Scalar>(std::numeric_limits<double>::max());
     }
     
     static casadi::Matrix<Scalar> lowest()
     {
-      return std::numeric_limits<double>::min();
+      return casadi::Matrix<Scalar>(std::numeric_limits<double>::min());
     }
     
     static int digits10()
