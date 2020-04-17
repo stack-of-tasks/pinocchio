@@ -153,34 +153,34 @@ namespace pinocchio
 
   namespace internal
   {
-    template<typename Scalar, typename then_type, typename else_type>
-    struct if_then_else_impl< CppAD::AD<Scalar>, CppAD::AD<Scalar>,then_type,else_type, is_floating_point<false> >
+    template<typename Scalar, typename ThenType, typename ElseType>
+    struct if_then_else_impl<CppAD::AD<Scalar>,CppAD::AD<Scalar>,ThenType,ElseType>
     {
       typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
       
-      static inline ReturnType run(const CompareOp op,
-                                   const CppAD::AD<Scalar> & if_left_value,
-                                   const CppAD::AD<Scalar> & if_right_value,
-                                   const then_type & then_value,
-                                   const else_type & else_value)
+      static inline ReturnType run(const ComparisonOperators op,
+                                   const CppAD::AD<Scalar> & lhs_value,
+                                   const CppAD::AD<Scalar> & rhs_value,
+                                   const ThenType & then_value,
+                                   const ElseType & else_value)
       {
         switch(op)
         {
-        case LT:
-          return CppAD::CondExpLt<Scalar>(if_left_value, if_right_value,then_value,else_value);
-          break;
-        case LE:
-          return CppAD::CondExpLe<Scalar>(if_left_value, if_right_value,then_value,else_value);
-          break;
-        case EQ:
-          return CppAD::CondExpEq<Scalar>(if_left_value, if_right_value,then_value,else_value);
-          break;
-        case GE:
-          return CppAD::CondExpGe<Scalar>(if_left_value, if_right_value,then_value,else_value);
-          break;
-        case GT:
-          return CppAD::CondExpGt<Scalar>(if_left_value, if_right_value,then_value,else_value);
-          break;
+          case LT:
+            return ::CppAD::CondExpLt<Scalar>(lhs_value,rhs_value,
+                                              then_value,else_value);
+          case LE:
+            return ::CppAD::CondExpLe<Scalar>(lhs_value,rhs_value,
+                                              then_value,else_value);
+          case EQ:
+            return ::CppAD::CondExpEq<Scalar>(lhs_value,rhs_value,
+                                              then_value,else_value);
+          case GE:
+            return ::CppAD::CondExpGe<Scalar>(lhs_value,rhs_value,
+                                              then_value,else_value);
+          case GT:
+            return ::CppAD::CondExpGt<Scalar>(lhs_value,rhs_value,
+                                              then_value,else_value);
         }
       }
     };

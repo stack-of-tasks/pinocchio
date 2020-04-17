@@ -7,7 +7,6 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
-#include "pinocchio/math/quaternion.hpp"
 
 #include <casadi/casadi.hpp>
 #include <Eigen/Core>
@@ -348,38 +347,40 @@ namespace pinocchio
   namespace internal
   {
 
-    template<typename Scalar, typename then_type, typename else_type>
-    struct if_then_else_impl< ::casadi::Matrix<Scalar>, ::casadi::Matrix<Scalar>,then_type,else_type, is_floating_point<false> >
+    template<typename Scalar, typename ThenType, typename ElseType>
+    struct if_then_else_impl<::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>,ThenType,ElseType>
     {
       typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
       
-      static inline ReturnType run(const CompareOp op,
-                                   const ::casadi::Matrix<Scalar> & if_left_value,
-                                   const ::casadi::Matrix<Scalar> & if_right_value,
-                                   const then_type & then_value,
-                                   const else_type & else_value)
+      typedef ::casadi::Matrix<Scalar> CasadiType;
+      
+      static inline ReturnType run(const ComparisonOperators op,
+                                   const CasadiType & lhs_value,
+                                   const CasadiType & rhs_value,
+                                   const ThenType & then_value,
+                                   const ElseType & else_value)
       {
         switch(op)
         {
         case LT:
-          return ::casadi::Matrix<Scalar>::if_else(if_left_value < if_right_value,then_value,else_value);
+          return ::casadi::Matrix<Scalar>::if_else(lhs_value < rhs_value,then_value,else_value);
           break;
         case LE:
-          return ::casadi::Matrix<Scalar>::if_else(if_left_value <= if_right_value,then_value,else_value);
+          return ::casadi::Matrix<Scalar>::if_else(lhs_value <= rhs_value,then_value,else_value);
           break;
         case EQ:
-          return ::casadi::Matrix<Scalar>::if_else(if_left_value == if_right_value,then_value,else_value);
+          return ::casadi::Matrix<Scalar>::if_else(lhs_value == rhs_value,then_value,else_value);
           break;
         case GE:
-          return ::casadi::Matrix<Scalar>::if_else(if_left_value >= if_right_value,then_value,else_value);
+          return ::casadi::Matrix<Scalar>::if_else(lhs_value >= rhs_value,then_value,else_value);
           break;
         case GT:
-          return ::casadi::Matrix<Scalar>::if_else(if_left_value > if_right_value,then_value,else_value);
+          return ::casadi::Matrix<Scalar>::if_else(lhs_value > rhs_value,then_value,else_value);
           break;
         }
       }
     };
-  }
+  } // namespace internal
 }
 
 #endif // #ifndef __pinocchio_autodiff_casadi_hpp__
