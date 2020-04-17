@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS, INRIA
 //
 
 #ifndef __pinocchio_math_rpy_hpp__
@@ -7,8 +7,6 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
-#include "pinocchio/math/sincos.hpp"
-#include <boost/type_traits.hpp>
 
 #include <Eigen/Geometry>
 
@@ -24,7 +22,9 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r, const Scalar p, const Scalar y)
+    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar & r,
+                                          const Scalar & p,
+                                          const Scalar & y)
     {
       typedef Eigen::AngleAxis<Scalar> AngleAxis;
       typedef Eigen::Matrix<Scalar,3,1> Vector3s;
@@ -45,8 +45,7 @@ namespace pinocchio
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
     {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Vector3Like, rpy, 3, 1);
-
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like, rpy, 3, 1);
       return rpyToMatrix(rpy[0], rpy[1], rpy[2]);
     }
 
@@ -67,22 +66,12 @@ namespace pinocchio
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
+      assert(R.isUnitary() && "R is not a unitary matrix");
+      
       typedef typename Matrix3Like::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1> ResultType;
-      ResultType res;
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> ReturnType;
 
-      Scalar m = sqrt(R(2, 1) * R(2, 1) + R(2, 2) * R(2, 2));
-      Scalar p = atan2(-R(2, 0), m);
-      Scalar r, y;
-      if (fabs(fabs(p) - M_PI / 2.) < 0.001) {
-        r = 0;
-        y = -atan2(R(0, 1), R(1, 1));
-      } else {
-        y = atan2(R(1, 0), R(0, 0));
-        r = atan2(R(2, 1), R(2, 2));
-      }
-      res << r, p, y;
-      return res;
+      return -R.transpose().eulerAngles(0,1,2);
     }
   } // namespace rpy
 }
