@@ -179,34 +179,6 @@ namespace pinocchio
   } // namespace casadi
 } // namespace pinocchio
 
-#include "pinocchio/math/matrix.hpp"
-
-namespace pinocchio
-{
-  namespace internal
-  {
-    template<typename Scalar>
-    struct CallCorrectMatrixInverseAccordingToScalar< ::casadi::Matrix<Scalar> >
-    {
-      typedef ::casadi::Matrix<Scalar> SX;
-      template<typename MatrixIn, typename MatrixOut>
-      static void run(const Eigen::MatrixBase<MatrixIn> & mat,
-                      const Eigen::MatrixBase<MatrixOut> & dest)
-      {
-        SX cs_mat(mat.rows(),mat.cols());
-        casadi::copy(mat.derived(),cs_mat);
-        
-        SX cs_mat_inv = SX::inv(cs_mat);
-        
-        MatrixOut & dest_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixOut,dest);
-        casadi::copy(cs_mat_inv,dest_);
-      }
-
-    };
-
-  }
-}
-
 // Overloading of max operator
 namespace pinocchio
 {
@@ -263,125 +235,9 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#include "pinocchio/math/quaternion.hpp"
-namespace pinocchio
-{
-  namespace quaternion
-  {
-    namespace internal
-    {
-      
-      template<typename _Scalar>
-      struct quaternionbase_assign_impl< ::casadi::Matrix<_Scalar> >
-      {
-        typedef ::casadi::Matrix<_Scalar> Scalar;
-        template<typename Matrix3, typename QuaternionDerived>
-        static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
-                               const Matrix3 & mat)
-        {
-          typedef typename Eigen::internal::traits<QuaternionDerived>::Coefficients QuatCoefficients;
-          
-          typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(QuatCoefficients) QuatCoefficientsPlainType;
-          typedef Eigen::Quaternion<Scalar,QuatCoefficientsPlainType::Options> QuaternionPlain;
-          QuaternionPlain quat_t_positive;
-          
-          Scalar t = mat.trace();
-          quaternionbase_assign_impl_if_t_positive::run(t,quat_t_positive,mat);
-          
-          QuaternionPlain quat_t_negative_0, quat_t_negative_1, quat_t_negative_2;
-          
-          quaternionbase_assign_impl_if_t_negative<0>::run(t,quat_t_negative_0,mat);
-          quaternionbase_assign_impl_if_t_negative<1>::run(t,quat_t_negative_1,mat);
-          quaternionbase_assign_impl_if_t_negative<2>::run(t,quat_t_negative_2,mat);
-          
-          // Build the expression graph
-          const Scalar t_greater_than_zero = t > Scalar(0);
-          const Scalar cond1 = mat.coeff(1,1) > mat.coeff(0,0);
-          const Scalar cond2 = (cond1 && mat.coeff(2,2) > mat.coeff(1,1)) || (mat.coeff(2,2) > mat.coeff(0,0));
-          
-          for(Eigen::DenseIndex k = 0; k < 4; ++k)
-          {
-            Scalar t_is_negative_cond1 = Scalar::if_else(cond1,
-                                                         quat_t_negative_1.coeffs().coeff(k),
-                                                         quat_t_negative_0.coeffs().coeff(k));
-            Scalar t_is_negative_cond2 = Scalar::if_else(cond2,
-                                                         quat_t_negative_2.coeffs().coeff(k),
-                                                         t_is_negative_cond1);
-            
-            q.coeffs().coeffRef(k) = Scalar::if_else(t_greater_than_zero,
-                                                     quat_t_positive.coeffs().coeff(k),
-                                                     t_is_negative_cond2);
-          }
-          
-//          if (t > Scalar(0))
-//            quaternionbase_assign_impl_if_t_positive::run(t,q,mat);
-//          else
-//          {
-//            Eigen::DenseIndex i = 0;
-//            if (mat.coeff(1,1) > mat.coeff(0,0))
-//              i = 1;
-//            if (mat.coeff(2,2) > mat.coeff(i,i))
-//              i = 2;
-//
-//            if(i==0)
-//              quaternionbase_assign_impl_if_t_negative<0>::run(t,q,mat);
-//            else if(i==1)
-//              quaternionbase_assign_impl_if_t_negative<1>::run(t,q,mat);
-//            else
-//              quaternionbase_assign_impl_if_t_negative<2>::run(t,q,mat);
-//          }
-        }
-      };
-      
-    } // namespace internal
-    
-  } // namespace quaternion
-  
-} // namespace pinocchio
-
-#include "pinocchio/utils/static-if.hpp"
-
-namespace pinocchio
-{
-  namespace internal
-  {
-
-    template<typename Scalar, typename ThenType, typename ElseType>
-    struct if_then_else_impl<::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>,ThenType,ElseType>
-    {
-      typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
-      
-      typedef ::casadi::Matrix<Scalar> CasadiType;
-      
-      static inline ReturnType run(const ComparisonOperators op,
-                                   const CasadiType & lhs_value,
-                                   const CasadiType & rhs_value,
-                                   const ThenType & then_value,
-                                   const ElseType & else_value)
-      {
-        switch(op)
-        {
-        case LT:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value < rhs_value,then_value,else_value);
-          break;
-        case LE:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value <= rhs_value,then_value,else_value);
-          break;
-        case EQ:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value == rhs_value,then_value,else_value);
-          break;
-        case GE:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value >= rhs_value,then_value,else_value);
-          break;
-        case GT:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value > rhs_value,then_value,else_value);
-          break;
-        }
-      }
-    };
-  } // namespace internal
-}
-
 #include "pinocchio/autodiff/casadi/spatial/se3-tpl.hpp"
+#include "pinocchio/autodiff/casadi/utils/static-if.hpp"
+#include "pinocchio/autodiff/casadi/math/matrix.hpp"
+#include "pinocchio/autodiff/casadi/math/quaternion.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_casadi_hpp__
