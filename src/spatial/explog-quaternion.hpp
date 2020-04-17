@@ -107,9 +107,9 @@ namespace pinocchio
                            Scalar(2.)*theta_2);
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
-        res.coeffs()(k) = if_then_else(LT, norm_squared, ts_prec,
-                                       (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()(k),
-                                       (theta / math::sin(theta_2)) * quat.vec()(k));
+        res[k] = if_then_else(LT, norm_squared, ts_prec,
+                              (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k],
+                              (theta / math::sin(theta_2)) * quat.vec()[k]);
       }
       return res;
     }
