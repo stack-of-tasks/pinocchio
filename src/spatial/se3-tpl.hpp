@@ -6,10 +6,14 @@
 #ifndef __pinocchio_se3_tpl_hpp__
 #define __pinocchio_se3_tpl_hpp__
 
-#include <Eigen/Geometry>
+#include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/spatial/se3-base.hpp"
+
 #include "pinocchio/math/quaternion.hpp"
 #include "pinocchio/math/rotation.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
+
+#include <Eigen/Geometry>
 
 namespace pinocchio
 {
