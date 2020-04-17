@@ -22,9 +22,9 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar & r,
-                                          const Scalar & p,
-                                          const Scalar & y)
+    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r,
+                                          const Scalar p,
+                                          const Scalar y)
     {
       typedef Eigen::AngleAxis<Scalar> AngleAxis;
       typedef Eigen::Matrix<Scalar,3,1> Vector3s;
