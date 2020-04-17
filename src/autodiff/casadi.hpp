@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_autodiff_casadi_hpp__
@@ -14,7 +14,10 @@
 
 namespace boost { namespace math { namespace constants { namespace detail {
   template<typename Scalar>
-  struct constant_pi< ::casadi::Matrix<Scalar> > : constant_pi<double> {};
+  struct constant_pi<::casadi::SX> : constant_pi<double> {};
+
+  template<typename Scalar>
+  struct constant_pi< ::casadi::Matrix<Scalar> > : constant_pi<Scalar> {};
 }}}}
 
 // This is a workaround to make the code compiling with Eigen.
