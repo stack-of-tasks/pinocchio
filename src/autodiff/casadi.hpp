@@ -6,7 +6,6 @@
 #define __pinocchio_autodiff_casadi_hpp__
 
 #include "pinocchio/math/fwd.hpp"
-#include "pinocchio/math/sincos.hpp"
 
 #include <casadi/casadi.hpp>
 #include <Eigen/Core>
@@ -22,7 +21,7 @@ namespace boost { namespace math { namespace constants { namespace detail {
 // This is a workaround to make the code compiling with Eigen.
 namespace casadi
 {
-  inline bool operator||(const bool & x, const casadi::Matrix<SXElem> & /*y*/)
+  inline bool operator||(const bool x, const casadi::Matrix<SXElem> & /*y*/)
   {
     return x;
   }
@@ -107,17 +106,17 @@ namespace Eigen
       return casadi::Matrix<Scalar>(std::numeric_limits<double>::epsilon());
     }
     
-    static double dummy_precision()
+    static casadi::Matrix<Scalar> dummy_precision()
     {
       return NumTraits<double>::dummy_precision();
     }
     
-    static double highest()
+    static casadi::Matrix<Scalar> highest()
     {
       return std::numeric_limits<double>::max();
     }
     
-    static double lowest()
+    static casadi::Matrix<Scalar> lowest()
     {
       return std::numeric_limits<double>::min();
     }
