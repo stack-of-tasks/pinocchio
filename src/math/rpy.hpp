@@ -57,7 +57,8 @@ namespace pinocchio
     /// where \f$R_{\alpha}(\theta)\f$ denotes the rotation of \f$\theta\f$ degrees
     /// around axis \f$\alpha\f$.
     /// The angles are guaranteed to be in the ranges \f$r\in[-\pi,\pi]\f$
-    /// \f$p\in[-\frac{\pi}{2},\frac{\pi}{2}]\f$ \f$y\in[-\pi,\pi]\f$.
+    /// \f$p\in[-\frac{\pi}{2},\frac{\pi}{2}]\f$ \f$y\in[-\pi,\pi]\f$,
+    /// unlike Eigen's eulerAngles() function
     ///
     /// \warning the method assumes \f$R\f$ is a rotation matrix. If it is not, the result is undefined.
     ///
@@ -67,11 +68,27 @@ namespace pinocchio
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
       assert(R.isUnitary() && "R is not a unitary matrix");
-      
+
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> ReturnType;
 
-      return -R.transpose().eulerAngles(0,1,2);
+      ReturnType res = R.eulerAngles(2,1,0).reverse();
+
+      if(res[1] < -Scalar(M_PI/2))
+        res[1] += Scalar(2 * M_PI);
+
+      if(res[1] > Scalar(M_PI/2))
+      {
+        res[1] = Scalar(M_PI) - res[1];
+        if(res[0] < Scalar(0.0))
+          res[0] += Scalar(M_PI);
+        else
+          res[0] -= Scalar(M_PI);
+        // res[2] > 0 according to Eigen's eulerAngles doc, no need to check its sign
+        res[2] -= Scalar(M_PI);
+      }
+
+      return res;
     }
   } // namespace rpy
 }

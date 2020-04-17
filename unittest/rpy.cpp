@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
     const Eigen::Matrix3d R = pinocchio::rpy::rpyToMatrix(rpy);
     const Eigen::Vector3d rpy2 = pinocchio::rpy::matrixToRpy(R);
 
-    BOOST_CHECK(rpy.isApprox(rpy2));
+    BOOST_CHECK(rpy.isApprox(rpy2, 1e-6));
   }
 }
 
