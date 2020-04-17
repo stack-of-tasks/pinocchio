@@ -32,7 +32,7 @@ jobs:
         cd casadi
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release
-        make install
+        sudo make install
         cd ../../..
     - name: Run cmake
       run: |
