@@ -7,10 +7,12 @@
 # --- C++ --------------------------------------------
 # ----------------------------------------------------
 
-SET(${PROJECT_NAME}_SOURCES
-  parsers/urdf/model.cpp
-  parsers/urdf/geometry.cpp
-)
+IF(BUILD_WITH_URDF_SUPPORT)
+  SET(${PROJECT_NAME}_SOURCES
+    parsers/urdf/model.cpp
+    parsers/urdf/geometry.cpp
+  )
+ENDIF()
 
 # Extract the compile definitions of the project for export
 GET_DIRECTORY_PROPERTY(CURRENT_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
