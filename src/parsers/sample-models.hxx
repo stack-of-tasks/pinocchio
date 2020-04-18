@@ -304,6 +304,8 @@ namespace pinocchio
       
       typename Model::JointIndex idx,chest,ffidx;
       
+      static const Scalar pi = PI<Scalar>();
+      
       SE3 Marm(SE3::Matrix3::Identity(),SE3::Vector3::UnitZ());
       SE3 I4 = SE3::Identity();
       Inertia Ijoint(.1,Inertia::Vector3::Zero(),Inertia::Matrix3::Identity()*.01);
@@ -331,16 +333,16 @@ namespace pinocchio
       /* --- Lower limbs --- */
       
       details::addManipulator(model,ffidx,
-                              SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
+                              SE3(details::rotate(pi,SE3::Vector3::UnitX()),
                                   typename  SE3::Vector3(0,-0.2,-.1)),"rleg_");
       details::addManipulator(model,ffidx,
-                              SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
+                              SE3(details::rotate(pi,SE3::Vector3::UnitX()),
                                   typename  SE3::Vector3(0, 0.2,-.1)),"lleg_");
       
       model.jointPlacements[7 ].rotation()
-      = details::rotate(M_PI/2,SE3::Vector3::UnitY()); // rotate right foot
+      = details::rotate(pi/2,SE3::Vector3::UnitY()); // rotate right foot
       model.jointPlacements[13].rotation()
-      = details::rotate(M_PI/2,SE3::Vector3::UnitY()); // rotate left  foot
+      = details::rotate(pi/2,SE3::Vector3::UnitY()); // rotate left  foot
       
       /* --- Chest --- */
       idx = model.addJoint(ffidx,typename JC::JointModelRX(),I4 ,"chest1_joint",
@@ -373,10 +375,10 @@ namespace pinocchio
       
       /* --- Upper Limbs --- */
       details::addManipulator(model,chest,
-                              SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
+                              SE3(details::rotate(pi,SE3::Vector3::UnitX()),
                                   typename SE3::Vector3(0,-0.3, 1.)),"rarm_");
       details::addManipulator(model,chest,
-                              SE3(details::rotate(M_PI,SE3::Vector3::UnitX()),
+                              SE3(details::rotate(pi,SE3::Vector3::UnitX()),
                                   typename SE3::Vector3(0, 0.3, 1.)),"larm_");
     }
     
