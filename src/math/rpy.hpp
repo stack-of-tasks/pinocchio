@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_rpy_hpp__
@@ -66,26 +66,27 @@ namespace pinocchio
     Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
     {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE (Matrix3Like, R, 3, 3);
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
       assert(R.isUnitary() && "R is not a unitary matrix");
 
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> ReturnType;
+      static const Scalar pi = PI<Scalar>();
 
       ReturnType res = R.eulerAngles(2,1,0).reverse();
 
-      if(res[1] < -Scalar(M_PI/2))
-        res[1] += Scalar(2 * M_PI);
+      if(res[1] < -pi/2)
+        res[1] += 2*pi;
 
-      if(res[1] > Scalar(M_PI/2))
+      if(res[1] > pi/2)
       {
-        res[1] = Scalar(M_PI) - res[1];
-        if(res[0] < Scalar(0.0))
-          res[0] += Scalar(M_PI);
+        res[1] = pi - res[1];
+        if(res[0] < Scalar(0))
+          res[0] += pi;
         else
-          res[0] -= Scalar(M_PI);
+          res[0] -= pi;
         // res[2] > 0 according to Eigen's eulerAngles doc, no need to check its sign
-        res[2] -= Scalar(M_PI);
+        res[2] -= pi;
       }
 
       return res;
