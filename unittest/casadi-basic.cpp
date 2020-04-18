@@ -3,7 +3,6 @@
 //
 
 #include <pinocchio/autodiff/casadi.hpp>
-#include <Eigen/Dense>
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 

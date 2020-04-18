@@ -8,6 +8,7 @@
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 #include "pinocchio/math/sincos.hpp"
+#include "pinocchio/utils/static-if.hpp"
 #include <boost/type_traits.hpp>
 
 #include <Eigen/Geometry>
@@ -33,10 +34,10 @@ namespace pinocchio
       const Scalar innerprod = q1.dot(q2);
       Scalar theta = math::acos(innerprod);
       static const Scalar PI_value = PI<Scalar>();
-      
-      if(innerprod < 0)
-        return PI_value - theta;
-      
+
+      theta = internal::if_then_else(internal::LT, innerprod, Scalar(0),
+                                     PI_value - theta,
+                                     theta);
       return theta;
     }
     
@@ -123,6 +124,9 @@ namespace pinocchio
     
     namespace internal
     {
+
+      template<typename Scalar, bool value = boost::is_floating_point<Scalar>::value>
+      struct quaternionbase_assign_impl;
       
       template<Eigen::DenseIndex i>
       struct quaternionbase_assign_impl_if_t_negative
@@ -165,7 +169,7 @@ namespace pinocchio
       };
       
       template<typename Scalar>
-      struct quaternionbase_assign_impl
+      struct quaternionbase_assign_impl<Scalar, true>
       {
         template<typename Matrix3, typename QuaternionDerived>
         static inline void run(Eigen::QuaternionBase<QuaternionDerived> & q,
@@ -174,7 +178,7 @@ namespace pinocchio
           using pinocchio::math::sqrt;
           
           Scalar t = mat.trace();
-          if (t > Scalar(0))
+          if (t > Scalar(0.))
             quaternionbase_assign_impl_if_t_positive::run(t,q,mat);
           else
           {

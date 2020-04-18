@@ -133,6 +133,8 @@ namespace CppAD
   {  return x * x; }
 } // namespace CppAD
 
+#include "pinocchio/utils/static-if.hpp"
+
 namespace pinocchio
 {
   template<typename Scalar>
@@ -151,6 +153,9 @@ namespace pinocchio
   
 } // namespace pinocchio
 
+#include "pinocchio/autodiff/cppad/spatial/se3-tpl.hpp"
 #include "pinocchio/autodiff/cppad/spatial/log.hxx"
+#include "pinocchio/autodiff/cppad/utils/static-if.hpp"
+#include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_ccpad_hpp__

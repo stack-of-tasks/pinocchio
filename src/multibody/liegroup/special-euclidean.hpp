@@ -73,11 +73,11 @@ namespace pinocchio
         vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
         Scalar omega_abs = math::fabs(omega);
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(omega_abs > 1e-14,
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14),
                                                                              vcross.coeff(0),
                                                                              v.coeff(0));
         
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(omega_abs > 1e-14,
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14),
                                                                              vcross.coeff(1),
                                                                              v.coeff(1));
       }
@@ -119,16 +119,11 @@ namespace pinocchio
       Scalar1 t = SO2_t::log(R);
       const Scalar1 tabs = math::fabs(t);
       const Scalar1 t2 = t*t;
+      Scalar1 st,ct; SINCOS(tabs, &st, &ct);
       Scalar1 alpha;
-      if (tabs < 1e-4)
-      {
-        alpha = 1 - t2/12 - t2*t2/720;
-      }
-      else
-      {
-        Scalar1 st,ct; SINCOS(tabs, &st, &ct);
-        alpha = tabs*st/(2*(1-ct));
-      }
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                     1 - t2/12 - t2*t2/720,
+                                     tabs*st/(2*(1-ct)));
 
       vout.template head<2>().noalias() = alpha * p;
       vout(0) += t/2 * p(1);
@@ -152,21 +147,16 @@ namespace pinocchio
       Scalar1 t = SO2_t::log(R);
       const Scalar1 tabs = math::fabs(t);
       Scalar1 alpha, alpha_dot;
-      if (tabs < 1e-4)
-      {
-        Scalar1 t2 = t*t;
-        alpha = 1 - t2/12;
-        alpha_dot = - t / 6 - t2*t / 180;
-      }
-      else
-      {
-        Scalar1 st,ct; SINCOS(t, &st, &ct);
-        Scalar1 inv_2_1_ct = 0.5 / (1-ct);
-        // t * sin(t) / (2 * (1 - cos(t)) )
-        alpha = t*st*inv_2_1_ct;
-        // [ ( 1 - cos(t) ) * sin(t) + t * cos(t) - 1 ] / (2 * (1 - cos(t))^2 )
-        alpha_dot = (st-t) * inv_2_1_ct;
-      }
+      Scalar1 t2 = t*t;
+      Scalar1 st,ct; SINCOS(t, &st, &ct);
+      Scalar1 inv_2_1_ct = 0.5 / (1-ct);
+        
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                     1 - t2/12,
+                                     t*st*inv_2_1_ct);
+      alpha_dot = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
+                                         - t / 6 - t2*t / 180,
+                                         (st-t) * inv_2_1_ct);
 
       typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
@@ -490,7 +480,7 @@ namespace pinocchio
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
-        res_quat.coeffs().coeffRef(k) = if_then_else(dot_product < 0,
+        res_quat.coeffs().coeffRef(k) = if_then_else(internal::LT, dot_product, Scalar(0),
                                                      -res_quat.coeffs().coeff(k),
                                                       res_quat.coeffs().coeff(k));
       }

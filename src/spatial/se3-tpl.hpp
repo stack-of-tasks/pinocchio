@@ -6,10 +6,14 @@
 #ifndef __pinocchio_se3_tpl_hpp__
 #define __pinocchio_se3_tpl_hpp__
 
-#include <Eigen/Geometry>
+#include "pinocchio/spatial/fwd.hpp"
+#include "pinocchio/spatial/se3-base.hpp"
+
 #include "pinocchio/math/quaternion.hpp"
 #include "pinocchio/math/rotation.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
+
+#include <Eigen/Geometry>
 
 namespace pinocchio
 {
@@ -289,8 +293,7 @@ namespace pinocchio
       
       // During the cast, it may appear that the matrix is not normalized correctly.
       // Force the normalization of the rotation part of the matrix.
-      if(pinocchio::cast<NewScalar>(Eigen::NumTraits<Scalar>::epsilon()) > Eigen::NumTraits<NewScalar>::epsilon())
-        res.normalize();
+      internal::cast_call_normalize_method<SE3Tpl,NewScalar,Scalar>::run(res);
       return res;
     }
     
@@ -329,6 +332,28 @@ namespace pinocchio
     LinearType trans;
     
   }; // class SE3Tpl
+
+  namespace internal
+  {
+    template<typename Scalar, int Options>
+    struct cast_call_normalize_method<SE3Tpl<Scalar,Options>,Scalar,Scalar>
+    {
+      template<typename T>
+      static void run(T &) {}
+    };
+  
+    template<typename Scalar, int Options, typename NewScalar>
+    struct cast_call_normalize_method<SE3Tpl<Scalar,Options>,NewScalar,Scalar>
+    {
+      template<typename T>
+      static void run(T & self)
+      {
+        if(pinocchio::cast<NewScalar>(Eigen::NumTraits<Scalar>::epsilon()) > Eigen::NumTraits<NewScalar>::epsilon())
+          self.normalize();
+      }
+    };
+  
+  }
   
 } // namespace pinocchio
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_utils_static_if_hpp__
@@ -11,41 +11,80 @@ namespace pinocchio
 {
   namespace internal
   {
-    
-    template<typename if_type, typename then_type, typename else_type>
+
+    enum ComparisonOperators {LT, LE, EQ, GE, GT};
+
+    template<typename LhsType, typename RhsType, typename ThenType, typename ElseType>
     struct if_then_else_impl;
     
-    template<typename if_type, typename same_then_and_else_type>
-    struct traits<if_then_else_impl<if_type,same_then_and_else_type,same_then_and_else_type> >
+    /// \brief Template specialization for  similar return types;
+    template<typename LhsType, typename RhsType, typename return_type>
+    struct traits< if_then_else_impl<LhsType,RhsType,return_type,return_type> >
     {
-      typedef same_then_and_else_type ReturnType;
+      typedef return_type ReturnType;
     };
     
-    template<typename then_type, typename else_type>
-    struct if_then_else_impl<bool,then_type,else_type>
+    template<typename condition_type, typename ThenType, typename ElseType>
+    struct if_then_else_impl<condition_type,condition_type,ThenType,ElseType>
     {
       typedef typename internal::traits<if_then_else_impl>::ReturnType ReturnType;
       
-      static inline ReturnType run(bool condition,
-                                   const then_type & then_value,
-                                   const else_type & else_value)
+      static inline ReturnType run(const ComparisonOperators op,
+                                   const condition_type & lhs_value,
+                                   const condition_type & rhs_value,
+                                   const ThenType & then_value,
+                                   const ElseType & else_value)
       {
-        if(condition)
-          return then_value;
-        else
-          return else_value;
+        switch(op)
+        {
+          case LT:
+            if(lhs_value < rhs_value)
+              return then_value;
+            else
+              return else_value;
+            break;
+          case LE:
+            if(lhs_value <= rhs_value)
+              return then_value;
+            else
+              return else_value;
+            break;
+          case EQ:
+            if(lhs_value == rhs_value)
+              return then_value;
+            else
+              return else_value;
+            break;
+          case GE:
+            if(lhs_value >= rhs_value)
+              return then_value;
+            else
+              return else_value;
+            break;
+          case GT:
+            if(lhs_value > rhs_value)
+              return then_value;
+            else
+              return else_value;
+            break;
+        }
       }
     };
-    
-    template<typename if_type, typename then_type, typename else_type>
-    inline typename if_then_else_impl<if_type,then_type,else_type>::ReturnType
-    if_then_else(const if_type & condition,
-                 const then_type & then_value,
-                 const else_type & else_value)
+
+    template<typename LhsType, typename RhsType, typename ThenType, typename ElseType>
+    inline typename if_then_else_impl<LhsType,RhsType,ThenType,ElseType>::ReturnType
+    if_then_else(const ComparisonOperators op,
+                 const LhsType & lhs_value,
+                 const RhsType & rhs_value,
+                 const ThenType & then_value,
+                 const ElseType & else_value)
     {
-      return if_then_else_impl<if_type,then_type,else_type>::run(condition,
-                                                                 then_value,
-                                                                 else_value);
+      typedef if_then_else_impl<LhsType,RhsType,ThenType,ElseType> algo;
+      return algo::run(op,
+                       lhs_value,
+                       rhs_value,
+                       then_value,
+                       else_value);
     }
     
     
