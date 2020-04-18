@@ -25,6 +25,13 @@ jobs:
         export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py27-hpp-fcl robotpkg-hpp-fcl"
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
+    - name: Free disk space
+      run: |
+#        sudo swapoff -a
+#        sudo rm -f /swapfile
+#        sudo apt clean
+#        docker rmi $(docker image ls -aq)
+        df -h
     - name: Install casadi
       run: |
         mkdir third-party && cd third-party
@@ -33,7 +40,9 @@ jobs:
         mkdir build && cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_EXAMPLES=OFF
         sudo make install
-        cd ../../..
+        cd ../..
+        rm -rf casadi
+        cd ..
     - name: Run cmake
       run: |
         git submodule update --init
