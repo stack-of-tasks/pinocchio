@@ -128,10 +128,34 @@ namespace pinocchio
                             const Eigen::MatrixBase<JacobianOut_t> & J,
                             const AssignmentOperatorType op) const
     {
-      J12(J).setZero();
-      J21(J).setZero();
-      lg1_.dIntegrate_dq(Q1(q), V1(v), J11(J));
-      lg2_.dIntegrate_dq(Q2(q), V2(v), J22(J));
+      switch(op)
+        {
+        case SETTO:
+          J12(J).setZero();
+          J21(J).setZero();
+          lg1_.dIntegrate_dq(Q1(q), V1(v), J11(J),SETTO);
+          lg2_.dIntegrate_dq(Q2(q), V2(v), J22(J),SETTO);
+          break;
+        case ADDTO:
+          lg1_.dIntegrate_dq(Q1(q), V1(v), J11(J),ADDTO);
+          lg2_.dIntegrate_dq(Q2(q), V2(v), J22(J),ADDTO);
+          break;
+        case RMTO:
+          lg1_.dIntegrate_dq(Q1(q), V1(v), J11(J),RMTO);
+          lg2_.dIntegrate_dq(Q2(q), V2(v), J22(J),RMTO);
+          break;
+        case APPLY_ON_THE_LEFT:
+          //TODO: Not Implemented Yet
+          assert(false && "Wrong Op requesed value");
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //TODO: Not Implemented Yet
+          assert(false && "Wrong Op requesed value");
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -140,10 +164,36 @@ namespace pinocchio
                             const Eigen::MatrixBase<JacobianOut_t> & J,
                             const AssignmentOperatorType op) const
     {
-      J12(J).setZero();
-      J21(J).setZero();
-      lg1_.dIntegrate_dv(Q1(q), V1(v), J11(J));
-      lg2_.dIntegrate_dv(Q2(q), V2(v), J22(J));
+      switch(op)
+        {
+        case SETTO:
+          J12(J).setZero();
+          J21(J).setZero();
+          lg1_.dIntegrate_dv(Q1(q), V1(v), J11(J),SETTO);
+          lg2_.dIntegrate_dv(Q2(q), V2(v), J22(J),SETTO);
+          break;
+        case ADDTO:
+          lg1_.dIntegrate_dv(Q1(q), V1(v), J11(J),ADDTO);
+          lg2_.dIntegrate_dv(Q2(q), V2(v), J22(J),ADDTO);
+          break;
+        case RMTO:
+          lg1_.dIntegrate_dv(Q1(q), V1(v), J11(J),RMTO);
+          lg2_.dIntegrate_dv(Q2(q), V2(v), J22(J),RMTO);
+          break;
+        case APPLY_ON_THE_LEFT:
+          //TODO: Not Implemented Yet
+          assert(false && "Wrong Op requesed value");
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //TODO: Not Implemented Yet
+          assert(false && "Wrong Op requesed value");
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
+
+      
     }
 
     template <class ConfigL_t, class ConfigR_t>
