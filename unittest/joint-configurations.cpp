@@ -218,6 +218,62 @@ BOOST_AUTO_TEST_CASE ( diff_difference_vs_diff_integrate )
 }
 
 
+BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
+{
+  Model model; buildModel(model);
+  
+  Eigen::VectorXd qs;
+  Eigen::VectorXd vs;
+  Eigen::VectorXd vs2;
+  std::vector<Eigen::MatrixXd> results(3,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  
+  qs = Eigen::VectorXd::Ones(model.nq);
+  normalize(model,qs);
+  
+  vs = Eigen::VectorXd::Random(model.nv);
+  vs2 = Eigen::VectorXd::Zero(model.nv);
+
+  //SETTO
+  dIntegrate(model,qs,vs,results[0],ARG0);
+  dIntegrate<SETTO>(model,qs,vs,results[1],ARG0);
+  BOOST_CHECK(results[0].isApprox(results[1]));
+
+  //ADDTO
+  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
+  results[2] = results[1];
+  results[0].setZero();
+  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
+  dIntegrate<ADDTO>(model,qs,vs,results[1],ARG0);
+  std::cerr<<"why"<<results[1]-(results[2] + results[0])<<std::endl;
+  BOOST_CHECK(results[1].isApprox(results[2] + results[0]));
+
+  /*
+  //RMTO
+  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
+  results[2] = results[1];
+  results[0].setZero();
+  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
+  dIntegrate<RMTO>(model,qs,vs,results[1],ARG0);
+  BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
+
+  //MUL_LEFT
+  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
+  results[2] = results[1];
+  results[0].setZero();
+  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
+  dIntegrate<APPLY_ON_THE_LEFT>(model,qs,vs,results[1],ARG0);
+  BOOST_CHECK(results[1].isApprox(results[0] * results[2]));  
+
+  //MUL_RIGHT
+  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
+  results[2] = results[1];
+  results[0].setZero();
+  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
+  dIntegrate<APPLY_ON_THE_RIGHT>(model,qs,vs,results[1],ARG0);
+  BOOST_CHECK(results[1].isApprox(results[2] * results[0]));
+  */
+}
+
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
 {
  Model model; buildModel(model);
