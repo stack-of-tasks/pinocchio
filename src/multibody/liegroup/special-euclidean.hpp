@@ -336,8 +336,45 @@ namespace pinocchio
       MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6(nu, Jtmp6);
-      Jout << Jtmp6.template    topLeftCorner<2,2>(), Jtmp6.template    topRightCorner<2,1>(),
-              Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
+
+      switch(op)
+        {
+        case SETTO:
+          Jout << Jtmp6.template    topLeftCorner<2,2>(), Jtmp6.template    topRightCorner<2,1>(),
+            Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        case ADDTO:
+          Jout.template topLeftCorner<2,2>() += Jtmp6.template topLeftCorner<2,2>();
+          Jout.template topRightCorner<2,1>() += Jtmp6.template topRightCorner<2,1>();
+          Jout.template bottomLeftCorner<1,2>() += Jtmp6.template bottomLeftCorner<1,2>();
+          Jout.template bottomRightCorner<1,1>() += Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        case RMTO:
+          Jout.template topLeftCorner<2,2>() -= Jtmp6.template topLeftCorner<2,2>();
+          Jout.template topRightCorner<2,1>() -= Jtmp6.template topRightCorner<2,1>();
+          Jout.template bottomLeftCorner<1,2>() -= Jtmp6.template bottomLeftCorner<1,2>();
+          Jout.template bottomRightCorner<1,1>() -= Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        case APPLY_ON_THE_LEFT:
+          Jtmp6.template block<2, 1>(0,2) = Jtmp6.template topRightCorner<2,1>();
+          Jtmp6.template block<1, 2>(2,0) = Jtmp6.template bottomLeftCorner<1,2>();
+          Jtmp6(2,2) = Jtmp6(5,5);
+          //TODO: Aliasing here.
+          Jout = Jtmp6.template topLeftCorner<3,3>() * Jout;
+          break;
+        case APPLY_ON_THE_RIGHT:
+          Jtmp6.template block<2, 1>(0,2) = Jtmp6.template topRightCorner<2,1>();
+          Jtmp6.template block<1, 2>(2,0) = Jtmp6.template bottomLeftCorner<1,2>();
+          Jtmp6(2,2) = Jtmp6(5,5);
+          //TODO: Aliasing here.
+          Jout = Jout * Jtmp6.template topLeftCorner<3,3>();
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }
+
+      
     }
 
     // interpolate_impl use default implementation.
