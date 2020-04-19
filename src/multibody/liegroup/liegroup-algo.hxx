@@ -172,7 +172,8 @@ namespace pinocchio
       lgo.dIntegrate(jmodel.jointConfigSelector  (q.derived()),
                      jmodel.jointVelocitySelector(v.derived()),
                      jmodel.jointBlock(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
-                     arg);
+                     arg,
+                     op);
     }
   };
 
