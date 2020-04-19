@@ -340,7 +340,7 @@ namespace pinocchio
       switch(op)
         {
         case SETTO:
-          Jout << Jtmp6.template    topLeftCorner<2,2>(), Jtmp6.template    topRightCorner<2,1>(),
+          Jout << Jtmp6.template topLeftCorner<2,2>(), Jtmp6.template topRightCorner<2,1>(),
             Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
           break;
         case ADDTO:
@@ -608,7 +608,28 @@ namespace pinocchio
                                    const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-      Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+
+      switch(op)
+        {
+        case SETTO:
+          Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        case ADDTO:
+          Jout += exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        case RMTO:
+          Jout -= exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        case APPLY_ON_THE_LEFT:
+          Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose() * Jout;
+          break;
+        case APPLY_ON_THE_RIGHT:
+          Jout = Jout * exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -617,7 +638,27 @@ namespace pinocchio
                                    const Eigen::MatrixBase<JacobianOut_t>& J,
                                    const AssignmentOperatorType op)
     {
-      Jexp6(MotionRef<const Tangent_t>(v.derived()), J.derived());
+      switch(op)
+        {
+        case SETTO:
+          Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());
+          break;
+        case ADDTO:
+          Jexp6<ADDTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          break;
+        case RMTO:
+          Jexp6<RMTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          break;
+        case APPLY_ON_THE_LEFT:
+          break;
+        case APPLY_ON_THE_RIGHT:
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
+
+      
     }
 
     // interpolate_impl use default implementation.
