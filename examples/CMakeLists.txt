@@ -25,12 +25,12 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-lie
   overview-SE3
   interpolation-SE3
-  build-reduced-model
   )
 
 IF(BUILD_WITH_UDRF_SUPPORT)
   LIST(APPEND ${PROJECT_NAME}_EXAMPLES
     overview-urdf
+    build-reduced-model
     geometry-models
     kinematics-derivatives
     forward-dynamics-derivatives
