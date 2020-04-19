@@ -134,22 +134,29 @@ namespace pinocchio
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IntegrateStepAlgo);
   
-  template<typename Visitor, typename JointModel> struct dIntegrateStepAlgo;
+  template<typename Visitor, typename JointModel, AssignmentOperatorType op> struct dIntegrateStepAlgo;
   
-  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType, AssignmentOperatorType op>
   struct dIntegrateStep
-  : public fusion::JointUnaryVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+    : public fusion::JointUnaryVisitorBase< dIntegrateStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType,op> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
                                   const TangentVectorIn &,
                                   JacobianMatrixType &,
                                   const ArgumentPosition &
                                   > ArgsType;
-    
-    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
+    typedef LieGroup_t LieGroupMap;
+    template<typename JointModel>
+    static void algo(PINOCCHIO_DETAILS_WRITE_ARGS_4(JointModel))
+    //, typename boost::fusion::result_of::at_c<ArgsType, 4>::type a4)
+    { AlgoDispatch<JointModel, op>::run(jmodel, a0, a1, a2, a3); }
+    template<typename JointModel, AssignmentOperatorType _op>
+    struct AlgoDispatch : dIntegrateStepAlgo<dIntegrateStep, JointModel, _op>
+    { using dIntegrateStepAlgo<dIntegrateStep, JointModel, _op>::run; };
+    //PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateStepAlgo, dIntegrateStep)
   };
   
-  template<typename Visitor, typename JointModel>
+  template<typename Visitor, typename JointModel, AssignmentOperatorType op>
   struct dIntegrateStepAlgo
   {
     template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
@@ -168,8 +175,14 @@ namespace pinocchio
                      arg);
     }
   };
-  
-  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateStepAlgo);
+
+  template <typename Visitor, typename JointCollection, AssignmentOperatorType op>
+  struct dIntegrateStepAlgo <Visitor, JointModelCompositeTpl<JointCollection>, op >
+  {
+    typedef typename Visitor::ArgsType ArgsType;
+    static void run (PINOCCHIO_DETAILS_WRITE_ARGS_4(JointModelCompositeTpl<JointCollection>))
+    { ::pinocchio::details::Dispatch< Visitor >::run(jmodel.derived(), ArgsType(a0,a1,a2,a3)); }
+  };
   
   template<typename Visitor, typename JointModel> struct dDifferenceStepAlgo;
   
