@@ -24,15 +24,20 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
   overview-lie
   overview-SE3
-  overview-urdf
   interpolation-SE3
-  build-reduced-model
-  geometry-models
-  kinematics-derivatives
-  forward-dynamics-derivatives
-  inverse-dynamics-derivatives
   )
 
+IF(BUILD_WITH_URDF_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_EXAMPLES
+    overview-urdf
+    build-reduced-model
+    geometry-models
+    kinematics-derivatives
+    forward-dynamics-derivatives
+    inverse-dynamics-derivatives
+  )
+ENDIF(BUILD_WITH_URDF_SUPPORT)
+  
 IF(BUILD_ADVANCED_TESTING)
   LIST(APPEND ${PROJECT_NAME}_EXAMPLES
     multiprecision
