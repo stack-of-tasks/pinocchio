@@ -24,25 +24,34 @@ SET(${PROJECT_NAME}_EXAMPLES
   overview-simple
   overview-lie
   overview-SE3
-  overview-urdf
   interpolation-SE3
   build-reduced-model
-  geometry-models
-  kinematics-derivatives
-  forward-dynamics-derivatives
-  inverse-dynamics-derivatives
   )
 
-IF(BUILD_ADVANCED_TESTING)
+IF(BUILD_WITH_UDRF_SUPPORT)
   LIST(APPEND ${PROJECT_NAME}_EXAMPLES
-    multiprecision
-    )
+    overview-urdf
+    geometry-models
+    kinematics-derivatives
+    forward-dynamics-derivatives
+    inverse-dynamics-derivatives
+  )
+ENDIF()
+
+IF(BUILD_ADVANCED_TESTING)
+  IF(BUILD_WITH_UDRF_SUPPORT)
+    LIST(APPEND ${PROJECT_NAME}_EXAMPLES
+      multiprecision
+      )
+  ENDIF()
 ENDIF(BUILD_ADVANCED_TESTING)
 
 IF(HPP_FCL_FOUND)
-  LIST(APPEND ${PROJECT_NAME}_EXAMPLES
-    collisions
-    )
+  IF(BUILD_WITH_UDRF_SUPPORT)
+    LIST(APPEND ${PROJECT_NAME}_EXAMPLES
+      collisions
+      )
+  ENDIF()
 ENDIF(HPP_FCL_FOUND)
 
 ADD_DEFINITIONS(-DPINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
@@ -51,31 +60,40 @@ FOREACH(EXAMPLE ${${PROJECT_NAME}_EXAMPLES})
   ADD_PINOCCHIO_CPP_EXAMPLE(${EXAMPLE})
 ENDFOREACH(EXAMPLE ${${PROJECT_NAME}_EXAMPLES})
 
-IF(BUILD_ADVANCED_TESTING)
+IF(BUILD_ADVANCED_TESTING AND BUILD_WITH_UDRF_SUPPORT)
   SET_PROPERTY(TARGET example-cpp-multiprecision PROPERTY CXX_STANDARD 11)
-ENDIF(BUILD_ADVANCED_TESTING)
+ENDIF(BUILD_ADVANCED_TESTING AND BUILD_WITH_UDRF_SUPPORT)
 
 IF(BUILD_PYTHON_INTERFACE)
   SET(${PROJECT_NAME}_PYTHON_EXAMPLES
     inverse-kinematics
     overview-simple
-    overview-urdf
     kinematics-derivatives
     forward-dynamics-derivatives
     inverse-dynamics-derivatives
-    gepetto-viewer
-    meshcat-viewer
-    meshcat-viewer-dae
-    robot-wrapper-viewer
-    geometry-models
     )
+
+  IF(BUILD_WITH_UDRF_SUPPORT)
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+      overview-urdf
+      gepetto-viewer
+      meshcat-viewer
+      meshcat-viewer-dae
+      robot-wrapper-viewer
+      geometry-models
+      )
+  ENDIF(BUILD_WITH_UDRF_SUPPORT)
 
   IF(HPP_FCL_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
-      collisions
       sample-model-viewer
       display-shapes
       )
+    IF(BUILD_WITH_UDRF_SUPPORT)
+      LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+        collisions
+        )
+    ENDIF(BUILD_WITH_UDRF_SUPPORT)
   ENDIF(HPP_FCL_FOUND)
 
   FOREACH(EXAMPLE ${${PROJECT_NAME}_PYTHON_EXAMPLES})
