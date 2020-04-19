@@ -109,7 +109,28 @@ namespace pinocchio
                                    const Eigen::MatrixBase<JacobianOut_t>& J,
                                    const AssignmentOperatorType op)
     {
-      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+      Eigen::MatrixBase<JacobianOut_t>& Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
+      switch(op)
+        {
+        case SETTO:
+          Jout.setIdentity();
+          break;
+        case ADDTO:
+          Jout.diagonal().array() += 1.;
+          break;
+        case RMTO:
+          Jout.diagonal().array() -= 1.;
+          break;
+        case APPLY_ON_THE_LEFT:
+          //Do Nothing
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //Do Nothing
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -118,7 +139,28 @@ namespace pinocchio
                                    const Eigen::MatrixBase<JacobianOut_t>& J,
                                    const AssignmentOperatorType op)
     {
-      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+      Eigen::MatrixBase<JacobianOut_t>& Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
+      switch(op)
+        {
+        case SETTO:
+          Jout.setIdentity();
+          break;
+        case ADDTO:
+          Jout.diagonal().array() += 1.;
+          break;
+        case RMTO:
+          Jout.diagonal().array() -= 1.;
+          break;
+        case APPLY_ON_THE_LEFT:
+          //Do Nothing
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //Do Nothing
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }
     }
 
 
