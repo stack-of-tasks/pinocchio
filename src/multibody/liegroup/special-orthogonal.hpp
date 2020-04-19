@@ -178,7 +178,27 @@ namespace pinocchio
                                    const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-      Jout(0,0) = 1;
+      switch(op)
+        {
+        case SETTO:
+          Jout(0,0) = 1;
+          break;
+        case ADDTO:
+          Jout(0,0) += 1;
+          break;
+        case RMTO:
+          Jout(0,0) -= 1;
+          break;
+        case APPLY_ON_THE_LEFT:
+          //Do Nothing
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //Do Nothing
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -188,7 +208,27 @@ namespace pinocchio
                                    const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-      Jout(0,0) = 1;
+      switch(op)
+        {
+        case SETTO:
+          Jout(0,0) = 1;
+          break;
+        case ADDTO:
+          Jout(0,0) += 1;
+          break;
+        case RMTO:
+          Jout(0,0) -= 1;
+          break;
+        case APPLY_ON_THE_LEFT:
+          //Do Nothing
+          break;
+        case APPLY_ON_THE_RIGHT:
+          //Do Nothing
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
