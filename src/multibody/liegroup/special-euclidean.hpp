@@ -277,7 +277,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
 
@@ -291,7 +292,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t> & v,
-                                   const Eigen::MatrixBase<JacobianOut_t> & J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       // TODO sparse version
@@ -529,7 +531,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
@@ -538,7 +541,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       Jexp6(MotionRef<const Tangent_t>(v.derived()), J.derived());
     }

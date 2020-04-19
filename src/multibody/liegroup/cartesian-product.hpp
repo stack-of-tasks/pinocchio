@@ -125,7 +125,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
-                            const Eigen::MatrixBase<JacobianOut_t> & J) const
+                            const Eigen::MatrixBase<JacobianOut_t> & J,
+                            const AssignmentOperatorType op) const
     {
       J12(J).setZero();
       J21(J).setZero();
@@ -136,7 +137,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
-                            const Eigen::MatrixBase<JacobianOut_t> & J) const
+                            const Eigen::MatrixBase<JacobianOut_t> & J,
+                            const AssignmentOperatorType op) const
     {
       J12(J).setZero();
       J21(J).setZero();

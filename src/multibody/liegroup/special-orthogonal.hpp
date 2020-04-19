@@ -174,7 +174,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
@@ -183,7 +184,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & /*v*/,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout(0,0) = 1;
@@ -370,7 +372,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t> & J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       Jout = exp3(-v);
@@ -379,7 +382,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t> & J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                                   const AssignmentOperatorType op)
     {
       Jexp3(v, J.derived());
     }
