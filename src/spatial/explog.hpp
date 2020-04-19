@@ -132,14 +132,38 @@ namespace pinocchio
     const Scalar c = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                             Scalar(1)/Scalar(6) - n2/Scalar(120),
                                             n2_inv * (1 - a));
-    
-    Jout.diagonal().setConstant(a);
 
-    Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
-    Jout(0,2) =  b*r[1]; Jout(2,0) = -Jout(0,2);
-    Jout(1,2) = -b*r[0]; Jout(2,1) = -Jout(1,2);
-
-    Jout.noalias() += c * r * r.transpose();
+    switch(op)
+      {
+      case SETTO:
+        Jout.diagonal().setConstant(a);
+        Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
+        Jout(0,2) =  b*r[1]; Jout(2,0) = -Jout(0,2);
+        Jout(1,2) = -b*r[0]; Jout(2,1) = -Jout(1,2); 
+        Jout.noalias() += c * r * r.transpose();
+        break;
+      case ADDTO:
+        Jout.diagonal().array() += a;
+        Jout(0,1) += -b*r[2]; Jout(1,0) += b*r[2];
+        Jout(0,2) +=  b*r[1]; Jout(2,0) += -b*r[1];
+        Jout(1,2) += -b*r[0]; Jout(2,1) += b*r[0]; 
+        Jout.noalias() += c * r * r.transpose();
+        break;
+      case RMTO:
+        Jout.diagonal().array() -= a;
+        Jout(0,1) -= -b*r[2]; Jout(1,0) -= b*r[2];
+        Jout(0,2) -=  b*r[1]; Jout(2,0) -= -b*r[1];
+        Jout(1,2) -= -b*r[0]; Jout(2,1) -= b*r[0]; 
+        Jout.noalias() -= c * r * r.transpose();
+        break;
+      case APPLY_ON_THE_LEFT:
+        break;
+      case APPLY_ON_THE_RIGHT:
+        break;
+      default:
+        assert(false && "Wrong Op requesed value");
+        break;
+      }
   }
 
   ///
@@ -356,23 +380,66 @@ namespace pinocchio
                                                               Scalar(1)/Scalar(360),
                                                               -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
-    // Matrix3 J3;
-    // Jexp3(w, J3);
-    
-    Jexp3(w, Jout.template bottomRightCorner<3,3>());
-    Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
-
-    const Vector3 p = Jout.template topLeftCorner<3,3>().transpose() * v;
-    Scalar wTp (w.dot (p));
-    Matrix3 J (alphaSkew(.5, p) +
-          (beta_dot_over_theta*wTp)                *w*w.transpose()
-          - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
-          + wTp * beta                             * Matrix3::Identity()
-          + beta                                   *w*p.transpose());
-
-    Jout.template topRightCorner<3,3>().noalias() =
-      - Jout.template topLeftCorner<3,3>() * J;
-    Jout.template bottomLeftCorner<3,3>().setZero();
+    switch(op)
+      {
+      case SETTO:
+      {
+        Jexp3<SETTO>(w, Jout.template bottomRightCorner<3,3>());
+        Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
+        const Vector3 p = Jout.template topLeftCorner<3,3>().transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() =
+          - Jout.template topLeftCorner<3,3>() * J;
+        Jout.template bottomLeftCorner<3,3>().setZero();
+        break;
+      }
+      case ADDTO:
+      {
+        Matrix3 Jtmp3;
+        Jexp3<SETTO>(w, Jtmp3);
+        Jout.template bottomRightCorner<3,3>() += Jtmp3;
+        Jout.template topLeftCorner<3,3>() += Jtmp3;
+        const Vector3 p = Jtmp3.transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() +=
+          - Jtmp3 * J;
+        break;
+      }
+      case RMTO:
+      {
+        Matrix3 Jtmp3;
+        Jexp3<SETTO>(w, Jtmp3);
+        Jout.template bottomRightCorner<3,3>() -= Jtmp3;
+        Jout.template topLeftCorner<3,3>() -= Jtmp3;
+        const Vector3 p = Jtmp3.transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() -=
+          - Jtmp3 * J;
+        break;
+      }
+      case APPLY_ON_THE_LEFT:
+        break;
+      case APPLY_ON_THE_RIGHT:
+        break;
+      default:
+        assert(false && "Wrong Op requesed value");
+        break;
+      }      
   }
 
   /// \brief Derivative of exp6
