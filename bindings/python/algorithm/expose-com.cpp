@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2018 CNRS
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"

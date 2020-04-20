@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -64,43 +64,53 @@ namespace pinocchio
       
       bp::def("computeForwardKinematicsDerivatives",
               &computeForwardKinematicsDerivatives<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Acceleration a (size Model::nv)"),
+              bp::args("model","data","q","v","a"),
               "Computes all the terms required to compute the derivatives of the placement, spatial velocity and acceleration\n"
               "for any joint of the model.\n"
-              "The results are stored in data.");
+              "The results are stored in data.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\ta: the joint acceleration vector (size model.nv)\n");
       
       bp::def("getJointVelocityDerivatives",
               getJointVelocityDerivatives_proxy,
-              bp::args("Model","Data",
-                       "jointId",
-                       "Reference Frame (either WORLD or LOCAL)"),
+              bp::args("model","data","joint_id","reference_frame"),
               "Computes the partial derivaties of the spatial velocity of a given with respect to\n"
               "the joint configuration and velocity and returns them as a tuple.\n"
               "The Jacobians can be either expressed in the LOCAL frame of the joint or in the WORLD coordinate frame depending on the value of the Reference Frame.\n"
-              "You must first call computForwardKinematicsDerivatives before calling this function");
-      
-      
+              "You must first call computForwardKinematicsDerivatives before calling this function.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tjoint_id: index of the joint\n"
+              "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
       
       bp::def("getJointAccelerationDerivatives",
               getJointAccelerationDerivatives_proxy,
-              bp::args("Model","Data",
-                       "jointId",
-                       "Reference Frame (either WORLD or LOCAL)"),
+              bp::args("model","data","joint_id","reference_frame"),
               "Computes the partial derivaties of the spatial acceleration of a given with respect to\n"
               "the joint configuration, velocity and acceleration and returns them as a tuple.\n"
               "The Jacobians can be either expressed in the LOCAL frame of the joint or in the WORLD coordinate frame depending on the value of the Reference Frame.\n"
-              "You must first call computForwardKinematicsDerivatives before calling this function");
+              "You must first call computForwardKinematicsDerivatives before calling this function.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tjoint_id: index of the joint\n"
+              "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
 
       bp::def("getCenterOfMassVelocityDerivatives",
               getCoMVelocityDerivatives_proxy,
-              bp::args("Model","Data"),
+              bp::args("model","data"),
               "Computes the partial derivaties of the com velocity of a given with respect to\n"
               "the joint configuration.\n"
-              "You must first call computForwardKinematicsDerivatives and centerOfMass(q,vq) "
-              "before calling this function");
+              "You must first call computForwardKinematicsDerivatives and centerOfMass(q,v) "
+              "before calling this function.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n");
 
     }
     

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -54,21 +54,23 @@ namespace pinocchio
               (Model (*)(const Model &, const Model &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
               bp::args("modelA","modelB","frame_in_modelA","aMb"),
               "Append a child model into a parent model, after a specific frame given by its index.\n\n"
-              " modelA: the parent model\n"
-              " modelB: the child model\n"
-              " frameInModelA:  index of the frame of modelA where to append modelB\n"
-              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
+              "Parameters:\n"
+              "\tmodelA: the parent model\n"
+              "\tmodelB: the child model\n"
+              "\tframeInModelA:  index of the frame of modelA where to append modelB\n"
+              "\taMb: pose of modelB universe joint (index 0) in frameInModelA\n");
       
       bp::def("appendModel",
               &appendModel_proxy<double,0,JointCollectionDefaultTpl>,
               bp::args("modelA","modelB","frame_in_modelA","aMb"),
               "Append a child (geometry) model into a parent (geometry) model, after a specific frame given by its index.\n\n"
-              " modelA: the parent model\n"
-              " modelB: the child model\n"
-              " geomModelA: the parent geometry model\n"
-              " geomModelB: the child geometry model\n"
-              " frameInModelA:  index of the frame of modelA where to append modelB\n"
-              " aMb: pose of modelB universe joint (index 0) in frameInModelA\n");
+              "Parameters:\n"
+              "\tmodelA: the parent model\n"
+              "\tmodelB: the child model\n"
+              "\tgeomModelA: the parent geometry model\n"
+              "\tgeomModelB: the child geometry model\n"
+              "\tframeInModelA:  index of the frame of modelA where to append modelB\n"
+              "\taMb: pose of modelB universe joint (index 0) in frameInModelA\n");
 
       bp::def("buildReducedModel",
               (Model (*)(const Model &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
@@ -77,9 +79,10 @@ namespace pinocchio
                        "list_of_joints_to_lock",
                        "reference_configuration"),
               "Build a reduce model from a given input model and a list of joint to lock.\n\n"
-              " model: input kinematic modell to reduce\n"
-              " list_of_joints_to_lock: list of joint indexes to lock\n"
-              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
+              "Parameters:\n"
+              "\tmodel: input kinematic modell to reduce\n"
+              "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
+              "\treference_configuration: reference configuration to compute the placement of the lock joints\n");
 
       bp::def("buildReducedModel",
               (bp::tuple (*)(const Model &, const GeometryModel &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
@@ -90,10 +93,11 @@ namespace pinocchio
                        "reference_configuration"),
               "Build a reduced model and a rededuced geometry model  from a given input model,"
               "a given input geometry model and a list of joint to lock.\n\n"
-              " model: input kinematic modell to reduce\n"
-              " geom_model: input geometry model to reduce\n"
-              " list_of_joints_to_lock: list of joint indexes to lock\n"
-              " reference_configuration: reference configuration to compute the placement of the lock joints\n");
+              "Parameters:\n"
+              "\tmodel: input kinematic modell to reduce\n"
+              "\tgeom_model: input geometry model to reduce\n"
+              "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
+              "\treference_configuration: reference configuration to compute the placement of the lock joints\n");
       
     }
     

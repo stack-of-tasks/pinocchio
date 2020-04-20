@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -79,104 +79,134 @@ namespace pinocchio
       
       bp::def("integrate",
               &integrate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q (size model.nq)",
-                       "Velocity v (size model.nv)"),
-              "Integrate the model for a tangent vector during one unit time .");
+              bp::args("model","q","v"),
+              "Integrate the joint configuration vector q with a tangent vector v during one unit time.\n"
+              "This is the canonical integrator of a Configuration Space composed of Lie groups, such as most robots.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n");
       
       bp::def("dIntegrate",
               &dIntegrate_proxy,
-              bp::args("Model",
-                       "Joint configuration q (size model.nq)",
-                       "Joint velocity v (size model.nv)"),
+              bp::args("model","q","v"),
               "Computes the partial derivatives of the integrate function with respect to the first "
-              "and the second argument, and returns the two Jacobians as a tuple. ");
+              "and the second argument, and returns the two Jacobians as a tuple.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n");
 
       bp::def("dIntegrate",
               &dIntegrate_arg_proxy,
-              bp::args("Model",
-                       "Joint configuration q (size model.nq)",
-                       "Joint velocity v (size model.nv)",
-                       "arg (either ARG0 or ARG1)"),
+              bp::args("model","q","v","argument_position"),
               "Computes the partial derivatives of the integrate function with respect to the first (arg == ARG0) "
-              "or the second argument (arg == ARG1). ");
+              "or the second argument (arg == ARG1).\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\targument_position: either pinocchio.ArgumentPosition.ARG0 or pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
 
       bp::def("interpolate",
               &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)",
-                       "Double u"),
-              "Interpolate the model between two configurations.");
+              bp::args("model","q1","q2","alpha"),
+              "Interpolate between two given joint configuration vectors q1 and q2.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n"
+              "\talpha: the interpolation coefficient in [0,1]\n");
       
       bp::def("difference",
               &difference<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)"),
-              "Difference between two configurations, ie. the tangent vector that must be integrated during one unit time"
-              "to go from q1 to q2");
+              bp::args("model","q1","q2"),
+              "Difference between two joint configuration vectors, i.e. the tangent vector that must be integrated during one unit time"
+              "to go from q1 to q2.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n");
       
       bp::def("squaredDistance",
               &squaredDistance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)"),
-              "Squared distance vector between two configurations.");
+              bp::args("model","q1","q2"),
+              "Squared distance vector between two joint configuration vectors.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n");
       
       bp::def("distance",
               &distance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)"),
-              "Distance between two configurations.");
+              bp::args("model","q1","q2"),
+              "Distance between two joint configuration vectors.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n");
 
       bp::def("dDifference",
               &dDifference_proxy,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)"),
+              bp::args("model","q1","q2"),
               "Computes the partial derivatives of the difference function with respect to the first "
-              "and the second argument, and returns the two Jacobians as a tuple. ");
+              "and the second argument, and returns the two Jacobians as a tuple.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n");
       
       bp::def("dDifference",
               &dDifference_arg_proxy,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)",
-                       "arg (either ARG0 or ARG1)"),
+              bp::args("model","q1","q2","argument_position"),
               "Computes the partial derivatives of the difference function with respect to the first (arg == ARG0) "
-              "or the second argument (arg == ARG1). ");
+              "or the second argument (arg == ARG1).\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: the initial joint configuration vector (size model.nq)\n"
+              "\tq2: the terminal joint configuration vector (size model.nq)\n"
+              "\targument_position: either pinocchio.ArgumentPosition.ARG0 or pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
       
       bp::def("randomConfiguration",
               &randomConfiguration_proxy,
-              bp::arg("Model"),
-              "Generate a random configuration in the bounds given by the lower and upper limits contained in model.");
+              bp::arg("model"),
+              "Generate a random configuration in the bounds given by the lower and upper limits contained in model.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n");
       
       bp::def("randomConfiguration",
               &randomConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Joint lower limits (size model.nq)",
-                       "Joint upper limits (size model.nq)"),
-              "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.");
+              bp::args("model","lower_bound","upper_bound"),
+              "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tlower_bound: the lower bound on the joint configuration vectors (size model.nq)\n"
+              "\tupper_bound: the upper bound on the joint configuration vectors (size model.nq)\n");
       
       bp::def("neutral",
               &neutral<double,0,JointCollectionDefaultTpl>,
-              bp::arg("Model"),
-              "Returns the neutral configuration vector associated to the model.");
+              bp::arg("model"),
+              "Returns the neutral configuration vector associated to the model.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n");
       
       bp::def("normalize",normalize_proxy,
-              bp::args("Model",
-                       "Configuration q (size model.nq)"),
-              "return the configuration normalized ");
+              bp::args("model","q"),
+              "Returns the configuration normalized.\n"
+              "For instance, when the configuration vectors contains some quaternion values, it must be required to renormalize these components to keep orthonormal rotation values.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq: a joint configuration vector to normalize (size model.nq)\n");
       
       bp::def("isSameConfiguration",
               &isSameConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model",
-                       "Configuration q1 (size model.nq)",
-                       "Configuration q2 (size model.nq)",
-                       "Precision"),
-              "Return true if two configurations are equivalent");
+              bp::args("model","q1","q2","prec"),
+              "Return true if two configurations are equivalent within the given precision provided by prec.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq1: a joint configuration vector (size model.nq)\n"
+              "\tq2: a joint configuration vector (size model.nq)\n"
+              "\tprec: requested accuracy for the comparison\n");
     }
     
   } // namespace python
