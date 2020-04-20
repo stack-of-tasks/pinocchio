@@ -1,9 +1,11 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 #
 
 import numpy
 from .libpinocchio_pywrap import *
+
+from .libpinocchio_pywrap import __version__, __raw_version__
 
 from . import utils
 from .explog import exp, log
