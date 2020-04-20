@@ -163,7 +163,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *          We are moving our input matrix onto this manifold M.
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  J    the input matrix
+     * @param[in]  Jin    the input matrix
      * @param[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
      *
      * @param[out] Jout    Transported matrix
@@ -184,7 +184,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *          We are moving our input matrix onto this manifold M.
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  J    the input matrix
+     * @param[in]  Jin    the input matrix
      *
      * @param[out] Jout    Transported matrix
      */
@@ -201,7 +201,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *          We are moving our input matrix onto this manifold M.
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  J    the input matrix
+     * @param[in]  Jin    the input matrix
      *
      * @param[out] Jout    Transported matrix
      */

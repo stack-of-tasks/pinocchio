@@ -87,7 +87,6 @@ namespace pinocchio {
                                  PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),
                                  op);
   }
-  
 
   template <class Derived>
   template<class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>

@@ -287,7 +287,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg,
                   const AssignmentOperatorType op);
-  
+
   /**
    *
    * @brief   Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
