@@ -175,7 +175,7 @@ namespace pinocchio
   void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const Eigen::MatrixBase<ConfigVectorType> & q,
                            const Eigen::MatrixBase<TangentVectorType> & v,
-                           const Eigen::MatrixBase<JacobianMatrixType1> & J,
+                           const Eigen::MatrixBase<JacobianMatrixType1> & Jin,
                            const Eigen::MatrixBase<JacobianMatrixType2> & Jout,
                            const ArgumentPosition arg)
   {
@@ -188,8 +188,8 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef dIntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType1,JacobianMatrixType2> Algo;
-    typename Algo::ArgsType args(q.derived(),v.derived(),Jin.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,Jout),arg);
+    typedef dIntegrateTransportStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType1,JacobianMatrixType2> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),Jin.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType2,Jout),arg);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i], args);
