@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -15,33 +15,45 @@ namespace pinocchio
       using namespace Eigen;
       bp::def("updateGlobalPlacements",
               &updateGlobalPlacements<double,0,JointCollectionDefaultTpl>,
-              bp::args("Model","Data"),
+              bp::args("model","data"),
               "Updates the global placements of all the frames of the kinematic "
-              "tree and store the results in data according to the relative placements of the joints.");
+              "tree and store the results in data according to the relative placements of the joints.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)"),
+              bp::args("model","data","q"),
               "Compute the global placements of all the joints of the kinematic "
-              "tree and store the results in data.");
+              "tree and store the results in data.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)"),
+              bp::args("model","data","q","v"),
               "Compute the global placements and local spatial velocities of all the joints of the kinematic "
-              "tree and store the results in data.");
+              "tree and store the results in data.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n");
       
       bp::def("forwardKinematics",
               &forwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Acceleration a (size Model::nv)"),
+              bp::args("model","data","q","v","a"),
               "Compute the global placements, local spatial velocities and spatial accelerations of all the joints of the kinematic "
-              "tree and store the results in data.");
+              "tree and store the results in data.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\ta: the joint acceleration vector (size model.nv)\n");
     }
     
   } // namespace python

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016,2018 CNRS
+// Copyright (c) 2015-2020 CNRS
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -23,9 +23,10 @@ namespace pinocchio
     void exposeCRBA()
     {
       bp::def("crba",crba_proxy,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)"),
-              "Computes CRBA, store the result in Data and return it.");
+              bp::args("model","data","q"),
+              "Computes CRBA, store the result in Data and return it.\n"
+              "Parameters:\n"
+              "\tq: the joint configuration vector (size model.nq)\n");
     }
     
   } // namespace python
