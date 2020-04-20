@@ -116,20 +116,6 @@ namespace pinocchio
           Mout.template topRightCorner<2,1>() -= tinv;
           Mout(2,2) -= (Scalar)1;
           break;
-        case APPLY_ON_THE_LEFT:
-          // TODO: Aliasing here.
-          Mout.template topLeftCorner<2,2>() = R.transpose() * Mout.template topLeftCorner<2,2>();
-          Mout.template topRightCorner<2,1>() = R.transpose() * Mout.template topRightCorner<2,1>();
-          //No aliasing here.
-          Mout.template topLeftCorner<2,2>().noalias() += tinv * Mout.template bottomLeftCorner<1,2>();
-          Mout.template topRightCorner<2,1>().noalias() += tinv * Mout(2,2);
-          break;
-        case APPLY_ON_THE_RIGHT:
-          // TODO: Aliasing here.
-          Mout.template leftCols<2>() = Mout.template leftCols<2>() * R.transpose();
-          //No aliasing here.
-          Mout.template rightCols<1>().noalias() += Mout.template leftCols<2>() * tinv;
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
@@ -354,20 +340,6 @@ namespace pinocchio
           Jout.template topRightCorner<2,1>() -= Jtmp6.template topRightCorner<2,1>();
           Jout.template bottomLeftCorner<1,2>() -= Jtmp6.template bottomLeftCorner<1,2>();
           Jout.template bottomRightCorner<1,1>() -= Jtmp6.template bottomRightCorner<1,1>();
-          break;
-        case APPLY_ON_THE_LEFT:
-          Jtmp6.template block<2, 1>(0,2) = Jtmp6.template topRightCorner<2,1>();
-          Jtmp6.template block<1, 2>(2,0) = Jtmp6.template bottomLeftCorner<1,2>();
-          Jtmp6(2,2) = Jtmp6(5,5);
-          //TODO: Aliasing here.
-          Jout = Jtmp6.template topLeftCorner<3,3>() * Jout;
-          break;
-        case APPLY_ON_THE_RIGHT:
-          Jtmp6.template block<2, 1>(0,2) = Jtmp6.template topRightCorner<2,1>();
-          Jtmp6.template block<1, 2>(2,0) = Jtmp6.template bottomLeftCorner<1,2>();
-          Jtmp6(2,2) = Jtmp6(5,5);
-          //TODO: Aliasing here.
-          Jout = Jout * Jtmp6.template topLeftCorner<3,3>();
           break;
         default:
           assert(false && "Wrong Op requesed value");
@@ -620,12 +592,6 @@ namespace pinocchio
         case RMTO:
           Jout -= exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
           break;
-        case APPLY_ON_THE_LEFT:
-          Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose() * Jout;
-          break;
-        case APPLY_ON_THE_RIGHT:
-          Jout = Jout * exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
@@ -649,16 +615,10 @@ namespace pinocchio
         case RMTO:
           Jexp6<RMTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
           break;
-        case APPLY_ON_THE_LEFT:
-          break;
-        case APPLY_ON_THE_RIGHT:
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
         }      
-
-      
     }
 
     // interpolate_impl use default implementation.

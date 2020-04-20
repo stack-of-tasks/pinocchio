@@ -156,10 +156,6 @@ namespace pinocchio
         Jout(1,2) -= -b*r[0]; Jout(2,1) -= b*r[0]; 
         Jout.noalias() -= c * r * r.transpose();
         break;
-      case APPLY_ON_THE_LEFT:
-        break;
-      case APPLY_ON_THE_RIGHT:
-        break;
       default:
         assert(false && "Wrong Op requesed value");
         break;
@@ -180,7 +176,6 @@ namespace pinocchio
   {
     Jexp3<SETTO>(r, Jexp);
   }
-  
   
   /** \brief Derivative of log3
    *
@@ -432,10 +427,6 @@ namespace pinocchio
           - Jtmp3 * J;
         break;
       }
-      case APPLY_ON_THE_LEFT:
-        break;
-      case APPLY_ON_THE_RIGHT:
-        break;
       default:
         assert(false && "Wrong Op requesed value");
         break;
@@ -451,7 +442,6 @@ namespace pinocchio
     Jexp6<SETTO>(nu, Jexp);
   }
 
-  
   /** \brief Derivative of log6
    *  \f[
    *  \left(\begin{array}{cc}

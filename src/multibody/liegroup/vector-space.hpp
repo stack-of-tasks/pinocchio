@@ -121,12 +121,6 @@ namespace pinocchio
         case RMTO:
           Jout.diagonal().array() -= 1.;
           break;
-        case APPLY_ON_THE_LEFT:
-          //Do Nothing
-          break;
-        case APPLY_ON_THE_RIGHT:
-          //Do Nothing
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
@@ -150,12 +144,6 @@ namespace pinocchio
           break;
         case RMTO:
           Jout.diagonal().array() -= 1.;
-          break;
-        case APPLY_ON_THE_LEFT:
-          //Do Nothing
-          break;
-        case APPLY_ON_THE_RIGHT:
-          //Do Nothing
           break;
         default:
           assert(false && "Wrong Op requesed value");

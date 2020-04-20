@@ -60,9 +60,7 @@ namespace pinocchio
   {
     SETTO,
     ADDTO,
-    RMTO,
-    APPLY_ON_THE_LEFT,
-    APPLY_ON_THE_RIGHT
+    RMTO
   };
 
   

@@ -189,12 +189,6 @@ namespace pinocchio
         case RMTO:
           Jout(0,0) -= 1;
           break;
-        case APPLY_ON_THE_LEFT:
-          //Do Nothing
-          break;
-        case APPLY_ON_THE_RIGHT:
-          //Do Nothing
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
@@ -218,12 +212,6 @@ namespace pinocchio
           break;
         case RMTO:
           Jout(0,0) -= 1;
-          break;
-        case APPLY_ON_THE_LEFT:
-          //Do Nothing
-          break;
-        case APPLY_ON_THE_RIGHT:
-          //Do Nothing
           break;
         default:
           assert(false && "Wrong Op requesed value");
@@ -427,14 +415,6 @@ namespace pinocchio
         case RMTO:
           Jout -= exp3(-v);
           break;
-        case APPLY_ON_THE_LEFT:
-          //TODO: Improve implementation
-          Jout = exp3(-v) * Jout;
-          break;
-        case APPLY_ON_THE_RIGHT:
-          //TODO: Improve implementation
-          Jout = Jout * exp3(-v);
-          break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
@@ -458,10 +438,6 @@ namespace pinocchio
           break;
         case RMTO:
           Jexp3<RMTO>(v, J.derived());
-          break;
-        case APPLY_ON_THE_LEFT:
-          break;
-        case APPLY_ON_THE_RIGHT:
           break;
         default:
           assert(false && "Wrong Op requesed value");
