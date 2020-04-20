@@ -94,7 +94,8 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
                                                   const Eigen::MatrixBase<Tangent_t>  & v,
                                                   const Eigen::MatrixBase<JacobianIn_t> & Jin,
-                                                  const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+                                                  const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                                                  const ArgumentPosition arg) const
   {
     assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
     

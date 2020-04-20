@@ -191,7 +191,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
                                 const Eigen::MatrixBase<Tangent_t>  & v,
-                                const Eigen::MatrixBase<Jacobianin_t> & Jin,
+                                const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                 const Eigen::MatrixBase<JacobianOut_t> & Jout) const;
     /**
      * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.

@@ -194,14 +194,14 @@ namespace pinocchio
 
   template<typename Visitor, typename JointModel> struct dIntegrateTransportStepAlgo;
   
-  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixTypeIn, typename JacobianMatrixTypeOut>
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixInType, typename JacobianMatrixOutType>
   struct dIntegrateTransportStep
-  : public fusion::JointUnaryVisitorBase< dIntegrateTransportStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixTypeIn,JacobianMatrixTypeOut> >
+  : public fusion::JointUnaryVisitorBase< dIntegrateTransportStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixInType,JacobianMatrixOutType> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
                                   const TangentVectorIn &,
-                                  JacobianMatrixTypeIn &,
-                                  JacobianMatrixTypeOut &,
+                                  const JacobianMatrixInType &,
+                                  JacobianMatrixOutType &,
                                   const ArgumentPosition &
                                   > ArgsType;
     
@@ -216,7 +216,8 @@ namespace pinocchio
                     const Eigen::MatrixBase<ConfigVectorIn> & q,
                     const Eigen::MatrixBase<TangentVector> & v,
                     const Eigen::MatrixBase<JacobianMatrixInType> & mat_in,
-                    const Eigen::MatrixBase<JacobianMatrixOutType> & mat_out)
+                    const Eigen::MatrixBase<JacobianMatrixOutType> & mat_out,
+                    const ArgumentPosition & arg)
     {
       typedef typename Visitor::LieGroupMap LieGroupMap;
       
