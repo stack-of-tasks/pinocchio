@@ -23,6 +23,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   rpy
   utils
   serialization
+  version
   )
 
 IF(HPP_FCL_FOUND)
