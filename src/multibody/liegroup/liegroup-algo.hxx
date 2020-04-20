@@ -224,8 +224,8 @@ namespace pinocchio
       typename LieGroupMap::template operation<JointModel>::type lgo;
       lgo.dIntegrateTransport(jmodel.jointConfigSelector  (q.derived()),
                               jmodel.jointVelocitySelector(v.derived()),
-                              jmodel.jointBlock(mat_in.derived()),
-                              jmodel.jointBlock(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixOutType,mat_out)),
+                              jmodel.jointRows(mat_in.derived()),
+                              jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixOutType,mat_out)),
                               arg);
     }
   };

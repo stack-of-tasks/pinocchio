@@ -136,7 +136,7 @@ namespace pinocchio {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
     //EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
-    derived().dIntegrateTransport_dq_impl(q.derived(),
+    derived().dIntegrateTransport_dv_impl(q.derived(),
                                           v.derived(),
                                           Jin.derived(),
                                           PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout));

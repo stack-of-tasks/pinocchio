@@ -358,7 +358,7 @@ namespace pinocchio
       Vector2 t;
       exp(v, R, t);
 
-      typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) tinv((R.transpose() * t).reverse());
+      Vector2 tinv = (R.transpose() * t).reverse();
       tinv[0] *= Scalar(-1.);
 
       Jout.template topRows<2>().noalias() = R.transpose() * Jin.template topRows<2>();
@@ -381,7 +381,8 @@ namespace pinocchio
       Jout.template topRows<2>().noalias() = Jtmp6.template topLeftCorner<2,2>() * Jin.template topRows<2>();
       Jout.template topRows<2>().noalias() += Jtmp6.template topRightCorner<2,1>() * Jin.template bottomRows<1>();
       Jout.template bottomRows<1>().noalias() = Jtmp6.template bottomLeftCorner<1,2>()* Jin.template topRows<2>();
-      Jout.template bottomRows<1>().noalias() += Jtmp6.template bottomRightCorner<1,1>() * Jin.template bottomRows<1>();      
+      Jout.template bottomRows<1>().noalias() += Jtmp6.template bottomRightCorner<1,1>() * Jin.template bottomRows<1>();
+
     }
 
     // interpolate_impl use default implementation.
@@ -666,24 +667,24 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jtmp6 = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
       
-      Jout.template topRows<3>().noalias = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
-      Jout.template topRows<3>().noalias += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
-      Jout.template bottomRows<3>().noalias = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template topRows<3>().noalias() = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
+      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template bottomRows<3>().noalias() = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
-                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), Jtmp6);
 
-      Jout.template topRows<3>().noalias = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
-      Jout.template topRows<3>().noalias += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
-      Jout.template bottomRows<3>().noalias = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template topRows<3>().noalias() = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
+      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template bottomRows<3>().noalias() = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
     }
 
     

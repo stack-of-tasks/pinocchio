@@ -225,7 +225,7 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & Jout) const
     {
-      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out) = Jin;
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
@@ -234,7 +234,7 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & Jout) const
     {
-      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out) = Jin;
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
     }
     
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -468,6 +468,7 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
     {
+      typedef typename SE3::Matrix3 Matrix3;
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
       const Matrix3 Jtmp3 = exp3(-v);
       Jout.noalias() = Jtmp3 * Jin;
@@ -479,8 +480,9 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
     {
+      typedef typename SE3::Matrix3 Matrix3;
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
-      const Matrix3 Jtmp3 = exp3(-v);
+      Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
       Jout.noalias() = Jtmp3 * Jout;
     }
