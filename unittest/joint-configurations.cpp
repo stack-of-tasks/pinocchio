@@ -222,16 +222,12 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
 {
   Model model; buildModel(model);
   
-  Eigen::VectorXd qs;
-  Eigen::VectorXd vs;
-  Eigen::VectorXd vs2;
   std::vector<Eigen::MatrixXd> results(3,Eigen::MatrixXd::Zero(model.nv,model.nv));
   
-  qs = Eigen::VectorXd::Ones(model.nq);
+  Eigen::VectorXd qs = Eigen::VectorXd::Ones(model.nq);
   normalize(model,qs);
   
-  vs = Eigen::VectorXd::Random(model.nv);
-  vs2 = Eigen::VectorXd::Zero(model.nv);
+  Eigen::VectorXd vs = Eigen::VectorXd::Random(model.nv);
 
   //SETTO
   dIntegrate(model,qs,vs,results[0],ARG0);
