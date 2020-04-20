@@ -280,12 +280,13 @@ namespace pinocchio
    * @param[in]  arg     Argument (either q or v) with respect to which the differentiation is performed.
    *
    */
-  template<typename LieGroup_t, AssignmentOperatorType op, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
-                  const ArgumentPosition arg);
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op);
 
   /**
    *
@@ -312,8 +313,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    dIntegrate<LieGroupMap,SETTO,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,SETTO);
   }
+
 
   /**
    *
@@ -333,15 +335,15 @@ namespace pinocchio
    * @param[in]  arg        Argument (either q or v) with respect to which the differentiation is performed.
    *
    */
-
-  template<AssignmentOperatorType op, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
-                  const ArgumentPosition arg)
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
   {
-    dIntegrate<LieGroupMap,op,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
   }
   
   /**

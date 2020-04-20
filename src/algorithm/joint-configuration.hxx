@@ -147,12 +147,13 @@ namespace pinocchio
     }
   }
 
-  template<typename LieGroup_t, AssignmentOperatorType op, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
-                  const ArgumentPosition arg)
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
@@ -162,8 +163,8 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef dIntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType,op> Algo;
-    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    typedef dIntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i], args);
