@@ -285,7 +285,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
-                  const ArgumentPosition arg);
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op);
 
   /**
    *
@@ -312,9 +313,39 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg)
   {
-    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,SETTO);
   }
 
+
+  /**
+   *
+   * @brief   Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *
+   * @details This jacobian has to be interpreted in terms of Lie group, not vector space: as such,
+   *          it is expressed in the tangent space only, not the configuration space.
+   *          Calling \f$ f(q, v) \f$ the integrate function, these jacobians satisfy the following relationships in the
+   *          tangent space:
+   *           - Jacobian relative to q: \f$ f(q \oplus \delta q, v) \ominus f(q, v) = J_q(q, v) \delta q + o(\delta q)\f$.
+   *           - Jacobian relative to v: \f$ f(q, v + \delta v) \ominus f(q, v) = J_v(q, v) \delta v + o(\delta v)\f$.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
+   * @param[out] J            Jacobian of the Integrate operation, either with respect to q or v (size model.nv x model.nv).
+   * @param[in]  arg        Argument (either q or v) with respect to which the differentiation is performed.
+   *
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                  const Eigen::MatrixBase<TangentVectorType> & v,
+                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
+  {
+    dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
+  }
+  
   /**
    *
    * @brief   Computes the Jacobian of a small variation of the configuration vector into the tangent space at identity.

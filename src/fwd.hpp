@@ -55,6 +55,15 @@ namespace pinocchio
     ARG3 = 3,
     ARG4 = 4
   };
+
+  enum AssignmentOperatorType
+  {
+    SETTO,
+    ADDTO,
+    RMTO
+  };
+
+  
   
   /// \brief Return type undefined
   ///        This is an helper structure to help internal diagnosis.

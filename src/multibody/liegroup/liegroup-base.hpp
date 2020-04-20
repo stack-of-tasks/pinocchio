@@ -92,13 +92,13 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
      */
-    template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t>
+    template <ArgumentPosition arg, AssignmentOperatorType op, class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
-      return dIntegrate(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg);
+      return dIntegrate(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg,op);
     }
     
     /**
@@ -117,7 +117,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t> & J,
-                    const ArgumentPosition arg) const;
+                    const ArgumentPosition arg,
+                    const AssignmentOperatorType op) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
@@ -133,7 +134,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
-                       const Eigen::MatrixBase<JacobianOut_t> & J) const;
+                       const Eigen::MatrixBase<JacobianOut_t> & J,
+                       const AssignmentOperatorType op) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
@@ -149,7 +151,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
-                       const Eigen::MatrixBase<JacobianOut_t> & J) const;
+                       const Eigen::MatrixBase<JacobianOut_t> & J,
+                       const AssignmentOperatorType op) const;
 
     /**
      * @brief      Interpolation between two joint's configurations

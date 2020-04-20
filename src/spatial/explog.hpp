@@ -107,7 +107,7 @@ namespace pinocchio
   ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
   ///
-  template<typename Vector3Like, typename Matrix3Like>
+  template<AssignmentOperatorType op, typename Vector3Like, typename Matrix3Like>
   void Jexp3(const Eigen::MatrixBase<Vector3Like> & r,
              const Eigen::MatrixBase<Matrix3Like> & Jexp)
   {
@@ -132,14 +132,49 @@ namespace pinocchio
     const Scalar c = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                             Scalar(1)/Scalar(6) - n2/Scalar(120),
                                             n2_inv * (1 - a));
-    
-    Jout.diagonal().setConstant(a);
 
-    Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
-    Jout(0,2) =  b*r[1]; Jout(2,0) = -Jout(0,2);
-    Jout(1,2) = -b*r[0]; Jout(2,1) = -Jout(1,2);
+    switch(op)
+      {
+      case SETTO:
+        Jout.diagonal().setConstant(a);
+        Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
+        Jout(0,2) =  b*r[1]; Jout(2,0) = -Jout(0,2);
+        Jout(1,2) = -b*r[0]; Jout(2,1) = -Jout(1,2); 
+        Jout.noalias() += c * r * r.transpose();
+        break;
+      case ADDTO:
+        Jout.diagonal().array() += a;
+        Jout(0,1) += -b*r[2]; Jout(1,0) += b*r[2];
+        Jout(0,2) +=  b*r[1]; Jout(2,0) += -b*r[1];
+        Jout(1,2) += -b*r[0]; Jout(2,1) += b*r[0]; 
+        Jout.noalias() += c * r * r.transpose();
+        break;
+      case RMTO:
+        Jout.diagonal().array() -= a;
+        Jout(0,1) -= -b*r[2]; Jout(1,0) -= b*r[2];
+        Jout(0,2) -=  b*r[1]; Jout(2,0) -= -b*r[1];
+        Jout(1,2) -= -b*r[0]; Jout(2,1) -= b*r[0]; 
+        Jout.noalias() -= c * r * r.transpose();
+        break;
+      default:
+        assert(false && "Wrong Op requesed value");
+        break;
+      }
+  }
 
-    Jout.noalias() += c * r * r.transpose();
+  ///
+  /// \brief Derivative of \f$ \exp{r} \f$
+  /// \f[
+  ///     \frac{\sin{||r||}}{||r||}                       I_3
+  ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
+  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  /// \f]
+  ///
+  template<typename Vector3Like, typename Matrix3Like>
+  void Jexp3(const Eigen::MatrixBase<Vector3Like> & r,
+             const Eigen::MatrixBase<Matrix3Like> & Jexp)
+  {
+    Jexp3<SETTO>(r, Jexp);
   }
   
   /** \brief Derivative of log3
@@ -310,7 +345,7 @@ namespace pinocchio
  
   /// \brief Derivative of exp6
   /// Computed as the inverse of Jlog6
-  template<typename MotionDerived, typename Matrix6Like>
+  template<AssignmentOperatorType op, typename MotionDerived, typename Matrix6Like>
   void Jexp6(const MotionDense<MotionDerived>     & nu,
              const Eigen::MatrixBase<Matrix6Like> & Jexp)
   {
@@ -326,11 +361,6 @@ namespace pinocchio
     const Scalar t2 = w.squaredNorm();
     const Scalar t = math::sqrt(t2);
 
-    // Matrix3 J3;
-    // Jexp3(w, J3);
-    Jexp3(w, Jout.template bottomRightCorner<3,3>());
-    Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
-
     const Scalar tinv = Scalar(1)/t,
                  t2inv = tinv*tinv;
     Scalar st,ct; SINCOS (t, &st, &ct);
@@ -345,17 +375,71 @@ namespace pinocchio
                                                               Scalar(1)/Scalar(360),
                                                               -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
-    Vector3 p (Jout.template topLeftCorner<3,3>().transpose() * v);
-    Scalar wTp (w.dot (p));
-    Matrix3 J (alphaSkew(.5, p) +
-          (beta_dot_over_theta*wTp)                *w*w.transpose()
-          - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
-          + wTp * beta                             * Matrix3::Identity()
-          + beta                                   *w*p.transpose());
+    switch(op)
+      {
+      case SETTO:
+      {
+        Jexp3<SETTO>(w, Jout.template bottomRightCorner<3,3>());
+        Jout.template topLeftCorner<3,3>() = Jout.template bottomRightCorner<3,3>();
+        const Vector3 p = Jout.template topLeftCorner<3,3>().transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() =
+          - Jout.template topLeftCorner<3,3>() * J;
+        Jout.template bottomLeftCorner<3,3>().setZero();
+        break;
+      }
+      case ADDTO:
+      {
+        Matrix3 Jtmp3;
+        Jexp3<SETTO>(w, Jtmp3);
+        Jout.template bottomRightCorner<3,3>() += Jtmp3;
+        Jout.template topLeftCorner<3,3>() += Jtmp3;
+        const Vector3 p = Jtmp3.transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() +=
+          - Jtmp3 * J;
+        break;
+      }
+      case RMTO:
+      {
+        Matrix3 Jtmp3;
+        Jexp3<SETTO>(w, Jtmp3);
+        Jout.template bottomRightCorner<3,3>() -= Jtmp3;
+        Jout.template topLeftCorner<3,3>() -= Jtmp3;
+        const Vector3 p = Jtmp3.transpose() * v;
+        const Scalar wTp (w.dot (p));
+        const Matrix3 J (alphaSkew(.5, p) +
+                         (beta_dot_over_theta*wTp)                *w*w.transpose()
+                         - (t2*beta_dot_over_theta+Scalar(2)*beta)*p*w.transpose()
+                         + wTp * beta                             * Matrix3::Identity()
+                         + beta                                   *w*p.transpose());
+        Jout.template topRightCorner<3,3>().noalias() -=
+          - Jtmp3 * J;
+        break;
+      }
+      default:
+        assert(false && "Wrong Op requesed value");
+        break;
+      }      
+  }
 
-    Jout.template topRightCorner<3,3>().noalias() =
-      - Jout.template topLeftCorner<3,3>() * J;
-    Jout.template bottomLeftCorner<3,3>().setZero();
+  /// \brief Derivative of exp6
+  /// Computed as the inverse of Jlog6
+  template<typename MotionDerived, typename Matrix6Like>
+  void Jexp6(const MotionDense<MotionDerived>     & nu,
+             const Eigen::MatrixBase<Matrix6Like> & Jexp)
+  {
+    Jexp6<SETTO>(nu, Jexp);
   }
 
   /** \brief Derivative of log6

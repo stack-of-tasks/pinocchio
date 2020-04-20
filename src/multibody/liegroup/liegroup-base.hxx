@@ -41,15 +41,16 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                                          const Eigen::MatrixBase<Tangent_t>  & v,
                                          const Eigen::MatrixBase<JacobianOut_t> & J,
-                                         const ArgumentPosition arg) const
+                                         const ArgumentPosition arg,
+                                         const AssignmentOperatorType op) const
   {
     assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
     
     switch (arg) {
       case ARG0:
-        dIntegrate_dq(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J)); return;
+        dIntegrate_dq(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),op); return;
       case ARG1:
-        dIntegrate_dv(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J)); return;
+        dIntegrate_dv(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),op); return;
       default: return;
     }
   }
@@ -59,14 +60,15 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrate_dq(
       const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t> & J) const
+      const Eigen::MatrixBase<JacobianOut_t> & J,
+      const AssignmentOperatorType op) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
     derived().dIntegrate_dq_impl(q.derived(),
                                  v.derived(),
-                                 PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J));
+                                 PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),op);
   }
 
   template <class Derived>
@@ -74,14 +76,16 @@ namespace pinocchio {
   void LieGroupBase<Derived>::dIntegrate_dv(
       const Eigen::MatrixBase<Config_t >  & q,
       const Eigen::MatrixBase<Tangent_t>  & v,
-      const Eigen::MatrixBase<JacobianOut_t> & J) const
+      const Eigen::MatrixBase<JacobianOut_t> & J,
+      const AssignmentOperatorType op) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
     derived().dIntegrate_dv_impl(q.derived(),
                                  v.derived(),
-                                 PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J));
+                                 PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),
+                                 op);
   }
 
   /**

@@ -152,7 +152,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
-                  const ArgumentPosition arg)
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
@@ -163,7 +164,7 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     typedef dIntegrateStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
-    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Algo::run(model.joints[i], args);

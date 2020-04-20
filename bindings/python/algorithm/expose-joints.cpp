@@ -30,8 +30,8 @@ namespace pinocchio
       Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
       Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
 
-      dIntegrate(model,q,v,J0,ARG0);
-      dIntegrate(model,q,v,J1,ARG1);
+      dIntegrate(model,q,v,J0,ARG0,SETTO);
+      dIntegrate(model,q,v,J1,ARG1,SETTO);
 
       return bp::make_tuple(J0,J1);
     }
@@ -43,7 +43,7 @@ namespace pinocchio
     {
       Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
       
-      dIntegrate(model,q,v,J,arg);
+      dIntegrate(model,q,v,J,arg, SETTO);
       
       return J;
     }

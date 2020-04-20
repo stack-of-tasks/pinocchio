@@ -87,20 +87,42 @@ namespace pinocchio
     template<typename Matrix2Like, typename Vector2Like, typename Matrix3Like>
     static void toInverseActionMatrix(const Eigen::MatrixBase<Matrix2Like> & R,
                                       const Eigen::MatrixBase<Vector2Like> & t,
-                                      const Eigen::MatrixBase<Matrix3Like> & M)
+                                      const Eigen::MatrixBase<Matrix3Like> & M,
+                                      const AssignmentOperatorType op)
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like, 2, 2);
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector2Like, 2);
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, 3, 3);
-      
+      Matrix3Like & Mout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,M);
       typedef typename Matrix3Like::Scalar Scalar;
       
-      Matrix3Like & Mout = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,M);
-      Mout.template topLeftCorner<2,2>() = R.transpose();
-      typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) tinv(R.transpose() * t);
-      Mout.template topRightCorner<2,1>() << - tinv(1), tinv(0);
-      Mout.template bottomLeftCorner<1,2>().setZero();
-      Mout(2,2) = (Scalar)1;
+      typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector2Like) tinv((R.transpose() * t).reverse());
+      tinv[0] *= Scalar(-1.);
+      switch(op)
+        {
+        case SETTO:
+          Mout.template topLeftCorner<2,2>() = R.transpose();
+          Mout.template topRightCorner<2,1>() = tinv;
+          Mout.template bottomLeftCorner<1,2>().setZero();
+          Mout(2,2) = (Scalar)1;
+          break;
+        case ADDTO:
+          Mout.template topLeftCorner<2,2>() += R.transpose();
+          Mout.template topRightCorner<2,1>() += tinv;
+          Mout(2,2) += (Scalar)1;
+          break;
+        case RMTO:
+          Mout.template topLeftCorner<2,2>() -= R.transpose();
+          Mout.template topRightCorner<2,1>() -= tinv;
+          Mout(2,2) -= (Scalar)1;
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }
+
+
+      
     }
 
     template<typename Matrix2Like, typename Vector2Like, typename TangentVector>
@@ -277,7 +299,8 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
 
@@ -285,21 +308,45 @@ namespace pinocchio
       Vector2 t;
       exp(v, R, t);
 
-      toInverseActionMatrix(R, t, Jout);
+      toInverseActionMatrix(R, t, Jout, op);
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t> & v,
-                                   const Eigen::MatrixBase<JacobianOut_t> & J)
+                                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
       // TODO sparse version
       MotionTpl<Scalar,0> nu; nu.toVector() << v.template head<2>(), 0, 0, 0, v[2]; 
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6(nu, Jtmp6);
-      Jout << Jtmp6.template    topLeftCorner<2,2>(), Jtmp6.template    topRightCorner<2,1>(),
-              Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
+
+      switch(op)
+        {
+        case SETTO:
+          Jout << Jtmp6.template topLeftCorner<2,2>(), Jtmp6.template topRightCorner<2,1>(),
+            Jtmp6.template bottomLeftCorner<1,2>(), Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        case ADDTO:
+          Jout.template topLeftCorner<2,2>() += Jtmp6.template topLeftCorner<2,2>();
+          Jout.template topRightCorner<2,1>() += Jtmp6.template topRightCorner<2,1>();
+          Jout.template bottomLeftCorner<1,2>() += Jtmp6.template bottomLeftCorner<1,2>();
+          Jout.template bottomRightCorner<1,1>() += Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        case RMTO:
+          Jout.template topLeftCorner<2,2>() -= Jtmp6.template topLeftCorner<2,2>();
+          Jout.template topRightCorner<2,1>() -= Jtmp6.template topRightCorner<2,1>();
+          Jout.template bottomLeftCorner<1,2>() -= Jtmp6.template bottomLeftCorner<1,2>();
+          Jout.template bottomRightCorner<1,1>() -= Jtmp6.template bottomRightCorner<1,1>();
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }
+
+      
     }
 
     // interpolate_impl use default implementation.
@@ -529,18 +576,49 @@ namespace pinocchio
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-      Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+
+      switch(op)
+        {
+        case SETTO:
+          Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        case ADDTO:
+          Jout += exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        case RMTO:
+          Jout -= exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
                                    const Eigen::MatrixBase<Tangent_t>  & v,
-                                   const Eigen::MatrixBase<JacobianOut_t>& J)
+                                   const Eigen::MatrixBase<JacobianOut_t>& J,
+                                   const AssignmentOperatorType op)
     {
-      Jexp6(MotionRef<const Tangent_t>(v.derived()), J.derived());
+      switch(op)
+        {
+        case SETTO:
+          Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());
+          break;
+        case ADDTO:
+          Jexp6<ADDTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          break;
+        case RMTO:
+          Jexp6<RMTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+        }      
     }
 
     // interpolate_impl use default implementation.
