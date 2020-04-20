@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -7,6 +7,7 @@
 #define __pinocchio_python_python_hpp__
 
 #include "pinocchio/fwd.hpp"
+#include <eigenpy/eigenpy.hpp>
 
 namespace pinocchio
 {
@@ -46,4 +47,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_python_hpp__
-
