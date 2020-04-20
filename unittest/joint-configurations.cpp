@@ -235,80 +235,47 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
 
   //SETTO
   dIntegrate(model,qs,vs,results[0],ARG0);
-  dIntegrate<SETTO>(model,qs,vs,results[1],ARG0);
+  dIntegrate(model,qs,vs,results[1],ARG0,SETTO);
   BOOST_CHECK(results[0].isApprox(results[1]));
 
   //ADDTO
   results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
   results[2] = results[1];
   results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
-  dIntegrate<ADDTO>(model,qs,vs,results[1],ARG0);
+  dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
+  dIntegrate(model,qs,vs,results[1],ARG0,ADDTO);
   BOOST_CHECK(results[1].isApprox(results[2] + results[0]));
 
   //RMTO
   results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
   results[2] = results[1];
   results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
-  dIntegrate<RMTO>(model,qs,vs,results[1],ARG0);
+  dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
+  dIntegrate(model,qs,vs,results[1],ARG0,RMTO);
   BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
-
-  //MUL_LEFT
-  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
-  results[2] = results[1];
-  results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
-  dIntegrate<APPLY_ON_THE_LEFT>(model,qs,vs,results[1],ARG0);
-  BOOST_CHECK(results[1].isApprox(results[0] * results[2]));  
-
-  //MUL_RIGHT
-  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
-  results[2] = results[1];
-  results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG0);
-  dIntegrate<APPLY_ON_THE_RIGHT>(model,qs,vs,results[1],ARG0);
-  BOOST_CHECK(results[1].isApprox(results[2] * results[0]));
 
   //SETTO
   results[0].setZero();
   results[1].setZero();
   dIntegrate(model,qs,vs,results[0],ARG1);
-  dIntegrate<SETTO>(model,qs,vs,results[1],ARG1);
+  dIntegrate(model,qs,vs,results[1],ARG1,SETTO);
   BOOST_CHECK(results[0].isApprox(results[1]));
 
   //ADDTO
   results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
   results[2] = results[1];
   results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG1);
-  dIntegrate<ADDTO>(model,qs,vs,results[1],ARG1);
+  dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
+  dIntegrate(model,qs,vs,results[1],ARG1,ADDTO);
   BOOST_CHECK(results[1].isApprox(results[2] + results[0]));
 
   //RMTO
   results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
   results[2] = results[1];
   results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG1);
-  dIntegrate<RMTO>(model,qs,vs,results[1],ARG1);
+  dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
+  dIntegrate(model,qs,vs,results[1],ARG1,RMTO);
   BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
-
-  //MUL_LEFT
-  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
-  results[2] = results[1];
-  results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG1);
-  dIntegrate<APPLY_ON_THE_LEFT>(model,qs,vs,results[1],ARG1);
-  BOOST_CHECK(results[1].isApprox(results[0] * results[2]));  
-
-  //MUL_RIGHT
-  results[1] = Eigen::MatrixXd::Random(model.nv, model.nv);
-  results[2] = results[1];
-  results[0].setZero();
-  dIntegrate<SETTO>(model,qs,vs,results[0],ARG1);
-  dIntegrate<APPLY_ON_THE_RIGHT>(model,qs,vs,results[1],ARG1);
-  BOOST_CHECK(results[1].isApprox(results[2] * results[0]));
-
 
 }
 
