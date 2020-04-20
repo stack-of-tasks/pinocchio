@@ -273,6 +273,20 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
   dIntegrate(model,qs,vs,results[1],ARG1,RMTO);
   BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
 
+  //Transport
+  std::vector<Eigen::MatrixXd> J(3,Eigen::MatrixXd::Zero(model.nv,2*model.nv));
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[2] = J[1];
+  dIntegrate(model,qs,vs,J[0],ARG0,SETTO);
+  dIntegrateTransport(model,qs,vs,J[2],J[1],ARG0);
+  BOOST_CHECK(results[1].isApprox(J[0] * J[2]));
+
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[2] = J[1];
+  J[0].setZero();
+  dIntegrate(model,qs,vs,J[0],ARG1,SETTO);
+  dIntegrateTransport(model,qs,vs,J[2],J[1],ARG1);
+  BOOST_CHECK(results[1].isApprox(J[0] * J[2]));  
 }
 
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
