@@ -287,7 +287,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg,
                   const AssignmentOperatorType op);
-
+  
   /**
    *
    * @brief   Computes the Jacobian of a small variation of the configuration vector or the tangent vector into the tangent space at identity.
@@ -345,6 +345,33 @@ namespace pinocchio
   {
     dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
   }
+
+
+  /**
+   *
+   * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
+   *
+   * @details This input and output has to be interpreted in terms of Lie group, not vector space: as such,
+   *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
+   *          We are moving our input matrix onto this manifold M.
+   *
+   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]  q       Initial configuration (size model.nq)
+   * @param[in]  v       Joint velocity (size model.nv)
+   * @param[out] Jin     Input Matrix (number of rows = model.nv).
+   * @param[out] Jout    Output Matrix (same size as Jin).
+   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation manifold M is generated.
+   *
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType1, typename JacobianMatrixType2>
+  void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType1> & Jin,
+                           const Eigen::MatrixBase<JacobianMatrixType2> & Jout,
+                           const ArgumentPosition arg);
+
+  
   
   /**
    *
