@@ -220,8 +220,8 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
-    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
-                                     const Eigen::MatrixBase<Tangent_t> & v,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & Jout) const
     {
@@ -229,8 +229,8 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
-    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
-                                     const Eigen::MatrixBase<Tangent_t> & v,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & Jout) const
     {
@@ -463,7 +463,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
-    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
@@ -475,7 +475,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
-    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
@@ -484,7 +484,7 @@ namespace pinocchio
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
       Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
-      Jout.noalias() = Jtmp3 * Jout;
+      Jout.noalias() = Jtmp3 * Jin;
     }
     
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
