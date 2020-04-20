@@ -175,11 +175,25 @@ namespace pinocchio
         default:
           assert(false && "Wrong Op requesed value");
           break;
-        }      
-
-      
+        }
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+    }
+    
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1) const

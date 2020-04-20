@@ -345,8 +345,22 @@ namespace pinocchio
           assert(false && "Wrong Op requesed value");
           break;
         }
+    }
 
-      
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
     }
 
     // interpolate_impl use default implementation.
@@ -621,6 +635,23 @@ namespace pinocchio
         }      
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+    }
+
+    
     // interpolate_impl use default implementation.
     // template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     // static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
