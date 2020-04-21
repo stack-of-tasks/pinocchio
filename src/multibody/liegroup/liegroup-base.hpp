@@ -161,6 +161,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -185,6 +188,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -205,6 +211,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -227,6 +236,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -247,6 +259,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -266,6 +281,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
