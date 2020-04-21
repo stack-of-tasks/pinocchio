@@ -50,7 +50,7 @@ namespace pinocchio
 
   /**
    * @brief      Retrieve the path of the file whose path is given in an url-format.
-   *             Currently convert from the folliwing patterns : package:// or file://
+   *             Currently convert from the following patterns : package:// or file://
    *
    * @param[in]  string          The path given in the url-format
    * @param[in]  package_dirs    A list of packages directories where to search for files 
