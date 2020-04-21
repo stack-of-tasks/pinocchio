@@ -416,8 +416,8 @@ namespace pinocchio
       //TODO: Remove aliasing
       Jout.template topRows<2>() = Jtmp6.template topLeftCorner<2,2>() * Jout.template topRows<2>();
       Jout.template topRows<2>().noalias() += Jtmp6.template topRightCorner<2,1>() * Jout.template bottomRows<1>();
-      Jout.template bottomRows<1>().noalias() = Jtmp6.template bottomLeftCorner<1,2>()* Jout.template topRows<2>();
-      Jout.template bottomRows<1>() += Jtmp6.template bottomRightCorner<1,1>() * Jout.template bottomRows<1>();
+      Jout.template bottomRows<1>() = Jtmp6.template bottomRightCorner<1,1>() * Jout.template bottomRows<1>();
+      Jout.template bottomRows<1>().noalias() += Jtmp6.template bottomLeftCorner<1,2>()* Jout.template topRows<2>();
     }
 
 

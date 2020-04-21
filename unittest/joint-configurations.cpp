@@ -300,10 +300,6 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
   results[0].setZero();
   dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
   dIntegrateTransportInPlace(model,qs,vs,J[1],ARG1);
-  std::cerr<<Eigen::MatrixXd(results[0].row(11))<<std::endl;
-  std::cerr<<Eigen::MatrixXd(J[0].row(11))<<std::endl;
-  std::cerr<<Eigen::MatrixXd(J[1].row(11))<<std::endl;
-  std::cerr<<J[1]-results[0] * J[0]<<std::endl;
   BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
 
 }
