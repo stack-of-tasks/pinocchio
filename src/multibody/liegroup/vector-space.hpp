@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_vector_space_operation_hpp__
-#define __pinocchio_vector_space_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_vector_space_operation_hpp__
+#define __pinocchio_multibody_liegroup_vector_space_operation_hpp__
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 
@@ -151,6 +151,36 @@ namespace pinocchio
     }
 
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+
+
+
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
@@ -193,4 +223,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_vector_space_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_vector_space_operation_hpp__

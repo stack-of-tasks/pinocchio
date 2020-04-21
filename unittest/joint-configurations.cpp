@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/parsers/sample-models.hpp"
@@ -272,6 +272,35 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
   dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
   dIntegrate(model,qs,vs,results[1],ARG1,RMTO);
   BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
+
+  //Transport
+  std::vector<Eigen::MatrixXd> J(2,Eigen::MatrixXd::Zero(model.nv,2*model.nv));
+  J[0] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
+  dIntegrateTransport(model,qs,vs,J[0],J[1],ARG0);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));
+
+  J[0] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
+  dIntegrateTransport(model,qs,vs,J[0],J[1],ARG1);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
+
+  //TransportInPlace
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[0] = J[1];
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
+  dIntegrateTransport(model,qs,vs,J[1],ARG0);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));
+
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[0] = J[1];
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
+  dIntegrateTransport(model,qs,vs,J[1],ARG1);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
 
 }
 

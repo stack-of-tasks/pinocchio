@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_special_orthogonal_operation_hpp__
-#define __pinocchio_special_orthogonal_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
+#define __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
 
 #include <limits>
 
@@ -219,6 +219,36 @@ namespace pinocchio
         }      
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & Jout) const
+    {
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+    
+
+    
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -252,10 +282,6 @@ namespace pinocchio
       }
     }
 
-    // template <class ConfigL_t, class ConfigR_t>
-    // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                       // const Eigen::MatrixBase<ConfigR_t> & q1)
-    
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t> & qout)
     {
@@ -276,8 +302,7 @@ namespace pinocchio
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
                                   const Eigen::MatrixBase<ConfigR_t> &,
-                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
-      const
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       random_impl(qout);
     }
@@ -422,12 +447,11 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
-    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
-                                   const Eigen::MatrixBase<Tangent_t>  & v,
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t> & v,
                                    const Eigen::MatrixBase<JacobianOut_t> & J,
                                    const AssignmentOperatorType op)
     {
-      
       switch(op)
         {
         case SETTO:
@@ -445,6 +469,55 @@ namespace pinocchio
         }      
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
+      const Matrix3 Jtmp3 = exp3(-v);
+      Jout.noalias() = Jtmp3 * Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
+      Matrix3 Jtmp3;
+      Jexp3<SETTO>(v, Jtmp3);
+      Jout.noalias() = Jtmp3 * Jin;
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
+      const Matrix3 Jtmp3 = exp3(-v);
+      Jout = Jtmp3 * Jout;
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
+      Matrix3 Jtmp3;
+      Jexp3<SETTO>(v, Jtmp3);
+      Jout = Jtmp3 * Jout;
+    }
+
+    
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -503,4 +576,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_special_orthogonal_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__

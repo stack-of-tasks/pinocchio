@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_lie_group_algo_hxx__
-#define __pinocchio_lie_group_algo_hxx__
+#ifndef __pinocchio_multibody_liegroup_liegroup_algo_hxx__
+#define __pinocchio_multibody_liegroup_liegroup_algo_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
@@ -191,6 +191,85 @@ namespace pinocchio
   };
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_5(dIntegrateStepAlgo);
+
+  template<typename Visitor, typename JointModel> struct dIntegrateTransportStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixInType, typename JacobianMatrixOutType>
+  struct dIntegrateTransportStep
+  : public fusion::JointUnaryVisitorBase< dIntegrateTransportStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixInType,JacobianMatrixOutType> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  const JacobianMatrixInType &,
+                                  JacobianMatrixOutType &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_5(dIntegrateTransportStepAlgo, dIntegrateTransportStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct dIntegrateTransportStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixInType, typename JacobianMatrixOutType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<JacobianMatrixInType> & mat_in,
+                    const Eigen::MatrixBase<JacobianMatrixOutType> & mat_out,
+                    const ArgumentPosition & arg)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dIntegrateTransport(jmodel.jointConfigSelector  (q.derived()),
+                              jmodel.jointVelocitySelector(v.derived()),
+                              jmodel.jointRows(mat_in.derived()),
+                              jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixOutType,mat_out)),
+                              arg);
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_5(dIntegrateTransportStepAlgo);
+
+
+  template<typename Visitor, typename JointModel> struct dIntegrateTransportInPlaceStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
+  struct dIntegrateTransportInPlaceStep
+  : public fusion::JointUnaryVisitorBase< dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  JacobianMatrixType &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateTransportInPlaceStepAlgo,
+                                            dIntegrateTransportInPlaceStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct dIntegrateTransportInPlaceStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<JacobianMatrixType> & mat,
+                    const ArgumentPosition & arg)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dIntegrateTransport(jmodel.jointConfigSelector  (q.derived()),
+                              jmodel.jointVelocitySelector(v.derived()),
+                              jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                              arg);
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateTransportInPlaceStepAlgo);
   
   template<typename Visitor, typename JointModel> struct dDifferenceStepAlgo;
   
@@ -523,4 +602,4 @@ namespace pinocchio
   
 }
 
-#endif // ifndef __pinocchio_lie_group_algo_hxx__
+#endif // ifndef __pinocchio_multibody_liegroup_liegroup_algo_hxx__

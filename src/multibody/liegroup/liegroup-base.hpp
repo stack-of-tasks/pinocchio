@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_lie_group_operation_base_hpp__
-#define __pinocchio_lie_group_operation_base_hpp__
+#ifndef __pinocchio_multibody_liegroup_liegroup_operation_base_hpp__
+#define __pinocchio_multibody_liegroup_liegroup_operation_base_hpp__
 
 #include "pinocchio/multibody/liegroup/fwd.hpp"
 
@@ -153,6 +153,150 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
                        const AssignmentOperatorType op) const;
+
+
+    /**
+     *
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q        configuration vector.
+     * @param[in]  v        tangent vector
+     * @param[in]  Jin    the input matrix
+     * @param[in]  arg    argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
+     *
+     * @param[out] Jout    Transported matrix
+     *
+     */
+    template<class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
+                             const Eigen::MatrixBase<Tangent_t>  & v,
+                             const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                             const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                             const ArgumentPosition arg) const;
+
+    /**
+     *
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector
+     * @param[in]  Jin    the input matrix
+     *
+     * @param[out] Jout    Transported matrix
+     */
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
+                                const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                const Eigen::MatrixBase<JacobianOut_t> & Jout) const;
+    /**
+     *
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector
+     * @param[in]  Jin    the input matrix
+     *
+     * @param[out] Jout    Transported matrix
+     */
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
+                                const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                const Eigen::MatrixBase<JacobianOut_t> & Jout) const;
+  
+
+    /**
+     *
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]     q       configuration vector.
+     * @param[in]     v       tangent vector
+     * @param[in,out] J       the input matrix
+     * @param[in]     arg  argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
+     */
+    template<class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
+                             const Eigen::MatrixBase<Tangent_t>  & v,
+                             const Eigen::MatrixBase<Jacobian_t> & J,
+                             const ArgumentPosition arg) const;
+
+    /**
+     *
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector
+     * @param[in]  Jin    the input matrix
+     *
+     * @param[out] Jout    Transported matrix
+    */
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
+                                const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<Jacobian_t> & J) const;
+    /**
+     *
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space at \f$ q \f$.
+   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q    configuration vector.
+     * @param[in]  v    tangent vector
+     * @param[in]  Jin    the input matrix
+     *
+     * @param[out] Jout    Transported matrix
+    */
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
+                                const Eigen::MatrixBase<Tangent_t>  & v,
+                                const Eigen::MatrixBase<Jacobian_t> & J) const;
 
     /**
      * @brief      Interpolation between two joint's configurations
@@ -386,4 +530,4 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hxx"
 
-#endif // ifndef __pinocchio_lie_group_operation_base_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_liegroup_operation_base_hpp__

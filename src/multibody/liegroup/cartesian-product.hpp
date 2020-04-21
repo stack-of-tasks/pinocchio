@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS CNRS
 //
 
-#ifndef __pinocchio_cartesian_product_operation_hpp__
-#define __pinocchio_cartesian_product_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__
+#define __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__
 
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
@@ -175,9 +175,52 @@ namespace pinocchio
         default:
           assert(false && "Wrong Op requesed value");
           break;
-        }      
+        }
+    }
 
-      
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
+    {
+      JacobianOut_t& Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
+      JacobianOut_t& Jin = PINOCCHIO_EIGEN_CONST_CAST(JacobianIn_t,J_in);
+      lg1_.dIntegrateTransport_dq(Q1(q), V1(v), Jin.template topRows<LieGroup1::NV>(),Jout.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dq(Q2(q), V2(v), Jin.template bottomRows<LieGroup2::NV>(),Jout.template bottomRows<LieGroup2::NV>());
+    }
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
+    {
+      JacobianOut_t& Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
+      JacobianOut_t& Jin = PINOCCHIO_EIGEN_CONST_CAST(JacobianIn_t,J_in);
+      lg1_.dIntegrateTransport_dv(Q1(q), V1(v), Jin.template topRows<LieGroup1::NV>(),Jout.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dv(Q2(q), V2(v), Jin.template bottomRows<LieGroup2::NV>(),Jout.template bottomRows<LieGroup2::NV>());
+    }
+    
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & Jin) const
+    {
+      Jacobian_t& J = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,Jin);
+      lg1_.dIntegrateTransport_dq(Q1(q), V1(v), J.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dq(Q2(q), V2(v), J.template bottomRows<LieGroup2::NV>());
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & Jin) const
+    {
+      Jacobian_t& J = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,Jin);
+      lg1_.dIntegrateTransport_dv(Q1(q), V1(v), J.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dv(Q2(q), V2(v), J.template bottomRows<LieGroup2::NV>());
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -252,4 +295,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_cartesian_product_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__

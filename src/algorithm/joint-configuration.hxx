@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_configuration_hxx__
-#define __pinocchio_joint_configuration_hxx__
+#ifndef __pinocchio_algorithm_joint_configuration_hxx__
+#define __pinocchio_algorithm_joint_configuration_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
@@ -171,6 +171,54 @@ namespace pinocchio
     }
   }
 
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType1, typename JacobianMatrixType2>
+  void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType1> & Jin,
+                           const Eigen::MatrixBase<JacobianMatrixType2> & Jout,
+                           const ArgumentPosition arg)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.rows() == model.nv, "The input matrix is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.rows() == Jin.rows(), "The output argument should be the same size as input matrix");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.cols() == Jin.cols(), "The output argument should be the same size as input matrix");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef dIntegrateTransportStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType1,JacobianMatrixType2> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),Jin.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType2,Jout),arg);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+  
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType> & J,
+                           const ArgumentPosition arg)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The input matrix is not of the right size");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+  
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
   void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const Eigen::MatrixBase<ConfigVector1> & q0,
@@ -373,5 +421,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_configuration_hxx__
-
+#endif // ifndef __pinocchio_algorithm_joint_configuration_hxx__
