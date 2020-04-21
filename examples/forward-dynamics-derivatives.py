@@ -1,5 +1,4 @@
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import numpy as np
 
 ##
@@ -16,8 +15,8 @@ data = model.createData()
 
 # Set bounds (by default they are undefinded for a the Simple Humanoid model)
 
-model.lowerPositionLimit = -np.matrix(np.ones((model.nq,1)))
-model.upperPositionLimit = np.matrix(np.ones((model.nq,1)))
+model.lowerPositionLimit = -np.ones((model.nq,1))
+model.upperPositionLimit = np.ones((model.nq,1))
 
 q = pin.randomConfiguration(model) # joint configuration
 v = np.matrix(np.random.rand(model.nv,1)) # joint velocity

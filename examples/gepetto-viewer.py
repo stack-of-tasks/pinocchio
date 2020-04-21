@@ -2,7 +2,6 @@
 # usage: launch gepetto-gui and then run this test
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import numpy as np
 import sys
 import os

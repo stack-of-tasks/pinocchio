@@ -4,13 +4,12 @@ import numpy as np
 from numpy.linalg import norm, solve
 
 import pinocchio
-pinocchio.switchToNumpyMatrix()
 
 model = pinocchio.buildSampleModelManipulator()
 data  = model.createData()
 
 JOINT_ID = 6
-oMdes = pinocchio.SE3(pinocchio.utils.eye(3), np.matrix([1., 0., 1.]).T)
+oMdes = pinocchio.SE3(np.eye(3), np.array([1., 0., 1.]))
 
 q      = pinocchio.neutral(model)
 eps    = 1e-4

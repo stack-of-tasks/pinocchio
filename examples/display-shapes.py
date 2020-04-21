@@ -8,8 +8,6 @@ except ImportError:
     sys.exit(0)
 from pinocchio.visualize import GepettoVisualizer
 
-pin.switchToNumpyArray()
-
 model = pin.Model()
 
 geom_model = pin.GeometryModel()

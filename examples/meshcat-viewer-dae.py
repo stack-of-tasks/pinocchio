@@ -3,7 +3,6 @@
 # pip install --user meshcat
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import numpy as np
 import sys
 import os
@@ -49,7 +48,7 @@ except ImportError as err:
 viz.loadViewerModel(color = [0.0, 0.0, 0.0, 1.0])
 
 # Display a robot configuration.
-q0 = np.matrix([
+q0 = np.array([
     0, 0, 0.840252, 0, 0, 0, 1,  # Free flyer
     0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # left leg
     0, 0, -0.3490658, 0.6981317, -0.3490658, 0,  # right leg
