@@ -202,6 +202,27 @@ namespace pinocchio
       lg2_.dIntegrateTransport_dv(Q2(q), V2(v), Jin.template bottomRows<LieGroup2::NV>(),Jout.template bottomRows<LieGroup2::NV>());
     }
     
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & Jin) const
+    {
+      Jacobian_t& J = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,Jin);
+      lg1_.dIntegrateTransport_dq(Q1(q), V1(v), J.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dq(Q2(q), V2(v), J.template bottomRows<LieGroup2::NV>());
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & Jin) const
+    {
+      Jacobian_t& J = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,Jin);
+      lg1_.dIntegrateTransport_dv(Q1(q), V1(v), J.template topRows<LieGroup1::NV>());
+      lg2_.dIntegrateTransport_dv(Q2(q), V2(v), J.template bottomRows<LieGroup2::NV>());
+    }
+
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                 const Eigen::MatrixBase<ConfigR_t> & q1) const
