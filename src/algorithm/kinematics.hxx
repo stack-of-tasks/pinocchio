@@ -240,6 +240,28 @@ namespace pinocchio
         throw std::invalid_argument("Bad reference frame.");
     }
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const JointIndex jointId,
+                  const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_UNUSED_VARIABLE(model);
+    switch(rf)
+    {
+      case ReferenceFrame::LOCAL:
+        return data.a[jointId];
+      case ReferenceFrame::WORLD:
+        return data.oMi[jointId].act(data.a[jointId]);
+      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+        return MotionTpl<Scalar, Options>(data.oMi[jointId].rotation() * data.a[jointId].linear(), data.oMi[jointId].rotation() * data.a[jointId].angular());
+      default:
+        throw std::invalid_argument("Bad reference frame.");
+    }
+  }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_kinematics_hxx__
