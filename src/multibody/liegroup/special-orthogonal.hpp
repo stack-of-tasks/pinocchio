@@ -475,7 +475,8 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
     {
-      typedef typename SE3::Matrix3 Matrix3;
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename SE3Tpl<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options>::Matrix3 Matrix3;
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
       const Matrix3 Jtmp3 = exp3(-v);
       Jout.noalias() = Jtmp3 * Jin;
@@ -487,7 +488,8 @@ namespace pinocchio
                                      const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                      const Eigen::MatrixBase<JacobianOut_t> & J_out) const
     {
-      typedef typename SE3::Matrix3 Matrix3;
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename SE3Tpl<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options>::Matrix3 Matrix3;
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J_out);
       Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
@@ -499,7 +501,8 @@ namespace pinocchio
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
-      typedef typename SE3::Matrix3 Matrix3;
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename SE3Tpl<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options>::Matrix3 Matrix3;
       Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
       const Matrix3 Jtmp3 = exp3(-v);
       Jout = Jtmp3 * Jout;
@@ -510,7 +513,8 @@ namespace pinocchio
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
-      typedef typename SE3::Matrix3 Matrix3;
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename SE3Tpl<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options>::Matrix3 Matrix3;
       Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
       Matrix3 Jtmp3;
       Jexp3<SETTO>(v, Jtmp3);
