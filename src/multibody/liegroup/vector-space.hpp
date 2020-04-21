@@ -169,6 +169,18 @@ namespace pinocchio
       PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
     }
 
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & J) const {}
+
+
+
     // template <class ConfigL_t, class ConfigR_t>
     // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
