@@ -156,20 +156,22 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
 
     /**
-     * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
      *
-     * @param[in]  q    configuration vector.
-     * @param[in]  v    tangent vector
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]  q        configuration vector.
+     * @param[in]  v        tangent vector
      * @param[in]  Jin    the input matrix
-     * @param[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
+     * @param[in]  arg    argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
      *
      * @param[out] Jout    Transported matrix
+     *
      */
-    
     template<class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
                              const Eigen::MatrixBase<Tangent_t>  & v,
@@ -178,11 +180,13 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                              const ArgumentPosition arg) const;
 
     /**
-     * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, ARG0) creates a manifold manifold M given by a small variation of the configuration vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
@@ -196,11 +200,13 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                                 const Eigen::MatrixBase<JacobianIn_t> & Jin,
                                 const Eigen::MatrixBase<JacobianOut_t> & Jout) const;
     /**
-     * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, ARG1) creates a manifold manifold M given by a small variation of the tangent vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
@@ -216,18 +222,19 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
   
 
     /**
-     * @brief   TransportInPlace an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
      *
-     * @param[in]  q    configuration vector.
-     * @param[in]  v    tangent vector
-     * @param[in,out]  J   the input matrix
-     * @param[in] arg  ARG0 (resp. ARG1) to get the Jacobian with respect to q (resp. v).
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
+     * @param[in]     q       configuration vector.
+     * @param[in]     v       tangent vector
+     * @param[in,out] J       the input matrix
+     * @param[in]     arg  argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
      */
-    
     template<class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
                              const Eigen::MatrixBase<Tangent_t>  & v,
@@ -235,32 +242,39 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                              const ArgumentPosition arg) const;
 
     /**
-     * @brief   Transportinplace an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, ARG0) creates a manifold manifold M given by a small variation of the configuration vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in,out]  J   the input matrix
+     * @param[in]  Jin    the input matrix
      *
-     */
+     * @param[out] Jout    Transported matrix
+    */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
                                 const Eigen::MatrixBase<Tangent_t>  & v,
                                 const Eigen::MatrixBase<Jacobian_t> & J) const;
     /**
-     * @brief   TransportInPlace an input matrix to the manifold defined by the dIntegrate computation.
      *
-     * @details This input and output has to be interpreted in terms of Lie group, not vector space:
-     *          Thus, dIntegrate(q, v, J, ARG1) creates a manifold manifold M given by a small variation of the tangent vector into the tangent space at identity.
-     *          We are moving our input matrix onto this manifold M.
+     * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
+     *
+     * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+     *          to the tangent space of \f$ q \f$.
+     *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+     *          For Lie groups, its corresponds to the canonical vector field transportation.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in,out]  J   the input matrix
+     * @param[in]  Jin    the input matrix
      *
      * @param[out] Jout    Transported matrix
-     */
+    */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
                                 const Eigen::MatrixBase<Tangent_t>  & v,
