@@ -80,6 +80,26 @@ namespace pinocchio
                                 const Eigen::MatrixBase<TangentVectorType1> & v,
                                 const Eigen::MatrixBase<TangentVectorType2> & a);
 
+  /**
+   * @brief      Returns the spatial velocity of the joint expressed in the desired reference frame.
+   *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
+   *
+   * @param[in] model     The kinematic model
+   * @param[in] data      Data associated to model
+   * @param[in] jointId   Id of the joint
+   * @param[in] rf        Reference frame in which the velocity is expressed.
+   *
+   * @return     The spatial velocity of the joint expressed in the desired reference frame.
+   *
+   * @warning    Fist or second order forwardKinematics should have been called first
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+              const JointIndex jointId,
+              const ReferenceFrame rf = ReferenceFrame::LOCAL);
+
 } // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
