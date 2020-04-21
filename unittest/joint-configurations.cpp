@@ -274,18 +274,38 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
   BOOST_CHECK(results[1].isApprox(results[2] - results[0]));
 
   //Transport
-  std::vector<Eigen::MatrixXd> J(3,Eigen::MatrixXd::Zero(model.nv,2*model.nv));
-  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  std::vector<Eigen::MatrixXd> J(2,Eigen::MatrixXd::Zero(model.nv,2*model.nv));
+  J[0] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
   results[0].setZero();
   dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
-  dIntegrateTransport(model,qs,vs,J[1],J[2],ARG0);
-  BOOST_CHECK(J[2].isApprox(results[0] * J[1]));
+  dIntegrateTransport(model,qs,vs,J[0],J[1],ARG0);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));
 
-  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[0] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
   results[0].setZero();
   dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
-  dIntegrateTransport(model,qs,vs,J[1],J[2],ARG1);
-  BOOST_CHECK(J[2].isApprox(results[0] * J[1]));  
+  dIntegrateTransport(model,qs,vs,J[0],J[1],ARG1);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
+
+  //TransportInPlace
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[0] = J[1];
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
+  dIntegrateTransportInPlace(model,qs,vs,J[1],ARG0);
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));
+
+  J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
+  J[0] = J[1];
+  results[0].setZero();
+  dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
+  dIntegrateTransportInPlace(model,qs,vs,J[1],ARG1);
+  std::cerr<<Eigen::MatrixXd(results[0].row(11))<<std::endl;
+  std::cerr<<Eigen::MatrixXd(J[0].row(11))<<std::endl;
+  std::cerr<<Eigen::MatrixXd(J[1].row(11))<<std::endl;
+  std::cerr<<J[1]-results[0] * J[0]<<std::endl;
+  BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
+
 }
 
 BOOST_AUTO_TEST_CASE ( integrate_difference_test )
