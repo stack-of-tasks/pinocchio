@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_lie_group_operation_base_hxx__
-#define __pinocchio_lie_group_operation_base_hxx__
+#ifndef __pinocchio_multibody_liegroup_liegroup_operation_base_hxx__
+#define __pinocchio_multibody_liegroup_liegroup_operation_base_hxx__
 
 #include "pinocchio/macros.hpp"
 
@@ -463,4 +463,4 @@ namespace pinocchio {
 
 } // namespace pinocchio
 
-#endif // __pinocchio_lie_group_operation_base_hxx__
+#endif // __pinocchio_multibody_liegroup_liegroup_operation_base_hxx__

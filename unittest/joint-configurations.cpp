@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/parsers/sample-models.hpp"

@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_special_orthogonal_operation_hpp__
-#define __pinocchio_special_orthogonal_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
+#define __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
 
 #include <limits>
 
@@ -581,4 +581,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_special_orthogonal_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__

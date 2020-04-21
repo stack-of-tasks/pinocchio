@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS CNRS
 //
 
-#ifndef __pinocchio_cartesian_product_operation_hpp__
-#define __pinocchio_cartesian_product_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__
+#define __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__
 
 #include <pinocchio/multibody/liegroup/liegroup-base.hpp>
 
@@ -295,4 +295,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_cartesian_product_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_cartesian_product_operation_hpp__

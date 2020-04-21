@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_special_euclidean_operation_hpp__
-#define __pinocchio_special_euclidean_operation_hpp__
+#ifndef __pinocchio_multibody_liegroup_special_euclidean_operation_hpp__
+#define __pinocchio_multibody_liegroup_special_euclidean_operation_hpp__
 
 #include <limits>
 
@@ -808,4 +808,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_special_euclidean_operation_hpp__
+#endif // ifndef __pinocchio_multibody_liegroup_special_euclidean_operation_hpp__
