@@ -262,10 +262,10 @@ namespace pinocchio
       typedef typename Visitor::LieGroupMap LieGroupMap;
       
       typename LieGroupMap::template operation<JointModel>::type lgo;
-      lgo.dIntegrateTransportInPlace(jmodel.jointConfigSelector  (q.derived()),
-                                     jmodel.jointVelocitySelector(v.derived()),
-                                     jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
-                                     arg);
+      lgo.dIntegrateTransport(jmodel.jointConfigSelector  (q.derived()),
+                              jmodel.jointVelocitySelector(v.derived()),
+                              jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                              arg);
     }
   };
   
