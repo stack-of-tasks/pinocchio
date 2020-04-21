@@ -132,4 +132,31 @@ BOOST_AUTO_TEST_CASE(test_get_velocity)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_get_acceleration)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model);
+
+  Data data(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+
+  forwardKinematics(model,data,q,v,a);
+
+  for(Model::JointIndex i = 1; i < (Model::JointIndex)model.njoints; ++i)
+  {
+    BOOST_CHECK(data.a[i].isApprox(getAcceleration(model,data,i)));
+    BOOST_CHECK(data.a[i].isApprox(getAcceleration(model,data,i,ReferenceFrame::LOCAL)));
+    BOOST_CHECK(data.oMi[i].act(data.a[i]).isApprox(getAcceleration(model,data,i,ReferenceFrame::WORLD)));
+    BOOST_CHECK(SE3(data.oMi[i].rotation(), Eigen::Vector3d::Zero()).act(data.a[i]).isApprox(getAcceleration(model,data,i,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
