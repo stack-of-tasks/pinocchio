@@ -196,6 +196,29 @@ namespace pinocchio
     }
   }
   
+
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
+  void dIntegrateTransportInPlace(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType> & J,
+                           const ArgumentPosition arg)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The input matrix is not of the right size");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+    }
+  }
+  
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector1, typename ConfigVector2, typename JacobianMatrix>
   void dDifference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const Eigen::MatrixBase<ConfigVector1> & q0,
