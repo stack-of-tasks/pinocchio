@@ -160,7 +160,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -184,7 +184,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -204,7 +204,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -226,7 +226,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration or the velocity arguments.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -246,7 +246,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the configuration argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -265,7 +265,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation, with respect to the velocity argument.
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
-     *          to the tangent space of \f$ q \f$.
+     *          to the tangent space at \f$ q \f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
