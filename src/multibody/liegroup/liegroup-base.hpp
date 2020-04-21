@@ -161,6 +161,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @details This input and output has to be interpreted in terms of Lie group, not vector space:
      *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
      *          We are moving our input matrix onto this manifold M.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
      * @param[in]  Jin    the input matrix
@@ -182,6 +183,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @details This input and output has to be interpreted in terms of Lie group, not vector space:
      *          Thus, dIntegrate(q, v, J, ARG0) creates a manifold manifold M given by a small variation of the configuration vector into the tangent space at identity.
      *          We are moving our input matrix onto this manifold M.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
      * @param[in]  Jin    the input matrix
@@ -199,6 +201,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @details This input and output has to be interpreted in terms of Lie group, not vector space:
      *          Thus, dIntegrate(q, v, J, ARG1) creates a manifold manifold M given by a small variation of the tangent vector into the tangent space at identity.
      *          We are moving our input matrix onto this manifold M.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
      * @param[in]  Jin    the input matrix
@@ -218,6 +221,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @details This input and output has to be interpreted in terms of Lie group, not vector space:
      *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
      *          We are moving our input matrix onto this manifold M.
+     *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
      * @param[in,out]  J   the input matrix
@@ -225,7 +229,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      */
     
     template<class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace(const Eigen::MatrixBase<Config_t >  & q,
+    void dIntegrateTransport(const Eigen::MatrixBase<Config_t >  & q,
                              const Eigen::MatrixBase<Tangent_t>  & v,
                              const Eigen::MatrixBase<Jacobian_t> & J,
                              const ArgumentPosition arg) const;
@@ -242,7 +246,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      */
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq(const Eigen::MatrixBase<Config_t >  & q,
+    void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
                                 const Eigen::MatrixBase<Tangent_t>  & v,
                                 const Eigen::MatrixBase<Jacobian_t> & J) const;
     /**
@@ -258,7 +262,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @param[out] Jout    Transported matrix
      */
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv(const Eigen::MatrixBase<Config_t >  & q,
+    void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
                                 const Eigen::MatrixBase<Tangent_t>  & v,
                                 const Eigen::MatrixBase<Jacobian_t> & J) const;
 

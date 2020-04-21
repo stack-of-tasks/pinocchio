@@ -204,7 +204,7 @@ namespace pinocchio
     
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & q,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & Jin) const
     {
@@ -214,7 +214,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & q,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & Jin) const
     {

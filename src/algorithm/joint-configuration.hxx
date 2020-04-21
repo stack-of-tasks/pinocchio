@@ -198,7 +198,7 @@ namespace pinocchio
   
 
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
-  void dIntegrateTransportInPlace(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                   const Eigen::MatrixBase<ConfigVectorType> & q,
                                   const Eigen::MatrixBase<TangentVectorType> & v,
                                   const Eigen::MatrixBase<JacobianMatrixType> & J,
@@ -211,7 +211,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typedef dIntegrateTransportStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
     typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {

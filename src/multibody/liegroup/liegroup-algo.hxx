@@ -233,11 +233,11 @@ namespace pinocchio
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_5(dIntegrateTransportStepAlgo);
 
 
-  template<typename Visitor, typename JointModel> struct dIntegrateTransportInPlaceStepAlgo;
+  template<typename Visitor, typename JointModel> struct dIntegrateTransportStepAlgo;
   
   template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
-  struct dIntegrateTransportInPlaceStep
-  : public fusion::JointUnaryVisitorBase< dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+  struct dIntegrateTransportStep
+  : public fusion::JointUnaryVisitorBase< dIntegrateTransportStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
                                   const TangentVectorIn &,
@@ -245,11 +245,11 @@ namespace pinocchio
                                   const ArgumentPosition &
                                   > ArgsType;
     
-    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateTransportInPlaceStepAlgo, dIntegrateTransportInPlaceStep)
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateTransportStepAlgo, dIntegrateTransportStep)
   };
   
   template<typename Visitor, typename JointModel>
-  struct dIntegrateTransportInPlaceStepAlgo
+  struct dIntegrateTransportStepAlgo
   {
     template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
     static void run(const JointModelBase<JointModel> & jmodel,
@@ -261,14 +261,14 @@ namespace pinocchio
       typedef typename Visitor::LieGroupMap LieGroupMap;
       
       typename LieGroupMap::template operation<JointModel>::type lgo;
-      lgo.dIntegrateTransportInPlace(jmodel.jointConfigSelector  (q.derived()),
+      lgo.dIntegrateTransport(jmodel.jointConfigSelector  (q.derived()),
                               jmodel.jointVelocitySelector(v.derived()),
                               jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
                               arg);
     }
   };
   
-  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateTransportInPlaceStepAlgo);
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateTransportStepAlgo);
   
   template<typename Visitor, typename JointModel> struct dDifferenceStepAlgo;
   

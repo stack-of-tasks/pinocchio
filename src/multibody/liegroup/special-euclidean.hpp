@@ -236,9 +236,9 @@ namespace pinocchio
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
-    void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
-                           const Eigen::MatrixBase<ConfigR_t> & q1,
-                           const Eigen::MatrixBase<JacobianOut_t>& J) const
+    void dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const Eigen::MatrixBase<JacobianOut_t>& J) const
     {
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
@@ -378,15 +378,19 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6(nu, Jtmp6);
       
-      Jout.template topRows<2>().noalias() = Jtmp6.template topLeftCorner<2,2>() * Jin.template topRows<2>();
-      Jout.template topRows<2>().noalias() += Jtmp6.template topRightCorner<2,1>() * Jin.template bottomRows<1>();
-      Jout.template bottomRows<1>().noalias() = Jtmp6.template bottomLeftCorner<1,2>()* Jin.template topRows<2>();
-      Jout.template bottomRows<1>().noalias() += Jtmp6.template bottomRightCorner<1,1>() * Jin.template bottomRows<1>();
+      Jout.template topRows<2>().noalias()
+      = Jtmp6.template topLeftCorner<2,2>() * Jin.template topRows<2>();
+      Jout.template topRows<2>().noalias()
+      += Jtmp6.template topRightCorner<2,1>() * Jin.template bottomRows<1>();
+      Jout.template bottomRows<1>().noalias()
+      = Jtmp6.template bottomLeftCorner<1,2>()* Jin.template topRows<2>();
+      Jout.template bottomRows<1>().noalias()
+      += Jtmp6.template bottomRightCorner<1,1>() * Jin.template bottomRows<1>();
 
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J) const
     {
@@ -396,7 +400,7 @@ namespace pinocchio
       exp(v, R, t);
 
       Vector2 tinv = (R.transpose() * t).reverse();
-      tinv[0] *= Scalar(-1.);
+      tinv[0] *= Scalar(-1);
       //TODO: Aliasing
       Jout.template topRows<2>() = R.transpose() * Jout.template topRows<2>();
       //No Aliasing
@@ -404,7 +408,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J) const
     {
@@ -414,33 +418,24 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6(nu, Jtmp6);
       //TODO: Remove aliasing
-      Jout.template topRows<2>() = Jtmp6.template topLeftCorner<2,2>() * Jout.template topRows<2>();
-      Jout.template topRows<2>().noalias() += Jtmp6.template topRightCorner<2,1>() * Jout.template bottomRows<1>();
-      Jout.template bottomRows<1>() = Jtmp6.template bottomRightCorner<1,1>() * Jout.template bottomRows<1>();
-      Jout.template bottomRows<1>().noalias() += Jtmp6.template bottomLeftCorner<1,2>()* Jout.template topRows<2>();
+      Jout.template topRows<2>()
+      = Jtmp6.template topLeftCorner<2,2>() * Jout.template topRows<2>();
+      Jout.template topRows<2>().noalias()
+      += Jtmp6.template topRightCorner<2,1>() * Jout.template bottomRows<1>();
+      Jout.template bottomRows<1>()
+      = Jtmp6.template bottomRightCorner<1,1>() * Jout.template bottomRows<1>();
+      Jout.template bottomRows<1>().noalias()
+      += Jtmp6.template bottomLeftCorner<1,2>() * Jout.template topRows<2>();
     }
 
-
-
-
-    // interpolate_impl use default implementation.
-    // template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    // static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 // const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 // const Scalar& u,
-                                 // const Eigen::MatrixBase<ConfigOut_t>& qout)
-
-    // template <class ConfigL_t, class ConfigR_t>
-    // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                       // const Eigen::MatrixBase<ConfigR_t> & q1)
     template <class Config_t>
-    static void normalize_impl (const Eigen::MatrixBase<Config_t>& qout)
+    static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout)
     {
       PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).template tail<2>().normalize();
     }
 
     template <class Config_t>
-    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
+    void random_impl(const Eigen::MatrixBase<Config_t> & qout) const
     {
       R2crossSO2_t().random(qout);
     }
@@ -656,7 +651,7 @@ namespace pinocchio
       JacobianOut_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
 
       switch(op)
-        {
+      {
         case SETTO:
           Jout = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
           break;
@@ -669,7 +664,7 @@ namespace pinocchio
         default:
           assert(false && "Wrong Op requesed value");
           break;
-        }      
+      }
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
@@ -679,20 +674,20 @@ namespace pinocchio
                                    const AssignmentOperatorType op)
     {
       switch(op)
-        {
+      {
         case SETTO:
           Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());
           break;
         case ADDTO:
-          Jexp6<ADDTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          Jexp6<ADDTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());
           break;
         case RMTO:
-          Jexp6<RMTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());          
+          Jexp6<RMTO>(MotionRef<const Tangent_t>(v.derived()), J.derived());
           break;
         default:
           assert(false && "Wrong Op requesed value");
           break;
-        }      
+      }
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
@@ -705,9 +700,12 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jtmp6 = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
       
-      Jout.template topRows<3>().noalias() = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
-      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
-      Jout.template bottomRows<3>().noalias() = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template topRows<3>().noalias()
+      = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
+      Jout.template topRows<3>().noalias()
+      += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template bottomRows<3>().noalias()
+      = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
     }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
@@ -720,14 +718,17 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), Jtmp6);
 
-      Jout.template topRows<3>().noalias() = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
-      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
-      Jout.template bottomRows<3>().noalias() = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template topRows<3>().noalias()
+      = Jtmp6.template topLeftCorner<3,3>() * Jin.template topRows<3>();
+      Jout.template topRows<3>().noalias()
+      += Jtmp6.template topRightCorner<3,3>() * Jin.template bottomRows<3>();
+      Jout.template bottomRows<3>().noalias()
+      = Jtmp6.template bottomRightCorner<3,3>() * Jin.template bottomRows<3>();
     }
 
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
@@ -736,13 +737,16 @@ namespace pinocchio
       Jtmp6 = exp6(MotionRef<const Tangent_t>(v.derived())).toDualActionMatrix().transpose();
 
       //Aliasing
-      Jout.template topRows<3>() = Jtmp6.template topLeftCorner<3,3>() * Jout.template topRows<3>();
-      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jout.template bottomRows<3>();
-      Jout.template bottomRows<3>() = Jtmp6.template bottomRightCorner<3,3>() * Jout.template bottomRows<3>();
+      Jout.template topRows<3>()
+      = Jtmp6.template topLeftCorner<3,3>() * Jout.template topRows<3>();
+      Jout.template topRows<3>().noalias()
+      += Jtmp6.template topRightCorner<3,3>() * Jout.template bottomRows<3>();
+      Jout.template bottomRows<3>()
+      = Jtmp6.template bottomRightCorner<3,3>() * Jout.template bottomRows<3>();
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
@@ -750,21 +754,13 @@ namespace pinocchio
       Eigen::Matrix<Scalar,6,6> Jtmp6;
       Jexp6<SETTO>(MotionRef<const Tangent_t>(v.derived()), Jtmp6);
 
-      Jout.template topRows<3>() = Jtmp6.template topLeftCorner<3,3>() * Jout.template topRows<3>();
-      Jout.template topRows<3>().noalias() += Jtmp6.template topRightCorner<3,3>() * Jout.template bottomRows<3>();
-      Jout.template bottomRows<3>() = Jtmp6.template bottomRightCorner<3,3>() * Jout.template bottomRows<3>();
+      Jout.template topRows<3>()
+      = Jtmp6.template topLeftCorner<3,3>() * Jout.template topRows<3>();
+      Jout.template topRows<3>().noalias()
+      += Jtmp6.template topRightCorner<3,3>() * Jout.template bottomRows<3>();
+      Jout.template bottomRows<3>()
+      = Jtmp6.template bottomRightCorner<3,3>() * Jout.template bottomRows<3>();
     }
-
-    
-    
-    // interpolate_impl use default implementation.
-    // template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
-    // static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                 // const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 // const Scalar& u,
-                                 // const Eigen::MatrixBase<ConfigOut_t>& qout)
-    // {
-    // }
 
     template <class ConfigL_t, class ConfigR_t>
     static Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

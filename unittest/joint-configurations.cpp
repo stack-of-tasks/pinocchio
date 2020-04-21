@@ -292,14 +292,14 @@ BOOST_AUTO_TEST_CASE ( dIntegrate_assignementop_test )
   J[0] = J[1];
   results[0].setZero();
   dIntegrate(model,qs,vs,results[0],ARG0,SETTO);
-  dIntegrateTransportInPlace(model,qs,vs,J[1],ARG0);
+  dIntegrateTransport(model,qs,vs,J[1],ARG0);
   BOOST_CHECK(J[1].isApprox(results[0] * J[0]));
 
   J[1] = Eigen::MatrixXd::Random(model.nv, 2*model.nv);
   J[0] = J[1];
   results[0].setZero();
   dIntegrate(model,qs,vs,results[0],ARG1,SETTO);
-  dIntegrateTransportInPlace(model,qs,vs,J[1],ARG1);
+  dIntegrateTransport(model,qs,vs,J[1],ARG1);
   BOOST_CHECK(J[1].isApprox(results[0] * J[0]));  
 
 }

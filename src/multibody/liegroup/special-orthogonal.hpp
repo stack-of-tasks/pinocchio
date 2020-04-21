@@ -238,12 +238,12 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & /*v*/,
                                      const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & /*v*/,
                                      const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
     
@@ -282,10 +282,6 @@ namespace pinocchio
       }
     }
 
-    // template <class ConfigL_t, class ConfigR_t>
-    // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                       // const Eigen::MatrixBase<ConfigR_t> & q1)
-    
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t> & qout)
     {
@@ -306,8 +302,7 @@ namespace pinocchio
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> &,
                                   const Eigen::MatrixBase<ConfigR_t> &,
-                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
-      const
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout) const
     {
       random_impl(qout);
     }
@@ -452,8 +447,8 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
-    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t >  & /*q*/,
-                                   const Eigen::MatrixBase<Tangent_t>  & v,
+    static void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                   const Eigen::MatrixBase<Tangent_t> & v,
                                    const Eigen::MatrixBase<JacobianOut_t> & J,
                                    const AssignmentOperatorType op)
     {
@@ -500,7 +495,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
@@ -511,7 +506,7 @@ namespace pinocchio
     }
 
     template <class Config_t, class Tangent_t, class Jacobian_t>
-    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+    void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<Jacobian_t> & J_out) const
     {
