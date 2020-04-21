@@ -443,7 +443,7 @@ namespace pinocchio
                                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                                   const ArgumentPosition arg)
   {
-    dIntegrateTransport<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    dIntegrateTransportInPlace<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
   }
 
   /**

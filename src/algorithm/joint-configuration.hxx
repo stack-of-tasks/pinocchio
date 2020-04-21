@@ -211,7 +211,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef dIntegrateTransportStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
+    typedef dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorType,TangentVectorType,JacobianMatrixType> Algo;
     typename Algo::ArgsType args(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
