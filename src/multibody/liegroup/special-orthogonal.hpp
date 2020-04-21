@@ -236,6 +236,18 @@ namespace pinocchio
     {
       PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout) = Jin;
     }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & /*v*/,
+                                     const Eigen::MatrixBase<Jacobian_t> & /*J*/) const {}
+    
+
     
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
@@ -486,6 +498,30 @@ namespace pinocchio
       Jexp3<SETTO>(v, Jtmp3);
       Jout.noalias() = Jtmp3 * Jin;
     }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
+      const Matrix3 Jtmp3 = exp3(-v);
+      Jout = Jtmp3 * Jout;
+    }
+
+    template <class Config_t, class Tangent_t, class Jacobian_t>
+    void dIntegrateTransportInPlace_dv_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
+                                     const Eigen::MatrixBase<Tangent_t> & v,
+                                     const Eigen::MatrixBase<Jacobian_t> & J_out) const
+    {
+      typedef typename SE3::Matrix3 Matrix3;
+      Jacobian_t & Jout = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J_out);
+      Matrix3 Jtmp3;
+      Jexp3<SETTO>(v, Jtmp3);
+      Jout = Jtmp3 * Jout;
+    }
+
     
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
