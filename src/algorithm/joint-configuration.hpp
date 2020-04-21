@@ -5,9 +5,7 @@
 #ifndef __pinocchio_algorithm_joint_configuration_hpp__
 #define __pinocchio_algorithm_joint_configuration_hpp__
 
-#include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
-
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 
 namespace pinocchio
@@ -346,21 +344,21 @@ namespace pinocchio
     dIntegrate<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg,op);
   }
 
-
   /**
    *
-   * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
+   * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation.
    *
-   * @details This input and output has to be interpreted in terms of Lie group, not vector space: as such,
-   *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-   *          We are moving our input matrix onto this manifold M.
+   * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+   *          to the tangent space of \f$ q \f$.
+   *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+   *          For Lie groups, its corresponds to the canonical vector field transportation.
    *
    * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[out] Jin     Input Matrix (number of rows = model.nv).
-   * @param[out] Jout    Output Matrix (same size as Jin).
-   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation manifold M is generated.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
+   * @param[out] Jin        Input matrix (number of rows = model.nv).
+   * @param[out] Jout      Output matrix (same size as Jin).
+   * @param[in]  arg        Argument (either ARG0 for q or ARG1 for v) with respect to which the differentation is performed.
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType1, typename JacobianMatrixType2>
@@ -373,20 +371,21 @@ namespace pinocchio
 
   /**
    *
-   * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
+   * @brief   Transport a matrix from the terminal to the originate tangent space of the integrate operation.
    *
-   * @details This input and output has to be interpreted in terms of Lie group, not vector space: as such,
-   *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-   *          We are moving our input matrix onto this manifold M.
+   * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+   *          to the tangent space of \f$ q \f$.
+   *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+   *          For Lie groups, its corresponds to the canonical vector field transportation.
    *
    * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[out] Jin     Input Matrix (number of rows = model.nv).
-   * @param[out] Jout    Output Matrix (same size as Jin).
-   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation manifold M is generated.
+   * @param[in]  q            Initial configuration (size model.nq)
+   * @param[in]  v            Joint velocity (size model.nv)
+   * @param[out] Jin        Input matrix (number of rows = model.nv).
+   * @param[out] Jout      Output matrix (same size as Jin).
+   * @param[in]  arg        Argument (either ARG0 for q or ARG1 for v) with respect to which the differentation is performed.
    *
-   */
+  */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType1, typename JacobianMatrixType2>
   void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -398,51 +397,51 @@ namespace pinocchio
     dIntegrateTransport<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType1,JacobianMatrixType2>(model, q.derived(), v.derived(), Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType2,Jout),arg);
   }
 
-
-
   /**
    *
-   * @brief   Transportinplace an input matrix to the manifold defined by the dIntegrate computation.
+   * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation.
    *
-   * @details This input and output has to be interpreted in terms of Lie group, not vector space: as such,
-   *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-   *          We are moving our input matrix onto this manifold M.
+   * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+   *          to the tangent space of \f$ q \f$.
+   *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+   *          For Lie groups, its corresponds to the canonical vector field transportation.
    *
-   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[in,out]  J   Input Matrix (number of rows = model.nv).
-   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation manifold M is generated.
+   * @param[in]     model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]     q            Initial configuration (size model.nq)
+   * @param[in]     v            Joint velocity (size model.nv)
+   * @param[in,out] J            Input/output matrix (number of rows = model.nv).
+   * @param[in]     arg        Argument (either ARG0 for q or ARG1 for v) with respect to which the differentation is performed.
    *
-   */
+  */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrateTransportInPlace(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Eigen::MatrixBase<TangentVectorType> & v,
-                           const Eigen::MatrixBase<JacobianMatrixType> & J,
-                           const ArgumentPosition arg);
+                                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                                  const Eigen::MatrixBase<TangentVectorType> & v,
+                                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                                  const ArgumentPosition arg);
 
   /**
    *
-   * @brief   Transport an input matrix to the manifold defined by the dIntegrate computation.
+   * @brief   Transport in place a matrix from the terminal to the originate tangent space of the integrate operation.
    *
-   * @details This input and output has to be interpreted in terms of Lie group, not vector space: as such,
-   *          Thus, dIntegrate(q, v, J, arg) creates a manifold manifold M given by a small variation of the configuration vector or the tangent vector into the tangent space at identity.
-   *          We are moving our input matrix onto this manifold M.
+   * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
+   *          to the tangent space of \f$ q \f$.
+   *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
+   *          For Lie groups, its corresponds to the canonical vector field transportation.
    *
-   * @param[in]  model   Model of the kinematic tree on which the integration operation is performed.
-   * @param[in]  q       Initial configuration (size model.nq)
-   * @param[in]  v       Joint velocity (size model.nv)
-   * @param[in,out]  J   Input Matrix (number of rows = model.nv).
-   * @param[in]  arg     Argument (either q or v) with respect to which the differentiation manifold M is generated.
+   * @param[in]     model   Model of the kinematic tree on which the integration operation is performed.
+   * @param[in]     q            Initial configuration (size model.nq)
+   * @param[in]     v            Joint velocity (size model.nv)
+   * @param[in,out] J            Input/output matrix (number of rows = model.nv).
+   * @param[in]     arg        Argument (either ARG0 for q or ARG1 for v) with respect to which the differentation is performed.
    *
-   */
+  */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrateTransportInPlace(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Eigen::MatrixBase<TangentVectorType> & v,
-                           const Eigen::MatrixBase<JacobianMatrixType> & J,
-                           const ArgumentPosition arg)
+                                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                                  const Eigen::MatrixBase<TangentVectorType> & v,
+                                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                                  const ArgumentPosition arg)
   {
     dIntegrateTransportInPlace<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
   }

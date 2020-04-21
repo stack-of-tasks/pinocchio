@@ -199,10 +199,10 @@ namespace pinocchio
 
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrateTransportInPlace(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Eigen::MatrixBase<TangentVectorType> & v,
-                           const Eigen::MatrixBase<JacobianMatrixType> & J,
-                           const ArgumentPosition arg)
+                                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                                  const Eigen::MatrixBase<TangentVectorType> & v,
+                                  const Eigen::MatrixBase<JacobianMatrixType> & J,
+                                  const ArgumentPosition arg)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
