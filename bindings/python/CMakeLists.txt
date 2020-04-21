@@ -115,6 +115,11 @@ IF(BUILD_PYTHON_INTERFACE)
   ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
   ADD_DEPENDENCIES(python ${PYWRAP})
 
+  # Do not report:
+  #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
+  #  -Wcomment as latex equations have multi-line comments.
+  TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE -Wno-conversion -Wno-comment)
+
   SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES VERSION ${PROJECT_VERSION})
   IF(BUILD_WITH_COMMIT_VERSION)
     TAG_LIBRARY_VERSION(${PYWRAP})
