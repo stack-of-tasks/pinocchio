@@ -232,6 +232,43 @@ namespace pinocchio
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_5(dIntegrateTransportStepAlgo);
 
+
+  template<typename Visitor, typename JointModel> struct dIntegrateTransportInPlaceStepAlgo;
+  
+  template<typename LieGroup_t, typename ConfigVectorIn, typename TangentVectorIn, typename JacobianMatrixType>
+  struct dIntegrateTransportInPlaceStep
+  : public fusion::JointUnaryVisitorBase< dIntegrateTransportInPlaceStep<LieGroup_t,ConfigVectorIn,TangentVectorIn,JacobianMatrixType> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const TangentVectorIn &,
+                                  JacobianMatrixType &,
+                                  const ArgumentPosition &
+                                  > ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_4(dIntegrateTransportInPlaceStepAlgo, dIntegrateTransportInPlaceStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct dIntegrateTransportInPlaceStepAlgo
+  {
+    template<typename ConfigVectorIn, typename TangentVector, typename JacobianMatrixType>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const Eigen::MatrixBase<TangentVector> & v,
+                    const Eigen::MatrixBase<JacobianMatrixType> & mat,
+                    const ArgumentPosition & arg)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      lgo.dIntegrateTransportInPlace(jmodel.jointConfigSelector  (q.derived()),
+                              jmodel.jointVelocitySelector(v.derived()),
+                              jmodel.jointRows(PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,mat)),
+                              arg);
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_4(dIntegrateTransportInPlaceStepAlgo);
   
   template<typename Visitor, typename JointModel> struct dDifferenceStepAlgo;
   

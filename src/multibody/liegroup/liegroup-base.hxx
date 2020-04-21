@@ -141,7 +141,55 @@ namespace pinocchio {
                                           PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout));
   }
 
-  
+
+  template <class Derived>
+  template<class Config_t, class Tangent_t, class Jacobian_t>
+  void LieGroupBase<Derived>::dIntegrateTransportInPlace(const Eigen::MatrixBase<Config_t >  & q,
+                                                  const Eigen::MatrixBase<Tangent_t>  & v,
+                                                  const Eigen::MatrixBase<Jacobian_t> & J,
+                                                  const ArgumentPosition arg) const
+  {
+    assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
+    
+    switch (arg) {
+    case ARG0:
+      dIntegrateTransportInPlace_dq(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J)); return;
+    case ARG1:
+      dIntegrateTransportInPlace_dv(q.derived(),v.derived(),PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J)); return;
+    default: return;
+    }
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class Jacobian_t>
+  void LieGroupBase<Derived>::dIntegrateTransportInPlace_dq(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<Jacobian_t> & J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
+    //EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
+    derived().dIntegrateTransportInPlace_dq_impl(q.derived(),
+                                          v.derived(),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J));
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class Jacobian_t>
+  void LieGroupBase<Derived>::dIntegrateTransportInPlace_dv(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<Jacobian_t> & J) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t     , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t    , TangentVector_t);
+    //EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(JacobianOut_t, JacobianMatrix_t);
+    derived().dIntegrateTransportInPlace_dv_impl(q.derived(),
+                                                 v.derived(),
+                                                 PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J));
+  }
+
   /**
    * @brief      Interpolation between two joint's configurations
    *
