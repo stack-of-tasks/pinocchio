@@ -415,10 +415,10 @@ namespace pinocchio
   */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                                  const Eigen::MatrixBase<TangentVectorType> & v,
-                                  const Eigen::MatrixBase<JacobianMatrixType> & J,
-                                  const ArgumentPosition arg);
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType> & J,
+                           const ArgumentPosition arg);
 
   /**
    *
@@ -438,12 +438,12 @@ namespace pinocchio
   */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename JacobianMatrixType>
   void dIntegrateTransport(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                                  const Eigen::MatrixBase<TangentVectorType> & v,
-                                  const Eigen::MatrixBase<JacobianMatrixType> & J,
-                                  const ArgumentPosition arg)
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType> & v,
+                           const Eigen::MatrixBase<JacobianMatrixType> & J,
+                           const ArgumentPosition arg)
   {
-    dIntegrateTransportInPlace<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
+    dIntegrateTransport<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType,JacobianMatrixType>(model, q.derived(), v.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrixType,J),arg);
   }
 
   /**
