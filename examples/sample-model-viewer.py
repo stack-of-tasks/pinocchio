@@ -1,5 +1,4 @@
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 from pinocchio.visualize import MeshcatVisualizer, GepettoVisualizer
 from sys import argv
 from numpy import pi

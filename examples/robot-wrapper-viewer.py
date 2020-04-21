@@ -4,7 +4,6 @@
 #
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 from pinocchio.robot_wrapper import RobotWrapper
 from pinocchio.visualize import (GepettoVisualizer, MeshcatVisualizer)
 from sys import argv

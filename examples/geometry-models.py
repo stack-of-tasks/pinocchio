@@ -1,5 +1,4 @@
 import pinocchio
-pinocchio.switchToNumpyMatrix()
 from sys import argv
 from os.path import dirname, join, abspath
 

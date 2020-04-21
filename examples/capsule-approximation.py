@@ -8,7 +8,6 @@ import numpy as np
 import scipy.optimize as optimize
 
 import hppfcl
-hppfcl.switchToNumpyArray()
 
 """
 Capsule definition
