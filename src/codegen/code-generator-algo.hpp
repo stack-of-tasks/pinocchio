@@ -752,19 +752,26 @@ namespace pinocchio
     typedef typename Base::Model Model;
     typedef typename Base::ADConfigVectorType ADConfigVectorType;
     typedef typename Base::ADTangentVectorType ADTangentVectorType;
+    typedef typename Base::ADVectorXs ADVectorXs;
     typedef typename Base::ADMatrixXs ADMatrixXs;
     typedef typename Base::MatrixXs MatrixXs;
     typedef typename Base::VectorXs VectorXs;
     
     
     CodeGenDDifference(const Model & model,
-                      const std::string & function_name = "dDifference0",
+                      const std::string & function_name = "dDifference",
                       const std::string & library_name = "cg_dDifference_eval")
-      : Base(model,2*model.nq,model.nv*model.nv,function_name,library_name)
+      : Base(model,2*model.nq,model.nv*model.nv,function_name,library_name),
+        function_name_ARG1(function_name + "1"),
+        ad_Y_ARG1(ADVectorXs::Zero(model.nv*model.nv)),
+        ad_X_ARG1(ADVectorXs::Zero(2*model.nq))
     {
       ad_q0 = ADConfigVectorType(ad_model.nq); ad_q0 = neutral(ad_model);
       ad_q1 = ADConfigVectorType(ad_model.nq); ad_q1 = neutral(ad_model);
-      ad_J = ADMatrixXs(ad_model.nv, ad_model.nv); ad_J.setZero();
+      ad_q0_ARG1 = ADConfigVectorType(ad_model.nq); ad_q0_ARG1 = neutral(ad_model);
+      ad_q1_ARG1 = ADConfigVectorType(ad_model.nq); ad_q1_ARG1 = neutral(ad_model);
+      ad_J0 = ADMatrixXs(ad_model.nv, ad_model.nv); ad_J0.setZero();
+      ad_J1 = ADMatrixXs(ad_model.nv, ad_model.nv); ad_J1.setZero();
       x = VectorXs::Zero(Base::getInputDimension());
     }
     
@@ -775,11 +782,47 @@ namespace pinocchio
       Eigen::DenseIndex it = 0;
       ad_q0 = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
       ad_q1 = ad_X.segment(it,ad_model.nq);
-      pinocchio::dDifference(ad_model,ad_q0,ad_q1,ad_J,pinocchio::ARG0);
+      pinocchio::dDifference(ad_model,ad_q0,ad_q1,ad_J0,pinocchio::ARG0);
       
-      Eigen::Map<ADMatrixXs>(ad_Y.data(), ad_model.nv, ad_model.nv) = ad_J;
+      Eigen::Map<ADMatrixXs>(ad_Y.data(), ad_model.nv, ad_model.nv) = ad_J0;
       ad_fun.Dependent(ad_X,ad_Y);
       ad_fun.optimize("no_compare_op");
+
+      CppAD::Independent(ad_X_ARG1);
+      it=0;
+      ad_q0_ARG1 = ad_X_ARG1.segment(it,ad_model.nq); it += ad_model.nq;
+      ad_q1_ARG1 = ad_X_ARG1.segment(it,ad_model.nq);
+      pinocchio::dDifference(ad_model,ad_q0_ARG1,ad_q1_ARG1,ad_J1,pinocchio::ARG1);      
+      Eigen::Map<ADMatrixXs>(ad_Y_ARG1.data(), ad_model.nv, ad_model.nv) = ad_J1;
+      ad_fun_ARG1.Dependent(ad_X_ARG1,ad_Y_ARG1);
+      ad_fun_ARG1.optimize("no_compare_op");
+    }
+
+    void initLib()
+    {
+      buildMap();
+      
+      // generates source code
+      cgen_ptr = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun, function_name));
+      cgen_ptr->setCreateForwardZero(build_forward);
+      cgen_ptr->setCreateJacobian(build_jacobian);
+
+
+      cgen_ptr_ARG1 = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun_ARG1, function_name_ARG1));
+      cgen_ptr_ARG1->setCreateForwardZero(build_forward);
+      cgen_ptr_ARG1->setCreateJacobian(build_jacobian);
+      
+      libcgen_ptr = std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> >(new CppAD::cg::ModelLibraryCSourceGen<Scalar>(*cgen_ptr, *cgen_ptr_ARG1));
+      
+      dynamicLibManager_ptr
+      = std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar> >(new CppAD::cg::DynamicModelLibraryProcessor<Scalar>(*libcgen_ptr,library_name));      
+    }
+
+
+    void loadLib(const bool generate_if_not_exist = true)
+    {
+      Base::loadLib(generate_if_not_exist);
+      generatedFun_ARG1_ptr = dynamicLib_ptr->model(function_name_ARG1.c_str());
     }
     
     using Base::evalFunction;
@@ -789,28 +832,60 @@ namespace pinocchio
                       const Eigen::MatrixBase<JacobianMatrix> & J,
                       const ArgumentPosition arg)
     {
+      assert(build_forward);
       // fill x
       Eigen::DenseIndex it = 0;
       x.segment(it,ad_model.nq) = q0; it += ad_model.nq;
       x.segment(it,ad_model.nq) = q1;
+
       
-      evalFunction(x);
+      switch(arg) {
+      case pinocchio::ARG0:
+        generatedFun_ptr->ForwardZero(x,y);
+        break;
+      case pinocchio::ARG1:
+        generatedFun_ARG1_ptr->ForwardZero(x,y);
+        break;
+      default:
+        assert(false && "Wrong argument");
+      }
       PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,J) =
         Eigen::Map<MatrixXs>(Base::y.data(), ad_model.nv, ad_model.nv);
     }
 
   protected:
     
+    const std::string function_name_ARG1;
+    std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> > cgen_ptr_ARG1;
+    std::unique_ptr<CppAD::cg::GenericModel<Scalar> > generatedFun_ARG1_ptr;
+
     using Base::ad_model;
     using Base::ad_fun;
     using Base::ad_X;
     using Base::ad_Y;
     using Base::y;
+
+    using Base::function_name;
+    using Base::library_name;
+    using Base::build_forward;
+    using Base::build_jacobian;
+    
+    using Base::cgen_ptr;
+    using Base::libcgen_ptr;
+    using Base::dynamicLibManager_ptr;
+    using Base::dynamicLib_ptr;
+    using Base::generatedFun_ptr;
+
     
     VectorXs x;
-    ADConfigVectorType ad_q0;
-    ADConfigVectorType ad_q1;
-    ADMatrixXs ad_J;
+    ADConfigVectorType ad_q0,ad_q0_ARG1;
+    ADConfigVectorType ad_q1,ad_q1_ARG1;
+    ADMatrixXs ad_J0;
+    ADMatrixXs ad_J1;
+
+    // For enums:
+    typename Base::ADFun ad_fun_ARG1;
+    ADVectorXs ad_Y_ARG1,ad_X_ARG1;
   };
 
   
