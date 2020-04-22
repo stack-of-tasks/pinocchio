@@ -675,6 +675,73 @@ namespace pinocchio
     ADTangentVectorType ad_v;
   };
 
+
+  template<typename _Scalar>
+  struct CodeGenDifference : public CodeGenBase<_Scalar>
+  {
+    typedef CodeGenBase<_Scalar> Base;
+    typedef typename Base::Scalar Scalar;
+    
+    typedef typename Base::Model Model;
+    typedef typename Base::ADConfigVectorType ADConfigVectorType;
+    typedef typename Base::ADTangentVectorType ADTangentVectorType;
+    typedef typename Base::MatrixXs MatrixXs;
+    typedef typename Base::VectorXs VectorXs;
+    
+    CodeGenDifference(const Model & model,
+                      const std::string & function_name = "difference",
+                      const std::string & library_name = "cg_difference_eval")
+      : Base(model,2*model.nq,model.nv,function_name,library_name)
+    {
+      ad_q0 = ADConfigVectorType(model.nq); ad_q0 = neutral(ad_model);
+      ad_q1 = ADConfigVectorType(model.nq); ad_q1 = neutral(ad_model);
+      x = VectorXs::Zero(Base::getInputDimension());
+      res = VectorXs::Zero(Base::getOutputDimension());
+    }
+    
+    void buildMap()
+    {
+      CppAD::Independent(ad_X);
+      
+      Eigen::DenseIndex it = 0;
+      ad_q0 = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
+      ad_q1 = ad_X.segment(it,ad_model.nq);
+      pinocchio::difference(ad_model,ad_q0,ad_q1,ad_Y);
+      
+      ad_fun.Dependent(ad_X,ad_Y);
+      ad_fun.optimize("no_compare_op");
+    }
+    
+    using Base::evalFunction;
+    template<typename ConfigVectorType1, typename ConfigVectorType2, typename TangentVector>
+    void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q0,
+                      const Eigen::MatrixBase<ConfigVectorType1> & q1,
+                      const Eigen::MatrixBase<TangentVector> & v)
+    {
+      // fill x
+      Eigen::DenseIndex it = 0;
+      x.segment(it,ad_model.nq) = q0; it += ad_model.nq;
+      x.segment(it,ad_model.nq) = q1;
+      
+      evalFunction(x);
+      PINOCCHIO_EIGEN_CONST_CAST(TangentVector,v) = Base::y;
+    }
+    
+  protected:
+    
+    using Base::ad_model;
+    using Base::ad_fun;
+    using Base::ad_X;
+    using Base::ad_Y;
+    using Base::y;
+    
+    VectorXs x;
+    VectorXs res;
+    
+    ADConfigVectorType ad_q0;
+    ADConfigVectorType ad_q1;
+  };
+
   
   
 } // namespace pinocchio
