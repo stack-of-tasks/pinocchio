@@ -742,6 +742,78 @@ namespace pinocchio
     ADConfigVectorType ad_q1;
   };
 
+
+  template<typename _Scalar>
+  struct CodeGenDDifference : public CodeGenBase<_Scalar>
+  {
+    typedef CodeGenBase<_Scalar> Base;
+    typedef typename Base::Scalar Scalar;
+    
+    typedef typename Base::Model Model;
+    typedef typename Base::ADConfigVectorType ADConfigVectorType;
+    typedef typename Base::ADTangentVectorType ADTangentVectorType;
+    typedef typename Base::ADMatrixXs ADMatrixXs;
+    typedef typename Base::MatrixXs MatrixXs;
+    typedef typename Base::VectorXs VectorXs;
+    
+    
+    CodeGenDDifference(const Model & model,
+                      const std::string & function_name = "dDifference0",
+                      const std::string & library_name = "cg_dDifference_eval")
+      : Base(model,2*model.nq,model.nv*model.nv,function_name,library_name)
+    {
+      ad_q0 = ADConfigVectorType(ad_model.nq); ad_q0 = neutral(ad_model);
+      ad_q1 = ADConfigVectorType(ad_model.nq); ad_q1 = neutral(ad_model);
+      ad_J = ADMatrixXs(ad_model.nv, ad_model.nv); ad_J.setZero();
+      x = VectorXs::Zero(Base::getInputDimension());
+    }
+    
+    void buildMap()
+    {
+      CppAD::Independent(ad_X);
+      
+      Eigen::DenseIndex it = 0;
+      ad_q0 = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
+      ad_q1 = ad_X.segment(it,ad_model.nq);
+      pinocchio::dDifference(ad_model,ad_q0,ad_q1,ad_J,pinocchio::ARG0);
+      
+      Eigen::Map<ADMatrixXs>(ad_Y.data(), ad_model.nv, ad_model.nv) = ad_J;
+      ad_fun.Dependent(ad_X,ad_Y);
+      ad_fun.optimize("no_compare_op");
+    }
+    
+    using Base::evalFunction;
+    template<typename ConfigVectorType1, typename ConfigVectorType2, typename JacobianMatrix>
+    void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q0,
+                      const Eigen::MatrixBase<ConfigVectorType2> & q1,
+                      const Eigen::MatrixBase<JacobianMatrix> & J,
+                      const ArgumentPosition arg)
+    {
+      // fill x
+      Eigen::DenseIndex it = 0;
+      x.segment(it,ad_model.nq) = q0; it += ad_model.nq;
+      x.segment(it,ad_model.nq) = q1;
+      
+      evalFunction(x);
+      PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,J) =
+        Eigen::Map<MatrixXs>(Base::y.data(), ad_model.nv, ad_model.nv);
+    }
+
+  protected:
+    
+    using Base::ad_model;
+    using Base::ad_fun;
+    using Base::ad_X;
+    using Base::ad_Y;
+    using Base::y;
+    
+    VectorXs x;
+    ADConfigVectorType ad_q0;
+    ADConfigVectorType ad_q1;
+    ADMatrixXs ad_J;
+  };
+
+  
   
   
 } // namespace pinocchio

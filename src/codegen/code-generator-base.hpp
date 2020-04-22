@@ -35,6 +35,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options|Eigen::RowMajor> RowMatrixXs;
     typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1,Options> ADVectorXs;
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic,Options> ADMatrixXs;
     
     typedef typename Model::ConfigVectorType ConfigVectorType;
     typedef typename Model::TangentVectorType TangentVectorType;
