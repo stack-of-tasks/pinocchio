@@ -221,11 +221,6 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1)
-      {
-        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
-        return;
-      }
       Matrix2 R0, R1; Vector2 t0, t1;
       forwardKinematics(R0, t0, q0);
       forwardKinematics(R1, t1, q1);
@@ -533,11 +528,6 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1)
-      {
-        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
-        return;
-      }
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
