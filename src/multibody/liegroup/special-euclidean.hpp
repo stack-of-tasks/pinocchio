@@ -539,29 +539,31 @@ namespace pinocchio
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl (const Eigen::MatrixBase<ConfigL_t> & q0,
                            const Eigen::MatrixBase<ConfigR_t> & q1,
-                           const Eigen::MatrixBase<JacobianOut_t>& J) const
+                           const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
+      typedef typename SE3::Vector3 Vector3;
+      typedef typename SE3::Matrix3 Matrix3;
       ConstQuaternionMap_t p0 (q0.derived().template tail<4>().data());
       ConstQuaternionMap_t p1 (q1.derived().template tail<4>().data());
-      typename SE3::Matrix3 R0 (p0.matrix()),
-                            R1 (p1.matrix());
-      SE3 M (  SE3(R0, q0.derived().template head<3>()).inverse()
-             * SE3(R1, q1.derived().template head<3>()));
+      Matrix3 R0(p0.matrix()), R1 (p1.matrix());
+      assert(R0.isUnitary()); assert(R1.isUnitary());
+      
+      const SE3 M (  SE3(R0, q0.template head<3>()).inverse()
+                   * SE3(R1, q1.template head<3>()));
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog6 (M, J1);
 
-        typename SE3::Vector3 p1_p0 (  q1.derived().template head<3>()
-                                     - q0.derived().template head<3>());
+        const Vector3 p1_p0 = R1.transpose()*(q1.template head<3>() - q0.template head<3>());
 
-        JacobianOut_t& J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-        J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
-        J0.template topRightCorner<3,3> ().noalias() = R1.transpose() * skew (p1_p0) * R0;
-        J0.template bottomLeftCorner <3,3> ().setZero();
-        J0.template bottomRightCorner<3,3> ().noalias() = - M.rotation().transpose();
+        JacobianOut_t & J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
+        J0.template bottomRightCorner<3,3> ().noalias() = J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+        J0.template topRightCorner<3,3> ().noalias() = skew(p1_p0) * M.rotation().transpose(); // = R1.T * skew(q1_t - q0_t) * R0;
+        J0.template bottomLeftCorner<3,3> ().setZero();
         J0.applyOnTheLeft(J1);
-      } else if (arg == ARG1) {
+      }
+      else if (arg == ARG1) {
         Jlog6 (M, J);
       }
     }
