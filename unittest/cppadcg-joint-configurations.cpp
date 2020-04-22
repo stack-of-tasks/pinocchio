@@ -73,15 +73,15 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   
   cg_integrate.evalFunction(qs,vs, results_q[0]);
   pinocchio::integrate(model, qs,vs,results_q[1]);
+  BOOST_CHECK(results_q[1].isApprox(results_q[0]));
   
   //Difference
   CodeGenDifference<double> cg_difference(model);
   cg_difference.initLib();
   cg_difference.loadLib();
   
-  cg_integrate.evalFunction(qs,qs2, results_v[0]);
-  pinocchio::integrate(model, qs,qs2,results_v[1]);
-  
+  cg_difference.evalFunction(qs,qs2, results_v[0]);
+  pinocchio::difference(model,qs,qs2,results_v[1]);
   BOOST_CHECK(results_v[1].isApprox(results_v[0]));
 }
 
