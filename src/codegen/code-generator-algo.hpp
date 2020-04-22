@@ -715,7 +715,7 @@ namespace pinocchio
     using Base::evalFunction;
     template<typename ConfigVectorType1, typename ConfigVectorType2, typename TangentVector>
     void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q0,
-                      const Eigen::MatrixBase<ConfigVectorType1> & q1,
+                      const Eigen::MatrixBase<ConfigVectorType2> & q1,
                       const Eigen::MatrixBase<TangentVector> & v)
     {
       // fill x
