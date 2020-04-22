@@ -19,9 +19,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
 {
   typedef double Scalar;
-  typedef CppAD::cg::CG<Scalar> CGScalar;
-  typedef CppAD::AD<CGScalar> ADScalar;
-  
+
   typedef pinocchio::ModelTpl<Scalar> Model;   
 
   Model model; buildAllJointsModel(model);
@@ -42,6 +40,9 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   cg_integrate.evalFunction(qs,vs, results_q[0]);
   pinocchio::integrate(model, qs,vs,results_q[1]);
   BOOST_CHECK(results_q[1].isApprox(results_q[0]));
+
+  cg_integrate.evalFunction(qs,0*vs,results_q[0]);
+  BOOST_CHECK(results_q[0].isApprox(qs));
   
   //Difference
   CodeGenDifference<double> cg_difference(model);
@@ -51,8 +52,9 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   cg_difference.evalFunction(qs,qs2, results_v[0]);
   pinocchio::difference(model,qs,qs2,results_v[1]);
   BOOST_CHECK(results_v[1].isApprox(results_v[0]));
+
+  cg_difference.evalFunction(qs,qs,results_v[0]);
+  BOOST_CHECK(results_v[0].isZero());
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
