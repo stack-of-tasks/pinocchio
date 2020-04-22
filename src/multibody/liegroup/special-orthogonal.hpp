@@ -398,7 +398,6 @@ namespace pinocchio
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix3 Matrix3;
