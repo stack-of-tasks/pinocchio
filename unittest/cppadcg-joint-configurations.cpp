@@ -55,6 +55,17 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
 
   cg_difference.evalFunction(qs,qs,results_v[0]);
   BOOST_CHECK(results_v[0].isZero());
+
+  //dDifference
+  CodeGenDDifference<double> cg_dDifference(model);
+  cg_dDifference.initLib();
+  cg_dDifference.loadLib();
+ 
+  std::vector<Eigen::MatrixXd> results_J(2,Eigen::MatrixXd::Zero(model.nv,model.nv));
+  cg_dDifference.evalFunction(qs,qs2, results_J[0], pinocchio::ARG0);
+  pinocchio::dDifference(model,qs,qs2,results_J[1], pinocchio::ARG0);
+  BOOST_CHECK(results_J[1].isApprox(results_J[0]));
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
