@@ -64,24 +64,22 @@ namespace pinocchio
 
   };
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct RneaBackwardStep
-  : public fusion::JointUnaryVisitorBase< RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType> >
+  : public fusion::JointUnaryVisitorBase< RneaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const TangentVectorType &
+                                  Data &
                                   > ArgsType;
     
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
                      const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<TangentVectorType> & a)
+                     Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
       
@@ -120,7 +118,7 @@ namespace pinocchio
       Pass1::run(model.joints[i],data.joints[i],arg1);
     }
     
-    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     typename Pass2::ArgsType arg2(model,data);
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
@@ -162,11 +160,11 @@ namespace pinocchio
       data.f[i] -= fext[i];
     }
     
-    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
+    typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
-                 typename Pass2::ArgsType(model,data,a.derived()));
+                 typename Pass2::ArgsType(model,data));
     }
     
     // Add armature contribution

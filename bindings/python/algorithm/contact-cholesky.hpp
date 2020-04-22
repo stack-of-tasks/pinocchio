@@ -72,13 +72,13 @@ namespace pinocchio
              "the vector of RigidContactModel named contact_models.")
         
         .def("getInverseOperationalSpaceInertiaMatrix",
-             &Self::getInverseOperationalSpaceInertiaMatrix,
+             (Matrix (Self::*)(void) const)&Self::getInverseOperationalSpaceInertiaMatrix,
              bp::arg("self"),
              "Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.",
              bp::return_value_policy<bp::return_by_value>())
         
         .def("getOperationalSpaceInertiaMatrix",
-             &Self::getOperationalSpaceInertiaMatrix,
+             (Matrix (Self::*)(void) const)&Self::getOperationalSpaceInertiaMatrix,
              bp::arg("self"),
              "Returns the Operational Space Inertia Matrix resulting from the decomposition.",
              bp::return_value_policy<bp::return_by_value>())

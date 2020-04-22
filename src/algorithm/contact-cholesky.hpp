@@ -133,11 +133,6 @@ namespace pinocchio
       ///
       Matrix getInverseOperationalSpaceInertiaMatrix() const
       {
-        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
-//        typedef typename RowMatrix::ConstBlockXpr ConstBlockXpr;
-        const ConstBlockXpr U1
-        = U.topLeftCorner(constraintDim(),constraintDim());
-        
         Matrix res(constraintDim(), constraintDim());
         getInverseOperationalSpaceInertiaMatrix(res);
         return res;
@@ -261,38 +256,6 @@ namespace pinocchio
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
       ContactCholeskyDecompositionTpl
       getMassMatrixChoeslkyDecomposition(const ModelTpl<S1,O1,JointCollectionTpl> & model) const;
-      
-      ///@{
-      /// \brief Vectorwize operations
-      template<typename MatrixLike>
-      void Uv(const Eigen::MatrixBase<MatrixLike> & mat) const;
-      
-      template<typename MatrixLike>
-      void Utv(const Eigen::MatrixBase<MatrixLike> & mat) const;
-      
-      template<typename MatrixLike>
-      void Uiv(const Eigen::MatrixBase<MatrixLike> & mat) const;
-      
-      template<typename MatrixLike>
-      void Utiv(const Eigen::MatrixBase<MatrixLike> & mat) const;
-      ///@}
-      
-      /// \brief Returns the matrix resulting from the decomposition
-      Matrix matrix() const;
-      
-      /// \brief Fill the input matrix with the matrix resulting from the decomposition
-      template<typename MatrixType>
-      void matrix(const Eigen::MatrixBase<MatrixType> & res) const;
-      
-      /// \brief Returns the inverse matrix resulting from the decomposition
-      Matrix inverse() const;
-      
-      /// \brief Fill the input matrix with the inverse matrix resulting from the decomposition
-      template<typename MatrixType>
-      void inverse(const Eigen::MatrixBase<MatrixType> & res) const;
-      
-      template<typename MatrixLike>
-      void solveInPlace(const Eigen::MatrixBase<MatrixLike> & mat) const;
       
       ///@{
       /// \brief Vectorwize operations

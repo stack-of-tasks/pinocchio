@@ -25,8 +25,8 @@ namespace pinocchio
         typedef typename JointModel::ConfigVector_t CV;
         typedef typename JointModel::TangentVector_t TV;
 
-        CV qmin = CV::Constant(-3.14), qmax   = CV::Constant(3.14);
-        TV vmax = TV::Constant( 10),   taumax = TV::Constant(10)
+        CV qmin = CV::Constant(joint.nq(),-3.14), qmax   = CV::Constant(joint.nq(),3.14);
+        TV vmax = TV::Constant(joint.nv(),10),    taumax = TV::Constant(joint.nv(),10);
         
         JointIndex idx;
         
@@ -106,7 +106,7 @@ namespace pinocchio
         model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
         model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
         model.velocityLimit.template segment<6>(idx_v).fill(vmax);
-        model.effortLimit.template segment<6>(idx_v).fill(vmax);
+        model.effortLimit.template segment<6>(idx_v).fill(taumax);
       }
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
