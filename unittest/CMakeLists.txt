@@ -157,6 +157,7 @@ IF(BUILD_WITH_AUTODIFF_SUPPORT)
   ADD_CPPAD_UNIT_TEST(cppad-joints)
   ADD_CPPAD_UNIT_TEST(cppad-algo)
   ADD_CPPAD_UNIT_TEST(cppad-algo-derivatives)
+  ADD_CPPAD_UNIT_TEST(cppad-joint-configurations)
 
   IF(BUILD_WITH_CODEGEN_SUPPORT)
     ADD_CUSTOM_TARGET(test-cppadcg)
