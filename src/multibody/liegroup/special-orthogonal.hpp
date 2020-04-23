@@ -7,9 +7,10 @@
 
 #include <limits>
 
-#include <pinocchio/spatial/explog.hpp>
-#include <pinocchio/math/quaternion.hpp>
-#include <pinocchio/multibody/liegroup/liegroup-base.hpp>
+#include "pinocchio/spatial/explog.hpp"
+#include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/multibody/liegroup/liegroup-base.hpp"
+#include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
 {
@@ -55,23 +56,41 @@ namespace pinocchio
     static typename Matrix2Like::Scalar
     log(const Eigen::MatrixBase<Matrix2Like> & R)
     {
-      
       typedef typename Matrix2Like::Scalar Scalar;
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix2Like,2,2);
       
-      Scalar theta;
       const Scalar tr = R.trace();
-      const bool pos = (R (1, 0) > Scalar(0));
-      const Scalar PI_value = PI<Scalar>();
-      if (tr > Scalar(2))       theta = Scalar(0); // acos((3-1)/2)
-      else if (tr < Scalar(-2)) theta = (pos ? PI_value : -PI_value); // acos((-1-1)/2)
+      
+      static const Scalar PI_value = PI<Scalar>();
+      
+      using internal::if_then_else;
+      Scalar theta =
+      if_then_else(internal::GT, tr, Scalar(2),
+                   Scalar(0), // then
+                   if_then_else(internal::LT, tr, Scalar(-2),
+                                if_then_else(internal::GE, R (1, 0), Scalar(0),
+                                             PI_value, -PI_value), // then
+                                if_then_else(internal::GT, tr, Scalar(2) - 1e-2,
+                                             asin((R(1,0) - R(0,1)) / Scalar(2)), // then
+                                             if_then_else(internal::GE, R (1, 0), Scalar(0),
+                                                          acos(tr/Scalar(2)), // then
+                                                          -acos(tr/Scalar(2))
+                                                          )
+                                             )
+                                )
+                   );
+      
+                                          
+//      const bool pos = (R (1, 0) > Scalar(0));
+//      if (tr > Scalar(2))       theta = Scalar(0); // acos((3-1)/2)
+//      else if (tr < Scalar(-2)) theta = (pos ? PI_value : -PI_value); // acos((-1-1)/2)
       // Around 0, asin is numerically more stable than acos because
       // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
-      else if (tr > Scalar(2) - 1e-2) theta = asin ((R(1,0) - R(0,1)) / Scalar(2));
-      else              theta = (pos ? acos (tr/Scalar(2)) : -acos(tr/Scalar(2)));
+//      else if (tr > Scalar(2) - 1e-2) theta = asin ((R(1,0) - R(0,1)) / Scalar(2));
+//      else              theta = (pos ? acos (tr/Scalar(2)) : -acos(tr/Scalar(2)));
       assert (theta == theta); // theta != NaN
-      assert ((cos (theta) * R(0,0) + sin (theta) * R(1,0) > 0) &&
-              (cos (theta) * R(1,0) - sin (theta) * R(0,0) < 1e-6));
+//      assert ((cos (theta) * R(0,0) + sin (theta) * R(1,0) > 0) &&
+//              (cos (theta) * R(1,0) - sin (theta) * R(0,0) < 1e-6));
       return theta;
     }
 
@@ -115,10 +134,6 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1) {
-        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
-        return;
-      }
       Matrix2 R; // R0.transpose() * R1;
       R(0,0) = R(1,1) = q0.dot(q1);
       R(1,0) = q0(0) * q1(1) - q0(1) * q1(0);
@@ -317,7 +332,8 @@ namespace pinocchio
     typedef Eigen::Quaternion<Scalar> Quaternion_t;
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
-
+    typedef SE3Tpl<Scalar,Options> SE3;
+    
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is
@@ -349,10 +365,6 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
-      if (q0 == q1) {
-        PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).setZero();
-        return;
-      }
       ConstQuaternionMap_t p0 (q0.derived().data());
       ConstQuaternionMap_t p1 (q1.derived().data());
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
@@ -397,10 +409,7 @@ namespace pinocchio
     {
       assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
       
-      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t) ConfigPlainType;
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Jacobian_t) JacobianPlainType;
-      typedef typename ConfigPlainType::Scalar Scalar;
-      typedef SE3Tpl<Scalar,ConfigPlainType::Options> SE3;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix3 Matrix3;
 
