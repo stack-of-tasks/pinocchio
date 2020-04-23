@@ -1,12 +1,9 @@
 import numpy as np
-import os
-import sys
-import uuid
 import warnings
 
-from pinocchio import libpinocchio_pywrap as pin
-from pinocchio.visualize.base_visualizer import BaseVisualizer
-from pinocchio.utils import npToTuple
+from .. import libpinocchio_pywrap as pin
+from ..utils import npToTuple
+from .base_visualizer import BaseVisualizer
 
 try:
     import hppfcl
