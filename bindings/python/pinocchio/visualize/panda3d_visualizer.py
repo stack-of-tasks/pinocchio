@@ -18,7 +18,7 @@ __all__ = ['Panda3dVisualizer', 'Panda3dViewer', 'ViewerClosedError']
 class Panda3dVisualizer(BaseVisualizer):
     """A Pinocchio display using panda3d engine."""
 
-    def initViewer(self, viewer=None, load_model=False):
+    def initViewer(self, viewer=None, load_model=False): # pylint: disable=arguments-differ
         """Init the viewer by attaching to / creating a GUI viewer."""
         self.visual_group = None
         self.collision_group = None
@@ -32,7 +32,7 @@ class Panda3dVisualizer(BaseVisualizer):
         if load_model:
             self.loadViewerModel(group_name=self.model.name)
 
-    def loadViewerModel(self, group_name, color=None):
+    def loadViewerModel(self, group_name, color=None): # pylint: disable=arguments-differ
         """Create a group of nodes displaying the robot meshes in the viewer."""
         self.visual_group = group_name + "/visuals"
         self.collision_group = group_name + "/collisions"
