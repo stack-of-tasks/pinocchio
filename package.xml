@@ -14,8 +14,10 @@
   <build_depend>git</build_depend>
   <build_depend>doxygen</build_depend>
   <doc_depend>doxygen</doc_depend>
-  <depend>python</depend>
-  <depend>python-numpy</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
+  <depend condition="$ROS_PYTHON_VERSION == 3">python3-numpy</depend>
   <depend>liburdfdom-dev</depend>
   <depend>eigen</depend>
   <depend>boost</depend>
