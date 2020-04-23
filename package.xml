@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>pinocchio</name>
   <version>2.4.2</version>
   <description>A fast and flexible implementation of Rigid Body Dynamics algorithms and their analytical derivatives.</description>
