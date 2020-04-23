@@ -20,7 +20,7 @@ from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer, ViewerClos
 talos = loadTalos()
 talos.setVisualizer(Panda3dVisualizer())
 talos.initViewer()
-talos.loadViewerModel(color=(1, 1, 1, 1))
+talos.loadViewerModel(group_name='talos', color=(1, 1, 1, 1))
 
 
 # Play a sample trajectory in a loop

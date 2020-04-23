@@ -28,7 +28,7 @@ for i, load in enumerate(loaders):
     robot = load()
     robot.setVisualizer(Panda3dVisualizer())
     robot.initViewer(viewer=viewer)  # attach to a viewer's scene
-    robot.loadViewerModel(color=(1, 1, 1, 1))
+    robot.loadViewerModel(group_name=robot.model.name)
 
     q = robot.q0[:]
     q[1] = 3 - i

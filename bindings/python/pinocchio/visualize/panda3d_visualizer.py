@@ -33,14 +33,10 @@ class Panda3dVisualizer(BaseVisualizer):
             self.viewer = Panda3dViewer(window_title="python-pinocchio")
 
         if load_model:
-            self.loadViewerModel()
+            self.loadViewerModel(group_name=self.model.name)
 
-    def loadViewerModel(self, group_name='', color=None):
-        """Create the scene displaying the robot meshes in the viewer."""
-        # generate a unique group name if not specified
-        if not group_name:
-            group_name = str(uuid.uuid4())
-
+    def loadViewerModel(self, group_name, color=None):
+        """Create a group of nodes displaying the robot meshes in the viewer"""
         self.visual_group = group_name + "/visuals"
         self.collision_group = group_name + "/collisions"
 
