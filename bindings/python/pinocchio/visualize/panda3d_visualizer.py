@@ -1,4 +1,3 @@
-import numpy as np
 import warnings
 
 from .. import libpinocchio_pywrap as pin
@@ -8,7 +7,7 @@ from .base_visualizer import BaseVisualizer
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
-except:
+except ImportError:
     WITH_HPP_FCL_BINDINGS = False
 
 from panda3d_viewer import Viewer as Panda3dViewer, ViewerClosedError
@@ -18,6 +17,7 @@ __all__ = ['Panda3dVisualizer', 'Panda3dViewer', 'ViewerClosedError']
 
 class Panda3dVisualizer(BaseVisualizer):
     """A Pinocchio display using panda3d engine."""
+
     def initViewer(self, viewer=None, load_model=False):
         """Init the viewer by attaching to / creating a GUI viewer."""
         self.visual_group = None
@@ -33,7 +33,7 @@ class Panda3dVisualizer(BaseVisualizer):
             self.loadViewerModel(group_name=self.model.name)
 
     def loadViewerModel(self, group_name, color=None):
-        """Create a group of nodes displaying the robot meshes in the viewer"""
+        """Create a group of nodes displaying the robot meshes in the viewer."""
         self.visual_group = group_name + "/visuals"
         self.collision_group = group_name + "/collisions"
 

@@ -4,7 +4,6 @@
 
 import pinocchio as pin
 pin.switchToNumpyMatrix()
-import numpy as np
 import sys
 
 from os.path import dirname, join, abspath
