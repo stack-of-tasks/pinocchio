@@ -1,11 +1,9 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_utils_code_generator_algo_hpp__
-#define __pinocchio_utils_code_generator_algo_hpp__
-
-#ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
+#ifndef __pinocchio_codegen_code_generator_algo_hpp__
+#define __pinocchio_codegen_code_generator_algo_hpp__
 
 #include "pinocchio/codegen/code-generator-base.hpp"
 
@@ -761,10 +759,10 @@ namespace pinocchio
     CodeGenDDifference(const Model & model,
                       const std::string & function_name = "dDifference",
                       const std::string & library_name = "cg_dDifference_eval")
-      : Base(model,2*model.nq,model.nv*model.nv,function_name,library_name),
-        function_name_ARG1(function_name + "1"),
-        ad_Y_ARG1(ADVectorXs::Zero(model.nv*model.nv)),
-        ad_X_ARG1(ADVectorXs::Zero(2*model.nq))
+    : Base(model,2*model.nq,model.nv*model.nv,function_name,library_name)
+    , function_name_ARG1(function_name + "1"),
+    , ad_Y_ARG1(ADVectorXs::Zero(model.nv*model.nv)),
+    , ad_X_ARG1(ADVectorXs::Zero(2*model.nq))
     {
       ad_q0 = ADConfigVectorType(ad_model.nq); ad_q0 = neutral(ad_model);
       ad_q1 = ADConfigVectorType(ad_model.nq); ad_q1 = neutral(ad_model);
@@ -888,11 +886,6 @@ namespace pinocchio
     ADVectorXs ad_Y_ARG1,ad_X_ARG1;
   };
 
-  
-  
-  
 } // namespace pinocchio
 
-#endif // ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
-
-#endif // ifndef __pinocchio_utils_code_generator_base_hpp__
+#endif // ifndef __pinocchio_codegen_code_generator_algo_hpp__
