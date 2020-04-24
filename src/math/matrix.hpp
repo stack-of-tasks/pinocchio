@@ -87,6 +87,14 @@ namespace pinocchio
     };
   }
   
+  ///
+  /// \brief Check whether the input matrix is Unitary within the given precision.
+  ///
+  /// \param[in] mat Input matrix
+  /// \param[in] prec Required precision
+  ///
+  /// \returns true if mat is unitary within the precision prec
+  ///
   template<typename MatrixLike>
   inline bool isUnitary(const Eigen::MatrixBase<MatrixLike> & mat,
                         const typename MatrixLike::RealScalar & prec =
