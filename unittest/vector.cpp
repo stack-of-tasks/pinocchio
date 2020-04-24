@@ -19,7 +19,12 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
   typedef Eigen::Matrix<double,Eigen::Dynamic,1> Vector;
   
   const int max_size = 1000;
-  for(int i = 0; i < 1e6; ++i)
+#ifdef NDEBUG
+  const int max_test = 1e6;
+#else
+  const int max_test = 1e2;
+#endif
+  for(int i = 0; i < max_test; ++i)
   {
     const Eigen::DenseIndex size = rand() % max_size + 1; // random vector size
     Vector vec;
