@@ -50,7 +50,12 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
   typedef Eigen::Quaternion<double> Quaternion;
   typedef Quaternion::Coefficients Vector4;
   
-  for(int i = 0; i < 1e6; ++i)
+#ifdef NDEBUG
+  const int max_test = 1e6;
+#else
+  const int max_test = 1e2;
+#endif
+  for(int i = 0; i < max_test; ++i)
   {
     Quaternion q;
     q.coeffs() = Vector4::Random() + Vector4::Constant(2);
