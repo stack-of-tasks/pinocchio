@@ -1,9 +1,11 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_matrix_hpp__
 #define __pinocchio_math_matrix_hpp__
+
+#include "pinocchio/fwd.hpp"
 
 #include <Eigen/Core>
 #include <boost/type_traits.hpp>
