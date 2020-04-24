@@ -23,14 +23,14 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
   {
     const Eigen::DenseIndex size = rand() % max_size + 1; // random vector size
     Vector vec;
-    vec = Vector::Random(size) + Vector::Constant(2.,size);
+    vec = Vector::Random(size) + Vector::Constant(size,2.);
     BOOST_CHECK(!isNormalized(vec));
     
     vec.normalize();
     BOOST_CHECK(isNormalized(vec));
     
     // Specific check for the Zero vector
-    BOOST_CHECK(!isNormalized(Vector::Zero(size)));
+    BOOST_CHECK(!isNormalized(Vector(Vector::Zero(size))));
   }
 }
 
