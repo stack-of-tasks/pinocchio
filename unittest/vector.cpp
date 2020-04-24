@@ -28,6 +28,9 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
     
     vec.normalize();
     BOOST_CHECK(isNormalized(vec));
+    
+    // Specific check for the Zero vector
+    BOOST_CHECK(!isNormalized(Vector::Zero(size)));
   }
 }
 

@@ -59,6 +59,9 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
     q.normalize();
     BOOST_CHECK(quaternion::isNormalized(q));
   }
+  
+  // Specific check for the Zero vector
+  BOOST_CHECK(!quaternion::isNormalized(Quaternion(Vector4::Zero())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
