@@ -137,6 +137,9 @@ The following people have been involved in the development of **Pinocchio** and 
 - [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 - [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
+- [Igor Kalevatykh](https://github.com/ikalevatykh) (INRIA): Panda3d viewer support
+- [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
+- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (INRIA): features extension
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
