@@ -5,7 +5,8 @@
 #ifndef __pinocchio_math_matrix_hpp__
 #define __pinocchio_math_matrix_hpp__
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/macros.hpp"
+#include "pinocchio/math/fwd.hpp"
 
 #include <Eigen/Core>
 #include <boost/type_traits.hpp>
@@ -115,8 +116,7 @@ namespace pinocchio
                       const RealScalar & prec =
                       Eigen::NumTraits<RealScalar>::dummy_precision())
       {
-        using std::abs;
-        return abs(vec.norm() - RealScalar(1)) <= prec;
+        return math::fabs(vec.norm() - RealScalar(1)) <= prec;
       }
     };
     
