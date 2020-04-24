@@ -299,7 +299,7 @@ namespace pinocchio
     
     bool isNormalized(const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     {
-      return (rot.transpose()*rot).eval().isIdentity(prec);
+      return isUnitary(rot,prec);
     }
     
     void normalize()
