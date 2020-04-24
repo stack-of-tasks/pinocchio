@@ -51,6 +51,7 @@ namespace pinocchio
   {
     PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
+    typedef typename Eigen::NumTraits<Scalar>::RealScalar RealScalar;
 
     template<typename Matrix2Like>
     static typename Matrix2Like::Scalar
@@ -333,6 +334,7 @@ namespace pinocchio
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
     typedef SE3Tpl<Scalar,Options> SE3;
+    typedef typename Eigen::NumTraits<Scalar>::RealScalar RealScalar;
     
     /// Get dimension of Lie Group vector representation
     ///
@@ -366,9 +368,9 @@ namespace pinocchio
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
       ConstQuaternionMap_t quat0 (q0.derived().data());
-      assert(quaternion::isNormalized(quat0,1e-8));
+      assert(quaternion::isNormalized(quat0,(RealScalar)1e-8));
       ConstQuaternionMap_t quat1 (q1.derived().data());
-      assert(quaternion::isNormalized(quat1,1e-8));
+      assert(quaternion::isNormalized(quat1,(RealScalar)1e-8));
       
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
         = log3((quat0.matrix().transpose() * quat1.matrix()).eval());
@@ -380,11 +382,11 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       typedef typename SE3::Matrix3 Matrix3;
-      
+
       ConstQuaternionMap_t quat0 (q0.derived().data());
-      assert(quaternion::isNormalized(quat0,1e-8));
+      assert(quaternion::isNormalized(quat0,(RealScalar)1e-8));
       ConstQuaternionMap_t quat1 (q1.derived().data());
-      assert(quaternion::isNormalized(quat1,1e-8));
+      assert(quaternion::isNormalized(quat1,(RealScalar)1e-8));
       
       const Matrix3 R = quat0.matrix().transpose() * quat1.matrix(); // TODO: perform first the Quaternion multiplications and then return a Rotation Matrix
 
@@ -404,13 +406,13 @@ namespace pinocchio
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat(q.derived().data());
-      assert(quaternion::isNormalized(quat,1e-8));
+      assert(quaternion::isNormalized(quat,(RealScalar)1e-8));
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       Quaternion_t pOmega; quaternion::exp3(v,pOmega);
       quat_map = quat * pOmega;
       quaternion::firstOrderNormalize(quat_map);
-      assert(quaternion::isNormalized(quat_map,1e-8));
+      assert(quaternion::isNormalized(quat_map,(RealScalar)1e-8));
     }
     
     template <class Config_t, class Jacobian_t>
@@ -424,7 +426,7 @@ namespace pinocchio
       typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat_map(q.derived().data());
-      assert(quaternion::isNormalized(quat_map,1e-8));
+      assert(quaternion::isNormalized(quat_map,(RealScalar)1e-8));
       
       Eigen::Matrix<Scalar,NQ,NV,JacobianPlainType::Options|Eigen::RowMajor> Jexp3QuatCoeffWise;
       
@@ -546,14 +548,14 @@ namespace pinocchio
                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConstQuaternionMap_t quat0 (q0.derived().data());
-      assert(quaternion::isNormalized(quat0,1e-8));
+      assert(quaternion::isNormalized(quat0,(RealScalar)1e-8));
       ConstQuaternionMap_t quat1 (q1.derived().data());
-      assert(quaternion::isNormalized(quat1,1e-8));
+      assert(quaternion::isNormalized(quat1,(RealScalar)1e-8));
       
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       quat_map = quat0.slerp(u, quat1);
-      assert(quaternion::isNormalized(quat_map,1e-8));
+      assert(quaternion::isNormalized(quat_map,(RealScalar)1e-8));
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -578,7 +580,7 @@ namespace pinocchio
       QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).data());
       quaternion::uniformRandom(quat_map);
       
-      assert(quaternion::isNormalized(quat_map,1e-8));
+      assert(quaternion::isNormalized(quat_map,(RealScalar)1e-8));
     }
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
@@ -595,9 +597,9 @@ namespace pinocchio
                                          const Scalar & prec)
     {
       ConstQuaternionMap_t quat1(q0.derived().data());
-      assert(quaternion::isNormalized(quat1,1e-8));
+      assert(quaternion::isNormalized(quat1,(RealScalar)1e-8));
       ConstQuaternionMap_t quat2(q1.derived().data());
-      assert(quaternion::isNormalized(quat1,1e-8));
+      assert(quaternion::isNormalized(quat1,(RealScalar)1e-8));
 
       return quaternion::defineSameRotation(quat1,quat2,prec);
     }
