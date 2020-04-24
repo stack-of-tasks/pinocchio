@@ -16,7 +16,6 @@ __all__ = ['Panda3dVisualizer', 'Panda3dViewer', 'ViewerClosedError']
 
 
 class Panda3dVisualizer(BaseVisualizer):
-
     """
     A Pinocchio display using panda3d engine.
     """
