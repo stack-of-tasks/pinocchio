@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_quaternion_hpp__
@@ -7,10 +7,11 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
+#include "pinocchio/math/matrix.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/utils/static-if.hpp"
-#include <boost/type_traits.hpp>
 
+#include <boost/type_traits.hpp>
 #include <Eigen/Geometry>
 
 namespace pinocchio
@@ -206,6 +207,22 @@ namespace pinocchio
     {
       internal::quaternionbase_assign_impl<typename Matrix3::Scalar>::run(PINOCCHIO_EIGEN_CONST_CAST(D,quat),
                                                                           R.derived());
+    }
+
+    ///
+    /// \brief Check whether the input quaternion is Normalized within the given precision.
+    ///
+    /// \param[in] quat Input quaternion
+    /// \param[in] prec Required precision
+    ///
+    /// \returns true if quat is normalized within the precision prec.
+    ///
+    template<typename Quaternion>
+    inline bool isNormalized(const Eigen::QuaternionBase<Quaternion> & quat,
+                             const typename Quaternion::Coefficients::RealScalar & prec =
+                             Eigen::NumTraits< typename Quaternion::Coefficients::RealScalar >::dummy_precision())
+    {
+      return pinocchio::isNormalized(quat.coeffs(),prec);
     }
       
   } // namespace quaternion
