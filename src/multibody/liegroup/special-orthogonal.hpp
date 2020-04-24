@@ -51,7 +51,7 @@ namespace pinocchio
   {
     PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(SpecialOrthogonalOperationTpl);
     typedef Eigen::Matrix<Scalar,2,2> Matrix2;
-    typedef typename Eigen::NumTraits<Scalar>::RealScalar RealScalar;
+    typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
 
     template<typename Matrix2Like>
     static typename Matrix2Like::Scalar
@@ -334,7 +334,7 @@ namespace pinocchio
     typedef Eigen::Map<      Quaternion_t> QuaternionMap_t;
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
     typedef SE3Tpl<Scalar,Options> SE3;
-    typedef typename Eigen::NumTraits<Scalar>::RealScalar RealScalar;
+    typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
     
     /// Get dimension of Lie Group vector representation
     ///
