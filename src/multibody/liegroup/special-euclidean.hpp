@@ -498,7 +498,7 @@ namespace pinocchio
     typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef SE3Tpl<Scalar,Options> SE3;
-    typedef typename Eigen::NumTraits<Scalar>::RealScalar RealScalar;
+    typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
 
     /// Get dimension of Lie Group vector representation
     ///
