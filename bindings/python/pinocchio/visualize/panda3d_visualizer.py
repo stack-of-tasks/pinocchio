@@ -17,7 +17,7 @@ __all__ = ['Panda3dVisualizer', 'Panda3dViewer', 'ViewerClosedError']
 
 class Panda3dVisualizer(BaseVisualizer):
     """A Pinocchio display using panda3d engine."""
-    
+
 
     def initViewer(self, viewer=None, load_model=False): # pylint: disable=arguments-differ
         """Init the viewer by attaching to / creating a GUI viewer."""
