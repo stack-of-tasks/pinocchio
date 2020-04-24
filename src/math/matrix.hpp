@@ -1,9 +1,12 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_math_matrix_hpp__
 #define __pinocchio_math_matrix_hpp__
+
+#include "pinocchio/macros.hpp"
+#include "pinocchio/math/fwd.hpp"
 
 #include <Eigen/Core>
 #include <boost/type_traits.hpp>
@@ -85,12 +88,69 @@ namespace pinocchio
     };
   }
   
+  ///
+  /// \brief Check whether the input matrix is Unitary within the given precision.
+  ///
+  /// \param[in] mat Input matrix
+  /// \param[in] prec Required precision
+  ///
+  /// \returns true if mat is unitary within the precision prec
+  ///
   template<typename MatrixLike>
   inline bool isUnitary(const Eigen::MatrixBase<MatrixLike> & mat,
                         const typename MatrixLike::RealScalar & prec =
                         Eigen::NumTraits< typename MatrixLike::Scalar >::dummy_precision())
   {
     return internal::isUnitaryAlgo<MatrixLike>::run(mat,prec);
+  }
+
+  namespace internal
+  {
+    template<typename VectorLike, bool value = boost::is_floating_point<typename VectorLike::Scalar>::value>
+    struct isNormalizedAlgo
+    {
+      typedef typename VectorLike::Scalar Scalar;
+      typedef typename VectorLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<VectorLike> & vec,
+                      const RealScalar & prec =
+                      Eigen::NumTraits<RealScalar>::dummy_precision())
+      {
+        return math::fabs(vec.norm() - RealScalar(1)) <= prec;
+      }
+    };
+    
+    template<typename VectorLike>
+    struct isNormalizedAlgo<VectorLike,false>
+    {
+      typedef typename VectorLike::Scalar Scalar;
+      typedef typename VectorLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<VectorLike> & /*vec*/,
+                      const RealScalar & prec =
+                      Eigen::NumTraits<RealScalar>::dummy_precision())
+      {
+        PINOCCHIO_UNUSED_VARIABLE(prec);
+        return true;
+      }
+    };
+  }
+
+  ///
+  /// \brief Check whether the input vector is Normalized within the given precision.
+  ///
+  /// \param[in] vec Input vector
+  /// \param[in] prec Required precision
+  ///
+  /// \returns true if vec is normalized within the precision prec.
+  ///
+  template<typename VectorLike>
+  inline bool isNormalized(const Eigen::MatrixBase<VectorLike> & vec,
+                           const typename VectorLike::RealScalar & prec =
+                           Eigen::NumTraits< typename VectorLike::Scalar >::dummy_precision())
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
+    return internal::isNormalizedAlgo<VectorLike>::run(vec,prec);
   }
   
   namespace internal
