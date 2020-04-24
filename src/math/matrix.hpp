@@ -102,6 +102,56 @@ namespace pinocchio
   {
     return internal::isUnitaryAlgo<MatrixLike>::run(mat,prec);
   }
+
+  namespace internal
+  {
+    template<typename VectorLike, bool value = boost::is_floating_point<typename VectorLike::Scalar>::value>
+    struct isNormalizedAlgo
+    {
+      typedef typename VectorLike::Scalar Scalar;
+      typedef typename VectorLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<VectorLike> & vec,
+                      const RealScalar & prec =
+                      Eigen::NumTraits<RealScalar>::dummy_precision())
+      {
+        using std::abs;
+        return abs(vec.norm() - RealScalar(1)) <= prec;
+      }
+    };
+    
+    template<typename VectorLike>
+    struct isNormalizedAlgo<VectorLike,false>
+    {
+      typedef typename VectorLike::Scalar Scalar;
+      typedef typename VectorLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<VectorLike> & /*vec*/,
+                      const RealScalar & prec =
+                      Eigen::NumTraits<RealScalar>::dummy_precision())
+      {
+        PINOCCHIO_UNUSED_VARIABLE(prec);
+        return true;
+      }
+    };
+  }
+
+  ///
+  /// \brief Check whether the input vector is Normalized within the given precision.
+  ///
+  /// \param[in] vec Input vector
+  /// \param[in] prec Required precision
+  ///
+  /// \returns true if vec is normalized within the precision prec.
+  ///
+  template<typename VectorLike>
+  inline bool isNormalized(const Eigen::MatrixBase<VectorLike> & vec,
+                           const typename VectorLike::RealScalar & prec =
+                           Eigen::NumTraits< typename VectorLike::Scalar >::dummy_precision())
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
+    return internal::isNormalizedAlgo<VectorLike>::run(vec,prec);
+  }
   
   namespace internal
   {
