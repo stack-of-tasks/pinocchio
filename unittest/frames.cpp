@@ -186,6 +186,16 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   Motion af = getFrameAcceleration(model, data, frame_idx);
 
   BOOST_CHECK(af.isApprox(framePlacement.actInv(data.a[parent_idx])));
+
+  pinocchio::Data data_ref(model);
+  forwardKinematics(model, data_ref, q, v, a);
+  updateFramePlacements(model, data_ref);
+  Motion a_ref = getFrameAcceleration(model, data_ref, frame_idx);
+
+  BOOST_CHECK(a_ref.isApprox(getFrameAcceleration(model,data,frame_idx)));
+  BOOST_CHECK(a_ref.isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL)));
+  BOOST_CHECK(data_ref.oMf[frame_idx].act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::WORLD)));
+  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
