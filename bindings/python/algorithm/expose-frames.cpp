@@ -68,9 +68,9 @@ namespace pinocchio
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (&getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (&getFrameAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (&getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (getFrameAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
 
     void exposeFramesAlgo()
     {
