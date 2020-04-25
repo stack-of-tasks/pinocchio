@@ -94,15 +94,29 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                       const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    
+    typedef typename Model::Motion Motion;
+
     const typename Model::Frame & frame = model.frames[frame_id];
-    const typename Model::JointIndex & parent = frame.parent;
-    return frame.placement.actInv(data.a[parent]);
+    const typename Model::SE3 & oMi = data.oMi[frame.parent];
+    const typename Model::Motion & a = data.a[frame.parent];
+    switch(rf)
+    {
+      case ReferenceFrame::LOCAL:
+        return frame.placement.actInv(a);
+      case ReferenceFrame::WORLD:
+        return oMi.act(a);
+      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+        return Motion(oMi.rotation() * (a.linear() + a.angular().cross(frame.placement.translation())),
+                      oMi.rotation() * a.angular());
+      default:
+        throw std::invalid_argument("Bad reference frame.");
+    }
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>

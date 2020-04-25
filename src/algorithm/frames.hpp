@@ -101,14 +101,15 @@ namespace pinocchio
                    const ReferenceFrame rf = ReferenceFrame::LOCAL);
 
   /**
-   * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
-   *             You must first call pinocchio::forwardKinematics to update placement values in data structure.
+   * @brief      Returns the spatial acceleration of the Frame expressed in the desired reference frame.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
    *
-   * @return The spatial acceleration of the Frame expressed in the coordinates Frame.
+   * @return The spatial acceleration of the Frame expressed in the desired reference frame.
    *
    * @warning    Second order forwardKinematics should have been called first
    */
@@ -116,7 +117,8 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id);
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                       const ReferenceFrame rf = ReferenceFrame::LOCAL);
 
   /**
    * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
