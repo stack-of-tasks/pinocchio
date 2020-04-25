@@ -68,6 +68,8 @@ namespace pinocchio
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }
     
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (&getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
+
     void exposeFramesAlgo()
     {
       using namespace Eigen;
@@ -86,9 +88,10 @@ namespace pinocchio
 
       bp::def("getFrameVelocity",
               &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
-              bp::args("model","data","frame_id"),
-              "Returns the spatial velocity of the frame expressed in the coordinates system of the Frame itself.\n"
-              "forwardKinematics(model,data,q,v,[a]).");
+              getFrameVelocity_overload(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the spatial velocity of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
 
       bp::def("getFrameAcceleration",
               &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
