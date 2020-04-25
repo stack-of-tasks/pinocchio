@@ -78,11 +78,11 @@ namespace pinocchio
     const typename Model::Motion & v = data.v[frame.parent];
     switch(rf)
     {
-      case ReferenceFrame::LOCAL:
+      case LOCAL:
         return frame.placement.actInv(v);
-      case ReferenceFrame::WORLD:
+      case WORLD:
         return oMi.act(v);
-      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+      case LOCAL_WORLD_ALIGNED:
         return Motion(oMi.rotation() * (v.linear() + v.angular().cross(frame.placement.translation())),
                       oMi.rotation() * v.angular());
       default:
@@ -107,11 +107,11 @@ namespace pinocchio
     const typename Model::Motion & a = data.a[frame.parent];
     switch(rf)
     {
-      case ReferenceFrame::LOCAL:
+      case LOCAL:
         return frame.placement.actInv(a);
-      case ReferenceFrame::WORLD:
+      case WORLD:
         return oMi.act(a);
-      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+      case LOCAL_WORLD_ALIGNED:
         return Motion(oMi.rotation() * (a.linear() + a.angular().cross(frame.placement.translation())),
                       oMi.rotation() * a.angular());
       default:

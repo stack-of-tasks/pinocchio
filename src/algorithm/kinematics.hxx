@@ -230,11 +230,11 @@ namespace pinocchio
     PINOCCHIO_UNUSED_VARIABLE(model);
     switch(rf)
     {
-      case ReferenceFrame::LOCAL:
+      case LOCAL:
         return data.v[jointId];
-      case ReferenceFrame::WORLD:
+      case WORLD:
         return data.oMi[jointId].act(data.v[jointId]);
-      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+      case LOCAL_WORLD_ALIGNED:
         return MotionTpl<Scalar, Options>(data.oMi[jointId].rotation() * data.v[jointId].linear(), data.oMi[jointId].rotation() * data.v[jointId].angular());
       default:
         throw std::invalid_argument("Bad reference frame.");
@@ -252,11 +252,11 @@ namespace pinocchio
     PINOCCHIO_UNUSED_VARIABLE(model);
     switch(rf)
     {
-      case ReferenceFrame::LOCAL:
+      case LOCAL:
         return data.a[jointId];
-      case ReferenceFrame::WORLD:
+      case WORLD:
         return data.oMi[jointId].act(data.a[jointId]);
-      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+      case LOCAL_WORLD_ALIGNED:
         return MotionTpl<Scalar, Options>(data.oMi[jointId].rotation() * data.a[jointId].linear(), data.oMi[jointId].rotation() * data.a[jointId].angular());
       default:
         throw std::invalid_argument("Bad reference frame.");
