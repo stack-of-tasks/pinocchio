@@ -121,6 +121,27 @@ namespace pinocchio
                        const ReferenceFrame rf = ReferenceFrame::LOCAL);
 
   /**
+   * @brief      Returns the "classical" acceleration of the Frame expressed in the desired reference frame.
+   *             This is different from the "spatial" acceleration in that centrifugal effects are accounted for.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
+   *
+   * @return The classical acceleration of the Frame expressed in the desired reference frame.
+   *
+   * @warning    Second order forwardKinematics should have been called first
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                const ReferenceFrame rf = ReferenceFrame::LOCAL);
+
+  /**
    * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of rf.
    *             You must first call pinocchio::computeJointJacobians followed by pinocchio::framesForwardKinematics to update placement values in data structure.

@@ -198,6 +198,68 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
 }
 
+BOOST_AUTO_TEST_CASE ( test_classic_acceleration )
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
+  const SE3 & framePlacement = SE3::Random();
+  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
+  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  pinocchio::Data data(model);
+
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.middleRows<4> (3).normalize();
+  VectorXd v = VectorXd::Ones(model.nv);
+  VectorXd a = VectorXd::Ones(model.nv);
+  forwardKinematics(model, data, q, v, a);
+
+  Motion vel = framePlacement.actInv(data.v[parent_idx]);
+  Motion acc = framePlacement.actInv(data.a[parent_idx]);
+  Vector3d linear;
+
+  Motion acc_classical_local = acc;
+  linear = acc.linear() + vel.angular().cross(vel.linear());
+  acc_classical_local.linear() = linear;
+
+  Motion af = getFrameClassicalAcceleration(model, data, frame_idx);
+
+  BOOST_CHECK(af.isApprox(acc_classical_local));
+
+  pinocchio::Data data_ref(model);
+  forwardKinematics(model, data_ref, q, v, a);
+  updateFramePlacements(model, data_ref);
+
+  SE3 T_ref = data_ref.oMf[frame_idx];
+  Motion v_ref = getFrameVelocity(model, data_ref, frame_idx);
+  Motion a_ref = getFrameAcceleration(model, data_ref, frame_idx);
+
+  Motion acc_classical_local_ref = a_ref;
+  linear = a_ref.linear() + v_ref.angular().cross(v_ref.linear());
+  acc_classical_local_ref.linear() = linear;
+
+  BOOST_CHECK(acc_classical_local_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx)));
+  BOOST_CHECK(acc_classical_local_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL)));
+
+  Motion vel_world_ref = T_ref.act(v_ref);
+  Motion acc_classical_world_ref = T_ref.act(a_ref);
+  linear = acc_classical_world_ref.linear() + vel_world_ref.angular().cross(vel_world_ref.linear());
+  acc_classical_world_ref.linear() = linear;
+
+  BOOST_CHECK(acc_classical_world_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::WORLD)));
+
+  Motion vel_aligned_ref = SE3(T_ref.rotation(), Eigen::Vector3d::Zero()).act(v_ref);
+  Motion acc_classical_aligned_ref = SE3(T_ref.rotation(), Eigen::Vector3d::Zero()).act(a_ref);
+  linear = acc_classical_aligned_ref.linear() + vel_aligned_ref.angular().cross(vel_aligned_ref.linear());
+  acc_classical_aligned_ref.linear() = linear;
+
+  BOOST_CHECK(acc_classical_aligned_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+}
+
 BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
 {
   using namespace Eigen;
