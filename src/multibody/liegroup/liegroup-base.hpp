@@ -135,7 +135,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                       const AssignmentOperatorType op) const;
+                       const AssignmentOperatorType op=SETTO) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
@@ -152,7 +152,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                       const AssignmentOperatorType op) const;
+                       const AssignmentOperatorType op=SETTO) const;
 
 
     /**
