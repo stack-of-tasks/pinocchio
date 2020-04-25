@@ -10,11 +10,6 @@ try:
 except ImportError:
     WITH_HPP_FCL_BINDINGS = False
 
-from panda3d_viewer import Viewer as Panda3dViewer, ViewerClosedError
-
-__all__ = ['Panda3dVisualizer', 'Panda3dViewer', 'ViewerClosedError']
-
-
 class Panda3dVisualizer(BaseVisualizer):
     """
     A Pinocchio display using panda3d engine.
@@ -28,6 +23,7 @@ class Panda3dVisualizer(BaseVisualizer):
         self.display_collisions = False
         self.viewer = viewer
 
+        from panda3d_viewer import Viewer as Panda3dViewer
         if viewer is None:
             self.viewer = Panda3dViewer(window_title="python-pinocchio")
 
@@ -121,3 +117,5 @@ class Panda3dVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not."""
         self.viewer.show_group(self.visual_group, visibility)
         self.display_visuals = visibility
+        
+__all__ = ['Panda3dVisualizer']
