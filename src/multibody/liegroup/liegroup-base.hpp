@@ -92,7 +92,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
      */
-    template <ArgumentPosition arg, AssignmentOperatorType op = SETTO, class Config_t, class Tangent_t, class JacobianOut_t>
+    template <ArgumentPosition arg, class Config_t, class Tangent_t, class JacobianOut_t, AssignmentOperatorType op = SETTO>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t> & J) const
@@ -118,7 +118,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t> & J,
                     const ArgumentPosition arg,
-                    const AssignmentOperatorType op) const;
+                    const AssignmentOperatorType op = SETTO) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the configuration vector into tangent space at identity.
@@ -135,7 +135,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                       const AssignmentOperatorType op=SETTO) const;
+                       const AssignmentOperatorType op = SETTO) const;
 
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
@@ -152,7 +152,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                       const AssignmentOperatorType op=SETTO) const;
+                       const AssignmentOperatorType op = SETTO) const;
 
 
     /**
