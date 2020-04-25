@@ -262,6 +262,24 @@ namespace pinocchio
         throw std::invalid_argument("Bad reference frame.");
     }
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const JointIndex jointId,
+                           const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef MotionTpl<Scalar, Options> Motion;
+    Motion vel = getVelocity(model, data, jointId, rf);
+    Motion acc = getAcceleration(model, data, jointId, rf);
+
+    acc.linear() += vel.angular().cross(vel.linear());
+
+    return acc;
+  }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_kinematics_hxx__
