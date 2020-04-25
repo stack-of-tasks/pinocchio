@@ -98,7 +98,7 @@ namespace pinocchio
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                   const ReferenceFrame rf = ReferenceFrame::LOCAL);
+                   const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the spatial acceleration of the Frame expressed in the desired reference frame.
@@ -118,7 +118,7 @@ namespace pinocchio
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                       const ReferenceFrame rf = ReferenceFrame::LOCAL);
+                       const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the "classical" acceleration of the Frame expressed in the desired reference frame.
@@ -139,7 +139,7 @@ namespace pinocchio
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
-                                const ReferenceFrame rf = ReferenceFrame::LOCAL);
+                                const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,

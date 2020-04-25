@@ -158,9 +158,9 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
   Motion v_ref = getFrameVelocity(model, data_ref, frame_idx);
 
   BOOST_CHECK(v_ref.isApprox(getFrameVelocity(model,data,frame_idx)));
-  BOOST_CHECK(v_ref.isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::LOCAL)));
-  BOOST_CHECK(data_ref.oMf[frame_idx].act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::WORLD)));
-  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  BOOST_CHECK(v_ref.isApprox(getFrameVelocity(model,data,frame_idx,LOCAL)));
+  BOOST_CHECK(data_ref.oMf[frame_idx].act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,WORLD)));
+  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE ( test_acceleration )
@@ -193,9 +193,9 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   Motion a_ref = getFrameAcceleration(model, data_ref, frame_idx);
 
   BOOST_CHECK(a_ref.isApprox(getFrameAcceleration(model,data,frame_idx)));
-  BOOST_CHECK(a_ref.isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL)));
-  BOOST_CHECK(data_ref.oMf[frame_idx].act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::WORLD)));
-  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  BOOST_CHECK(a_ref.isApprox(getFrameAcceleration(model,data,frame_idx,LOCAL)));
+  BOOST_CHECK(data_ref.oMf[frame_idx].act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,WORLD)));
+  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(a_ref).isApprox(getFrameAcceleration(model,data,frame_idx,LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE ( test_classic_acceleration )
@@ -243,21 +243,21 @@ BOOST_AUTO_TEST_CASE ( test_classic_acceleration )
   acc_classical_local_ref.linear() = linear;
 
   BOOST_CHECK(acc_classical_local_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx)));
-  BOOST_CHECK(acc_classical_local_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL)));
+  BOOST_CHECK(acc_classical_local_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,LOCAL)));
 
   Motion vel_world_ref = T_ref.act(v_ref);
   Motion acc_classical_world_ref = T_ref.act(a_ref);
   linear = acc_classical_world_ref.linear() + vel_world_ref.angular().cross(vel_world_ref.linear());
   acc_classical_world_ref.linear() = linear;
 
-  BOOST_CHECK(acc_classical_world_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::WORLD)));
+  BOOST_CHECK(acc_classical_world_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,WORLD)));
 
   Motion vel_aligned_ref = SE3(T_ref.rotation(), Eigen::Vector3d::Zero()).act(v_ref);
   Motion acc_classical_aligned_ref = SE3(T_ref.rotation(), Eigen::Vector3d::Zero()).act(a_ref);
   linear = acc_classical_aligned_ref.linear() + vel_aligned_ref.angular().cross(vel_aligned_ref.linear());
   acc_classical_aligned_ref.linear() = linear;
 
-  BOOST_CHECK(acc_classical_aligned_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  BOOST_CHECK(acc_classical_aligned_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE(test_frame_getters)
@@ -311,21 +311,21 @@ BOOST_AUTO_TEST_CASE(test_frame_getters)
 
   // Check output velocity
   BOOST_CHECK(v_local.isApprox(getFrameVelocity(model,data,frameId)));
-  BOOST_CHECK(v_local.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::LOCAL)));
-  BOOST_CHECK(v_world.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::WORLD)));
-  BOOST_CHECK(v_align.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  BOOST_CHECK(v_local.isApprox(getFrameVelocity(model,data,frameId,LOCAL)));
+  BOOST_CHECK(v_world.isApprox(getFrameVelocity(model,data,frameId,WORLD)));
+  BOOST_CHECK(v_align.isApprox(getFrameVelocity(model,data,frameId,LOCAL_WORLD_ALIGNED)));
 
   // Check output acceleration (all zero)
   BOOST_CHECK(getFrameAcceleration(model,data,frameId).isZero());
-  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::LOCAL).isZero());
-  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::WORLD).isZero());
-  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,LOCAL).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,WORLD).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,LOCAL_WORLD_ALIGNED).isZero());
 
   // Check output classical acceleration
   BOOST_CHECK(ac_local.isApprox(getFrameClassicalAcceleration(model,data,frameId)));
-  BOOST_CHECK(ac_local.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::LOCAL)));
-  BOOST_CHECK(ac_world.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::WORLD)));
-  BOOST_CHECK(ac_align.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+  BOOST_CHECK(ac_local.isApprox(getFrameClassicalAcceleration(model,data,frameId,LOCAL)));
+  BOOST_CHECK(ac_world.isApprox(getFrameClassicalAcceleration(model,data,frameId,WORLD)));
+  BOOST_CHECK(ac_align.isApprox(getFrameClassicalAcceleration(model,data,frameId,LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )

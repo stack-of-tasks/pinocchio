@@ -98,7 +98,7 @@ namespace pinocchio
   getVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const JointIndex jointId,
-              const ReferenceFrame rf = ReferenceFrame::LOCAL);
+              const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the spatial acceleration of the joint expressed in the desired reference frame.
@@ -118,7 +118,7 @@ namespace pinocchio
   getAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const JointIndex jointId,
-                  const ReferenceFrame rf = ReferenceFrame::LOCAL);
+                  const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the "classical" acceleration of the joint expressed in the desired reference frame.
@@ -139,7 +139,7 @@ namespace pinocchio
   getClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const JointIndex jointId,
-                           const ReferenceFrame rf = ReferenceFrame::LOCAL);
+                           const ReferenceFrame rf = LOCAL);
 
 } // namespace pinocchio 
 
