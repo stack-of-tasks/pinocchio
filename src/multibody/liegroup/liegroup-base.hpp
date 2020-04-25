@@ -92,7 +92,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[out] J    the Jacobian of the Integrate operation w.r.t. the argument arg.
      */
-    template <ArgumentPosition arg, AssignmentOperatorType op, class Config_t, class Tangent_t, class JacobianOut_t>
+    template <ArgumentPosition arg, AssignmentOperatorType op = SETTO, class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate(const Eigen::MatrixBase<Config_t >  & q,
                     const Eigen::MatrixBase<Tangent_t>  & v,
                     const Eigen::MatrixBase<JacobianOut_t> & J) const

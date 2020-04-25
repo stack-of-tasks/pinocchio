@@ -361,7 +361,7 @@ struct LieGroup_JintegrateJdifference{
     JacobianMatrix_t Jd_qb, Ji_v;
 
     lg.template dDifference<ARG1> (qa, qb, Jd_qb);
-    lg.template dIntegrate <ARG1, SETTO> (qa, v , Ji_v );
+    lg.template dIntegrate <ARG1> (qa, v , Ji_v );
 
     BOOST_CHECK_MESSAGE ((Jd_qb * Ji_v).isIdentity(),
         "Jd_qb\n" <<
