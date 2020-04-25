@@ -118,7 +118,25 @@ namespace pinocchio
         throw std::invalid_argument("Bad reference frame.");
     }
   }
-  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef MotionTpl<Scalar, Options> Motion;
+    Motion vel = getFrameVelocity(model, data, frame_id, rf);
+    Motion acc = getFrameAcceleration(model, data, frame_id, rf);
+
+    acc.linear() += vel.angular().cross(vel.linear());
+
+    return acc;
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
