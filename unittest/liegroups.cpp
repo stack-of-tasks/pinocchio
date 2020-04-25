@@ -316,8 +316,8 @@ struct LieGroup_Jintegrate{
     ConfigVector_t q_v = lg.integrate (q, v);
 
     JacobianMatrix_t Jq, Jv;
-    lg.dIntegrate_dq (q, v, Jq, SETTO);
-    lg.dIntegrate_dv (q, v, Jv, SETTO);
+    lg.dIntegrate_dq (q, v, Jq);
+    lg.dIntegrate_dv (q, v, Jv);
 
     const Scalar eps = 1e-6;
     for (int i = 0; i < v.size(); ++i)
