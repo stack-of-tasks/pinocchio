@@ -151,6 +151,16 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
   Motion vf = getFrameVelocity(model, data, frame_idx);
 
   BOOST_CHECK(vf.isApprox(framePlacement.actInv(data.v[parent_idx])));
+
+  pinocchio::Data data_ref(model);
+  forwardKinematics(model, data_ref, q, v);
+  updateFramePlacements(model, data_ref);
+  Motion v_ref = getFrameVelocity(model, data_ref, frame_idx);
+
+  BOOST_CHECK(v_ref.isApprox(getFrameVelocity(model,data,frame_idx)));
+  BOOST_CHECK(v_ref.isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::LOCAL)));
+  BOOST_CHECK(data_ref.oMf[frame_idx].act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::WORLD)));
+  BOOST_CHECK(SE3(data_ref.oMf[frame_idx].rotation(), Eigen::Vector3d::Zero()).act(v_ref).isApprox(getFrameVelocity(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
 }
 
 BOOST_AUTO_TEST_CASE ( test_acceleration )
