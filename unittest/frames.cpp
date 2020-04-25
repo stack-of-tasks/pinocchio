@@ -260,6 +260,74 @@ BOOST_AUTO_TEST_CASE ( test_classic_acceleration )
   BOOST_CHECK(acc_classical_aligned_ref.isApprox(getFrameClassicalAcceleration(model,data,frame_idx,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
 }
 
+BOOST_AUTO_TEST_CASE(test_frame_getters)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  // Build a simple 1R planar model
+  Model model;
+  JointIndex parentId = model.addJoint(0, JointModelRZ(), SE3::Identity(), "Joint1");
+  FrameIndex frameId = (FrameIndex)(model.addFrame(Frame("Frame1", parentId, 0, SE3(Matrix3d::Identity(), Vector3d(1.0, 0.0, 0.0)), OP_FRAME)));
+
+  Data data(model);
+
+  // Predetermined configuration values
+  VectorXd q(model.nq);
+  q << M_PI/2;
+
+  VectorXd v(model.nv);
+  v << 1.0;
+
+  VectorXd a(model.nv);
+  a << 0.0;
+
+  // Expected velocity
+  Motion v_local;
+  v_local.linear() = Vector3d(0.0, 1.0, 0.0);
+  v_local.angular() = Vector3d(0.0, 0.0, 1.0);
+
+  Motion v_world;
+  v_world.linear() = Vector3d::Zero();
+  v_world.angular() = Vector3d(0.0, 0.0, 1.0);
+
+  Motion v_align;
+  v_align.linear() = Vector3d(-1.0, 0.0, 0.0);
+  v_align.angular() = Vector3d(0.0, 0.0, 1.0);
+
+  // Expected classical acceleration
+  Motion ac_local;
+  ac_local.linear() = Vector3d(-1.0, 0.0, 0.0);
+  ac_local.angular() = Vector3d::Zero();
+
+  Motion ac_world = Motion::Zero();
+
+  Motion ac_align;
+  ac_align.linear() = Vector3d(0.0, -1.0, 0.0);
+  ac_align.angular() = Vector3d::Zero();
+
+  // Perform kinematics
+  forwardKinematics(model,data,q,v,a);
+
+  // Check output velocity
+  BOOST_CHECK(v_local.isApprox(getFrameVelocity(model,data,frameId)));
+  BOOST_CHECK(v_local.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::LOCAL)));
+  BOOST_CHECK(v_world.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::WORLD)));
+  BOOST_CHECK(v_align.isApprox(getFrameVelocity(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+
+  // Check output acceleration (all zero)
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::LOCAL).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::WORLD).isZero());
+  BOOST_CHECK(getFrameAcceleration(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED).isZero());
+
+  // Check output classical acceleration
+  BOOST_CHECK(ac_local.isApprox(getFrameClassicalAcceleration(model,data,frameId)));
+  BOOST_CHECK(ac_local.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::LOCAL)));
+  BOOST_CHECK(ac_world.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::WORLD)));
+  BOOST_CHECK(ac_align.isApprox(getFrameClassicalAcceleration(model,data,frameId,ReferenceFrame::LOCAL_WORLD_ALIGNED)));
+}
+
 BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
 {
   using namespace Eigen;
