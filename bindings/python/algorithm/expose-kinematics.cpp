@@ -10,9 +10,9 @@ namespace pinocchio
   namespace python
   {
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getVelocity_overload, (&getVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getAcceleration_overload, (&getAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getClassicalAcceleration_overload, (&getClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getVelocity_overload, (getVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getAcceleration_overload, (getAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getClassicalAcceleration_overload, (getClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
 
     void exposeKinematics()
     {
