@@ -65,15 +65,29 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id)
+                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                   const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Motion Motion;
 
     const typename Model::Frame & frame = model.frames[frame_id];
-    const typename Model::JointIndex & parent = frame.parent;
-    return frame.placement.actInv(data.v[parent]);
+    const typename Model::SE3 & oMi = data.oMi[frame.parent];
+    const typename Model::Motion & v = data.v[frame.parent];
+    switch(rf)
+    {
+      case ReferenceFrame::LOCAL:
+        return frame.placement.actInv(v);
+      case ReferenceFrame::WORLD:
+        return oMi.act(v);
+      case ReferenceFrame::LOCAL_WORLD_ALIGNED:
+        return Motion(oMi.rotation() * (v.linear() + v.angular().cross(frame.placement.translation())),
+                      oMi.rotation() * v.angular());
+      default:
+        throw std::invalid_argument("Bad reference frame.");
+    }
   }  
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

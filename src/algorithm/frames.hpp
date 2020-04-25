@@ -81,14 +81,15 @@ namespace pinocchio
 
 
   /**
-   * @brief      Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system.
+   * @brief      Returns the spatial velocity of the Frame expressed in the desired reference frame.
    *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the velocity is expressed.
    *
-   * @return     The spatial velocity of the Frame expressed in the coordinates Frame.
+   * @return     The spatial velocity of the Frame expressed in the desired reference frame.
    *
    * @warning    Fist or second order forwardKinematics should have been called first
    */
@@ -96,7 +97,8 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id);
+                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                   const ReferenceFrame rf = ReferenceFrame::LOCAL);
 
   /**
    * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
