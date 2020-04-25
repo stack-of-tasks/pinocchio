@@ -72,5 +72,10 @@ class TestFrameBindings(PinocchioTestCase):
         a = pin.getFrameAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
         self.assertApprox(a, pin.SE3(T.rotation, np.zeros(3)).act(self.frame_placement.actInv(data.a[self.parent_idx])))
 
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.WORLD)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
+
 if __name__ == '__main__':
     unittest.main()

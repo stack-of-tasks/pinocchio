@@ -70,6 +70,7 @@ namespace pinocchio
     
     BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (&getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
     BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (&getFrameAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (&getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
 
     void exposeFramesAlgo()
     {
@@ -100,7 +101,14 @@ namespace pinocchio
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the spatial acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
-      
+
+      bp::def("getFrameClassicalAcceleration",
+              &getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>,
+              getFrameClassicalAcceleration_overload(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the \"classical\" acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+
       bp::def("framesForwardKinematics",
               &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("model","data","q"),
