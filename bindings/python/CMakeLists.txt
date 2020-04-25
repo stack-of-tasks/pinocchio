@@ -185,6 +185,7 @@ IF(BUILD_PYTHON_INTERFACE)
     base_visualizer.py
     gepetto_visualizer.py
     meshcat_visualizer.py
+    panda3d_visualizer.py
     )
 
   FOREACH(python ${PYTHON_VISUALIZE_FILES})
