@@ -126,7 +126,7 @@ namespace pinocchio
     void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
                             const Eigen::MatrixBase<JacobianOut_t> & J,
-                            const AssignmentOperatorType op) const
+                            const AssignmentOperatorType op=SETTO) const
     {
       switch(op)
         {
@@ -154,7 +154,7 @@ namespace pinocchio
     void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
                             const Eigen::MatrixBase<JacobianOut_t> & J,
-                            const AssignmentOperatorType op) const
+                            const AssignmentOperatorType op=SETTO) const
     {
       switch(op)
         {
