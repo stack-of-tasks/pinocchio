@@ -284,7 +284,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType> & v,
                   const Eigen::MatrixBase<JacobianMatrixType> & J,
                   const ArgumentPosition arg,
-                  const AssignmentOperatorType op);
+                  const AssignmentOperatorType op=SETTO);
 
   /**
    *
