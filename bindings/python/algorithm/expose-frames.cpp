@@ -68,6 +68,10 @@ namespace pinocchio
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }
     
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (getFrameAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+
     void exposeFramesAlgo()
     {
       using namespace Eigen;
@@ -86,16 +90,25 @@ namespace pinocchio
 
       bp::def("getFrameVelocity",
               &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
-              bp::args("model","data","frame_id"),
-              "Returns the spatial velocity of the frame expressed in the coordinates system of the Frame itself.\n"
-              "forwardKinematics(model,data,q,v,[a]).");
+              getFrameVelocity_overload(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the spatial velocity of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
 
       bp::def("getFrameAcceleration",
               &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
-              bp::args("model","data","frame_id"),
-              "Returns the spatial acceleration of the frame expressed in the coordinates system of the Frame itself.\n"
-              "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a .");
-      
+              getFrameAcceleration_overload(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the spatial acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+
+      bp::def("getFrameClassicalAcceleration",
+              &getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>,
+              getFrameClassicalAcceleration_overload(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the \"classical\" acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+
       bp::def("framesForwardKinematics",
               &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("model","data","q"),
