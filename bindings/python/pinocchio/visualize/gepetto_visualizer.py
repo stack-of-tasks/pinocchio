@@ -128,13 +128,16 @@ class GepettoVisualizer(BaseVisualizer):
             gui.createGroup(self.viewerVisualGroupName)
 
         # iterate over visuals and create the meshes in the viewer
-        for collision in self.collision_model.geometryObjects:
-            self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION)
-        self.displayCollisions(False)
+        if self.collision_model is not None:
+            for collision in self.collision_model.geometryObjects:
+                self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION)
+        # Display collision if we have them and there is no visual
+        self.displayCollisions(self.collision_model is not None and self.visual_model is None)
 
-        for visual in self.visual_model.geometryObjects:
-            self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL)
-        self.displayVisuals(True)
+        if self.visual_model is not None:
+            for visual in self.visual_model.geometryObjects:
+                self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL)
+        self.displayVisuals(self.visual_model is not None)
 
         # Finally, refresh the layout to obtain your first rendering.
         gui.refresh()
@@ -168,6 +171,7 @@ class GepettoVisualizer(BaseVisualizer):
         """Set whether to display collision objects or not"""
         gui = self.viewer.gui
         self.display_collisions = visibility
+        if self.collision_model is None: return
 
         if visibility:
             visibility_mode = "ON"
@@ -182,6 +186,7 @@ class GepettoVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not"""
         gui = self.viewer.gui
         self.display_visuals = visibility
+        if self.visual_model is None: return
 
         if visibility:
             visibility_mode = "ON"
