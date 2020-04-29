@@ -14,7 +14,8 @@ sys.path.append(path)
 from example_robot_data import loadTalos
 
 # import visualizer
-from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer, ViewerClosedError
+from panda3d_viewer import ViewerClosedError
+from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer
 
 talos = loadTalos()
 nq = talos.model.nq
