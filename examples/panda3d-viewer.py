@@ -3,7 +3,6 @@
 # pip install --user panda3d_viewer
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 import sys
 
 from os.path import dirname, join, abspath
