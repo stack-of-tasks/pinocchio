@@ -14,10 +14,10 @@ sys.path.append(path)
 from example_robot_data import loadTalos
 
 # import visualizer
-from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer, ViewerClosedError
+from panda3d_viewer import ViewerClosedError
+from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer
 
 talos = loadTalos()
-nq = talos.model.nq
 talos.setVisualizer(Panda3dVisualizer())
 talos.initViewer()
 talos.loadViewerModel(group_name='talos', color=(1, 1, 1, 1))
@@ -27,7 +27,7 @@ talos.loadViewerModel(group_name='talos', color=(1, 1, 1, 1))
 def play_sample_trajectory():
     update_rate = 60
     cycle_time = 3
-    traj = np.repeat(talos.q0.reshape((nq,1)), cycle_time * update_rate, axis=1)
+    traj = np.repeat(talos.q0.reshape((-1, 1)), cycle_time * update_rate, axis=1)
     beta = np.linspace(0, 1, traj.shape[1])
     traj[[2, 9, 10, 11, 22, 15, 16, 17, 30]] = (
         0.39 + 0.685 * np.cos(beta),
