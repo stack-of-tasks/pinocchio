@@ -15,10 +15,11 @@ from example_robot_data import loadTalos, loadRomeo, loadICub, loadTiago
 from example_robot_data import loadSolo, loadHyQ, loadHector
 
 # import visualizer
-from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer, Panda3dViewer
+from panda3d_viewer import Viewer
+from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer
 
 # open a GUI window
-viewer = Panda3dViewer(window_title='python-pinocchio')
+viewer = Viewer(window_title='python-pinocchio')
 
 loaders = (loadTalos, loadRomeo, loadICub, loadTiago, loadSolo, loadHyQ,
            loadHector)
