@@ -58,13 +58,17 @@ namespace pinocchio
     const CollisionPair & pair = geom_model.collisionPairs[pairId];
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.collisionResults.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_data.collisionObjects.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_data.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
     fcl::CollisionResult& collisionResult = geom_data.collisionResults[pairId];
     collisionResult.clear();
-    fcl::collide (&geom_data.collisionObjects[pair.first],
-                  &geom_data.collisionObjects[pair.second],
+
+    fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
+                     oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
+
+    fcl::collide (geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
+                  geom_model.geometryObjects[pair.second].geometry.get(), oM2,
                   geom_data.collisionRequest,
                   collisionResult);
 
@@ -123,12 +127,14 @@ namespace pinocchio
     const CollisionPair & pair = geom_model.collisionPairs[pairId];
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.distanceResults.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_data.collisionObjects.size() );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_data.collisionObjects.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
     geom_data.distanceResults[pairId].clear();
-    fcl::distance ( &geom_data.collisionObjects[pair.first],
-                    &geom_data.collisionObjects[pair.second],
+    fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
+                     oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
+    fcl::distance ( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
+                    geom_model.geometryObjects[pair.second].geometry.get(), oM2,
                     geom_data.distanceRequest,
                     geom_data.distanceResults[pairId]);
 
