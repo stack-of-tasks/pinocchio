@@ -195,7 +195,7 @@ namespace pinocchio
     /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
-    std::vector<fcl::CollisionObject> collisionObjects;
+    std::vector<fcl::CollisionObject> collisionObjects PINOCCHIO_DEPRECATED;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -245,7 +245,8 @@ namespace pinocchio
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
     GeometryData(const GeometryModel & geomModel);
-    ~GeometryData() {};
+    GeometryData(const GeometryData & other);
+    ~GeometryData();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
     /// collisionPairs. 
