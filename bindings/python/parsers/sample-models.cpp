@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/parsers/sample-models.hpp"
+#include "pinocchio/bindings/python/multibody/model.hpp" // Requested for memory alignment issues
 
 #include <boost/python.hpp>
 
