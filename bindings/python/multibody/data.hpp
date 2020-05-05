@@ -173,7 +173,7 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        bp::class_<Data>("Data",
+        bp::class_<Data, boost::shared_ptr<Data> >("Data",
                          "Articulated rigid body data related to a Model.\n"
                          "It contains all the data that can be modified by the Pinocchio algorithms.",
                          bp::no_init)
