@@ -71,6 +71,19 @@ class GepettoVisualizer(BaseVisualizer):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
         elif isinstance(geom, hppfcl.Cone):
             return gui.addCone(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Convex):
+            pts = [ npToTuple(geom.points(geom.polygons(f)[i])) for f in range(geom.num_polygons) for i in range(3) ]
+            gui.addCurve(meshName, pts, npToTuple(meshColor))
+            gui.setCurveMode(meshName, "TRIANGLES")
+            gui.setLightingMode(meshName, "ON")
+            gui.setBoolProperty(meshName, "BackfaceDrawing", True)
+            return True
+        elif isinstance(geom, hppfcl.ConvexBase):
+            pts = [ npToTuple(geom.points(i)) for i in range(geom.num_points) ]
+            gui.addCurve(meshName, pts, npToTuple(meshColor))
+            gui.setCurveMode(meshName, "POINTS")
+            gui.setLightingMode(meshName, "OFF")
+            return True
         else:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
