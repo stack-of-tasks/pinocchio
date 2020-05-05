@@ -13,6 +13,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/exception.hpp>
 
+#include "pinocchio/bindings/python/multibody/model.hpp" // Requested for memory alignment issues
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
