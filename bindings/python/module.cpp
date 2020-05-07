@@ -29,6 +29,11 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
   
+  // Enable warning
+#ifndef Py_LIMITED_API
+  _PyWarnings_Init();
+#endif
+  
   if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
     eigenpy::exposeQuaternion();
   if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
