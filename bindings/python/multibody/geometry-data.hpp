@@ -10,6 +10,7 @@
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -104,11 +105,13 @@ namespace pinocchio
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
         cl
-        .def_readonly("distanceRequest",
-                      &GeometryData::distanceRequest,
+        .add_property("distanceRequest",
+                      bp::make_getter(&GeometryData::distanceRequest,
+                                      deprecated_member<bp::return_internal_reference<> >()),
                       "Deprecated. Use distanceRequests attribute instead.")
-        .def_readonly("collisionRequest",
-                      &GeometryData::collisionRequest,
+        .add_property("collisionRequest",
+                      bp::make_getter(&GeometryData::collisionRequest,
+                                      deprecated_member<bp::return_internal_reference<> >()),
                       "Deprecated. Use collisionRequests attribute instead.")
         ;
 #pragma GCC diagnostic pop
