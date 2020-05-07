@@ -72,7 +72,7 @@ namespace pinocchio
 
     fcl::collide (geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
                   geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                  geom_data.collisionRequest,
+                  geom_data.collisionRequests[pairId],
                   collisionResult);
 
     return collisionResult.isCollision();
@@ -138,7 +138,7 @@ namespace pinocchio
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
     fcl::distance ( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
                     geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                    geom_data.distanceRequest,
+                    geom_data.distanceRequests[pairId],
                     geom_data.distanceResults[pairId]);
 
     return geom_data.distanceResults[pairId];
