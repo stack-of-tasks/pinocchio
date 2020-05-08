@@ -164,8 +164,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     // First append a model to the universe frame.
     Model model1;
     GeometryModel geomModel1;
-    int fid = 0;
-    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
+    FrameIndex fid = 0;
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model1, geomModel1);
 
     Data data1 (model1);
@@ -182,9 +182,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
           humanoid.getFrameId("humanoid/chest2_joint"), aMb,
           OP_FRAME));
 
-    BOOST_CHECK(fid >= 0);
-
-    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, (FrameIndex)fid,
+    appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model, geomModel);
 
     BOOST_TEST_MESSAGE(model);
