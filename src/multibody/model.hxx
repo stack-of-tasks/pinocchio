@@ -233,8 +233,8 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    assert(it != frames.end() && "Frame not found");
-    assert((std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())
+    assert(((it == frames.end()) ||
+            (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))
         && "Several frames match the filter");
     return FrameIndex(it - frames.begin());
   }
