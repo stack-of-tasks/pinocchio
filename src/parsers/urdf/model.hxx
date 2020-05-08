@@ -205,11 +205,9 @@ namespace pinocchio
           {
             const Frame & frame = model.frames[parentFrameId];
 
-            int fid = model.addFrame(Frame(joint_name, frame.parent, parentFrameId,
+            FrameIndex fid = model.addFrame(Frame(joint_name, frame.parent, parentFrameId,
                   frame.placement * joint_placement, FIXED_JOINT)
                 );
-            if (fid < 0)
-              throw std::invalid_argument("Fixed joint " + joint_name + " could not be added.");
 
             appendBodyToJoint((FrameIndex)fid, Y, SE3::Identity(), body_name);
           }
