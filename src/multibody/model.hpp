@@ -442,7 +442,7 @@ namespace pinocchio
     ///
     /// \return Index of the body.
     ///
-    JointIndex getBodyId(const std::string & name) const;
+    FrameIndex getBodyId(const std::string & name) const;
     
     ///
     /// \brief Check if a body given by its name exists.
