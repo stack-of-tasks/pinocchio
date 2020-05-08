@@ -194,7 +194,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   getBodyId(const std::string & name) const
   {
