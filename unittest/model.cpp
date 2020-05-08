@@ -49,6 +49,18 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     }
   }
 
+  BOOST_AUTO_TEST_CASE(test_model_get_frame_id)
+  {
+    Model model;
+    buildModels::humanoidRandom(model);
+    
+    for(FrameIndex i=0; i<static_cast<FrameIndex>(model.nframes); i++)
+    {
+      BOOST_CHECK_EQUAL(i, model.getFrameId(model.frames[i].name));
+    }
+    BOOST_CHECK_EQUAL(model.nframes, model.getFrameId("NOT_A_FRAME"));
+  }
+
   BOOST_AUTO_TEST_CASE(test_model_support)
   {
     Model model;
