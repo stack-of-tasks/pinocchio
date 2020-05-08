@@ -508,9 +508,8 @@ namespace pinocchio
     /// \param[in] frame The frame to add to the kinematic tree.
     ///
     /// \return Returns the index of the frame if it has been successfully added or if it already exists in the kinematic tree.
-    ///         The function returns -1 when the frame.type did not match with the existing frame in the kinematic having the same name.
     ///
-    int addFrame(const Frame & frame);
+    FrameIndex addFrame(const Frame & frame);
 
     ///
     /// \brief Check the validity of the attributes of Model with respect to the specification of some
