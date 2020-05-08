@@ -146,7 +146,8 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
   addJointFrame(const JointIndex & joint_index,
                 int previous_frame_index)
   {
@@ -176,7 +177,8 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
   addBodyFrame(const std::string & body_name,
                const JointIndex  & parentJoint,
                const SE3         & body_placement,

@@ -398,10 +398,10 @@ namespace pinocchio
     /// \param[in] frameIndex Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame or -1 in case of error.
+    /// \return The index of the new frame
     ///
-    int addJointFrame(const JointIndex & joint_index,
-                      int previous_frame_index = -1);
+    FrameIndex addJointFrame(const JointIndex & joint_index,
+                             int previous_frame_index = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
@@ -424,12 +424,12 @@ namespace pinocchio
     /// \param[in] previousFrame Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame or -1 in case of error.
+    /// \return The index of the new frame
     ///
-    int addBodyFrame (const std::string & body_name,
-                      const JointIndex  & parentJoint,
-                      const SE3         & body_placement = SE3::Identity(),
-                            int           previousFrame  = -1);
+    FrameIndex addBodyFrame(const std::string & body_name,
+                            const JointIndex  & parentJoint,
+                            const SE3         & body_placement = SE3::Identity(),
+                            int                 previousFrame  = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
