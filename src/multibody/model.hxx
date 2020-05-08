@@ -248,19 +248,19 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline int ModelTpl<Scalar,Options,JointCollectionTpl>::
+  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::
   addFrame(const Frame & frame)
   {
     // Check if the frame.name exists with the same type
     if(existFrame(frame.name,frame.type))
     {
-      FrameIndex frame_id = getFrameId(frame.name,frame.type);
-      return (int)frame_id;
+      return getFrameId(frame.name,frame.type);
     }
     // else: we must add a new frames to the current stack
     frames.push_back(frame);
     nframes++;
-    return nframes - 1;
+    return FrameIndex(nframes - 1);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
