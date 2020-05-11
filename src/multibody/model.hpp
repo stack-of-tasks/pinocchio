@@ -398,10 +398,10 @@ namespace pinocchio
     /// \param[in] frameIndex Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame or -1 in case of error.
+    /// \return The index of the new frame
     ///
-    int addJointFrame(const JointIndex & joint_index,
-                      int previous_frame_index = -1);
+    FrameIndex addJointFrame(const JointIndex & joint_index,
+                             int previous_frame_index = -1);
 
     ///
     /// \brief Append a body to a given joint of the kinematic tree.
@@ -424,12 +424,12 @@ namespace pinocchio
     /// \param[in] previousFrame Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
-    /// \return The index of the new frame or -1 in case of error.
+    /// \return The index of the new frame
     ///
-    int addBodyFrame (const std::string & body_name,
-                      const JointIndex  & parentJoint,
-                      const SE3         & body_placement = SE3::Identity(),
-                            int           previousFrame  = -1);
+    FrameIndex addBodyFrame(const std::string & body_name,
+                            const JointIndex  & parentJoint,
+                            const SE3         & body_placement = SE3::Identity(),
+                            int                 previousFrame  = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
@@ -442,7 +442,7 @@ namespace pinocchio
     ///
     /// \return Index of the body.
     ///
-    JointIndex getBodyId(const std::string & name) const;
+    FrameIndex getBodyId(const std::string & name) const;
     
     ///
     /// \brief Check if a body given by its name exists.
@@ -508,9 +508,8 @@ namespace pinocchio
     /// \param[in] frame The frame to add to the kinematic tree.
     ///
     /// \return Returns the index of the frame if it has been successfully added or if it already exists in the kinematic tree.
-    ///         The function returns -1 when the frame.type did not match with the existing frame in the kinematic having the same name.
     ///
-    int addFrame(const Frame & frame);
+    FrameIndex addFrame(const Frame & frame);
 
     ///
     /// \brief Check the validity of the attributes of Model with respect to the specification of some

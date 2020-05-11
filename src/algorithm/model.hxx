@@ -364,9 +364,8 @@ namespace pinocchio
                             liMi,
                             FIXED_JOINT);
         
-        int frame_id = reduced_model.addFrame(frame);
-        assert(frame_id >= 0);
-        reduced_model.frames[(size_t)frame_id].previousFrame = (FrameIndex)frame_id; // a bit weird, but this a solution for missing parent frame
+        FrameIndex frame_id = reduced_model.addFrame(frame);
+        reduced_model.frames[frame_id].previousFrame = frame_id; // a bit weird, but this is a solution for missing parent frame
         
         // Add the Inertia of the link supported by joint_id
         reduced_model.appendBodyToJoint(reduced_parent_joint_index,

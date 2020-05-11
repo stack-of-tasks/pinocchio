@@ -87,8 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_update_placements )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  Model::FrameIndex frame_idx = model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
@@ -113,8 +112,7 @@ BOOST_AUTO_TEST_CASE ( test_update_single_placement )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  Model::FrameIndex frame_idx = model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
@@ -139,8 +137,7 @@ BOOST_AUTO_TEST_CASE ( test_velocity )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  Model::FrameIndex frame_idx = model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -173,8 +170,7 @@ BOOST_AUTO_TEST_CASE ( test_acceleration )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  Model::FrameIndex frame_idx = model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -208,8 +204,7 @@ BOOST_AUTO_TEST_CASE ( test_classic_acceleration )
   Model::Index parent_idx = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   const std::string & frame_name = std::string( model.names[parent_idx]+ "_frame");
   const SE3 & framePlacement = SE3::Random();
-  model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
-  Model::FrameIndex frame_idx = model.getFrameId(frame_name);
+  Model::FrameIndex frame_idx = model.addFrame(Frame (frame_name, parent_idx, 0, framePlacement, OP_FRAME));
   pinocchio::Data data(model);
 
   VectorXd q = VectorXd::Ones(model.nq);
@@ -268,7 +263,7 @@ BOOST_AUTO_TEST_CASE(test_frame_getters)
   // Build a simple 1R planar model
   Model model;
   JointIndex parentId = model.addJoint(0, JointModelRZ(), SE3::Identity(), "Joint1");
-  FrameIndex frameId = (FrameIndex)(model.addFrame(Frame("Frame1", parentId, 0, SE3(Matrix3d::Identity(), Vector3d(1.0, 0.0, 0.0)), OP_FRAME)));
+  FrameIndex frameId = model.addFrame(Frame("Frame1", parentId, 0, SE3(Matrix3d::Identity(), Vector3d(1.0, 0.0, 0.0)), OP_FRAME));
 
   Data data(model);
 

@@ -179,20 +179,8 @@ namespace pinocchio
               default:
                 PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
             };
-            int res (model.addJointFrame(idx, (int)parentFrameId));
-            if (res == -1) {
-              std::ostringstream oss;
-              oss << joint_name << " already inserted as a frame. Current frames "
-                "are [";
-              for (typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
-                  model.frames.begin (); it != model.frames.end (); ++it) {
-                oss << '"' << it->name << "\",";
-              }
-              oss << ']';
-              throw std::invalid_argument(oss.str());
-            }
 
-            FrameIndex jointFrameId = (FrameIndex) res; // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
+            FrameIndex jointFrameId = model.addJointFrame(idx, (int)parentFrameId);
             appendBodyToJoint(jointFrameId, Y, SE3::Identity(), body_name);
           }
 
@@ -205,11 +193,9 @@ namespace pinocchio
           {
             const Frame & frame = model.frames[parentFrameId];
 
-            int fid = model.addFrame(Frame(joint_name, frame.parent, parentFrameId,
+            FrameIndex fid = model.addFrame(Frame(joint_name, frame.parent, parentFrameId,
                   frame.placement * joint_placement, FIXED_JOINT)
                 );
-            if (fid < 0)
-              throw std::invalid_argument("Fixed joint " + joint_name + " could not be added.");
 
             appendBodyToJoint((FrameIndex)fid, Y, SE3::Identity(), body_name);
           }
@@ -349,20 +335,8 @@ namespace pinocchio
                 SE3::Identity(), "root_joint"
                 //TODO ,max_effort,max_velocity,min_config,max_config
                 );
-            int res (model.addJointFrame(idx, 0));
-            if (res == -1) {
-              std::ostringstream oss;
-              oss << "root_joint already inserted as a frame but of different type. Current frames "
-                "are [";
-              for (typename PINOCCHIO_ALIGNED_STD_VECTOR(Frame)::const_iterator it =
-                  model.frames.begin (); it != model.frames.end (); ++it) {
-                oss << '"' << it->name << "\",";
-              }
-              oss << ']';
-              throw std::invalid_argument(oss.str());
-            }
 
-            FrameIndex jointFrameId = (FrameIndex) res; // C-style cast to remove polluting compilation warning. This is Bad practice. See issue #323 (rework indexes)
+            FrameIndex jointFrameId = model.addJointFrame(idx, 0);
             appendBodyToJoint(jointFrameId, Y, SE3::Identity(), body_name);
           }
       };

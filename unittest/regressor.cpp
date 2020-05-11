@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_frame_body_regressor)
   JointIndex JOINT_ID = JointIndex(model.njoints) - 1;
 
   const SE3 & framePlacement = SE3::Random();
-  FrameIndex FRAME_ID = (FrameIndex) model.addBodyFrame ("test_body", JOINT_ID, framePlacement, -1);
+  FrameIndex FRAME_ID = model.addBodyFrame ("test_body", JOINT_ID, framePlacement, -1);
 
   pinocchio::Data data(model);
 
