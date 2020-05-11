@@ -63,7 +63,7 @@ namespace pinocchio
        * @param[in]  type           The type of objects that must be loaded ( can be VISUAL or COLLISION)
        *
        */
-      void parseTreeForGeom(UrdfGeomVisitorBase& visitor,
+      PINOCCHIO_DLLAPI void parseTreeForGeom(UrdfGeomVisitorBase& visitor,
                             const std::istream& xmlStream,
                             const GeometryType type,
                             GeometryModel & geomModel,
