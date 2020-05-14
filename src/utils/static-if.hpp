@@ -68,6 +68,7 @@ namespace pinocchio
               return else_value;
             break;
         }
+        abort();
       }
     };
 
