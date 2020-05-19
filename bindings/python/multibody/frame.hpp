@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_frame_hpp__
@@ -44,6 +44,7 @@ namespace pinocchio
             .value("FIXED_JOINT",FIXED_JOINT)
             .value("BODY",BODY)
             .value("SENSOR",SENSOR)
+            .export_values()
             ;
 
         bp::class_<Frame>("Frame",
