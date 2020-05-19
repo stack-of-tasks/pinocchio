@@ -104,6 +104,7 @@ namespace pinocchio
         bp::enum_<GeometryType>("GeometryType")
         .value("VISUAL",VISUAL)
         .value("COLLISION",COLLISION)
+        .export_values()
         ;
       }
 
