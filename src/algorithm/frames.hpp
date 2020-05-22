@@ -159,11 +159,11 @@ namespace pinocchio
    * @param[in]  rf          Reference frame in which the Jacobian is expressed.
    * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function pinocchio::computeJointJacobians and pinocchio::framesForwardKinematics should have been called first.
+   * @warning    The function pinocchio::computeJointJacobians should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J);
@@ -206,6 +206,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] frameId The id of the Frame refering to model.frames[frameId].
+  ///
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.setZero().
   ///
   /// \return The Jacobian of the specific Frame expressed in the LOCAL frame coordinate system (matrix 6 x model.nv).
@@ -241,7 +242,8 @@ namespace pinocchio
   }
   
   ///
-  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
+  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD) or in the LOCAL frame (rf = LOCAL) or in the LOCAL_WORLD_ALIGNED frame (rf = LOCAL_WORLD_ALIGNED).
+  ///
   /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -251,11 +253,12 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] frameId The index of the frame.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
+  ///
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   void getFrameJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
                                      const ReferenceFrame rf,
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ);
