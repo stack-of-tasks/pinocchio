@@ -488,26 +488,29 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
     
-  
   Data::Matrix6x J(6,model.nv); J.fill(0.);
   Data::Matrix6x dJ(6,model.nv); dJ.fill(0.);
   
-  // Regarding to the world origin
+  // Regarding to the WORLD origin
   getFrameJacobian(model,data,idx,WORLD,J);
   getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
   Motion v_idx(J*v);
   const Motion & v_ref_local = frame.placement.actInv(data_ref.v[parent_idx]);
   const Motion & v_ref = data_ref.oMf[idx].act(v_ref_local);
+  
+  const SE3 & wMf = SE3(data_ref.oMf[idx].rotation(),SE3::Vector3::Zero());
+  const Motion & v_ref_local_world_aligned = wMf.act(v_ref_local);
   BOOST_CHECK(v_idx.isApprox(v_ref));
   
   Motion a_idx(J*a + dJ*v);
   const Motion & a_ref_local = frame.placement.actInv(data_ref.a[parent_idx]);
   const Motion & a_ref = data_ref.oMf[idx].act(a_ref_local);
+  const Motion & a_ref_local_world_aligned = wMf.act(a_ref_local);
   BOOST_CHECK(a_idx.isApprox(a_ref));
   
   J.fill(0.);  dJ.fill(0.);
-  // Regarding to the local frame
+  // Regarding to the LOCAL frame
   getFrameJacobian(model,data,idx,LOCAL,J);
   getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
@@ -516,6 +519,16 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
               
   a_idx = (Motion::Vector6)(J*a + dJ*v);
   BOOST_CHECK(a_idx.isApprox(a_ref_local));
+  
+  // Regarding to the LOCAL_WORLD_ALIGNED frame
+  getFrameJacobian(model,data,idx,LOCAL_WORLD_ALIGNED,J);
+  getFrameJacobianTimeVariation(model,data,idx,LOCAL_WORLD_ALIGNED,dJ);
+  
+  v_idx = (Motion::Vector6)(J*v);
+  BOOST_CHECK(v_idx.isApprox(v_ref_local_world_aligned));
+              
+  a_idx = (Motion::Vector6)(J*a + dJ*v);
+  BOOST_CHECK(a_idx.isApprox(a_ref_local_world_aligned));
   
   // compare to finite differencies
   {
@@ -526,42 +539,52 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     q_plus = integrate(model,q,alpha*v);
 
     //data_ref
-    Data::Matrix6x J_ref_world(6,model.nv), J_ref_local(6,model.nv);
-    J_ref_world.fill(0.);     J_ref_local.fill(0.);
+    Data::Matrix6x J_ref_world(6,model.nv), J_ref_local(6,model.nv), J_ref_local_world_aligned(6,model.nv);
+    J_ref_world.fill(0.); J_ref_local.fill(0.); J_ref_local_world_aligned.fill(0.);
     computeJointJacobians(model,data_ref,q);
     updateFramePlacements(model,data_ref);
     const SE3 & oMf_q = data_ref.oMf[idx];
     getFrameJacobian(model,data_ref,idx,WORLD,J_ref_world);
     getFrameJacobian(model,data_ref,idx,LOCAL,J_ref_local);
+    getFrameJacobian(model,data_ref,idx,LOCAL_WORLD_ALIGNED,J_ref_local_world_aligned);
     
     //data_ref_plus
-    Data::Matrix6x J_ref_plus_world(6,model.nv), J_ref_plus_local(6,model.nv);
-    J_ref_plus_world.fill(0.);    J_ref_plus_local.fill(0.);
+    Data::Matrix6x J_ref_plus_world(6,model.nv), J_ref_plus_local(6,model.nv), J_ref_plus_local_world_aligned(6,model.nv);
+    J_ref_plus_world.fill(0.); J_ref_plus_local.fill(0.); J_ref_plus_local_world_aligned.fill(0.);
     computeJointJacobians(model,data_ref_plus,q_plus);
     updateFramePlacements(model,data_ref_plus);
-    const SE3 & oMf_qplus = data_ref_plus.oMf[idx];
+    const SE3 & oMf_q_plus = data_ref_plus.oMf[idx];
     getFrameJacobian(model,data_ref_plus,idx,WORLD,J_ref_plus_world);
     getFrameJacobian(model,data_ref_plus,idx,LOCAL,J_ref_plus_local);
+    getFrameJacobian(model,data_ref_plus,idx,LOCAL_WORLD_ALIGNED,J_ref_plus_local_world_aligned);
 
     //Move J_ref_plus_local to reference frame
-    J_ref_plus_local = (oMf_q.inverse()*oMf_qplus).toActionMatrix()*(J_ref_plus_local);
+    J_ref_plus_local = (oMf_q.inverse()*oMf_q_plus).toActionMatrix()*(J_ref_plus_local);
+
+    //Move J_ref_plus_local_world_aligned to reference frame
+    SE3 oMf_translation = SE3::Identity();
+    oMf_translation.translation() = oMf_q_plus.translation() - oMf_q.translation();
+    J_ref_plus_local_world_aligned = oMf_translation.toActionMatrix()*(J_ref_plus_local_world_aligned);
     
-    Data::Matrix6x dJ_ref_world(6,model.nv), dJ_ref_local(6,model.nv);
-    dJ_ref_world.fill(0.);        dJ_ref_local.fill(0.);
+    Data::Matrix6x dJ_ref_world(6,model.nv), dJ_ref_local(6,model.nv), dJ_ref_local_world_aligned(6,model.nv);
+    dJ_ref_world.fill(0.); dJ_ref_local.fill(0.); dJ_ref_local_world_aligned.fill(0.);
     dJ_ref_world = (J_ref_plus_world - J_ref_world)/alpha;
     dJ_ref_local = (J_ref_plus_local - J_ref_local)/alpha;
+    dJ_ref_local_world_aligned = (J_ref_plus_local_world_aligned - J_ref_local_world_aligned)/alpha;
 
     //data
     computeJointJacobiansTimeVariation(model,data,q,v);
     forwardKinematics(model,data,q,v);
     updateFramePlacements(model,data);
-    Data::Matrix6x dJ_world(6,model.nv), dJ_local(6,model.nv);
-    dJ_world.fill(0.);    dJ_local.fill(0.);
+    Data::Matrix6x dJ_world(6,model.nv), dJ_local(6,model.nv), dJ_local_world_aligned(6,model.nv);
+    dJ_world.fill(0.); dJ_local.fill(0.); dJ_local_world_aligned.fill(0.);
     getFrameJacobianTimeVariation(model,data,idx,WORLD,dJ_world);
     getFrameJacobianTimeVariation(model,data,idx,LOCAL,dJ_local);
+    getFrameJacobianTimeVariation(model,data,idx,LOCAL_WORLD_ALIGNED,dJ_local_world_aligned);
 
     BOOST_CHECK(dJ_world.isApprox(dJ_ref_world,sqrt(alpha)));
-    BOOST_CHECK(dJ_local.isApprox(dJ_ref_local,sqrt(alpha)));   
+    BOOST_CHECK(dJ_local.isApprox(dJ_ref_local,sqrt(alpha)));
+    BOOST_CHECK(dJ_local_world_aligned.isApprox(dJ_ref_local_world_aligned,sqrt(alpha)));
   }
 }
              
