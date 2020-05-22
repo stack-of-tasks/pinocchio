@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_frames_hxx__
-#define __pinocchio_frames_hxx__
+#ifndef __pinocchio_algorithm_frames_hxx__
+#define __pinocchio_algorithm_frames_hxx__
 
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -307,4 +307,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_frames_hxx__
+#endif // ifndef __pinocchio_algorithm_frames_hxx__

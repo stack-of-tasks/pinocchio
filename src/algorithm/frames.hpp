@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_frames_hpp__
-#define __pinocchio_frames_hpp__
+#ifndef __pinocchio_algorithm_frames_hpp__
+#define __pinocchio_algorithm_frames_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -265,4 +265,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/frames.hxx"
 
-#endif // ifndef __pinocchio_frames_hpp__
+#endif // ifndef __pinocchio_algorithm_frames_hpp__
