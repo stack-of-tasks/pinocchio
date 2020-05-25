@@ -32,9 +32,6 @@ jobs:
         set BOOST_ROOT_1_72_0=
         set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
     
-        :: install dependencies
-        conda install pinocchio --only-deps -c conda-forge
-
         :: start building
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
         mkdir build
