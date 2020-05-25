@@ -1,0 +1,13 @@
+name: eigenpy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - eigen
+  - cmake
+  - numpy
+  - pkg-config
+  - boost
+  - eigenpy
+  - urdfdom
+  - python
