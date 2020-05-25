@@ -40,59 +40,32 @@ namespace pinocchio
       }
     };
   }
-  /**
-   * @brief Lie Group visitor of the dimension of the configuration space nq
-   */
-  struct LieGroupNqVisitor: public boost::static_visitor<int>
-  {
-    template<typename LieGroupDerived>
-    int operator()(const LieGroupBase<LieGroupDerived> & lg) const
-    { return lg.nq(); }
-    
-    template<typename LieGroupCollection>
-    static int run(const LieGroupGenericTpl<LieGroupCollection> & lg)
-    { return boost::apply_visitor( LieGroupNqVisitor(), lg ); }
-  };
-  
-  template<typename LieGroupCollection>
-  inline int nq(const LieGroupGenericTpl<LieGroupCollection> & lg)
-  { return LieGroupNqVisitor::run(lg); }
-  
-  /**
-   * @brief Lie Group visitor of the dimension of the tangent space nv
-   */
-  struct LieGroupNvVisitor: public boost::static_visitor<int>
-  {
-    template<typename LieGroupDerived>
-    int operator()(const LieGroupBase<LieGroupDerived> & lg) const
-    { return lg.nv(); }
-    
-    template<typename LieGroupCollection>
-    static int run(const LieGroupGenericTpl<LieGroupCollection> & lg)
-    { return boost::apply_visitor( LieGroupNvVisitor(), lg ); }
-  };
-  
-  template<typename LieGroupCollection>
-  inline int nv(const LieGroupGenericTpl<LieGroupCollection> & lg)
-  { return LieGroupNvVisitor::run(lg); }
-  
-  /**
-   * @brief Visitor of the Lie Group name
-   */
-  struct LieGroupNameVisitor: public boost::static_visitor<std::string>
-  {
-    template<typename LieGroupDerived>
-    std::string operator()(const LieGroupBase<LieGroupDerived> & lg) const
-    { return lg.name(); }
-    
-    template<typename LieGroupCollection>
-    static std::string run(const LieGroupGenericTpl<LieGroupCollection> & lg)
-    { return boost::apply_visitor( LieGroupNameVisitor(), lg ); }
-  };
-  
-  template<typename LieGroupCollection>
-  inline std::string name(const LieGroupGenericTpl<LieGroupCollection> & lg)
-  { return LieGroupNameVisitor::run(lg); }
+
+#define PINOCCHIO_LG_CHECK_VECTOR_SIZE(type,var,exp_size)                      \
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(type);                                     \
+    assert(var.size() == exp_size)
+
+#define PINOCCHIO_LG_VISITOR(Name,type,_method)                                \
+  /** @brief Lie Group visitor of the _method */                               \
+  struct LieGroup ## Name ## Visitor: public boost::static_visitor<type>       \
+  {                                                                            \
+    template<typename LieGroupDerived>                                         \
+    type operator()(const LieGroupBase<LieGroupDerived> & lg) const            \
+    { return lg._method(); }                                                   \
+                                                                               \
+    template<typename LieGroupCollection>                                      \
+    static type run(const LieGroupGenericTpl<LieGroupCollection> & lg)         \
+    { return boost::apply_visitor( LieGroup ## Name ## Visitor(), lg ); }      \
+  };                                                                           \
+                                                                               \
+  template<typename LieGroupCollection>                                        \
+  inline type _method(const LieGroupGenericTpl<LieGroupCollection> & lg)       \
+  { return LieGroup ## Name ## Visitor::run(lg); }
+
+  PINOCCHIO_LG_VISITOR(Nq,int,nq)
+  PINOCCHIO_LG_VISITOR(Nv,int,nv)
+  PINOCCHIO_LG_VISITOR(Name,std::string,name)
+#undef PINOCCHIO_LG_VISITOR
   
   /**
    * @brief Visitor of the Lie Group neutral element
@@ -116,48 +89,183 @@ namespace pinocchio
     typedef Eigen::Matrix<typename LieGroupCollection::Scalar,Eigen::Dynamic,1,LieGroupCollection::Options> ReturnType;
     return LieGroupNeutralVisitor<ReturnType>::run(lg);
   }
-  
-  /**
-   * @brief Visitor of the Lie Group integrate method
-   */
-  template <class ConfigIn_t, class Tangent_t, class ConfigOut_t>
-  struct LieGroupIntegrateVisitor
-  : visitor::LieGroupVisitorBase< LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> >
+
+  /** @brief Visitor of the Lie Group interpolate method */
+  template <class Vector_t>
+  struct LieGroupRandomVisitor
+  : visitor::LieGroupVisitorBase< LieGroupRandomVisitor<Vector_t> >
   {
-    typedef boost::fusion::vector<const ConfigIn_t &,
-                                  const Tangent_t &,
-                                  ConfigOut_t &> ArgsType;
-    LIE_GROUP_VISITOR(LieGroupIntegrateVisitor);
+    typedef boost::fusion::vector<const Eigen::MatrixBase<Vector_t> &> ArgsType;
+    LIE_GROUP_VISITOR(LieGroupRandomVisitor);
     template<typename LieGroupDerived>
     static void algo(const LieGroupBase<LieGroupDerived> & lg,
-                     const Eigen::MatrixBase<ConfigIn_t> & q,
-                     const Eigen::MatrixBase<Tangent_t>  & v,
-                     const Eigen::MatrixBase<ConfigOut_t>& qout)
+                     const Eigen::MatrixBase<Vector_t>& q)
     {
-      ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
-      lg.integrate(Eigen::Ref<const typename LieGroupDerived::ConfigVector_t>(q),
-                   Eigen::Ref<const typename LieGroupDerived::TangentVector_t>(v),
-                   Eigen::Ref<typename LieGroupDerived::ConfigVector_t>(qout_));
+      lg.random(q);
     }
   };
-  
+
+  template<typename LieGroupCollection, class Config_t>
+  inline void random(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                     const Eigen::MatrixBase<Config_t> & qout)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Config_t, qout, nq(lg));
+    
+    typedef LieGroupRandomVisitor<Config_t> Operation;
+    Operation::run(lg,typename Operation::ArgsType(qout));
+  }
+
+#define PINOCCHIO_LG_VISITOR(Name,_method)                                             \
+  /** @brief Visitor of the Lie Group _method method */                                \
+  template <class Matrix1_t, class Matrix2_t>                                          \
+  struct LieGroup ## Name ## Visitor                                                   \
+  : visitor::LieGroupVisitorBase< LieGroup ## Name ## Visitor<Matrix1_t, Matrix2_t> >  \
+  {                                                                                    \
+    typedef boost::fusion::vector<const Eigen::MatrixBase<Matrix1_t> &,                \
+                                  const Eigen::MatrixBase<Matrix2_t> &,                \
+                                  typename Matrix1_t::Scalar &> ArgsType;              \
+    LIE_GROUP_VISITOR(LieGroup ## Name ## Visitor);                                    \
+    template<typename LieGroupDerived>                                                 \
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,                         \
+                     const Eigen::MatrixBase<Matrix1_t>& m1,                           \
+                     const Eigen::MatrixBase<Matrix2_t>& m2,                           \
+                     typename Matrix1_t::Scalar& res)                                  \
+    {                                                                                  \
+      res = lg._method(m1, m2);                                                        \
+    }                                                                                  \
+  }
+
+  //PINOCCHIO_LG_VISITOR(Distance, distance);
+  PINOCCHIO_LG_VISITOR(SquaredDistance, squaredDistance);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
+  inline typename ConfigL_t::Scalar
+  squaredDistance(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<ConfigL_t> & q0,
+                  const Eigen::MatrixBase<ConfigR_t> & q1)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+
+    typedef LieGroupSquaredDistanceVisitor<ConfigL_t,ConfigR_t> Operation;
+    typename ConfigL_t::Scalar d2;
+    Operation::run(lg,typename Operation::ArgsType(q0,q1,d2));
+    return d2;
+  }
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
+  inline typename ConfigL_t::Scalar
+  distance(const LieGroupGenericTpl<LieGroupCollection> & lg,
+           const Eigen::MatrixBase<ConfigL_t> & q0,
+           const Eigen::MatrixBase<ConfigR_t> & q1)
+  {
+    return std::sqrt(squaredDistance(lg, q0, q1));
+  }
+
+#undef PINOCCHIO_LG_VISITOR
+
+#define PINOCCHIO_LG_VISITOR(Name,_method)                                                        \
+  /** @brief Visitor of the Lie Group _method method */                                           \
+  template <class Matrix1_t, class Matrix2_t, class Matrix3_t>                                    \
+  struct LieGroup ## Name ## Visitor                                                              \
+  : visitor::LieGroupVisitorBase< LieGroup ## Name ## Visitor<Matrix1_t, Matrix2_t, Matrix3_t> >  \
+  {                                                                                               \
+    typedef boost::fusion::vector<const Eigen::MatrixBase<Matrix1_t> &,                           \
+                                  const Eigen::MatrixBase<Matrix2_t> &,                           \
+                                  const Eigen::MatrixBase<Matrix3_t> &> ArgsType;                 \
+    LIE_GROUP_VISITOR(LieGroup ## Name ## Visitor);                                               \
+    template<typename LieGroupDerived>                                                            \
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,                                    \
+                     const Eigen::MatrixBase<Matrix1_t>& m1,                                      \
+                     const Eigen::MatrixBase<Matrix2_t>& m2,                                      \
+                     const Eigen::MatrixBase<Matrix3_t>& m3)                                      \
+    {                                                                                             \
+      lg._method(m1, m2, m3);                                                                     \
+    }                                                                                             \
+  }
+
+  PINOCCHIO_LG_VISITOR(Integrate, integrate);
+  PINOCCHIO_LG_VISITOR(Difference, difference);
+  PINOCCHIO_LG_VISITOR(RandomConfiguration, randomConfiguration);
+
   template<typename LieGroupCollection, class ConfigIn_t, class Tangent_t, class ConfigOut_t>
   inline void integrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
                         const Eigen::MatrixBase<ConfigIn_t> & q,
                         const Eigen::MatrixBase<Tangent_t>  & v,
                         const Eigen::MatrixBase<ConfigOut_t>& qout)
   {
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigIn_t)
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(Tangent_t)
-    EIGEN_STATIC_ASSERT_VECTOR_ONLY(ConfigOut_t)
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigIn_t, q, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Tangent_t, v, nv(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigOut_t, qout, nq(lg));
     
     typedef LieGroupIntegrateVisitor<ConfigIn_t,Tangent_t,ConfigOut_t> Operation;
-    assert(q.size() == nq(lg));
-    assert(v.size() == nv(lg));
-    assert(qout.size() == nq(lg));
+    Operation::run(lg,typename Operation::ArgsType(q,v,qout));
+  }
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class Tangent_t>
+  inline void difference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                         const Eigen::MatrixBase<ConfigL_t> & q0,
+                         const Eigen::MatrixBase<ConfigR_t> & q1,
+                         const Eigen::MatrixBase<Tangent_t> & v)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Tangent_t, v, nv(lg));
     
-    ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
-    Operation::run(lg,typename Operation::ArgsType(q.derived(),v.derived(),qout_));
+    typedef LieGroupDifferenceVisitor<ConfigL_t,ConfigR_t,Tangent_t> Operation;
+    Operation::run(lg,typename Operation::ArgsType(q0,q1,v));
+  }
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class ConfigOut_t>
+  inline void randomConfiguration(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                                  const Eigen::MatrixBase<ConfigL_t> & q0,
+                                  const Eigen::MatrixBase<ConfigR_t> & q1,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigOut_t, qout, nq(lg));
+    
+    typedef LieGroupRandomConfigurationVisitor<ConfigL_t,ConfigR_t,ConfigOut_t> Operation;
+    Operation::run(lg,typename Operation::ArgsType(q0,q1,qout));
+  }
+
+#undef PINOCCHIO_LG_VISITOR
+
+  /** @brief Visitor of the Lie Group interpolate method */
+  template <class Matrix1_t, class Matrix2_t, class Matrix3_t>
+  struct LieGroupInterpolateVisitor
+  : visitor::LieGroupVisitorBase< LieGroupInterpolateVisitor<Matrix1_t, Matrix2_t, Matrix3_t> >
+  {
+    typedef boost::fusion::vector<const Eigen::MatrixBase<Matrix1_t> &,
+                                  const Eigen::MatrixBase<Matrix2_t> &,
+                                  const typename Matrix1_t::Scalar &,
+                                  const Eigen::MatrixBase<Matrix3_t> &> ArgsType;
+    LIE_GROUP_VISITOR(LieGroupInterpolateVisitor);
+    template<typename LieGroupDerived>
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,
+                     const Eigen::MatrixBase<Matrix1_t>& q0,
+                     const Eigen::MatrixBase<Matrix2_t>& q1,
+                     const typename Matrix1_t::Scalar & u,
+                     const Eigen::MatrixBase<Matrix3_t>& qout)
+    {
+      lg.interpolate(q0, q1, u, qout);
+    }
+  };
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class ConfigOut_t>
+  inline void interpolate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                          const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const typename ConfigL_t::Scalar& u,
+                          const Eigen::MatrixBase<ConfigOut_t> & qout)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigOut_t, qout, nq(lg));
+    
+    typedef LieGroupInterpolateVisitor<ConfigL_t,ConfigR_t,ConfigOut_t> Operation;
+    Operation::run(lg,typename Operation::ArgsType(q0,q1,u,qout));
   }
 }
 

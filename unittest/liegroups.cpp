@@ -5,6 +5,7 @@
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-generic.hpp"
+#include "pinocchio/multibody/liegroup/cartesian-product-variant.hpp"
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 
@@ -654,7 +655,8 @@ struct TestLieGroupVariantVisitor
 {
   
   typedef LieGroupGenericTpl<LieGroupCollection> LieGroupGeneric;
-
+  typedef typename LieGroupGeneric::ConfigVector_t ConfigVector_t;
+  typedef typename LieGroupGeneric::TangentVector_t TangentVector_t;
   
   template<typename Derived>
   void operator() (const LieGroupBase<Derived> & lg) const
@@ -667,8 +669,6 @@ struct TestLieGroupVariantVisitor
   static void test(const LieGroupBase<Derived> & lg,
                    const LieGroupGenericTpl<LieGroupCollection> & lg_generic)
   {
-    typedef typename Derived::ConfigVector_t ConfigVector_t;
-    typedef typename Derived::TangentVector_t TangentVector_t;
     BOOST_CHECK(lg.nq() == nq(lg_generic));
     BOOST_CHECK(lg.nv() == nv(lg_generic));
     
@@ -687,6 +687,11 @@ struct TestLieGroupVariantVisitor
     ConfigVectorGeneric qout(lg.nq());
     integrate(lg_generic, ConfigVectorGeneric(q0), TangentVectorGeneric(v), qout);
     BOOST_CHECK(qout.isApprox(qout_ref));
+
+    ConfigVector_t q1 (nq(lg_generic));
+    random (lg_generic, q1);
+    difference(lg_generic, q0, q1, v);
+    BOOST_CHECK_EQUAL(lg.distance(q0, q1), distance (lg_generic, q0, q1));
   }
 };
 
