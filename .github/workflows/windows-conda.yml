@@ -41,7 +41,7 @@ jobs:
 
         set PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\share\pkgconfig:%CONDA_PREFIX%\Library\share\pkgconfig
         cmake ^
-          -G "NMake Makefiles" ^
+          -G"Visual Studio 16 2019"  -A x64  -T"ClangCl" ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DEIGENPY_SITELIB_ROOT=%CONDA_PREFIX% ^
