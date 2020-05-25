@@ -36,7 +36,10 @@ jobs:
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
         mkdir build
         pushd build
-        set PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\share\pkgconfig
+        dir %CONDA_PREFIX%\Library\pkgconfig
+        dir %CONDA_PREFIX%\Library\share\pkgconfig
+
+        set PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\share\pkgconfig:%CONDA_PREFIX%\Library\share\pkgconfig
         cmake ^
           -G "NMake Makefiles" ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
