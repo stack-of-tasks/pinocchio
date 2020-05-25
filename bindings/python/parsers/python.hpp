@@ -9,6 +9,16 @@
 
 #include <boost/python.hpp>
 
+#if defined _WIN32
+# ifdef pinocchio_pywrap_EXPORTS
+#   define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllexport)
+# else
+#   define PINOCCHIO_PYWRAP_DLLAPI __declspec(dllimport)
+# endif // pinocchio_pywrap_EXPORTS
+#else
+# define PINOCCHIO_PYWRAP_DLLAPI
+#endif // _WIN32
+
 namespace pinocchio
 {
   namespace python
@@ -24,6 +34,7 @@ namespace pinocchio
     /// \returns The model constructed by the Python script.
     ///
     // TODO: look inside the context of Python and find an occurence of object Model
+    PINOCCHIO_PYWRAP_DLLAPI
     Model buildModel(const std::string & filename,
                      const std::string & var_name = "model",
                      bool verbose = false);
