@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019 CNRS INRIA
+# Copyright (c) 2015-2020 CNRS INRIA
 #
 
 # ----------------------------------------------------
@@ -24,16 +24,6 @@ MACRO(ADD_BENCH bench_name)
     IF(link_to_main_lib)
       SET_TARGET_PROPERTIES(${bench_name} PROPERTIES COMPILE_DEFINITIONS PINOCCHIO_MODEL_DIR="${PINOCCHIO_MODEL_DIR}")
       TARGET_LINK_LIBRARIES(${bench_name} PUBLIC ${PROJECT_NAME})
-      PKG_CONFIG_USE_DEPENDENCY(${bench_name} eigen3)
-
-      IF(HPP_FCL_FOUND)
-        PKG_CONFIG_USE_DEPENDENCY(${bench_name} hpp-fcl)
-      ENDIF(HPP_FCL_FOUND)
-
-      IF(URDFDOM_FOUND)
-        PKG_CONFIG_USE_DEPENDENCY(${bench_name} urdfdom)
-      ENDIF(URDFDOM_FOUND)
-
     ENDIF(link_to_main_lib)
   ENDIF()
   
@@ -50,7 +40,7 @@ ADD_BENCH(timings TRUE)
 IF(CPPADCG_FOUND)
   ADD_BENCH(timings-cg TRUE)
   SET_PROPERTY(TARGET timings-cg PROPERTY CXX_STANDARD 11)
-  PKG_CONFIG_USE_DEPENDENCY(timings-cg "cppadcg")
+  TARGET_LINK_LIBRARIES(timings-cg PUBLIC cppadcg::cppadcg)
   TARGET_LINK_LIBRARIES(timings-cg PUBLIC ${CMAKE_DL_LIBS})
 ENDIF(CPPADCG_FOUND)
 
@@ -62,17 +52,17 @@ ADD_BENCH(timings-cholesky TRUE)
  
 ADD_BENCH(timings-derivatives TRUE)
 IF(CPPAD_FOUND)
-  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppad")
+  TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC cppad::cppad)
 ENDIF(CPPAD_FOUND)
 IF(CPPADCG_FOUND)
   SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
-  PKG_CONFIG_USE_DEPENDENCY(timings-derivatives "cppadcg")
+  TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC cppadcg::cppadcg)
 ENDIF(CPPADCG_FOUND)
 
 # timings-eigen
 # 
 ADD_BENCH(timings-eigen)
-PKG_CONFIG_USE_DEPENDENCY(timings-eigen "eigen3")
+TARGET_LINK_LIBRARIES(timings-eigen PUBLIC Eigen3::Eigen)
 
 # timings-geometry
 # 
