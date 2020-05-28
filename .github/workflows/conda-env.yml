@@ -1,12 +1,11 @@
-name: eigenpy
+name: pinocchio
 channels:
   - conda-forge
-  - defaults
+  - nodefaults
 dependencies:
   - eigen
   - cmake
   - numpy
-  - pkg-config
   - boost
   - eigenpy
   - urdfdom
