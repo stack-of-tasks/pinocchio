@@ -90,7 +90,7 @@ SET(PINOCCHIO_MODEL_DIR "${PROJECT_SOURCE_DIR}/models")
 # ----------------------------------------------------
 # --- DEPENDENCIES -----------------------------------
 # ----------------------------------------------------
-ADD_PROJECT_DEPENDENCY(Eigen3 3.0.5 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
+ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 
 # Variable containing all the cflags definition relative to optional dependencies
 SET(CFLAGS_DEPENDENCIES)
