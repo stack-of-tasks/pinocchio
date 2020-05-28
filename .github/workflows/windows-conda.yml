@@ -24,14 +24,15 @@ jobs:
     - name: Checkout submodules
       run: |
         git submodule update --init
-        pushd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin"
-        set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin":%PATH%
-        ./clang-cl.exe --version
     - uses: goanpeca/setup-miniconda@v1
       with:
         activate-environment: pinocchio
         environment-file: .github/workflows/conda-env.yml
         python-version: 3.7
+    - name: Install cmake and update conda
+      run: |
+        conda install cmake -c main
+    
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
       run: |
@@ -40,15 +41,11 @@ jobs:
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
         set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
+
+        conda list
         
-        where cmake
-        del C:\Miniconda\envs\pinocchio\Library\bin\cmake.exe
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\vsdevcmd.bat"
-        echo %PATH%
-        dir "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Tools"
-        dir "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin"
-        set PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\Llvm\bin":%PATH%
-        echo %PATH%
+        call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
+        type C:\Miniconda\envs\pinocchio\Library\include\urdf_sensor\sensor.h
     
         :: start building
         mkdir build
@@ -61,7 +58,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
-          -DCMAKE_CXX_FLAGS="/EHsc /bigobj" ^
           ..
         cmake --build . --config Release --target install
         ctest --output-on-failure

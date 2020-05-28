@@ -4,7 +4,6 @@ channels:
   - nodefaults
 dependencies:
   - eigen
-  - cmake
   - numpy
   - boost
   - eigenpy
