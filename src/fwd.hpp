@@ -18,9 +18,12 @@ namespace pinocchio {}
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
+// Import Eigen and all the required modules
 #include <Eigen/Core>
-
 #include "pinocchio/eigen-macros.hpp"
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+  #include <unsupported/Eigen/CXX11/Tensor>
+#endif
 
 #include "pinocchio/core/binary-op.hpp"
 #include "pinocchio/core/unary-op.hpp"

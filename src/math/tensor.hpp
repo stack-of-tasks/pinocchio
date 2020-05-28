@@ -11,9 +11,7 @@
   #define EIGEN_DEVICE_FUNC
 #endif
 
-#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
-  #include <unsupported/Eigen/CXX11/Tensor>
-#else
+#ifndef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   #if (__cplusplus <= 199711L && EIGEN_COMP_MSVC < 1900) || defined(__CUDACC__) || defined(EIGEN_AVOID_STL_ARRAY)
     namespace Eigen {
       template <typename T, std::size_t n>
