@@ -40,6 +40,7 @@ namespace pinocchio
 
     typedef LieGroupCollectionTpl<Scalar, Options> LieGroupCollection;
     typedef typename LieGroupCollection::LieGroupVariant LieGroupVariant;
+    typedef LieGroupGenericTpl<LieGroupCollection> LieGroupGeneric;
     
     /// \brief Default constructor
     CartesianProductOperationVariantTpl()
@@ -53,7 +54,10 @@ namespace pinocchio
     ///
     /// \param[in] lg Lie group variant to insert inside the Cartesian product
     ///
-    CartesianProductOperationVariantTpl(const LieGroupVariant & lg)
+    CartesianProductOperationVariantTpl(const LieGroupGeneric & lg)
+    : m_nq(0), m_nv(0)
+    , lg_nqs(0), lg_nvs(0)
+    , m_neutral(0)
     {
       append(lg);
     };
@@ -64,8 +68,11 @@ namespace pinocchio
     /// \param[in] lg1 Lie group variant to insert inside the Cartesian product
     /// \param[in] lg2 Lie group variant to insert inside the Cartesian product
     ///
-    CartesianProductOperationVariantTpl(const LieGroupVariant & lg1,
-                                        const LieGroupVariant & lg2)
+    CartesianProductOperationVariantTpl(const LieGroupGeneric & lg1,
+                                        const LieGroupGeneric & lg2)
+    : m_nq(0), m_nv(0)
+    , lg_nqs(0), lg_nvs(0)
+    , m_neutral(0)
     {
       append(lg1); append(lg2);
     };
@@ -75,7 +82,7 @@ namespace pinocchio
     ///
     /// \param[in] lg Lie group variant to insert inside the Cartesian product
     ///
-    void append(const LieGroupVariant & lg)
+    void append(const LieGroupGeneric & lg)
     {
       liegroups.push_back(lg);
       const Index lg_nq = ::pinocchio::nq(lg); lg_nqs.push_back(lg_nq); m_nq += lg_nq;
@@ -88,6 +95,39 @@ namespace pinocchio
       m_neutral.conservativeResize(m_nq);
       m_neutral.tail(lg_nq) = ::pinocchio::neutral(lg);
       
+    }
+
+    CartesianProductOperationVariantTpl operator* (const CartesianProductOperationVariantTpl& other) const
+    {
+      CartesianProductOperationVariantTpl res;
+
+      res.liegroups.reserve(liegroups.size() + other.liegroups.size());
+      res.liegroups.insert(res.liegroups.end(), liegroups.begin(), liegroups.end());
+      res.liegroups.insert(res.liegroups.end(), other.liegroups.begin(), other.liegroups.end());
+
+      res.lg_nqs.reserve(lg_nqs.size() + other.lg_nqs.size());
+      res.lg_nqs.insert(res.lg_nqs.end(), lg_nqs.begin(), lg_nqs.end());
+      res.lg_nqs.insert(res.lg_nqs.end(), other.lg_nqs.begin(), other.lg_nqs.end());
+
+      res.lg_nvs.reserve(lg_nvs.size() + other.lg_nvs.size());
+      res.lg_nvs.insert(res.lg_nvs.end(), lg_nvs.begin(), lg_nvs.end());
+      res.lg_nvs.insert(res.lg_nvs.end(), other.lg_nvs.begin(), other.lg_nvs.end());
+
+      res.m_nq = m_nq + other.m_nq;
+      res.m_nv = m_nv + other.m_nv;
+
+      if(liegroups.size() > 0)
+        res.m_name = m_name;
+      if(other.liegroups.size() > 0) {
+        res.m_name += " x ";
+        res.m_name += other.m_name;
+      }
+      
+      res.m_neutral.resize(res.m_nq);
+      res.m_neutral.head(m_nq) = m_neutral;
+      res.m_neutral.tail(other.m_nq) = other.m_neutral;
+
+      return res;
     }
     
     int nq() const { return m_nq; }
@@ -108,9 +148,9 @@ namespace pinocchio
         const Index & nq = lg_nqs[k];
         const Index & nv = lg_nvs[k];
         ::pinocchio::difference(liegroups[k],
-                         q0.segment(id_q,lg_nqs[k]),
-                         q1.segment(id_q,lg_nqs[k]),
-                         d.segment(id_v,lg_nvs[k]));
+                         q0.segment(id_q,nq),
+                         q1.segment(id_q,nq),
+                         PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d).segment(id_v,nv));
         
         id_q += nq; id_v += nv;
       }
@@ -128,9 +168,9 @@ namespace pinocchio
         const Index & nq = lg_nqs[k];
         const Index & nv = lg_nvs[k];
         ::pinocchio::integrate(liegroups[k],
-                         q.segment(id_q,lg_nqs[k]),
-                         v.segment(id_v,lg_nvs[k]),
-                         qout_.segment(id_q,lg_nqs[k]));
+                         q.segment(id_q,nq),
+                         v.segment(id_v,nv),
+                         qout_.segment(id_q,nq));
         
         id_q += nq; id_v += nv;
       }
@@ -178,7 +218,7 @@ namespace pinocchio
         ::pinocchio::randomConfiguration(liegroups[k],
                          lower.segment(id_q,nq),
                          upper.segment(id_q,nq),
-                         qout.segment(id_q,nq));
+                         PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).segment(id_q,nq));
         
         id_q += nq;
       }
@@ -187,7 +227,7 @@ namespace pinocchio
     
   protected:
     
-    std::vector<LieGroupVariant> liegroups;
+    std::vector<LieGroupGeneric> liegroups;
     Index m_nq, m_nv;
     std::vector<Index> lg_nqs, lg_nvs;
     std::string m_name;
