@@ -8,6 +8,12 @@
 // Forward declaration of the main pinocchio namespace
 namespace pinocchio {}
 
+#ifdef _WIN32
+  #include <windows.h>
+  #undef far
+  #undef near
+#endif
+
 #include "pinocchio/macros.hpp"
 #include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
