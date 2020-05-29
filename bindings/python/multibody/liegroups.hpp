@@ -63,6 +63,24 @@ struct LieGroupWrapperTpl
     lg.dIntegrate(q, v, J, arg);
     return J;
   }
+
+  static void dIntegrateTransport1(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v,
+      JacobianMatrix_t& J,
+      const ArgumentPosition arg)
+  {
+    lg.dIntegrateTransport(q, v, J, arg);
+  }
+
+  static JacobianMatrix_t dIntegrateTransport2(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v,
+      const JacobianMatrix_t& J,
+      const ArgumentPosition arg)
+  {
+    JacobianMatrix_t Jout (lg.nv(), J.cols());
+    lg.dIntegrateTransport(q, v, J, Jout, arg);
+    return Jout;
+  }
 };
 
 template<class LieGroupType>
@@ -75,18 +93,34 @@ public:
   template<class PyClass>
   void visit(PyClass& cl) const
   {
+    typedef Eigen::Matrix<double, Eigen::Dynamic, 1> ConfigVector_t;
+
     typedef LieGroupWrapperTpl<LieGroupType> LieGroupWrapper;
     cl
     .def(bp::init<>("Default constructor"))
     .def("integrate", LieGroupWrapper::integrate)
-    .def("difference", LieGroupWrapper::difference)
-    .def("interpolate", LieGroupWrapper::interpolate)
     .def("dIntegrate", LieGroupWrapper::dIntegrate)
+    .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport1)
+    .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport2)
+
+    .def("difference", LieGroupWrapper::difference)
     .def("dDifference", LieGroupWrapper::dDifference)
 
-    .def("name", &LieGroupType::name)
+    .def("interpolate", LieGroupWrapper::interpolate)
+
+    .def("random", static_cast<typename LieGroupType::ConfigVector_t (LieGroupType::*)() const>(&LieGroupType::random))
+    .def("randomConfiguration", &LieGroupType::template randomConfiguration<ConfigVector_t, ConfigVector_t>)
+    .def("distance", &LieGroupType::template distance<ConfigVector_t, ConfigVector_t>)
+    .def("squaredDistance", &LieGroupType::template squaredDistance<ConfigVector_t, ConfigVector_t>)
+    .def("normalize", &LieGroupType::template normalize<ConfigVector_t>)
+
+    .add_property("name", &LieGroupType::name)
+    .add_property("neutral", &LieGroupType::neutral)
+    .add_property("nq", &LieGroupType::nq)
+    .add_property("nv", &LieGroupType::nv)
 
     .def(bp::self * bp::self)
+    .def(bp::self *= bp::self)
     ;
   }
 
