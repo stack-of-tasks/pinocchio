@@ -82,7 +82,7 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       if (arg == ARG0)
-        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J) = -JacobianMatrix_t::Identity();
+        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J) = -JacobianMatrix_t::Identity(size_.value(),size_.value());
       else if (arg == ARG1)
         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
