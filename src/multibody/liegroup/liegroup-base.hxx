@@ -356,7 +356,7 @@ namespace pinocchio {
   LieGroupBase<Derived>::integrate(const Eigen::MatrixBase<Config_t>  & q,
                                             const Eigen::MatrixBase<Tangent_t> & v) const
   {
-    ConfigVector_t qout;
+    ConfigVector_t qout(nq());
     integrate(q.derived(), v.derived(), qout);
     return qout;
   }
@@ -368,7 +368,7 @@ namespace pinocchio {
       const Eigen::MatrixBase<ConfigR_t> & q1,
       const Scalar & u) const
   {
-    ConfigVector_t qout;
+    ConfigVector_t qout(nq());
     interpolate(q0.derived(), q1.derived(), u, qout);
     return qout;
   }
@@ -377,7 +377,7 @@ namespace pinocchio {
   typename LieGroupBase<Derived>::ConfigVector_t
   LieGroupBase<Derived>::random() const
   {
-    ConfigVector_t qout;
+    ConfigVector_t qout(nq());
     random(qout);
     return qout;
   }
@@ -389,7 +389,7 @@ namespace pinocchio {
   (const Eigen::MatrixBase<ConfigL_t> & lower_pos_limit,
    const Eigen::MatrixBase<ConfigR_t> & upper_pos_limit) const
   {
-    ConfigVector_t qout;
+    ConfigVector_t qout(nq());
     randomConfiguration(lower_pos_limit.derived(), upper_pos_limit.derived(), qout);
     return qout;
   }
@@ -400,7 +400,7 @@ namespace pinocchio {
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
-    TangentVector_t diff;
+    TangentVector_t diff(nv());
     difference(q0.derived(), q1.derived(), diff);
     return diff;
   }
@@ -430,7 +430,7 @@ namespace pinocchio {
       const Eigen::MatrixBase<ConfigL_t> & q0,
       const Eigen::MatrixBase<ConfigR_t> & q1) const
   {
-    TangentVector_t t;
+    TangentVector_t t(nv());
     difference(q0.derived(), q1.derived(), t);
     return t.squaredNorm();
   }

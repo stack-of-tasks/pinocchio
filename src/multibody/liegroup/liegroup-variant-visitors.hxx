@@ -44,7 +44,7 @@ namespace pinocchio
 #define PINOCCHIO_LG_CHECK_VECTOR_SIZE(type,var,exp_size)                      \
     EIGEN_STATIC_ASSERT_VECTOR_ONLY(type);                                     \
     assert(var.size() == exp_size)
-#define PINOCCHIO_LG_CHECK_MATRIX_SIZE(var,nr,rc)                              \
+#define PINOCCHIO_LG_CHECK_MATRIX_SIZE(var,nr,nc)                              \
     assert(var.rows() == nr); assert(var.cols() == nc)
 
 #define PINOCCHIO_LG_VISITOR(Name,type,_method)                                \
