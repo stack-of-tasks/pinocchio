@@ -58,4 +58,4 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         cmake --build . --config Release --target install
-        ctest --output-on-failure
+        ctest --output-on-failure -C Release
