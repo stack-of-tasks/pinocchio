@@ -6,7 +6,7 @@
   <!-- The maintainer listed here is for the ROS release to receive emails for the buildfarm. 
   Please check the repository URL for full list of authors and maintainers. -->
   <maintainer email="justin.carpentier@inria.fr">Justin Carpentier</maintainer>
-  <maintainer email="wolfgang.merkt@ed.ac.uk">Wolfgang Merkt</maintainer>
+  <maintainer email="wolfgang@robots.ox.ac.uk">Wolfgang Merkt</maintainer>
   <license>BSD</license>
 
   <url type="website">https://github.com/stack-of-tasks/pinocchio</url>
@@ -14,6 +14,9 @@
   <build_depend>git</build_depend>
   <build_depend>doxygen</build_depend>
   <doc_depend>doxygen</doc_depend>
+  <!-- The following tags are recommended by REP-136 -->
+  <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
+  <exec_depend condition="$ROS_VERSION == 2">ament_cmake</exec_depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
   <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
