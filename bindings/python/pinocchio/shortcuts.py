@@ -4,7 +4,7 @@
 
 ## In this file, some shortcuts are provided ##
 
-from . import libpinocchio_pywrap as pin
+from . import pinocchio_pywrap as pin
 from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 
 nle = pin.nonLinearEffects

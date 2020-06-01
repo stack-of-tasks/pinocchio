@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import warnings as _warnings
 
-from . import libpinocchio_pywrap as pin 
+from . import pinocchio_pywrap as pin 
 from .deprecation import deprecated, DeprecatedWarning
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care

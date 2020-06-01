@@ -1,4 +1,4 @@
-from .. import libpinocchio_pywrap as pin
+from .. import pinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 

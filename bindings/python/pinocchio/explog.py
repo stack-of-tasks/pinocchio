@@ -7,7 +7,7 @@ import math
 
 import numpy as np
 
-from . import libpinocchio_pywrap as pin
+from . import pinocchio_pywrap as pin
 
 def exp(x):
     if isinstance(x, pin.Motion):

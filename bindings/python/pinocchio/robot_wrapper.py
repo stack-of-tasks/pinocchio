@@ -2,7 +2,7 @@
 # Copyright (c) 2015-2020 CNRS INRIA
 #
 
-from . import libpinocchio_pywrap as pin
+from . import pinocchio_pywrap as pin
 from . import utils
 from .deprecation import deprecated
 from .shortcuts import buildModelsFromUrdf, createDatas
