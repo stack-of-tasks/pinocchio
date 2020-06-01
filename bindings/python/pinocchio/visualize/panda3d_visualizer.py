@@ -1,6 +1,6 @@
 import warnings
 
-from .. import libpinocchio_pywrap as pin
+from .. import pinocchio_pywrap as pin
 from ..utils import npToTuple
 from .base_visualizer import BaseVisualizer
 
