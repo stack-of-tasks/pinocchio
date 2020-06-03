@@ -83,6 +83,8 @@ namespace pinocchio
     /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
     typedef Tensor<Scalar,3,Options> Tensor3x;
 
+    typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
@@ -120,9 +122,6 @@ namespace pinocchio
     /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) of;
-
-    /// \brief Spatial inertias of the body *i* expressed in the world frame.
-    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
     
     /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
     ///        all external forces acting on the body. These forces are used in the context of augmented Lagrangian algorithms.
@@ -198,15 +197,15 @@ namespace pinocchio
     
     /// \brief Left variation of the inertia matrix
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Ivx;
+
+    /// \brief Spatial inertias of the body *i* expressed in the world frame.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
     
     /// \brief Inertia quantities expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oYcrb;
     
     /// \brief Time variation of the inertia quantities expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) doYcrb;
-    
-    /// \brief Temporary for derivative algorithms
-    Matrix6 Itmp;
     
     /// \brief The joint accelerations computed by ABA
     TangentVectorType ddq;
@@ -401,16 +400,11 @@ namespace pinocchio
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
     
-    typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
-    
     // Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
     // Rhs vector when solving the contact dynamics KKT problem
     VectorXs contact_vector_solution;
-    
-    // Contact forces related to the contact dynamics algorithms
-    PINOCCHIO_ALIGNED_STD_VECTOR(Force) contact_forces;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

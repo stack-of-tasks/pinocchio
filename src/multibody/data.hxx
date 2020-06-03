@@ -56,6 +56,7 @@ namespace pinocchio
   , IS(MatrixXs::Zero(6,model.nv))
   , vxI((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , Ivx((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oinertias((std::size_t)model.njoints,Inertia::Zero())
   , oYcrb((std::size_t)model.njoints,Inertia::Zero())
   , doYcrb((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , ddq(VectorXs::Zero(model.nv))
@@ -115,7 +116,6 @@ namespace pinocchio
 #else
   , kinematic_hessians(6,model.nv,model.nv)
 #endif
-  , contact_forces((std::size_t)model.njoints,Force::Zero())
   {
     typedef typename Model::JointIndex JointIndex;
     
@@ -257,11 +257,13 @@ namespace pinocchio
     && data1.IS == data2.IS
     && data1.vxI == data2.vxI
     && data1.Ivx == data2.Ivx
+    && data1.oinertias == data2.oinertias
     && data1.oYcrb == data2.oYcrb
     && data1.doYcrb == data2.doYcrb
     && data1.ddq == data2.ddq
     && data1.Yaba == data2.Yaba
     && data1.oYaba == data2.oYaba
+    && data1.oYaba_contact == data2.oYaba_contact
     && data1.u == data2.u
     && data1.Ag == data2.Ag
     && data1.dAg == data2.dAg
@@ -288,6 +290,14 @@ namespace pinocchio
     && data1.dtau_dv == data2.dtau_dv
     && data1.ddq_dq == data2.ddq_dq
     && data1.ddq_dv == data2.ddq_dv
+    && data1.dvc_dq == data2.dvc_dq
+    && data1.dac_dq == data2.dac_dq
+    && data1.dac_dv == data2.dac_dv
+    && data1.dac_da == data2.dac_da
+    && data1.osim == data2.osim
+    && data1.dlambda_dq == data2.dlambda_dq
+    && data1.dlambda_dv == data2.dlambda_dv
+    && data1.dlambda_dtau == data2.dlambda_dtau
     && data1.iMf == data2.iMf
     && data1.com == data2.com
     && data1.vcom == data2.vcom
@@ -299,12 +309,17 @@ namespace pinocchio
     && data1.mechanical_energy == data2.mechanical_energy
     && data1.JMinvJt == data2.JMinvJt
     && data1.lambda_c == data2.lambda_c
+    && data1.lambda_c_prox == data2.lambda_c_prox
+    && data1.diff_lambda_c == data2.diff_lambda_c
+    && data1.sDUiJt == data2.sDUiJt
     && data1.torque_residual == data2.torque_residual
     && data1.dq_after == data2.dq_after
     && data1.impulse_c == data2.impulse_c
     && data1.staticRegressor == data2.staticRegressor
     && data1.bodyRegressor == data2.bodyRegressor
     && data1.jointTorqueRegressor == data2.jointTorqueRegressor
+//    && data1.contact_chol == data2.contact_chol
+    && data1.contact_vector_solution == data2.contact_vector_solution
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
