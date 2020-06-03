@@ -79,7 +79,7 @@ namespace pinocchio
         const std::string & root_joint_name = model.names[root_joint_idx];
         joint_id = addJointAndBody(model,typename JC::JointModelRX(),root_joint_name,pre+"shoulder1",Mroot);
         model.inertias[joint_id] = Ijoint;
-        const JointModel & base_joint = model.joints[joint_id];
+        const JointIndex root_joint_id = joint_id;
         
         joint_id = addJointAndBody(model,typename JC::JointModelRY(),model.names[joint_id],pre+"shoulder2",Id4);
         model.inertias[joint_id] = Ijoint;
@@ -100,9 +100,10 @@ namespace pinocchio
         model.inertias[joint_id] = Iarm;
         model.addBodyFrame(pre+"effector_body",joint_id);
         
+        const JointModel & base_joint = model.joints[root_joint_id];
         const int idx_q = base_joint.idx_q();
         const int idx_v = base_joint.idx_v();
-        
+      
         model.lowerPositionLimit.template segment<6>(idx_q).fill(qmin);
         model.upperPositionLimit.template segment<6>(idx_q).fill(qmax);
         model.velocityLimit.template segment<6>(idx_v).fill(vmax);
