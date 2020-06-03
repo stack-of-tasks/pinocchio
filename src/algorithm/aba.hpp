@@ -64,6 +64,7 @@ namespace pinocchio
   
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
+  /// \remarks Only the upper triangular part of the matrix is filled.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -72,7 +73,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   ///
-  /// \return The inverse of the joint space inertia matrix stored in data.ddq.
+  /// \return The inverse of the joint space inertia matrix stored in data.Minv.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
