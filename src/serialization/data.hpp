@@ -29,12 +29,15 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,joints);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,a);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oa);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_drift);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_augmented);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,a_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oa_gf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,v);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ov);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,f);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,of);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,of_augmented);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,h);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oh);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oMi);
@@ -57,11 +60,13 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,IS);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,vxI);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,Ivx);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oinertias);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oYcrb);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,doYcrb);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ddq);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,Yaba);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oYaba);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oYaba_contact);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,u);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,Ag);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dAg);
@@ -88,6 +93,14 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dtau_dv);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ddq_dq);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ddq_dv);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dvc_dq);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dac_dq);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dac_dv);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dac_da);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,osim);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dq);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dv);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dtau);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,iMf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,com);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,vcom);
@@ -102,10 +115,15 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,torque_residual);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dq_after);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,impulse_c);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,lambda_c_prox);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,diff_lambda_c);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,sDUiJt);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,staticRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,bodyRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinematic_hessians);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,contact_vector_solution);
     }
     
   } // namespace serialization
