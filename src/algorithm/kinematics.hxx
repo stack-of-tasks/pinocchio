@@ -218,6 +218,68 @@ namespace pinocchio
                 typename Algo::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+              const JointIndex jointId,
+              const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_UNUSED_VARIABLE(model);
+    switch(rf)
+    {
+      case LOCAL:
+        return data.v[jointId];
+      case WORLD:
+        return data.oMi[jointId].act(data.v[jointId]);
+      case LOCAL_WORLD_ALIGNED:
+        return MotionTpl<Scalar, Options>(data.oMi[jointId].rotation() * data.v[jointId].linear(), data.oMi[jointId].rotation() * data.v[jointId].angular());
+      default:
+        throw std::invalid_argument("Bad reference frame.");
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  const JointIndex jointId,
+                  const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_UNUSED_VARIABLE(model);
+    switch(rf)
+    {
+      case LOCAL:
+        return data.a[jointId];
+      case WORLD:
+        return data.oMi[jointId].act(data.a[jointId]);
+      case LOCAL_WORLD_ALIGNED:
+        return MotionTpl<Scalar, Options>(data.oMi[jointId].rotation() * data.a[jointId].linear(), data.oMi[jointId].rotation() * data.a[jointId].angular());
+      default:
+        throw std::invalid_argument("Bad reference frame.");
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const JointIndex jointId,
+                           const ReferenceFrame rf)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef MotionTpl<Scalar, Options> Motion;
+    Motion vel = getVelocity(model, data, jointId, rf);
+    Motion acc = getAcceleration(model, data, jointId, rf);
+
+    acc.linear() += vel.angular().cross(vel.linear());
+
+    return acc;
+  }
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_kinematics_hxx__

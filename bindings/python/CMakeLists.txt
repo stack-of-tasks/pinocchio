@@ -114,6 +114,8 @@ SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
 IF(BUILD_PYTHON_INTERFACE)
   ADD_LIBRARY(${PYWRAP} SHARED ${${PYWRAP}_SOURCES} ${${PYWRAP}_HEADERS})
   ADD_DEPENDENCIES(python ${PYWRAP})
+  
+  SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES PREFIX "") # Remove lib prefix for the target
 
   # Do not report:
   #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
@@ -185,6 +187,7 @@ IF(BUILD_PYTHON_INTERFACE)
     base_visualizer.py
     gepetto_visualizer.py
     meshcat_visualizer.py
+    panda3d_visualizer.py
     )
 
   FOREACH(python ${PYTHON_VISUALIZE_FILES})

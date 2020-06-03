@@ -2,7 +2,7 @@
 # Copyright (c) 2015-2020 CNRS INRIA
 #
 
-from . import libpinocchio_pywrap as pin
+from . import pinocchio_pywrap as pin
 from . import utils
 from .deprecation import deprecated
 from .shortcuts import buildModelsFromUrdf, createDatas
@@ -107,36 +107,44 @@ class RobotWrapper(object):
             pin.forwardKinematics(self.model, self.data, q)
         return self.data.oMi[index]
 
-    def velocity(self, q, v, index, update_kinematics=True):
+    def velocity(self, q, v, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q, v)
-        return self.data.v[index]
+        return pin.getVelocity(self.model, self.data, index, reference_frame)
 
-    def acceleration(self, q, v, a, index, update_kinematics=True):
+    def acceleration(self, q, v, a, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q, v, a)
-        return self.data.a[index]
+        return pin.getAcceleration(self.model, self.data, index, reference_frame)
+
+    def classicalAcceleration(self, q, v, a, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
+        if update_kinematics:
+            pin.forwardKinematics(self.model, self.data, q, v, a)
+        return pin.getClassicalAcceleration(self.model, self.data, index, reference_frame)
 
     def framePlacement(self, q, index, update_kinematics=True):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q)
         return pin.updateFramePlacement(self.model, self.data, index)
 
-    def frameVelocity(self, q, v, index, update_kinematics=True):
+    def frameVelocity(self, q, v, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q, v)
-        return pin.getFrameVelocity(self.model, self.data, index)
+        return pin.getFrameVelocity(self.model, self.data, index, reference_frame)
 
-    def frameAcceleration(self, q, v, a, index, update_kinematics=True):
+    def frameAcceleration(self, q, v, a, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
         if update_kinematics:
             pin.forwardKinematics(self.model, self.data, q, v, a)
-        return pin.getFrameAcceleration(self.model, self.data, index)
+        return pin.getFrameAcceleration(self.model, self.data, index, reference_frame)
 
+    def frameClassicalAcceleration(self, q, v, a, index, update_kinematics=True, reference_frame=pin.ReferenceFrame.LOCAL):
+        if update_kinematics:
+            pin.forwardKinematics(self.model, self.data, q, v, a)
+        return pin.getFrameClassicalAcceleration(self.model, self.data, index, reference_frame)
+
+    @deprecated("This method has been replaced by frameClassicalAcceleration.")
     def frameClassicAcceleration(self, index):
-        v = pin.getFrameVelocity(self.model, self.data, index)
-        a = pin.getFrameAcceleration(self.model, self.data, index)
-        a.linear += np.cross(v.angular, v.linear, axis=0)
-        return a;
+        return self.frameClassicalAcceleration(None, None, None, index, False)
 
     @deprecated("This method has been renamed computeJointJacobian. Please use computeJointJacobian instead of jointJacobian.")
     def jointJacobian(self, q, index):

@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_frames_hpp__
-#define __pinocchio_frames_hpp__
+#ifndef __pinocchio_algorithm_frames_hpp__
+#define __pinocchio_algorithm_frames_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -81,14 +81,15 @@ namespace pinocchio
 
 
   /**
-   * @brief      Returns the spatial velocity of the frame expressed in the LOCAL frame coordinate system.
+   * @brief      Returns the spatial velocity of the Frame expressed in the desired reference frame.
    *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the velocity is expressed.
    *
-   * @return     The spatial velocity of the Frame expressed in the coordinates Frame.
+   * @return     The spatial velocity of the Frame expressed in the desired reference frame.
    *
    * @warning    Fist or second order forwardKinematics should have been called first
    */
@@ -96,17 +97,19 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id);
+                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                   const ReferenceFrame rf = LOCAL);
 
   /**
-   * @brief      Returns the spatial acceleration of the frame expressed in the LOCAL frame coordinate system.
-   *             You must first call pinocchio::forwardKinematics to update placement values in data structure.
+   * @brief      Returns the spatial acceleration of the Frame expressed in the desired reference frame.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
    *
-   * @return     The spatial acceleration of the Frame expressed in the LOCAL coordinates system of the Frame.
+   * @return The spatial acceleration of the Frame expressed in the desired reference frame.
    *
    * @warning    Second order forwardKinematics should have been called first
    */
@@ -114,7 +117,29 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id);
+                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                       const ReferenceFrame rf = LOCAL);
+
+  /**
+   * @brief      Returns the "classical" acceleration of the Frame expressed in the desired reference frame.
+   *             This is different from the "spatial" acceleration in that centrifugal effects are accounted for.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  frame_id    Id of the operational Frame
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
+   *
+   * @return The classical acceleration of the Frame expressed in the desired reference frame.
+   *
+   * @warning    Second order forwardKinematics should have been called first
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                const ReferenceFrame rf = LOCAL);
 
   /**
    * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system, LOCAL_WORLD_ALIGNED coordinate system or in the WORLD coordinate system,
@@ -135,11 +160,11 @@ namespace pinocchio
    * @param[in]  rf                 Reference frame in which the Jacobian is expressed.
    * @param[out] J                    The Jacobian of the Frame expressed in the coordinates Frame.
    *
-   * @warning    The function pinocchio::computeJointJacobians and pinocchio::framesForwardKinematics should have been called first.
+   * @warning    The function pinocchio::computeJointJacobians should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J);
@@ -182,6 +207,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] frameId The id of the Frame refering to model.frames[frameId].
+  ///
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.setZero().
   ///
   /// \return The Jacobian of the specific Frame expressed in the LOCAL frame coordinate system (matrix 6 x model.nv).
@@ -217,7 +243,8 @@ namespace pinocchio
   }
   
   ///
-  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL).
+  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD) or in the LOCAL frame (rf = LOCAL) or in the LOCAL_WORLD_ALIGNED frame (rf = LOCAL_WORLD_ALIGNED).
+  ///
   /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -227,11 +254,12 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] frameId The index of the frame.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
+  ///
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   void getFrameJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
                                      const ReferenceFrame rf,
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ);
@@ -241,4 +269,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/frames.hxx"
 
-#endif // ifndef __pinocchio_frames_hpp__
+#endif // ifndef __pinocchio_algorithm_frames_hpp__

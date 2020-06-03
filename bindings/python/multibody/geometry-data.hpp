@@ -10,6 +10,7 @@
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -66,19 +67,18 @@ namespace pinocchio
                       "Vector of active CollisionPairs")
         
 #ifdef PINOCCHIO_WITH_HPP_FCL
-        .def_readonly("distanceRequest",
-                      &GeometryData::distanceRequest,
+        .def_readonly("distanceRequests",
+                      &GeometryData::distanceRequests,
                       "Defines which information should be computed by FCL for distance computations")
         .def_readonly("distanceResults",
                       &GeometryData::distanceResults,
                       "Vector of distance results.")
-        .def_readonly("collisionRequest",
-                      &GeometryData::collisionRequest,
+        .def_readonly("collisionRequests",
+                      &GeometryData::collisionRequests,
                       "Defines which information should be computed by FCL for collision computations.\n\n"
                       "Note: it is possible to define a security_margin and a break_distance for a collision request.\n"
                       "Most likely, for robotics application, these thresholds will be different for each collision pairs\n"
-                      "(e.g. the two hands can have a large security margin while the two hips cannot.\n"
-                      "It may be a good idea to have as many collision requests as collision pairs.)")
+                      "(e.g. the two hands can have a large security margin while the two hips cannot.)")
         .def_readonly("collisionResults",
                       &GeometryData::collisionResults,
                       "Vector of collision results.")
@@ -100,6 +100,22 @@ namespace pinocchio
              bp::args("self","pair_id"),
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
         ;
+
+#ifdef PINOCCHIO_WITH_HPP_FCL  
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+        cl
+        .add_property("distanceRequest",
+                      bp::make_getter(&GeometryData::distanceRequest,
+                                      deprecated_member<bp::return_internal_reference<> >()),
+                      "Deprecated. Use distanceRequests attribute instead.")
+        .add_property("collisionRequest",
+                      bp::make_getter(&GeometryData::collisionRequest,
+                                      deprecated_member<bp::return_internal_reference<> >()),
+                      "Deprecated. Use collisionRequests attribute instead.")
+        ;
+#pragma GCC diagnostic pop
+#endif // PINOCCHIO_WITH_HPP_FCL
       }
              
       /* --- Expose --------------------------------------------------------- */

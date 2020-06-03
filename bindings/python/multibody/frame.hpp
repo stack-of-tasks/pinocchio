@@ -47,6 +47,7 @@ namespace pinocchio
             .value("FIXED_JOINT",FIXED_JOINT)
             .value("BODY",BODY)
             .value("SENSOR",SENSOR)
+            .export_values()
             ;
 
         bp::class_<Frame>("Frame",

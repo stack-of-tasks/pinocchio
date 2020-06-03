@@ -40,6 +40,11 @@ namespace pinocchio
                        "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
               "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
               ))
+        .def(bp::init<const GeometryObject&>
+             (
+              bp::args("self","otherGeometryObject"),
+              "Copy constructor"
+              ))
         .add_property("meshScale",
                       bp::make_getter(&GeometryObject::meshScale,
                                       bp::return_value_policy<bp::return_by_value>()),
@@ -99,6 +104,7 @@ namespace pinocchio
         bp::enum_<GeometryType>("GeometryType")
         .value("VISUAL",VISUAL)
         .value("COLLISION",COLLISION)
+        .export_values()
         ;
       }
 

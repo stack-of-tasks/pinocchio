@@ -195,12 +195,18 @@ namespace pinocchio
     /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
-    std::vector<fcl::CollisionObject> collisionObjects;
+    std::vector<fcl::CollisionObject> collisionObjects PINOCCHIO_DEPRECATED;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
     ///
-    fcl::DistanceRequest distanceRequest;
+    /// \deprecated use \ref distanceRequests instead
+    fcl::DistanceRequest distanceRequest PINOCCHIO_DEPRECATED;
+
+    ///
+    /// \brief Defines what information should be computed by distance computation.
+    /// There is one request per pair of geometries.
+    std::vector<fcl::DistanceRequest> distanceRequests;
 
     ///
     /// \brief Vector gathering the result of the distance computation for all the collision pairs.
@@ -210,7 +216,13 @@ namespace pinocchio
     ///
     /// \brief Defines what information should be computed by collision test.
     ///
-    fcl::CollisionRequest collisionRequest;
+    /// \deprecated use \ref collisionRequests instead
+    fcl::CollisionRequest collisionRequest PINOCCHIO_DEPRECATED;
+
+    ///
+    /// \brief Defines what information should be computed by collision test.
+    /// There is one request per pair of geometries.
+    std::vector<fcl::CollisionRequest> collisionRequests;
 
     ///
     /// \brief Vector gathering the result of the collision computation for all the collision pairs.
@@ -245,7 +257,8 @@ namespace pinocchio
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
     GeometryData(const GeometryModel & geomModel);
-    ~GeometryData() {};
+    GeometryData(const GeometryData & other);
+    ~GeometryData();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
     /// collisionPairs. 

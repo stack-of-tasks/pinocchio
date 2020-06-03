@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019 CNRS INRIA
+# Copyright (c) 2018-2020 CNRS INRIA
 #
 
 ## In this file, are reported some deprecated functions that are still maintained until the next important future releases ##
@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import warnings as _warnings
 
-from . import libpinocchio_pywrap as pin 
+from . import pinocchio_pywrap as pin
 from .deprecation import deprecated, DeprecatedWarning
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care
@@ -67,11 +67,11 @@ forwardDynamics.__doc__ = (
 @deprecated("This function has been renamed computeJointJacobian and will be removed in future releases of Pinocchio. Please change for new computeJointJacobian.")
 def jointJacobian(model, data, q, jointId):
   return pin.computeJointJacobian(model,data,q,jointId)
-  
+
 @deprecated("This function has been renamed computeFrameJacobian and will be removed in future releases of Pinocchio. Please change for new computeFrameJacobian.")
 def frameJacobian(model, data, q, frameId):
   return pin.computeFrameJacobian(model,data,q,frameId)
-  
+
 def computeCentroidalDynamics(model, data, q, v, a = None):
   if a is None:
     message = ("This function signature has been renamed and will be removed in future releases of Pinocchio. "
@@ -124,10 +124,10 @@ def buildGeomFromUrdf(model, filename, *args):
       return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir)
   else:
     return pin.buildGeomFromUrdf(model, filename, *args)
-    
+
 buildGeomFromUrdf.__doc__ = (
   pin.buildGeomFromUrdf.__doc__
-) 
+)
 
 @deprecated("This function is now deprecated and will be removed in future releases of Pinocchio. "
             "Please change for the new function computePotentialEnergy.")

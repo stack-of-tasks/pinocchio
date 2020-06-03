@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA CNRS
 //
 
 #include <pinocchio/math/quaternion.hpp>
@@ -40,6 +40,33 @@ BOOST_AUTO_TEST_CASE(test_uniformRandom)
     BOOST_CHECK_MESSAGE((q.coeffs().array().abs() <= 1).all(),
         "Quaternion coeffs out of bounds: " << i << ' ' << q.coeffs().transpose());
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_isNormalized)
+{
+  srand(0);
+
+  using namespace pinocchio;
+  typedef Eigen::Quaternion<double> Quaternion;
+  typedef Quaternion::Coefficients Vector4;
+  
+#ifdef NDEBUG
+  const int max_test = 1e6;
+#else
+  const int max_test = 1e2;
+#endif
+  for(int i = 0; i < max_test; ++i)
+  {
+    Quaternion q;
+    q.coeffs() = Vector4::Random() + Vector4::Constant(2);
+    BOOST_CHECK(!quaternion::isNormalized(q));
+    
+    q.normalize();
+    BOOST_CHECK(quaternion::isNormalized(q));
+  }
+  
+  // Specific check for the Zero vector
+  BOOST_CHECK(!quaternion::isNormalized(Quaternion(Vector4::Zero())));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -14,7 +14,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_rpyToMatrix)
 {
+#ifdef NDEBUG
   const int n = 1e5;
+#else
+  const int n = 1e2;
+#endif
   for(int k = 0; k < n ; ++k)
   {
     double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
@@ -42,7 +46,11 @@ BOOST_AUTO_TEST_CASE(test_rpyToMatrix)
 
 BOOST_AUTO_TEST_CASE(test_matrixToRpy)
 {
-  const int n = 1e6;
+  #ifdef NDEBUG
+    const int n = 1e5;
+  #else
+    const int n = 1e2;
+  #endif
   for(int k = 0; k < n ; ++k)
   {
     Eigen::Quaterniond quat;
@@ -58,7 +66,11 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
     BOOST_CHECK(-M_PI <= v[2] && v[2] <= M_PI);
   }
 
+#ifdef NDEBUG
   const int n2 = 1e3;
+#else
+  const int n2 = 1e2;
+#endif
 
   // Test singular case theta = pi/2
   for(int k = 0; k < n2 ; ++k)

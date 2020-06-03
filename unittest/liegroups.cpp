@@ -92,9 +92,9 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 
   // Check that difference between two equal configuration is exactly 0
   TangentVector_t zero = LieGroupType().difference(q1,q1);
-  BOOST_CHECK_MESSAGE (zero.isZero (0), std::string ("Error: difference between two equal configurations is not 0."));
+  BOOST_CHECK_MESSAGE (zero.isZero(), std::string ("Error: difference between two equal configurations is not 0."));
   zero = LieGroupType().difference(q2,q2);
-  BOOST_CHECK_MESSAGE (zero.isZero (0), std::string ("Error: difference between two equal configurations is not 0."));
+  BOOST_CHECK_MESSAGE (zero.isZero(), std::string ("Error: difference between two equal configurations is not 0."));
 
   // Check difference
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
@@ -316,8 +316,8 @@ struct LieGroup_Jintegrate{
     ConfigVector_t q_v = lg.integrate (q, v);
 
     JacobianMatrix_t Jq, Jv;
-    lg.dIntegrate_dq (q, v, Jq, SETTO);
-    lg.dIntegrate_dv (q, v, Jv, SETTO);
+    lg.dIntegrate_dq (q, v, Jq);
+    lg.dIntegrate_dv (q, v, Jv);
 
     const Scalar eps = 1e-6;
     for (int i = 0; i < v.size(); ++i)
@@ -361,7 +361,7 @@ struct LieGroup_JintegrateJdifference{
     JacobianMatrix_t Jd_qb, Ji_v;
 
     lg.template dDifference<ARG1> (qa, qb, Jd_qb);
-    lg.template dIntegrate <ARG1, SETTO> (qa, v , Ji_v );
+    lg.template dIntegrate <ARG1> (qa, v , Ji_v );
 
     BOOST_CHECK_MESSAGE ((Jd_qb * Ji_v).isIdentity(),
         "Jd_qb\n" <<

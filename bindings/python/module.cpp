@@ -22,13 +22,18 @@
 namespace bp = boost::python;
 using namespace pinocchio::python;
 
-BOOST_PYTHON_MODULE(libpinocchio_pywrap)
+BOOST_PYTHON_MODULE(pinocchio_pywrap)
 {
   bp::docstring_options module_docstring_options(true,true,false);
   
   bp::scope().attr("__version__") = pinocchio::printVersion();
   bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
+  
+  // Enable warning
+#ifndef Py_LIMITED_API
+  _PyWarnings_Init();
+#endif
   
   if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
     eigenpy::exposeQuaternion();
@@ -67,6 +72,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   .value("WORLD",::pinocchio::WORLD)
   .value("LOCAL",::pinocchio::LOCAL)
   .value("LOCAL_WORLD_ALIGNED",::pinocchio::LOCAL_WORLD_ALIGNED)
+  .export_values()
   ;
   
   bp::enum_< ::pinocchio::ArgumentPosition>("ArgumentPosition")
@@ -75,6 +81,7 @@ BOOST_PYTHON_MODULE(libpinocchio_pywrap)
   .value("ARG2",::pinocchio::ARG2)
   .value("ARG3",::pinocchio::ARG3)
   .value("ARG4",::pinocchio::ARG4)
+  .export_values()
   ;
 
   exposeModel();

@@ -1,4 +1,4 @@
-from .. import libpinocchio_pywrap as pin
+from .. import pinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 from numpy.linalg import norm
@@ -86,6 +86,18 @@ class GepettoVisualizer(BaseVisualizer):
             trans = alpha * normal
             plane_offset = pin.SE3(rot,trans)
             gui.applyConfiguration(planeName,pin.SE3ToXYZQUATtuple(plane_offset))
+        elif isinstance(geom, hppfcl.Convex):
+            pts = [ npToTuple(geom.points(geom.polygons(f)[i])) for f in range(geom.num_polygons) for i in range(3) ]
+            gui.addCurve(meshName, pts, npToTuple(meshColor))
+            gui.setCurveMode(meshName, "TRIANGLES")
+            gui.setLightingMode(meshName, "ON")
+            gui.setBoolProperty(meshName, "BackfaceDrawing", True)
+            return True
+        elif isinstance(geom, hppfcl.ConvexBase):
+            pts = [ npToTuple(geom.points(i)) for i in range(geom.num_points) ]
+            gui.addCurve(meshName, pts, npToTuple(meshColor))
+            gui.setCurveMode(meshName, "POINTS")
+            gui.setLightingMode(meshName, "OFF")
             return True
         else:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
@@ -144,13 +156,16 @@ class GepettoVisualizer(BaseVisualizer):
             gui.createGroup(self.viewerVisualGroupName)
 
         # iterate over visuals and create the meshes in the viewer
-        for collision in self.collision_model.geometryObjects:
-            self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION)
-        self.displayCollisions(False)
+        if self.collision_model is not None:
+            for collision in self.collision_model.geometryObjects:
+                self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION)
+        # Display collision if we have them and there is no visual
+        self.displayCollisions(self.collision_model is not None and self.visual_model is None)
 
-        for visual in self.visual_model.geometryObjects:
-            self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL)
-        self.displayVisuals(True)
+        if self.visual_model is not None:
+            for visual in self.visual_model.geometryObjects:
+                self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL)
+        self.displayVisuals(self.visual_model is not None)
 
         # Finally, refresh the layout to obtain your first rendering.
         gui.refresh()
@@ -184,6 +199,7 @@ class GepettoVisualizer(BaseVisualizer):
         """Set whether to display collision objects or not"""
         gui = self.viewer.gui
         self.display_collisions = visibility
+        if self.collision_model is None: return
 
         if visibility:
             visibility_mode = "ON"
@@ -198,6 +214,7 @@ class GepettoVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not"""
         gui = self.viewer.gui
         self.display_visuals = visibility
+        if self.visual_model is None: return
 
         if visibility:
             visibility_mode = "ON"

@@ -2,7 +2,9 @@ import unittest
 import pinocchio as pin
 import numpy as np
 
-class TestFrameBindings(unittest.TestCase):
+from test_case import PinocchioTestCase
+
+class TestFrameBindings(PinocchioTestCase):
 
     def setUp(self):
         self.model = pin.buildSampleModelHumanoidRandom()
@@ -41,6 +43,39 @@ class TestFrameBindings(unittest.TestCase):
         new_placement = pin.SE3.Random()
         f.placement = new_placement
         self.assertTrue(np.allclose(f.placement.homogeneous, new_placement.homogeneous))
+
+    def test_getters(self):
+        data = self.model.createData()
+        q = pin.randomConfiguration(self.model)
+        v = np.random.rand(self.model.nv)
+        a = np.random.rand(self.model.nv)
+        pin.forwardKinematics(self.model, data, q, v, a)
+
+        T = pin.updateFramePlacement(self.model, data, self.frame_idx)
+        self.assertApprox(T, data.oMi[self.parent_idx].act(self.frame_placement))
+
+        v = pin.getFrameVelocity(self.model, data, self.frame_idx)
+        self.assertApprox(v, self.frame_placement.actInv(data.v[self.parent_idx]))
+        v = pin.getFrameVelocity(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL)
+        self.assertApprox(v, self.frame_placement.actInv(data.v[self.parent_idx]))
+        v = pin.getFrameVelocity(self.model, data, self.frame_idx, pin.ReferenceFrame.WORLD)
+        self.assertApprox(v, data.oMi[self.parent_idx].act(data.v[self.parent_idx]))
+        v = pin.getFrameVelocity(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
+        self.assertApprox(v, pin.SE3(T.rotation, np.zeros(3)).act(self.frame_placement.actInv(data.v[self.parent_idx])))
+
+        a = pin.getFrameAcceleration(self.model, data, self.frame_idx)
+        self.assertApprox(a, self.frame_placement.actInv(data.a[self.parent_idx]))
+        a = pin.getFrameAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL)
+        self.assertApprox(a, self.frame_placement.actInv(data.a[self.parent_idx]))
+        a = pin.getFrameAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.WORLD)
+        self.assertApprox(a, data.oMi[self.parent_idx].act(data.a[self.parent_idx]))
+        a = pin.getFrameAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
+        self.assertApprox(a, pin.SE3(T.rotation, np.zeros(3)).act(self.frame_placement.actInv(data.a[self.parent_idx])))
+
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.WORLD)
+        a = pin.getFrameClassicalAcceleration(self.model, data, self.frame_idx, pin.ReferenceFrame.LOCAL_WORLD_ALIGNED)
 
 if __name__ == '__main__':
     unittest.main()

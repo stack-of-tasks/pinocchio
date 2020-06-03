@@ -11,13 +11,18 @@
 
 namespace pinocchio
 {
+// Avoid deprecated warning of collisionObjects
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
 #ifdef PINOCCHIO_WITH_HPP_FCL
   , distanceRequest(true)
+  , distanceRequests(geom_model.collisionPairs.size(), hpp::fcl::DistanceRequest(true))
   , distanceResults(geom_model.collisionPairs.size())
   , collisionRequest(::hpp::fcl::NO_REQUEST,1)
+  , collisionRequests(geom_model.collisionPairs.size(), hpp::fcl::CollisionRequest(::hpp::fcl::NO_REQUEST,1))
   , collisionResults(geom_model.collisionPairs.size())
   , radius()
   , collisionPairIndex(0)
@@ -31,9 +36,40 @@ namespace pinocchio
     {
       collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
     }
+    BOOST_FOREACH(hpp::fcl::CollisionRequest & creq, collisionRequests)
+    {
+      creq.enable_cached_gjk_guess = true;
+    }
+#if HPP_FCL_VERSION_AT_LEAST(1, 4, 5)
+    BOOST_FOREACH(hpp::fcl::DistanceRequest & dreq, distanceRequests)
+    {
+      dreq.enable_cached_gjk_guess = true;
+    }
+#endif
 #endif
     fillInnerOuterObjectMaps(geom_model);
   }
+
+  inline GeometryData::GeometryData(const GeometryData & other)
+  : oMg (other.oMg)
+  , activeCollisionPairs (other.activeCollisionPairs)
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  , collisionObjects (other.collisionObjects)
+  , distanceRequest (other.distanceRequest)
+  , distanceRequests (other.distanceRequests)
+  , distanceResults (other.distanceResults)
+  , collisionRequest (other.collisionRequest)
+  , collisionRequests (other.collisionRequests)
+  , collisionResults (other.collisionResults)
+  , radius (other.radius)
+  , collisionPairIndex (other.collisionPairIndex)
+#endif // PINOCCHIO_WITH_HPP_FCL
+  , innerObjects (other.innerObjects)
+  , outerObjects (other.outerObjects)
+  {}
+
+  inline GeometryData::~GeometryData() {}
+#pragma GCC diagnostic pop
 
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
