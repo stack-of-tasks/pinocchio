@@ -160,8 +160,7 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to the contact forces")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to the contact impulses")
         .ADD_DATA_PROPERTY(contact_chol,"Contact Cholesky decomposition.")
-        .ADD_DATA_PROPERTY(contact_forces,"Contact forces")
-        
+
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(staticRegressor,"Static regressor.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(jointTorqueRegressor,"Joint torque regressor.")
