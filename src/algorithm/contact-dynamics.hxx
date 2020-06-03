@@ -314,9 +314,6 @@ namespace pinocchio
 
     data.lambda_c = -contact_vector_solution.head(contact_chol.constraintDim());
     
-    //Set contact forces to zero
-    std::fill(data.contact_forces.begin(), data.contact_forces.end(), Force::Zero());
-    
     // Retrieve the contact forces
     Eigen::DenseIndex current_row_sol_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
