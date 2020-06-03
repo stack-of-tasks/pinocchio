@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnboundedUnaligned)
     Data dataRUX(modelRUX);
     Data dataRevoluteUnboundedUnaligned(modelRevoluteUboundedUnaligned);
     
-    Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRUX.nq);
+    Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRUX.nq); q.normalize();
     TangentVector v = TangentVector::Ones (modelRUX.nv);
     Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRUX.nv);
     Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUboundedUnaligned.nv);
