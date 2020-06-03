@@ -150,7 +150,7 @@ namespace pinocchio
         MatrixType & res_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res);
         OSIMinv_tmp.noalias() = D.head(constraintDim()).asDiagonal() * U1.adjoint();
         res_.noalias() = -U1 * OSIMinv_tmp;
-        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
       
       ///
