@@ -43,7 +43,6 @@ jobs:
         set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
-        type C:\Miniconda\envs\pinocchio\Library\include\urdf_sensor\sensor.h
     
         :: start building
         mkdir build
@@ -59,4 +58,7 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         cmake --build . --config Release --target install
+        cd unittest\Release
+        test-cpp-urdf
+        cd ..\..
         ctest --output-on-failure -C Release
