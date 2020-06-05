@@ -58,5 +58,5 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         cmake --build . --config Release --target install
-        set PATH=%PATH%;%CONDA_PREFIX%\Library\lib
+        set PATH=%PATH%;%CONDA_PREFIX%\Library\lib;%CONDA_PREFIX%\Lib\site-packages\pinocchio
         ctest --output-on-failure -C Release
