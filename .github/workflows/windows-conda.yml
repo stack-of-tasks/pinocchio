@@ -58,7 +58,5 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         cmake --build . --config Release --target install
-        cd unittest\Release
-        test-cpp-urdf
-        cd ..\..
+        set PATH=%PATH%;%CONDA_PREFIX%\Library\lib
         ctest --output-on-failure -C Release
