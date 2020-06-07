@@ -343,13 +343,13 @@ namespace pinocchio
 
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
 
-      void PINOCCHIO_DLLEXPORT parseRootTree(const ::urdf::ModelInterface * urdfTree,
+      void PINOCCHIO_DLLAPI parseRootTree(const ::urdf::ModelInterface * urdfTree,
                                              UrdfVisitorBase & model);
 
-      void PINOCCHIO_DLLEXPORT parseRootTree(const std::string & filename,
+      void PINOCCHIO_DLLAPI parseRootTree(const std::string & filename,
                                              UrdfVisitorBase & model);
 
-      void PINOCCHIO_DLLEXPORT parseRootTreeFromXML(const std::string & xmlString,
+      void PINOCCHIO_DLLAPI parseRootTreeFromXML(const std::string & xmlString,
                                                     UrdfVisitorBase & model);
     }
 
