@@ -1,0 +1,11 @@
+name: pinocchio
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  - eigen
+  - numpy
+  - boost
+  - eigenpy
+  - urdfdom
+  - python

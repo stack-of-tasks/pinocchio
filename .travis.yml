@@ -52,11 +52,8 @@ install:
   - pip install --user numpy
 script:
   - export CMAKE_ADDITIONAL_OPTIONS="-DCMAKE_BUILD_TYPE=${BUILDTYPE} -DBUILD_WITH_COLLISION_SUPPORT=${BUILD_WITH_COLLISION_SUPPORT} -DBUILD_ADVANCED_TESTING=ON"
-  - sudo free -m -t
+  - export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH
   - travis_wait 60 ./.travis/run ../travis_custom/custom_build
 after_failure: ./.travis/run after_failure
 after_success:
   - ./.travis/run after_success
-  #- export PYTHONPATH=$install_dir/lib/python2.7/site-packages
-  #- coveralls-lcov -v -n $build_dir/coverage.info > coverage.json
-  - export PYTHONPATH=$PYHTONPATH:/tmp/_ci/install/lib/python2.7/site-packages:/usr/lib/python2.7/dist-packages

@@ -8,6 +8,12 @@
 // Forward declaration of the main pinocchio namespace
 namespace pinocchio {}
 
+#ifdef _WIN32
+  #include <windows.h>
+  #undef far
+  #undef near
+#endif
+
 #include "pinocchio/macros.hpp"
 #include "pinocchio/deprecation.hpp"
 #include "pinocchio/warning.hpp"
@@ -18,9 +24,12 @@ namespace pinocchio {}
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
+// Import Eigen and all the required modules
 #include <Eigen/Core>
-
 #include "pinocchio/eigen-macros.hpp"
+#ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+  #include <unsupported/Eigen/CXX11/Tensor>
+#endif
 
 #include "pinocchio/core/binary-op.hpp"
 #include "pinocchio/core/unary-op.hpp"
