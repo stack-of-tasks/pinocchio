@@ -57,6 +57,27 @@ namespace Eigen
       }
     };
   }
+  namespace numext
+  {
+    template<typename Scalar>
+    EIGEN_DEVICE_FUNC
+    EIGEN_ALWAYS_INLINE CppAD::cg::CG<Scalar> mini(const CppAD::cg::CG<Scalar>& x, const CppAD::cg::CG<Scalar>& y)
+    {
+      using ::pinocchio::internal::if_then_else;
+      using ::pinocchio::internal::LT;
+      return if_then_else(LT, y, x, y, x);
+    }
+
+    template<typename Scalar>
+    EIGEN_DEVICE_FUNC
+    EIGEN_ALWAYS_INLINE CppAD::cg::CG<Scalar> maxi(const CppAD::cg::CG<Scalar>& x, const CppAD::cg::CG<Scalar>& y)
+    {
+      using ::pinocchio::internal::if_then_else;
+      using ::pinocchio::internal::LT;
+      return if_then_else(LT, x, y, y, x);
+    }
+  }
+  
 } // namespace Eigen
 
 namespace CppAD
