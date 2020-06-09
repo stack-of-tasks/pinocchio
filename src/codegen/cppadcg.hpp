@@ -56,6 +56,15 @@ namespace Eigen
         return x.getValue();
       }
     };
+
+    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::cg::CG<Scalar>
+    pmin(const CppAD::cg::CG<Scalar>& a, const CppAD::cg::CG<Scalar>& b)
+    { return numext::mini(a, b); }
+    
+    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::cg::CG<Scalar>
+    pmax(const CppAD::cg::CG<Scalar>& a, const CppAD::cg::CG<Scalar>& b)
+    { return numext::maxi(a, b); }
+    
   }
   namespace numext
   {
