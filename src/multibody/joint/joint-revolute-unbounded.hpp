@@ -5,6 +5,7 @@
 #ifndef __pinocchio_joint_revolute_unbounded_hpp__
 #define __pinocchio_joint_revolute_unbounded_hpp__
 
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"

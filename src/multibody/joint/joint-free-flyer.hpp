@@ -11,6 +11,8 @@
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/constraint.hpp"
+
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
