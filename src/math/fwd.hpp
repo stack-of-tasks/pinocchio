@@ -5,7 +5,7 @@
 #ifndef __pinocchio_math_fwd_hpp__
 #define __pinocchio_math_fwd_hpp__
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/traits.hpp"
 #include <math.h>
 #include <boost/math/constants/constants.hpp>
 
