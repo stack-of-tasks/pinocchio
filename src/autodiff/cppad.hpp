@@ -15,7 +15,7 @@
 #ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
   #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
-
+#include "pinocchio/autodiff/cppad/minmax.hpp"
 #include <cppad/cppad.hpp>
 #include <Eigen/Dense>
 
@@ -146,27 +146,6 @@ namespace Eigen
     template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::AD<Scalar>
     pmax(const CppAD::AD<Scalar>& a, const CppAD::AD<Scalar>& b)
     { return numext::maxi(a, b); }
-  }
-  
-  namespace numext
-  {
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> mini(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, y, x, y, x);
-    }
-
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> maxi(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, x, y, y, x);
-    }
   }
 }
 
