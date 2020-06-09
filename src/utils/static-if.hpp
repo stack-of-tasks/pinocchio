@@ -5,7 +5,7 @@
 #ifndef __pinocchio_utils_static_if_hpp__
 #define __pinocchio_utils_static_if_hpp__
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/traits.hpp"
 
 namespace pinocchio
 {
