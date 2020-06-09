@@ -61,27 +61,6 @@ namespace Eigen
       }
     };
   }
-  
-  namespace numext
-  {
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> mini(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, y, x, y, x);
-    }
-
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> maxi(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, x, y, y, x);
-    }
-  }
 } //namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
@@ -155,6 +134,41 @@ namespace CppAD
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
+
+namespace Eigen
+{
+  namespace internal
+  {
+    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::AD<Scalar>
+    pmin(const CppAD::AD<Scalar>& a, const CppAD::AD<Scalar>& b)
+    { return numext::mini(a, b); }
+
+    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::AD<Scalar>
+    pmax(const CppAD::AD<Scalar>& a, const CppAD::AD<Scalar>& b)
+    { return numext::maxi(a, b); }
+  }
+  
+  namespace numext
+  {
+    template<typename Scalar>
+    EIGEN_DEVICE_FUNC
+    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> mini(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
+    {
+      using ::pinocchio::internal::if_then_else;
+      using ::pinocchio::internal::LT;
+      return if_then_else(LT, y, x, y, x);
+    }
+
+    template<typename Scalar>
+    EIGEN_DEVICE_FUNC
+    EIGEN_ALWAYS_INLINE CppAD::AD<Scalar> maxi(const CppAD::AD<Scalar>& x, const CppAD::AD<Scalar>& y)
+    {
+      using ::pinocchio::internal::if_then_else;
+      using ::pinocchio::internal::LT;
+      return if_then_else(LT, x, y, y, x);
+    }
+  }
+}
 
 namespace pinocchio
 {
