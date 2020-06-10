@@ -6,7 +6,26 @@
 #define __pinocchio_fwd_hpp__
 
 // Forward declaration of the main pinocchio namespace
-namespace pinocchio {}
+namespace pinocchio {
+
+  /// \brief Argument position.
+  ///        Used as template parameter to refer to an argument.
+  enum ArgumentPosition
+  {
+    ARG0 = 0,
+    ARG1 = 1,
+    ARG2 = 2,
+    ARG3 = 3,
+    ARG4 = 4
+  };
+  
+  enum AssignmentOperatorType
+  {
+    SETTO,
+    ADDTO,
+    RMTO
+  };
+}
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/deprecation.hpp"
