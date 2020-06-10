@@ -5,9 +5,9 @@
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
 #define __pinocchio_codegen_ccpadcg_hpp__
 
+#include "pinocchio/math/fwd.hpp"
 
 #include <cmath>
-#include "pinocchio/autodiff/cppad/minmax.hpp"
 #include <cppad/cg/support/cppadcg_eigen.hpp>
 
 #include "pinocchio/autodiff/cppad.hpp"
@@ -56,39 +56,7 @@ namespace Eigen
         return x.getValue();
       }
     };
-
-    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::cg::CG<Scalar>
-    pmin(const CppAD::cg::CG<Scalar>& a, const CppAD::cg::CG<Scalar>& b)
-    { return numext::mini(a, b); }
-    
-    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::cg::CG<Scalar>
-    pmax(const CppAD::cg::CG<Scalar>& a, const CppAD::cg::CG<Scalar>& b)
-    { return numext::maxi(a, b); }
-    
   }
-  namespace numext
-  { 
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::cg::CG<Scalar> mini(const CppAD::cg::CG<Scalar>& x,
-                                                   const CppAD::cg::CG<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, y, x, y, x);
-    }
-
-    template<typename Scalar>
-    EIGEN_DEVICE_FUNC
-    EIGEN_ALWAYS_INLINE CppAD::cg::CG<Scalar> maxi(const CppAD::cg::CG<Scalar>& x,
-                                                   const CppAD::cg::CG<Scalar>& y)
-    {
-      using ::pinocchio::internal::if_then_else;
-      using ::pinocchio::internal::LT;
-      return if_then_else(LT, x, y, y, x);
-    }
-  }
-  
 } // namespace Eigen
 
 namespace CppAD

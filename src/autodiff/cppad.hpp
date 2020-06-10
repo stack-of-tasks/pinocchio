@@ -5,6 +5,8 @@
 #ifndef __pinocchio_autodiff_ccpad_hpp__
 #define __pinocchio_autodiff_ccpad_hpp__
 
+#include "pinocchio/math/fwd.hpp"
+
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
 // to avoid redifinition of EIGEN_MATRIXBASE_PLUGIN for Eigen 3.3.0 and later
@@ -13,11 +15,9 @@
 #ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
   #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
-#include <cppad/cppad.hpp>
-#include "pinocchio/autodiff/cppad/minmax.hpp"
-#include <Eigen/Dense>
 
-#include "pinocchio/math/fwd.hpp"
+#include <cppad/cppad.hpp>
+#include <Eigen/Dense>
 
 namespace boost
 {
@@ -118,6 +118,9 @@ namespace Eigen
 } // namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
+#include "pinocchio/utils/static-if.hpp"
+
+
 namespace CppAD
 {
   // functions that return references
@@ -131,6 +134,23 @@ namespace CppAD
   {  return CppAD::AD<Base>(0.); }
   template <class Base> AD<Base> abs2(const AD<Base>& x)
   {  return x * x; }
+
+  template<typename Scalar>
+  AD<Scalar> min(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, y, x, y, x);
+  }
+  
+  template<typename Scalar>
+  AD<Scalar> max(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, x, y, y, x);
+  }
+  
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
