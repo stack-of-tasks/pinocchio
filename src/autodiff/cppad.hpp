@@ -5,9 +5,6 @@
 #ifndef __pinocchio_autodiff_ccpad_hpp__
 #define __pinocchio_autodiff_ccpad_hpp__
 
-#include "pinocchio/container/boost-container-limits.hpp"
-#include "pinocchio/math/fwd.hpp"
-
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
 // to avoid redifinition of EIGEN_MATRIXBASE_PLUGIN for Eigen 3.3.0 and later
@@ -19,6 +16,8 @@
 #include <cppad/cppad.hpp>
 #include "pinocchio/autodiff/cppad/minmax.hpp"
 #include <Eigen/Dense>
+
+#include "pinocchio/math/fwd.hpp"
 
 namespace boost
 {

@@ -5,6 +5,7 @@
 #ifndef __pinocchio_utils_static_if_hpp__
 #define __pinocchio_utils_static_if_hpp__
 
+#include <cstdlib>
 #include "pinocchio/traits.hpp"
 
 namespace pinocchio

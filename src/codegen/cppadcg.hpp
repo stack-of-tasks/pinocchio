@@ -5,8 +5,6 @@
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
 #define __pinocchio_codegen_ccpadcg_hpp__
 
-#include "pinocchio/container/boost-container-limits.hpp"
-#include "pinocchio/math/fwd.hpp"
 
 #include <cmath>
 #include "pinocchio/autodiff/cppad/minmax.hpp"

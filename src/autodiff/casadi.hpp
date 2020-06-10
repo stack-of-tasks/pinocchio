@@ -5,7 +5,6 @@
 #ifndef __pinocchio_autodiff_casadi_hpp__
 #define __pinocchio_autodiff_casadi_hpp__
 
-#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 
 #include <casadi/casadi.hpp>

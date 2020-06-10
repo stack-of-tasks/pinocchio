@@ -3,7 +3,6 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
 #include "pinocchio/algorithm/rnea.hpp"

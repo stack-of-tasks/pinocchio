@@ -8,7 +8,6 @@
 
 #include <iostream>
 
-#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/spatial/symmetric3.hpp"
 #include "pinocchio/spatial/force.hpp"
