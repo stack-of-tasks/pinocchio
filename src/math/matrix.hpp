@@ -5,7 +5,7 @@
 #ifndef __pinocchio_math_matrix_hpp__
 #define __pinocchio_math_matrix_hpp__
 
-#include "pinocchio/macros.hpp"
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 
 #include <Eigen/Core>

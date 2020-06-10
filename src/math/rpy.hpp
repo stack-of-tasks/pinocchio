@@ -5,6 +5,7 @@
 #ifndef __pinocchio_math_rpy_hpp__
 #define __pinocchio_math_rpy_hpp__
 
+#include "pinocchio/fwd.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
 
