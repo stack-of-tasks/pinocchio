@@ -5,6 +5,7 @@
 #ifndef __pinocchio_autodiff_ccpad_hpp__
 #define __pinocchio_autodiff_ccpad_hpp__
 
+#include "pinocchio/container/boost-container-limits.hpp"
 #include "pinocchio/math/fwd.hpp"
 
 // Do not include this file directly.
@@ -134,20 +135,6 @@ namespace CppAD
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
-
-namespace Eigen
-{
-  namespace internal
-  {
-    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::AD<Scalar>
-    pmin(const CppAD::AD<Scalar>& a, const CppAD::AD<Scalar>& b)
-    { return numext::mini(a, b); }
-
-    template<typename Scalar> EIGEN_DEVICE_FUNC inline CppAD::AD<Scalar>
-    pmax(const CppAD::AD<Scalar>& a, const CppAD::AD<Scalar>& b)
-    { return numext::maxi(a, b); }
-  }
-}
 
 namespace pinocchio
 {
