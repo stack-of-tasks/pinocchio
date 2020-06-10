@@ -31,11 +31,6 @@
 #endif
 
 
-namespace CppAD
-{
-  template<typename Scalar> struct AD;
-}
-
 namespace Eigen
 {
   namespace numext

@@ -16,8 +16,8 @@
 #ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
   #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
 #endif
-#include "pinocchio/autodiff/cppad/minmax.hpp"
 #include <cppad/cppad.hpp>
+#include "pinocchio/autodiff/cppad/minmax.hpp"
 #include <Eigen/Dense>
 
 namespace boost
