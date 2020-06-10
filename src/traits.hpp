@@ -1,3 +1,7 @@
+//
+// Copyright (c) 2018-2020 INRIA CNRS
+//
+
 #ifndef __pinocchio_traits_hpp__
 #define __pinocchio_traits_hpp__
 
@@ -18,25 +22,6 @@ namespace pinocchio
   ///        This class should be specialized for each types.
   ///
   template<typename NewScalar, class C> struct CastType;
-
-  /// \brief Argument position.
-  ///        Used as template parameter to refer to an argument.
-  enum ArgumentPosition
-  {
-    ARG0 = 0,
-    ARG1 = 1,
-    ARG2 = 2,
-    ARG3 = 3,
-    ARG4 = 4
-  };
-
-  enum AssignmentOperatorType
-  {
-    SETTO,
-    ADDTO,
-    RMTO
-  };
-
   
   
   /// \brief Return type undefined

@@ -1,3 +1,7 @@
+//
+// Copyright (c) 2020 CNRS INRIA
+//
+
 #ifndef __pinocchio_autodiff_cppad_minmax_hpp__
 #define __pinocchio_autodiff_cppad_minmax_hpp__
 
