@@ -118,6 +118,9 @@ namespace Eigen
 } // namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
+#include "pinocchio/utils/static-if.hpp"
+
+
 namespace CppAD
 {
   // functions that return references
@@ -131,6 +134,23 @@ namespace CppAD
   {  return CppAD::AD<Base>(0.); }
   template <class Base> AD<Base> abs2(const AD<Base>& x)
   {  return x * x; }
+
+  template<typename Scalar>
+  AD<Scalar> min(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, y, x, y, x);
+  }
+  
+  template<typename Scalar>
+  AD<Scalar> max(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, x, y, y, x);
+  }
+  
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
