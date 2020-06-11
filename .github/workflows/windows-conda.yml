@@ -27,7 +27,7 @@ jobs:
     - uses: goanpeca/setup-miniconda@v1
       with:
         activate-environment: pinocchio
-        environment-file: .github/workflows/conda-env.yml
+        environment-file: .github/workflows/conda/conda-env.yml
         python-version: 3.7
     - name: Install cmake and update conda
       run: |
@@ -54,10 +54,12 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release ^
           -DPINOCCHIO_SITELIB_ROOT=%CONDA_PREFIX% ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
-          -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
+          -DBUILD_WITH_URDF_SUPPORT=ON ^
+          -DBUILD_PYTHON_INTERFACE=ON ^
+          -DBUILD_WITH_COLLISION_SUPPORT=ON ^
           ..
         cmake --build . --config Release --target install
 
         :: Testing
-        set PATH=%PATH%;%CONDA_PREFIX%\Library\lib;%CONDA_PREFIX%\Lib\site-packages\pinocchio
+        set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
         ctest --output-on-failure -C Release -V
