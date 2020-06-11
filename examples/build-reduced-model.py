@@ -6,12 +6,12 @@ import os
 
 # Load UR robot arm
 # This path refers to Pinocchio source code but you can define your own directory here.
-pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = os.join(dirname(dirname(str(abspath(__file__)))), "models")
 model_path = pinocchio_model_dir + '/others/robots'
 mesh_dir = model_path
 # You should change here to set up your own URDF file
 urdf_filename = model_path + '/ur_description/urdf/ur5_robot.urdf'
-model, collision_model, visual_model = pinocchio.buildModelsFromUrdf(urdf_model_path, mesh_dir)
+model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir)
 
 # Check dimensions of the original model
 print('standard model: dim=' + str(len(model.joints)))
@@ -30,7 +30,7 @@ for jn in jointsToLock:
         print('Warning: joint ' + str(jn) + ' does not belong to the model!')
 
 # Set initial position of both fixed and revoulte joints
-initialJointConfig = np.array([0,0,0,   # shoulder and elbow    
+initialJointConfig = np.array([0,0,0,   # shoulder and elbow
                                 1,1,1]) # gripper)
 
 # Option 1: Build the reduced model including the geometric model for proper displaying of the robot
@@ -43,4 +43,3 @@ model_reduced, visual_model_reduced = pin.buildReducedModel(model, visual_model,
 print('reduced model: dim=' + str(len(model_reduced.joints)))
 for jn in model_reduced.joints:
     print(jn)
-    
