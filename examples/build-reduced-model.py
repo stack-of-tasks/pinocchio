@@ -14,19 +14,19 @@ robot = RobotWrapper.BuildFromURDF(modelPath + URDF_SUBPATH, [modelPath])
 
 # Check dimensions of the original model
 print('standard model: dim=' + str(len(robot.model.joints)))
-for jn in range(len(robot.model.joints)):
-    print(robot.model.joints[jn])
+for jn in robot.model.joints:
+    print(jn)
 
 # Create a list of joints to lock
 jointsToLock = ['wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint']
 
 # Get the ID of all existing joints
 jointsToLockIDs = []
-for jn in range(len(jointsToLock)):
-    if robot.model.existJointName(jointsToLock[jn]):
-        jointsToLockIDs.append(robot.model.getJointId(jointsToLock[jn]))
+for jn in jointsToLock:
+    if robot.model.existJointName(jn):
+        jointsToLockIDs.append(robot.model.getJointId(jn))
     else:
-        print('Warning: joint ' + str(jointsToLock[jn]) + ' does not belong to the model!')
+        print('Warning: joint ' + str(jn) + ' does not belong to the model!')
 
 # Set initial position of both fixed and revoulte joints 
 initialJointConfig = np.matrix([0,0,0,    # shoulder and elbow      
@@ -40,5 +40,5 @@ robot.model, robot.visual_model = pin.buildReducedModel(robot.model, robot.visua
 
 # Check dimensions of the reduced model
 print('reduced model: dim=' + str(len(robot.model.joints)))
-for jn in range(len(robot.model.joints)):
-    print(robot.model.joints[jn])
+for jn in robot.model.joints:
+    print(jn)
