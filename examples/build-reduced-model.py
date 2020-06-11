@@ -1,11 +1,16 @@
 import pinocchio as pin
+from pinocchio.robot_wrapper import RobotWrapper
 import example_robot_data
 import numpy as np
+import os
 
 # Goal: Build a reduced model from an existing URDF model by fixing the desired joints at a specified position.
 
 # Load UR robot arm
-robot = example_robot_data.loadUR()
+modelPath = os.path.join(os.environ.get('HOME'), "Dev")
+URDF_FILENAME = "ur5_robot.urdf"
+URDF_SUBPATH = "/ur_description/urdf/" + URDF_FILENAME
+robot = RobotWrapper.BuildFromURDF(modelPath + URDF_SUBPATH, [modelPath])
 
 # Check dimensions of the original model
 print('standard model: dim=' + str(len(robot.model.joints)))
