@@ -29,8 +29,8 @@ for jn in jointsToLock:
         print('Warning: joint ' + str(jn) + ' does not belong to the model!')
 
 # Set initial position of both fixed and revoulte joints 
-initialJointConfig = np.matrix([0,0,0,    # shoulder and elbow      
-                                1,1,1]).T # gripper)
+initialJointConfig = np.array([0,0,0,   # shoulder and elbow      
+                                1,1,1]) # gripper)
 
 # Option 1: Build the reduced model including the geometric model for proper displaying of the robot
 robot.model, robot.visual_model = pin.buildReducedModel(robot.model, robot.visual_model, jointsToLockIDs, initialJointConfig)
