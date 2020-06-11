@@ -44,11 +44,10 @@ jobs:
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
     
-        :: start building
+        :: Building
         mkdir build
         pushd build
 
-        set PKG_CONFIG_PATH=%CONDA_PREFIX%\Library\share\pkgconfig:%CONDA_PREFIX%\Library\share\pkgconfig
         cmake ^
           -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
@@ -58,5 +57,7 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON -DBUILD_PYTHON_INTERFACE=ON ^
           ..
         cmake --build . --config Release --target install
+
+        :: Testing
         set PATH=%PATH%;%CONDA_PREFIX%\Library\lib;%CONDA_PREFIX%\Lib\site-packages\pinocchio
-        ctest --output-on-failure -C Release
+        ctest --output-on-failure -C Release -V
