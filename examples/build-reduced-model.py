@@ -1,17 +1,17 @@
 import pinocchio as pin
 import numpy as np
-import os
+from os.path import*
 
 # Goal: Build a reduced model from an existing URDF model by fixing the desired joints at a specified position.
 
 # Load UR robot arm
 # This path refers to Pinocchio source code but you can define your own directory here.
-pinocchio_model_dir = os.join(dirname(dirname(str(abspath(__file__)))), "models")
+pinocchio_model_dir = join(dirname(os.dirname(str(abspath(__file__)))), "models")
 model_path = pinocchio_model_dir + '/others/robots'
 mesh_dir = model_path
 # You should change here to set up your own URDF file
 urdf_filename = model_path + '/ur_description/urdf/ur5_robot.urdf'
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir)
+model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_filename, mesh_dir)
 
 # Check dimensions of the original model
 print('standard model: dim=' + str(len(model.joints)))
