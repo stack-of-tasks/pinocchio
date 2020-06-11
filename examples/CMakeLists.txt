@@ -71,6 +71,7 @@ IF(BUILD_PYTHON_INTERFACE)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       overview-urdf
       gepetto-viewer
+      build-reduced-model
       meshcat-viewer
       meshcat-viewer-dae
       robot-wrapper-viewer
