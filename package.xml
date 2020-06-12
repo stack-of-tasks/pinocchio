@@ -6,7 +6,7 @@
   <!-- The maintainer listed here is for the ROS release to receive emails for the buildfarm. 
   Please check the repository URL for full list of authors and maintainers. -->
   <maintainer email="justin.carpentier@inria.fr">Justin Carpentier</maintainer>
-  <maintainer email="wolfgang@robots.ox.ac.uk">Wolfgang Merkt</maintainer>
+  <maintainer email="opensource@wolfgangmerkt.com">Wolfgang Merkt</maintainer>
   <license>BSD</license>
 
   <url type="website">https://github.com/stack-of-tasks/pinocchio</url>
