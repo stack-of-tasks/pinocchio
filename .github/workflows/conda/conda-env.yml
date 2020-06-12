@@ -4,6 +4,7 @@ channels:
   - nodefaults
 dependencies:
   - eigen
+  - hpp-fcl
   - numpy
   - boost
   - eigenpy
