@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_utils_code_generator_base_hpp__
@@ -9,8 +9,6 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
-
-#ifdef PINOCCHIO_WITH_CPPADCG_SUPPORT
 
 namespace pinocchio
 {
@@ -177,7 +175,5 @@ namespace pinocchio
   }; // struct CodeGenBase
   
 } // namespace pinocchio
-
-#endif // PINOCCHIO_WITH_CPPADCG_SUPPORT
 
 #endif // ifndef __pinocchio_utils_code_generator_base_hpp__
