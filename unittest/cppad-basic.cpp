@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ad_X.resize(2);
     ad_Y.resize(2);
 
-    Eigen::Matrix2d x_test(-1,1);
-    Eigen::Matrix2d y_test = x_test.array().min(Scalar(0.));
+    Eigen::Vector2d x_test(-1,1);
+    Eigen::Vector2d y_test = x_test.array().min(Scalar(0.));
     
     CppAD::Independent(ad_X);
     //Function
@@ -191,11 +191,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     CppAD::ADFun<Scalar> ad_fun(ad_X,ad_Y);
 
     CPPAD_TESTVECTOR(Scalar) x((size_t)2);
-    Eigen::Map<Eigen::Matrix2d>(x.data(),2,1) = x_test;
+    Eigen::Map<Eigen::Vector2d>(x.data(),2,1) = x_test;
 
     CPPAD_TESTVECTOR(Scalar) y = ad_fun.Forward(0,x);
 
-    BOOST_CHECK(Eigen::Map<Eigen::Matrix2d>(y.data(),2,1).isApprox(y_test));
+    BOOST_CHECK(Eigen::Map<Eigen::Vector2d>(y.data(),2,1).isApprox(y_test));
   }
 
   BOOST_AUTO_TEST_CASE(test_eigen_max)
@@ -209,8 +209,8 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ad_X.resize(2);
     ad_Y.resize(2);
 
-    Eigen::Matrix2d x_test(-1,1);
-    Eigen::Matrix2d y_test = x_test.array().max(Scalar(0.));
+    Eigen::Vector2d x_test(-1,1);
+    Eigen::Vector2d y_test = x_test.array().max(Scalar(0.));
     
     CppAD::Independent(ad_X);
     //Function
@@ -218,11 +218,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     CppAD::ADFun<Scalar> ad_fun(ad_X,ad_Y);
 
     CPPAD_TESTVECTOR(Scalar) x((size_t)2);
-    Eigen::Map<Eigen::Matrix2d>(x.data(),2,1) = x_test;
+    Eigen::Map<Eigen::Vector2d>(x.data(),2,1) = x_test;
 
     CPPAD_TESTVECTOR(Scalar) y = ad_fun.Forward(0,x);
 
-    BOOST_CHECK(Eigen::Map<Eigen::Matrix2d>(y.data(),2,1).isApprox(y_test));
+    BOOST_CHECK(Eigen::Map<Eigen::Vector2d>(y.data(),2,1).isApprox(y_test));
   }
 
 
