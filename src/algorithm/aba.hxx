@@ -1,13 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS, INRIA
 //
 
 #ifndef __pinocchio_aba_hxx__
 #define __pinocchio_aba_hxx__
-
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-  #include "pinocchio/autodiff/cppad.hpp"
-#endif
 
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"

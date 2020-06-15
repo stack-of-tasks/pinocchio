@@ -5,6 +5,8 @@
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
 #define __pinocchio_codegen_ccpadcg_hpp__
 
+#define PINOCCHIO_WITH_CPPADCG_SUPPORT
+
 #include "pinocchio/math/fwd.hpp"
 
 #include <cmath>
