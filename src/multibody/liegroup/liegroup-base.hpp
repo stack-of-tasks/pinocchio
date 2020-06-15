@@ -447,6 +447,16 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
                              const Eigen::MatrixBase<ConfigR_t> & q1,
                              const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
+
+    bool operator== (const LieGroupBase& other) const
+    {
+      return derived().isEqual_impl(other.derived());
+    }
+
+    bool operator!= (const LieGroupBase& other) const
+    {
+      return derived().isDifferent_impl(other.derived());
+    }
     /// \}
 
     /// \name API that allocates memory
@@ -494,6 +504,15 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1,
                                   const Scalar & prec) const;
+ 
+    /// \brief Default equality check.
+    /// By default, two LieGroupBase of same type are considered equal.
+    bool isEqual_impl (const LieGroupBase& /*other*/) const { return true; }
+    bool isDifferent_impl (const LieGroupBase& other) const
+    {
+      return !derived().isEqual_impl(other.derived());
+    }
+
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is

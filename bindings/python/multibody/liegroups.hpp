@@ -121,6 +121,7 @@ public:
 
     .def(bp::self * bp::self)
     .def(bp::self *= bp::self)
+    .def(bp::self == bp::self)
     ;
   }
 

@@ -215,6 +215,11 @@ namespace pinocchio
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
     }
+
+    bool isEqual_impl (const VectorSpaceOperationTpl& other) const
+    {
+      return size_.value() == other.size_.value();
+    }
     
   private:
     

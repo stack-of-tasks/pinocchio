@@ -70,6 +70,18 @@ operator*= (const CartesianProductOperationVariantTpl& other)
   return *this;
 }
 
+template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
+bool CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
+isEqual_impl (const CartesianProductOperationVariantTpl& other) const
+{
+  if (liegroups.size() != other.liegroups.size())
+    return false;
+  for(size_t k = 0; k < liegroups.size(); ++k)
+    if (liegroups[k].isDifferent_impl(other.liegroups[k]))
+      return false;
+  return true;
+}
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_cartesian_product_variant_hxx__

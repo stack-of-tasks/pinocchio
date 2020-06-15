@@ -39,6 +39,24 @@ namespace pinocchio
         return boost::apply_visitor(Visitor(args),lg);
       }
     };
+
+    struct LieGroupEqual : public boost::static_visitor<bool>
+    {
+      template <typename T, typename U>
+      bool operator()( const T &, const U & ) const
+      {
+        // Should we handle
+        // - dynamic size vector space versus static size vector space
+        // - dynamic versus static cartesian product
+        return false;
+      }
+
+      template <typename T>
+      bool operator()( const T & lhs, const T & rhs ) const
+      {
+        return lhs == rhs;
+      }
+    };
   }
 
 #define PINOCCHIO_LG_CHECK_VECTOR_SIZE(type,var,exp_size)                      \

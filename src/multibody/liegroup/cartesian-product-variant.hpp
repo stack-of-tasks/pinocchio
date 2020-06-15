@@ -388,6 +388,8 @@ namespace pinocchio
       return true;
     }
 
+    bool isEqual_impl (const CartesianProductOperationVariantTpl& other) const;
+
   protected:
     
     std::vector<LieGroupGeneric> liegroups;
