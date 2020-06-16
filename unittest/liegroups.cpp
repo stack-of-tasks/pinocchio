@@ -27,6 +27,19 @@ using namespace pinocchio;
 #define VERBOSE false
 #define IFVERBOSE if(VERBOSE)
 
+namespace pinocchio {
+template<typename Derived>
+std::ostream& operator<< (std::ostream& os, const LieGroupBase<Derived>& lg)
+{
+  return os << lg.name();
+}
+template<typename LieGroupCollection>
+std::ostream& operator<< (std::ostream& os, const LieGroupGenericTpl<LieGroupCollection>& lg)
+{
+  return os << lg.name();
+}
+} // namespace pinocchio
+
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
@@ -698,6 +711,31 @@ struct TestLieGroupVariantVisitor
 BOOST_AUTO_TEST_CASE(test_liegroup_variant)
 {
   boost::mpl::for_each<LieGroupCollectionDefault::LieGroupVariant::types>(TestLieGroupVariantVisitor<LieGroupCollectionDefault>());
+}
+
+template<typename Lg1, typename Lg2>
+void test_liegroup_variant_equal(Lg1 lg1, Lg2 lg2)
+{
+  typedef LieGroupGenericTpl<LieGroupCollectionDefault> LieGroupGeneric;
+  BOOST_CHECK_EQUAL(LieGroupGeneric(lg1), LieGroupGeneric(lg2));
+}
+
+template<typename Lg1, typename Lg2>
+void test_liegroup_variant_not_equal(Lg1 lg1, Lg2 lg2)
+{
+  typedef LieGroupGenericTpl<LieGroupCollectionDefault> LieGroupGeneric;
+  BOOST_CHECK_PREDICATE( std::not_equal_to<LieGroupGeneric>(),
+      (LieGroupGeneric(lg1))(LieGroupGeneric(lg2)) );
+}
+
+BOOST_AUTO_TEST_CASE(test_liegroup_variant_comparison)
+{
+  test_liegroup_variant_equal(
+      VectorSpaceOperationTpl<1, double>(),
+      VectorSpaceOperationTpl<Eigen::Dynamic, double>(1));
+  test_liegroup_variant_not_equal(
+      VectorSpaceOperationTpl<1, double>(),
+      VectorSpaceOperationTpl<Eigen::Dynamic, double>(2));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

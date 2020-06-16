@@ -390,6 +390,9 @@ namespace pinocchio
 
     bool isEqual_impl (const CartesianProductOperationVariantTpl& other) const;
 
+    template <typename LieGroup1, typename LieGroup2>
+    bool isEqual(const CartesianProductOperation<LieGroup1, LieGroup2> & other) const;
+
   protected:
     
     std::vector<LieGroupGeneric> liegroups;

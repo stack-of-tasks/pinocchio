@@ -252,6 +252,11 @@ namespace pinocchio
         &&   lg2.isSameConfiguration(Q2(q0), Q2(q1), prec);
     }
 
+    bool isEqual_impl (const CartesianProductOperation& other) const
+    {
+      return lg1 == other.lg1 && lg2 == other.lg2;
+    }
+
     LieGroup1 lg1;
     LieGroup2 lg2;
 

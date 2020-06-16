@@ -51,11 +51,21 @@ namespace pinocchio
 
     bool isEqual_impl (const LieGroupGenericTpl& other) const
     {
-      return boost::apply_visitor(visitor::LieGroupEqual(), toVariant(), other.toVariant());
+      return boost::apply_visitor(visitor::LieGroupEqual<Scalar, Options>(), toVariant(), other.toVariant());
     }
 
     int nq() const { return ::pinocchio::nq(*this); }
     int nv() const { return ::pinocchio::nv(*this); }
+
+    bool operator== (const LieGroupGenericTpl& other) const
+    {
+      return isEqual_impl(other);
+    }
+
+    bool operator!= (const LieGroupGenericTpl& other) const
+    {
+      return this->isDifferent_impl(other);
+    }
   };
   
 }

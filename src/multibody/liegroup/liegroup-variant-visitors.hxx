@@ -6,6 +6,7 @@
 #define __pinocchio_lie_group_variant_visitor_hxx__
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
+#include "pinocchio/multibody/liegroup/cartesian-product-variant.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 
 #include <string>
@@ -40,6 +41,7 @@ namespace pinocchio
       }
     };
 
+    template<typename Scalar, int Options>
     struct LieGroupEqual : public boost::static_visitor<bool>
     {
       template <typename T, typename U>
@@ -55,6 +57,45 @@ namespace pinocchio
       bool operator()( const T & lhs, const T & rhs ) const
       {
         return lhs == rhs;
+      }
+
+      /// \name Vector space comparison
+      /// \{
+      bool operator() (const VectorSpaceOperationTpl<Eigen::Dynamic, Scalar, Options> & lhs,
+                       const VectorSpaceOperationTpl<Eigen::Dynamic, Scalar, Options> & rhs ) const
+      {
+        return lhs == rhs;
+      }
+
+      template <int Dim>
+      bool operator() (const VectorSpaceOperationTpl<Dim, Scalar, Options> & lhs,
+                       const VectorSpaceOperationTpl<Eigen::Dynamic, Scalar, Options> & rhs ) const
+      {
+        return lhs.nq() == rhs.nq();
+      }
+
+      template <int Dim>
+      bool operator() (const VectorSpaceOperationTpl<Eigen::Dynamic, Scalar, Options> & lhs,
+                       const VectorSpaceOperationTpl<Dim, Scalar, Options> & rhs ) const
+      {
+        return lhs.nq() == rhs.nq();
+      }
+      /// \}
+
+      template <typename LieGroup1, typename LieGroup2,
+                template<typename,int> class LieGroupCollectionTpl>
+      bool operator() (const CartesianProductOperation<LieGroup1, LieGroup2> & lhs,
+                       const CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionTpl> & rhs ) const
+      {
+        return rhs.isEqual(lhs);
+      }
+
+      template <typename LieGroup1, typename LieGroup2,
+                template<typename,int> class LieGroupCollectionTpl>
+      bool operator() (const CartesianProductOperationVariantTpl<Scalar, Options, LieGroupCollectionTpl> & lhs,
+                       const CartesianProductOperation<LieGroup1, LieGroup2> & rhs) const
+      {
+        return lhs.isEqual(rhs);
       }
     };
   }

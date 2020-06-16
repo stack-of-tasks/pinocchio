@@ -82,6 +82,20 @@ isEqual_impl (const CartesianProductOperationVariantTpl& other) const
   return true;
 }
 
+template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
+template <typename LieGroup1, typename LieGroup2>
+bool CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
+isEqual(const CartesianProductOperation<LieGroup1, LieGroup2> & other) const
+{
+  if (liegroups.size() != 2)
+    return false;
+  if (liegroups[0].isDifferent_impl(LieGroupGeneric(other.lg1)))
+    return false;
+  if (liegroups[1].isDifferent_impl(LieGroupGeneric(other.lg2)))
+    return false;
+  return true;
+}
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_cartesian_product_variant_hxx__
