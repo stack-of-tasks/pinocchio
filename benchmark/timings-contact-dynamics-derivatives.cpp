@@ -56,11 +56,11 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   
   RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidContactData cd_RF_6D;
+  RigidContactData cd_RF_6D(ci_RF_6D);
   //RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
   
   RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactData cd_LF_6D;
+  RigidContactData cd_LF_6D(ci_LF_6D);
   // RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
   
   //RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
@@ -68,12 +68,15 @@ int main(int argc, const char ** argv)
   
   // Define contact infos structure
   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
 
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_infos_empty);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_6D;
   contact_infos_6D.push_back(ci_RF_6D);
 
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D;
+  contact_datas_6D.push_back(cd_RF_6D);
   
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_infos_6D);
   
@@ -81,6 +84,11 @@ int main(int argc, const char ** argv)
   contact_infos_6D6D.push_back(ci_RF_6D);
   contact_infos_6D6D.push_back(ci_LF_6D);
 
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D6D;
+  contact_datas_6D6D.push_back(cd_RF_6D);
+  contact_datas_6D6D.push_back(cd_LF_6D);
+  
+  
   cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_infos_6D6D);
   
   std::cout << "nq = " << model.nq << std::endl;
@@ -115,10 +123,9 @@ int main(int argc, const char ** argv)
   initContactDynamics(model,data,contact_infos_empty);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_empty);
+    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_empty, contact_datas_empty);
     timer.tic();
-    computeContactDynamicsDerivatives(model, data,
-                                      contact_infos_empty);
+    computeContactDynamicsDerivatives(model, data, contact_infos_empty, contact_datas_empty);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
@@ -127,9 +134,9 @@ int main(int argc, const char ** argv)
   initContactDynamics(model,data,contact_infos_6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D);
+    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D, contact_datas_6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,contact_infos_6D);
+    computeContactDynamicsDerivatives(model,data,contact_infos_6D, contact_datas_6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
@@ -138,9 +145,9 @@ int main(int argc, const char ** argv)
   initContactDynamics(model,data,contact_infos_6D6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D);
+    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D, contact_datas_6D6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data, contact_infos_6D6D);
+    computeContactDynamicsDerivatives(model,data, contact_infos_6D6D, contact_datas_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
   std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
