@@ -7,7 +7,6 @@
 
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
-#include "pinocchio/multibody/liegroup/liegroup-variant-visitors.hpp"
 
 #include <vector>
 
@@ -82,20 +81,7 @@ namespace pinocchio
     ///
     /// \param[in] lg Lie group variant to insert inside the Cartesian product
     ///
-    void append(const LieGroupGeneric & lg)
-    {
-      liegroups.push_back(lg);
-      const Index lg_nq = ::pinocchio::nq(lg); lg_nqs.push_back(lg_nq); m_nq += lg_nq;
-      const Index lg_nv = ::pinocchio::nv(lg); lg_nvs.push_back(lg_nv); m_nv += lg_nv;
-      
-      if(liegroups.size() > 1)
-        m_name += " x ";
-      m_name += ::pinocchio::name(lg);
-      
-      m_neutral.conservativeResize(m_nq);
-      m_neutral.tail(lg_nq) = ::pinocchio::neutral(lg);
-      
-    }
+    void append(const LieGroupGeneric & lg);
 
     CartesianProductOperationVariantTpl operator* (const CartesianProductOperationVariantTpl& other) const;
 
@@ -117,276 +103,75 @@ namespace pinocchio
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
     void difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                          const Eigen::MatrixBase<ConfigR_t> & q1,
-                         const Eigen::MatrixBase<Tangent_t> & d) const
-    {
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::difference(liegroups[k],
-                         q0.segment(id_q,nq),
-                         q1.segment(id_q,nq),
-                         PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d).segment(id_v,nv));
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                         const Eigen::MatrixBase<Tangent_t> & d) const;
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
     void dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                           const Eigen::MatrixBase<ConfigR_t> & q1,
-                          const Eigen::MatrixBase<JacobianOut_t> & J) const
-    {
-      PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dDifference(liegroups[k],
-                         q0.segment(id_q,nq),
-                         q1.segment(id_q,nq),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).block(id_v,id_v,nv,nv),
-                         arg);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                          const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                         const Eigen::MatrixBase<Velocity_t> & v,
-                        const Eigen::MatrixBase<ConfigOut_t> & qout) const
-    {
-      ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::integrate(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         qout_.segment(id_q,nq));
-        
-        id_q += nq; id_v += nv;
-      }
-    }
-    
+                        const Eigen::MatrixBase<ConfigOut_t> & qout) const;
+
+    template <class Config_t, class Jacobian_t>
+    void integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
+                                         const Eigen::MatrixBase<Jacobian_t> & J) const;
+
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
                             const Eigen::MatrixBase<JacobianOut_t> & J,
-                            const AssignmentOperatorType op=SETTO) const
-    {
-      if (op == SETTO)
-        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrate(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).block(id_v,id_v,nv,nv),
-                         ARG0,
-                         op);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                            const AssignmentOperatorType op=SETTO) const;
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
                             const Eigen::MatrixBase<JacobianOut_t> & J,
-                            const AssignmentOperatorType op=SETTO) const
-    {
-      if (op == SETTO)
-        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrate(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).block(id_v,id_v,nv,nv),
-                         ARG1,
-                         op);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                            const AssignmentOperatorType op=SETTO) const;
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & J_in,
-                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
-    {
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrateTransport(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         J_in.middleRows(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out).middleRows(id_v,nv),
-                         ARG0);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const;
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & J_in,
-                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const
-    {
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrateTransport(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         J_in.middleRows(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out).middleRows(id_v,nv),
-                         ARG1);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                                     const Eigen::MatrixBase<JacobianOut_t> & J_out) const;
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
-                                     const Eigen::MatrixBase<JacobianOut_t> & J) const
-    {
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrateTransport(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).middleRows(id_v,nv),
-                         ARG0);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                                     const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
     template <class Config_t, class Tangent_t, class JacobianOut_t>
     void dIntegrateTransport_dv_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
-                                     const Eigen::MatrixBase<JacobianOut_t> & J) const
-    {
-      Index id_q = 0, id_v = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        const Index & nv = lg_nvs[k];
-        ::pinocchio::dIntegrateTransport(liegroups[k],
-                         q.segment(id_q,nq),
-                         v.segment(id_v,nv),
-                         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).middleRows(id_v,nv),
-                         ARG1);
-        
-        id_q += nq; id_v += nv;
-      }
-    }
+                                     const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                                const Eigen::MatrixBase<ConfigR_t> & q1) const
-    {
-      Scalar d2 = 0;
-      Index id_q = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        d2 += ::pinocchio::squaredDistance(liegroups[k],
-            q0.segment(id_q,nq),
-            q1.segment(id_q,nq));
-        id_q += nq;
-      }
-      return d2;
-    }
-    
-    template <class Config_t>
-    void normalize_impl (const Eigen::MatrixBase<Config_t>& qout) const
-    {
-      Index id_q = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        ::pinocchio::normalize(liegroups[k],
-            PINOCCHIO_EIGEN_CONST_CAST(Config_t, qout).segment(id_q,nq));
-        id_q += nq;
-      }
-    }
+                                const Eigen::MatrixBase<ConfigR_t> & q1) const;
 
     template <class Config_t>
-    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
-    {
-      Index id_q = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        ::pinocchio::random(liegroups[k],
-            PINOCCHIO_EIGEN_CONST_CAST(Config_t, qout).segment(id_q,nq));
-        id_q += nq;
-      }
-    }
+    void normalize_impl (const Eigen::MatrixBase<Config_t>& qout) const;
+
+    template <class Config_t>
+    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const;
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void randomConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & lower,
                                   const Eigen::MatrixBase<ConfigR_t> & upper,
-                                  const Eigen::MatrixBase<ConfigOut_t> & qout)
-      const
-    {
-      Index id_q = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        ::pinocchio::randomConfiguration(liegroups[k],
-                         lower.segment(id_q,nq),
-                         upper.segment(id_q,nq),
-                         PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t, qout).segment(id_q,nq));
-        
-        id_q += nq;
-      }
-    }
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout) const;
 
     template <class ConfigL_t, class ConfigR_t>
     bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1,
-                                  const Scalar & prec) const
-    {
-      Index id_q = 0;
-      for(size_t k = 0; k < liegroups.size(); ++k)
-      {
-        const Index & nq = lg_nqs[k];
-        if (!::pinocchio::isSameConfiguration(liegroups[k],
-                         q0.segment(id_q,nq),
-                         q0.segment(id_q,nq),
-                         prec))
-          return false;
-        
-        id_q += nq;
-      }
-      return true;
-    }
+                                  const Scalar & prec) const;
 
     bool isEqual_impl (const CartesianProductOperationVariantTpl& other) const;
 
