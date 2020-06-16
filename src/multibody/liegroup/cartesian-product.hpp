@@ -133,6 +133,7 @@ namespace pinocchio
         case SETTO:
           J12(J).setZero();
           J21(J).setZero();
+          // fallthrough
         case ADDTO:
         case RMTO:
           lg1.dIntegrate_dq(Q1(q), V1(v), J11(J),op);
@@ -155,6 +156,7 @@ namespace pinocchio
         case SETTO:
           J12(J).setZero();
           J21(J).setZero();
+          // fallthrough
         case ADDTO:
         case RMTO:
           lg1.dIntegrate_dv(Q1(q), V1(v), J11(J),op);
