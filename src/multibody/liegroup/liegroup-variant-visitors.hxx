@@ -223,15 +223,6 @@ namespace pinocchio
     return d2;
   }
 
-  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
-  inline typename ConfigL_t::Scalar
-  distance(const LieGroupGenericTpl<LieGroupCollection> & lg,
-           const Eigen::MatrixBase<ConfigL_t> & q0,
-           const Eigen::MatrixBase<ConfigR_t> & q1)
-  {
-    return std::sqrt(squaredDistance(lg, q0, q1));
-  }
-
 #undef PINOCCHIO_LG_VISITOR
 
 #define PINOCCHIO_LG_VISITOR(Name,_method)                                                        \
@@ -371,7 +362,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<Tangent_t>  & v,
                   const Eigen::MatrixBase<JacobianOut_t> & J,
                   const ArgumentPosition arg,
-                  const AssignmentOperatorType op = SETTO)
+                  const AssignmentOperatorType op)
   {
     PINOCCHIO_LG_CHECK_VECTOR_SIZE(Config_t, q, nq(lg));
     PINOCCHIO_LG_CHECK_VECTOR_SIZE(Tangent_t, v, nv(lg));
