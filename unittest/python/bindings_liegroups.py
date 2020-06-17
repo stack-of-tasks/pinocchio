@@ -1,9 +1,6 @@
 import unittest
 import pinocchio as pin
 import numpy as np
-from pinocchio.utils import eye,zero,rand
-
-ones = lambda n: np.ones([n, 1] if isinstance(n, int) else n)
 
 class TestLiegroupBindings(unittest.TestCase):
 

@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/liegroups.hpp"
+#include "pinocchio/bindings/python/utils/namespace.hpp"
 
 #include <eigenpy/memory.hpp>
 
@@ -36,17 +37,9 @@ void exposeLieGroups()
     CartesianProductOperationVariantTpl<double,0,LieGroupCollectionDefaultTpl>
     >::expose("LieGroup");
 
-  bp::scope current;
-  std::string submoduleName(bp::extract<const char*>(current.attr("__name__")));
-  submoduleName.append(".liegroups");
-
-  // Create the submodule, and attach it to the current scope.
-  bp::object submodule(bp::borrowed(PyImport_AddModule(submoduleName.c_str())));
-  current.attr("liegroups") = submodule;
-
   {
     // Switch the scope to the submodule, add methods and classes.
-    bp::scope submoduleScope = submodule;
+    bp::scope submoduleScope = getOrCreatePythonNamespace("liegroups");
 
     bp::def("R1", makeLieGroup<VectorSpaceOperationTpl<1,double,0> >);
     bp::def("R2", makeLieGroup<VectorSpaceOperationTpl<2,double,0> >);

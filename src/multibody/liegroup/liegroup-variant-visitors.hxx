@@ -452,7 +452,7 @@ namespace pinocchio
                      const ArgumentPosition arg,
                      const AssignmentOperatorType op)
     {
-      assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(arg==ARG0||arg==ARG1, "arg should be either ARG0 or ARG1");
       switch (arg) {
         case ARG0:
           if(dIntegrateOnTheLeft) lg.dIntegrate_dq(q, v, SELF, J_in, J_out, op);

@@ -53,7 +53,7 @@ namespace pinocchio
     ///
     /// \param[in] lg Lie group variant to insert inside the Cartesian product
     ///
-    CartesianProductOperationVariantTpl(const LieGroupGeneric & lg)
+    explicit CartesianProductOperationVariantTpl(const LieGroupGeneric & lg)
     : m_nq(0), m_nv(0)
     , lg_nqs(0), lg_nvs(0)
     , m_neutral(0)
