@@ -76,6 +76,50 @@ namespace pinocchio {
   }
 
   template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dq(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<JacobianIn_t> & Jin,
+      int self,
+      const Eigen::MatrixBase<JacobianOut_t> & Jout,
+      const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
+    assert(Jin.cols() == nv());
+    assert(Jout.cols() == nv());
+    assert(Jout.rows() == Jin.rows());
+    derived().dIntegrate_product_impl(
+        q.derived(), v.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        false, ARG0, op);
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dq(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      int self,
+      const Eigen::MatrixBase<JacobianIn_t> & Jin,
+      const Eigen::MatrixBase<JacobianOut_t> & Jout,
+      const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
+    assert(Jin.cols() == nv());
+    assert(Jout.cols() == nv());
+    assert(Jout.rows() == Jin.rows());
+    derived().dIntegrate_product_impl(
+        q.derived(), v.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        true, ARG0, op);
+  }
+
+  template <class Derived>
   template <class Config_t, class Tangent_t, class JacobianOut_t>
   void LieGroupBase<Derived>::dIntegrate_dv(
       const Eigen::MatrixBase<Config_t >  & q,
@@ -90,6 +134,50 @@ namespace pinocchio {
                                  v.derived(),
                                  PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),
                                  op);
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dv(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      const Eigen::MatrixBase<JacobianIn_t> & Jin,
+      int self,
+      const Eigen::MatrixBase<JacobianOut_t> & Jout,
+      const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
+    assert(Jin.cols() == nv());
+    assert(Jout.cols() == nv());
+    assert(Jout.rows() == Jin.rows());
+    derived().dIntegrate_product_impl(
+        q.derived(), v.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        false, ARG1, op);
+  }
+
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_dv(
+      const Eigen::MatrixBase<Config_t >  & q,
+      const Eigen::MatrixBase<Tangent_t>  & v,
+      int self,
+      const Eigen::MatrixBase<JacobianIn_t> & Jin,
+      const Eigen::MatrixBase<JacobianOut_t> & Jout,
+      const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
+    assert(Jin.cols() == nv());
+    assert(Jout.cols() == nv());
+    assert(Jout.rows() == Jin.rows());
+    derived().dIntegrate_product_impl(
+        q.derived(), v.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        true, ARG1, op);
   }
 
   template <class Derived>
@@ -406,6 +494,36 @@ namespace pinocchio {
   }
 
   // ----------------- Default implementations ------------------------------ //
+  template <class Derived>
+  template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dIntegrate_product_impl(
+      const Config_t & q,
+      const Tangent_t & v,
+      const JacobianIn_t & Jin,
+      JacobianOut_t & Jout,
+      bool dIntegrateOnTheLeft,
+      const ArgumentPosition arg,
+      const AssignmentOperatorType op) const
+  {
+    Index nv_ (nv());
+    JacobianMatrix_t J (nv_, nv_);
+    dIntegrate(q, v, J, arg);
+    switch (op) {
+      case SETTO:
+        if(dIntegrateOnTheLeft) Jout = J * Jin;
+        else                    Jout = Jin * J;
+        return;
+      case ADDTO:
+        if(dIntegrateOnTheLeft) Jout += J * Jin;
+        else                    Jout += Jin * J;
+        return;
+      case RMTO:
+        if(dIntegrateOnTheLeft) Jout -= J * Jin;
+        else                    Jout -= Jin * J;
+        return;
+    }
+  }
+
   template <class Derived>
   template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
   void LieGroupBase<Derived>::interpolate_impl(

@@ -11,6 +11,11 @@
 
 namespace pinocchio
 {
+#if __cplusplus >= 201103L
+  constexpr int SELF = 0;
+#else
+  enum { SELF = 0 };
+#endif
   
 #define PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
   typedef          LieGroupBase<Derived> Base;                        \
@@ -141,6 +146,22 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<JacobianOut_t> & J,
                        const AssignmentOperatorType op = SETTO) const;
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       int self,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       int self,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
      *
@@ -157,6 +178,22 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       int self,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       int self,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
                        const AssignmentOperatorType op = SETTO) const;
 
     /**
@@ -486,6 +523,15 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
 
     /// \name Default implementations
     /// \{
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_product_impl(const Config_t & q,
+                                 const Tangent_t & v,
+                                 const JacobianIn_t & Jin,
+                                 JacobianOut_t & Jout,
+                                 bool dIntegrateOnTheLeft,
+                                 const ArgumentPosition arg,
+                                 const AssignmentOperatorType op) const;
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

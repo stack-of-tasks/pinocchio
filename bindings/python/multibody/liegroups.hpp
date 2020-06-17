@@ -55,12 +55,55 @@ struct LieGroupWrapperTpl
     return J;
   }
 
-  static JacobianMatrix_t dIntegrate(const LieGroupType& lg,
-      const ConfigVector_t& q, const TangentVector_t& v,
-      const ArgumentPosition arg)
+  static JacobianMatrix_t dIntegrate_dq1(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v)
   {
     JacobianMatrix_t J (lg.nv(), lg.nv());
-    lg.dIntegrate(q, v, J, arg);
+    lg.dIntegrate_dq(q, v, J);
+    return J;
+  }
+
+  static JacobianMatrix_t dIntegrate_dq2(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v,
+      const JacobianMatrix_t& Jin, int self)
+  {
+    JacobianMatrix_t J (Jin.rows(), lg.nv());
+    lg.dIntegrate_dq(q, v, Jin, self, J, SETTO);
+    return J;
+  }
+
+  static JacobianMatrix_t dIntegrate_dq3(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v, int self,
+      const JacobianMatrix_t& Jin)
+  {
+    JacobianMatrix_t J (lg.nv(), Jin.cols());
+    lg.dIntegrate_dq(q, v, self, Jin, J, SETTO);
+    return J;
+  }
+
+  static JacobianMatrix_t dIntegrate_dv1(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v)
+  {
+    JacobianMatrix_t J (lg.nv(), lg.nv());
+    lg.dIntegrate_dv(q, v, J);
+    return J;
+  }
+
+  static JacobianMatrix_t dIntegrate_dv2(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v,
+      const JacobianMatrix_t& Jin, int self)
+  {
+    JacobianMatrix_t J (Jin.rows(), lg.nv());
+    lg.dIntegrate_dv(q, v, Jin, self, J, SETTO);
+    return J;
+  }
+
+  static JacobianMatrix_t dIntegrate_dv3(const LieGroupType& lg,
+      const ConfigVector_t& q, const TangentVector_t& v, int self,
+      const JacobianMatrix_t& Jin)
+  {
+    JacobianMatrix_t J (lg.nv(), Jin.cols());
+    lg.dIntegrate_dv(q, v, self, Jin, J, SETTO);
     return J;
   }
 
@@ -99,7 +142,12 @@ public:
     cl
     .def(bp::init<>("Default constructor"))
     .def("integrate", LieGroupWrapper::integrate)
-    .def("dIntegrate", LieGroupWrapper::dIntegrate)
+    .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq1)
+    .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq2)
+    .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq3)
+    .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv1)
+    .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv2)
+    .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv3)
     .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport1)
     .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport2)
 
