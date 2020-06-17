@@ -123,6 +123,26 @@ namespace pinocchio
                   const ArgumentPosition arg,
                   const AssignmentOperatorType op = SETTO);
 
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  int self,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op = SETTO);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  int self,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op = SETTO);
+
   template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
   void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
                    const Eigen::MatrixBase<ConfigL_t> & q0,

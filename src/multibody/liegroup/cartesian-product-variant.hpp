@@ -132,6 +132,15 @@ namespace pinocchio
                             const AssignmentOperatorType op=SETTO) const;
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_product_impl(const Config_t & q,
+                                 const Tangent_t & v,
+                                 const JacobianIn_t & Jin,
+                                 JacobianOut_t & Jout,
+                                 bool dIntegrateOnTheLeft,
+                                 const ArgumentPosition arg,
+                                 const AssignmentOperatorType op) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                                      const Eigen::MatrixBase<Tangent_t> & v,
                                      const Eigen::MatrixBase<JacobianIn_t> & J_in,

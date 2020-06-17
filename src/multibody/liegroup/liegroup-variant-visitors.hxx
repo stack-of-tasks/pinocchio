@@ -430,6 +430,84 @@ namespace pinocchio
 
 #undef PINOCCHIO_LG_VISITOR
 
+  template <class M1_t, class M2_t, class M3_t, class M4_t, bool dIntegrateOnTheLeft>
+  struct LieGroupDIntegrateProductVisitor
+  : visitor::LieGroupVisitorBase< LieGroupDIntegrateProductVisitor<M1_t, M2_t, M3_t, M4_t, dIntegrateOnTheLeft> >
+  {
+    typedef boost::fusion::vector<const M1_t &,
+                                  const M2_t &,
+                                  const M3_t &,
+                                  M4_t &,
+                                  const ArgumentPosition,
+                                  const AssignmentOperatorType> ArgsType;
+
+    LIE_GROUP_VISITOR(LieGroupDIntegrateProductVisitor);
+
+    template<typename LieGroupDerived>
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,
+                     const M1_t& q,
+                     const M2_t& v,
+                     const M3_t& J_in,
+                     M4_t& J_out,
+                     const ArgumentPosition arg,
+                     const AssignmentOperatorType op)
+    {
+      assert((arg==ARG0||arg==ARG1) && "arg should be either ARG0 or ARG1");
+      switch (arg) {
+        case ARG0:
+          if(dIntegrateOnTheLeft) lg.dIntegrate_dq(q, v, SELF, J_in, J_out, op);
+          else                    lg.dIntegrate_dq(q, v, J_in, SELF, J_out, op);
+          return;
+        case ARG1:
+          if(dIntegrateOnTheLeft) lg.dIntegrate_dv(q, v, SELF, J_in, J_out, op);
+          else                    lg.dIntegrate_dv(q, v, J_in, SELF, J_out, op);
+          return;
+        default:
+          return;
+      }
+    }
+  };
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  int self,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Config_t, q, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Tangent_t, v, nv(lg));
+
+    typedef LieGroupDIntegrateProductVisitor<Config_t, Tangent_t, JacobianIn_t, JacobianOut_t, false> Operation;
+    Operation::run(lg,typename Operation::ArgsType(
+          q.derived(),v.derived(),J_in.derived(),
+          PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out), arg, op));
+  }
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  int self,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Config_t, q, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Tangent_t, v, nv(lg));
+
+    typedef LieGroupDIntegrateProductVisitor<Config_t, Tangent_t, JacobianIn_t, JacobianOut_t, true> Operation;
+    Operation::run(lg,typename Operation::ArgsType(
+          q.derived(),v.derived(),J_in.derived(),
+          PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out), arg, op));
+  }
+
   template <class M1_t, class M2_t, class M3_t, class M4_t>
   struct LieGroupDIntegrateTransportVisitor
   : visitor::LieGroupVisitorBase< LieGroupDIntegrateTransportVisitor<M1_t, M2_t, M3_t, M4_t> >

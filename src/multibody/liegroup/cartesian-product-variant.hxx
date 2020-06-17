@@ -164,6 +164,43 @@ dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
 template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
 template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
+dIntegrate_product_impl(const Config_t & q,
+                        const Tangent_t & v,
+                        const JacobianIn_t & Jin,
+                        JacobianOut_t & Jout,
+                        bool dIntegrateOnTheLeft,
+                        const ArgumentPosition arg,
+                        const AssignmentOperatorType op) const
+{
+  Index id_q = 0, id_v = 0;
+  for(size_t k = 0; k < liegroups.size(); ++k)
+  {
+    const Index & nq = lg_nqs[k];
+    const Index & nv = lg_nvs[k];
+    if(dIntegrateOnTheLeft)
+      ::pinocchio::dIntegrate(liegroups[k],
+                       q.segment(id_q,nq),
+                       v.segment(id_v,nv),
+                       SELF,
+                       Jin.middleRows(id_v,nv),
+                       Jout.middleRows(id_v,nv),
+                       arg, op);
+    else
+      ::pinocchio::dIntegrate(liegroups[k],
+                       q.segment(id_q,nq),
+                       v.segment(id_v,nv),
+                       Jin.middleCols(id_v,nv),
+                       SELF,
+                       Jout.middleCols(id_v,nv),
+                       arg, op);
+
+    id_q += nq; id_v += nv;
+  }
+}
+
+template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
+template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & q,
                             const Eigen::MatrixBase<Tangent_t> & v,
                             const Eigen::MatrixBase<JacobianIn_t> & J_in,
