@@ -402,6 +402,48 @@ namespace pinocchio {
   }
 
   template <class Derived>
+  template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                                          const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                          int self,
+                                          const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                                          const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+    assert(Jin.cols() == nv());
+    assert(Jout.cols() == nv());
+    assert(Jout.rows() == Jin.rows());
+    derived().template dDifference_product_impl<arg>(
+        q0.derived(), q1.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        false, op);
+  }
+
+  template <class Derived>
+  template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                                          int self,
+                                          const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                                          const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                                          const AssignmentOperatorType op) const
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t, ConfigVector_t);
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t, ConfigVector_t);
+    assert(Jin.rows() == nv());
+    assert(Jout.rows() == nv());
+    assert(Jout.cols() == Jin.cols());
+    derived().template dDifference_product_impl<arg>(
+        q0.derived(), q1.derived(),
+        Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
+        true, op);
+  }
+
+  template <class Derived>
   template <class ConfigL_t, class ConfigR_t>
   typename LieGroupBase<Derived>::Scalar
   LieGroupBase<Derived>::squaredDistance(
@@ -520,6 +562,34 @@ namespace pinocchio {
       case RMTO:
         if(dIntegrateOnTheLeft) Jout -= J * Jin;
         else                    Jout -= Jin * J;
+        return;
+    }
+  }
+
+  template <class Derived>
+  template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void LieGroupBase<Derived>::dDifference_product_impl(const ConfigL_t & q0,
+                                                       const ConfigR_t & q1,
+                                                       const JacobianIn_t & Jin,
+                                                       JacobianOut_t & Jout,
+                                                       bool dDifferenceOnTheLeft,
+                                                       const AssignmentOperatorType op) const
+  {
+    Index nv_ (nv());
+    JacobianMatrix_t J (nv_, nv_);
+    dDifference<arg>(q0, q1, J);
+    switch (op) {
+      case SETTO:
+        if(dDifferenceOnTheLeft) Jout = J * Jin;
+        else                     Jout = Jin * J;
+        return;
+      case ADDTO:
+        if(dDifferenceOnTheLeft) Jout += J * Jin;
+        else                     Jout += Jin * J;
+        return;
+      case RMTO:
+        if(dDifferenceOnTheLeft) Jout -= J * Jin;
+        else                     Jout -= Jin * J;
         return;
     }
   }

@@ -427,10 +427,6 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Eigen::MatrixBase<JacobianOut_t> & J) const;
-//    {
-//      PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
-//      return dDifference(q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg);
-//    }
 
     /**
      *
@@ -448,6 +444,23 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Eigen::MatrixBase<JacobianOut_t> & J,
                      const ArgumentPosition arg) const;
+
+    template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                     int self,
+                     const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                     const AssignmentOperatorType op = SETTO) const;
+
+    template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     int self,
+                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                     const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                     const AssignmentOperatorType op = SETTO) const;
+
     /**
      * @brief      Squared distance between two joint configurations.
      *
@@ -532,6 +545,14 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                                  bool dIntegrateOnTheLeft,
                                  const ArgumentPosition arg,
                                  const AssignmentOperatorType op) const;
+
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference_product_impl(const ConfigL_t & q0,
+                                  const ConfigR_t & q1,
+                                  const JacobianIn_t & Jin,
+                                  JacobianOut_t & Jout,
+                                  bool dDifferenceOnTheLeft,
+                                  const AssignmentOperatorType op) const;
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

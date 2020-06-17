@@ -46,12 +46,50 @@ struct LieGroupWrapperTpl
     return lg.difference(q0,q1);
   }
 
-  static JacobianMatrix_t dDifference(const LieGroupType& lg,
+  static JacobianMatrix_t dDifference1(const LieGroupType& lg,
       const ConfigVector_t& q0, const ConfigVector_t& q1,
       const ArgumentPosition arg)
   {
     JacobianMatrix_t J (lg.nv(), lg.nv());
     lg.dDifference(q0, q1, J, arg);
+    return J;
+  }
+
+  static JacobianMatrix_t dDifference2(const LieGroupType& lg,
+      const ConfigVector_t& q0, const ConfigVector_t& q1,
+      const ArgumentPosition arg,
+      const JacobianMatrix_t& Jin, int self)
+  {
+    JacobianMatrix_t J (Jin.rows(), Jin.cols());
+    switch (arg) {
+      case ARG0:
+        lg.template dDifference<ARG0>(q0, q1, Jin, self, J, SETTO);
+        break;
+      case ARG1:
+        lg.template dDifference<ARG1>(q0, q1, Jin, self, J, SETTO);
+        break;
+      default:
+        throw std::invalid_argument("arg must be either ARG0 or ARG1");
+    }
+    return J;
+  }
+
+  static JacobianMatrix_t dDifference3(const LieGroupType& lg,
+      const ConfigVector_t& q0, const ConfigVector_t& q1,
+      const ArgumentPosition arg,
+      int self, const JacobianMatrix_t& Jin)
+  {
+    JacobianMatrix_t J (Jin.rows(), Jin.cols());
+    switch (arg) {
+      case ARG0:
+        lg.template dDifference<ARG0>(q0, q1, self, Jin, J, SETTO);
+        break;
+      case ARG1:
+        lg.template dDifference<ARG1>(q0, q1, self, Jin, J, SETTO);
+        break;
+      default:
+        throw std::invalid_argument("arg must be either ARG0 or ARG1");
+    }
     return J;
   }
 
@@ -152,7 +190,9 @@ public:
     .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport2)
 
     .def("difference", LieGroupWrapper::difference)
-    .def("dDifference", LieGroupWrapper::dDifference)
+    .def("dDifference", LieGroupWrapper::dDifference1)
+    .def("dDifference", LieGroupWrapper::dDifference2)
+    .def("dDifference", LieGroupWrapper::dDifference3)
 
     .def("interpolate", LieGroupWrapper::interpolate)
 

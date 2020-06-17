@@ -508,6 +508,69 @@ namespace pinocchio
           PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out), arg, op));
   }
 
+  template <class M1_t, class M2_t, class M3_t, class M4_t, bool dDifferenceOnTheLeft, ArgumentPosition arg>
+  struct LieGroupDDifferenceProductVisitor
+  : visitor::LieGroupVisitorBase< LieGroupDDifferenceProductVisitor<M1_t, M2_t, M3_t, M4_t, dDifferenceOnTheLeft, arg> >
+  {
+    typedef boost::fusion::vector<const M1_t &,
+                                  const M2_t &,
+                                  const M3_t &,
+                                  M4_t &,
+                                  const AssignmentOperatorType> ArgsType;
+
+    LIE_GROUP_VISITOR(LieGroupDDifferenceProductVisitor);
+
+    template<typename LieGroupDerived>
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,
+                     const M1_t& q0,
+                     const M2_t& q1,
+                     const M3_t& J_in,
+                     M4_t& J_out,
+                     const AssignmentOperatorType op)
+    {
+      if(dDifferenceOnTheLeft) lg.template dDifference<arg>(q0, q1, SELF, J_in, J_out, op);
+      else                     lg.template dDifference<arg>(q0, q1, J_in, SELF, J_out, op);
+    }
+  };
+
+  template<ArgumentPosition arg, typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                   const Eigen::MatrixBase<ConfigL_t> & q0,
+                   const Eigen::MatrixBase<ConfigR_t> & q1,
+                   const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                   int self,
+                   const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                   const AssignmentOperatorType op)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+
+    typedef LieGroupDDifferenceProductVisitor<ConfigL_t, ConfigR_t, JacobianIn_t, JacobianOut_t, false, arg> Operation;
+    Operation::run(lg,typename Operation::ArgsType(
+          q0.derived(),q1.derived(),J_in.derived(),
+          PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out), op));
+  }
+
+  template<ArgumentPosition arg, typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                   const Eigen::MatrixBase<ConfigL_t> & q0,
+                   const Eigen::MatrixBase<ConfigR_t> & q1,
+                   int self,
+                   const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                   const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                   const AssignmentOperatorType op)
+  {
+    PINOCCHIO_UNUSED_VARIABLE(self);
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigL_t, q0, nq(lg));
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(ConfigR_t, q1, nq(lg));
+
+    typedef LieGroupDDifferenceProductVisitor<ConfigL_t, ConfigR_t, JacobianIn_t, JacobianOut_t, true, arg> Operation;
+    Operation::run(lg,typename Operation::ArgsType(
+          q0.derived(),q1.derived(),J_in.derived(),
+          PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J_out), op));
+  }
+
   template <class M1_t, class M2_t, class M3_t, class M4_t>
   struct LieGroupDIntegrateTransportVisitor
   : visitor::LieGroupVisitorBase< LieGroupDIntegrateTransportVisitor<M1_t, M2_t, M3_t, M4_t> >

@@ -72,6 +72,42 @@ dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
 }
 
 template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
+template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
+dDifference_product_impl(const ConfigL_t & q0,
+                         const ConfigR_t & q1,
+                         const JacobianIn_t & Jin,
+                         JacobianOut_t & Jout,
+                         bool dDifferenceOnTheLeft,
+                         const AssignmentOperatorType op) const
+{
+  Index id_q = 0, id_v = 0;
+  for(size_t k = 0; k < liegroups.size(); ++k)
+  {
+    const Index & nq = lg_nqs[k];
+    const Index & nv = lg_nvs[k];
+    if (dDifferenceOnTheLeft)
+      ::pinocchio::dDifference<arg>(liegroups[k],
+                       q0.segment(id_q,nq),
+                       q1.segment(id_q,nq),
+                       SELF,
+                       Jin.middleRows(id_v,nv),
+                       Jout.middleRows(id_v,nv),
+                       op);
+    else
+      ::pinocchio::dDifference<arg>(liegroups[k],
+                       q0.segment(id_q,nq),
+                       q1.segment(id_q,nq),
+                       Jin.middleCols(id_v,nv),
+                       SELF,
+                       Jout.middleCols(id_v,nv),
+                       op);
+
+    id_q += nq; id_v += nv;
+  }
+}
+
+template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
 template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,

@@ -110,6 +110,14 @@ namespace pinocchio
                           const Eigen::MatrixBase<ConfigR_t> & q1,
                           const Eigen::MatrixBase<JacobianOut_t> & J) const;
 
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference_product_impl(const ConfigL_t & q0,
+                                  const ConfigR_t & q1,
+                                  const JacobianIn_t & Jin,
+                                  JacobianOut_t & Jout,
+                                  bool dDifferenceOnTheLeft,
+                                  const AssignmentOperatorType op) const;
+
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                         const Eigen::MatrixBase<Velocity_t> & v,

@@ -87,6 +87,30 @@ namespace pinocchio
         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
     }
 
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference_product_impl(const ConfigL_t &,
+                                  const ConfigR_t &,
+                                  const JacobianIn_t & Jin,
+                                  JacobianOut_t & Jout,
+                                  bool,
+                                  const AssignmentOperatorType op) const
+    {
+      switch (op) {
+        case SETTO:
+          if (arg == ARG0) Jout = - Jin;
+          else             Jout =   Jin;
+          return;
+        case ADDTO:
+          if (arg == ARG0) Jout -= Jin;
+          else             Jout += Jin;
+          return;
+        case RMTO:
+          if (arg == ARG0) Jout += Jin;
+          else             Jout -= Jin;
+          return;
+      }
+    }
+
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
     static void integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
                                const Eigen::MatrixBase<Velocity_t> & v,

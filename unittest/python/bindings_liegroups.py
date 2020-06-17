@@ -20,6 +20,8 @@ class TestLiegroupBindings(unittest.TestCase):
         self.assertEqual(R3.nv+SO3.nv, R3xSO3.nv)
 
     def test_dIntegrate(self):
+        SELF = 0
+
         for lg in [ pin.liegroups.R3(),
                     pin.liegroups.SO3(),
                     pin.liegroups.SE3(),
@@ -29,16 +31,46 @@ class TestLiegroupBindings(unittest.TestCase):
             v = np.random.rand(lg.nv)
 
             J = lg.dIntegrate_dq(q, v)
-            #self.assertTrue(np.allclose(np.eye(3),J))
 
-            SELF = 0
             J0 = np.random.rand(lg.nv,lg.nv)
 
             J1 = lg.dIntegrate_dq(q, v, SELF, J0)
-            self.assertTrue(np.allclose(J @ J0,J1))
+            self.assertTrue(np.allclose(np.dot(J, J0),J1))
 
             J1 = lg.dIntegrate_dq(q, v, J0, SELF)
-            self.assertTrue(np.allclose(J0 @ J,J1))
+            self.assertTrue(np.allclose(np.dot(J0, J),J1))
+
+            J = lg.dIntegrate_dv(q, v)
+
+            J0 = np.random.rand(lg.nv,lg.nv)
+
+            J1 = lg.dIntegrate_dv(q, v, SELF, J0)
+            self.assertTrue(np.allclose(np.dot(J, J0),J1))
+
+            J1 = lg.dIntegrate_dv(q, v, J0, SELF)
+            self.assertTrue(np.allclose(np.dot(J0, J),J1))
+
+    def test_dDifference(self):
+        for lg in [ pin.liegroups.R3(),
+                    pin.liegroups.SO3(),
+                    pin.liegroups.SE3(),
+                    pin.liegroups.R3() * pin.liegroups.SO3(),
+                    ]:
+            q0 = lg.random()
+            q1 = lg.random()
+
+            for arg in [ pin.ARG0, pin.ARG1 ]:
+                J = lg.dDifference(q0, q1, arg)
+
+                SELF = 0
+                J0 = np.random.rand(lg.nv,lg.nv)
+
+
+                J1 = lg.dDifference(q0, q1, arg, SELF, J0)
+                self.assertTrue(np.allclose(np.dot(J, J0),J1))
+
+                J1 = lg.dDifference(q0, q1, arg, J0, SELF)
+                self.assertTrue(np.allclose(np.dot(J0, J),J1))
 
 if __name__ == '__main__':
     unittest.main()
