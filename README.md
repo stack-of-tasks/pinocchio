@@ -25,7 +25,13 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
 
-## Pinocchio features
+If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
+
+<p align="center">
+conda install pinocchio -c conda-forge
+</p>
+
+## Pinocchio main features
 
 **Pinocchio** is fast:
 
