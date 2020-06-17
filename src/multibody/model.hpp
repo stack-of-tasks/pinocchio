@@ -554,4 +554,8 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/model.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+  extern template class PINOCCHIO_DLLAPI pinocchio::ModelTpl<double>;
+#endif
+
 #endif // ifndef __pinocchio_multibody_model_hpp__

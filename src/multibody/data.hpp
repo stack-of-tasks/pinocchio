@@ -384,5 +384,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/data.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+  extern template class PINOCCHIO_DLLAPI pinocchio::DataTpl<double>;
+#endif
+
 #endif // ifndef __pinocchio_multibody_data_hpp__
 
