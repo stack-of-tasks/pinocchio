@@ -150,6 +150,30 @@ namespace pinocchio
         }
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_product_impl(const Config_t &,
+                                 const Tangent_t &,
+                                 const JacobianIn_t & Jin,
+                                 JacobianOut_t & Jout,
+                                 bool,
+                                 const ArgumentPosition,
+                                 const AssignmentOperatorType op) const
+    {
+      switch(op) {
+        case SETTO:
+          Jout = Jin;
+          break;
+        case ADDTO:
+          Jout += Jin;
+          break;
+        case RMTO:
+          Jout -= Jin;
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+      }
+    }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
