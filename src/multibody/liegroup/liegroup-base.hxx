@@ -110,9 +110,9 @@ namespace pinocchio {
     PINOCCHIO_UNUSED_VARIABLE(self);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
-    assert(Jin.cols() == nv());
-    assert(Jout.cols() == nv());
-    assert(Jout.rows() == Jin.rows());
+    assert(Jin.rows() == nv());
+    assert(Jout.rows() == nv());
+    assert(Jout.cols() == Jin.cols());
     derived().dIntegrate_product_impl(
         q.derived(), v.derived(),
         Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
@@ -171,9 +171,9 @@ namespace pinocchio {
     PINOCCHIO_UNUSED_VARIABLE(self);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t    , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Tangent_t   , TangentVector_t);
-    assert(Jin.cols() == nv());
-    assert(Jout.cols() == nv());
-    assert(Jout.rows() == Jin.rows());
+    assert(Jin.rows() == nv());
+    assert(Jout.rows() == nv());
+    assert(Jout.cols() == Jin.cols());
     derived().dIntegrate_product_impl(
         q.derived(), v.derived(),
         Jin.derived(), PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,Jout),
