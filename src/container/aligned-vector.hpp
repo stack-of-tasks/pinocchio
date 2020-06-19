@@ -45,9 +45,6 @@ namespace pinocchio
       aligned_vector & operator=(const aligned_vector& x)
       { vector_base::operator=(x); return *this; }
       
-      operator vector_base_ref() { return base(); }
-      operator const_vector_base_ref() const { return base(); }
-      
       vector_base & base() { return *static_cast<vector_base*>(this); }
       const vector_base & base() const { return *static_cast<const vector_base*>(this); }
       
