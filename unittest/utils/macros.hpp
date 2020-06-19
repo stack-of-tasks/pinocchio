@@ -10,9 +10,7 @@
 #endif
 
 //#ifdef __clang__
-//  #define BEGIN_UNIT_TEST_SECTION \
-//  _Pragma("clang diagnostic push") \
-//  _Pragma("clang diagnostic ignored \"-Wc99-extensions\" ")
+//  #define BEGIN_UNIT_TEST_SECTION _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wc99-extensions\" ")
 //#else
 //  #define BEGIN_UNIT_TEST_SECTION
 //#endif
