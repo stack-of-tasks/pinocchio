@@ -23,6 +23,7 @@ namespace pinocchio
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
              const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_models)
     {
+      typedef ModelTpl<S1,O1,JointCollectionTpl> Model;
       typedef RigidContactModelTpl<S1,O1> RigidContactModel;
       typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
       

@@ -213,7 +213,7 @@ namespace pinocchio
                    DataTpl<S1,O1,JointCollectionTpl> & data,
                    const std::vector<RigidContactModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
                    std::vector<RigidContactDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
-                   const S1 mu = 0.);
+                   const S1 mu = S1(0.));
       
       /// \brief Size of the decomposition
       Eigen::DenseIndex size() const { return D.size(); }
