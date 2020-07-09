@@ -6,10 +6,10 @@ versions and to resolve the dependencies.
 robotpkg is a package manager tailored for robotics softwares. It greatly simplifies the release of new versions along
 with the management of their dependencies.
 
-## Ubuntu LTS 14.04, 16.04 and 18.04
+## Ubuntu LTS 16.04, 18.04 and 20.04
 
 The software binaries of the packages managed by robotpkg are directly available through the apt repository
-of robotpkg for the Ubuntu LTS 14.04, 16.04 and 18.04. You just need to add the robotpkg apt repository to your
+of robotpkg for the Ubuntu LTS 16.04, 18.04 and 20.04. You just need to add the robotpkg apt repository to your
 sources.list and typically use `sudo apt install robotpkg- + packagename` to install a missing software and its
 dependencies. Below, we recall the steps to first add the robotpkg apt repository and then install Pinocchio.
 
@@ -19,40 +19,37 @@ If you have never added robotpkg as a softwares repository, please follow first 
 Otherwise, go directly to instruction 5. Those instructions are similar to the installation procedures presented in
 [http://robotpkg.openrobots.org/debian.html](http://robotpkg.openrobots.org/debian.html).
 
-1. Check your distribution codename in a terminal with the following command:
+1. Ensure you have some required installation dependencies
 
-```
-$ lsb_release -c
-Codename:       xenial
-```
+    ```bash
+    sudo apt install -qqy lsb-release gnupg2 curl
+    ```
 
 2. Add robotpkg as source repository to apt:
 
-```
-sudo sh -c "echo 'deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub xenial robotpkg' >> /etc/apt/sources.list.d/robotpkg.list"
-```
-
-You may need to change xenial according to your current distribution codename.
+    ```bash
+    echo "deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg" | sudo tee /etc/apt/sources.list.d/robotpkg.list
+    ```
 
 3. Register the authentication certificate of robotpkg:
 
-```
-curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
-```
+    ```bash
+    curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
+    ```
 
 4. You need to run at least once apt update to fetch the package descriptions:
 
-```
-sudo apt-get update
-```
+    ```bash
+    sudo apt-get update
+    ```
 
 ### Install Pinocchio
 
 5. The installation of Pinocchio and its dependencies is made through the line:
 
-```
-sudo apt install robotpkg-py27-pinocchio
-```
+    ```bash
+    sudo apt install -qqy robotpkg-py27-pinocchio  # Adapt your desired python version here
+    ```
 
 It will install all the systems and additional required dependences.
 
@@ -70,6 +67,10 @@ export PYTHONPATH=/opt/openrobots/lib/python2.7/site-packages:$PYTHONPATH
 ```
 
 You may directly add those lines to your `$HOME/.bashrc` for a persistent configuration.
+
+## ArchLinux
+
+Pinocchio and all its dependencies are available in [AUR](https://aur.archlinux.org/packages/pinocchio/)
 
 ## Other distributions
 
