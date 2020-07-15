@@ -191,16 +191,26 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   const Model::JointIndex jointId = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
   Data::Matrix6x v_partial_dq(6,model.nv); v_partial_dq.setZero();
   Data::Matrix6x v_partial_dq_local(6,model.nv); v_partial_dq_local.setZero();
+  Data::Matrix6x v_partial_dq_local_world_aligned(6,model.nv); v_partial_dq_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dq(6,model.nv); a_partial_dq.setZero();
+  Data::Matrix6x a_partial_dq_local_world_aligned(6,model.nv); a_partial_dq_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dq_local(6,model.nv); a_partial_dq_local.setZero();
   Data::Matrix6x a_partial_dv(6,model.nv); a_partial_dv.setZero();
+  Data::Matrix6x a_partial_dv_local_world_aligned(6,model.nv); a_partial_dv_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dv_local(6,model.nv); a_partial_dv_local.setZero();
   Data::Matrix6x a_partial_da(6,model.nv); a_partial_da.setZero();
+  Data::Matrix6x a_partial_da_local_world_aligned(6,model.nv); a_partial_da_local_world_aligned.setZero();
   Data::Matrix6x a_partial_da_local(6,model.nv); a_partial_da_local.setZero();
   
   getJointAccelerationDerivatives(model,data,jointId,WORLD,
                                   v_partial_dq,
                                   a_partial_dq,a_partial_dv,a_partial_da);
+                                  
+  getJointAccelerationDerivatives(model,data,jointId,LOCAL_WORLD_ALIGNED,
+                                  v_partial_dq_local_world_aligned,
+                                  a_partial_dq_local_world_aligned,
+                                  a_partial_dv_local_world_aligned,
+                                  a_partial_da_local_world_aligned);
   
   getJointAccelerationDerivatives(model,data,jointId,LOCAL,
                                   v_partial_dq_local,
@@ -212,40 +222,58 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
     computeForwardKinematicsDerivatives(model,data_v,q,v,a);
     
     Data::Matrix6x v_partial_dq_ref(6,model.nv); v_partial_dq_ref.setZero();
-    Data::Matrix6x v_partial_dv_ref(6,model.nv); v_partial_dv_ref.setZero();
+    Data::Matrix6x v_partial_dq_ref_local_world_aligned(6,model.nv); v_partial_dq_ref_local_world_aligned.setZero();
     Data::Matrix6x v_partial_dq_ref_local(6,model.nv); v_partial_dq_ref_local.setZero();
+    Data::Matrix6x v_partial_dv_ref(6,model.nv); v_partial_dv_ref.setZero();
+    Data::Matrix6x v_partial_dv_ref_local_world_aligned(6,model.nv); v_partial_dv_ref_local_world_aligned.setZero();
+    Data::Matrix6x v_partial_dv_ref_local(6,model.nv); v_partial_dv_ref_local.setZero();
     
     getJointVelocityDerivatives(model,data_v,jointId,WORLD,
                                 v_partial_dq_ref,v_partial_dv_ref);
-    
+                                
     BOOST_CHECK(v_partial_dq.isApprox(v_partial_dq_ref));
+    BOOST_CHECK(a_partial_da.isApprox(v_partial_dv_ref));
+    
+    getJointVelocityDerivatives(model,data_v,jointId,LOCAL_WORLD_ALIGNED,
+                                v_partial_dq_ref_local_world_aligned,v_partial_dv_ref_local_world_aligned);
+                                                            
+    BOOST_CHECK(v_partial_dq_local_world_aligned.isApprox(v_partial_dq_ref_local_world_aligned));
+    BOOST_CHECK(a_partial_da_local_world_aligned.isApprox(v_partial_dv_ref_local_world_aligned));
+    
     getJointVelocityDerivatives(model,data_v,jointId,LOCAL,
-                                v_partial_dq_ref_local,v_partial_dv_ref);
+                                v_partial_dq_ref_local,v_partial_dv_ref_local);
     
     BOOST_CHECK(v_partial_dq_local.isApprox(v_partial_dq_ref_local));
+    BOOST_CHECK(a_partial_da_local.isApprox(v_partial_dv_ref_local));
   }
-  
   
   Data::Matrix6x J_ref(6,model.nv); J_ref.setZero();
   Data::Matrix6x J_ref_local(6,model.nv); J_ref_local.setZero();
+  Data::Matrix6x J_ref_local_world_aligned(6,model.nv); J_ref_local_world_aligned.setZero();
   computeJointJacobians(model,data_ref,q);
   getJointJacobian(model,data_ref,jointId,WORLD,J_ref);
+  getJointJacobian(model,data_ref,jointId,LOCAL_WORLD_ALIGNED,J_ref_local_world_aligned);
   getJointJacobian(model,data_ref,jointId,LOCAL,J_ref_local);
   
   BOOST_CHECK(a_partial_da.isApprox(J_ref));
+  BOOST_CHECK(a_partial_da_local_world_aligned.isApprox(J_ref_local_world_aligned));
   BOOST_CHECK(a_partial_da_local.isApprox(J_ref_local));
   
   // Check against finite differences
   Data::Matrix6x a_partial_da_fd(6,model.nv); a_partial_da_fd.setZero();
+  Data::Matrix6x a_partial_da_fd_local_world_aligned(6,model.nv); a_partial_da_fd_local_world_aligned.setZero();
   Data::Matrix6x a_partial_da_fd_local(6,model.nv); a_partial_da_fd_local.setZero();
   const double alpha = 1e-8;
   
   Eigen::VectorXd v_plus(v), a_plus(a);
   Data data_plus(model);
   forwardKinematics(model,data_ref,q,v,a);
+  SE3 oMi_rot(SE3::Identity());
+  oMi_rot.rotation() = data_ref.oMi[jointId].rotation();
   
   // dacc/da
   Motion a0(data_ref.oMi[jointId].act(data_ref.a[jointId]));
+  Motion a0_local_world_aligned(oMi_rot.act(data_ref.a[jointId]));
   Motion a0_local(data_ref.a[jointId]);
   for(int k = 0; k < model.nv; ++k)
   {
@@ -253,30 +281,32 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
     forwardKinematics(model,data_plus,q,v,a_plus);
     
     a_partial_da_fd.col(k) = (data_plus.oMi[jointId].act(data_plus.a[jointId]) - a0).toVector()/alpha;
+    a_partial_da_fd_local_world_aligned.col(k) = (oMi_rot.act(data_plus.a[jointId]) - a0_local_world_aligned).toVector()/alpha;
     a_partial_da_fd_local.col(k) = (data_plus.a[jointId] - a0_local).toVector()/alpha;
     a_plus[k] -= alpha;
   }
   BOOST_CHECK(a_partial_da.isApprox(a_partial_da_fd,sqrt(alpha)));
-  
+  BOOST_CHECK(a_partial_da_local_world_aligned.isApprox(a_partial_da_fd_local_world_aligned,sqrt(alpha)));
   BOOST_CHECK(a_partial_da_local.isApprox(a_partial_da_fd_local,sqrt(alpha)));
   motionSet::se3Action(data_ref.oMi[jointId].inverse(),a_partial_da,a_partial_da_local);
   BOOST_CHECK(a_partial_da_local.isApprox(a_partial_da_fd_local,sqrt(alpha)));
   
   // dacc/dv
   Data::Matrix6x a_partial_dv_fd(6,model.nv); a_partial_dv_fd.setZero();
+  Data::Matrix6x a_partial_dv_fd_local_world_aligned(6,model.nv); a_partial_dv_fd_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dv_fd_local(6,model.nv); a_partial_dv_fd_local.setZero();
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
     forwardKinematics(model,data_plus,q,v_plus,a);
     
-    a_partial_dv_fd.col(k) = (data_plus.oMi[jointId].act(data_plus.a[jointId]) - a0).toVector()/alpha;
+    a_partial_dv_fd.col(k) = (data_plus.oMi[jointId].act(data_plus.a[jointId]) - a0).toVector()/alpha;    a_partial_dv_fd_local_world_aligned.col(k) = (oMi_rot.act(data_plus.a[jointId]) - a0_local_world_aligned).toVector()/alpha;
     a_partial_dv_fd_local.col(k) = (data_plus.a[jointId] - a0_local).toVector()/alpha;
     v_plus[k] -= alpha;
   }
   
   BOOST_CHECK(a_partial_dv.isApprox(a_partial_dv_fd,sqrt(alpha)));
-  
+  BOOST_CHECK(a_partial_dv_local_world_aligned.isApprox(a_partial_dv_fd_local_world_aligned,sqrt(alpha)));
   BOOST_CHECK(a_partial_dv_local.isApprox(a_partial_dv_fd_local,sqrt(alpha)));
   motionSet::se3Action(data_ref.oMi[jointId].inverse(),a_partial_dv,a_partial_dv_local);
   BOOST_CHECK(a_partial_dv_local.isApprox(a_partial_dv_fd_local,sqrt(alpha)));
@@ -286,11 +316,16 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   a_partial_dv.setZero();
   a_partial_da.setZero();
   
+  a_partial_dq_local_world_aligned.setZero();
+  a_partial_dv_local_world_aligned.setZero();
+  a_partial_da_local_world_aligned.setZero();
+  
   a_partial_dq_local.setZero();
   a_partial_dv_local.setZero();
   a_partial_da_local.setZero();
   
   Data::Matrix6x a_partial_dq_fd(6,model.nv); a_partial_dq_fd.setZero();
+  Data::Matrix6x a_partial_dq_fd_local_world_aligned(6,model.nv); a_partial_dq_fd_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dq_fd_local(6,model.nv); a_partial_dq_fd_local.setZero();
 //  a.setZero();
   
@@ -298,7 +333,12 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   getJointAccelerationDerivatives(model,data,jointId,WORLD,
                                   v_partial_dq,
                                   a_partial_dq,a_partial_dv,a_partial_da);
-  
+                                  
+  getJointAccelerationDerivatives(model,data,jointId,LOCAL_WORLD_ALIGNED,
+                                  v_partial_dq_local_world_aligned,
+                                  a_partial_dq_local_world_aligned,
+                                  a_partial_dv_local_world_aligned,
+                                  a_partial_da_local_world_aligned);
   
   getJointAccelerationDerivatives(model,data,jointId,LOCAL,
                                   v_partial_dq_local,
@@ -307,6 +347,8 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   Eigen::VectorXd q_plus(q), v_eps(Eigen::VectorXd::Zero(model.nv));
   forwardKinematics(model,data_ref,q,v,a);
   a0 = data_ref.oMi[jointId].act(data_ref.a[jointId]);
+  oMi_rot.rotation() = data_ref.oMi[jointId].rotation();
+  a0_local_world_aligned = oMi_rot.act(data_ref.a[jointId]);
   a0_local = data_ref.a[jointId];
   
   for(int k = 0; k < model.nv; ++k)
@@ -315,13 +357,22 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
     q_plus = integrate(model,q,v_eps);
     forwardKinematics(model,data_plus,q_plus,v,a);
     
+    SE3 oMi_plus_rot = data_plus.oMi[jointId];
+    oMi_plus_rot.translation().setZero();
+    
+    Motion a_plus_local_world_aligned = oMi_plus_rot.act(data_plus.a[jointId]);
+    const SE3::Vector3 trans = data_plus.oMi[jointId].translation() - data_ref.oMi[jointId].translation();
+    a_plus_local_world_aligned.linear() -= a_plus_local_world_aligned.angular().cross(trans);
     a_partial_dq_fd.col(k) = (data_plus.oMi[jointId].act(data_plus.a[jointId]) - a0).toVector()/alpha;
+    a_partial_dq_fd_local_world_aligned.col(k) = (a_plus_local_world_aligned - a0_local_world_aligned).toVector()/alpha;
     a_partial_dq_fd_local.col(k) = (data_plus.a[jointId] - a0_local).toVector()/alpha;
     v_eps[k] -= alpha;
   }
   
   BOOST_CHECK(a_partial_dq.isApprox(a_partial_dq_fd,sqrt(alpha)));
-
+  BOOST_CHECK(a_partial_dq_local_world_aligned.isApprox(a_partial_dq_fd_local_world_aligned,sqrt(alpha)));
+  std::cout << "a_partial_dq_local_world_aligned:\n" << a_partial_dq_local_world_aligned << std::endl;
+  std::cout << "a_partial_dq_fd_local_world_aligned:\n" << a_partial_dq_fd_local_world_aligned << std::endl;
   BOOST_CHECK(a_partial_dq_local.isApprox(a_partial_dq_fd_local,sqrt(alpha)));
  
 }
