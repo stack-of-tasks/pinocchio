@@ -288,63 +288,100 @@ namespace pinocchio
       ColsBlockOut4 a_partial_da_cols = jmodel.jointCols(a_partial_da_);
       
       // dacc/da
-      if(rf == WORLD)
-        a_partial_da_cols = Jcols;
-      else
-        motionSet::se3ActionInverse(oMlast,Jcols,a_partial_da_cols);
-      
-      // dacc/dv
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          vtmp = data.ov[parent] - vlast;
-        else
-          vtmp = -vlast;
-        
-        // also computes dvec/dq
-        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
-        
-        a_partial_dv_cols = v_partial_dq_cols + dJcols;
+        case WORLD:
+          a_partial_da_cols = Jcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          details::translateJointJacobian(oMlast,Jcols,a_partial_da_cols);
+          break;
+        case LOCAL:
+          motionSet::se3ActionInverse(oMlast,Jcols,a_partial_da_cols);
+          break;
       }
-      else
+        
+      // dacc/dv
+      switch(rf)
       {
-       // also computes dvec/dq
-        if(parent > 0)
-        {
-          vtmp = oMlast.actInv(data.ov[parent]);
+        case WORLD:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          
+          // also computes dvec/dq
+          motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
+          
+          a_partial_dv_cols = v_partial_dq_cols + dJcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          vtmp.linear() += vtmp.angular().cross(oMlast.translation());
+          
+           // also computes dvec/dq
           motionSet::motionAction(vtmp,a_partial_da_cols,v_partial_dq_cols);
-        }
-        
-        if(parent > 0)
-          vtmp -= data.v[jointId];
-        else
-          vtmp = -data.v[jointId];
-        
-        motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
-        motionSet::se3ActionInverse<ADDTO>(oMlast,dJcols,a_partial_dv_cols);
+          
+          details::translateJointJacobian(oMlast,dJcols,a_partial_dv_cols);
+//          a_partial_dv_cols += v_partial_dq_cols; // dJcols is required later
+          break;
+        case LOCAL:
+          // also computes dvec/dq
+          if(parent > 0)
+          {
+            vtmp = oMlast.actInv(data.ov[parent]);
+            motionSet::motionAction(vtmp,a_partial_da_cols,v_partial_dq_cols);
+          }
+          
+          if(parent > 0)
+            vtmp -= data.v[jointId];
+          else
+            vtmp = -data.v[jointId];
+          
+          motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
+          motionSet::se3ActionInverse<ADDTO>(oMlast,dJcols,a_partial_dv_cols);
+          break;
       }
       
       // dacc/dq
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          atmp = data.oa[parent] - alast;
-        else
-          atmp = -alast;
-        motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
-        
-        if(parent >0)
-          motionSet::motionAction<ADDTO>(vtmp,dJcols,a_partial_dq_cols);
-      }
-      else
-      {
-        if(parent > 0)
-        {
-          atmp = oMlast.actInv(data.oa[parent]);
+        case WORLD:
+          if(parent > 0)
+            atmp = data.oa[parent] - alast;
+          else
+            atmp = -alast;
+          motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
+          
+          if(parent >0)
+            motionSet::motionAction<ADDTO>(vtmp,dJcols,a_partial_dq_cols);
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            atmp = data.oa[parent] - alast;
+          else
+            atmp = -alast;
+          
+          atmp.linear() += atmp.angular().cross(oMlast.translation());
           motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
-        }
-        
-        motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
+          
+          if(parent >0)
+            motionSet::motionAction<ADDTO>(vtmp,a_partial_dv_cols,a_partial_dq_cols);
+          
+          a_partial_dv_cols += v_partial_dq_cols;
+          break;
+        case LOCAL:
+          if(parent > 0)
+          {
+            atmp = oMlast.actInv(data.oa[parent]);
+            motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
+          }
+          
+          motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
+          break;
       }
 
       
