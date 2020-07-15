@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_kinematics_derivatives_hxx__
@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 
 namespace pinocchio
 {
@@ -144,32 +145,52 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
       Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
       
-      // dvec/dv
+      // dvec/dv: this result is then needed by dvec/dq
       ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
-      if(rf == WORLD)
-        v_partial_dv_cols = Jcols;
-      else
-        motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
+      switch(rf)
+      {
+        case WORLD:
+          v_partial_dv_cols = Jcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          details::translateJointJacobian(oMlast,Jcols,v_partial_dv_cols);
+          break;
+        case LOCAL:
+          motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
+          break;
+        default:
+          assert(false && "This must never happened");
+      }
 
       // dvec/dq
       ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          vtmp = data.ov[parent] - vlast;
-        else
-          vtmp = -vlast;
-        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
-      }
-      else
-      {
-        if(parent > 0)
-        {
-          vtmp = oMlast.actInv(data.ov[parent]);
+        case WORLD:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          vtmp.linear() += vtmp.angular().cross(oMlast.translation());
           motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
-        }
+          break;
+        case LOCAL:
+          if(parent > 0)
+          {
+            vtmp = oMlast.actInv(data.ov[parent]);
+            motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
+          }
+          break;
+        default:
+          assert(false && "This must never happened");
       }
-      
       
     }
     
