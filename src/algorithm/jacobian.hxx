@@ -120,6 +120,33 @@ namespace pinocchio
   
   namespace details
   {
+    template<typename Scalar, int Options, typename Matrix6xLikeIn, typename Matrix6xLikeOut>
+    void translateJointJacobian(const SE3Tpl<Scalar,Options> & placement,
+                                const Eigen::MatrixBase<Matrix6xLikeIn> & Jin,
+                                const Eigen::MatrixBase<Matrix6xLikeOut> & Jout)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.rows() == 6);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.cols() == Jout.cols());
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.rows() == 6);
+      
+      Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut,Jout);
+
+      typedef typename Matrix6xLikeIn::ConstColXpr ConstColXprIn;
+      typedef const MotionRef<ConstColXprIn> MotionIn;
+
+      typedef typename Matrix6xLikeOut::ColXpr ColXprOut;
+      typedef MotionRef<ColXprOut> MotionOut;
+      
+      for(Eigen::DenseIndex j=0; j < Jin.cols(); ++j)
+      {
+        MotionIn v_in(Jin.col(j));
+        MotionOut v_out(Jout_.col(j));
+        
+        v_out = v_in;
+        v_out.linear() -= placement.translation().cross(v_in.angular());
+      }
+    }
+  
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLikeIn, typename Matrix6xLikeOut>
     void translateJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
