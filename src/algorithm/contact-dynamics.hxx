@@ -13,8 +13,6 @@
 
 #include <limits>
 
-#include <iostream>
-
 namespace pinocchio
 {
 
@@ -664,7 +662,7 @@ namespace pinocchio
     {
       return data.ddq;
     }
-    
+
     Scalar primal_infeasibility = Scalar(0);
     int it = 0;
     for(int it = 0; it < settings.max_iter; ++it)
@@ -679,15 +677,15 @@ namespace pinocchio
         const typename RigidContactModel::FrameIndex & frame_id = cmodel.frame_id;
         const typename Model::Frame & frame = model.frames[frame_id];
         const typename Model::JointIndex & joint_id = frame.parent;
-        
+
         const SE3 & oMc = cdata.contact_placement;
         const Motion & contact_velocity = cdata.contact_velocity;
-        
+
         // Compute contact acceleration error (drift)
         const typename Data::Motion & joint_spatial_acceleration = data.oa_augmented[joint_id];
         cdata.contact_acceleration_deviation = oMc.actInv(joint_spatial_acceleration) - cmodel.desired_contact_acceleration;
         cdata.contact_acceleration_deviation.linear() += contact_velocity.angular().cross(contact_velocity.linear());
-        
+
         using std::max;
         if(cmodel.type == CONTACT_3D)
         {
