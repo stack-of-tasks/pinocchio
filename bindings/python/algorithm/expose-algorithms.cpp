@@ -32,6 +32,7 @@ namespace pinocchio
       exposeRNEADerivatives();
       exposeABADerivatives();
       exposeKinematicsDerivatives();
+      exposeFramesDerivatives();
       exposeCentroidalDerivatives();
     }
     
