@@ -159,14 +159,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_velocity)
   BOOST_CHECK(partial_dq_local_world_aligned.isApprox(partial_dq_fd_local_world_aligned,sqrt(alpha)));
   BOOST_CHECK(partial_dq_local.isApprox(partial_dq_fd_local,sqrt(alpha)));
   
-//  computeJointJacobiansTimeVariation(model,data_ref,q,v);
-//  Data::Matrix6x dJ_ref(6,model.nv); dJ_ref.setZero();
-//  getJointJacobianTimeVariation<WORLD>(model,data_ref,jointId,dJ_ref);
-//  BOOST_CHECK(partial_dq.isApprox(dJ_ref));
-//  
-//  std::cout << "partial_dq\n" << partial_dq << std::endl;
-//  std::cout << "dJ_ref\n" << dJ_ref << std::endl;
-  
 }
 
 BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
@@ -187,8 +179,8 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   
   computeForwardKinematicsDerivatives(model,data,q,v,a);
   
-  
   const Model::JointIndex jointId = model.existJointName("rarm2_joint")?model.getJointId("rarm2_joint"):(Model::Index)(model.njoints-1);
+  
   Data::Matrix6x v_partial_dq(6,model.nv); v_partial_dq.setZero();
   Data::Matrix6x v_partial_dq_local(6,model.nv); v_partial_dq_local.setZero();
   Data::Matrix6x v_partial_dq_local_world_aligned(6,model.nv); v_partial_dq_local_world_aligned.setZero();
@@ -327,7 +319,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   Data::Matrix6x a_partial_dq_fd(6,model.nv); a_partial_dq_fd.setZero();
   Data::Matrix6x a_partial_dq_fd_local_world_aligned(6,model.nv); a_partial_dq_fd_local_world_aligned.setZero();
   Data::Matrix6x a_partial_dq_fd_local(6,model.nv); a_partial_dq_fd_local.setZero();
-//  a.setZero();
   
   computeForwardKinematicsDerivatives(model,data,q,v,a);
   getJointAccelerationDerivatives(model,data,jointId,WORLD,
@@ -371,8 +362,6 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   
   BOOST_CHECK(a_partial_dq.isApprox(a_partial_dq_fd,sqrt(alpha)));
   BOOST_CHECK(a_partial_dq_local_world_aligned.isApprox(a_partial_dq_fd_local_world_aligned,sqrt(alpha)));
-  std::cout << "a_partial_dq_local_world_aligned:\n" << a_partial_dq_local_world_aligned << std::endl;
-  std::cout << "a_partial_dq_fd_local_world_aligned:\n" << a_partial_dq_fd_local_world_aligned << std::endl;
   BOOST_CHECK(a_partial_dq_local.isApprox(a_partial_dq_fd_local,sqrt(alpha)));
  
 }

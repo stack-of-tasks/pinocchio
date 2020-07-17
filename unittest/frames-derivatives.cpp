@@ -84,8 +84,6 @@ BOOST_AUTO_TEST_CASE(test_frames_derivatives_velocity)
   Eigen::VectorXd v_plus(v);
   Data data_plus(model);
   forwardKinematics(model,data_ref,q,v);
-  SE3 oMi_rot(SE3::Identity());
-  oMi_rot.rotation() = data_ref.oMi[jointId].rotation();
   Motion v0 = getFrameVelocity(model,data,frameId,WORLD);
   Motion v0_local_world_aligned = getFrameVelocity(model,data,frameId,LOCAL_WORLD_ALIGNED);
   Motion v0_local = getFrameVelocity(model,data,frameId,LOCAL);
@@ -115,9 +113,6 @@ BOOST_AUTO_TEST_CASE(test_frames_derivatives_velocity)
     q_plus = integrate(model,q,v_eps);
     forwardKinematics(model,data_plus,q_plus,v);
     updateFramePlacements(model,data_plus);
-
-    SE3 oMi_plus_rot = data_plus.oMi[jointId];
-    oMi_plus_rot.translation().setZero();
 
     Motion v_plus_local_world_aligned = getFrameVelocity(model,data_plus,frameId,LOCAL_WORLD_ALIGNED);
     SE3::Vector3 trans = data_plus.oMf[frameId].translation() - data_ref.oMf[frameId].translation();
