@@ -21,14 +21,14 @@ namespace pinocchio
       
       // fix CONSOLE_BRIDGE warning level
       ::console_bridge::setLogLevel(::console_bridge::CONSOLE_BRIDGE_LOG_ERROR);
-      
+
       typedef ::console_bridge::LogLevel LogLevel;
       bp::enum_<LogLevel>("LogLevel")
-      .value("CONSOLE_BRIDGE_LOG_DEBUG",LogLevel::CONSOLE_BRIDGE_LOG_DEBUG)
-      .value("CONSOLE_BRIDGE_LOG_INFO" ,LogLevel::CONSOLE_BRIDGE_LOG_INFO )
-      .value("CONSOLE_BRIDGE_LOG_WARN" ,LogLevel::CONSOLE_BRIDGE_LOG_WARN )
-      .value("CONSOLE_BRIDGE_LOG_ERROR",LogLevel::CONSOLE_BRIDGE_LOG_ERROR)
-      .value("CONSOLE_BRIDGE_LOG_NONE" ,LogLevel::CONSOLE_BRIDGE_LOG_NONE )
+      .value("CONSOLE_BRIDGE_LOG_DEBUG",::console_bridge::CONSOLE_BRIDGE_LOG_DEBUG)
+      .value("CONSOLE_BRIDGE_LOG_INFO" ,::console_bridge::CONSOLE_BRIDGE_LOG_INFO )
+      .value("CONSOLE_BRIDGE_LOG_WARN" ,::console_bridge::CONSOLE_BRIDGE_LOG_WARN )
+      .value("CONSOLE_BRIDGE_LOG_ERROR",::console_bridge::CONSOLE_BRIDGE_LOG_ERROR)
+      .value("CONSOLE_BRIDGE_LOG_NONE" ,::console_bridge::CONSOLE_BRIDGE_LOG_NONE )
       ;
       
 #endif
