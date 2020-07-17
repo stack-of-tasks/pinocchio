@@ -25,6 +25,7 @@ namespace pinocchio
     data.contact_vector_solution.resize(data.contact_chol.size());
 
     data.lambda_c.resize(data.contact_chol.constraintDim());
+    data.impulse_c.resize(data.contact_chol.constraintDim());
     
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);

@@ -5,8 +5,6 @@
 #ifndef __pinocchio_algorithm_impulse_dynamics_hxx__
 #define __pinocchio_algorithm_impulse_dynamics_hxx__
 
-#include "pinocchio/spatial/classic-acceleration.hpp"
-
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
@@ -15,37 +13,6 @@
 
 namespace pinocchio
 {
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
-  inline void initImpulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models)
-  {
-    data.contact_chol.allocate(model,contact_models);
-    data.contact_vector_solution.resize(data.contact_chol.size());
-
-    data.impulse_c.resize(data.contact_chol.constraintDim());
-    
-    data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dlambda_dtau.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dvc_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dac_dq.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dac_dv.resize(data.contact_chol.constraintDim(), model.nv);
-    data.dac_da.resize(data.contact_chol.constraintDim(), model.nv);
-    data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
-
-    data.impulse_c.setZero();
-    data.dlambda_dq.setZero();
-    data.dlambda_dv.setZero();
-    data.dlambda_dtau.setZero();
-    data.dvc_dq.setZero();
-    data.dac_dq.setZero();
-    data.dac_dv.setZero();
-    data.dac_da.setZero();
-    data.osim.setZero();
-  }
-  
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &

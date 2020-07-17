@@ -42,7 +42,6 @@ namespace pinocchio
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
   /// \tparam TangentVectorType1 Type of the joint velocity vector.
-  /// \tparam TangentVectorType2 Type of the joint torque vector.
   /// \tparam Allocator Allocator class for the std::vector.
   ///
   /// \param[in] model The model structure of the rigid body system.
@@ -58,7 +57,7 @@ namespace pinocchio
   ///
   /// \return A reference to the joint velocities stored in data.dq_after. The Lagrange Multipliers linked to the contact forces are available throw data.impulse_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ContactModelAllocator, class ContactDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
