@@ -47,9 +47,9 @@ namespace pinocchio
 
   }
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  struct ContactDynamicsForwardStep
-  : public fusion::JointUnaryVisitorBase< ContactDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, bool ContactMode>
+  struct ContactAndImpulseDynamicsForwardStep
+    : public fusion::JointUnaryVisitorBase< ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType, ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -59,7 +59,7 @@ namespace pinocchio
                                   const ConfigVectorType &,
                                   const TangentVectorType &
                                   > ArgsType;
-    
+
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -77,14 +77,8 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
       
       Motion & ov = data.ov[i];
-      Motion & oa = data.oa[i];
-      Motion & oa_gf = data.oa_gf[i];
-      
       Inertia & oinertias = data.oinertias[i];
-      
-      Force & oh = data.oh[i];
-      Force & of = data.of[i];
-      
+
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
@@ -92,35 +86,37 @@ namespace pinocchio
         data.oMi[i] = data.oMi[parent] * data.liMi[i];
       else
         data.oMi[i] = data.liMi[i];
-      
+     
       ov = data.oMi[i].act(jdata.v());
       if(parent > 0)
         ov += data.ov[parent];
       
-      oa = data.oMi[i].act(jdata.c());
-      
-      if(parent > 0)
-      {
-        oa += (data.ov[parent] ^ ov);
-        oa += data.oa[parent];
-      }
-      
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
       oinertias = data.oMi[i].act(model.inertias[i]);
-      
-      oa_gf = oa - model.gravity; // add gravity contribution
-      
-      oh = oinertias * ov;
-      of = oinertias * oa_gf + ov.cross(oh);
-
       data.oYcrb[i] = data.oinertias[i];
-    }
-    
+      
+      if(ContactMode)
+      {
+        Motion & oa = data.oa[i];
+        Motion & oa_gf = data.oa_gf[i];
+        Force & oh = data.oh[i];
+        Force & of = data.of[i];
+        oa = data.oMi[i].act(jdata.c());
+        if(parent > 0)
+        {
+          oa += (data.ov[parent] ^ ov);
+          oa += data.oa[parent];
+        }
+        oa_gf = oa - model.gravity; // add gravity contribution
+        oh = oinertias * ov;
+        of = oinertias * oa_gf + ov.cross(oh);
+      }
+    } 
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct ContactDynamicsBackwardStep
-  : public fusion::JointUnaryVisitorBase< ContactDynamicsBackwardStep<Scalar,Options,JointCollectionTpl> >
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
+  struct ContactAndImpulseDynamicsBackwardStep
+    : public fusion::JointUnaryVisitorBase< ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -144,15 +140,16 @@ namespace pinocchio
       
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      
-      jmodel.jointVelocitySelector(data.nle).noalias()
-      = J_cols.transpose()*data.of[i].toVector();
-      
+
       const JointIndex & parent = model.parents[i];
-      data.of[parent] += data.of[i];
       data.oYcrb[parent] += data.oYcrb[i];
+      if(ContactMode)
+      {
+        jmodel.jointVelocitySelector(data.nle).noalias()
+          = J_cols.transpose()*data.of[i].toVector();
+        data.of[parent] += data.of[i];
+      }
     }
-    
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
@@ -191,14 +188,14 @@ namespace pinocchio
     
     data.oYcrb[0].setZero();
     data.of[0].setZero();
-    typedef ContactDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    typedef ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1, true> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    typedef ContactDynamicsBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass2::run(model.joints[i],
