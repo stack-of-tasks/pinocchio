@@ -78,15 +78,15 @@ int main(int argc, const char ** argv)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D;
   contact_models_6D.push_back(ci_RF_6D);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D;
-  contact_data_6D.push_back(RigidContactData());
+  contact_data_6D.push_back(RigidContactData(ci_RF_6D));
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
   contact_models_6D6D.push_back(ci_RF_6D);
   contact_models_6D6D.push_back(ci_LF_6D);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D6D;
-  contact_data_6D6D.push_back(RigidContactData());
-  contact_data_6D6D.push_back(RigidContactData());
+  contact_data_6D6D.push_back(RigidContactData(ci_RF_6D));
+  contact_data_6D6D.push_back(RigidContactData(ci_LF_6D));
   cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
   
   ProximalSettings prox_settings;

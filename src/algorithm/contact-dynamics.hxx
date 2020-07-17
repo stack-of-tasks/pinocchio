@@ -242,8 +242,8 @@ namespace pinocchio
       const typename Model::JointIndex & joint_id = frame.parent;
       const typename Data::SE3 & oMi = data.oMi[joint_id];
       
-      SE3 & iMcontact = contact_data.joint_contact_placement;
-      SE3 & oMcontact = contact_data.contact_placement;
+      typename Data::SE3& iMcontact = contact_data.joint_contact_placement;
+      typename Data::SE3& oMcontact = contact_data.contact_placement;
 
       // Update frame placement
       iMcontact = frame.placement * contact_model.placement;

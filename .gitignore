@@ -5,3 +5,4 @@ Xcode*
 coverage*
 .travis
 .vscode*
+*.orig

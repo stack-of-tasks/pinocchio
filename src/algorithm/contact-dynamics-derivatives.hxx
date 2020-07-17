@@ -219,6 +219,10 @@ namespace pinocchio
                                    "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");
+    data.dtau_dq.setZero();
+    data.dtau_dv.setZero();
+    data.dac_dq.setZero();
+    data.dac_dv.setZero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

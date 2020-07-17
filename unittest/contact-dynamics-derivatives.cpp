@@ -335,4 +335,69 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
+BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_dirty_data )
+{
+  // Verify that a dirty data doesn't affect the results of the contact dynamics derivs
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  Data data_dirty(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  const std::string RF = "rleg6_joint";
+  //  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
+
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
+
+  const double mu0 = 0.;
+
+  initContactDynamics(model,data_dirty,contact_models);
+  contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,mu0);
+  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, mu0);
+
+  // Reuse the same data with new configurations
+  q = randomConfiguration(model);
+  v = VectorXd::Random(model.nv);
+  tau = VectorXd::Random(model.nv);
+  contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,mu0);
+  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, mu0);
+
+  //Test with fresh data
+  Data data_fresh(model);
+  initContactDynamics(model,data_fresh,contact_models);
+  contactDynamics(model,data_fresh,q,v,tau,contact_models,contact_data,mu0);
+  computeContactDynamicsDerivatives(model, data_fresh, contact_models, contact_data, mu0);
+  const double alpha = 1e-12;
+
+  BOOST_CHECK(data_dirty.ddq_dq.isApprox(data_fresh.ddq_dq,sqrt(alpha)));
+  BOOST_CHECK(data_dirty.ddq_dv.isApprox(data_fresh.ddq_dv,sqrt(alpha)));
+  BOOST_CHECK(data_dirty.ddq_dtau.isApprox(data_fresh.ddq_dtau,sqrt(alpha)));
+  BOOST_CHECK(data_dirty.dlambda_dq.isApprox(data_fresh.dlambda_dq,sqrt(alpha)));
+  BOOST_CHECK(data_dirty.dlambda_dv.isApprox(data_fresh.dlambda_dv,sqrt(alpha)));
+  BOOST_CHECK(data_dirty.dlambda_dtau.isApprox(data_fresh.dlambda_dtau,sqrt(alpha)));
+}
+
+
 BOOST_AUTO_TEST_SUITE_END ()

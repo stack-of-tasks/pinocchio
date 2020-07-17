@@ -70,7 +70,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                   std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
-                  const Scalar mu = 0.);
+                  const Scalar mu = Scalar(0.));
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
