@@ -15,13 +15,15 @@ namespace pinocchio
    *             You must first call pinocchio::computeForwardKinematicsDerivatives to compute all the required quantities.
    *
    * @tparam JointCollection Collection of Joint types.
-   * @tparam Matrix6xOut1 Matrix6x containing the partial derivatives with respect to the joint configuration vector.
-   * @tparam Matrix6xOut2 Matrix6x containing the partial derivatives with respect to the joint velocity vector.
+   * @tparam Matrix6xOut1 Matrix6x containing the partial derivatives of the frame spatial velocity with respect to the joint configuration vector.
+   * @tparam Matrix6xOut2 Matrix6x containing the partial derivatives of the frame spatial velocity with respect to the joint velocity vector.
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[in]  rf          Reference frame in which the velocity is expressed.
+   * @param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
+   * @param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
