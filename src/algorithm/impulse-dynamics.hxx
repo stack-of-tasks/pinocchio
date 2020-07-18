@@ -8,7 +8,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
-
+#include "pinocchio/algorithm/contact-dynamics.hxx"
 #include <limits>
 
 namespace pinocchio
@@ -22,18 +22,18 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType1> & v_before,
                   const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                   std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
-                  const Scalar mu,
-                  const Scalar r_coeff)
+                  const Scalar r_coeff,
+                  const Scalar mu)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq,
                                    "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv,
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv,
                                    "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv,
-                                   "The joint torque vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
                                    "mu has to be positive");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((r_coeff >= Scalar(0)) &&(r_coeff <= Scalar(1)) ,
+                                   "r_coeff has to be in [0,1]");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_models.size() == contact_datas.size(),
                                    "The contact models and data do not have the same vector size.");
     
@@ -49,12 +49,11 @@ namespace pinocchio
     typename Data::VectorXs & contact_vector_solution = data.contact_vector_solution;
     
     data.oYcrb[0].setZero();
-    data.of[0].setZero();
     typedef ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1, false> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
-                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+                 typename Pass1::ArgsType(model,data,q.derived(),v_before.derived()));
     }
     
     typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,false> Pass2;
@@ -67,9 +66,18 @@ namespace pinocchio
     data.M.diagonal() += model.armature;
     contact_chol.compute(model,data,contact_models,contact_datas,mu);
     
+    //Centroidal computations
+    typedef typename Data::Force Force;
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
+    data.com[0] = data.oYcrb[0].lever();
+    const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
+    for(long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
     //TODO: send this to the back-forward pass
-    data.M.triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+    data.M.template triangularView<Eigen::StrictlyLower>()
+      = data.M.transpose().template triangularView<Eigen::StrictlyLower>();
     contact_vector_solution.tail(model.nv).noalias() = data.M*v_before;
 
     Eigen::DenseIndex current_row_id = 0;
@@ -87,7 +95,7 @@ namespace pinocchio
 
       // Update frame placement
       oMcontact = oMi * frame.placement;
-      
+
       switch(contact_model.reference_frame)
       {
         case WORLD:
