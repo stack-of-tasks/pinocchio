@@ -75,10 +75,12 @@ namespace pinocchio
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
     //TODO: send this to the back-forward pass
-    data.M.template triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().template triangularView<Eigen::StrictlyLower>();
-    contact_vector_solution.tail(model.nv).noalias() = data.M*v_before;
+    //data.M.template triangularView<Eigen::StrictlyLower>()
+    //  = data.M.transpose().template triangularView<Eigen::StrictlyLower>();
+    //contact_vector_solution.tail(model.nv).noalias() = data.M*v_before;
 
+    contact_vector_solution.tail(model.nv).noalias() = data.tau;
+    contact_vector_solution.tail(model.nv).noalias() += model.armature.cwiseProduct(v_before);
     Eigen::DenseIndex current_row_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {

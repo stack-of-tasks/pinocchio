@@ -95,12 +95,12 @@ namespace pinocchio
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
       oinertias = data.oMi[i].act(model.inertias[i]);
       data.oYcrb[i] = data.oinertias[i];
-      
+      Force & oh = data.oh[i];
+      oh = oinertias * ov;
       if(ContactMode)
       {
         Motion & oa = data.oa[i];
         Motion & oa_gf = data.oa_gf[i];
-        Force & oh = data.oh[i];
         Force & of = data.of[i];
         oa = data.oMi[i].act(jdata.c());
         if(parent > 0)
@@ -109,7 +109,6 @@ namespace pinocchio
           oa += data.oa[parent];
         }
         oa_gf = oa - model.gravity; // add gravity contribution
-        oh = oinertias * ov;
         of = oinertias * oa_gf + ov.cross(oh);
       }
     } 
@@ -150,6 +149,13 @@ namespace pinocchio
           = J_cols.transpose()*data.of[i].toVector();
         data.of[parent] += data.of[i];
       }
+      else
+      {
+        //Temporary assignment in data.tau and data.oh. TODO: use some other place to store oh
+        jmodel.jointVelocitySelector(data.tau).noalias()
+          = J_cols.transpose()*data.oh[i].toVector();
+        if(parent>0) data.oh[parent] += data.oh[i];
+      }      
     }
   };
   
