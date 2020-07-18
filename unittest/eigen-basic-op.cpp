@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(test_matrix_matrix_product)
   const Eigen::DenseIndex m = 20, n = 100;
   MatrixXd M1(MatrixXd::Ones(m,n)), M2(MatrixXd::Ones(n,m));
   MatrixMatrixProduct<MatrixXd,MatrixXd>::type res = M1 * M2;
-  BOOST_CHECK(not res.eval().isZero());
+  BOOST_CHECK(!res.eval().isZero());
 }
 
 BOOST_AUTO_TEST_CASE(test_scalar_matrix_product)

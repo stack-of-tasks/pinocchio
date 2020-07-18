@@ -411,7 +411,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(data.mass[rootSubtreeId] > 0., "The mass of the subtree is not positive.");
     const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
     typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
-    if(not computeSubtreeComs)
+    if(!computeSubtreeComs)
       com_subtree *= mass_inv_subtree;
 
     if(rootSubtreeId == 0)
