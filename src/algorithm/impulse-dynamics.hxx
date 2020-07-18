@@ -6,7 +6,6 @@
 #define __pinocchio_algorithm_impulse_dynamics_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/contact-dynamics.hxx"
 #include <limits>

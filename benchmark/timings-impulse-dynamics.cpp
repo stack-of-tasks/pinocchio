@@ -112,207 +112,45 @@ int main(int argc, const char ** argv)
     qs[i]     = randomConfiguration(model,-qmax,qmax);
     qdots[i]  = Eigen::VectorXd::Random(model.nv);
     qddots[i] = Eigen::VectorXd::Random(model.nv);
-    taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-  
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
-  }
-  std::cout << "ABA = \t\t"; timer.toc(std::cout,NBT);
-  
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
-  }
-  std::cout << "contact ABA = \t\t"; timer.toc(std::cout,NBT);
-  
-  double total_time = 0;
-  SMOOTH(NBT)
-  {
-    crba(model,data,qs[_smooth]);
-    timer.tic();
-    cholesky::decompose(model,data);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "Sparse Cholesky = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  total_time = 0;
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    timer.tic();
-    contact_chol_empty.compute(model,data,contact_models_empty,contact_data_empty);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholesky {} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  total_time = 0;
-  MatrixXd H_inverse(contact_chol_empty.size(),contact_chol_empty.size());
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    contact_chol_empty.compute(model,data,contact_models_empty,contact_data_empty);
-    timer.tic();
-    contact_chol_empty.inverse(H_inverse);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholeskyInverse {} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  Eigen::ArrayXd r_coeffs = (Eigen::ArrayXd::Random(NBT)+1.)/2.;
   
   initContactDynamics(model,data,contact_models_empty);
   timer.tic();
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],contact_models_empty,contact_data_empty,r_coeffs[(Eigen::Index)_smooth]);
   }
-  std::cout << "contactDynamics {} = \t\t"; timer.toc(std::cout,NBT);
-  
-  total_time = 0;
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    timer.tic();
-    contact_chol_6D.compute(model,data,contact_models_6D,contact_data_6D);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholesky {6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  total_time = 0;
-  H_inverse.resize(contact_chol_6D.size(),contact_chol_6D.size());
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    contact_chol_6D.compute(model,data,contact_models_6D,contact_data_6D);
-    timer.tic();
-    contact_chol_6D.inverse(H_inverse);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholeskyInverse {6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  MatrixXd J(contact_chol_6D.constraintDim(),model.nv);
-  J.setZero();
-  MatrixXd MJtJ_inv(model.nv+contact_chol_6D.constraintDim(),
-                    model.nv+contact_chol_6D.constraintDim());
-  MJtJ_inv.setZero();
-  
-  VectorXd gamma(contact_chol_6D.constraintDim());
-  gamma.setZero();
-  
-  total_time = 0;
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    timer.tic();
-    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-    
-    forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
-    
-    timer.tic();
-    cholesky::decompose(model,data);
-    getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "KKTContactDynamicMatrixInverse {6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  std::cout << "impulseDynamics {} = \t\t"; timer.toc(std::cout,NBT);
+
   
   initContactDynamics(model,data,contact_models_6D);
   timer.tic();
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],contact_models_6D,contact_data_6D,r_coeffs[(Eigen::Index)_smooth]);
   }
-  std::cout << "contactDynamics {6D} = \t\t"; timer.toc(std::cout,NBT);
-  
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D,prox_settings);
-  }
-  std::cout << "contact ABA {6D} = \t\t"; timer.toc(std::cout,NBT);
-  
-  total_time = 0;
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    timer.tic();
-    contact_chol_6D6D.compute(model,data,contact_models_6D6D,contact_data_6D6D);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholesky {6D,6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  total_time = 0;
-  H_inverse.resize(contact_chol_6D6D.size(),contact_chol_6D6D.size());
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    contact_chol_6D6D.compute(model,data,contact_models_6D6D,contact_data_6D6D);
-    timer.tic();
-    contact_chol_6D6D.inverse(H_inverse);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "contactCholeskyInverse {6D,6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
-  
-  J.resize(contact_chol_6D6D.constraintDim(),model.nv);
-  J.setZero();
-  MJtJ_inv.resize(model.nv+contact_chol_6D6D.constraintDim(),
-                  model.nv+contact_chol_6D6D.constraintDim());
-  MJtJ_inv.setZero();
-  
-  gamma.resize(contact_chol_6D6D.constraintDim());
-  gamma.setZero();
-  
-  total_time = 0;
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
-    getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
-    
-    forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
-    
-    timer.tic();
-    cholesky::decompose(model,data);
-    getKKTContactDynamicMatrixInverse(model,data,J,MJtJ_inv);
-    total_time += timer.toc(timer.DEFAULT_UNIT);
-  }
-  std::cout << "KKTContactDynamicMatrixInverse {6D,6D} = \t\t" << (total_time/NBT)
-  << " " << timer.unitName(timer.DEFAULT_UNIT) <<std::endl;
+  std::cout << "impulseDynamics {6D} = \t\t"; timer.toc(std::cout,NBT);
   
   initContactDynamics(model,data,contact_models_6D6D);
   timer.tic();
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],contact_models_6D6D,contact_data_6D6D,r_coeffs[(Eigen::Index)_smooth]);
   }
-  std::cout << "contactDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
-  
+  std::cout << "impulseDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+
+  Eigen::MatrixXd J(Eigen::MatrixXd::Zero(12,model.nv));
   timer.tic();
   SMOOTH(NBT)
   {
-    contactABA(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D,prox_settings);
-  }
-  std::cout << "contact ABA {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
-  
-  J.setZero();
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
+    crba(model,data,qs[_smooth]);
     getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
     getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
-    forwardDynamics(model,data,taus[_smooth],J,gamma);
+    impulseDynamics(model,data,qdots[_smooth],J,r_coeffs[(Eigen::Index)_smooth]);
   }
-  std::cout << "constrainedDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "constrained impulseDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
+
   
   std::cout << "--" << std::endl;
   
