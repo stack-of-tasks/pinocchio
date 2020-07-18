@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -27,12 +27,13 @@ namespace pinocchio
       exposeRegressor();
       exposeCholesky();
       exposeModelAlgo();
-      exposeCentroidalDerivatives();
-      
+
       // expose derivative version of the algorithms
       exposeRNEADerivatives();
       exposeABADerivatives();
       exposeKinematicsDerivatives();
+      exposeFramesDerivatives();
+      exposeCentroidalDerivatives();
     }
     
   } // namespace python

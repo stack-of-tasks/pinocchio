@@ -1,12 +1,13 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_kinematics_derivatives_hxx__
-#define __pinocchio_kinematics_derivatives_hxx__
+#ifndef __pinocchio_algorithm_kinematics_derivatives_hxx__
+#define __pinocchio_algorithm_kinematics_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/algorithm/jacobian.hpp"
 
 namespace pinocchio
 {
@@ -109,7 +110,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
+                                  const Data &,
                                   const typename Model::JointIndex &,
                                   const ReferenceFrame &,
                                   Matrix6xOut1 &,
@@ -119,7 +120,7 @@ namespace pinocchio
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
-                     Data & data,
+                     const Data & data,
                      const typename Model::JointIndex & jointId,
                      const ReferenceFrame & rf,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -131,12 +132,12 @@ namespace pinocchio
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      Motion & vtmp = data.ov[0]; // Temporary variable
+      Motion vtmp; // Temporary variable
       
       const SE3 & oMlast = data.oMi[jointId];
       const Motion & vlast = data.ov[jointId];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::ConstType ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
@@ -144,32 +145,52 @@ namespace pinocchio
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
       Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
       
-      // dvec/dv
+      // dvec/dv: this result is then needed by dvec/dq
       ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
-      if(rf == WORLD)
-        v_partial_dv_cols = Jcols;
-      else
-        motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
+      switch(rf)
+      {
+        case WORLD:
+          v_partial_dv_cols = Jcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          details::translateJointJacobian(oMlast,Jcols,v_partial_dv_cols);
+          break;
+        case LOCAL:
+          motionSet::se3ActionInverse(oMlast,Jcols,v_partial_dv_cols);
+          break;
+        default:
+          assert(false && "This must never happened");
+      }
 
       // dvec/dq
       ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          vtmp = data.ov[parent] - vlast;
-        else
-          vtmp = -vlast;
-        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
-      }
-      else
-      {
-        if(parent > 0)
-        {
-          vtmp = oMlast.actInv(data.ov[parent]);
+        case WORLD:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          vtmp.linear() += vtmp.angular().cross(oMlast.translation());
           motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
-        }
+          break;
+        case LOCAL:
+          if(parent > 0)
+          {
+            vtmp = oMlast.actInv(data.ov[parent]);
+            motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
+          }
+          break;
+        default:
+          assert(false && "This must never happened");
       }
-      
       
     }
     
@@ -177,7 +198,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                           const Model::JointIndex jointId,
                                           const ReferenceFrame rf,
                                           const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -202,9 +223,6 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv)));
     }
-  
-    // Set back ov[0] to a zero value
-    data.ov[0].setZero();
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
@@ -215,7 +233,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef boost::fusion::vector<const Model &,
-                                  Data &,
+                                  const Data &,
                                   const typename Model::JointIndex &,
                                   const ReferenceFrame &,
                                   Matrix6xOut1 &,
@@ -227,7 +245,7 @@ namespace pinocchio
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      const Model & model,
-                     Data & data,
+                     const Data & data,
                      const typename Model::JointIndex & jointId,
                      const ReferenceFrame & rf,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -241,14 +259,14 @@ namespace pinocchio
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
-      Motion & vtmp = data.ov[0]; // Temporary variable
-      Motion & atmp = data.oa[0]; // Temporary variable
+      Motion vtmp; // Temporary variable
+      Motion atmp; // Temporary variable
       
       const SE3 & oMlast = data.oMi[jointId];
       const Motion & vlast = data.ov[jointId];
       const Motion & alast = data.oa[jointId];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::ConstType ColsBlock;
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
@@ -267,63 +285,100 @@ namespace pinocchio
       ColsBlockOut4 a_partial_da_cols = jmodel.jointCols(a_partial_da_);
       
       // dacc/da
-      if(rf == WORLD)
-        a_partial_da_cols = Jcols;
-      else
-        motionSet::se3ActionInverse(oMlast,Jcols,a_partial_da_cols);
-      
-      // dacc/dv
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          vtmp = data.ov[parent] - vlast;
-        else
-          vtmp = -vlast;
-        
-        // also computes dvec/dq
-        motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
-        
-        a_partial_dv_cols = v_partial_dq_cols + dJcols;
+        case WORLD:
+          a_partial_da_cols = Jcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          details::translateJointJacobian(oMlast,Jcols,a_partial_da_cols);
+          break;
+        case LOCAL:
+          motionSet::se3ActionInverse(oMlast,Jcols,a_partial_da_cols);
+          break;
       }
-      else
+        
+      // dacc/dv
+      switch(rf)
       {
-       // also computes dvec/dq
-        if(parent > 0)
-        {
-          vtmp = oMlast.actInv(data.ov[parent]);
+        case WORLD:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          
+          // also computes dvec/dq
+          motionSet::motionAction(vtmp,Jcols,v_partial_dq_cols);
+          
+          a_partial_dv_cols = v_partial_dq_cols + dJcols;
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            vtmp = data.ov[parent] - vlast;
+          else
+            vtmp = -vlast;
+          vtmp.linear() += vtmp.angular().cross(oMlast.translation());
+          
+           // also computes dvec/dq
           motionSet::motionAction(vtmp,a_partial_da_cols,v_partial_dq_cols);
-        }
-        
-        if(parent > 0)
-          vtmp -= data.v[jointId];
-        else
-          vtmp = -data.v[jointId];
-        
-        motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
-        motionSet::se3ActionInverse<ADDTO>(oMlast,dJcols,a_partial_dv_cols);
+          
+          details::translateJointJacobian(oMlast,dJcols,a_partial_dv_cols);
+//          a_partial_dv_cols += v_partial_dq_cols; // dJcols is required later
+          break;
+        case LOCAL:
+          // also computes dvec/dq
+          if(parent > 0)
+          {
+            vtmp = oMlast.actInv(data.ov[parent]);
+            motionSet::motionAction(vtmp,a_partial_da_cols,v_partial_dq_cols);
+          }
+          
+          if(parent > 0)
+            vtmp -= data.v[jointId];
+          else
+            vtmp = -data.v[jointId];
+          
+          motionSet::motionAction(vtmp,a_partial_da_cols,a_partial_dv_cols);
+          motionSet::se3ActionInverse<ADDTO>(oMlast,dJcols,a_partial_dv_cols);
+          break;
       }
       
       // dacc/dq
-      if(rf == WORLD)
+      switch(rf)
       {
-        if(parent > 0)
-          atmp = data.oa[parent] - alast;
-        else
-          atmp = -alast;
-        motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
-        
-        if(parent >0)
-          motionSet::motionAction<ADDTO>(vtmp,dJcols,a_partial_dq_cols);
-      }
-      else
-      {
-        if(parent > 0)
-        {
-          atmp = oMlast.actInv(data.oa[parent]);
+        case WORLD:
+          if(parent > 0)
+            atmp = data.oa[parent] - alast;
+          else
+            atmp = -alast;
+          motionSet::motionAction(atmp,Jcols,a_partial_dq_cols);
+          
+          if(parent >0)
+            motionSet::motionAction<ADDTO>(vtmp,dJcols,a_partial_dq_cols);
+          break;
+        case LOCAL_WORLD_ALIGNED:
+          if(parent > 0)
+            atmp = data.oa[parent] - alast;
+          else
+            atmp = -alast;
+          
+          atmp.linear() += atmp.angular().cross(oMlast.translation());
           motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
-        }
-        
-        motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
+          
+          if(parent >0)
+            motionSet::motionAction<ADDTO>(vtmp,a_partial_dv_cols,a_partial_dq_cols);
+          
+          a_partial_dv_cols += v_partial_dq_cols;
+          break;
+        case LOCAL:
+          if(parent > 0)
+          {
+            atmp = oMlast.actInv(data.oa[parent]);
+            motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
+          }
+          
+          motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
+          break;
       }
 
       
@@ -333,7 +388,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -368,15 +423,11 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_da)));
       
     }
-    
-    // Set Zero to temporary spatial variables
-    data.ov[0].setZero();
-    data.oa[0].setZero();
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -720,5 +771,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_kinematics_derivatives_hxx__
-
+#endif // ifndef __pinocchio_algorithm_kinematics_derivatives_hxx__
