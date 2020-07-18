@@ -206,7 +206,6 @@ namespace pinocchio
   ///       \f$ M \f$ is the joint space mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \epsilon \f$ is the coefficient of restitution (1 for a fully elastic impact or 0 for a rigid impact).
   ///
   /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
   /// \tparam TangentVectorType Type of the joint velocity vector.
   /// \tparam ConstraintMatrixType Type of the constraint matrix.
   ///
@@ -219,7 +218,7 @@ namespace pinocchio
   ///
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType, typename ConstraintMatrixType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
