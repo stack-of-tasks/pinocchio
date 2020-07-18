@@ -167,8 +167,15 @@ namespace pinocchio
     {}
 
     InertiaTpl(const Scalar mass, const Vector3 & com, const Matrix3 & rotational_inertia)
-    : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
-    {}
+    : m_mass(mass), m_com(com)
+    {
+      assert( (rotational_inertia-rotational_inertia.transpose()).isMuchSmallerThan(rotational_inertia) );
+      Vector6 rot_inertia;
+      rot_inertia(0) = rotational_inertia(0,0);
+      rot_inertia(1) = rotational_inertia(1,0); rot_inertia(2) = rotational_inertia(1,1);
+      rot_inertia(3) = rotational_inertia(2,0); rot_inertia(4) = rotational_inertia(2,1); rot_inertia(5) = rotational_inertia(2,2);
+      m_inertia = Symmetric3(rot_inertia);
+    }
     
     InertiaTpl(const Matrix6 & I6)
     {
