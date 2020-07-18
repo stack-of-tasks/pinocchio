@@ -219,10 +219,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   contactDynamics(model,data1,q,v,tau,contact_models_6D,contact_datas_6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
-  std::cout << "initContactDynamics" << std::endl;
   initContactDynamics(model,data1,contact_models_6D6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 2*6));
-  std::cout << "contactDynamics" << std::endl;
   contactDynamics(model,data1,q,v,tau,contact_models_6D6D,contact_datas_6D6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
@@ -873,7 +871,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   gamma.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame,ci_RF.placement).toVector();
   gamma.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame,ci_LF.placement).toVector();
   
-  std::cout << "J_ref*data_ref.ddq + gamma = " << (J_ref*data_ref.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
@@ -886,7 +883,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   const double mu = prox_settings.mu;
   contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
   
-  std::cout << "J_ref*data.ddq + gamma = " << (J_ref*data.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
   
   forwardKinematics(model, data_ref, q, v, 0*v);
@@ -1020,7 +1016,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   gamma.segment<3>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame).linear();
   gamma.segment<3>(3) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame).linear();
   
-  std::cout << "J_ref*data_ref.ddq + gamma = " << (J_ref*data_ref.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
@@ -1032,7 +1027,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   prox_settings.mu = 1e8;
   contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
   
-  std::cout << "J_ref*data.ddq + gamma = " << (J_ref*data.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
   
   // Call the algorithm a second time
