@@ -286,7 +286,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(reference_configuration.size() == input_model.nq,
                                    "The configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(list_of_joints_to_lock.size() <= (size_t)input_model.njoints,
-                                   "The number of joints to lock is greater than the total of joints in the reduced_model".);
+                                   "The number of joints to lock is greater than the total of joints in the reduced_model");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointModel JointModel;
