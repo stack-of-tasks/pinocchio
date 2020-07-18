@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2020 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_dynamics_hxx__
