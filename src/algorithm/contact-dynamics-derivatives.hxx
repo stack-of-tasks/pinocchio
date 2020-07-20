@@ -37,44 +37,60 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       const Motion & ov = data.ov[i];
-      Motion & oa = data.oa[i];
-      Motion & oa_gf = data.oa_gf[i];
-      const typename Data::TangentVectorType& a = data.ddq;
-      
-      // TODO: make more efficient
-      data.v[i] = data.oMi[i].actInv(data.ov[i]);
-      data.a[i] = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
-      if(parent > 0)
-        data.a[i] += data.liMi[i].actInv(data.a[parent]);
-
-      oa = data.oMi[i].act(data.a[i]);
-      oa_gf = oa - model.gravity; // add gravity contribution
-      
-      data.of[i] = data.oinertias[i] * oa_gf + ov.cross(data.oh[i]);
-      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-      ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-
       motionSet::motionAction(ov,J_cols,dJ_cols);
-      motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
-      dAdv_cols = dJ_cols;
+      
+      // TODO: make more efficient
+      data.v[i] = data.oMi[i].actInv(data.ov[i]);
+      bool ContactMode = true;
       if(parent > 0)
       {
         motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
-        motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
-        dAdv_cols.noalias() += dVdq_cols;
       }
       else
         dVdq_cols.setZero();
-
       // computes variation of inertias
       data.doYcrb[i] = data.oinertias[i].variation(ov);
       typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,typename Data::ConfigVectorType,typename Data::TangentVectorType,typename Data::TangentVectorType> RNEAForwardStepType;
       RNEAForwardStepType::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
+      if(ContactMode)
+      {
+        Motion & oa = data.oa[i];
+        Motion & oa_gf = data.oa_gf[i];
+        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        const typename Data::TangentVectorType& a = data.ddq;
+        data.a[i] = jdata.S() * jmodel.jointVelocitySelector(a) + jdata.c() + (data.v[i] ^ jdata.v());
+        if(parent > 0)
+          data.a[i] += data.liMi[i].actInv(data.a[parent]);
+        oa = data.oMi[i].act(data.a[i]);
+        oa_gf = oa - model.gravity; // add gravity contribution
+        data.of[i] = data.oinertias[i] * oa_gf + ov.cross(data.oh[i]);
+        motionSet::motionAction(data.oa_gf[parent],J_cols,dAdq_cols);
+        dAdv_cols = dJ_cols;
+        if(parent > 0)
+        {
+          motionSet::motionAction<ADDTO>(data.ov[parent],dVdq_cols,dAdq_cols);
+          dAdv_cols.noalias() += dVdq_cols;
+        }
+      }
+      else
+      {
+        Motion & odv = data.oa[i];
+        Motion & odvparent = data.oa[parent];
+        Motion & ov_after = data.oa_gf[i];
+        Motion & ov_afterp = data.oa_gf[parent];
+        const typename Data::TangentVectorType& dq_after = data.dq_after;
+        //Temporary calculation of J(dq_after)
+        ov_after = J_cols * jmodel.jointVelocitySelector(dq_after);
+        if(parent > 0)
+          ov_after += ov_afterp;
+        odv = ov_after - ov;
+        motionSet::motionAction(odvparent,J_cols,dAdq_cols);
+      }
     }
   };
 
@@ -96,38 +112,38 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
+                                                 typename Data::RowMatrixXs,
+                                                 typename Data::RowMatrixXs,
+                                                 typename Data::RowMatrixXs> RNEABackwardStep;
       
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
+      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
+      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
+      typename Data::RowMatrixXs & rnea_partial_dq_ = data.dtau_dq;
       
       // Temporary variables
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
+      bool ContactMode = true;
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      
-      ColsBlock J_cols = jmodel.jointCols(data.J);
-      ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
-      ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
-      ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-      ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-      ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-
-      typename Data::RowMatrixXs & rnea_partial_dq_ = data.dtau_dq;
-      typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;
-
-      // dtau/dv
-      dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
-      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
-
-      rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      
       // dtau/dq
       if(parent>0)
       {
         dFdq_cols.noalias() = data.doYcrb[i] * dVdq_cols;
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,dFdq_cols);
+        RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
+        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
+        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+        {
+          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+          = YS  * data.dAdq.col(j)
+          + StY * data.dVdq.col(j);
+        }        
       }
       else
         motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
@@ -136,26 +152,30 @@ namespace pinocchio
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
+        typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;
+      // dtau/dv
+      if(ContactMode)
+      {
+        ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
+        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
+        
+        dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
+        motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
 
-      typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
-                                                 typename Data::RowMatrixXs,
-                                                 typename Data::RowMatrixXs,
-                                                 typename Data::RowMatrixXs> RNEABackwardStep;
+        rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+          = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      }
+
       if(parent > 0)
       {
-        RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
-        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        {
-          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = YS  * data.dAdq.col(j)
-          + StY * data.dVdq.col(j);
-        }
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        {
-          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = YS  * data.dAdv.col(j)
-          + StY * data.J.col(j);
+        if(ContactMode)
+        {        
+          for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+          {
+            rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+              = YS  * data.dAdv.col(j)
+              + StY * data.J.col(j);
+          }
         }
       }
 
@@ -164,14 +184,16 @@ namespace pinocchio
         data.doYcrb[parent] += data.doYcrb[i];
         data.of[parent] += data.of[i];
       }
-      
-      // Restore the status of dAdq_cols (remove gravity)
-      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
+      if(ContactMode)
       {
-        typedef typename ColsBlock::ColXpr ColType;
-        MotionRef<ColType> min(J_cols.col(k));
-        MotionRef<ColType> mout(dAdq_cols.col(k));
-        mout.linear() += model.gravity.linear().cross(min.angular());
+      // Restore the status of dAdq_cols (remove gravity)
+        for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
+        {
+          typedef typename ColsBlock::ColXpr ColType;
+          MotionRef<ColType> min(J_cols.col(k));
+          MotionRef<ColType> mout(dAdq_cols.col(k));
+          mout.linear() += model.gravity.linear().cross(min.angular());
+        }
       }
     }
   };
