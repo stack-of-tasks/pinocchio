@@ -96,12 +96,12 @@ namespace pinocchio
       oinertias = data.oMi[i].act(model.inertias[i]);
       data.oYcrb[i] = data.oinertias[i];
       Force & oh = data.oh[i];
+      Force & of = data.of[i];
       oh = oinertias * ov;
       if(ContactMode)
       {
         Motion & oa = data.oa[i];
         Motion & oa_gf = data.oa_gf[i];
-        Force & of = data.of[i];
         oa = data.oMi[i].act(jdata.c());
         if(parent > 0)
         {
@@ -111,12 +111,16 @@ namespace pinocchio
         oa_gf = oa - model.gravity; // add gravity contribution
         of = oinertias * oa_gf + ov.cross(oh);
       }
+      else
+      {
+        of = oh;
+      }
     } 
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ContactAndImpulseDynamicsBackwardStep
-    : public fusion::JointUnaryVisitorBase< ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
+    : public fusion::JointUnaryVisitorBase< ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -143,19 +147,9 @@ namespace pinocchio
 
       const JointIndex & parent = model.parents[i];
       data.oYcrb[parent] += data.oYcrb[i];
-      if(ContactMode)
-      {
-        jmodel.jointVelocitySelector(data.nle).noalias()
-          = J_cols.transpose()*data.of[i].toVector();
-        data.of[parent] += data.of[i];
-      }
-      else
-      {
-        //Temporary assignment in data.tau and data.oh. TODO: use some other place to store oh
-        jmodel.jointVelocitySelector(data.tau).noalias()
-          = J_cols.transpose()*data.oh[i].toVector();
-        if(parent>0) data.oh[parent] += data.oh[i];
-      }      
+      jmodel.jointVelocitySelector(data.nle).noalias()
+        = J_cols.transpose()*data.of[i].toVector();
+      data.of[parent] += data.of[i];
     }
   };
   
@@ -202,7 +196,7 @@ namespace pinocchio
                  typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
     }
     
-    typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
+    typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass2::run(model.joints[i],
