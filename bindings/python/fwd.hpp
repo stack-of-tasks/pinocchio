@@ -20,6 +20,7 @@ namespace pinocchio
     void exposeInertia();
     void exposeExplog();
     void exposeSkew();
+    void exposeLieGroups();
 
     // Expose math module
     void exposeRpy();

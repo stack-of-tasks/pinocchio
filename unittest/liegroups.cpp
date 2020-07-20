@@ -5,6 +5,7 @@
 #include "pinocchio/multibody/liegroup/liegroup.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-generic.hpp"
+#include "pinocchio/multibody/liegroup/cartesian-product-variant.hpp"
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 
@@ -25,6 +26,19 @@ using namespace pinocchio;
 
 #define VERBOSE false
 #define IFVERBOSE if(VERBOSE)
+
+namespace pinocchio {
+template<typename Derived>
+std::ostream& operator<< (std::ostream& os, const LieGroupBase<Derived>& lg)
+{
+  return os << lg.name();
+}
+template<typename LieGroupCollection>
+std::ostream& operator<< (std::ostream& os, const LieGroupGenericTpl<LieGroupCollection>& lg)
+{
+  return os << lg.name();
+}
+} // namespace pinocchio
 
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
@@ -654,7 +668,8 @@ struct TestLieGroupVariantVisitor
 {
   
   typedef LieGroupGenericTpl<LieGroupCollection> LieGroupGeneric;
-
+  typedef typename LieGroupGeneric::ConfigVector_t ConfigVector_t;
+  typedef typename LieGroupGeneric::TangentVector_t TangentVector_t;
   
   template<typename Derived>
   void operator() (const LieGroupBase<Derived> & lg) const
@@ -667,8 +682,6 @@ struct TestLieGroupVariantVisitor
   static void test(const LieGroupBase<Derived> & lg,
                    const LieGroupGenericTpl<LieGroupCollection> & lg_generic)
   {
-    typedef typename Derived::ConfigVector_t ConfigVector_t;
-    typedef typename Derived::TangentVector_t TangentVector_t;
     BOOST_CHECK(lg.nq() == nq(lg_generic));
     BOOST_CHECK(lg.nv() == nv(lg_generic));
     
@@ -687,12 +700,42 @@ struct TestLieGroupVariantVisitor
     ConfigVectorGeneric qout(lg.nq());
     integrate(lg_generic, ConfigVectorGeneric(q0), TangentVectorGeneric(v), qout);
     BOOST_CHECK(qout.isApprox(qout_ref));
+
+    ConfigVector_t q1 (nq(lg_generic));
+    random (lg_generic, q1);
+    difference(lg_generic, q0, q1, v);
+    BOOST_CHECK_EQUAL(lg.distance(q0, q1), distance (lg_generic, q0, q1));
   }
 };
 
 BOOST_AUTO_TEST_CASE(test_liegroup_variant)
 {
   boost::mpl::for_each<LieGroupCollectionDefault::LieGroupVariant::types>(TestLieGroupVariantVisitor<LieGroupCollectionDefault>());
+}
+
+template<typename Lg1, typename Lg2>
+void test_liegroup_variant_equal(Lg1 lg1, Lg2 lg2)
+{
+  typedef LieGroupGenericTpl<LieGroupCollectionDefault> LieGroupGeneric;
+  BOOST_CHECK_EQUAL(LieGroupGeneric(lg1), LieGroupGeneric(lg2));
+}
+
+template<typename Lg1, typename Lg2>
+void test_liegroup_variant_not_equal(Lg1 lg1, Lg2 lg2)
+{
+  typedef LieGroupGenericTpl<LieGroupCollectionDefault> LieGroupGeneric;
+  BOOST_CHECK_PREDICATE( std::not_equal_to<LieGroupGeneric>(),
+      (LieGroupGeneric(lg1))(LieGroupGeneric(lg2)) );
+}
+
+BOOST_AUTO_TEST_CASE(test_liegroup_variant_comparison)
+{
+  test_liegroup_variant_equal(
+      VectorSpaceOperationTpl<1, double>(),
+      VectorSpaceOperationTpl<Eigen::Dynamic, double>(1));
+  test_liegroup_variant_not_equal(
+      VectorSpaceOperationTpl<1, double>(),
+      VectorSpaceOperationTpl<Eigen::Dynamic, double>(2));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

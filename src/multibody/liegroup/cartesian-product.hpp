@@ -133,16 +133,11 @@ namespace pinocchio
         case SETTO:
           J12(J).setZero();
           J21(J).setZero();
-          lg1.dIntegrate_dq(Q1(q), V1(v), J11(J),SETTO);
-          lg2.dIntegrate_dq(Q2(q), V2(v), J22(J),SETTO);
-          break;
+          // fallthrough
         case ADDTO:
-          lg1.dIntegrate_dq(Q1(q), V1(v), J11(J),ADDTO);
-          lg2.dIntegrate_dq(Q2(q), V2(v), J22(J),ADDTO);
-          break;
         case RMTO:
-          lg1.dIntegrate_dq(Q1(q), V1(v), J11(J),RMTO);
-          lg2.dIntegrate_dq(Q2(q), V2(v), J22(J),RMTO);
+          lg1.dIntegrate_dq(Q1(q), V1(v), J11(J),op);
+          lg2.dIntegrate_dq(Q2(q), V2(v), J22(J),op);
           break;
         default:
           assert(false && "Wrong Op requesed value");
@@ -161,16 +156,11 @@ namespace pinocchio
         case SETTO:
           J12(J).setZero();
           J21(J).setZero();
-          lg1.dIntegrate_dv(Q1(q), V1(v), J11(J),SETTO);
-          lg2.dIntegrate_dv(Q2(q), V2(v), J22(J),SETTO);
-          break;
+          // fallthrough
         case ADDTO:
-          lg1.dIntegrate_dv(Q1(q), V1(v), J11(J),ADDTO);
-          lg2.dIntegrate_dv(Q2(q), V2(v), J22(J),ADDTO);
-          break;
         case RMTO:
-          lg1.dIntegrate_dv(Q1(q), V1(v), J11(J),RMTO);
-          lg2.dIntegrate_dv(Q2(q), V2(v), J22(J),RMTO);
+          lg1.dIntegrate_dv(Q1(q), V1(v), J11(J),op);
+          lg2.dIntegrate_dv(Q2(q), V2(v), J22(J),op);
           break;
         default:
           assert(false && "Wrong Op requesed value");
@@ -262,6 +252,11 @@ namespace pinocchio
     {
       return lg1.isSameConfiguration(Q1(q0), Q1(q1), prec)
         &&   lg2.isSameConfiguration(Q2(q0), Q2(q1), prec);
+    }
+
+    bool isEqual_impl (const CartesianProductOperation& other) const
+    {
+      return lg1 == other.lg1 && lg2 == other.lg2;
     }
 
     LieGroup1 lg1;

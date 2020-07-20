@@ -82,9 +82,33 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       if (arg == ARG0)
-        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J) = -JacobianMatrix_t::Identity();
+        PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J) = -JacobianMatrix_t::Identity(size_.value(),size_.value());
       else if (arg == ARG1)
         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).setIdentity();
+    }
+
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference_product_impl(const ConfigL_t &,
+                                  const ConfigR_t &,
+                                  const JacobianIn_t & Jin,
+                                  JacobianOut_t & Jout,
+                                  bool,
+                                  const AssignmentOperatorType op) const
+    {
+      switch (op) {
+        case SETTO:
+          if (arg == ARG0) Jout = - Jin;
+          else             Jout =   Jin;
+          return;
+        case ADDTO:
+          if (arg == ARG0) Jout -= Jin;
+          else             Jout += Jin;
+          return;
+        case RMTO:
+          if (arg == ARG0) Jout += Jin;
+          else             Jout -= Jin;
+          return;
+      }
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
@@ -150,6 +174,30 @@ namespace pinocchio
         }
     }
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_product_impl(const Config_t &,
+                                 const Tangent_t &,
+                                 const JacobianIn_t & Jin,
+                                 JacobianOut_t & Jout,
+                                 bool,
+                                 const ArgumentPosition,
+                                 const AssignmentOperatorType op) const
+    {
+      switch(op) {
+        case SETTO:
+          Jout = Jin;
+          break;
+        case ADDTO:
+          Jout += Jin;
+          break;
+        case RMTO:
+          Jout -= Jin;
+          break;
+        default:
+          assert(false && "Wrong Op requesed value");
+          break;
+      }
+    }
 
     template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
     void dIntegrateTransport_dq_impl(const Eigen::MatrixBase<Config_t > & /*q*/,
@@ -214,6 +262,11 @@ namespace pinocchio
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;
       }
+    }
+
+    bool isEqual_impl (const VectorSpaceOperationTpl& other) const
+    {
+      return size_.value() == other.size_.value();
     }
     
   private:

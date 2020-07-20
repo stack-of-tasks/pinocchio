@@ -295,7 +295,7 @@ namespace pinocchio
       (const ::urdf::VisualSharedPtr urdf_visual, std::string& meshTexturePath,
        Eigen::Vector4d & meshColor, const std::vector<std::string> & package_dirs)
       {
-        meshColor.setZero();
+        meshColor << 0.9, 0.9, 0.9, 1.;
         meshTexturePath = "";
         bool overrideMaterial = false;
         if(urdf_visual->material) {
