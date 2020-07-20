@@ -152,41 +152,28 @@ namespace pinocchio
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
-        typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;
       // dtau/dv
       if(ContactMode)
       {
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-        
+        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv); 
+        typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;       
         dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
 
         rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
           = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      }
-
-      if(parent > 0)
-      {
-        if(ContactMode)
-        {        
+        if(parent > 0)
+        {
           for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
           {
             rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
               = YS  * data.dAdv.col(j)
               + StY * data.J.col(j);
           }
+          data.of[parent] += data.of[i];
         }
-      }
-
-      if(parent>0)
-      {
-        data.doYcrb[parent] += data.doYcrb[i];
-        data.of[parent] += data.of[i];
-      }
-      if(ContactMode)
-      {
-      // Restore the status of dAdq_cols (remove gravity)
+        // Restore the status of dAdq_cols (remove gravity)
         for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
         {
           typedef typename ColsBlock::ColXpr ColType;
@@ -195,6 +182,12 @@ namespace pinocchio
           mout.linear() += model.gravity.linear().cross(min.angular());
         }
       }
+
+      if(parent>0)
+      {
+        data.doYcrb[parent] += data.doYcrb[i];
+      }
+      
     }
   };
 
