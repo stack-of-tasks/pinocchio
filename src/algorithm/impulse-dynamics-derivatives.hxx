@@ -56,9 +56,7 @@ namespace pinocchio
     
     assert(model.check(data) && "data is not consistent with model.");
     data.dtau_dq.setZero();
-    data.dtau_dv.setZero();
-    data.dac_dq.setZero();
-    data.dac_dv.setZero();
+    //data.dac_dq.setZero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -75,7 +73,7 @@ namespace pinocchio
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data));
-//      data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
+      //      data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
     }
     
     // Add the contribution of the external forces. TODO: this should be done at the contact dynamics level.
@@ -83,11 +81,18 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      
+      const JointIndex & parent = model.frames[cmodel.frame_id].parent;
       assert(   cmodel.reference_frame == LOCAL
              && "The contact is not expressed in the expected frame");
 
-      data.of[model.frames[cmodel.frame_id].parent] -= cdata.contact_placement.act(cdata.contact_force);
+      //TODO: add LOCAL, WORLD, LOCAL_WORLD_ALIGNED frames.
+      //TODO: check implem
+      if(cmodel.reference_frame == LOCAL){
+        data.of[model.frames[cmodel.frame_id].parent] -= data.oMf[cmodel.frame_id].act(cdata.contact_force);
+      }
+      else {
+        std::cerr<<"BAD CALL> ABORT ABORT"
+      }
     }
 
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
@@ -96,190 +101,6 @@ namespace pinocchio
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data));
     }    
-
-    Eigen::DenseIndex current_row_sol_id = 0;
-    for(size_t k = 0; k < contact_models.size(); ++k)
-    {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
-
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
-      
-      //TODO: This is only for size 6. replace with contact_model::NC
-      switch(cmodel.type)
-      {
-        case CONTACT_6D:
-        {
-          typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-          //TODO: We don't need all these quantities. Remove those not needed.
-          typename Data::Matrix6x & contact_dvc_dq_tmp = data.dFda;
-          RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,
-                                                                current_row_sol_id);
-          RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,
-                                                                current_row_sol_id);
-          RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                                current_row_sol_id);
-          
-          getJointAccelerationDerivatives(model, data,
-                                          joint_id,
-                                          LOCAL,
-                                          contact_dvc_dq_tmp,
-                                          contact_dac_dq,
-                                          contact_dac_dv,
-                                          contact_dac_da);
-          
-          //TODO: replace with contact_model::nc
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            contact_dac_dq.template topRows<3>().col(j) +=
-              data.v[joint_id].angular().cross(contact_dvc_dq_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_dvc_dq_tmp.template bottomRows<3>().col(j));
-            contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_dac_da.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_dac_da.template bottomRows<3>().col(j));
-          }
-          
-          //TODO: remplacer par contact_model::NC
-          current_row_sol_id += 6;
-          break;
-        }
-        case CONTACT_3D:
-        {
-          typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-          //TODO: Specialize for the 3d case.
-          //TODO: We don't need all these quantities. Remove those not needed.
-          typename Data::Matrix6x & v_partial_dq_tmp = data.dFda;
-          typename Data::Matrix6x & a_partial_dq_tmp = data.SDinv;
-          typename Data::Matrix6x & a_partial_dv_tmp = data.UDinv;
-          typename Data::Matrix6x & a_partial_da_tmp = data.IS;
-          
-          getJointAccelerationDerivatives(model, data,
-                                          joint_id,
-                                          LOCAL,
-                                          v_partial_dq_tmp,
-                                          a_partial_dq_tmp,
-                                          a_partial_dv_tmp,
-                                          a_partial_da_tmp);
-          
-          //TODO: replace with contact_model::nc
-          RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
-                                                                current_row_sol_id);
-          RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,
-                                                                current_row_sol_id);
-          RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                                current_row_sol_id);
-          
-          contact_dac_da = a_partial_da_tmp.template topRows<3>();
-          contact_dac_dq = a_partial_dq_tmp.template topRows<3>();
-          contact_dac_dv = a_partial_dv_tmp.template topRows<3>();
-          
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
-            contact_dac_dq.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(v_partial_dq_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(v_partial_dq_tmp.template bottomRows<3>().col(j));
-            contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(a_partial_da_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(a_partial_da_tmp.template bottomRows<3>().col(j));
-          }
-          current_row_sol_id += 3;
-          break;
-        }
-        default:
-          assert(false && "must never happen");
-          break;
-      }
-    }
-    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
-    data.contact_chol.getInverseMassMatrix(data.Minv);
-
-    //Temporary: dlambda_dv stores J*Minv
-    typename Data::MatrixXs & JMinv = data.dlambda_dv;
-
-    JMinv.noalias() = data.dac_da * data.Minv;
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * JMinv; //OUTPUT
-
-    MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
-    ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
-    ddq_partial_dtau_ += data.Minv; //OUTPUT
-    
-    data.dac_dq.noalias() -= JMinv * data.dtau_dq;
-    data.dac_dv.noalias() -= JMinv * data.dtau_dv;
-    
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
-
-    current_row_sol_id = 0;
-    for(size_t k = 0; k < contact_models.size(); ++k)
-    {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
-      
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
-      
-      //TODO: This is only for size 6. replace with contact_model::NC
-      switch(cmodel.type)
-      {
-        case CONTACT_6D:
-        {
-          typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-          typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::ConstType ConstRowsBlock;
-          
-          //TODO: replace with contact_model::nc
-          RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
-                                                                current_row_sol_id);
-          
-          ConstRowsBlock contact_dlambda_dq = SizeDepType<6>::middleRows(lambda_partial_dq,
-                                                                         current_row_sol_id);
-          ConstRowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(lambda_partial_dv,
-                                                                         current_row_sol_id);
-          
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
-            data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
-          }
-          current_row_sol_id += 6;
-          break;
-        }
-        case CONTACT_3D:
-        {
-          typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-          typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::ConstType ConstRowsBlock;
-          
-          //TODO: replace with contact_model::nc
-          RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
-                                                                current_row_sol_id);
-          
-          ConstRowsBlock contact_dlambda_dq = SizeDepType<3>::middleRows(lambda_partial_dq,
-                                                                         current_row_sol_id);
-          ConstRowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(lambda_partial_dv,
-                                                                         current_row_sol_id);
-          
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
-            data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
-          }
-          current_row_sol_id += 3;
-          break;
-        }
-          
-        default:
-          assert(false && "must never happen");
-          break;
-      }
-    }
-
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
   }
   
   
