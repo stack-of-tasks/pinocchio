@@ -14,9 +14,9 @@ namespace pinocchio
 {
 
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
   struct ComputeContactDynamicsDerivativesForwardStep
-  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> >
+    : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -31,7 +31,6 @@ namespace pinocchio
                      const Model & model,
                      Data & data)
     {
-      bool ContactMode = true;
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
@@ -88,13 +87,14 @@ namespace pinocchio
         if(parent > 0)
           odv += odvparent;
         motionSet::motionAction(odvparent,J_cols,dAdq_cols);
+        data.of[i] = data.oinertias[i] * odv;
       }
     }
   };
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
   struct ComputeContactDynamicDerivativesBackwardStep
-  : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> >
+    : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -127,38 +127,46 @@ namespace pinocchio
       // Temporary variables
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
-      bool ContactMode = true;
 
+      motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       // dtau/dq
       if(parent>0)
       {
-        dFdq_cols.noalias() = data.doYcrb[i] * dVdq_cols;
-        motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdq_cols,dFdq_cols);
         RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
-        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+        if(ContactMode)
         {
-          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = YS  * data.dAdq.col(j)
-          + StY * data.dVdq.col(j);
-        }        
+          dFdq_cols.noalias() += data.doYcrb[i] * dVdq_cols;
+          StY.noalias() = J_cols.transpose() * data.doYcrb[i];
+          for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+            {
+              rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+                = YS  * data.dAdq.col(j)
+                + StY * data.dVdq.col(j);
+            }
+        }
+        else
+        {
+          for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
+            {
+              rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+                = YS  * data.dAdq.col(j);
+            }
+        }
       }
-      else
-        motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
 
       rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      
-      motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
-      // dtau/dv
+
       if(ContactMode)
       {
+        
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
         ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv); 
         typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;       
         dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
-
+        motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
+        
         rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
           = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
         if(parent > 0)
@@ -169,7 +177,6 @@ namespace pinocchio
               = YS  * data.dAdv.col(j)
               + StY * data.J.col(j);
           }
-          data.of[parent] += data.of[i];
           data.doYcrb[parent] += data.doYcrb[i];
         }
         // Restore the status of dAdq_cols (remove gravity)
@@ -180,7 +187,11 @@ namespace pinocchio
           MotionRef<ColType> mout(dAdq_cols.col(k));
           mout.linear() += model.gravity.linear().cross(min.angular());
         }
-      }      
+      }
+      if (parent > 0)
+      {
+        data.of[parent] += data.of[i];
+      }
     }
   };
 
@@ -244,7 +255,7 @@ namespace pinocchio
 
     data.oa_gf[0] = -model.gravity;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> Pass1;
+    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -264,7 +275,7 @@ namespace pinocchio
       data.of[model.frames[cmodel.frame_id].parent] -= cdata.contact_placement.act(cdata.contact_force);
     }
 
-    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
