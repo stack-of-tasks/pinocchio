@@ -39,7 +39,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Motion Motion;
-    
+
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     
@@ -55,7 +55,7 @@ namespace pinocchio
                  typename Pass1::ArgsType(model,data,q.derived(),v_before.derived()));
     }
     
-    typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef ContactAndImpulseDynamicsBackwardStep<Scalar,Options,JointCollectionTpl,false> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
       Pass2::run(model.joints[i],
@@ -79,8 +79,7 @@ namespace pinocchio
     //  = data.M.transpose().template triangularView<Eigen::StrictlyLower>();
     //contact_vector_solution.tail(model.nv).noalias() = data.M*v_before;
 
-    contact_vector_solution.tail(model.nv).noalias() = data.nle;
-    contact_vector_solution.tail(model.nv).noalias() += model.armature.cwiseProduct(v_before);
+    contact_vector_solution.tail(model.nv).setZero();
     Eigen::DenseIndex current_row_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
@@ -126,10 +125,10 @@ namespace pinocchio
       switch(contact_model.type)
       {
         case CONTACT_3D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -r_coeff*data.ov[0].linear();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*data.ov[0].linear();
           break;
         case CONTACT_6D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -r_coeff*data.ov[0].toVector();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*data.ov[0].toVector();
           break;
         default:
           assert(false && "must never happened");
@@ -142,9 +141,9 @@ namespace pinocchio
     // Solve the system
     contact_chol.solveInPlace(contact_vector_solution);
     
-    // Retrieve the joint space acceleration
-    dq_after = contact_vector_solution.tail(model.nv);
-
+    // Retrieve the joint space delta v
+    data.ddq = contact_vector_solution.tail(model.nv);
+    dq_after = data.ddq + v_before;
     data.impulse_c = -contact_vector_solution.head(contact_chol.constraintDim());
 
     // Retrieve the impulses
