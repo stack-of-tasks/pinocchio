@@ -9,54 +9,43 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
+#include "pinocchio/algorithm/contact-dynamics-derivatives.hxx"
 
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
-           typename MatrixType5, typename MatrixType6>
-  inline void impulseDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                         const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                         std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
-                                         const Scalar r_coeff,
-                                         const Scalar mu,
-                                         const Eigen::MatrixBase<MatrixType1> & dqafter_partial_dq,
-                                         const Eigen::MatrixBase<MatrixType2> & dqafter_partial_dv,
-                                         const Eigen::MatrixBase<MatrixType4> & impulse_partial_dq,
-                                         const Eigen::MatrixBase<MatrixType5> & impulse_partial_dv,
-                                         const Eigen::MatrixBase<MatrixType6> & impulse_partial_dtau)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4>
+  inline void computeImpulseDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const Scalar r_coeff,
+                                                const Scalar mu,
+                                                const Eigen::MatrixBase<MatrixType1> & dqafter_partial_dq,
+                                                const Eigen::MatrixBase<MatrixType2> & dqafter_partial_dv,
+                                                const Eigen::MatrixBase<MatrixType3> & impulse_partial_dq,
+                                                const Eigen::MatrixBase<MatrixType4> & impulse_partial_dv)
   {
     const Eigen::DenseIndex & nc = data.contact_chol.constraintDim();
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_data.size() == contact_models.size(),
                                    "contact_data and contact_models do not have the same size");
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dq.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(dqafter_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(dqafter_partial_dq.rows() == model.nv);
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dv.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dv.rows() == model.nv);
-    
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dtau.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(ddq_partial_dtau.rows() == model.nv);
-    
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dq.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dq.rows() == nc);
-    
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dv.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dv.rows() == nc);
-    
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
-    
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(dqafter_partial_dv.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(dqafter_partial_dv.rows() == model.nv);
+
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dq.rows() == nc);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((r_coeff >= Scalar(0)) && (r_coeff <= Scalar(1)) && "mu must be positive.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= (Scalar)0 && "mu must be positive.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(model.gravity.angular().isZero(),
                                    "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");
     data.dtau_dq.setZero();
-    //data.dac_dq.setZero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -68,12 +57,12 @@ namespace pinocchio
     typedef std::vector<RigidContactData,ContactDataAllocator> RigidContactDataVector;
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> Pass1;
+    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,false> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data));
-      //      data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
+      //data.of[i] -= data.oMi[i].act(data.contact_forces[i]);
     }
     
     // Add the contribution of the external forces. TODO: this should be done at the contact dynamics level.
@@ -90,20 +79,21 @@ namespace pinocchio
       if(cmodel.reference_frame == LOCAL){
         data.of[model.frames[cmodel.frame_id].parent] -= data.oMf[cmodel.frame_id].act(cdata.contact_force);
       }
+      else if(cmodel.reference_frame == WORLD){
+        data.of[model.frames[cmodel.frame_id].parent] -= cdata.contact_force;
+      }
       else {
-        std::cerr<<"BAD CALL> ABORT ABORT"
+        std::cerr<<"BAD CALL> ABORT ABORT";
       }
     }
 
-    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,false> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data));
     }    
-  }
-  
-  
+  }  
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_contact_dynamics_derivatives_hxx__
