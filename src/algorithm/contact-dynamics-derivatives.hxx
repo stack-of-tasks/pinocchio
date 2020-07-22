@@ -156,6 +156,7 @@ namespace pinocchio
 
       rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
 
       if(ContactMode)
       {
@@ -165,7 +166,7 @@ namespace pinocchio
         typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;       
         dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
-        motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
+        //motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
         
         rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
           = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -194,7 +195,6 @@ namespace pinocchio
       }
     }
   };
-
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
            typename MatrixType5, typename MatrixType6>
