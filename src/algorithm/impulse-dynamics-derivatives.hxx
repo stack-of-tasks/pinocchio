@@ -75,7 +75,6 @@ namespace pinocchio
              && "The contact is not expressed in the expected frame");
 
       //TODO: add LOCAL, WORLD, LOCAL_WORLD_ALIGNED frames.
-      //TODO: check implem
       if(cmodel.reference_frame == LOCAL){
         data.of[model.frames[cmodel.frame_id].parent] -= data.oMf[cmodel.frame_id].act(cdata.contact_force);
       }
@@ -92,7 +91,28 @@ namespace pinocchio
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data));
-    }    
+    }
+
+    data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
+    data.contact_chol.getInverseMassMatrix(data.Minv);
+    //Temporary: dlambda_dv stores J*Minv
+    typename Data::MatrixXs & JMinv = data.dlambda_dv;
+
+    JMinv.noalias() = Jc * data.Minv;
+
+    data.dv_dq.noalias() = - JMinv * data.dtau_dq;
+
+    //TODO: implement the kinematic deriv
+    data.dv_dq.noalias() += dJdq*((1+r_coeff)*v+dv);
+
+    //TODO: Implem sparse.
+    data.dtau_dq.noalias() -= Jc.transpose()*impulse_partial_dq;
+    
+    impulse_partial_dq.noalias() = -osim * data.dv_dq;    
+    impulse_partial_dv.noalias() = -(1+r_coeff)*osim*Jc;
+    dvimpulse_partial_dq.noalias() = -data.Minv*data.dtau_dq;
+    dvimpulse_partial_dv.noalias() = JMinv.transpose()*impulse_partial_dv;
+
   }  
 } // namespace pinocchio
 

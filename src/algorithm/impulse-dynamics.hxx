@@ -73,11 +73,6 @@ namespace pinocchio
     Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
     for(long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
-    
-    //TODO: send this to the back-forward pass
-    //data.M.template triangularView<Eigen::StrictlyLower>()
-    //  = data.M.transpose().template triangularView<Eigen::StrictlyLower>();
-    //contact_vector_solution.tail(model.nv).noalias() = data.M*v_before;
 
     contact_vector_solution.tail(model.nv).setZero();
     Eigen::DenseIndex current_row_id = 0;
