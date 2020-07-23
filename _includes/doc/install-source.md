@@ -77,7 +77,7 @@ export PYTHONPATH=/usr/local/lib/python2.7/site-packages:$PYTHONPATH
 export CMAKE_PREFIX_PATH=/usr/local:$CMAKE_PREFIX_PATH
 ```
 
-:warning: please check the path you're adding in PYTHONPATH. Depending on your system, it might use `pythonX` or
-`pythonX.Y`, and `site-packages` or `dist-packages` :warning:
+Please check the path you're adding in PYTHONPATH. Depending on your system, it might use `pythonX` or
+`pythonX.Y`, and `site-packages` or `dist-packages`.
 
 You may directly add those lines to your `$HOME/.bashrc` for a persistent configuration.
