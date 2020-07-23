@@ -17,8 +17,8 @@ namespace pinocchio
                                                 std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const Scalar r_coeff,
                                                 const Scalar mu,
-                                                const Eigen::MatrixBase<MatrixType1> & dqafter_partial_dq,
-                                                const Eigen::MatrixBase<MatrixType2> & dqafter_partial_dv,
+                                                const Eigen::MatrixBase<MatrixType1> & dvimpulse_partial_dq,
+                                                const Eigen::MatrixBase<MatrixType2> & dvimpulse_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & impulse_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType4> & impulse_partial_dv);
 
