@@ -30,6 +30,8 @@ namespace pinocchio
       exposeCholesky();
       exposeModelAlgo();
       exposeCentroidalDerivatives();
+
+      exposeImpulseDynamics();
       
       // expose derivative version of the algorithms
       exposeRNEADerivatives();

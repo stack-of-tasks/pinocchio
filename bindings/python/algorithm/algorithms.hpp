@@ -38,6 +38,8 @@ namespace pinocchio
     void exposeKinematicsDerivatives();
     void exposeCentroidalDerivatives();
 
+    void exposeImpulseDynamics();
+    
     void exposeAlgorithms();
     
   } // namespace python
