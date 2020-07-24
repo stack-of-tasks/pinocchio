@@ -132,7 +132,8 @@ namespace pinocchio
 
       current_row_id += contact_dim;
     }
-    
+
+    data.ov[0].setZero();
     // Solve the system
     contact_chol.solveInPlace(contact_vector_solution);
     

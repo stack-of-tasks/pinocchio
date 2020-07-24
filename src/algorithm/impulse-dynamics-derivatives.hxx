@@ -213,11 +213,11 @@ namespace pinocchio
           for(JointIndex i = joint_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
-                              typename Pass3::ArgsType(model,data,
-                                                       joint_id,
-                                                       cmodel.reference_frame,
-                                                       PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
-                                                       PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
+                       typename Pass3::ArgsType(model,data,
+                                                joint_id,
+                                                cmodel.reference_frame,
+                                                PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
+                                                PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
           }
           // Set back ov[0] to a zero value
           data.ov[0].setZero();
@@ -239,11 +239,11 @@ namespace pinocchio
           for(JointIndex i = joint_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
-                              typename Pass3::ArgsType(model,data,
-                                                       joint_id,
-                                                       cmodel.reference_frame,
-                                                       PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dq_tmp),
-                                                       PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dv_tmp)));
+                       typename Pass3::ArgsType(model,data,
+                                                joint_id,
+                                                cmodel.reference_frame,
+                                                PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dq_tmp),
+                                                PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dv_tmp)));
           }
           // Set back ov[0] to a zero value
           data.ov[0].setZero();
@@ -261,10 +261,10 @@ namespace pinocchio
     
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
-    //Temporary: dlambda_dv stores J*Minv
-    typename Data::MatrixXs & JMinv = data.dlambda_dv;
+    //Temporary: dlambda_dtau stores J*Minv
+    typename Data::MatrixXs & JMinv = data.dlambda_dtau;
     typename Data::MatrixXs & Jc = data.dac_da;
-    
+
     JMinv.noalias() = Jc * data.Minv;
     data.dvc_dq.noalias() -= JMinv * data.dtau_dq;
 
