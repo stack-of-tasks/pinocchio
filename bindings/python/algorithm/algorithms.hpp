@@ -32,13 +32,13 @@ namespace pinocchio
     void exposeRegressor();
     void exposeCholesky();
     void exposeModelAlgo();
+    void exposeImpulseDynamics();
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
     void exposeKinematicsDerivatives();
     void exposeCentroidalDerivatives();
-
-    void exposeImpulseDynamics();
+    void exposeImpulseDynamicsDerivatives();
     
     void exposeAlgorithms();
     
