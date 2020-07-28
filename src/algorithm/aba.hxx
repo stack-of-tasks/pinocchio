@@ -115,30 +115,6 @@ namespace pinocchio
       }
     };
     
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-    /// \brief Partial specialization for CppAD::AGtypes
-    template<typename _Scalar>
-    struct SE3actOn< CppAD::AD<_Scalar> >
-    {
-      typedef CppAD::AD<_Scalar> Scalar;
-      
-      template<int Options, typename Matrix6Type>
-      static typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type)
-      run(const SE3Tpl<Scalar,Options> & M,
-          const Eigen::MatrixBase<Matrix6Type> & I)
-      {
-        typedef SE3Tpl<Scalar,Options> SE3;
-        
-        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
-        
-        typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());
-        typename SE3::ActionMatrixType action_matrix(M.toActionMatrixInverse());
-        ReturnType intermediate_result = dual_action_matrix*I;
-        ReturnType res = intermediate_result*action_matrix;
-        return res;
-      }
-    };
-#endif
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
