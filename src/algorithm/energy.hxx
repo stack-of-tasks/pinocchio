@@ -90,6 +90,7 @@ namespace pinocchio
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Model::Motion Motion;
     typedef typename Model::JointIndex JointIndex;
 
     data.kinetic_energy = Scalar(0);
