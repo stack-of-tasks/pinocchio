@@ -152,6 +152,10 @@ namespace pinocchio
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dvc_dq,"Partial derivative of the constraint velocity vector with respect to the joint configuration.")
+
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dq,"Partial derivative of the contact force vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dv,"Partial derivative of the contact force vector with respect to the joint velocity.")
 
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] of the system computed by computeKineticEnergy")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] of the system computed by computePotentialEnergy")
