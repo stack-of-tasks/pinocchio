@@ -53,7 +53,7 @@ namespace pinocchio
     typedef MotionRef<ColsBlockOut2> MotionOut2;
 
     Motion v_tmp;
-    const typename SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
+    const typename Data::SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
     const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
     switch (rf)
     {
@@ -142,7 +142,7 @@ namespace pinocchio
     typedef MotionRef<ColsBlockOut4> MotionOut4;
 
     Motion v_tmp;
-    const typename SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
+    const typename Data::SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
     const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
     switch (rf)
     {
