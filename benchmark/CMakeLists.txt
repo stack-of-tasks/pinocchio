@@ -68,7 +68,7 @@ ENDIF(CPPADCG_FOUND)
 # timings-eigen
 # 
 ADD_BENCH(timings-eigen)
-TARGET_INCLUDE_DIRECTORIES(timings-eigen PUBLIC ${EIGEN3_INCLUDE_DIRS})
+TARGET_INCLUDE_DIRECTORIES(timings-eigen PUBLIC ${EIGEN3_INCLUDE_DIR})
 
 # timings-geometry
 # 
