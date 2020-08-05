@@ -27,24 +27,24 @@ branches:
 
 jobs:
   include:
-    - dist: xenial
+    - dist: bionic
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=OFF
         - TRAVIS_PYTHON_VERSION=27
         - TRAVIS_PYTHON_VERSION_WITH_DOT=2.7
       python: 2.7
-    - dist: xenial
+    - dist: bionic
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=ON
         - TRAVIS_PYTHON_VERSION=27
         - TRAVIS_PYTHON_VERSION_WITH_DOT=2.7
       python: 2.7
-    - dist: xenial
+    - dist: bionic
       env: 
         - BUILD_WITH_COLLISION_SUPPORT=ON
-        - TRAVIS_PYTHON_VERSION=35
-        - TRAVIS_PYTHON_VERSION_WITH_DOT=3.5
-      python: 3.5
+        - TRAVIS_PYTHON_VERSION=36
+        - TRAVIS_PYTHON_VERSION_WITH_DOT=3.6
+      python: 3.6
 
 before_install: ./travis_custom/custom_before_install
 install:
