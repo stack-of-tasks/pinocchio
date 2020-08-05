@@ -408,9 +408,9 @@ isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
   {
     const Index & nq = lg_nqs[k];
     if (!::pinocchio::isSameConfiguration(liegroups[k],
-                     q0.segment(id_q,nq),
-                     q0.segment(id_q,nq),
-                     prec))
+                                          q0.segment(id_q,nq),
+                                          q1.segment(id_q,nq),
+                                          prec))
       return false;
 
     id_q += nq;
