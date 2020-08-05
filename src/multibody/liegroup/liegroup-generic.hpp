@@ -66,6 +66,11 @@ namespace pinocchio
     {
       return this->isDifferent_impl(other);
     }
+    
+    std::string name() const
+    {
+      return LieGroupNameVisitor::run(*this);
+    }
   };
   
 }
