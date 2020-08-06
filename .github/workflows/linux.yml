@@ -9,7 +9,7 @@ jobs:
     
     strategy:
       matrix:
-        os: [ubuntu-18.04,ubuntu-16.04] 
+        os: [ubuntu-20.04,ubuntu-18.04] 
     
     steps:
     - uses: actions/checkout@v1
@@ -20,9 +20,11 @@ jobs:
     - name: Set and install dependencies
       run: |
         sudo rm -rf /usr/local/share/boost/1.69.0
+        export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
         export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py27-hpp-fcl robotpkg-hpp-fcl"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py"$PYTHON3_VERSION"-eigenpy python-numpy"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py"$PYTHON3_VERSION"-hpp-fcl"
+        echo $APT_DEPENDENCIES
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
     - name: Free disk space
@@ -45,12 +47,13 @@ jobs:
         git submodule update --init
         export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
         export PATH=$PATH:/opt/openrobots/bin
-        export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python2.7/site-packages
+        export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
+        export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
-        export MAKEFLAGS="-j2"
+        export MAKEFLAGS="-j1"
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3)
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1

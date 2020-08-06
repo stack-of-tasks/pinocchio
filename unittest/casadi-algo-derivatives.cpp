@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include "pinocchio/autodiff/casadi.hpp"
@@ -194,6 +194,43 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   casadi::DM dtau_da_res = eval_dtau_da(casadi::DMVector {q_vec,v_int_vec,v_vec,a_vec})[0];
   std::vector<double> dtau_da_vec(static_cast< std::vector<double> >(dtau_da_res));
   BOOST_CHECK(Eigen::Map<Data::MatrixXs>(dtau_da_vec.data(),model.nv,model.nv).isApprox(dtau_da_ref));
+  
+  // call RNEA derivatives in Casadi
+  casadi::SX cs_dtau_dq(model.nv,model.nv);
+  casadi::SX cs_dtau_dv(model.nv,model.nv);
+  casadi::SX cs_dtau_da(model.nv,model.nv);
+  
+  computeRNEADerivatives(ad_model,ad_data,q_ad,v_ad,a_ad);
+  ad_data.M.triangularView<Eigen::StrictlyLower>()
+  = ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  pinocchio::casadi::copy(ad_data.dtau_dq,cs_dtau_dq);
+  pinocchio::casadi::copy(ad_data.dtau_dv,cs_dtau_dv);
+  pinocchio::casadi::copy(ad_data.M,cs_dtau_da);
+  
+  casadi::Function eval_rnea_derivatives_dq("eval_rnea_derivatives_dq",
+                                            casadi::SXVector {cs_q, cs_v, cs_a},
+                                            casadi::SXVector {cs_dtau_dq});
+  
+  casadi::DM dtau_dq_res_direct = eval_rnea_derivatives_dq(casadi::DMVector {q_vec,v_vec,a_vec})[0];
+  Data::MatrixXs dtau_dq_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(dtau_dq_res_direct).data(),model.nv,model.nv);
+  BOOST_CHECK(dtau_dq_ref.isApprox(dtau_dq_res_direct_map));
+  
+  casadi::Function eval_rnea_derivatives_dv("eval_rnea_derivatives_dv",
+                                            casadi::SXVector {cs_q, cs_v, cs_a},
+                                            casadi::SXVector {cs_dtau_dv});
+  
+  casadi::DM dtau_dv_res_direct = eval_rnea_derivatives_dv(casadi::DMVector {q_vec,v_vec,a_vec})[0];
+  Data::MatrixXs dtau_dv_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(dtau_dv_res_direct).data(),model.nv,model.nv);
+  BOOST_CHECK(dtau_dv_ref.isApprox(dtau_dv_res_direct_map));
+  
+  casadi::Function eval_rnea_derivatives_da("eval_rnea_derivatives_da",
+                                            casadi::SXVector {cs_q, cs_v, cs_a},
+                                            casadi::SXVector {cs_dtau_da});
+  
+  casadi::DM dtau_da_res_direct = eval_rnea_derivatives_da(casadi::DMVector {q_vec,v_vec,a_vec})[0];
+  Data::MatrixXs dtau_da_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(dtau_da_res_direct).data(),model.nv,model.nv);
+  BOOST_CHECK(dtau_da_ref.isApprox(dtau_da_res_direct_map));
 }
   
   BOOST_AUTO_TEST_CASE(test_aba)
@@ -272,11 +309,12 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     BOOST_CHECK(ddq_mat.isApprox(data.ddq));
     
     // compute references
-    Data::MatrixXs ddq_dq_ref(model.nv,model.nv), ddq_dv_ref(model.nv,model.nv), ddq_da_ref(model.nv,model.nv);
-    ddq_dq_ref.setZero(); ddq_dv_ref.setZero(); ddq_da_ref.setZero();
+    Data::MatrixXs ddq_dq_ref(model.nv,model.nv), ddq_dv_ref(model.nv,model.nv), ddq_dtau_ref(model.nv,model.nv);
+    ddq_dq_ref.setZero(); ddq_dv_ref.setZero(); ddq_dtau_ref.setZero();
     
-    pinocchio::computeABADerivatives(model,data,q,v,tau,ddq_dq_ref,ddq_dv_ref,ddq_da_ref);
-    ddq_da_ref.triangularView<Eigen::StrictlyLower>() = ddq_da_ref.transpose().triangularView<Eigen::StrictlyLower>();
+    pinocchio::computeABADerivatives(model,data,q,v,tau,ddq_dq_ref,ddq_dv_ref,ddq_dtau_ref);
+    ddq_dtau_ref.triangularView<Eigen::StrictlyLower>()
+    = ddq_dtau_ref.transpose().triangularView<Eigen::StrictlyLower>();
     
     // check with respect to q+dq
     casadi::SX ddq_dq = jacobian(cs_ddq, cs_v_int);
@@ -304,9 +342,46 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
                                   casadi::SXVector {cs_q,cs_v_int, cs_v, cs_tau},
                                   casadi::SXVector {ddq_dtau});
     
-    casadi::DM ddq_da_res = eval_ddq_da(casadi::DMVector {q_vec,v_int_vec,v_vec,tau_vec})[0];
-    std::vector<double> ddq_da_vec(static_cast< std::vector<double> >(ddq_da_res));
-    BOOST_CHECK(Eigen::Map<Data::MatrixXs>(ddq_da_vec.data(),model.nv,model.nv).isApprox(ddq_da_ref));
+    casadi::DM ddq_dtau_res = eval_ddq_da(casadi::DMVector {q_vec,v_int_vec,v_vec,tau_vec})[0];
+    std::vector<double> ddq_dtau_vec(static_cast< std::vector<double> >(ddq_dtau_res));
+    BOOST_CHECK(Eigen::Map<Data::MatrixXs>(ddq_dtau_vec.data(),model.nv,model.nv).isApprox(ddq_dtau_ref));
+    
+    // call ABA derivatives in Casadi
+    casadi::SX cs_ddq_dq(model.nv,model.nv);
+    casadi::SX cs_ddq_dv(model.nv,model.nv);
+    casadi::SX cs_ddq_dtau(model.nv,model.nv);
+    
+    computeABADerivatives(ad_model,ad_data,q_ad,v_ad,tau_ad);
+    ad_data.Minv.triangularView<Eigen::StrictlyLower>()
+    = ad_data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+    
+    pinocchio::casadi::copy(ad_data.ddq_dq,cs_ddq_dq);
+    pinocchio::casadi::copy(ad_data.ddq_dv,cs_ddq_dv);
+    pinocchio::casadi::copy(ad_data.Minv,cs_ddq_dtau);
+    
+    casadi::Function eval_aba_derivatives_dq("eval_aba_derivatives_dq",
+                                              casadi::SXVector {cs_q, cs_v, cs_tau},
+                                              casadi::SXVector {cs_ddq_dq});
+    
+    casadi::DM ddq_dq_res_direct = eval_aba_derivatives_dq(casadi::DMVector {q_vec,v_vec,tau_vec})[0];
+    Data::MatrixXs ddq_dq_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(ddq_dq_res_direct).data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dq_ref.isApprox(ddq_dq_res_direct_map));
+    
+    casadi::Function eval_aba_derivatives_dv("eval_aba_derivatives_dv",
+                                              casadi::SXVector {cs_q, cs_v, cs_tau},
+                                              casadi::SXVector {cs_ddq_dv});
+    
+    casadi::DM ddq_dv_res_direct = eval_aba_derivatives_dv(casadi::DMVector {q_vec,v_vec,tau_vec})[0];
+    Data::MatrixXs ddq_dv_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(ddq_dv_res_direct).data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dv_ref.isApprox(ddq_dv_res_direct_map));
+    
+    casadi::Function eval_aba_derivatives_dtau("eval_aba_derivatives_dtau",
+                                              casadi::SXVector {cs_q, cs_v, cs_tau},
+                                              casadi::SXVector {cs_ddq_dtau});
+    
+    casadi::DM ddq_dtau_res_direct = eval_aba_derivatives_dtau(casadi::DMVector {q_vec,v_vec,tau_vec})[0];
+    Data::MatrixXs ddq_dtau_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(ddq_dtau_res_direct).data(),model.nv,model.nv);
+    BOOST_CHECK(ddq_dtau_ref.isApprox(ddq_dtau_res_direct_map));
   }
 
 BOOST_AUTO_TEST_SUITE_END()

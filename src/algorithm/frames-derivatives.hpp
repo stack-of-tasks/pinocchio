@@ -30,7 +30,7 @@ namespace pinocchio
   void
   getFrameVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                              const FrameIndex frame_id,
                               const ReferenceFrame rf,
                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                               const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv);
@@ -60,7 +60,7 @@ namespace pinocchio
   void
   getFrameAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                  const FrameIndex frame_id,
                                   const ReferenceFrame rf,
                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                                   const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
@@ -94,7 +94,7 @@ namespace pinocchio
   void
   getFrameAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                  const FrameIndex frame_id,
                                   const ReferenceFrame rf,
                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                                   const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,

@@ -31,8 +31,8 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class ConfigL_t, class ConfigR_t, class Tangent_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 difference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                     const Eigen::MatrixBase<ConfigR_t> & q1,
-                     const Eigen::MatrixBase<Tangent_t> & d) const
+                const Eigen::MatrixBase<ConfigR_t> & q1,
+                const Eigen::MatrixBase<Tangent_t> & d) const
 {
   Index id_q = 0, id_v = 0;
   for(size_t k = 0; k < liegroups.size(); ++k)
@@ -52,8 +52,8 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 dDifference_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                      const Eigen::MatrixBase<ConfigR_t> & q1,
-                      const Eigen::MatrixBase<JacobianOut_t> & J) const
+                 const Eigen::MatrixBase<ConfigR_t> & q1,
+                 const Eigen::MatrixBase<JacobianOut_t> & J) const
 {
   PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
   Index id_q = 0, id_v = 0;
@@ -111,8 +111,8 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 integrate_impl(const Eigen::MatrixBase<ConfigIn_t> & q,
-                    const Eigen::MatrixBase<Velocity_t> & v,
-                    const Eigen::MatrixBase<ConfigOut_t> & qout) const
+               const Eigen::MatrixBase<Velocity_t> & v,
+               const Eigen::MatrixBase<ConfigOut_t> & qout) const
 {
   ConfigOut_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
   Index id_q = 0, id_v = 0;
@@ -133,8 +133,10 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class Config_t, class Jacobian_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 integrateCoeffWiseJacobian_impl(const Eigen::MatrixBase<Config_t> & q,
-                                     const Eigen::MatrixBase<Jacobian_t> & J) const
+                                const Eigen::MatrixBase<Jacobian_t> & J) const
 {
+  PINOCCHIO_UNUSED_VARIABLE(q);
+  PINOCCHIO_UNUSED_VARIABLE(J);
 // not implemented yet      assert(J.rows() == nq() && J.cols() == nv() && "J is not of the right dimension");
 // not implemented yet      Jacobian_t & J_ = PINOCCHIO_EIGEN_CONST_CAST(Jacobian_t,J);
 // not implemented yet      J_.topRightCorner(lg1.nq(),lg2.nv()).setZero();
@@ -149,9 +151,9 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class Config_t, class Tangent_t, class JacobianOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 dIntegrate_dq_impl(const Eigen::MatrixBase<Config_t > & q,
-                        const Eigen::MatrixBase<Tangent_t> & v,
-                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                        const AssignmentOperatorType op) const
+                   const Eigen::MatrixBase<Tangent_t> & v,
+                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                   const AssignmentOperatorType op) const
 {
   if (op == SETTO)
     PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
@@ -175,9 +177,9 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class Config_t, class Tangent_t, class JacobianOut_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 dIntegrate_dv_impl(const Eigen::MatrixBase<Config_t > & q,
-                        const Eigen::MatrixBase<Tangent_t> & v,
-                        const Eigen::MatrixBase<JacobianOut_t> & J,
-                        const AssignmentOperatorType op) const
+                   const Eigen::MatrixBase<Tangent_t> & v,
+                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                   const AssignmentOperatorType op) const
 {
   if (op == SETTO)
     PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).setZero();
@@ -400,17 +402,17 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class ConfigL_t, class ConfigR_t>
 bool CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
-                              const Eigen::MatrixBase<ConfigR_t> & q1,
-                              const Scalar & prec) const
+                         const Eigen::MatrixBase<ConfigR_t> & q1,
+                         const Scalar & prec) const
 {
   Index id_q = 0;
   for(size_t k = 0; k < liegroups.size(); ++k)
   {
     const Index & nq = lg_nqs[k];
     if (!::pinocchio::isSameConfiguration(liegroups[k],
-                     q0.segment(id_q,nq),
-                     q0.segment(id_q,nq),
-                     prec))
+                                          q0.segment(id_q,nq),
+                                          q1.segment(id_q,nq),
+                                          prec))
       return false;
 
     id_q += nq;
