@@ -50,7 +50,7 @@ jobs:
         export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
-        export MAKEFLAGS="-j2"
+        export MAKEFLAGS="-j1"
         mkdir build
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3)
