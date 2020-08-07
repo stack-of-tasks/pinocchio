@@ -315,7 +315,7 @@ FILE_PATTERNS          = *.cc *.cpp *.h *.hpp *.hh *.dox *.md *.py
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = @CMAKE_SOURCE_DIR@/doc/d-practical-exercises/src
+#EXCLUDE                = @CMAKE_SOURCE_DIR@/doc/d-practical-exercises/src
 
 # Put them back for inclusion as whole files
 HTML_EXTRA_FILES       += @CMAKE_SOURCE_DIR@/doc/d-practical-exercises/src
