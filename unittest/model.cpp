@@ -213,8 +213,8 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
       Model model2 = appendModel(humanoid, manipulator, fid, SE3::Identity());
       Model model3;
       appendModel(humanoid, manipulator, fid, SE3::Identity(), model3);
-      BOOST_CHECK(model1 == model2);
-      BOOST_CHECK(model1 == model3);
+      BOOST_CHECK(model == model2);
+      BOOST_CHECK(model == model3);
       BOOST_CHECK(model2 == model3);
     }
 
