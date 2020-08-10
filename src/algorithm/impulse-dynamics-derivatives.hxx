@@ -14,9 +14,9 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3>
   struct JointImpulseVelocityDerivativesBackwardStep
-  : public fusion::JointUnaryVisitorBase< JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> >
+    : public fusion::JointUnaryVisitorBase< JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2,Matrix6xOut3> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -26,7 +26,8 @@ namespace pinocchio
                                   const typename Model::JointIndex &,
                                   const ReferenceFrame &,
                                   Matrix6xOut1 &,
-                                  Matrix6xOut2 &
+                                  Matrix6xOut2 &,
+                                  Matrix6xOut3 &
                                   > ArgsType;
     
     template<typename JointModel>
@@ -36,7 +37,8 @@ namespace pinocchio
                      const typename Model::JointIndex & jointId,
                      const ReferenceFrame & rf,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                     const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
+                     const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                     const Eigen::MatrixBase<Matrix6xOut3> & i_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::SE3 SE3;
@@ -58,6 +60,21 @@ namespace pinocchio
       Matrix6xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut2>::Type ColsBlockOut2;
       Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6xOut3>::Type ColsBlockOut3;
+      Matrix6xOut3 & i_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,i_partial_dq);
+
+      //dic/dq
+      ColsBlockOut3 i_partial_dq_cols = jmodel.jointCols(i_partial_dq_);
+      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
+      {
+        typedef typename ColsBlock::ColXpr ColType;
+        typedef typename ColsBlockOut3::ColXpr ColTypeOut;
+        MotionRef<ColType> min(Jcols.col(k));
+        ForceRef<ColTypeOut> fout(i_partial_dq_cols.col(k));
+        // data.of[0] temporarily contains the concerned force vector. 
+        fout = min.cross(data.of[0]);
+      }
       
       // dvec/dv
       ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
@@ -160,7 +177,6 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      const JointIndex & parent = model.frames[cmodel.frame_id].parent;
 
       //TODO: add LOCAL, WORLD, LOCAL_WORLD_ALIGNED frames.
       switch(cmodel.reference_frame) {
@@ -190,6 +206,8 @@ namespace pinocchio
     }
 
     Eigen::DenseIndex current_row_sol_id = 0;
+    MatrixType3& dic_dq = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,impulse_partial_dq);
+    
     typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type Rows3Block;
     typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type Rows6Block;
     for(size_t k = 0; k < contact_models.size(); ++k)
@@ -201,15 +219,37 @@ namespace pinocchio
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex joint_id = frame.parent;
 
+      //TODO: add LOCAL, WORLD, LOCAL_WORLD_ALIGNED frames.
+      switch(cmodel.reference_frame) {
+      case LOCAL:
+      {
+        data.of[0] = data.oMf[cmodel.frame_id].act(cdata.contact_force);
+        break;
+      }
+      case WORLD:
+      {
+        data.of[0] = cdata.contact_force;
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED:
+      {
+        std::cerr<<"BAD CALL> ABORT ABORT";
+        break;
+      }
+      }
+
       switch(cmodel.type)
       {
         case CONTACT_6D:
         {
-          typedef JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Rows6Block,Rows6Block> Pass3;
+          typedef JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Rows6Block,Rows6Block,Rows6Block> Pass3;
           Rows6Block contact_dvc_dq = SizeDepType<6>::middleRows(data.dvc_dq,
-                                                                current_row_sol_id);
+                                                                 current_row_sol_id);
           Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,
-                                                                current_row_sol_id);
+                                                                 current_row_sol_id);
+          Rows6Block contact_dic_dq = SizeDepType<6>::middleRows(dic_dq,
+                                                                 current_row_sol_id);
+
           for(JointIndex i = joint_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
@@ -217,7 +257,8 @@ namespace pinocchio
                                                 joint_id,
                                                 cmodel.reference_frame,
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
-                                                PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
+                                                PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv),
+                                                PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dic_dq)));
           }
           // Set back ov[0] to a zero value
           data.ov[0].setZero();
@@ -229,13 +270,19 @@ namespace pinocchio
         {
           //TODO: Specialize for the 3d case.
           //TODO: We don't need all these quantities. Remove those not needed.
-          typedef JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,typename Data::Matrix6x,typename Data::Matrix6x> Pass3;
+          typedef JointImpulseVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,typename Data::Matrix6x,typename Data::Matrix6x,typename Data::Matrix6x> Pass3;
           Rows3Block contact_dvc_dq = SizeDepType<3>::middleRows(data.dvc_dq,
                                                                 current_row_sol_id);
           Rows3Block contact_dvc_dv = SizeDepType<3>::middleRows(data.dac_da,
                                                                 current_row_sol_id);
+          Rows3Block contact_dic_dq = SizeDepType<3>::middleRows(dic_dq,
+                                                                current_row_sol_id);
+          //Temporaries
           typename Data::Matrix6x & contact_dvc_dq_tmp = data.dFda;
           typename Data::Matrix6x & contact_dvc_dv_tmp= data.IS;
+          typename Data::Matrix6x & contact_dic_dq_tmp= data.SDinv;
+          //if there are multiple contact3d, this temporary needs to be reset.
+          data.SDinv.setZero();
           for(JointIndex i = joint_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
@@ -243,13 +290,15 @@ namespace pinocchio
                                                 joint_id,
                                                 cmodel.reference_frame,
                                                 PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dq_tmp),
-                                                PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dv_tmp)));
+                                                PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dv_tmp),
+                                                PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dic_dq_tmp)));
           }
           // Set back ov[0] to a zero value
           data.ov[0].setZero();
           data.oa[0].setZero();
           contact_dvc_dq = contact_dvc_dq_tmp.template topRows<3>();
           contact_dvc_dv = contact_dvc_dv_tmp.template topRows<3>();
+          contact_dic_dq = contact_dic_dq_tmp.template topRows<3>();
           current_row_sol_id += 3;
           break;
         }
@@ -257,8 +306,9 @@ namespace pinocchio
           assert(false && "must never happen");
           break;
       }
+      data.of[0].setZero();
     }
-    
+
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
     //Temporary: dlambda_dtau stores J*Minv
@@ -268,8 +318,8 @@ namespace pinocchio
     JMinv.noalias() = Jc * data.Minv;
     data.dvc_dq.noalias() -= JMinv * data.dtau_dq;
 
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,impulse_partial_dq).noalias() = -data.osim * data.dvc_dq; //OUTPUT
-    
+
+    dic_dq.noalias() -= data.osim * data.dvc_dq; //OUTPUT
     //TODO: Implem sparse.
     data.dtau_dq.noalias() -= Jc.transpose()*impulse_partial_dq;
     
