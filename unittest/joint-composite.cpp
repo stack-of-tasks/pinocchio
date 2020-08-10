@@ -82,8 +82,10 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
 //    BOOST_CHECK(math::fabs(jmodel_composite.distance(q1,q2)-jmodel.distance(q1,q2))<= NumTraits<double>::dummy_precision());
 //  }
   
-  Inertia::Matrix6 I1(Inertia::Random().matrix());
-  Inertia::Matrix6 I2 = I1;
+  Inertia::Matrix6 I0(Inertia::Random().matrix());
+  
+  Inertia::Matrix6 I1 = I0;
+  Inertia::Matrix6 I2 = I0;
 
   jmodel.calc_aba(jdata,I1,true);
   jmodel_composite.calc_aba(jdata_composite,I2,true);
@@ -102,6 +104,45 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
     BOOST_CHECK((I1-I2).lpNorm<Eigen::Infinity>() < prec);
   else
     BOOST_CHECK(I1.isApprox(I2,prec));
+  
+  // Test operator=
+  JointModelComposite jmodel_composite2 = jmodel_composite;
+  JointDataComposite jdata_composite2 = jmodel_composite2.createData();
+  
+  jmodel_composite2.calc(jdata_composite2,q,v);
+  
+  Inertia::Matrix6 I3 = I0;
+  jmodel_composite2.calc_aba(jdata_composite2,I3,true);
+  
+  if(jmodel.shortname() == "JointModelFreeFlyer")
+    BOOST_CHECK((I3-I2).lpNorm<Eigen::Infinity>() < prec);
+  else
+    BOOST_CHECK(I3.isApprox(I2,prec));
+  
+  BOOST_CHECK(jmodel_composite2 == jmodel_composite);
+  
+  BOOST_CHECK(jdata_composite2.U.isApprox(jdata_composite.U,prec));
+  BOOST_CHECK(jdata_composite2.Dinv.isApprox(jdata_composite.Dinv,prec));
+  BOOST_CHECK(jdata_composite2.UDinv.isApprox(jdata_composite.UDinv,prec));
+ 
+  // Test operator <<
+  std::cout << "JointModelComposite operator<<:\n" << jmodel_composite << std::endl;
+  
+  // Test block operators
+  const int m = 100;
+  Data::Matrix6x mat(Data::Matrix6x::Ones(6,m));
+  const Data::Matrix6x mat_const(Data::Matrix6x::Ones(6,m));
+  Model::ConfigVectorType vec(Model::ConfigVectorType::Ones(m));
+  const Model::ConfigVectorType vec_const(Model::ConfigVectorType::Ones(m));
+  
+  BOOST_CHECK(jmodel.jointConfigSelector(vec) == jmodel_composite.jointConfigSelector(vec));
+  BOOST_CHECK(jmodel.jointConfigSelector(vec_const) == jmodel_composite.jointConfigSelector(vec_const));
+  
+  BOOST_CHECK(jmodel.jointVelocitySelector(vec) == jmodel_composite.jointVelocitySelector(vec));
+  BOOST_CHECK(jmodel.jointVelocitySelector(vec_const) == jmodel_composite.jointVelocitySelector(vec_const));
+  
+  BOOST_CHECK(jmodel.jointCols(mat) == jmodel_composite.jointCols(mat));
+  BOOST_CHECK(jmodel.jointCols(mat_const) == jmodel_composite.jointCols(mat_const));
 }
 
 struct TestJointComposite{
