@@ -83,10 +83,27 @@ namespace pinocchio
     ///
     void append(const LieGroupGeneric & lg);
 
+    ///
+    /// \brief Cartesian product between *this and other.
+    ///
+    /// \param[in] other CartesianProductOperation to compose with this
+    ///
+    /// \returns A new Cartesian product betwenn *this and other.
+    ///
     CartesianProductOperationVariantTpl operator* (const CartesianProductOperationVariantTpl& other) const;
 
+    ///
+    /// \brief Append other to *this.
+    ///
+    /// \param[in] other CartesianProductOperation to append to *this.
+    ///
     CartesianProductOperationVariantTpl& operator*= (const CartesianProductOperationVariantTpl& other);
 
+    ///
+    /// \brief Append a Lie group to *this.
+    ///
+    /// \param[in] lg LieGroupGeneric to append to *this.
+    ///
     inline CartesianProductOperationVariantTpl& operator*= (const LieGroupGeneric& lg)
     {
       append(lg);
