@@ -120,6 +120,21 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     BOOST_CHECK(model.cast<double>().cast<long double>() == model.cast<long double>());
   }
 
+  BOOST_AUTO_TEST_CASE(test_std_vector_of_Model)
+  {
+    Model model;
+    buildModels::humanoid(model);
+    
+    PINOCCHIO_ALIGNED_STD_VECTOR(Model) models;
+    for(size_t k = 0; k < 20; ++k)
+    {
+      models.push_back(Model());
+      buildModels::humanoid(models.back());
+      
+      BOOST_CHECK(model == models.back());
+    }
+  }
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
   struct AddPrefix {
     std::string p;
@@ -167,6 +182,15 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     FrameIndex fid = 0;
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model1, geomModel1);
+    
+    {
+      Model model2 = appendModel(humanoid, manipulator, fid, SE3::Identity());
+      Model model3;
+      appendModel(humanoid, manipulator, fid, SE3::Identity(), model3);
+      BOOST_CHECK(model1 == model2);
+      BOOST_CHECK(model1 == model3);
+      BOOST_CHECK(model2 == model3);
+    }
 
     Data data1 (model1);
     BOOST_CHECK(model1.check(data1));
@@ -184,6 +208,15 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model, geomModel);
+    
+    {
+      Model model2 = appendModel(humanoid, manipulator, fid, SE3::Identity());
+      Model model3;
+      appendModel(humanoid, manipulator, fid, SE3::Identity(), model3);
+      BOOST_CHECK(model == model2);
+      BOOST_CHECK(model == model3);
+      BOOST_CHECK(model2 == model3);
+    }
 
     BOOST_TEST_MESSAGE(model);
 

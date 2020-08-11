@@ -8,7 +8,7 @@
 #include "pinocchio/multibody/liegroup/liegroup-base.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-collection.hpp"
 
-#include <vector>
+#include "pinocchio/container/aligned-vector.hpp"
 
 namespace pinocchio
 {
@@ -33,8 +33,11 @@ namespace pinocchio
   /// \brief Dynamic Cartesian product composed of elementary Lie groups defined in LieGroupVariant
   ///
   template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
-  struct CartesianProductOperationVariantTpl : public LieGroupBase<CartesianProductOperationVariantTpl<_Scalar, _Options, LieGroupCollectionTpl> >
+  struct CartesianProductOperationVariantTpl
+  : public LieGroupBase<CartesianProductOperationVariantTpl<_Scalar, _Options, LieGroupCollectionTpl> >
   {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     PINOCCHIO_LIE_GROUP_TPL_PUBLIC_INTERFACE(CartesianProductOperationVariantTpl);
 
     typedef LieGroupCollectionTpl<Scalar, Options> LieGroupCollection;
@@ -83,10 +86,27 @@ namespace pinocchio
     ///
     void append(const LieGroupGeneric & lg);
 
+    ///
+    /// \brief Cartesian product between *this and other.
+    ///
+    /// \param[in] other CartesianProductOperation to compose with this
+    ///
+    /// \returns A new Cartesian product betwenn *this and other.
+    ///
     CartesianProductOperationVariantTpl operator* (const CartesianProductOperationVariantTpl& other) const;
 
+    ///
+    /// \brief Append other to *this.
+    ///
+    /// \param[in] other CartesianProductOperation to append to *this.
+    ///
     CartesianProductOperationVariantTpl& operator*= (const CartesianProductOperationVariantTpl& other);
 
+    ///
+    /// \brief Append a Lie group to *this.
+    ///
+    /// \param[in] lg LieGroupGeneric to append to *this.
+    ///
     inline CartesianProductOperationVariantTpl& operator*= (const LieGroupGeneric& lg)
     {
       append(lg);
@@ -197,7 +217,7 @@ namespace pinocchio
 
   protected:
     
-    std::vector<LieGroupGeneric> liegroups;
+    PINOCCHIO_ALIGNED_STD_VECTOR(LieGroupGeneric) liegroups;
     Index m_nq, m_nv;
     std::vector<Index> lg_nqs, lg_nvs;
     std::string m_name;
