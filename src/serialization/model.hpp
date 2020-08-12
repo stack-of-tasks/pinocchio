@@ -2,8 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_multibody_model_serialization_hpp__
-#define __pinocchio_multibody_model_serialization_hpp__
+#ifndef __pinocchio_serialization_model_hpp__
+#define __pinocchio_serialization_model_hpp__
 
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/variant.hpp>
@@ -61,4 +61,4 @@ namespace boost
   } // namespace serialization
 } // namespace boost
 
-#endif // ifndef __pinocchio_multibody_model_serialization_hpp__
+#endif // ifndef __pinocchio_serialization_model_hpp__
