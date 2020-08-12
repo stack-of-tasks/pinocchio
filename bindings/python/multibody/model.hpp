@@ -177,6 +177,7 @@ namespace pinocchio
         .add_property("jointPlacements",&Model::jointPlacements)
         .add_property("joints",&Model::joints)
         .add_property("parents",&Model::parents)
+        .add_property("children",&Model::children)
         .add_property("names",&Model::names)
         .add_property("name",&Model::name)
         .add_property("referenceConfigurations", &Model::referenceConfigurations)

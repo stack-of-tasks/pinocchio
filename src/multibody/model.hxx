@@ -90,6 +90,8 @@ namespace pinocchio
 
     inertias        .push_back(Inertia::Zero());
     parents         .push_back(parent);
+    children        .push_back(IndexVector());
+    children[parent].push_back(joint_id);
     jointPlacements .push_back(joint_placement);
     names           .push_back(joint_name);
     
@@ -180,6 +182,7 @@ namespace pinocchio
     res.nbodies = nbodies;
     res.nframes = nframes;
     res.parents = parents;
+    res.children = children;
     res.names = names;
     res.subtrees = subtrees;
     res.gravity = gravity.template cast<NewScalar>();
@@ -238,6 +241,7 @@ namespace pinocchio
     && other.nbodies == nbodies
     && other.nframes == nframes
     && other.parents == parents
+    && other.children == children
     && other.names == names
     && other.subtrees == subtrees
     && other.gravity == gravity

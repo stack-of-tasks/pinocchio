@@ -113,6 +113,9 @@ namespace pinocchio
     
     /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
     std::vector<JointIndex> parents;
+    
+    /// \brief Joint children of joint *i*, denoted *mu(i)* (i==parents[k] for k in mu(i)).
+    std::vector<IndexVector> children;
 
     /// \brief Name of joint *i*
     std::vector<std::string> names;
@@ -179,6 +182,7 @@ namespace pinocchio
     , idx_vs(1,0)
     , nvs(1,0)
     , parents(1, 0)
+    , children(1)
     , names(1)
     , supports(1,IndexVector(1,0))
     , subtrees(1)
