@@ -90,7 +90,7 @@ namespace pinocchio
     /// \brief Number of operational frames.
     int nframes;
 
-    /// \brief Spatial inertias of the body *i* expressed in the supporting joint frame *i*.
+    /// \brief Spatial inertias supported by the joint *i*.
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) inertias;
     
     /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
@@ -161,7 +161,7 @@ namespace pinocchio
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
     static const Vector3 gravity981;
 
-    /// \brief Model name;
+    /// \brief Model name.
     std::string name;
 
     /// \brief Default constructor. Builds an empty model with no joints.
@@ -192,7 +192,7 @@ namespace pinocchio
     }
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
-    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    /// \returns A new copy of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
     typename CastType<NewScalar,ModelTpl>::type cast() const;
     
