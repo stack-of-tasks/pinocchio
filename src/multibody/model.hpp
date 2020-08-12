@@ -20,7 +20,6 @@
 
 #include "pinocchio/serialization/serializable.hpp"
 
-#include <iostream>
 #include <map>
 #include <iterator>
 

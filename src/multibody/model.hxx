@@ -6,7 +6,6 @@
 #ifndef __pinocchio_multibody_model_hxx__
 #define __pinocchio_multibody_model_hxx__
 
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
 
