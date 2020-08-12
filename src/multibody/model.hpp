@@ -69,7 +69,7 @@ namespace pinocchio
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
 
-    typedef std::map<std::string, ConfigVectorType>  ConfigVectorMap;
+    typedef std::map<std::string, ConfigVectorType> ConfigVectorMap;
     
     /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
     ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
@@ -238,8 +238,7 @@ namespace pinocchio
                         const VectorXs & max_effort,
                         const VectorXs & max_velocity,
                         const VectorXs & min_config,
-                        const VectorXs & max_config
-                        );
+                        const VectorXs & max_config);
 
     ///
     /// \brief Add a joint to the kinematic tree with infinite bounds.

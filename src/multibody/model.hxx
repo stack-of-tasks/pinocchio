@@ -62,8 +62,7 @@ namespace pinocchio
                                                         const VectorXs & max_effort,
                                                         const VectorXs & max_velocity,
                                                         const VectorXs & min_config,
-                                                        const VectorXs & max_config
-                                                        )
+                                                        const VectorXs & max_config)
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
@@ -75,12 +74,11 @@ namespace pinocchio
            && min_config.size() == joint_model.nq()
            && max_config.size() == joint_model.nq());
     
-    JointIndex idx = (JointIndex)(njoints++);
+    JointIndex joint_id = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
-//    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
     JointModel & jmodel = joints.back();
-    jmodel.setIndexes(idx,nq,nv);
+    jmodel.setIndexes(joint_id,nq,nv);
     
     const int joint_nq = jmodel.nq();
     const int joint_idx_q = jmodel.idx_q();
@@ -90,10 +88,10 @@ namespace pinocchio
     assert(joint_idx_q >= 0);
     assert(joint_idx_v >= 0);
 
-    inertias       .push_back(Inertia::Zero());
-    parents        .push_back(parent);
-    jointPlacements.push_back(joint_placement);
-    names          .push_back(joint_name);
+    inertias        .push_back(Inertia::Zero());
+    parents         .push_back(parent);
+    jointPlacements .push_back(joint_placement);
+    names           .push_back(joint_name);
     
     nq += joint_nq; nqs.push_back(joint_nq); idx_qs.push_back(joint_idx_q);
     nv += joint_nv; nvs.push_back(joint_nv); idx_vs.push_back(joint_idx_v);
@@ -119,14 +117,14 @@ namespace pinocchio
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
-    subtrees[idx][0] = idx;
-    addJointIndexToParentSubtrees(idx);
+    subtrees[joint_id][0] = joint_id;
+    addJointIndexToParentSubtrees(joint_id);
     
     // Init and add joint index to the supports
     supports.push_back(supports[parent]);
-    supports[idx].push_back(idx);
+    supports[joint_id].push_back(joint_id);
     
-    return idx;
+    return joint_id;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -143,11 +141,14 @@ namespace pinocchio
     min_config = VectorXs::Constant(joint_model.nq(), -std::numeric_limits<Scalar>::max());
     max_config = VectorXs::Constant(joint_model.nq(), std::numeric_limits<Scalar>::max());
 
-    return addJoint(parent, joint_model, joint_placement, joint_name, max_effort, max_velocity, min_config, max_config);
+    return addJoint(parent, joint_model,
+                    joint_placement, joint_name,
+                    max_effort, max_velocity,
+                    min_config, max_config);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  inline FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addJointFrame(const JointIndex & joint_index,
                 int previous_frame_index)
@@ -172,6 +173,7 @@ namespace pinocchio
   ModelTpl<Scalar,Options,JointCollectionTpl>::cast() const
   {
     typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+    
     ReturnType res;
     res.nq = nq; res.nv = nv;
     res.njoints = njoints;
