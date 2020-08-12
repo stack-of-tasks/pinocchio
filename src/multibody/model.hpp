@@ -25,7 +25,12 @@
 
 namespace pinocchio
 {
-  
+  template<typename NewScalar, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct CastType<NewScalar, ModelTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<NewScalar,Options,JointCollectionTpl> type;
+  };
+
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct ModelTpl
   : serialization::Serializable< ModelTpl<_Scalar,_Options,JointCollectionTpl> >
@@ -189,7 +194,7 @@ namespace pinocchio
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
-    ModelTpl<NewScalar,Options,JointCollectionTpl> cast() const;
+    typename CastType<NewScalar,ModelTpl>::type cast() const;
     
     ///
     /// \brief Equality comparison operator.

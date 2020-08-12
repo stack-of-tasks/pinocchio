@@ -168,7 +168,8 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   template<typename NewScalar>
-  ModelTpl<NewScalar,Options,JointCollectionTpl> ModelTpl<Scalar,Options,JointCollectionTpl>::cast() const
+  typename CastType<NewScalar,ModelTpl<Scalar,Options,JointCollectionTpl> >::type
+  ModelTpl<Scalar,Options,JointCollectionTpl>::cast() const
   {
     typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
     ReturnType res;
