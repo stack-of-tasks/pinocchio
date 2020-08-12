@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_multibody_model_serialization_hpp__
@@ -35,6 +35,7 @@ namespace boost
       ar & make_nvp("nbodies",model.nbodies);
       ar & make_nvp("nframes",model.nframes);
       ar & make_nvp("parents",model.parents);
+      ar & make_nvp("children",model.children);
       ar & make_nvp("names",model.names);
       ar & make_nvp("supports",model.supports);
       ar & make_nvp("subtrees",model.subtrees);
