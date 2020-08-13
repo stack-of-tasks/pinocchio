@@ -354,22 +354,20 @@ namespace pinocchio
       }
       case LOCAL_WORLD_ALIGNED:
       {
-        
-        data.of[0] = cdata.contact_force;
-        data.of[0].angular().noalias() = oMContact.translation().cross(cdata.contact_force.linear());
-        const Force& of = data.of[0];
+        const Force& of = cdata.contact_force;
         switch(cmodel.type) {
         case CONTACT_6D:
         {
+          Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
           Rows6Block contact_dic_dq = SizeDepType<6>::middleRows(dic_dq, current_row_sol_id);
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
-            typedef typename Data::Matrix6x::ColXpr ColType;
+            typedef typename Rows6Block::ColXpr ColType;
             typedef typename Rows6Block::ColXpr ColTypeOut;
-            MotionRef<ColType> min(data.J.col(j));
-            min.linear() -= oMContact.translation().cross(min.angular());
+            MotionRef<ColType> min(contact_dvc_dv.col(j));
             ForceRef<ColTypeOut> fout(contact_dic_dq.col(j));
-            fout += min.cross(of);
+            fout.linear().noalias()  += min.angular().cross(of.linear());
+            fout.angular().noalias() += min.angular().cross(of.angular());
           }
           current_row_sol_id += 6;
           break;
@@ -381,8 +379,7 @@ namespace pinocchio
           {
             typedef typename Data::Matrix6x::ColXpr ColType;
             MotionRef<ColType> min(data.J.col(j));
-            min.linear() -= oMContact.translation().cross(min.angular());
-            contact_dic_dq.col(j) += min.angular().cross(of.linear());
+            contact_dic_dq.col(j).noalias() += min.angular().cross(of.linear());
           }
           current_row_sol_id += 3;
           break;
