@@ -40,7 +40,7 @@ namespace pinocchio
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::SE3 &
   updateFramePlacement(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex & frame_id);
+                       const FrameIndex frame_id);
 
 
   /**
@@ -97,7 +97,7 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                   const FrameIndex frame_id,
                    const ReferenceFrame rf = LOCAL);
 
   /**
@@ -117,7 +117,7 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                       const FrameIndex frame_id,
                        const ReferenceFrame rf = LOCAL);
 
   /**
@@ -138,34 +138,33 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                const FrameIndex frame_id,
                                 const ReferenceFrame rf = LOCAL);
 
   /**
-   * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system, LOCAL_WORLD_ALIGNED coordinate system or in the WORLD coordinate system,
+   * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
    *             depending on the value of rf.
    *             You must first call pinocchio::computeJointJacobians followed by pinocchio::framesForwardKinematics to update placement values in data structure.
    *
-   * @remarks    Similarly to pinocchio::getJointJacobian with LOCAL, LOCAL_WORLD_ALIGNED or WORLD parameters:
-   *              - if rf == LOCAL, this function returns the Jacobian of the frame expressed in the local coordinates system of the frame,
-   *              - if rl == WORLD, it returns the Jacobian of the point coincident with the origin and expressed in a coordinate system aligned with the WORLD,
-   *              - if rl == LOCAL_WORLD_ALIGNED, it returns the Jacobian of the point centered on the Frame but with the coordinate system aligned with the WORLD coordinate systems,
+   * @remark     Similarly to pinocchio::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
+   *             in the local coordinates of the frame, or if rl == WORLD, it returns the Jacobian expressed of the point coincident with the origin
+   *             and expressed in a coordinate system aligned with the WORLD.
    *
    * @tparam JointCollection Collection of Joint types.
    * @tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
    *
-   * @param[in]  model          The kinematic model
-   * @param[in]  data             Data associated to model
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
-   * @param[in]  rf                 Reference frame in which the Jacobian is expressed.
-   * @param[out] J                    The Jacobian of the Frame expressed in the coordinates Frame.
+   * @param[in]  rf          Reference frame in which the Jacobian is expressed.
+   * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
    *
    * @warning    The function pinocchio::computeJointJacobians should have been called first.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                               const FrameIndex frame_id,
                                const ReferenceFrame rf,
                                const Eigen::MatrixBase<Matrix6xLike> & J);
   
@@ -260,7 +259,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   void getFrameJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                     const typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex frame_id,
+                                     const FrameIndex frame_id,
                                      const ReferenceFrame rf,
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ);
 

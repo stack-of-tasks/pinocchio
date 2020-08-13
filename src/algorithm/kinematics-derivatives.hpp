@@ -2,8 +2,8 @@
 // Copyright (c) 2017-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_kinematics_derivatives_hpp__
-#define __pinocchio_kinematics_derivatives_hpp__
+#ifndef __pinocchio_algorithm_kinematics_derivatives_hpp__
+#define __pinocchio_algorithm_kinematics_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -54,7 +54,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                           const Model::JointIndex jointId,
                                           const ReferenceFrame rf,
                                           const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -78,12 +78,12 @@ namespace pinocchio
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-  /// \param[out] a_partial_dv Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-  /// \param[out] a_partial_da Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -116,7 +116,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                               const Model::JointIndex jointId,
                                               const ReferenceFrame rf,
                                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -235,4 +235,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/kinematics-derivatives.hxx"
 
-#endif // ifndef __pinocchio_kinematics_derivatives_hpp__
+#endif // ifndef __pinocchio_algorithm_kinematics_derivatives_hpp__
