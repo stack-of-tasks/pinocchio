@@ -38,13 +38,11 @@ namespace pinocchio
              ((bp::arg("self"),
                bp::arg("contact_type"),
                bp::arg("frame_id"),
-               bp::arg("placement"),
                bp::arg("reference_frame")),
-              "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
+              "Contructor from a given ContactType and frame parent index."))
         
         .PINOCCHIO_ADD_PROPERTY(Self,type,"Type of the contact.")
         .PINOCCHIO_ADD_PROPERTY(Self,frame_id,"Index of the parent Frame in the model tree.")
-        .PINOCCHIO_ADD_PROPERTY(Self,placement,"Placement of the contact with respect to the parent Frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,reference_frame,"Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL).")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_placement,"Desired contact placement.")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_velocity,"Desired contact spatial velocity.")
@@ -97,10 +95,6 @@ namespace pinocchio
         
         .PINOCCHIO_ADD_PROPERTY(Self,contact_force,
                                 "Contact force.")
-        .PINOCCHIO_ADD_PROPERTY(Self,contact_placement,
-                                "Contact placement with respect to the WORLD frame.")
-        .PINOCCHIO_ADD_PROPERTY(Self,joint_contact_placement,
-                                "Contact placement with respect to the supporting JOINT frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_velocity,
                                 "Current contact Spatial velocity.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration,

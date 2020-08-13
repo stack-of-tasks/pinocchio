@@ -33,17 +33,15 @@ BOOST_AUTO_TEST_CASE(contact_models)
   
   // Check complete constructor
   SE3 M(SE3::Random());
-  RigidContactModel cmodel2(CONTACT_3D,0,M);
+  RigidContactModel cmodel2(CONTACT_3D,0);
   BOOST_CHECK(cmodel2.type == CONTACT_3D);
   BOOST_CHECK(cmodel2.frame_id == 0);
-  BOOST_CHECK(cmodel2.placement.isApprox(M));
   BOOST_CHECK(cmodel2.size() == 3);
   
   // Check contructor with two arguments
   RigidContactModel cmodel2prime(CONTACT_3D,0);
   BOOST_CHECK(cmodel2prime.type == CONTACT_3D);
   BOOST_CHECK(cmodel2prime.frame_id == 0);
-  BOOST_CHECK(cmodel2prime.placement.isIdentity());
   BOOST_CHECK(cmodel2prime.size() == 3);
   
   // Check default copy constructor
@@ -51,10 +49,9 @@ BOOST_AUTO_TEST_CASE(contact_models)
   BOOST_CHECK(cmodel3 == cmodel2);
   
   // Check complete constructor 6D
-  RigidContactModel cmodel4(CONTACT_6D,0,SE3::Identity());
+  RigidContactModel cmodel4(CONTACT_6D,0);
   BOOST_CHECK(cmodel4.type == CONTACT_6D);
   BOOST_CHECK(cmodel4.frame_id == 0);
-  BOOST_CHECK(cmodel4.placement.isIdentity());
   BOOST_CHECK(cmodel4.size() == 6);
 }
 
@@ -254,12 +251,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  ci_RF.placement.setRandom();
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  ci_LF.placement.setRandom();
   contact_datas.push_back(RigidContactData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
@@ -281,8 +276,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D)
   
   Eigen::VectorXd rhs_ref(constraint_dim);
   
-  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,model.getFrameId(RF),ci_RF.reference_frame,ci_RF.placement).toVector();
-  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,model.getFrameId(LF),ci_LF.reference_frame,ci_LF.placement).toVector();
+  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,model.getFrameId(RF),ci_RF.reference_frame).toVector();
+  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,model.getFrameId(LF),ci_LF.reference_frame).toVector();
 
   Eigen::MatrixXd KKT_matrix_ref
   = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
@@ -382,12 +377,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
-  ci_RF.placement.setRandom();
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-//  ci_LF.placement.setRandom();
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -410,7 +403,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   getFrameJacobian(model,data_ref,
                    ci_RF.frame_id,ci_RF.reference_frame,
                    Jtmp);
-  J_ref.middleRows<6>(0) = ci_RF.placement.inverse().toActionMatrix() * Jtmp;
+  J_ref.middleRows<6>(0) = Jtmp;
   
   Jtmp.setZero();
   getFrameJacobian(model,data_ref,
@@ -419,8 +412,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   J_ref.middleRows<6>(6) = Jtmp;
   
   Eigen::VectorXd rhs_ref(constraint_dim);
-  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame,ci_RF.placement).toVector();
-  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame,ci_LF.placement).toVector();
+  rhs_ref.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame).toVector();
+  rhs_ref.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame).toVector();
   
   Eigen::MatrixXd KKT_matrix_ref
   = Eigen::MatrixXd::Zero(model.nv+constraint_dim,model.nv+constraint_dim);
@@ -435,7 +428,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
-  
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
@@ -828,11 +820,9 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   
   RigidContactModelVector contact_models; RigidContactDataVector contact_datas;
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
-  ci_RF.placement.setRandom();
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
   RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  ci_LF.placement.setRandom();
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -858,18 +848,18 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   getFrameJacobian(model,data_ref,
                    ci_RF.frame_id,ci_RF.reference_frame,
                    Jtmp);
-  J_ref.middleRows<6>(0) = ci_RF.placement.inverse().toActionMatrix()*Jtmp;
+  J_ref.middleRows<6>(0) = Jtmp;
   
   Jtmp.setZero();
   getFrameJacobian(model,data_ref,
                    ci_LF.frame_id,ci_LF.reference_frame,
                    Jtmp);
-  J_ref.middleRows<6>(6) = ci_LF.placement.inverse().toActionMatrix()*Jtmp;
+  J_ref.middleRows<6>(6) = Jtmp;
   
   Eigen::VectorXd gamma(constraint_dim);
   
-  gamma.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame,ci_RF.placement).toVector();
-  gamma.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame,ci_LF.placement).toVector();
+  gamma.segment<6>(0) = computeFrameAcc(model,data_ref,ci_RF.frame_id,ci_RF.reference_frame).toVector();
+  gamma.segment<6>(6) = computeFrameAcc(model,data_ref,ci_LF.frame_id,ci_LF.reference_frame).toVector();
   
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
@@ -902,9 +892,9 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     const Model::JointIndex & joint_id = frame.parent;
     
     // Check contact placement
-    const SE3 iMc = frame.placement * cmodel.placement;
+    const SE3 & iMc = frame.placement;
     const SE3 oMc = data_ref.oMi[joint_id] * iMc;
-    BOOST_CHECK(cdata.contact_placement.isApprox(oMc));
+    //BOOST_CHECK(cdata.contact_placement.isApprox(oMc));
     
     // Check contact velocity
     const Motion contact_velocity_ref = iMc.actInv(data_ref.v[joint_id]);
@@ -915,7 +905,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     if(cmodel.type == CONTACT_6D)
       S.setDiagonal(Symmetric3::Vector3::Constant(mu));
     
-    const Inertia contact_inertia(mu,cdata.contact_placement.translation(),S);
+    const Inertia contact_inertia(mu,data_ref.oMf[frame_id].translation(),S);
     
     Inertia::Matrix6 contact_inertia_ref = Inertia::Matrix6::Zero();
     

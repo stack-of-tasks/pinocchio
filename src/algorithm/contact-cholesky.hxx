@@ -226,10 +226,9 @@ namespace pinocchio
 
         const typename Model::JointIndex & joint_id = model.frames[frame_id].parent;
         
-        cdata.joint_contact_placement = frame.placement * cmodel.placement;
-        cdata.contact_placement = data.oMi[joint_id] * cdata.joint_contact_placement ;
+        data.oMf[frame_id] = data.oMi[joint_id] * frame.placement;
       }
-      
+
       // Core
       Motion Jcol_motion;
       for(Eigen::DenseIndex j=nv-1;j>=0;--j)
@@ -267,7 +266,8 @@ namespace pinocchio
           const RigidContactModel & cmodel = contact_models[ee_id];
           const RigidContactData & cdata = contact_datas[ee_id];
           const Eigen::DenseIndex constraint_dim = cmodel.size();
-
+          const typename Model::FrameIndex & frame_id = cmodel.frame_id;
+	  const SE3 & contact_placement = data.oMf[frame_id];
           if(indexes[jj])
           {
             switch(cmodel.reference_frame)
@@ -306,8 +306,8 @@ namespace pinocchio
                 typedef typename Data::Matrix6x::ColXpr ColXpr;
                 const ColXpr Jcol = data.J.col(j);
                 MotionRef<const ColXpr> Jcol_motion(Jcol);
-                
-                const Motion Jcol_local(cdata.contact_placement.actInv(Jcol_motion));
+
+                const Motion Jcol_local(contact_placement.actInv(Jcol_motion));
                 
                 switch(cmodel.type)
                 {
@@ -341,7 +341,7 @@ namespace pinocchio
                 // Contact frame placement wrt world
                 Motion Jcol_local_world_aligned(Jcol_motion);
                 Jcol_local_world_aligned.linear()
-                -= cdata.contact_placement.translation().cross(Jcol_local_world_aligned.angular());
+                -= contact_placement.translation().cross(Jcol_local_world_aligned.angular());
                 
                 switch(cmodel.type)
                 {

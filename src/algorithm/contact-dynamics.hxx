@@ -235,13 +235,10 @@ namespace pinocchio
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex & joint_id = frame.parent;
       const typename Data::SE3 & oMi = data.oMi[joint_id];
-      
-      typename Data::SE3& iMcontact = contact_data.joint_contact_placement;
-      typename Data::SE3& oMcontact = contact_data.contact_placement;
+      typename Data::SE3& oMcontact = data.oMf[frame_id];
 
       // Update frame placement
-      iMcontact = frame.placement * contact_model.placement;
-      oMcontact = oMi * iMcontact;
+      oMcontact = oMi * frame.placement;
 
       classicAcceleration(data.ov[joint_id],
                           data.oa[joint_id],
@@ -583,7 +580,6 @@ namespace pinocchio
       data.of_augmented[i].setZero();
     }
     
-    typename Data::SE3 iMc; // tmp variable
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
       const RigidContactModel & cmodel = contact_models[k];
@@ -594,9 +590,8 @@ namespace pinocchio
       const typename Model::JointIndex & joint_id = frame.parent;
 
       // Compute relative placement between the joint and the contact frame
-      iMc = frame.placement * cmodel.placement;
-      SE3 & oMc = cdata.contact_placement;
-      oMc = data.oMi[joint_id] * iMc; // contact placement
+      SE3 & oMc = data.oMf[frame_id];
+      oMc = data.oMi[joint_id] * frame.placement; // contact placement
       
       typedef typename Data::Inertia Inertia;
       typedef typename Inertia::Symmetric3 Symmetric3;
@@ -674,7 +669,7 @@ namespace pinocchio
         const typename Model::Frame & frame = model.frames[frame_id];
         const typename Model::JointIndex & joint_id = frame.parent;
 
-        const SE3 & oMc = cdata.contact_placement;
+        const SE3 & oMc = data.oMf[frame_id];
         const Motion & contact_velocity = cdata.contact_velocity;
 
         // Compute contact acceleration error (drift)
@@ -713,7 +708,7 @@ namespace pinocchio
         const typename Model::Frame & frame = model.frames[frame_id];
         const typename Model::JointIndex & joint_id = frame.parent;
         
-        const SE3 & oMc = cdata.contact_placement;
+        const SE3 & oMc = data.oMf[frame_id];
         // Update contact force value
         if(cmodel.type == CONTACT_3D)
         {
