@@ -422,7 +422,7 @@ namespace pinocchio
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
     ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
-    
+
     data.dac_dq.noalias() -= JMinv * data.dtau_dq;
     data.dac_dv.noalias() -= JMinv * data.dtau_dv;
 
@@ -494,6 +494,108 @@ namespace pinocchio
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
+
+    MatrixType4& dfc_dq = PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq);
+    typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type Rows6Block;
+    typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type Rows3Block;
+
+    current_row_sol_id = 0;
+    for(size_t k = 0; k < contact_models.size(); ++k)
+    {
+      const RigidContactModel & cmodel = contact_models[k];
+      const RigidContactData & cdata = contact_data[k];
+      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
+      const typename Model::Frame & frame = model.frames[frame_id];
+      const typename Model::JointIndex joint_id = frame.parent;
+      const SE3& oMContact = data.oMf[cmodel.frame_id];
+      const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+      switch(cmodel.reference_frame) {
+      case LOCAL:
+      {
+        break;
+      }
+      case WORLD:
+      {
+        const Force& of = cdata.contact_force;
+        switch(cmodel.type) {
+        case CONTACT_6D:
+        {
+          Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            typedef typename Data::Matrix6x::ColXpr ColType;
+            typedef typename Rows6Block::ColXpr ColTypeOut;
+            MotionRef<ColType> min(data.J.col(j));
+            ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
+            fout += min.cross(of);
+          }
+          current_row_sol_id += 6;
+          break;
+        }
+        case CONTACT_3D:
+        {
+          Rows3Block contact_dfc_dq = SizeDepType<3>::middleRows(dfc_dq, current_row_sol_id);
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            typedef typename Data::Matrix6x::ColXpr ColType;
+            MotionRef<ColType> min(data.J.col(j));
+            contact_dfc_dq.col(j) += min.angular().cross(of.linear());
+          }
+          current_row_sol_id += 3;
+          break;
+        }
+        default:
+          assert(false && "must never happen");
+          break;
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED:
+      {
+        const Force& of = cdata.contact_force;
+        switch(cmodel.type) {
+        case CONTACT_6D:
+        {
+          Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
+          Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            typedef typename Rows6Block::ColXpr ColType;
+            typedef typename Rows6Block::ColXpr ColTypeOut;
+            MotionRef<ColType> min(contact_dvc_dv.col(j));
+            ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
+            fout.linear().noalias()  += min.angular().cross(of.linear());
+            fout.angular().noalias() += min.angular().cross(of.angular());
+          }
+          current_row_sol_id += 6;
+          break;
+        }
+        case CONTACT_3D:
+        {
+          Rows3Block contact_dfc_dq = SizeDepType<3>::middleRows(dfc_dq, current_row_sol_id);
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
+            typedef typename Data::Matrix6x::ColXpr ColType;
+            MotionRef<ColType> min(data.J.col(j));
+            contact_dfc_dq.col(j).noalias() += min.angular().cross(of.linear());
+          }
+          current_row_sol_id += 3;
+          break;
+        }
+        default:
+          assert(false && "must never happen");
+          break;
+        }
+        break;
+      }
+      default:
+        assert(false && "must never happen");
+        break;        
+      }
+    }
+
+
+    
   }
   
   
