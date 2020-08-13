@@ -38,7 +38,6 @@ namespace pinocchio
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Data::Motion Motion;
 
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
@@ -79,7 +78,6 @@ namespace pinocchio
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
       const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
       const typename Model::FrameIndex & frame_id = contact_model.frame_id;
