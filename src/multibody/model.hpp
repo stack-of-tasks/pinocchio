@@ -216,9 +216,9 @@ namespace pinocchio
     ///
     /// \brief Add a joint to the kinematic tree with given bounds.
     ///
-    /// \remark This method does not add a Frame of same name to the vector of frames.
+    /// \remarks This method does not add a Frame of same name to the vector of frames.
     ///         Use Model::addJointFrame.
-    /// \remark The inertia supported by the joint is set to Zero.
+    /// \remarks The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
     ///
@@ -247,8 +247,8 @@ namespace pinocchio
     ///
     /// \brief Add a joint to the kinematic tree with infinite bounds.
     ///
-    /// \remark This method also adds a Frame of same name to the vector of frames.
-    /// \remark The inertia supported by the joint is set to Zero.
+    /// \remarks This method also adds a Frame of same name to the vector of frames.
+    /// \remarks The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
     ///
