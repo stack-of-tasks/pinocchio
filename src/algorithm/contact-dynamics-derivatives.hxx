@@ -507,7 +507,6 @@ namespace pinocchio
       const typename Model::FrameIndex & frame_id = cmodel.frame_id;
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex joint_id = frame.parent;
-      const SE3& oMContact = data.oMf[cmodel.frame_id];
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
       switch(cmodel.reference_frame) {
       case LOCAL:

@@ -22,7 +22,6 @@ namespace pinocchio
     : public boost::python::def_visitor< RigidContactModelPythonVisitor<RigidContactModel> >
     {
       typedef typename RigidContactModel::Scalar Scalar;
-      typedef typename RigidContactModel::SE3 SE3;
       typedef RigidContactModel Self;
       typedef typename RigidContactModel::ContactData ContactData;
 
@@ -34,7 +33,7 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor."))
-        .def(bp::init<ContactType,FrameIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,FrameIndex,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
                bp::arg("frame_id"),
@@ -80,7 +79,6 @@ namespace pinocchio
     : public boost::python::def_visitor< RigidContactDataPythonVisitor<RigidContactData> >
     {
       typedef typename RigidContactData::Scalar Scalar;
-      typedef typename RigidContactData::SE3 SE3;
       typedef RigidContactData Self;
       typedef typename RigidContactData::ContactModel ContactModel;
 

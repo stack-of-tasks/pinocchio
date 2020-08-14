@@ -228,7 +228,6 @@ namespace pinocchio
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
       const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
       const typename Model::FrameIndex & frame_id = contact_model.frame_id;

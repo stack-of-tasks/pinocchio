@@ -89,26 +89,7 @@ namespace pinocchio
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
     {}
-    
-    ///
-    /// \brief Contructor with from a given type and parent.
-    ///
-    /// \param[in] type Type of the contact.
-    /// \param[in] frame_id Index of the parent Frame in the model tree.
-    /// \param[in] reference_frame Placement of the contact with respect to the parent Frame.
-    ///
-    template<typename S2, int O2>
-    RigidContactModelTpl(const ContactType type,
-                         const FrameIndex frame_id,
-                         const ReferenceFrame & reference_frame = WORLD)
-    : type(type)
-    , frame_id(frame_id)
-    , reference_frame(reference_frame)
-    , desired_contact_placement(SE3::Identity())
-    , desired_contact_velocity(Motion::Zero())
-    , desired_contact_acceleration(Motion::Zero())
-    {}
-    
+        
     ///
     /// \brief Contructor with from a given type and parent
     ///

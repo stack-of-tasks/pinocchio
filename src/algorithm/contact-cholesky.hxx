@@ -218,7 +218,6 @@ namespace pinocchio
       for(size_t f = 0; f < num_ee; ++f)
       {
         const RigidContactModel & cmodel = contact_models[f];
-        RigidContactData & cdata = contact_datas[f];
         if(cmodel.reference_frame == WORLD) continue; // skip useless computations
         
         const typename Model::FrameIndex & frame_id = cmodel.frame_id;
@@ -264,7 +263,6 @@ namespace pinocchio
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
           const RigidContactModel & cmodel = contact_models[ee_id];
-          const RigidContactData & cdata = contact_datas[ee_id];
           const Eigen::DenseIndex constraint_dim = cmodel.size();
           const typename Model::FrameIndex & frame_id = cmodel.frame_id;
 	  const SE3 & contact_placement = data.oMf[frame_id];

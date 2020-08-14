@@ -19,11 +19,11 @@ namespace pinocchio
     {
     
       static void impulseDynamicsDerivatives_proxy(const Model & model,
-                                                                           Data & data,
-                                                                           const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_models,
-                                                                           PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) & contact_datas,
-                                                                           const double r_coeff =0.0,
-                                                                           const double mu = 0.0)
+                                                   Data & data,
+                                                   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_models,
+                                                   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) & contact_datas,
+                                                   const double r_coeff =0.0,
+                                                   const double mu = 0.0)
       {
         computeImpulseDynamicsDerivatives(model, data, contact_models,
                                                  contact_datas, r_coeff, mu);
