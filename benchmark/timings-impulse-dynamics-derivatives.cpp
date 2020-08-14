@@ -1,11 +1,10 @@
 //
-// Copyright (c) 2019-2020 LAAS-CNRS, INRIA
+// Copyright (c) 2020 LAAS-CNRS, INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
-#include "pinocchio/algorithm/aba-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/impulse-dynamics.hpp"
+#include "pinocchio/algorithm/impulse-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -55,16 +54,11 @@ int main(int argc, const char ** argv)
   const std::string RF = "RLEG_LINK6";
   const std::string LF = "LLEG_LINK6";
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),LOCAL);
   RigidContactData cd_RF_6D(ci_RF_6D);
-  //RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),LOCAL);
   RigidContactData cd_LF_6D(ci_LF_6D);
-  // RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
-  
-  //RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
-  //RigidContactModel ci_LA_3D(CONTACT_3D,model.getFrameId(LA),WORLD);
   
   // Define contact infos structure
   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_empty;
@@ -73,21 +67,15 @@ int main(int argc, const char ** argv)
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_infos_empty);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_6D;
-  contact_infos_6D.push_back(ci_RF_6D);
-
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D;
-  contact_datas_6D.push_back(cd_RF_6D);
+  contact_infos_6D.push_back(ci_RF_6D);  contact_datas_6D.push_back(cd_RF_6D);
   
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_infos_6D);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_infos_6D6D;
-  contact_infos_6D6D.push_back(ci_RF_6D);
-  contact_infos_6D6D.push_back(ci_LF_6D);
-
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D6D;
-  contact_datas_6D6D.push_back(cd_RF_6D);
-  contact_datas_6D6D.push_back(cd_LF_6D);
-  
+  contact_infos_6D6D.push_back(ci_RF_6D);   contact_datas_6D6D.push_back(cd_RF_6D);
+  contact_infos_6D6D.push_back(ci_LF_6D);   contact_datas_6D6D.push_back(cd_LF_6D);
   
   cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_infos_6D6D);
   
@@ -110,47 +98,42 @@ int main(int argc, const char ** argv)
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-
-  timer.tic();
-  SMOOTH(NBT)
-  {
-    computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
-  }
-  std::cout << "ABA derivatives= \t\t\t"; timer.toc(std::cout,NBT);
-
   
   double total_time = 0;  
   initContactDynamics(model,data,contact_infos_empty);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_empty, contact_datas_empty);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],
+                    contact_infos_empty, contact_datas_empty);
     timer.tic();
-    computeContactDynamicsDerivatives(model, data, contact_infos_empty, contact_datas_empty);
+    computeImpulseDynamicsDerivatives(model, data, contact_infos_empty, contact_datas_empty);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "impulseDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;  
   initContactDynamics(model,data,contact_infos_6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D, contact_datas_6D);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],
+                    contact_infos_6D, contact_datas_6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,contact_infos_6D, contact_datas_6D);
+    computeImpulseDynamicsDerivatives(model,data,contact_infos_6D, contact_datas_6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "impulseDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;
   initContactDynamics(model,data,contact_infos_6D6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_infos_6D6D, contact_datas_6D6D);
+    impulseDynamics(model,data,qs[_smooth],qdots[_smooth],
+                    contact_infos_6D6D, contact_datas_6D6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data, contact_infos_6D6D, contact_datas_6D6D);
+    computeImpulseDynamicsDerivatives(model,data,contact_infos_6D6D, contact_datas_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
+  std::cout << "impulseDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
   return 0;
 }
 

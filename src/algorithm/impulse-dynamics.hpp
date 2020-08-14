@@ -12,24 +12,6 @@
 
 namespace pinocchio
 {
-  ///
-  /// \brief Init the impulse dynamics data according to the information contained in contact_models.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  /// \tparam ConfigVectorType Type of the joint configuration vector.
-  /// \tparam TangentVectorType1 Type of the joint velocity vector.
-  /// \tparam TangentVectorType2 Type of the joint torque vector.
-  /// \tparam Allocator Allocator class for the std::vector.
-  ///
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] contact_models Vector of impulse information related to the problem.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
-  inline void
-  initImpulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                      const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models);
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.
