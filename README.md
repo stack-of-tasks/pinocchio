@@ -73,6 +73,7 @@ In addition, the introspection done [here](https://github.com/rbd-benchmarks/rbd
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
+The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
 
 ## Installation
 
