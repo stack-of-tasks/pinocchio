@@ -101,7 +101,7 @@ The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/
 
 **Pinocchio** provides support for many open-source and free visualizers:
 
-- [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph] with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
+- [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph](https://github.com/openscenegraph/OpenSceneGraph) with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
 - [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
 - [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
 
