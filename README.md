@@ -96,6 +96,16 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
 The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
 
+## Visualization
+
+**Pinocchio** provides support for many open-source and free visualizers:
+
+- [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph] with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
+- [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
+- [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
+
+Many external viewers can also be integrated. See example [here](./bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
+
 ## Citing Pinocchio
 
 To cite **Pinocchio** in your academic research, please use the following bibtex lines:
