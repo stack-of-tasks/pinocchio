@@ -198,7 +198,7 @@ namespace pinocchio
       typedef RigidContactModelTpl<S1,O1> RigidContactModel;
       typedef RigidContactDataTpl<S1,O1> RigidContactData;
       typedef MotionTpl<Scalar,Options> Motion;
-      
+      typedef SE3Tpl<Scalar,Options> SE3;
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
                                      "The number of contacts inside contact_models and the one during allocation do not match.");

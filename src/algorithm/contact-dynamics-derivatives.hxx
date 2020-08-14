@@ -250,7 +250,10 @@ namespace pinocchio
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-
+    typedef SE3Tpl<Scalar,Options> SE3;
+    typedef ForceTpl<Scalar,Options> Force;
+    typedef MotionTpl<Scalar,Options> Motion;
+    
     data.oa_gf[0] = -model.gravity;
     
     typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
