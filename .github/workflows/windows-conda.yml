@@ -44,22 +44,29 @@ jobs:
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
     
-        :: Building
+        :: Create build directory
         mkdir build
         pushd build
 
+        :: Configure
         cmake ^
           -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_BUILD_TYPE=Release ^
-          -DPINOCCHIO_SITELIB_ROOT=%CONDA_PREFIX% ^
+          -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON ^
           -DBUILD_PYTHON_INTERFACE=ON ^
           -DBUILD_WITH_COLLISION_SUPPORT=ON ^
           ..
+
+        :: Build
         cmake --build . --config Release --target install
 
         :: Testing
         set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
         ctest --output-on-failure -C Release -V
+
+        :: Test Python import
+        cd ..
+        python -c "import pinocchio"
