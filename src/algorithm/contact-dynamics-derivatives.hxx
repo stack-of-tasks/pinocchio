@@ -55,6 +55,7 @@ namespace pinocchio
         }
         else
           dVdq_cols.setZero();
+          
         // computes variation of inertias
         data.doYcrb[i] = data.oinertias[i].variation(ov);
         typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,typename Data::ConfigVectorType,typename Data::TangentVectorType,typename Data::TangentVectorType> RNEAForwardStepType;
@@ -250,9 +251,9 @@ namespace pinocchio
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-    typedef SE3Tpl<Scalar,Options> SE3;
-    typedef ForceTpl<Scalar,Options> Force;
-    typedef MotionTpl<Scalar,Options> Motion;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Force Force;
+    typedef typename Data::Motion Motion;
     
     data.oa_gf[0] = -model.gravity;
     
@@ -308,6 +309,7 @@ namespace pinocchio
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex joint_id = frame.parent;
       const Eigen::DenseIndex colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+      
       Motion & v_tmp = data.ov[0];          
       switch(cmodel.reference_frame) {
       case WORLD:
@@ -511,6 +513,7 @@ namespace pinocchio
       const typename Model::Frame & frame = model.frames[frame_id];
       const typename Model::JointIndex joint_id = frame.parent;
       const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+      
       switch(cmodel.reference_frame) {
       case LOCAL:
       {
@@ -554,7 +557,7 @@ namespace pinocchio
       }
       case LOCAL_WORLD_ALIGNED:
       {
-        const Force& of = cdata.contact_force;
+        const Force & of = cdata.contact_force;
         switch(cmodel.type) {
         case CONTACT_6D:
         {
