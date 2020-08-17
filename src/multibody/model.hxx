@@ -69,11 +69,15 @@ namespace pinocchio
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
     assert(joint_model.nq() >= joint_model.nv());
 
-    assert(max_effort.size() == joint_model.nv()
-           && max_velocity.size() == joint_model.nv()
-           && min_config.size() == joint_model.nq()
-           && max_config.size() == joint_model.nq());
-    
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_effort.size() == joint_model.nv(),
+                                   "max_effort does not have the correct dimension");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_velocity.size() == joint_model.nv(),
+                                   "max_velocity does not have the correct dimension");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(min_config.size() == joint_model.nq(),
+                                   "min_config does not have the correct dimension");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_config.size() == joint_model.nq(),
+                                   "max_config does not have the correct dimension");
+
     JointIndex joint_id = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
@@ -345,7 +349,8 @@ namespace pinocchio
       // type is FIXED_JOINT
       previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert((size_t)previousFrame < frames.size() && "Frame index out of bound");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)previousFrame < frames.size(),
+                                   "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
@@ -371,7 +376,8 @@ namespace pinocchio
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
-    assert((res<INT_MAX) && "Id superior to int range. Should never happen.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((res<INT_MAX),
+                                   "Id superior to int range. Should never happen.");
     return ModelTpl::JointIndex(res);
   }
   
@@ -391,9 +397,9 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    assert(((it == frames.end()) ||
-            (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))
-        && "Several frames match the filter");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(((it == frames.end()) ||
+                                    (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())),
+                                   "Several frames match the filter");
     return FrameIndex(it - frames.begin());
   }
   
