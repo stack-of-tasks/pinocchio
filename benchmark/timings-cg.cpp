@@ -66,8 +66,8 @@ int main(int argc, const char ** argv)
 
   pinocchio::Data data(model);
 
-  const std::string RF = "rleg6_joint";
-  const std::string LF = "lleg6_joint";
+  const std::string RF = "RLEG_ANKLE_R";
+  const std::string LF = "LLEG_ANKLE_R";
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
 
   RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
