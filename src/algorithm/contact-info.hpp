@@ -149,6 +149,21 @@ namespace pinocchio
       }
       return -1;
     }
+
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    RigidContactModelTpl<NewScalar,Options> cast() const
+    {
+      typedef RigidContactModelTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.type = type;
+      res.frame_id = frame_id;
+      res.reference_frame =reference_frame;
+      res.desired_contact_placement = desired_contact_placement.template cast<NewScalar>();
+      res.desired_contact_velocity = desired_contact_velocity.template cast<NewScalar>();
+      res.desired_contact_acceleration = desired_contact_acceleration.template cast<NewScalar>();
+      return res;
+    }
     
   };
 
