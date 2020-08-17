@@ -8,6 +8,9 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -37,7 +40,7 @@ int main(int argc, const char ** argv)
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
     
-  pinocchio::Model model;
+  pinocchio::Model model;  
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
   if(argc>1) filename = argv[1];
   
@@ -62,9 +65,20 @@ int main(int argc, const char ** argv)
   std::cout << "--" << std::endl;
 
   pinocchio::Data data(model);
+
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+
+  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  contact_models_6D6D.push_back(ci_RF);
+  contact_models_6D6D.push_back(ci_LF);
+
+  
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   
-  CodeGenRNEA<double> rnea_code_gen(model);
+  /*  CodeGenRNEA<double> rnea_code_gen(model);
   rnea_code_gen.initLib();
   rnea_code_gen.loadLib();
   
@@ -86,8 +100,12 @@ int main(int argc, const char ** argv)
   
   CodeGenABADerivatives<double> aba_derivatives_code_gen(model);
   aba_derivatives_code_gen.initLib();
-  aba_derivatives_code_gen.loadLib();
-
+  aba_derivatives_code_gen.loadLib();*/
+  
+  CodeGenContactDynamicsDerivatives<double> contact_dynamics_derivatives_code_gen(model, contact_models_6D6D);
+  contact_dynamics_derivatives_code_gen.initLib();
+  contact_dynamics_derivatives_code_gen.loadLib();
+  
   pinocchio::container::aligned_vector<VectorXd> qs     (NBT);
   pinocchio::container::aligned_vector<VectorXd> qdots  (NBT);
   pinocchio::container::aligned_vector<VectorXd> qddots (NBT);
@@ -100,7 +118,7 @@ int main(int argc, const char ** argv)
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-
+  /*
   timer.tic();
   SMOOTH(NBT)
   {
@@ -191,6 +209,14 @@ int main(int argc, const char ** argv)
     aba_derivatives_code_gen.evalFunction(qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
   std::cout << "ABA partial derivatives code gen = \t\t"; timer.toc(std::cout,NBT);
+  */
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    contact_dynamics_derivatives_code_gen.evalFunction(qs[_smooth],qdots[_smooth],qddots[_smooth]);
+  }
+  std::cout << "contact dynamics derivatives 6D,6D code gen = \t\t"; timer.toc(std::cout,NBT);
+
   
   return 0;
 }
