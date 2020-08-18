@@ -75,10 +75,14 @@ int main(int argc, const char ** argv)
   contact_models_6D6D.push_back(ci_RF);
   contact_models_6D6D.push_back(ci_LF);
 
-  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D6D;
+
+  RigidContactData cd_RF(ci_RF);  contact_datas_6D6D.push_back(cd_RF);
+  RigidContactData cd_LF(ci_LF);  contact_datas_6D6D.push_back(cd_LF);
+    
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   
-  /*  CodeGenRNEA<double> rnea_code_gen(model);
+  CodeGenRNEA<double> rnea_code_gen(model);
   rnea_code_gen.initLib();
   rnea_code_gen.loadLib();
   
@@ -100,7 +104,7 @@ int main(int argc, const char ** argv)
   
   CodeGenABADerivatives<double> aba_derivatives_code_gen(model);
   aba_derivatives_code_gen.initLib();
-  aba_derivatives_code_gen.loadLib();*/
+  aba_derivatives_code_gen.loadLib();
   
   CodeGenContactDynamicsDerivatives<double> contact_dynamics_derivatives_code_gen(model, contact_models_6D6D);
   contact_dynamics_derivatives_code_gen.initLib();
@@ -118,7 +122,7 @@ int main(int argc, const char ** argv)
     qddots[i] = Eigen::VectorXd::Random(model.nv);
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
-  /*
+
   timer.tic();
   SMOOTH(NBT)
   {
@@ -209,7 +213,20 @@ int main(int argc, const char ** argv)
     aba_derivatives_code_gen.evalFunction(qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
   std::cout << "ABA partial derivatives code gen = \t\t"; timer.toc(std::cout,NBT);
-  */
+
+
+  pinocchio::initContactDynamics(model, data, contact_models_6D6D);
+  timer.tic();
+  SMOOTH(NBT)
+  {
+    pinocchio::contactDynamics(model, data, qs[_smooth],qdots[_smooth],qddots[_smooth],
+                               contact_models_6D6D, contact_datas_6D6D);
+    pinocchio::computeContactDynamicsDerivatives(model, data,
+                                                 contact_models_6D6D, contact_datas_6D6D);
+  }
+  std::cout << "contact dynamics derivatives 6D,6D = \t\t"; timer.toc(std::cout,NBT);
+
+
   timer.tic();
   SMOOTH(NBT)
   {
