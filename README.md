@@ -31,7 +31,9 @@ If you want to directly dive into **Pinocchio**, only one single line is suffici
 conda install pinocchio -c conda-forge
 </p>
 
-**NEWS**: We are **hiring**! We are looking for a talented C++/Python software developer to enhance and promote Pinocchio inside the robotics community and beyond. Please contact @jcarpent for further details.
+## News
+
+**August 2020**: We are **hiring**! We are looking for a talented C++/Python software developer to enhance and promote Pinocchio inside the robotics community and beyond. Please contact @jcarpent for further details.
 
 ## Pinocchio main features
 
