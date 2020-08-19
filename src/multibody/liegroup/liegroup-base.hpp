@@ -308,7 +308,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  Jin    the inplace matrix
+     * @param[in,out]  Jin    the inplace matrix
      *
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
@@ -329,7 +329,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  J    the inplace matrix
+     * @param[in,out]  J    the inplace matrix
      *
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
