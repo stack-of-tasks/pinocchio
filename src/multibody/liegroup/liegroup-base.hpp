@@ -285,7 +285,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]     q       configuration vector.
      * @param[in]     v       tangent vector
-     * @param[in,out] J       the input matrix
+     * @param[in,out] J       the inplace matrix
      * @param[in]     arg  argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
      */
     template<class Config_t, class Tangent_t, class Jacobian_t>
@@ -308,9 +308,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  Jin    the input matrix
+     * @param[in]  Jin    the inplace matrix
      *
-     * @param[out] Jout    Transported matrix
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
@@ -330,9 +329,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  Jin    the input matrix
+     * @param[in]  J    the inplace matrix
      *
-     * @param[out] Jout    Transported matrix
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
