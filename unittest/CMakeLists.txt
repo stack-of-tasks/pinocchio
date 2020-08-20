@@ -32,6 +32,11 @@ MACRO(ADD_PINOCCHIO_UNIT_TEST NAME)
   TARGET_LINK_LIBRARIES(${TEST_NAME} PRIVATE ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 ENDMACRO(ADD_PINOCCHIO_UNIT_TEST)
 
+MACRO(ADD_OPTIONAL_COMPILE_DEPENDENCY PKG_CONFIG_STRING)
+  _GET_PKG_CONFIG_DEBUG_STRING("${PKG_CONFIG_STRING}" ${ARGN})
+  ADD_DEPENDENCY(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
+ENDMACRO()
+
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
 # --- RULES -------------------------------------------------------------------
@@ -135,6 +140,16 @@ ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 IF(BUILD_ADVANCED_TESTING)
   ADD_PINOCCHIO_UNIT_TEST(multiprecision)
   SET_PROPERTY(TARGET test-cpp-multiprecision PROPERTY CXX_STANDARD 11)
+
+  ADD_OPTIONAL_COMPILE_DEPENDENCY(gmp)
+  ADD_OPTIONAL_COMPILE_DEPENDENCY(mpfr)
+
+  IF(MPFR_FOUND)
+    ADD_PINOCCHIO_UNIT_TEST(multiprecision-mpfr)
+    PKG_CONFIG_USE_DEPENDENCY(test-cpp-multiprecision-mpfr gmp)
+    PKG_CONFIG_USE_DEPENDENCY(test-cpp-multiprecision-mpfr mpfr)
+    SET_PROPERTY(TARGET test-cpp-multiprecision-mpfr PROPERTY CXX_STANDARD 11)
+  ENDIF(MPFR_FOUND)
 ENDIF(BUILD_ADVANCED_TESTING)
 
 # Automatic differentiation

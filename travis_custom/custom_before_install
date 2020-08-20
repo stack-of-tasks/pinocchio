@@ -14,7 +14,7 @@ sudo apt update
 sudo free -m -t
 
 # Setup environment variables.
-export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
+export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils libmpfr-dev"
 
 # Add Python dependency
 echo "TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION"
