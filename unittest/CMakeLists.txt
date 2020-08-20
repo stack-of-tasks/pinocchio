@@ -135,6 +135,18 @@ ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 IF(BUILD_ADVANCED_TESTING)
   ADD_PINOCCHIO_UNIT_TEST(multiprecision)
   SET_PROPERTY(TARGET test-cpp-multiprecision PROPERTY CXX_STANDARD 11)
+
+  find_package(PkgConfig QUIET)
+  IF(PkgConfig_FOUND)
+    pkg_check_modules(MPFR QUIET mpfr)
+    IF(MPFR_FOUND)
+      ADD_PINOCCHIO_UNIT_TEST(multiprecision-mpfr)
+      SET_PROPERTY(TARGET test-cpp-multiprecision-mpfr PROPERTY CXX_STANDARD 11)
+      TARGET_LINK_LIBRARIES(test-cpp-multiprecision-mpfr PUBLIC ${MPFR_LIBRARIES})
+      TARGET_INCLUDE_DIRECTORIES(test-cpp-multiprecision-mpfr PUBLIC ${MPFR_INCLUDE_DIRS})
+      TARGET_COMPILE_OPTIONS(test-cpp-multiprecision-mpfr PUBLIC ${MPFR_CFLAGS_OTHER})
+    ENDIF(MPFR_FOUND)
+  ENDIF(PkgConfig_FOUND)
 ENDIF(BUILD_ADVANCED_TESTING)
 
 # Automatic differentiation
