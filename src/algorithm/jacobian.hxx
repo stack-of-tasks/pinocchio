@@ -57,7 +57,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -125,9 +125,9 @@ namespace pinocchio
                                 const Eigen::MatrixBase<Matrix6xLikeIn> & Jin,
                                 const Eigen::MatrixBase<Matrix6xLikeOut> & Jout)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.rows() == 6);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.cols() == Jout.cols());
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.rows() == 6);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.rows(), 6);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), Jout.cols());
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
       
       Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut,Jout);
 
@@ -158,11 +158,11 @@ namespace pinocchio
     {
       assert(model.check(data) && "data is not consistent with model.");
       
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.rows() == 6);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.cols() == model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.rows(), 6);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.cols(), model.nv);
       
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.rows() == 6);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.cols() == model.nv);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), 6);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), model.nv);
       
       Matrix6xLikeOut & Jout_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeOut,Jout);
 
@@ -290,7 +290,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -371,8 +371,8 @@ namespace pinocchio
                                      const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

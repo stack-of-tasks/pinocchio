@@ -20,7 +20,7 @@ namespace pinocchio
                          const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -259,9 +259,9 @@ namespace pinocchio
                               const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a.size() == model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a.size(), model.nv);
 
     data.v[0].setZero();
     data.a_gf[0] = -model.gravity;

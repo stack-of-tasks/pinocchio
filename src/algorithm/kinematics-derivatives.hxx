@@ -83,9 +83,9 @@ namespace pinocchio
                                                   const Eigen::MatrixBase<TangentVectorType1> & v,
                                                   const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a.size() == model.nv, "The acceleration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a.size(), model.nv, "The acceleration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -207,8 +207,8 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dv.cols() ==  model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dv.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -401,10 +401,10 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Data::Matrix6x);
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dv.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_da.cols() ==  model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -572,9 +572,9 @@ namespace pinocchio
     const typename Data::Tensor3x & kinematic_hessians = data.kinematic_hessians;
     
     // Allocate memory
-    assert(kinematic_hessian.dimension(0) == 6 && "The result tensor is not of the right dimension.");
-    assert(kinematic_hessian.dimension(1) == model.nv && "The result tensor is not of the right dimension.");
-    assert(kinematic_hessian.dimension(2) == model.nv && "The result tensor is not of the right dimension.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_hessian.dimension(0), 6, "The result tensor is not of the right dimension.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_hessian.dimension(1), model.nv, "The result tensor is not of the right dimension.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_hessian.dimension(2), model.nv, "The result tensor is not of the right dimension.");
     
     const int idx_vj = model.joints[joint_id].idx_v();
     const int nvj = model.joints[joint_id].nv();
