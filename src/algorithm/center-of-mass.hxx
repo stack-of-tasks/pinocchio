@@ -371,7 +371,8 @@ namespace pinocchio
     
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT((int)rootSubtreeId < model.njoints, "Invalid joint id.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(), 3, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(res.cols(), model.nv, "the resulting matrix does not have the right size.");
 
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
@@ -447,7 +448,8 @@ namespace pinocchio
 
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(((int)rootSubtreeId < model.njoints), "Invalid joint id.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(res.rows() == 3 && res.cols() == model.nv, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(), 3, "the resulting matrix does not have the right size.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(res.cols(), model.nv, "the resulting matrix does not have the right size.");
     
     Matrix3xLike & Jcom_subtree = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xLike,res);
     
