@@ -11,6 +11,12 @@
 
 namespace pinocchio
 {
+
+  template <typename T>
+  struct is_floating_point : boost::is_floating_point<T>
+  {
+  };
+
   ///
   /// \brief Returns the value of PI according to the template parameters Scalar
   ///

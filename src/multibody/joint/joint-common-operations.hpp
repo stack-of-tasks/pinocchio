@@ -17,7 +17,7 @@ namespace pinocchio
     ///
     /// \brief Operation called in JointModelBase<JointModel>::calc_aba
     ///
-    template<typename Scalar, bool is_floating_point = boost::is_floating_point<Scalar>::value>
+    template<typename Scalar, bool is_floating_point = pinocchio::is_floating_point<Scalar>::value>
     struct PerformStYSInversion
     {
       template<typename M1, typename M2>

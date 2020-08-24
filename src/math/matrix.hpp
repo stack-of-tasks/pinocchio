@@ -22,7 +22,7 @@ namespace pinocchio
 
   namespace internal
   {
-    template<typename MatrixLike, bool value = boost::is_floating_point<typename MatrixLike::Scalar>::value>
+    template<typename MatrixLike, bool value = is_floating_point<typename MatrixLike::Scalar>::value>
     struct isZeroAlgo
     {
       typedef typename MatrixLike::Scalar Scalar;
@@ -98,7 +98,7 @@ namespace pinocchio
   
   namespace internal
   {
-    template<typename MatrixLike, bool value = boost::is_floating_point<typename MatrixLike::Scalar>::value>
+    template<typename MatrixLike, bool value = is_floating_point<typename MatrixLike::Scalar>::value>
     struct isUnitaryAlgo
     {
       typedef typename MatrixLike::Scalar Scalar;
@@ -146,7 +146,7 @@ namespace pinocchio
 
   namespace internal
   {
-    template<typename VectorLike, bool value = boost::is_floating_point<typename VectorLike::Scalar>::value>
+    template<typename VectorLike, bool value = is_floating_point<typename VectorLike::Scalar>::value>
     struct isNormalizedAlgo
     {
       typedef typename VectorLike::Scalar Scalar;
