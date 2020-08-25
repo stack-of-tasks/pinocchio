@@ -27,21 +27,21 @@ namespace pinocchio
       {
         switch(op)
         {
-        case LT:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value < rhs_value,then_value,else_value);
-          break;
-        case LE:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value <= rhs_value,then_value,else_value);
-          break;
-        case EQ:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value == rhs_value,then_value,else_value);
-          break;
-        case GE:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value >= rhs_value,then_value,else_value);
-          break;
-        case GT:
-          return ::casadi::Matrix<Scalar>::if_else(lhs_value > rhs_value,then_value,else_value);
-          break;
+          case LT:
+            return ::casadi::Matrix<Scalar>::if_else(lhs_value < rhs_value,then_value,else_value);
+            break;
+          case LE:
+            return ::casadi::Matrix<Scalar>::if_else(lhs_value <= rhs_value,then_value,else_value);
+            break;
+          case EQ:
+            return ::casadi::Matrix<Scalar>::if_else(lhs_value == rhs_value,then_value,else_value);
+            break;
+          case GE:
+            return ::casadi::Matrix<Scalar>::if_else(lhs_value >= rhs_value,then_value,else_value);
+            break;
+          case GT:
+            return ::casadi::Matrix<Scalar>::if_else(lhs_value > rhs_value,then_value,else_value);
+            break;
         }
       }
     };
