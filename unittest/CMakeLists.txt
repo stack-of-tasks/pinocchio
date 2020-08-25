@@ -37,9 +37,8 @@ MACRO(ADD_OPTIONAL_COMPILE_DEPENDENCY PKG_CONFIG_STRING)
   ADD_DEPENDENCY(0 1 ${PKG_CONFIG_STRING} "${PKG_CONFIG_DEBUG_STRING}")
 ENDMACRO()
 
-# --- RULES -------------------------------------------------------------------
-# --- RULES -------------------------------------------------------------------
-# --- RULES -------------------------------------------------------------------
+# Find Boost.UnitTestFramework
+FIND_PACKAGE(Boost COMPONENTS unit_test_framework)
 
 # Math components
 ADD_PINOCCHIO_UNIT_TEST(eigen-basic-op)
