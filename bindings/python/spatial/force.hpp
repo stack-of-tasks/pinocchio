@@ -3,10 +3,11 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_python_force_hpp__
-#define __pinocchio_python_force_hpp__
+#ifndef __pinocchio_python_spatial_force_hpp__
+#define __pinocchio_python_spatial_force_hpp__
 
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
@@ -55,6 +56,9 @@ namespace pinocchio
       typedef typename Force::Vector3 Vector3;
       typedef typename Force::Scalar Scalar;
       
+      typedef typename Eigen::Map<Vector3> MapVector3;
+      typedef typename Eigen::Ref<Vector3> RefVector3;
+      
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
@@ -67,18 +71,23 @@ namespace pinocchio
         .def(bp::init<Force>((bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
-                      &ForcePythonVisitor::getLinear,
+                      bp::make_function(&ForcePythonVisitor::getLinear,
+                                        bp::with_custodian_and_ward_postcall<0,1>()),
                       &ForcePythonVisitor::setLinear,
                       "Linear part of a *this, corresponding to the linear velocity in case of a Spatial velocity.")
         .add_property("angular",
-                      &ForcePythonVisitor::getAngular,
+                      bp::make_function(&ForcePythonVisitor::getAngular,
+                                        bp::with_custodian_and_ward_postcall<0,1>()),
                       &ForcePythonVisitor::setAngular,
                       "Angular part of a *this, corresponding to the angular velocity in case of a Spatial velocity.")
         .add_property("vector",
-                      &ForcePythonVisitor::getVector,
+                      bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
+                                        bp::return_internal_reference<>()),
                       &ForcePythonVisitor::setVector,
                       "Returns the components of *this as a 6d vector.")
-        .add_property("np",&ForcePythonVisitor::getVector)
+        .add_property("np",
+                      bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
+                                        bp::return_internal_reference<>()))
         
         .def("se3Action",&Force::template se3Action<Scalar,Options>,
              bp::args("self","M"),"Returns the result of the dual action of M on *this.")
@@ -118,7 +127,8 @@ namespace pinocchio
         .def("Zero",&Force::Zero,"Returns a zero Force.")
         .staticmethod("Zero")
         
-        .def("__array__",&ForcePythonVisitor::getVector)
+        .def("__array__",bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
+                                           bp::return_internal_reference<>()))
         
         .def_pickle(Pickle())
         ;
@@ -147,20 +157,18 @@ namespace pinocchio
         { return bp::make_tuple((Vector3)f.linear(),(Vector3)f.angular()); }
       };
       
-      static Vector3 getLinear(const Force & self ) { return self.linear(); }
+      static RefVector3 getLinear(Force & self ) { return self.linear(); }
       static void setLinear(Force & self, const Vector3 & f) { self.linear(f); }
-      static Vector3 getAngular(const Force & self) { return self.angular(); }
+      static RefVector3 getAngular(Force & self) { return self.angular(); }
       static void setAngular(Force & self, const Vector3 & n) { self.angular(n); }
       
       static void setZero(Force & self) { self.setZero(); }
       static void setRandom(Force & self) { self.setRandom(); }
       
-      static Vector6 getVector(const Force & self) { return self.toVector(); }
       static void setVector(Force & self, const Vector6 & f) { self = f; }
     };
     
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_se3_hpp__
-
+#endif // ifndef __pinocchio_python_spatial_force_hpp__
