@@ -223,7 +223,7 @@ namespace pinocchio
   inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
   existJointName(const std::string & name) const
   {
-    return (names.end() != std::find(names.begin(),names.end(),name));
+    return !name.empty() && (names.end() != std::find(names.begin(),names.end(),name));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -245,7 +245,7 @@ namespace pinocchio
   inline bool ModelTpl<Scalar,Options,JointCollectionTpl>::
   existFrame(const std::string & name, const FrameType & type) const
   {
-    return std::find_if(frames.begin(), frames.end(),
+    return !name.empty() && std::find_if(frames.begin(), frames.end(),
                         details::FilterFrame(name, type)) != frames.end();
   }
 

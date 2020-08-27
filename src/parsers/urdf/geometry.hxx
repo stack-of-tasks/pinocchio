@@ -42,7 +42,7 @@ namespace pinocchio
         {
           if (!model.existFrame(link_name, BODY))
           {
-            throw std::invalid_argument("No link " + link_name + " in model");
+            throw std::invalid_argument("No link '" + link_name + "' in model");
           }
           fid = model.getFrameId(link_name, BODY);
           PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[fid].type == BODY);
