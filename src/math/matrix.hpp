@@ -156,7 +156,7 @@ namespace pinocchio
                       const RealScalar & prec =
                       Eigen::NumTraits<RealScalar>::dummy_precision())
       {
-        return math::fabs(vec.norm() - RealScalar(1)) <= prec;
+        return math::fabs(static_cast<RealScalar>(vec.norm() - RealScalar(1))) <= prec;
       }
     };
     

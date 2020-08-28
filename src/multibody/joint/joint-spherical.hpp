@@ -417,13 +417,14 @@ namespace pinocchio
     template<typename ConfigVectorLike>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVectorLike> & q_joint) const
     {
+      typedef typename ConfigVectorLike::Scalar Scalar;
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
       typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.derived().data());
       //assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
-      assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
+      assert(math::fabs(static_cast<Scalar>(quat.coeffs().squaredNorm()-1)) <= 1e-4);
       
       M.rotation(quat.matrix());
       M.translation().setZero();
