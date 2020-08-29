@@ -14,6 +14,23 @@
 #include <boost/multiprecision/number.hpp>
 #include <Eigen/Dense>
 
+namespace pinocchio
+{
+// We check std::numeric_limits<_>::has_infinity to exclude integral, rational
+// and complex types
+template <typename Backend,
+          boost::multiprecision::expression_template_option ET>
+struct is_floating_point<boost::multiprecision::number<Backend, ET>>
+    : boost::integral_constant<
+          bool,
+          ((std::numeric_limits<
+                boost::multiprecision::number<Backend, ET>>::is_specialized and
+            std::numeric_limits<
+                boost::multiprecision::number<Backend, ET>>::has_infinity))>
+{
+};
+}  // namespace pinocchio
+
 namespace Eigen
 {
   namespace internal

@@ -227,8 +227,8 @@ namespace pinocchio
 
       ConstQuaternionMap quat(q_joint.template tail<4>().data());
       //assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= sqrt(Eigen::NumTraits<typename V::Scalar>::epsilon())); TODO: check validity of the rhs precision
-      assert(math::fabs(quat.coeffs().squaredNorm()-1.) <= 1e-4);
-      
+      assert(math::fabs(static_cast<Scalar>(quat.coeffs().squaredNorm()-1)) <= 1e-4);
+
       M.rotation(quat.matrix());
       M.translation(q_joint.template head<3>());
     }
