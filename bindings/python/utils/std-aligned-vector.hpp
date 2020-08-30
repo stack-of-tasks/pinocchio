@@ -35,8 +35,8 @@ namespace pinocchio
       typedef container::aligned_vector<T> vector_type;
       typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
       
-      static bp::class_<vector_type> expose(const std::string & class_name,
-                                            const std::string & doc_string = "")
+      static ::boost::python::class_<vector_type> expose(const std::string & class_name,
+                                                         const std::string & doc_string = "")
       {
         namespace bp = boost::python;
         
