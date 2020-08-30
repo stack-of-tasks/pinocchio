@@ -8,8 +8,10 @@
 #include <boost/python.hpp>
 #include <boost/python/stl_iterator.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+
 #include <string>
 #include <vector>
+#include <iterator>
 
 #include "pinocchio/bindings/python/utils/pickle-vector.hpp"
 
@@ -17,7 +19,69 @@ namespace pinocchio
 {
   namespace python
   {
-    
+  
+    namespace details
+    {
+      template<typename Container>
+      struct overload_base_get_item_for_std_vector
+      : public boost::python::def_visitor< overload_base_get_item_for_std_vector<Container> >
+      {
+        typedef typename Container::value_type value_type;
+        typedef typename Container::value_type data_type;
+        typedef size_t index_type;
+        
+        template <class Class>
+        void visit(Class& cl) const
+        {
+          cl
+          .def("__getitem__", &base_get_item);
+        }
+        
+      private:
+        
+        static boost::python::object
+        base_get_item(boost::python::back_reference<Container&> container, PyObject* i_)
+        {
+          namespace bp = ::boost::python;
+
+          index_type idx = convert_index(container.get(), i_);
+          typename Container::iterator i = container.get().begin();
+          std::advance(i, idx);
+          if (i == container.get().end())
+          {
+              PyErr_SetString(PyExc_KeyError, "Invalid index");
+              bp::throw_error_already_set();
+          }
+          
+          typename bp::to_python_indirect<data_type&,bp::detail::make_reference_holder> convert;
+          return bp::object(bp::handle<>(convert(*i)));
+        }
+        
+        static index_type
+        convert_index(Container & container, PyObject* i_)
+        {
+          namespace bp = boost::python;
+          bp::extract<long> i(i_);
+          if (i.check())
+          {
+            long index = i();
+            if (index < 0)
+              index += container.size();
+            if (index >= long(container.size()) || index < 0)
+            {
+              PyErr_SetString(PyExc_IndexError, "Index out of range");
+              bp::throw_error_already_set();
+            }
+            return index;
+          }
+          
+          PyErr_SetString(PyExc_TypeError, "Invalid index type");
+          bp::throw_error_already_set();
+          return index_type();
+        }
+      };
+    }
+  
     ///
     /// \brief Register the conversion from a Python list to a std::vector
     ///
