@@ -174,12 +174,13 @@ namespace pinocchio
       typedef std::vector<T,Allocator> vector_type;
       typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
       
-      static void expose(const std::string & class_name,
-                         const std::string & doc_string = "")
+      static bp::class_<vector_type> expose(const std::string & class_name,
+                                            const std::string & doc_string = "")
       {
         namespace bp = boost::python;
         
-        bp::class_<vector_type>(class_name.c_str(),doc_string.c_str())
+        bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
+        cl.
         .def(StdVectorPythonVisitor())
         .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
              "Returns the std::vector as a Python list.")
@@ -188,6 +189,8 @@ namespace pinocchio
         // Register conversion
         if(EnableFromPythonListConverter)
           FromPythonListConverter::register_converter();
+        
+        return cl;
       }
     };
     
