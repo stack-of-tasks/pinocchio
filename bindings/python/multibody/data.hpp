@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_python_data_hpp__
-#define __pinocchio_python_data_hpp__
+#ifndef __pinocchio_python_multibody_data_hpp__
+#define __pinocchio_python_multibody_data_hpp__
 
 #include <boost/python.hpp>
 
@@ -11,6 +11,7 @@
 #include "pinocchio/serialization/data.hpp"
 
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 #include <eigenpy/exception.hpp>
 
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
@@ -114,56 +115,56 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(liMi,"Body relative placement (wrt parent)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(tau,"Joint torques (output of RNEA)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(nle,"Non Linear Effects (output of nle algorithm)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq,"Joint accelerations (output of ABA)")
+        .ADD_DATA_PROPERTY(tau,"Joint torques (output of RNEA)")
+        .ADD_DATA_PROPERTY(nle,"Non Linear Effects (output of nle algorithm)")
+        .ADD_DATA_PROPERTY(ddq,"Joint accelerations (output of ABA)")
         .ADD_DATA_PROPERTY(Ycrb,"Inertia of the sub-tree composit rigid body")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(M,"The joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Minv,"The inverse of the joint space inertia matrix")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
+        .ADD_DATA_PROPERTY(M,"The joint space inertia matrix")
+        .ADD_DATA_PROPERTY(Minv,"The inverse of the joint space inertia matrix")
+        .ADD_DATA_PROPERTY(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
         .ADD_DATA_PROPERTY(Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(lastChild,"Index of the last child (for CRBA)")
         .ADD_DATA_PROPERTY(nvSubtree,"Dimension of the subtree motion space (for CRBA)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(U,"Joint Inertia square root (upper triangle)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(D,"Diagonal of UDUT inertia decomposition")
+        .ADD_DATA_PROPERTY(U,"Joint Inertia square root (upper triangle)")
+        .ADD_DATA_PROPERTY(D,"Diagonal of UDUT inertia decomposition")
         .ADD_DATA_PROPERTY(parents_fromRow,"First previous non-zero row in M (used in Cholesky)")
         .ADD_DATA_PROPERTY(nvSubtree_fromRow,"Subtree of the current row index (used in Cholesky)")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(J,"Jacobian of joint placement")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dJ,"Time variation of the Jacobian of joint placement (data.J).")
+        .ADD_DATA_PROPERTY(J,"Jacobian of joint placement")
+        .ADD_DATA_PROPERTY(dJ,"Time variation of the Jacobian of joint placement (data.J).")
         .ADD_DATA_PROPERTY(iMf,"Body placement wrt to algorithm end effector.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Ag,
-                                            "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dAg,
-                                            "Time derivative of the centroidal momentum matrix Ag.")
-        .ADD_DATA_PROPERTY_READONLY(hg,
-                                    "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(dhg,
-                                    "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
-        .ADD_DATA_PROPERTY_READONLY(Ig,
-                                    "Centroidal Composite Rigid Body Inertia.")
+        .ADD_DATA_PROPERTY(Ag,
+                           "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
+        .ADD_DATA_PROPERTY(dAg,
+                           "Time derivative of the centroidal momentum matrix Ag.")
+        .ADD_DATA_PROPERTY(hg,
+                           "Centroidal momentum (expressed in the frame centered at the CoM and aligned with the world frame).")
+        .ADD_DATA_PROPERTY(dhg,
+                           "Centroidal momentum time derivative (expressed in the frame centered at the CoM and aligned with the world frame).")
+        .ADD_DATA_PROPERTY(Ig,
+                           "Centroidal Composite Rigid Body Inertia.")
         
         .ADD_DATA_PROPERTY(com,"CoM position of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(vcom,"CoM velocity of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i..")
         .ADD_DATA_PROPERTY(mass,"Mass of the subtree starting at joint index i.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(Jcom,"Jacobian of center of mass.")
+        .ADD_DATA_PROPERTY(Jcom,"Jacobian of center of mass.")
 
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(C,"Joint space Coriolis matrix.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(C,"Joint space Coriolis matrix.")
+        .ADD_DATA_PROPERTY(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
+        .ADD_DATA_PROPERTY(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
+        .ADD_DATA_PROPERTY(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(lambda_c,"Lagrange Multipliers linked to contact forces")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(impulse_c,"Lagrange Multipliers linked to contact impulses")
+        .ADD_DATA_PROPERTY(lambda_c,"Lagrange Multipliers linked to contact forces")
+        .ADD_DATA_PROPERTY(impulse_c,"Lagrange Multipliers linked to contact impulses")
         
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dq_after,"Generalized velocity after the impact.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(staticRegressor,"Static regressor.")
-        .ADD_DATA_PROPERTY_READONLY_BYVALUE(jointTorqueRegressor,"Joint torque regressor.")
+        .ADD_DATA_PROPERTY(dq_after,"Generalized velocity after the impact.")
+        .ADD_DATA_PROPERTY(staticRegressor,"Static regressor.")
+        .ADD_DATA_PROPERTY(jointTorqueRegressor,"Joint torque regressor.")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
@@ -182,8 +183,13 @@ namespace pinocchio
         .def(SerializableVisitor<Data>())
         .def_pickle(PickleData<Data>());
         
-        StdAlignedVectorPythonVisitor<Vector3, true>::expose("StdVec_vec3d");
-        StdAlignedVectorPythonVisitor<Matrix6x, true>::expose("StdVec_Matrix6x");
+        typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
+        typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
+        
+        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_vec3d")
+        .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
+        .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
         StdVectorPythonVisitor<int>::expose("StdVec_int");
       }
 
@@ -191,4 +197,4 @@ namespace pinocchio
     
   }} // namespace pinocchio::python
 
-#endif // ifndef __pinocchio_python_data_hpp__
+#endif // ifndef __pinocchio_python_multibody_data_hpp__

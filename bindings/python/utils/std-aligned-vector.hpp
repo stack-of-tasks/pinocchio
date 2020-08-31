@@ -35,12 +35,13 @@ namespace pinocchio
       typedef container::aligned_vector<T> vector_type;
       typedef StdContainerFromPythonList<vector_type> FromPythonListConverter;
       
-      static void expose(const std::string & class_name,
-                         const std::string & doc_string = "")
+      static ::boost::python::class_<vector_type> expose(const std::string & class_name,
+                                                         const std::string & doc_string = "")
       {
         namespace bp = boost::python;
         
-        bp::class_<vector_type>(class_name.c_str(),doc_string.c_str())
+        bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
+        cl
         .def(StdAlignedVectorPythonVisitor())
         .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
              "Returns the aligned_vector as a Python list.")
@@ -49,6 +50,8 @@ namespace pinocchio
         // Register conversion
         if(EnableFromPythonListConverter)
           FromPythonListConverter::register_converter();
+        
+        return cl;
       }
     };
   } // namespace python
