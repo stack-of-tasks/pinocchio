@@ -148,7 +148,7 @@ You have a question or an issue? You may either directly open a [new issue](http
 
 The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
-- [Justin Carpentier](https://jcarpent.github.io) (INRIA): main developer and manager of the project
+- [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 - [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
 - [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
 - [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
@@ -157,11 +157,12 @@ The following people have been involved in the development of **Pinocchio** and 
 - [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 - [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
-- [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
-- [Igor Kalevatykh](https://github.com/ikalevatykh) (INRIA): Panda3d viewer support
+- [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
+- [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
 - [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
-- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (INRIA): features extension
+- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
 - [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
+- [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
