@@ -45,7 +45,7 @@ class TestVComDerivativesBindings(unittest.TestCase):
         def calc_vc(q,vq):
             """ Compute COM velocity """
             pin.centerOfMass(rmodel,rdata,q,vq)
-            return rdata.vcom[0]
+            return rdata.vcom[0].copy()
         dvc_dqn = df_dq(rmodel,lambda _q: calc_vc(_q,vq),q)
         
         self.assertTrue(np.allclose(dvc_dq,dvc_dqn,atol=np.sqrt(self.precision)))
