@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_serialization_joints_hpp__
@@ -20,7 +20,7 @@
 
 #include "pinocchio/serialization/joints-transform.hpp"
 #include "pinocchio/serialization/joints-motion.hpp"
-#include "pinocchio/serialization/joints-constraint.hpp"
+#include "pinocchio/serialization/joints-motion-subspace.hpp"
 #include "pinocchio/serialization/joints-model.hpp"
 #include "pinocchio/serialization/joints-data.hpp"
 

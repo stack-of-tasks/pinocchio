@@ -33,7 +33,7 @@ namespace pinocchio
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
     typedef MotionTpl<Scalar,Options> Bias_t;

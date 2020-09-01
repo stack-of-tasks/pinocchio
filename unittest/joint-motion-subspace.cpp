@@ -85,14 +85,14 @@ void test_jmodel_nq_against_nq_ref(const JointModelMimic<JointModel> & jmodel,
 
 template<typename JointModel, typename ConstraintDerived>
 void test_nv_against_jmodel(const JointModelBase<JointModel> & jmodel,
-                            const ConstraintBase<ConstraintDerived> & constraint)
+                            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
 {
   BOOST_CHECK(constraint.nv() == jmodel.nv());
 }
 
 template<typename JointModel, typename ConstraintDerived>
 void test_nv_against_jmodel(const JointModelMimic<JointModel> & jmodel,
-                            const ConstraintBase<ConstraintDerived> & constraint)
+                            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
 {
   BOOST_CHECK(constraint.nv() == jmodel.jmodel().nv());
 }

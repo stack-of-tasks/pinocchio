@@ -8,7 +8,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
@@ -178,10 +178,10 @@ namespace pinocchio
     return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.angular());
   }
 
-  template<typename Scalar, int Options> struct ConstraintSphericalTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspaceSphericalTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintSphericalTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspaceSphericalTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -198,17 +198,17 @@ namespace pinocchio
     typedef const DenseBase ConstMatrixReturnType;
     
     typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
-  }; // struct traits struct ConstraintSphericalTpl
+  }; // struct traits struct JointMotionSubspaceSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintSphericalTpl
-  : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
+  struct JointMotionSubspaceSphericalTpl
+  : public JointMotionSubspaceBase< JointMotionSubspaceSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceSphericalTpl)
     
-    ConstraintSphericalTpl() {}
+    JointMotionSubspaceSphericalTpl() {}
     
     enum { NV = 3 };
     
@@ -221,7 +221,7 @@ namespace pinocchio
       return JointMotion(w);
     }
     
-    struct TransposeConst : ConstraintTransposeBase<ConstraintSphericalTpl>
+    struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspaceSphericalTpl>
     {
       template<typename Derived>
       typename ForceDense<Derived>::ConstAngularType
@@ -286,9 +286,9 @@ namespace pinocchio
       return res;
     }
     
-    bool isEqual(const ConstraintSphericalTpl &) const { return true; }
+    bool isEqual(const JointMotionSubspaceSphericalTpl &) const { return true; }
 
-  }; // struct ConstraintSphericalTpl
+  }; // struct JointMotionSubspaceSphericalTpl
 
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain
@@ -302,7 +302,7 @@ namespace pinocchio
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>
   operator*(const InertiaTpl<S1,O1> & Y,
-            const ConstraintSphericalTpl<S2,O2> &)
+            const JointMotionSubspaceSphericalTpl<S2,O2> &)
   {
     typedef InertiaTpl<S1,O1> Inertia;
     typedef typename Inertia::Symmetric3 Symmetric3;
@@ -317,18 +317,18 @@ namespace pinocchio
   template<typename M6Like, typename S2, int O2>
   inline typename SizeDepType<3>::ColsReturn<M6Like>::ConstType
   operator*(const Eigen::MatrixBase<M6Like> & Y,
-            const ConstraintSphericalTpl<S2,O2> &)
+            const JointMotionSubspaceSphericalTpl<S2,O2> &)
   {
-    typedef ConstraintSphericalTpl<S2,O2> Constraint;
+    typedef JointMotionSubspaceSphericalTpl<S2,O2> Constraint;
     return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
   template<typename S1, int O1>
-  struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
+  struct SE3GroupAction< JointMotionSubspaceSphericalTpl<S1,O1> >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   
   template<typename S1, int O1, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspaceSphericalTpl<S1,O1>,MotionDerived >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointSphericalTpl;
@@ -344,7 +344,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataSphericalTpl<Scalar,Options> JointDataDerived;
     typedef JointModelSphericalTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintSphericalTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceSphericalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;

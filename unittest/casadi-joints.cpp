@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   typedef pinocchio::MotionTpl<AD_double> MotionAD;
   typedef pinocchio::SE3Tpl<double> SE3;
   typedef pinocchio::MotionTpl<double> Motion;
-  typedef pinocchio::ConstraintTpl<Eigen::Dynamic,double> ConstraintXd;
+  typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic,double> JointMotionSubspaceXd;
   
   typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
   typedef Eigen::Matrix<AD_double,6,1> Vector6AD;
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   
   jmodel.calc(jdata,q,v);
   Motion m(jdata.v);
-  ConstraintXd Sref(jdata.S.matrix());
+  JointMotionSubspaceXd Sref(jdata.S.matrix());
   
   jmodel_ad.calc(jdata_ad,q_ad,v_ad);
   Vector6AD Y;
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   
   casadi::DMVector res_S = eval_S(casadi::DMVector {q_vec,v_vec});
   std::cout << "res_S:" << res_S << std::endl;
-  ConstraintXd::DenseBase Sref_mat = Sref.matrix();
+  JointMotionSubspaceXd::DenseBase Sref_mat = Sref.matrix();
   
   for(Eigen::DenseIndex i = 0; i < 6; ++i)
   {
@@ -303,7 +303,7 @@ struct TestADOnJoints
     typedef pinocchio::MotionTpl<AD_double> MotionAD;
     typedef pinocchio::SE3Tpl<double> SE3;
     typedef pinocchio::MotionTpl<double> Motion;
-    typedef pinocchio::ConstraintTpl<Eigen::Dynamic,double> ConstraintXd;
+    typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic,double> JointMotionSubspaceXd;
     
     typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
     typedef Eigen::Matrix<AD_double,6,1> Vector6AD;
@@ -387,7 +387,7 @@ struct TestADOnJoints
     
     jmodel.calc(jdata,q,v);
     Motion m(jdata_base.v());
-    ConstraintXd Sref(jdata_base.S().matrix());
+    JointMotionSubspaceXd Sref(jdata_base.S().matrix());
     
     jmodel_ad.calc(jdata_ad,q_ad,v_ad);
     Vector6AD Y;
@@ -413,7 +413,7 @@ struct TestADOnJoints
     
     casadi::DMVector res_S = eval_S(casadi::DMVector {q_vec,v_vec});
     std::cout << "res_S:" << res_S << std::endl;
-    ConstraintXd::DenseBase Sref_mat = Sref.matrix();
+    JointMotionSubspaceXd::DenseBase Sref_mat = Sref.matrix();
     
     for(Eigen::DenseIndex i = 0; i < 6; ++i)
     {

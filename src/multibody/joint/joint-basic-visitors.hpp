@@ -212,8 +212,8 @@ namespace pinocchio
    * @return     The constraint dense corresponding to the joint derived constraint
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline ConstraintTpl<Eigen::Dynamic,Scalar,Options>
-  constraint_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+  inline JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options>
+  joint_motin_subspace_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
    * @brief      Visit a JointDataTpl through JointTransformVisitor to get the joint internal transform  (transform

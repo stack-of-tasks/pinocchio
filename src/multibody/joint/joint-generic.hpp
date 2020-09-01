@@ -33,7 +33,7 @@ namespace pinocchio
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
     
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
@@ -98,7 +98,7 @@ namespace pinocchio
 
     ConfigVector_t      joint_q() const  { return pinocchio::joint_q(*this); }
     TangentVector_t      joint_v() const  { return pinocchio::joint_v(*this); }
-    Constraint_t      S() const  { return constraint_xd(*this); }
+    Constraint_t      S() const  { return joint_motin_subspace_xd(*this); }
     Transformation_t  M() const  { return joint_transform(*this); }
     Motion_t          v() const  { return motion(*this); }
     Bias_t            c() const  { return bias(*this); }

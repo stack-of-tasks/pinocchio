@@ -9,7 +9,7 @@
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -17,10 +17,10 @@
 
 namespace pinocchio
 {
-  template<typename Scalar, int Options> struct ConstraintSphericalZYXTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspaceSphericalZYXTpl;
   
   template <typename _Scalar, int _Options>
-  struct traits< ConstraintSphericalZYXTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspaceSphericalZYXTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -42,20 +42,20 @@ namespace pinocchio
   }; // struct traits struct ConstraintRotationalSubspace
   
   template<typename _Scalar, int _Options>
-  struct ConstraintSphericalZYXTpl
-  : public ConstraintBase< ConstraintSphericalZYXTpl<_Scalar,_Options> >
+  struct JointMotionSubspaceSphericalZYXTpl
+  : public JointMotionSubspaceBase< JointMotionSubspaceSphericalZYXTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalZYXTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceSphericalZYXTpl)
     
     enum { NV = 3 };
     typedef Eigen::Matrix<Scalar,3,3,Options> Matrix3;
     
-    ConstraintSphericalZYXTpl() {}
+    JointMotionSubspaceSphericalZYXTpl() {}
     
     template<typename Matrix3Like>
-    ConstraintSphericalZYXTpl(const Eigen::MatrixBase<Matrix3Like> & subspace)
+    JointMotionSubspaceSphericalZYXTpl(const Eigen::MatrixBase<Matrix3Like> & subspace)
     : m_S(subspace)
     {  EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3); }
     
@@ -71,10 +71,10 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct ConstraintTranspose : ConstraintTransposeBase<ConstraintSphericalZYXTpl>
+    struct ConstraintTranspose : JointMotionSubspaceTransposeBase<JointMotionSubspaceSphericalZYXTpl>
     {
-      const ConstraintSphericalZYXTpl & ref;
-      ConstraintTranspose(const ConstraintSphericalZYXTpl & ref) : ref(ref) {}
+      const JointMotionSubspaceSphericalZYXTpl & ref;
+      ConstraintTranspose(const JointMotionSubspaceSphericalZYXTpl & ref) : ref(ref) {}
       
       template<typename Derived>
       const typename MatrixMatrixProduct<
@@ -170,7 +170,7 @@ namespace pinocchio
     Matrix3 & angularSubspace() { return m_S; }
     const Matrix3 & angularSubspace() const { return m_S; }
     
-    bool isEqual(const ConstraintSphericalZYXTpl & other) const
+    bool isEqual(const JointMotionSubspaceSphericalZYXTpl & other) const
     {
       return m_S == other.m_S;
     }
@@ -178,17 +178,17 @@ namespace pinocchio
   protected:
     Matrix3 m_S;
     
-  }; // struct ConstraintSphericalZYXTpl
+  }; // struct JointMotionSubspaceSphericalZYXTpl
 
   namespace details
   {
     template<typename Scalar, int Options>
-    struct StDiagonalMatrixSOperation< ConstraintSphericalZYXTpl<Scalar,Options> >
+    struct StDiagonalMatrixSOperation< JointMotionSubspaceSphericalZYXTpl<Scalar,Options> >
     {
-      typedef ConstraintSphericalZYXTpl<Scalar,Options> Constraint;
+      typedef JointMotionSubspaceSphericalZYXTpl<Scalar,Options> Constraint;
       typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
       
-      static ReturnType run(const ConstraintBase<Constraint> & constraint)
+      static ReturnType run(const JointMotionSubspaceBase<Constraint> & constraint)
       {
         return constraint.matrix().transpose() * constraint.matrix();
       }
@@ -199,10 +199,10 @@ namespace pinocchio
   template <typename S1, int O1, typename S2, int O2>
   Eigen::Matrix<S1,6,3,O1>
   operator*(const InertiaTpl<S1,O1> & Y,
-            const ConstraintSphericalZYXTpl<S2,O2> & S)
+            const JointMotionSubspaceSphericalZYXTpl<S2,O2> & S)
   {
     typedef typename InertiaTpl<S1,O1>::Symmetric3 Symmetric3;
-    typedef ConstraintSphericalZYXTpl<S2,O2> Constraint;
+    typedef JointMotionSubspaceSphericalZYXTpl<S2,O2> Constraint;
     Eigen::Matrix<S1,6,3,O1> M;
     alphaSkew (-Y.mass(),Y.lever(),M.template middleRows<3>(Constraint::LINEAR));
     M.template middleRows<3>(Constraint::ANGULAR) =  (Y.inertia () -
@@ -216,17 +216,17 @@ namespace pinocchio
   template<typename Matrix6Like, typename S2, int O2>
   const typename MatrixMatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
-  typename ConstraintSphericalZYXTpl<S2,O2>::Matrix3
+  typename JointMotionSubspaceSphericalZYXTpl<S2,O2>::Matrix3
   >::type
   operator*(const Eigen::MatrixBase<Matrix6Like> & Y,
-            const ConstraintSphericalZYXTpl<S2,O2> & S)
+            const JointMotionSubspaceSphericalZYXTpl<S2,O2> & S)
   {
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6Like,6,6);
     return Y.derived().template middleCols<3>(Inertia::ANGULAR) * S.angularSubspace();
   }
 
   template<typename S1, int O1>
-  struct SE3GroupAction< ConstraintSphericalZYXTpl<S1,O1> >
+  struct SE3GroupAction< JointMotionSubspaceSphericalZYXTpl<S1,O1> >
   {
     //      typedef const typename Eigen::ProductReturnType<
     //      Eigen::Matrix <double,6,3,0>,
@@ -236,7 +236,7 @@ namespace pinocchio
   };
   
   template<typename S1, int O1, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintSphericalZYXTpl<S1,O1>, MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspaceSphericalZYXTpl<S1,O1>, MotionDerived >
   {
     typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
   };
@@ -254,7 +254,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataSphericalZYXTpl<Scalar,Options> JointDataDerived;
     typedef JointModelSphericalZYXTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintSphericalZYXTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceSphericalZYXTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef MotionSphericalTpl<Scalar,Options> Bias_t;

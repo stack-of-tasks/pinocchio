@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   typedef pinocchio::MotionTpl<AD_double> MotionAD;
   typedef pinocchio::SE3Tpl<double> SE3;
   typedef pinocchio::MotionTpl<double> Motion;
-  typedef pinocchio::ConstraintTpl<Eigen::Dynamic,double> ConstraintXd;
+  typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic,double> JointMotionSubspaceXd;
   
   typedef Eigen::Matrix<AD_double,Eigen::Dynamic,1> VectorXAD;
   typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(test_jointRX_motion_space)
   VectorXAD Y(6);
   MotionAD m_ad(jdata_ad.v);
   Motion m(jdata.v);
-  ConstraintXd Sref(jdata.S.matrix());
+  JointMotionSubspaceXd Sref(jdata.S.matrix());
   
   for(Eigen::DenseIndex k = 0; k < 3; ++k)
   {
@@ -190,7 +190,7 @@ struct TestADOnJoints
     typedef pinocchio::MotionTpl<AD_scalar> MotionAD;
     typedef pinocchio::SE3Tpl<Scalar> SE3;
     typedef pinocchio::MotionTpl<Scalar> Motion;
-    typedef pinocchio::ConstraintTpl<Eigen::Dynamic,Scalar> ConstraintXd;
+    typedef pinocchio::JointMotionSubspaceTpl<Eigen::Dynamic,Scalar> JointMotionSubspaceXd;
     
     typedef Eigen::Matrix<AD_scalar,Eigen::Dynamic,1> VectorXAD;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> MatrixX;
@@ -241,7 +241,7 @@ struct TestADOnJoints
     VectorXAD Y(6);
     MotionAD m_ad(jdata_ad_base.v());
     Motion m(jdata_base.v());
-    ConstraintXd Sref(jdata_base.S().matrix());
+    JointMotionSubspaceXd Sref(jdata_base.S().matrix());
 
     for(Eigen::DenseIndex k = 0; k < 3; ++k)
     {

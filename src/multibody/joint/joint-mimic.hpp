@@ -11,10 +11,10 @@
 namespace pinocchio
 {
   
-  template<class Constraint> struct ScaledConstraint;
+  template<class Constraint> struct ScaledJointMotionSubspace;
   
   template<class Constraint>
-  struct traits< ScaledConstraint<Constraint> >
+  struct traits< ScaledJointMotionSubspace<Constraint> >
   {
     typedef typename traits<Constraint>::Scalar Scalar;
     enum { Options = traits<Constraint>::Options };
@@ -31,18 +31,18 @@ namespace pinocchio
     typedef typename traits<Constraint>::MatrixReturnType MatrixReturnType;
     typedef typename traits<Constraint>::ConstMatrixReturnType ConstMatrixReturnType;
     typedef ReducedSquaredMatrix StDiagonalMatrixSOperationReturnType;
-  }; // traits ScaledConstraint
+  }; // traits ScaledJointMotionSubspace
   
   template<class Constraint>
-  struct SE3GroupAction< ScaledConstraint<Constraint> >
+  struct SE3GroupAction< ScaledJointMotionSubspace<Constraint> >
   { typedef typename SE3GroupAction<Constraint>::ReturnType ReturnType; };
   
   template<class Constraint, typename MotionDerived>
-  struct MotionAlgebraAction< ScaledConstraint<Constraint>, MotionDerived >
+  struct MotionAlgebraAction< ScaledJointMotionSubspace<Constraint>, MotionDerived >
   { typedef typename MotionAlgebraAction<Constraint,MotionDerived>::ReturnType ReturnType; };
   
   template<class Constraint, typename ForceDerived>
-  struct ConstraintForceOp< ScaledConstraint<Constraint>, ForceDerived>
+  struct ConstraintForceOp< ScaledJointMotionSubspace<Constraint>, ForceDerived>
   {
     typedef typename Constraint::Scalar Scalar;
     typedef typename ConstraintForceOp<Constraint,ForceDerived>::ReturnType OriginalReturnType;
@@ -52,7 +52,7 @@ namespace pinocchio
   };
   
   template<class Constraint, typename ForceSet>
-  struct ConstraintForceSetOp< ScaledConstraint<Constraint>, ForceSet>
+  struct ConstraintForceSetOp< ScaledJointMotionSubspace<Constraint>, ForceSet>
   {
     typedef typename Constraint::Scalar Scalar;
     typedef typename ConstraintForceSetOp<Constraint,ForceSet>::ReturnType OriginalReturnType;
@@ -61,36 +61,36 @@ namespace pinocchio
   };
     
   template<class Constraint>
-  struct ScaledConstraint
-  : ConstraintBase< ScaledConstraint<Constraint> >
+  struct ScaledJointMotionSubspace
+  : JointMotionSubspaceBase< ScaledJointMotionSubspace<Constraint> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ScaledConstraint)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ScaledJointMotionSubspace)
     enum { NV = Constraint::NV };
-    typedef ConstraintBase<ScaledConstraint> Base;
+    typedef JointMotionSubspaceBase<ScaledJointMotionSubspace> Base;
     using Base::nv;
     
     typedef typename SE3GroupAction<Constraint>::ReturnType SE3ActionReturnType;
     
-    ScaledConstraint() {}
+    ScaledJointMotionSubspace() {}
     
-    explicit ScaledConstraint(const Scalar & scaling_factor)
+    explicit ScaledJointMotionSubspace(const Scalar & scaling_factor)
     : m_scaling_factor(scaling_factor)
     {}
     
-    ScaledConstraint(const Constraint & constraint,
+    ScaledJointMotionSubspace(const Constraint & constraint,
                      const Scalar & scaling_factor)
     : m_constraint(constraint)
     , m_scaling_factor(scaling_factor)
     {}
 
-    ScaledConstraint(const ScaledConstraint & other)
+    ScaledJointMotionSubspace(const ScaledJointMotionSubspace & other)
     : m_constraint(other.m_constraint)
     , m_scaling_factor(other.m_scaling_factor)
     {}
 
-    ScaledConstraint & operator=(const ScaledConstraint & other)
+    ScaledJointMotionSubspace & operator=(const ScaledJointMotionSubspace & other)
     {
       m_constraint = other.m_constraint;
       m_scaling_factor = other.m_scaling_factor;
@@ -123,26 +123,26 @@ namespace pinocchio
     
     int nv_impl() const { return m_constraint.nv(); }
     
-    struct TransposeConst : ConstraintTransposeBase<ScaledConstraint>
+    struct TransposeConst : JointMotionSubspaceTransposeBase<ScaledJointMotionSubspace>
     {
-      const ScaledConstraint & ref;
-      TransposeConst(const ScaledConstraint & ref) : ref(ref) {}
+      const ScaledJointMotionSubspace & ref;
+      TransposeConst(const ScaledJointMotionSubspace & ref) : ref(ref) {}
       
       template<typename Derived>
-      typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType
+      typename ConstraintForceOp<ScaledJointMotionSubspace,Derived>::ReturnType
       operator*(const ForceDense<Derived> & f) const
       {
         // TODO: I don't know why, but we should a dense a return type, otherwise it fails at the evaluation level;
-        typedef typename ConstraintForceOp<ScaledConstraint,Derived>::ReturnType ReturnType;
+        typedef typename ConstraintForceOp<ScaledJointMotionSubspace,Derived>::ReturnType ReturnType;
         return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * f));
       }
       
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
       template<typename Derived>
-      typename ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType
+      typename ConstraintForceSetOp<ScaledJointMotionSubspace,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        typedef typename ConstraintForceSetOp<ScaledConstraint,Derived>::ReturnType ReturnType;
+        typedef typename ConstraintForceSetOp<ScaledJointMotionSubspace,Derived>::ReturnType ReturnType;
         return ReturnType(ref.m_scaling_factor * (ref.m_constraint.transpose() * F));
       }
       
@@ -157,10 +157,10 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    typename MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType
+    typename MotionAlgebraAction<ScaledJointMotionSubspace,MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typedef typename MotionAlgebraAction<ScaledConstraint,MotionDerived>::ReturnType ReturnType;
+      typedef typename MotionAlgebraAction<ScaledJointMotionSubspace,MotionDerived>::ReturnType ReturnType;
       ReturnType res = m_scaling_factor * m_constraint.motionAction(m);
       return res;
     }
@@ -171,7 +171,7 @@ namespace pinocchio
     inline const Constraint & constraint() const { return m_constraint; }
     inline Constraint & constraint() { return m_constraint; }
     
-    bool isEqual(const ScaledConstraint & other) const
+    bool isEqual(const ScaledJointMotionSubspace & other) const
     {
       return m_constraint == other.m_constraint
       && m_scaling_factor == other.m_scaling_factor;
@@ -181,17 +181,17 @@ namespace pinocchio
     
     Constraint m_constraint;
     Scalar m_scaling_factor;
-  }; // struct ScaledConstraint
+  }; // struct ScaledJointMotionSubspace
 
   namespace details
   {
     template<typename ParentConstraint>
-    struct StDiagonalMatrixSOperation< ScaledConstraint<ParentConstraint> >
+    struct StDiagonalMatrixSOperation< ScaledJointMotionSubspace<ParentConstraint> >
     {
-      typedef ScaledConstraint<ParentConstraint> Constraint;
+      typedef ScaledJointMotionSubspace<ParentConstraint> Constraint;
       typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
       
-      static ReturnType run(const ConstraintBase<Constraint> & constraint)
+      static ReturnType run(const JointMotionSubspaceBase<Constraint> & constraint)
       {
         const Constraint & constraint_ = constraint.derived();
         return (constraint_.constraint().transpose() * constraint_.constraint()) * (constraint_.scaling() * constraint_.scaling());
@@ -200,10 +200,10 @@ namespace pinocchio
   }
   
   template<typename S1, int O1, typename _Constraint>
-  struct MultiplicationOp<InertiaTpl<S1,O1>, ScaledConstraint<_Constraint> >
+  struct MultiplicationOp<InertiaTpl<S1,O1>, ScaledJointMotionSubspace<_Constraint> >
   {
     typedef InertiaTpl<S1,O1> Inertia;
-    typedef ScaledConstraint<_Constraint> Constraint;
+    typedef ScaledJointMotionSubspace<_Constraint> Constraint;
     typedef typename Constraint::Scalar Scalar;
     
     typedef typename MultiplicationOp<Inertia,_Constraint>::ReturnType OriginalReturnType;
@@ -215,10 +215,10 @@ namespace pinocchio
   namespace impl
   {
     template<typename S1, int O1, typename _Constraint>
-    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ScaledConstraint<_Constraint> >
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ScaledJointMotionSubspace<_Constraint> >
     {
       typedef InertiaTpl<S1,O1> Inertia;
-      typedef ScaledConstraint<_Constraint> Constraint;
+      typedef ScaledJointMotionSubspace<_Constraint> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       
       static inline ReturnType run(const Inertia & Y,
@@ -230,7 +230,7 @@ namespace pinocchio
   } // namespace impl
   
   template<typename M6Like, typename _Constraint>
-  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledConstraint<_Constraint> >
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspace<_Constraint> >
   {
     typedef typename MultiplicationOp<Inertia,_Constraint>::ReturnType OriginalReturnType;
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(OriginalReturnType) ReturnType;
@@ -240,9 +240,9 @@ namespace pinocchio
   namespace impl
   {
     template<typename M6Like, typename _Constraint>
-    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledConstraint<_Constraint> >
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ScaledJointMotionSubspace<_Constraint> >
     {
-      typedef ScaledConstraint<_Constraint> Constraint;
+      typedef ScaledJointMotionSubspace<_Constraint> Constraint;
       typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
       
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
@@ -274,7 +274,7 @@ namespace pinocchio
     typedef JointDataMimic<JointDataBase> JointDataDerived;
     typedef JointModelMimic<JointModelBase> JointModelDerived;
     
-    typedef ScaledConstraint<typename traits<Joint>::Constraint_t> Constraint_t;
+    typedef ScaledJointMotionSubspace<typename traits<Joint>::Constraint_t> Constraint_t;
     typedef typename traits<Joint>::Transformation_t Transformation_t;
     typedef typename traits<Joint>::Motion_t Motion_t;
     typedef typename traits<Joint>::Bias_t Bias_t;

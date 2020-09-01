@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_serialization_joints_constraint_hpp__
-#define __pinocchio_serialization_joints_constraint_hpp__
+#ifndef __pinocchio_serialization_joints_motion_subspace_hpp__
+#define __pinocchio_serialization_joints_motion_subspace_hpp__
 
 #include "pinocchio/serialization/fwd.hpp"
 
@@ -17,37 +17,37 @@ namespace boost
     
     template <class Archive, typename Scalar, int Options, int axis>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintRevoluteTpl<Scalar,Options,axis> & /*S*/,
+                   pinocchio::JointMotionSubspaceRevoluteTpl<Scalar,Options,axis> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options, int axis>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintPrismaticTpl<Scalar,Options,axis> & /*S*/,
+                   pinocchio::JointMotionSubspacePrismaticTpl<Scalar,Options,axis> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintSphericalTpl<Scalar,Options> & /*S*/,
+                   pinocchio::JointMotionSubspaceSphericalTpl<Scalar,Options> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintTranslationTpl<Scalar,Options> & /*S*/,
+                   pinocchio::JointMotionSubspaceTranslationTpl<Scalar,Options> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintIdentityTpl<Scalar,Options> & /*S*/,
+                   pinocchio::JointMotionSubspaceIdentityTpl<Scalar,Options> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
-                   pinocchio::ConstraintRevoluteUnalignedTpl<Scalar,Options> & S,
+                   pinocchio::JointMotionSubspaceRevoluteUnalignedTpl<Scalar,Options> & S,
                    const unsigned int /*version*/)
     {
       ar & make_nvp("axis",S.axis());
@@ -55,7 +55,7 @@ namespace boost
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
-                   pinocchio::ConstraintPrismaticUnalignedTpl<Scalar,Options> & S,
+                   pinocchio::JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> & S,
                    const unsigned int /*version*/)
     {
       ar & make_nvp("axis",S.axis());
@@ -63,7 +63,7 @@ namespace boost
   
     template <class Archive, int Dim, typename Scalar, int Options>
     void serialize(Archive & ar,
-                   pinocchio::ConstraintTpl<Dim,Scalar,Options> & S,
+                   pinocchio::JointMotionSubspaceTpl<Dim,Scalar,Options> & S,
                    const unsigned int /*version*/)
     {
       ar & make_nvp("matrix",S.matrix());
@@ -71,7 +71,7 @@ namespace boost
   
     template <class Archive, class Constraint>
     void serialize(Archive & ar,
-                   pinocchio::ScaledConstraint<Constraint> & S,
+                   pinocchio::ScaledJointMotionSubspace<Constraint> & S,
                    const unsigned int /*version*/)
     {
       ar & make_nvp("scaling",S.scaling());
@@ -80,13 +80,13 @@ namespace boost
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,
-                   pinocchio::ConstraintPlanarTpl<Scalar,Options> & /*S*/,
+                   pinocchio::JointMotionSubspacePlanarTpl<Scalar,Options> & /*S*/,
                    const unsigned int /*version*/)
     {}
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
-                   pinocchio::ConstraintSphericalZYXTpl<Scalar,Options> & S,
+                   pinocchio::JointMotionSubspaceSphericalZYXTpl<Scalar,Options> & S,
                    const unsigned int /*version*/)
     {
       ar & make_nvp("angularSubspace",S.angularSubspace());
@@ -95,5 +95,4 @@ namespace boost
   }
 }
 
-#endif // ifndef __pinocchio_serialization_joints_constraint_hpp__
-
+#endif // ifndef __pinocchio_serialization_joints_motion_subspace_hpp__

@@ -48,7 +48,7 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
   BOOST_CHECK_MESSAGE(jmodel.id() == jma.id() ,std::string(error_prefix + " - JointId "));
 
-  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S().matrix()),std::string(error_prefix + " - ConstraintXd "));
+  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S().matrix()),std::string(error_prefix + " - JointMotionSubspaceXd "));
   BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M())),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (pinocchio::Motion(jdata.v()))),std::string(error_prefix + " - Joint motions "));
   BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c()),std::string(error_prefix + " - Joint bias "));
@@ -230,7 +230,7 @@ namespace pinocchio
     
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;

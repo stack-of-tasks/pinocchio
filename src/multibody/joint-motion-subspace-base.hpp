@@ -47,7 +47,7 @@ namespace pinocchio
   };
 
   template<class Derived>
-  class ConstraintBase
+  class JointMotionSubspaceBase
   {
   protected:
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(Derived)
@@ -71,12 +71,12 @@ namespace pinocchio
     int cols() const { return nv(); }
     
     template<class OtherDerived>
-    bool isApprox(const ConstraintBase<OtherDerived> & other,
+    bool isApprox(const JointMotionSubspaceBase<OtherDerived> & other,
                   const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const
     { return matrix().isApprox(other.matrix(),prec); }
     
     void disp(std::ostream & os) const { derived().disp_impl(os); }
-    friend std::ostream & operator << (std::ostream & os,const ConstraintBase<Derived> & X)
+    friend std::ostream & operator << (std::ostream & os,const JointMotionSubspaceBase<Derived> & X)
     {
       X.disp(os);
       return os;
@@ -101,18 +101,18 @@ namespace pinocchio
       return derived().motionAction(v);
     }
     
-    bool operator==(const ConstraintBase<Derived> & other) const
+    bool operator==(const JointMotionSubspaceBase<Derived> & other) const
     {
       return derived().isEqual(other.derived());
     }
 
-  }; // class ConstraintBase
+  }; // class JointMotionSubspaceBase
   
   /// \brief Operation Y * S used in the CRBA algorithm for instance
   template<typename Scalar, int Options, typename ConstraintDerived>
   typename MultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::ReturnType
   operator*(const InertiaTpl<Scalar,Options> & Y,
-            const ConstraintBase<ConstraintDerived> & constraint)
+            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
   {
     return impl::LhsMultiplicationOp<InertiaTpl<Scalar,Options>,ConstraintDerived>::run(Y,
                                                                                         constraint.derived());
@@ -122,7 +122,7 @@ namespace pinocchio
   template<typename MatrixDerived, typename ConstraintDerived>
   typename MultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::ReturnType
   operator*(const Eigen::MatrixBase<MatrixDerived> & Y,
-            const ConstraintBase<ConstraintDerived> & constraint)
+            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
   {
     return impl::LhsMultiplicationOp<Eigen::MatrixBase<MatrixDerived>,ConstraintDerived>::run(Y.derived(),
                                                                                               constraint.derived());
@@ -136,7 +136,7 @@ namespace pinocchio
       typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
       typedef typename traits<Constraint>::ReducedSquaredMatrix ReducedSquaredMatrix;
       
-      static ReturnType run(const ConstraintBase<Constraint> & /*constraint*/)
+      static ReturnType run(const JointMotionSubspaceBase<Constraint> & /*constraint*/)
       {
         return ReducedSquaredMatrix::Identity(Constraint::NV,Constraint::NV);
       }
@@ -144,15 +144,15 @@ namespace pinocchio
   }
     
   template<class ConstraintDerived>
-  struct ConstraintTransposeBase
+  struct JointMotionSubspaceTransposeBase
   {
     typedef typename traits<ConstraintDerived>::StDiagonalMatrixSOperationReturnType StDiagonalMatrixSOperationReturnType;
   };
     
   template<class ConstraintDerived>
-  typename ConstraintTransposeBase<ConstraintDerived>::StDiagonalMatrixSOperationReturnType
-  operator*(const ConstraintTransposeBase<ConstraintDerived> & /*S_transpose*/,
-            const ConstraintBase<ConstraintDerived> & S)
+  typename JointMotionSubspaceTransposeBase<ConstraintDerived>::StDiagonalMatrixSOperationReturnType
+  operator*(const JointMotionSubspaceTransposeBase<ConstraintDerived> & /*S_transpose*/,
+            const JointMotionSubspaceBase<ConstraintDerived> & S)
   {
     return details::StDiagonalMatrixSOperation<ConstraintDerived>::run(S.derived());
   }

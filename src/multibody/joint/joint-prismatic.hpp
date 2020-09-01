@@ -8,7 +8,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/spatial-axis.hpp"
 #include "pinocchio/utils/axis-label.hpp"
@@ -254,10 +254,10 @@ namespace pinocchio
     Scalar m_displacement;
   };
 
-  template<typename Scalar, int Options, int axis> struct ConstraintPrismaticTpl;
+  template<typename Scalar, int Options, int axis> struct JointMotionSubspacePrismaticTpl;
   
   template<typename _Scalar, int _Options, int axis>
-  struct traits< ConstraintPrismaticTpl<_Scalar,_Options,axis> >
+  struct traits< JointMotionSubspacePrismaticTpl<_Scalar,_Options,axis> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -277,32 +277,32 @@ namespace pinocchio
   }; // traits ConstraintRevolute
   
   template<typename Scalar, int Options, int axis>
-  struct SE3GroupAction< ConstraintPrismaticTpl<Scalar,Options,axis> >
+  struct SE3GroupAction< JointMotionSubspacePrismaticTpl<Scalar,Options,axis> >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintPrismaticTpl<Scalar,Options,axis>, MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspacePrismaticTpl<Scalar,Options,axis>, MotionDerived >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options, int axis, typename ForceDerived>
-  struct ConstraintForceOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceDerived>
+  struct ConstraintForceOp< JointMotionSubspacePrismaticTpl<Scalar,Options,axis>, ForceDerived>
   { typedef typename ForceDense<ForceDerived>::ConstLinearType::template ConstFixedSegmentReturnType<1>::Type ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
-  struct ConstraintForceSetOp< ConstraintPrismaticTpl<Scalar,Options,axis>, ForceSet>
+  struct ConstraintForceSetOp< JointMotionSubspacePrismaticTpl<Scalar,Options,axis>, ForceSet>
   { typedef typename Eigen::MatrixBase<ForceSet>::ConstRowXpr ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
-  struct ConstraintPrismaticTpl
-  : ConstraintBase < ConstraintPrismaticTpl <_Scalar,_Options,axis> >
+  struct JointMotionSubspacePrismaticTpl
+  : JointMotionSubspaceBase < JointMotionSubspacePrismaticTpl <_Scalar,_Options,axis> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismaticTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspacePrismaticTpl)
     enum { NV = 1 };
     
     typedef SpatialAxis<LINEAR+axis> Axis;
     
-    ConstraintPrismaticTpl() {};
+    JointMotionSubspacePrismaticTpl() {};
 
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
@@ -313,10 +313,10 @@ namespace pinocchio
     }
 
     template<typename S2, int O2>
-    typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType
+    typename SE3GroupAction<JointMotionSubspacePrismaticTpl>::ReturnType
     se3Action(const SE3Tpl<S2,O2> & m) const
     { 
-      typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType res;
+      typename SE3GroupAction<JointMotionSubspacePrismaticTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v.linear() = m.rotation().col(axis);
       v.angular().setZero();
@@ -324,10 +324,10 @@ namespace pinocchio
     }
     
     template<typename S2, int O2>
-    typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType
+    typename SE3GroupAction<JointMotionSubspacePrismaticTpl>::ReturnType
     se3ActionInverse(const SE3Tpl<S2,O2> & m) const
     {
-      typename SE3GroupAction<ConstraintPrismaticTpl>::ReturnType res;
+      typename SE3GroupAction<JointMotionSubspacePrismaticTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v.linear() = m.rotation().transpose().col(axis);
       v.angular().setZero();
@@ -336,19 +336,19 @@ namespace pinocchio
 
     int nv_impl() const { return NV; }
 
-    struct TransposeConst : ConstraintTransposeBase<ConstraintPrismaticTpl>
+    struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspacePrismaticTpl>
     {
-      const ConstraintPrismaticTpl & ref; 
-      TransposeConst(const ConstraintPrismaticTpl & ref) : ref(ref) {}
+      const JointMotionSubspacePrismaticTpl & ref; 
+      TransposeConst(const JointMotionSubspacePrismaticTpl & ref) : ref(ref) {}
 
       template<typename ForceDerived>
-      typename ConstraintForceOp<ConstraintPrismaticTpl,ForceDerived>::ReturnType
+      typename ConstraintForceOp<JointMotionSubspacePrismaticTpl,ForceDerived>::ReturnType
       operator* (const ForceDense<ForceDerived> & f) const
       { return f.linear().template segment<1>(axis); }
 
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename Derived>
-      typename ConstraintForceSetOp<ConstraintPrismaticTpl,Derived>::ReturnType
+      typename ConstraintForceSetOp<JointMotionSubspacePrismaticTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F )
       {
         assert(F.rows()==6);
@@ -373,21 +373,21 @@ namespace pinocchio
     }
     
     template<typename MotionDerived>
-    typename MotionAlgebraAction<ConstraintPrismaticTpl,MotionDerived>::ReturnType
+    typename MotionAlgebraAction<JointMotionSubspacePrismaticTpl,MotionDerived>::ReturnType
     motionAction(const MotionDense<MotionDerived> & m) const
     {
-      typename MotionAlgebraAction<ConstraintPrismaticTpl,MotionDerived>::ReturnType res;
+      typename MotionAlgebraAction<JointMotionSubspacePrismaticTpl,MotionDerived>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v = m.cross(Axis());
       return res;
     }
     
-    bool isEqual(const ConstraintPrismaticTpl &) const { return true; }
+    bool isEqual(const JointMotionSubspacePrismaticTpl &) const { return true; }
 
-  }; // struct ConstraintPrismaticTpl
+  }; // struct JointMotionSubspacePrismaticTpl
   
   template<typename S1, int O1,typename S2, int O2, int axis>
-  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,axis> >
+  struct MultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticTpl<S2,O2,axis> >
   {
     typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
   };
@@ -396,10 +396,10 @@ namespace pinocchio
   namespace impl
   {
     template<typename S1, int O1, typename S2, int O2>
-    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,0> >
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticTpl<S2,O2,0> >
     {
       typedef InertiaTpl<S1,O1> Inertia;
-      typedef ConstraintPrismaticTpl<S2,O2,0> Constraint;
+      typedef JointMotionSubspacePrismaticTpl<S2,O2,0> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
                                    const Constraint & /*constraint*/)
@@ -418,10 +418,10 @@ namespace pinocchio
     };
     
     template<typename S1, int O1, typename S2, int O2>
-    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,1> >
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticTpl<S2,O2,1> >
     {
       typedef InertiaTpl<S1,O1> Inertia;
-      typedef ConstraintPrismaticTpl<S2,O2,1> Constraint;
+      typedef JointMotionSubspacePrismaticTpl<S2,O2,1> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
                                    const Constraint & /*constraint*/)
@@ -441,10 +441,10 @@ namespace pinocchio
     };
     
     template<typename S1, int O1, typename S2, int O2>
-    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticTpl<S2,O2,2> >
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticTpl<S2,O2,2> >
     {
       typedef InertiaTpl<S1,O1> Inertia;
-      typedef ConstraintPrismaticTpl<S2,O2,2> Constraint;
+      typedef JointMotionSubspacePrismaticTpl<S2,O2,2> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
                                    const Constraint & /*constraint*/)
@@ -465,7 +465,7 @@ namespace pinocchio
   } // namespace impl
   
   template<typename M6Like,typename S2, int O2, int axis>
-  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticTpl<S2,O2,axis> >
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspacePrismaticTpl<S2,O2,axis> >
   {
     typedef typename M6Like::ConstColXpr ReturnType;
   };
@@ -474,9 +474,9 @@ namespace pinocchio
   namespace impl
   {
     template<typename M6Like, typename Scalar, int Options, int axis>
-    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticTpl<Scalar,Options,axis> >
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspacePrismaticTpl<Scalar,Options,axis> >
     {
-      typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint;
+      typedef JointMotionSubspacePrismaticTpl<Scalar,Options,axis> Constraint;
       typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
                              const Constraint & /*constraint*/)
@@ -510,7 +510,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataPrismaticTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelPrismaticTpl<Scalar,Options,axis> JointModelDerived;
-    typedef ConstraintPrismaticTpl<Scalar,Options,axis> Constraint_t;
+    typedef JointMotionSubspacePrismaticTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformPrismaticTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionPrismaticTpl<Scalar,Options,axis> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;

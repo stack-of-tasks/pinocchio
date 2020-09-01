@@ -10,17 +10,17 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/quaternion.hpp"
 
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options> struct ConstraintIdentityTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspaceIdentityTpl;
 
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintIdentityTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspaceIdentityTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -40,11 +40,11 @@ namespace pinocchio
   }; // traits ConstraintRevolute
 
   template<typename _Scalar, int _Options>
-  struct ConstraintIdentityTpl
-  : ConstraintBase< ConstraintIdentityTpl<_Scalar,_Options> >
+  struct JointMotionSubspaceIdentityTpl
+  : JointMotionSubspaceBase< JointMotionSubspaceIdentityTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintIdentityTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceIdentityTpl)
     
     enum { NV = 6 };
     
@@ -72,7 +72,7 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct TransposeConst : ConstraintTransposeBase<ConstraintIdentityTpl>
+    struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspaceIdentityTpl>
     {
       template<typename Derived>
       typename ForceDense<Derived>::ToVectorConstReturnType
@@ -96,17 +96,17 @@ namespace pinocchio
     motionAction(const MotionBase<MotionDerived> & v) const
     { return v.toActionMatrix(); }
     
-    bool isEqual(const ConstraintIdentityTpl &) const { return true; }
+    bool isEqual(const JointMotionSubspaceIdentityTpl &) const { return true; }
     
-  }; // struct ConstraintIdentityTpl
+  }; // struct JointMotionSubspaceIdentityTpl
   
   template<typename Scalar, int Options, typename Vector6Like>
   MotionRef<const Vector6Like>
-  operator*(const ConstraintIdentityTpl<Scalar,Options> &,
+  operator*(const JointMotionSubspaceIdentityTpl<Scalar,Options> &,
             const Eigen::MatrixBase<Vector6Like> & v)
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
-//    typedef typename ConstraintIdentityTpl<Scalar,Options>::Motion Motion;
+//    typedef typename JointMotionSubspaceIdentityTpl<Scalar,Options>::Motion Motion;
     typedef MotionRef<const Vector6Like> Motion;
     return Motion(v.derived());
   }
@@ -114,7 +114,7 @@ namespace pinocchio
   /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
   template<typename S1, int O1, typename S2, int O2>
   inline typename InertiaTpl<S1,O1>::Matrix6
-  operator*(const InertiaTpl<S1,O1> & Y, const ConstraintIdentityTpl<S2,O2> &)
+  operator*(const InertiaTpl<S1,O1> & Y, const JointMotionSubspaceIdentityTpl<S2,O2> &)
   {
     return Y.matrix();
   }
@@ -122,17 +122,17 @@ namespace pinocchio
   /* [ABA] Y*S operator*/
   template<typename Matrix6Like, typename S2, int O2>
   inline typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Matrix6Like)
-  operator*(const Eigen::MatrixBase<Matrix6Like> & Y, const ConstraintIdentityTpl<S2,O2> &)
+  operator*(const Eigen::MatrixBase<Matrix6Like> & Y, const JointMotionSubspaceIdentityTpl<S2,O2> &)
   {
     return Y.derived();
   }
   
   template<typename S1, int O1>
-  struct SE3GroupAction< ConstraintIdentityTpl<S1,O1> >
+  struct SE3GroupAction< JointMotionSubspaceIdentityTpl<S1,O1> >
   { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
   
   template<typename S1, int O1, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintIdentityTpl<S1,O1>,MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspaceIdentityTpl<S1,O1>,MotionDerived >
   { typedef typename SE3Tpl<S1,O1>::ActionMatrixType ReturnType; };
 
   template<typename Scalar, int Options> struct JointFreeFlyerTpl;
@@ -148,7 +148,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataFreeFlyerTpl<Scalar,Options> JointDataDerived;
     typedef JointModelFreeFlyerTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintIdentityTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceIdentityTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;

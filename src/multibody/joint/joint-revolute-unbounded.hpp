@@ -27,7 +27,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataRevoluteUnboundedTpl<Scalar,Options,axis> JointDataDerived;
     typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelDerived;
-    typedef ConstraintRevoluteTpl<Scalar,Options,axis> Constraint_t;
+    typedef JointMotionSubspaceRevoluteTpl<Scalar,Options,axis> Constraint_t;
     typedef TransformRevoluteTpl<Scalar,Options,axis> Transformation_t;
     typedef MotionRevoluteTpl<Scalar,Options,axis> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;

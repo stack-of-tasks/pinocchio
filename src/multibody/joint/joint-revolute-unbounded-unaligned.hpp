@@ -32,7 +32,7 @@ namespace pinocchio
     
     typedef JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDataDerived;
     typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionRevoluteUnalignedTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;

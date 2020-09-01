@@ -365,9 +365,9 @@ namespace pinocchio
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   struct JointConstraintVisitor
-  : boost::static_visitor< ConstraintTpl<Eigen::Dynamic,Scalar,Options> >
+  : boost::static_visitor< JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> >
   {
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> ReturnType;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> ReturnType;
     
     template<typename JointDataDerived>
     ReturnType operator()(const JointDataBase<JointDataDerived> & jdata) const
@@ -382,8 +382,8 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline ConstraintTpl<Eigen::Dynamic,Scalar,Options>
-  constraint_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
+  inline JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options>
+  joint_motin_subspace_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata)
   {
     return JointConstraintVisitor<Scalar,Options,JointCollectionTpl>::run(jdata);
   }

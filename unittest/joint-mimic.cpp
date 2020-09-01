@@ -20,13 +20,13 @@ void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
   typedef typename traits<JointModel>::JointDerived Joint;
   typedef typename traits<Joint>::Constraint_t ConstraintType;
   typedef typename traits<Joint>::JointDataDerived JointData;
-  typedef ScaledConstraint<ConstraintType> ScaledConstraintType;
+  typedef ScaledJointMotionSubspace<ConstraintType> ScaledJointMotionSubspaceType;
   
   JointData jdata = jmodel.createData();
   
   const double scaling_factor = 2.;
   ConstraintType constraint_ref(jdata.S), constraint_ref_shared(jdata.S);
-  ScaledConstraintType scaled_constraint(constraint_ref_shared,scaling_factor);
+  ScaledJointMotionSubspaceType scaled_constraint(constraint_ref_shared,scaling_factor);
   
   BOOST_CHECK(constraint_ref.nv() == scaled_constraint.nv());
   
@@ -40,23 +40,23 @@ void test_constraint_mimic(const JointModelBase<JointModel> & jmodel)
   
   {
     SE3 M = SE3::Random();
-    typename ScaledConstraintType::DenseBase S = M.act(scaled_constraint);
-    typename ScaledConstraintType::DenseBase S_ref = scaling_factor * M.act(constraint_ref);
+    typename ScaledJointMotionSubspaceType::DenseBase S = M.act(scaled_constraint);
+    typename ScaledJointMotionSubspaceType::DenseBase S_ref = scaling_factor * M.act(constraint_ref);
     
     BOOST_CHECK(S.isApprox(S_ref));
   }
   
   {
-    typename ScaledConstraintType::DenseBase S = scaled_constraint.matrix();
-    typename ScaledConstraintType::DenseBase S_ref = scaling_factor * constraint_ref.matrix();
+    typename ScaledJointMotionSubspaceType::DenseBase S = scaled_constraint.matrix();
+    typename ScaledJointMotionSubspaceType::DenseBase S_ref = scaling_factor * constraint_ref.matrix();
     
     BOOST_CHECK(S.isApprox(S_ref));
   }
   
   {
     Motion v = Motion::Random();
-    typename ScaledConstraintType::DenseBase S = v.cross(scaled_constraint);
-    typename ScaledConstraintType::DenseBase S_ref = scaling_factor * v.cross(constraint_ref);
+    typename ScaledJointMotionSubspaceType::DenseBase S = v.cross(scaled_constraint);
+    typename ScaledJointMotionSubspaceType::DenseBase S_ref = scaling_factor * v.cross(constraint_ref);
     
     BOOST_CHECK(S.isApprox(S_ref));
   }
