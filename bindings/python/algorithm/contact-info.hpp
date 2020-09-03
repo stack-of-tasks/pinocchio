@@ -23,7 +23,6 @@ namespace pinocchio
     : public boost::python::def_visitor< RigidContactModelPythonVisitor<RigidContactModel> >
     {
       typedef typename RigidContactModel::Scalar Scalar;
-      typedef typename RigidContactModel::SE3 SE3;
       typedef RigidContactModel Self;
       typedef typename RigidContactModel::ContactData ContactData;
 
@@ -99,7 +98,6 @@ namespace pinocchio
     : public boost::python::def_visitor< RigidContactDataPythonVisitor<RigidContactData> >
     {
       typedef typename RigidContactData::Scalar Scalar;
-      typedef typename RigidContactData::SE3 SE3;
       typedef RigidContactData Self;
       typedef typename RigidContactData::ContactModel ContactModel;
 

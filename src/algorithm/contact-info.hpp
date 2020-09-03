@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2020 INRIA, CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_info_hpp__
@@ -101,7 +101,7 @@ namespace pinocchio
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
     {}
-    
+        
     ///
     /// \brief Contructor with from a given type, joint indexes and placements.
     ///
@@ -138,7 +138,6 @@ namespace pinocchio
     /// \param[in] joint1_placement Placement of the constraint w.r.t the frame of joint1.
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
-    template<typename S2, int O2>
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
                          const SE3Tpl<S2,O2> & joint1_placement,
@@ -243,6 +242,21 @@ namespace pinocchio
       }
       return -1;
     }
+
+    /// \returns An expression of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    RigidContactModelTpl<NewScalar,Options> cast() const
+    {
+      typedef RigidContactModelTpl<NewScalar,Options> ReturnType;
+      ReturnType res;
+      res.type = type;
+      res.frame_id = frame_id;
+      res.reference_frame =reference_frame;
+      res.desired_contact_placement = desired_contact_placement.template cast<NewScalar>();
+      res.desired_contact_velocity = desired_contact_velocity.template cast<NewScalar>();
+      res.desired_contact_acceleration = desired_contact_acceleration.template cast<NewScalar>();
+      return res;
+    }
     
   };
 
@@ -266,7 +280,6 @@ namespace pinocchio
     
     RigidContactDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
-    , contact_placement(SE3::Identity())
     , contact_velocity(Motion::Zero())
     , contact_acceleration(Motion::Zero())
     , contact_acceleration_drift(Motion::Zero())

@@ -30,11 +30,15 @@ namespace pinocchio
       exposeCholesky();
       exposeModelAlgo();
       exposeCentroidalDerivatives();
-      
+      exposeImpulseDynamics();
+
       // expose derivative version of the algorithms
       exposeRNEADerivatives();
       exposeABADerivatives();
       exposeKinematicsDerivatives();
+      exposeFramesDerivatives();
+      exposeCentroidalDerivatives();
+      exposeImpulseDynamicsDerivatives();
     }
     
   } // namespace python

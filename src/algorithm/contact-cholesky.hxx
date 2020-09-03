@@ -197,7 +197,7 @@ namespace pinocchio
       typedef RigidContactModelTpl<S1,O1> RigidContactModel;
       typedef RigidContactDataTpl<S1,O1> RigidContactData;
       typedef MotionTpl<Scalar,Options> Motion;
-      
+      typedef SE3Tpl<Scalar,Options> SE3;
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
                                      "The number of contacts inside contact_models and the one during allocation do not match.");
@@ -223,7 +223,7 @@ namespace pinocchio
         
         cdata.contact_placement = data.oMi[joint1_id] * cmodel.joint1_placement;
       }
-      
+
       // Core
       Motion Jcol_motion;
       for(Eigen::DenseIndex j=nv-1;j>=0;--j)
@@ -259,9 +259,9 @@ namespace pinocchio
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
           const RigidContactModel & cmodel = contact_models[ee_id];
-          const RigidContactData & cdata = contact_datas[ee_id];
           const Eigen::DenseIndex constraint_dim = cmodel.size();
-
+	        const SE3 & contact_placement = cdata.contact_placement;
+   
           if(indexes[jj])
           {
             switch(cmodel.reference_frame)
@@ -300,8 +300,8 @@ namespace pinocchio
                 typedef typename Data::Matrix6x::ColXpr ColXpr;
                 const ColXpr Jcol = data.J.col(j);
                 MotionRef<const ColXpr> Jcol_motion(Jcol);
-                
-                const Motion Jcol_local(cdata.contact_placement.actInv(Jcol_motion));
+
+                const Motion Jcol_local(contact_placement.actInv(Jcol_motion));
                 
                 switch(cmodel.type)
                 {
@@ -335,7 +335,7 @@ namespace pinocchio
                 // Contact frame placement wrt world
                 Motion Jcol_local_world_aligned(Jcol_motion);
                 Jcol_local_world_aligned.linear()
-                -= cdata.contact_placement.translation().cross(Jcol_local_world_aligned.angular());
+                -= contact_placement.translation().cross(Jcol_local_world_aligned.angular());
                 
                 switch(cmodel.type)
                 {

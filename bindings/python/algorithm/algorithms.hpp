@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_python_algorithm_hpp__
-#define __pinocchio_python_algorithm_hpp__
+#ifndef __pinocchio_python_algorithms_hpp__
+#define __pinocchio_python_algorithms_hpp__
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include <boost/python.hpp>
@@ -23,7 +23,6 @@ namespace pinocchio
     void exposeFramesAlgo();
     void exposeEnergy();
     void exposeKinematics();
-  
     void exposeContactDynamics();
     void exposeConstrainedDynamics();
     void exposeCAT();
@@ -32,16 +31,19 @@ namespace pinocchio
     void exposeRegressor();
     void exposeCholesky();
     void exposeModelAlgo();
+    void exposeImpulseDynamics();
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
     void exposeKinematicsDerivatives();
+    void exposeFramesDerivatives();
     void exposeCentroidalDerivatives();
-
+    void exposeImpulseDynamicsDerivatives();
+    
     void exposeAlgorithms();
     
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_algorithm_hpp__
+#endif // ifndef __pinocchio_python_algorithms_hpp__
 

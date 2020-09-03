@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(contact_models)
   
   // Check complete constructor
   SE3 M(SE3::Random());
-  RigidContactModel cmodel2(CONTACT_3D,0,M);
+  RigidContactModel cmodel2(CONTACT_3D,0);
   BOOST_CHECK(cmodel2.type == CONTACT_3D);
   BOOST_CHECK(cmodel2.joint1_id == 0);
   BOOST_CHECK(cmodel2.joint1_placement.isApprox(M));
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(contact_models)
   BOOST_CHECK(cmodel3 == cmodel2);
   
   // Check complete constructor 6D
-  RigidContactModel cmodel4(CONTACT_6D,0,SE3::Identity());
+  RigidContactModel cmodel4(CONTACT_6D,0);
   BOOST_CHECK(cmodel4.type == CONTACT_6D);
   BOOST_CHECK(cmodel4.joint1_id == 0);
   BOOST_CHECK(cmodel4.joint1_placement.isIdentity());
@@ -215,10 +215,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   contactDynamics(model,data1,q,v,tau,contact_models_6D,contact_datas_6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
-  std::cout << "initContactDynamics" << std::endl;
   initContactDynamics(model,data1,contact_models_6D6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 2*6));
-  std::cout << "contactDynamics" << std::endl;
   contactDynamics(model,data1,q,v,tau,contact_models_6D6D,contact_datas_6D6D);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
@@ -430,7 +428,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
-  
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
@@ -866,7 +863,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   gamma.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.joint1_placement).toVector();
   gamma.segment<6>(6) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.joint1_placement).toVector();
   
-  std::cout << "J_ref*data_ref.ddq + gamma = " << (J_ref*data_ref.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
@@ -879,7 +875,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   const double mu = prox_settings.mu;
   contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
   
-  std::cout << "J_ref*data.ddq + gamma = " << (J_ref*data.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
   
   forwardKinematics(model, data_ref, q, v, 0*v);
@@ -910,7 +905,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     if(cmodel.type == CONTACT_6D)
       S.setDiagonal(Symmetric3::Vector3::Constant(mu));
     
-    const Inertia contact_inertia(mu,cdata.contact_placement.translation(),S);
+    const Inertia contact_inertia(mu,data_ref.oMf[frame_id].translation(),S);
     
     Inertia::Matrix6 contact_inertia_ref = Inertia::Matrix6::Zero();
     
@@ -1010,7 +1005,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   gamma.segment<3>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame).linear();
   gamma.segment<3>(3) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame).linear();
   
-  std::cout << "J_ref*data_ref.ddq + gamma = " << (J_ref*data_ref.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
@@ -1022,7 +1016,6 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   prox_settings.mu = 1e8;
   contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
   
-  std::cout << "J_ref*data.ddq + gamma = " << (J_ref*data.ddq + gamma).transpose() << std::endl;
   BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
   
   // Call the algorithm a second time
