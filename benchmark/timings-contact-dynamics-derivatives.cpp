@@ -51,20 +51,24 @@ int main(int argc, const char ** argv)
       pinocchio::urdf::buildModel(filename,model);
   
   const std::string RA = "RARM_LINK6";
+  const JointIndex RA_id = model.frames[model.getFrameId(RA)].parent;
   const std::string LA = "LARM_LINK6";
+  const JointIndex LA_id = model.frames[model.getFrameId(LA)].parent;
   const std::string RF = "RLEG_LINK6";
+  const JointIndex RF_id = model.frames[model.getFrameId(RF)].parent;
   const std::string LF = "LLEG_LINK6";
+  const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
   RigidContactData cd_RF_6D(ci_RF_6D);
-  //RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
+  //RigidContactModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
   RigidContactData cd_LF_6D(ci_LF_6D);
-  // RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
+  // RigidContactModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
   
-  //RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
-  //RigidContactModel ci_LA_3D(CONTACT_3D,model.getFrameId(LA),WORLD);
+  //RigidContactModel ci_RA_3D(CONTACT_3D,model.getJointId(RA),WORLD);
+  //RigidContactModel ci_LA_3D(CONTACT_3D,model.getJointId(LA),WORLD);
   
   // Define contact infos structure
   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;

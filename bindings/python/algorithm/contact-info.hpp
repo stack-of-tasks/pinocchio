@@ -6,6 +6,7 @@
 #define __pinocchio_python_algorithm_contact_info_hpp__
 
 #include <eigenpy/memory.hpp>
+
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
 
@@ -34,17 +35,33 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor."))
-        .def(bp::init<ContactType,FrameIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,JointIndex,SE3,JointIndex,SE3,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
-               bp::arg("frame_id"),
-               bp::arg("placement"),
+               bp::arg("joint1_id"),
+               bp::arg("joint1_placement"),
+               bp::arg("joint2_id"),
+               bp::arg("joint2_placement"),
                bp::arg("reference_frame")),
-              "Contructor from a given ContactType, frame parent index and placement with respect to the parent Frame."))
+              "Contructor from a given ContactType, joint index and placement for the two joints implied in the constraint."))
+        .def(bp::init<ContactType,JointIndex,SE3,bp::optional<ReferenceFrame> >
+             ((bp::arg("self"),
+               bp::arg("contact_type"),
+               bp::arg("joint1_id"),
+               bp::arg("joint1_placement"),
+               bp::arg("reference_frame")),
+              "Contructor from a given ContactType, joint index and placement only for the first joint implied in the constraint."))
         
-        .PINOCCHIO_ADD_PROPERTY(Self,type,"Type of the contact.")
-        .PINOCCHIO_ADD_PROPERTY(Self,frame_id,"Index of the parent Frame in the model tree.")
-        .PINOCCHIO_ADD_PROPERTY(Self,placement,"Placement of the contact with respect to the parent Frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,type,
+                                "Type of the contact.")
+        .PINOCCHIO_ADD_PROPERTY(Self,joint1_id,
+                                "Index of first parent joint in the model tree.")
+        .PINOCCHIO_ADD_PROPERTY(Self,joint2_id,
+                                "Index of second parent joint in the model tree.")
+        .PINOCCHIO_ADD_PROPERTY(Self,joint1_placement,
+                                "Relative placement with respect to the frame of joint1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,joint2_placement,
+                                "Relative placement with respect to the frame of joint2.")
         .PINOCCHIO_ADD_PROPERTY(Self,reference_frame,"Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL).")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_placement,"Desired contact placement.")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_velocity,"Desired contact spatial velocity.")
@@ -99,8 +116,6 @@ namespace pinocchio
                                 "Contact force.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_placement,
                                 "Contact placement with respect to the WORLD frame.")
-        .PINOCCHIO_ADD_PROPERTY(Self,joint_contact_placement,
-                                "Contact placement with respect to the supporting JOINT frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_velocity,
                                 "Current contact Spatial velocity.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration,
@@ -130,5 +145,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_algorithm_contact_info_hpp__
-
-

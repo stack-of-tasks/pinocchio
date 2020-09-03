@@ -36,7 +36,7 @@ namespace pinocchio
           ++it)
       {
         PINOCCHIO_CHECK_INPUT_ARGUMENT(it->size() > 0,
-                                       "The dimension of the contact info must be positive");
+                                       "The dimension of the constraint must be positive");
         num_total_constraints += it->size();
       }
       
@@ -68,14 +68,14 @@ namespace pinocchio
       
       for(JointIndex joint_id = 1;joint_id < (JointIndex)(model.njoints);joint_id++)
       {
-        const JointIndex & parent = model.parents[joint_id];
+        const JointIndex & parent_id = model.parents[joint_id];
         
         const typename Model::JointModel & joint = model.joints[joint_id];
-        const typename Model::JointModel & parent_joint = model.joints[parent];
+        const typename Model::JointModel & parent_joint = model.joints[parent_id];
         const int nvj    = joint.nv();
         const int idx_vj = joint.idx_v();
         
-        if(parent>0)
+        if(parent_id>0)
           parents_fromRow[idx_vj + num_total_constraints]
           = parent_joint.idx_v() + parent_joint.nv() - 1 + num_total_constraints;
         else
@@ -100,11 +100,10 @@ namespace pinocchio
           ++it)
       {
         const RigidContactModel & cmodel = *it;
-        const FrameIndex frame_id = cmodel.frame_id;
-        const JointIndex joint_id = model.frames[frame_id].parent;
-        const typename Model::JointModel & joint = model.joints[joint_id];
+        const JointIndex joint1_id = cmodel.joint1_id;
+        const typename Model::JointModel & joint1 = model.joints[joint1_id];
         
-        const Eigen::DenseIndex nv = joint.idx_v() + joint.nv();
+        const Eigen::DenseIndex nv = joint1.idx_v() + joint1.nv();
         for(Eigen::DenseIndex k = 0; k < cmodel.size(); ++k)
         {
           nv_subtree_fromRow[row_id] = nv + (num_total_constraints - row_id);
@@ -115,18 +114,18 @@ namespace pinocchio
      
       // Allocate and fill sparsity indexes
       static const bool default_sparsity_value = false;
-      extented_parents_fromRow.resize(contact_models.size(),BooleanVector::Constant(total_dim,default_sparsity_value));
+      extented_parents_fromRow.resize(static_cast<size_t>(num_contacts),
+                                      BooleanVector::Constant(total_dim,default_sparsity_value));
       for(size_t ee_id = 0; ee_id < extented_parents_fromRow.size(); ++ee_id)
       {
         BooleanVector & indexes = extented_parents_fromRow[ee_id];
         indexes.resize(total_dim); indexes.fill(default_sparsity_value);
         
         const RigidContactModel & cmodel = contact_models[ee_id];
-        const FrameIndex frame_id = cmodel.frame_id;
-        const JointIndex joint_id = model.frames[frame_id].parent;
-        const typename Model::JointModel & joint = model.joints[joint_id];
-        
-        Eigen::DenseIndex current_id = joint.idx_v() + joint.nv() - 1 + num_total_constraints;
+        const JointIndex joint1_id = cmodel.joint1_id;
+        const typename Model::JointModel & joint1 = model.joints[joint1_id];
+
+        Eigen::DenseIndex current_id = joint1.idx_v() + joint1.nv() - 1 + num_total_constraints;
         while(parents_fromRow[current_id] != -1)
         {
           indexes[current_id] = true;
@@ -215,19 +214,14 @@ namespace pinocchio
       const size_t num_ee = contact_models.size();
       
       // Update frame placements if needed
-      for(size_t f = 0; f < num_ee; ++f)
+      for(size_t ee_id = 0; ee_id < num_ee; ++ee_id)
       {
-        const RigidContactModel & cmodel = contact_models[f];
-        RigidContactData & cdata = contact_datas[f];
-        if(cmodel.reference_frame == WORLD) continue; // skip useless computations
-        
-        const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-        const typename Model::Frame & frame = model.frames[frame_id];
+        const RigidContactModel & cmodel = contact_models[ee_id];
+        RigidContactData & cdata = contact_datas[ee_id];
 
-        const typename Model::JointIndex & joint_id = model.frames[frame_id].parent;
+        const typename Model::JointIndex joint1_id = cmodel.joint1_id;
         
-        cdata.joint_contact_placement = frame.placement * cmodel.placement;
-        cdata.contact_placement = data.oMi[joint_id] * cdata.joint_contact_placement ;
+        cdata.contact_placement = data.oMi[joint1_id] * cmodel.joint1_placement;
       }
       
       // Core

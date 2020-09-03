@@ -13,7 +13,6 @@
 namespace pinocchio
 {
 
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeContactDynamicsDerivativesForwardStep
   : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl> >
@@ -34,8 +33,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       const Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       Motion & oa_gf = data.oa_gf[i];
@@ -253,7 +252,7 @@ namespace pinocchio
       assert(   cmodel.reference_frame == LOCAL
              && "The contact is not expressed in the expected frame");
 
-      data.of[model.frames[cmodel.frame_id].parent] -= cdata.contact_placement.act(cdata.contact_force);
+      data.of[cmodel.joint1_id] -= cdata.contact_placement.act(cdata.contact_force);
     }
 
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
@@ -269,9 +268,7 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
 
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       
       //TODO: This is only for size 6. replace with contact_model::NC
       switch(cmodel.type)
@@ -289,7 +286,7 @@ namespace pinocchio
                                                                 current_row_sol_id);
           
           getJointAccelerationDerivatives(model, data,
-                                          joint_id,
+                                          joint1_id,
                                           LOCAL,
                                           contact_dvc_dq_tmp,
                                           contact_dac_dq,
@@ -297,15 +294,15 @@ namespace pinocchio
                                           contact_dac_da);
           
           //TODO: replace with contact_model::nc
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+          int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             contact_dac_dq.template topRows<3>().col(j) +=
-              data.v[joint_id].angular().cross(contact_dvc_dq_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_dvc_dq_tmp.template bottomRows<3>().col(j));
+              data.v[joint1_id].angular().cross(contact_dvc_dq_tmp.template topRows<3>().col(j))
+            - data.v[joint1_id].linear().cross(contact_dvc_dq_tmp.template bottomRows<3>().col(j));
             contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(contact_dac_da.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(contact_dac_da.template bottomRows<3>().col(j));
+            data.v[joint1_id].angular().cross(contact_dac_da.template topRows<3>().col(j))
+            - data.v[joint1_id].linear().cross(contact_dac_da.template bottomRows<3>().col(j));
           }
           
           //TODO: remplacer par contact_model::NC
@@ -323,7 +320,7 @@ namespace pinocchio
           typename Data::Matrix6x & a_partial_da_tmp = data.IS;
           
           getJointAccelerationDerivatives(model, data,
-                                          joint_id,
+                                          joint1_id,
                                           LOCAL,
                                           v_partial_dq_tmp,
                                           a_partial_dq_tmp,
@@ -342,14 +339,14 @@ namespace pinocchio
           contact_dac_dq = a_partial_dq_tmp.template topRows<3>();
           contact_dac_dv = a_partial_dv_tmp.template topRows<3>();
           
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+          int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
             contact_dac_dq.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(v_partial_dq_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(v_partial_dq_tmp.template bottomRows<3>().col(j));
+            data.v[joint1_id].angular().cross(v_partial_dq_tmp.template topRows<3>().col(j))
+            - data.v[joint1_id].linear().cross(v_partial_dq_tmp.template bottomRows<3>().col(j));
             contact_dac_dv.template topRows<3>().col(j) +=
-            data.v[joint_id].angular().cross(a_partial_da_tmp.template topRows<3>().col(j))
-            - data.v[joint_id].linear().cross(a_partial_da_tmp.template bottomRows<3>().col(j));
+            data.v[joint1_id].angular().cross(a_partial_da_tmp.template topRows<3>().col(j))
+            - data.v[joint1_id].linear().cross(a_partial_da_tmp.template bottomRows<3>().col(j));
           }
           current_row_sol_id += 3;
           break;
@@ -382,11 +379,8 @@ namespace pinocchio
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
       const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
-      
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
+
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       
       //TODO: This is only for size 6. replace with contact_model::NC
       switch(cmodel.type)
@@ -405,7 +399,7 @@ namespace pinocchio
           ConstRowsBlock contact_dlambda_dv = SizeDepType<6>::middleRows(lambda_partial_dv,
                                                                          current_row_sol_id);
           
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+          int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
@@ -428,7 +422,7 @@ namespace pinocchio
           ConstRowsBlock contact_dlambda_dv = SizeDepType<3>::middleRows(lambda_partial_dv,
                                                                          current_row_sol_id);
           
-          int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+          int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
@@ -447,7 +441,6 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,ddq_partial_dv).noalias() = -data.Minv*data.dtau_dv; //OUTPUT
   }
-  
   
 } // namespace pinocchio
 

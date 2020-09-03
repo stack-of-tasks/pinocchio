@@ -60,16 +60,22 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
-    typedef pinocchio::FrameIndex FrameIndex;
+    typedef pinocchio::JointIndex JointIndex;
     
     /// \brief Type of the contact.
     ContactType type;
     
-    /// \brief Index of the parent Frame in the model tree.
-    FrameIndex frame_id;
+    /// \brief Index of the first joint in the model tree
+    JointIndex joint1_id;
     
-    /// \brief Relative placement with respect to the parent frame.
-    SE3 placement;
+    /// \brief Index of the second joint in the model tree
+    JointIndex joint2_id;
+    
+    /// \brief Relative placement with respect to the frame of joint1.
+    SE3 joint1_placement;
+    
+    /// \brief Relative placement with respect to the frame of joint2.
+    SE3 joint2_placement;
     
     /// \brief Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL)
     ReferenceFrame reference_frame;
@@ -86,7 +92,10 @@ namespace pinocchio
     /// \brief Default constructor.
     RigidContactModelTpl()
     : type(CONTACT_UNDEFINED)
-    , frame_id(std::numeric_limits<FrameIndex>::max())
+    , joint1_id(std::numeric_limits<FrameIndex>::max())
+    , joint2_id(std::numeric_limits<FrameIndex>::max())
+    , joint1_placement(SE3::Identity())
+    , joint2_placement(SE3::Identity())
     , reference_frame(WORLD)
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
@@ -94,21 +103,27 @@ namespace pinocchio
     {}
     
     ///
-    /// \brief Contructor with from a given type, parent and placement.
+    /// \brief Contructor with from a given type, joint indexes and placements.
     ///
     /// \param[in] type Type of the contact.
-    /// \param[in] frame_id Index of the parent Frame in the model tree.
-    /// \param[in] placement Placement of the contact with respect to the parent Frame.
-    /// \param[in] reference_frame Placement of the contact with respect to the parent Frame.
+    /// \param[in] joint1_id Index of the joint 1 in the model tree.
+    /// \param[in] joint2_id Index of the joint 2 in the model tree.
+    /// \param[in] joint1_placement Placement of the constraint w.r.t the frame of joint1.
+    /// \param[in] joint2_placement Placement of the constraint w.r.t the frame of joint2.
+    /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
     template<typename S2, int O2>
     RigidContactModelTpl(const ContactType type,
-                         const FrameIndex frame_id,
-                         const SE3Tpl<S2,O2> & placement,
+                         const JointIndex joint1_id,
+                         const SE3Tpl<S2,O2> & joint1_placement,
+                         const JointIndex joint2_id,
+                         const SE3Tpl<S2,O2> & joint2_placement,
                          const ReferenceFrame & reference_frame = WORLD)
     : type(type)
-    , frame_id(frame_id)
-    , placement(placement)
+    , joint1_id(joint1_id)
+    , joint2_id(joint2_id)
+    , joint1_placement(joint1_placement)
+    , joint2_placement(joint2_placement)
     , reference_frame(reference_frame)
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
@@ -116,17 +131,67 @@ namespace pinocchio
     {}
     
     ///
-    /// \brief Contructor with from a given type, parent and placement.
+    /// \brief Contructor with from a given type, joint1_id and placement.
     ///
     /// \param[in] type Type of the contact.
-    /// \param[in] frame_id Index of the parent Frame in the model tree.
+    /// \param[in] joint1_id Index of the joint 1 in the model tree.
+    /// \param[in] joint1_placement Placement of the constraint w.r.t the frame of joint1.
+    /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
+    template<typename S2, int O2>
     RigidContactModelTpl(const ContactType type,
-                         const FrameIndex frame_id,
+                         const JointIndex joint1_id,
+                         const SE3Tpl<S2,O2> & joint1_placement,
                          const ReferenceFrame & reference_frame = WORLD)
     : type(type)
-    , frame_id(frame_id)
-    , placement(SE3::Identity())
+    , joint1_id(joint1_id)
+    , joint2_id(0)
+    , joint1_placement(joint1_placement)
+    , joint2_placement(SE3::Identity())
+    , reference_frame(reference_frame)
+    , desired_contact_placement(SE3::Identity())
+    , desired_contact_velocity(Motion::Zero())
+    , desired_contact_acceleration(Motion::Zero())
+    {}
+    
+    ///
+    /// \brief Contructor with from a given type and the joint ids.
+    ///
+    /// \param[in] type Type of the contact.
+    /// \param[in] joint1_id Index of the joint 1 in the model tree.
+    /// \param[in] joint2_id Index of the joint 2 in the model tree.
+    ///
+    RigidContactModelTpl(const ContactType type,
+                         const JointIndex joint1_id,
+                         const JointIndex joint2_id,
+                         const ReferenceFrame & reference_frame = WORLD)
+    : type(type)
+    , joint1_id(joint1_id)
+    , joint2_id(joint2_id)
+    , joint1_placement(SE3::Identity())
+    , joint2_placement(SE3::Identity())
+    , reference_frame(reference_frame)
+    , desired_contact_placement(SE3::Identity())
+    , desired_contact_velocity(Motion::Zero())
+    , desired_contact_acceleration(Motion::Zero())
+    {}
+    
+    ///
+    /// \brief Contructor with from a given type and .
+    ///
+    /// \param[in] type Type of the contact.
+    /// \param[in] joint1_id Index of the joint 1 in the model tree.
+    ///
+    /// \remarks The second joint id (joint2_id) is set to be 0 (corresponding to the index of the universe).
+    ///
+    RigidContactModelTpl(const ContactType type,
+                         const JointIndex joint1_id,
+                         const ReferenceFrame & reference_frame = WORLD)
+    : type(type)
+    , joint1_id(joint1_id)
+    , joint2_id(0) // set to be the Universe
+    , joint1_placement(SE3::Identity())
+    , joint2_placement(SE3::Identity())
     , reference_frame(reference_frame)
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
@@ -138,15 +203,17 @@ namespace pinocchio
     ///
     /// \param[in] other Other RigidContactModelTpl to compare with.
     ///
-    /// \returns true if the two *this is equal to other (type, parent and placement attributs must be the same).
+    /// \returns true if the two *this is equal to other (type, joint1_id and placement attributs must be the same).
     ///
     template<int OtherOptions>
     bool operator==(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
     {
       return
          type == other.type
-      && frame_id == other.frame_id
-      && placement == other.placement
+      && joint1_id == other.joint1_id
+      && joint2_id == other.joint2_id
+      && joint1_placement == other.joint1_placement
+      && joint2_placement == other.joint2_placement
       && reference_frame == other.reference_frame;
     }
     
@@ -155,7 +222,7 @@ namespace pinocchio
     ///
     /// \param[in] other Other RigidContactModelTpl to compare with.
     ///
-    /// \returns false if the two *this is not equal to other (at least type, parent or placement attributs is different).
+    /// \returns false if the two *this is not equal to other (at least type, joint1_id or placement attributs is different).
     ///
     template<int OtherOptions>
     bool operator!=(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
@@ -214,9 +281,6 @@ namespace pinocchio
     /// \brief Current contact placement with respect to the world frame
     SE3 contact_placement;
     
-    /// \brief Contact placement with respect to the supporting joint frame
-    SE3 joint_contact_placement;
-    
     /// \brief Current contact spatial velocity
     Motion contact_velocity;
     
@@ -234,7 +298,6 @@ namespace pinocchio
       return
          contact_force == other.contact_force
       && contact_placement == other.contact_placement
-      && joint_contact_placement == other.joint_contact_placement
       && contact_velocity == other.contact_velocity
       && contact_acceleration == other.contact_acceleration
       && contact_acceleration_drift == other.contact_acceleration_drift

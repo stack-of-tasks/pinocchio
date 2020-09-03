@@ -4,11 +4,7 @@
 
 #include <iostream>
 
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/crba.hpp"
@@ -274,10 +270,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
+  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF));
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF));
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF));
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
 
@@ -292,9 +288,9 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D)
   // Compute Jacobians
   Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
   J_RF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(RF), WORLD, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF);
   J_LF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF);
 
   const int constraint_dim = 12;
   const int total_dim = model.nv + constraint_dim;
@@ -492,10 +488,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF));
+  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF));
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,model.getFrameId(LF));
+  RigidContactModel ci_LF(CONTACT_3D,model.getJointId(LF));
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -681,10 +677,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -697,12 +693,11 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   pinocchio::cholesky::decompose(model,data_ref);
   
   // Compute Jacobians
-  framesForwardKinematics(model,data_ref,q);
   Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
   J_RF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(RF), LOCAL, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), ci_RF.reference_frame, J_RF);
   J_LF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), ci_LF.reference_frame, J_LF);
   
   const int constraint_dim = 12;
   const int total_dim = model.nv + constraint_dim;
@@ -756,10 +751,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -772,12 +767,11 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   pinocchio::cholesky::decompose(model,data_ref);
   
   // Compute Jacobians
-  framesForwardKinematics(model,data_ref,q);
   Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
   J_RF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(RF), LOCAL_WORLD_ALIGNED, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), ci_RF.reference_frame, J_RF);
   J_LF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), ci_LF.reference_frame, J_LF);
   
   const int constraint_dim = 12;
   const int total_dim = model.nv + constraint_dim;

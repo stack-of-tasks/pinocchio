@@ -3,7 +3,6 @@
 //
 
 #include "pinocchio/algorithm/jacobian.hpp"
-#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
@@ -108,8 +107,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -135,7 +134,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   {
     const RigidContactModel & cmodel = contact_models[k];
     const RigidContactData & cdata = contact_data[k];
-    fext[model.frames[cmodel.frame_id].parent] = cdata.contact_force;
+    fext[cmodel.joint1_id] = cdata.contact_force;
   }
   computeABADerivatives(model, data_ref, q, v, tau, fext);
   forwardKinematics(model,data_ref,q,v);
@@ -186,27 +185,26 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
 
   MatrixXd J_LF(6, model.nv), J_RF(6, model.nv);
   J_LF.setZero(); J_RF.setZero();
-  getFrameJacobian(model, data_ref, model.getFrameId(LF), LOCAL, J_LF);
-  getFrameJacobian(model, data_ref, model.getFrameId(RF), LOCAL, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
   MatrixXd osim((Jc * data_ref.M.inverse() * Jc.transpose()).inverse());
   BOOST_CHECK(data.osim.isApprox(osim));
 
   MatrixXd ac_partial_dq(6+3, model.nv);
 
-  const Frame & RF_frame = model.frames[model.getFrameId(RF)];
-  BOOST_CHECK(data.ov[RF_frame.parent].isApprox(data_ref.oMi[RF_frame.parent].act(data_ref.v[RF_frame.parent])));
+  BOOST_CHECK(data.ov[model.getJointId(RF)].isApprox(data_ref.oMi[model.getJointId(RF)].act(data_ref.v[model.getJointId(RF)])));
   aRF_partial_dq.topRows<3>() +=
-    cross(data_ref.v[RF_frame.parent].angular(),
+    cross(data_ref.v[model.getJointId(RF)].angular(),
           vRF_partial_dq.topRows<3>())
-    - cross(data_ref.v[RF_frame.parent].linear(),
+    - cross(data_ref.v[model.getJointId(RF)].linear(),
             vRF_partial_dq.bottomRows<3>());
   
-  const Frame & LF_frame = model.frames[model.getFrameId(LF)];
-  BOOST_CHECK(data.ov[LF_frame.parent].isApprox(data_ref.oMi[LF_frame.parent].act(data_ref.v[LF_frame.parent])));
+  const Frame & LF_frame = model.frames[model.getJointId(LF)];
+  BOOST_CHECK(data.ov[model.getJointId(LF)].isApprox(data_ref.oMi[model.getJointId(LF)].act(data_ref.v[model.getJointId(LF)])));
   aLF_partial_dq.topRows<3>() +=
-    cross(data_ref.v[LF_frame.parent].angular(),
+    cross(data_ref.v[model.getJointId(LF)].angular(),
           vLF_partial_dq.topRows<3>())
-    - cross(data_ref.v[LF_frame.parent].linear(),
+    - cross(data_ref.v[model.getJointId(LF)].linear(),
             vLF_partial_dq.bottomRows<3>());    
   
   ac_partial_dq << aLF_partial_dq,
@@ -226,7 +224,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq));
 }
 
-BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
+BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -251,8 +249,8 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -335,7 +333,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_fd )
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_dirty_data )
+BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
 {
   // Verify that a dirty data doesn't affect the results of the contact dynamics derivs
   using namespace Eigen;
@@ -361,8 +359,8 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_dirty_data )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));

@@ -237,20 +237,16 @@ namespace pinocchio
       RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
-      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex & joint_id = frame.parent;
-      const typename Data::SE3 & oMi = data.oMi[joint_id];
+      const typename Model::JointIndex joint1_id = contact_model.joint1_id;
+      const typename Data::SE3 & oMi = data.oMi[joint1_id];
       
-      typename Data::SE3& iMcontact = contact_data.joint_contact_placement;
-      typename Data::SE3& oMcontact = contact_data.contact_placement;
+      typename Data::SE3 & oMcontact = contact_data.contact_placement;
 
       // Update frame placement
-      iMcontact = frame.placement * contact_model.placement;
-      oMcontact = oMi * iMcontact;
+      oMcontact = oMi * contact_model.joint1_placement;
 
-      classicAcceleration(data.ov[joint_id],
-                          data.oa[joint_id],
+      classicAcceleration(data.ov[joint1_id],
+                          data.oa[joint1_id],
                           oMcontact,
                           coriolis_centrifugal_acc_local);
       
@@ -259,11 +255,11 @@ namespace pinocchio
         case WORLD:
         {
           // LINEAR
-          classicAcceleration(data.ov[joint_id],
-                              data.oa[joint_id],
+          classicAcceleration(data.ov[joint1_id],
+                              data.oa[joint1_id],
                               coriolis_centrifugal_acc.linear());
           // ANGULAR
-          coriolis_centrifugal_acc.angular() = data.oa[joint_id].angular();
+          coriolis_centrifugal_acc.angular() = data.oa[joint1_id].angular();
           
           break;
         }
@@ -272,7 +268,7 @@ namespace pinocchio
           // LINEAR
           coriolis_centrifugal_acc.linear().noalias() = oMcontact.rotation() * coriolis_centrifugal_acc_local;
           // ANGULAR
-          coriolis_centrifugal_acc.angular() = data.oa[joint_id].angular();
+          coriolis_centrifugal_acc.angular() = data.oa[joint1_id].angular();
           
           break;
         }
@@ -281,7 +277,7 @@ namespace pinocchio
           // LINEAR
           coriolis_centrifugal_acc.linear() = coriolis_centrifugal_acc_local;
           // ANGULAR
-          coriolis_centrifugal_acc.angular().noalias() = oMcontact.rotation().transpose() * data.oa[joint_id].angular();
+          coriolis_centrifugal_acc.angular().noalias() = oMcontact.rotation().transpose() * data.oa[joint1_id].angular();
           
           break;
         }
@@ -595,14 +591,11 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       RigidContactData & cdata = contact_data[k];
       
-      const typename RigidContactModel::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex & joint_id = frame.parent;
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
 
       // Compute relative placement between the joint and the contact frame
-      iMc = frame.placement * cmodel.placement;
       SE3 & oMc = cdata.contact_placement;
-      oMc = data.oMi[joint_id] * iMc; // contact placement
+      oMc = data.oMi[joint1_id] * cmodel.joint1_placement; // contact placement
       
       typedef typename Data::Inertia Inertia;
       typedef typename Inertia::Symmetric3 Symmetric3;
@@ -613,13 +606,13 @@ namespace pinocchio
         S.setDiagonal(Symmetric3::Vector3::Constant(settings.mu));
       
       Inertia contact_inertia(settings.mu,oMc.translation(),S);
-      data.oYaba[joint_id] += contact_inertia.matrix();
+      data.oYaba[joint1_id] += contact_inertia.matrix();
       
-      typename Data::Motion & joint_velocity = data.ov[joint_id];
+      typename Data::Motion & joint_velocity = data.ov[joint1_id];
       Motion & contact_velocity = cdata.contact_velocity;
       contact_velocity = oMc.actInv(joint_velocity);
       
-      typename Data::Motion & joint_spatial_acceleration_drift = data.oa_drift[joint_id];
+      typename Data::Motion & joint_spatial_acceleration_drift = data.oa_drift[joint1_id];
       Motion & contact_acceleration_drift = cdata.contact_acceleration_drift;
       contact_acceleration_drift
       = cmodel.desired_contact_acceleration - oMc.actInv(joint_spatial_acceleration_drift);
@@ -630,15 +623,15 @@ namespace pinocchio
 //      cdata.contact_force.setZero();
       
       // Add the contribution of the constraints to the force vector
-      data.of_augmented[joint_id] = oMc.act(cdata.contact_force);
+      data.of_augmented[joint1_id] = oMc.act(cdata.contact_force);
       if(cmodel.type == CONTACT_3D)
       {
-        data.of_augmented[joint_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+        data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
                                                                             Force::Vector3::Zero()));
       }
       else
       {
-        data.of_augmented[joint_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+        data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
       }
     }
 
@@ -676,15 +669,13 @@ namespace pinocchio
         const RigidContactModel & cmodel = contact_models[contact_id];
         RigidContactData & cdata = contact_data[contact_id];
         
-        const typename RigidContactModel::FrameIndex & frame_id = cmodel.frame_id;
-        const typename Model::Frame & frame = model.frames[frame_id];
-        const typename Model::JointIndex & joint_id = frame.parent;
+        const typename Model::JointIndex & joint1_id = cmodel.joint1_id;
         
         const SE3 & oMc = cdata.contact_placement;
         const Motion & contact_velocity = cdata.contact_velocity;
         
         // Compute contact acceleration error (drift)
-        const typename Data::Motion & joint_spatial_acceleration = data.oa_augmented[joint_id];
+        const typename Data::Motion & joint_spatial_acceleration = data.oa_augmented[joint1_id];
         cdata.contact_acceleration_deviation = oMc.actInv(joint_spatial_acceleration) - cmodel.desired_contact_acceleration;
         cdata.contact_acceleration_deviation.linear() += contact_velocity.angular().cross(contact_velocity.linear());
         
@@ -715,9 +706,7 @@ namespace pinocchio
         const RigidContactModel & cmodel = contact_models[contact_id];
         RigidContactData & cdata = contact_data[contact_id];
         
-        const typename RigidContactModel::FrameIndex & frame_id = cmodel.frame_id;
-        const typename Model::Frame & frame = model.frames[frame_id];
-        const typename Model::JointIndex & joint_id = frame.parent;
+        const typename Model::JointIndex & joint1_id = cmodel.joint1_id;
         
         const SE3 & oMc = cdata.contact_placement;
         // Update contact force value
@@ -732,15 +721,15 @@ namespace pinocchio
 
         // Add the contribution of the constraints to the force vector
         const Motion & contact_acceleration_drift = cdata.contact_acceleration_drift;
-        data.of_augmented[joint_id] = oMc.act(cdata.contact_force);
+        data.of_augmented[joint1_id] = oMc.act(cdata.contact_force);
         if(cmodel.type == CONTACT_3D)
         {
-          data.of_augmented[joint_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+          data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
                                                                      Force::Vector3::Zero()));
         }
         else
         {
-          data.of_augmented[joint_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+          data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
         }
       }
       

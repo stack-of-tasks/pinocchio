@@ -10,7 +10,6 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -57,18 +56,22 @@ int main(int argc, const char ** argv)
       pinocchio::urdf::buildModel(filename,model);
   
   const std::string RA = "RARM_LINK6";
+  const JointIndex RA_id = model.frames[model.getFrameId(RA)].parent;
   const std::string LA = "LARM_LINK6";
+  const JointIndex LA_id = model.frames[model.getFrameId(LA)].parent;
   const std::string RF = "RLEG_LINK6";
+  const JointIndex RF_id = model.frames[model.getFrameId(RF)].parent;
   const std::string LF = "LLEG_LINK6";
+  const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,WORLD);
+  RigidContactModel ci_RF_3D(CONTACT_3D,RF_id,WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
+  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,WORLD);
+  RigidContactModel ci_LF_3D(CONTACT_3D,LF_id,WORLD);
   
-  RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
-  RigidContactModel ci_LA_3D(CONTACT_3D,model.getFrameId(LA),WORLD);
+  RigidContactModel ci_RA_3D(CONTACT_3D,RA_id,WORLD);
+  RigidContactModel ci_LA_3D(CONTACT_3D,LA_id,WORLD);
   
   // Define contact infos structure
   static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
@@ -88,7 +91,7 @@ int main(int argc, const char ** argv)
   contact_data_6D6D.push_back(RigidContactData(ci_RF_6D));
   contact_data_6D6D.push_back(RigidContactData(ci_LF_6D));
   cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
-  
+
   ProximalSettings prox_settings;
   prox_settings.max_iter = 10;
   prox_settings.mu = 1e8;
@@ -210,7 +213,7 @@ int main(int argc, const char ** argv)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
     timer.tic();
-    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
+    getJointJacobian(model,data,ci_RF_6D.joint1_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
     total_time += timer.toc(timer.DEFAULT_UNIT);
     
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
@@ -275,8 +278,8 @@ int main(int argc, const char ** argv)
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
-    getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
+    getJointJacobian(model,data,ci_RF_6D.joint1_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
+    getJointJacobian(model,data,ci_LF_6D.joint1_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
     
     forwardDynamics(model,data,qs[_smooth], qdots[_smooth], taus[_smooth], J, gamma);
     
@@ -308,8 +311,8 @@ int main(int argc, const char ** argv)
   SMOOTH(NBT)
   {
     computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-    getFrameJacobian(model,data,ci_RF_6D.frame_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
-    getFrameJacobian(model,data,ci_LF_6D.frame_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
+    getJointJacobian(model,data,ci_RF_6D.joint1_id,ci_RF_6D.reference_frame,J.middleRows<6>(0));
+    getJointJacobian(model,data,ci_LF_6D.joint1_id,ci_LF_6D.reference_frame,J.middleRows<6>(6));
     forwardDynamics(model,data,taus[_smooth],J,gamma);
   }
   std::cout << "constrainedDynamics {6D,6D} = \t\t"; timer.toc(std::cout,NBT);
