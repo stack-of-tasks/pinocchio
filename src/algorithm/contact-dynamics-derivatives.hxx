@@ -13,7 +13,6 @@
 namespace pinocchio
 {
 
-
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
   struct ComputeContactDynamicsDerivativesForwardStep
     : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
@@ -269,8 +268,9 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
+      
       const SE3 & oMc = cdata.contact_placement;
-      Force & of = data.of[model.frames[cmodel.frame_id].parent];
+      Force & of = data.of[cmodel.joint1_id];
 
       switch(cmodel.reference_frame) 
       {
@@ -310,27 +310,27 @@ namespace pinocchio
       const Eigen::DenseIndex colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       
       Motion v_tmp;         
-      switch(cmodel.reference_frame) {
-      case WORLD:
+      switch(cmodel.reference_frame)
       {
-        v_tmp = data.ov[joint_id];
-        break;
-      }
-      case LOCAL:
-      {
-        v_tmp = data.v[joint_id];
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED:
-      {            
-        //TODO: replace with contact_model::nc
-        v_tmp.linear().noalias() = data.oMf[frame_id].rotation() * data.v[joint_id].linear();
-        v_tmp.angular().noalias() = data.ov[joint_id].angular();
-        break;
-      }
-      default:
-        assert(false && "must never happen");
-        break;
+        case WORLD:
+        {
+          v_tmp = data.ov[joint1_id];
+          break;
+        }
+        case LOCAL:
+        {
+          v_tmp = cdata.contact_placement.actInv(data.ov[joint1_id]);
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED:
+        {
+          v_tmp.linear().noalias() = cdata.contact_placement.rotation() * data.v[joint1_id].linear();  // TODO: fix it
+          v_tmp.angular().noalias() = data.ov[joint1_id].angular();
+          break;
+        }
+        default:
+          assert(false && "must never happen");
+          break;
       }
 
       //TODO: This is only for size 6. replace with contact_model::NC
@@ -393,7 +393,8 @@ namespace pinocchio
                                                                 current_row_sol_id);
           RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
                                                                 current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j]) {
+          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          {
             contact_dvc_dq.col(j) = v_partial_dq_tmp.template topRows<3>().col(j);
             contact_dac_da.col(j) = a_partial_da_tmp.template topRows<3>().col(j);
             contact_dac_dq.col(j) = a_partial_dq_tmp.template topRows<3>().col(j);
@@ -437,10 +438,6 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
 
-      
-      //TODO: This is only for size 6. replace with contact_model::NC
-      const RigidContactData & cdata = contact_data[k];
-      
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const Eigen::DenseIndex colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
 
@@ -506,20 +503,18 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
-      const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+      const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       
-      switch(cmodel.reference_frame) {
-      case LOCAL:
+      switch(cmodel.reference_frame)
       {
+      case LOCAL:
         break;
-      }
       case WORLD:
       {
-        const Force& of = cdata.contact_force;
-        switch(cmodel.type) {
+        const Force & of = cdata.contact_force;
+        switch(cmodel.type)
+        {
         case CONTACT_6D:
         {
           Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
@@ -596,8 +591,6 @@ namespace pinocchio
       }
     }
 
-
-    
   }
   
 } // namespace pinocchio

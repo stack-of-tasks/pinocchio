@@ -6,7 +6,6 @@
 #define __pinocchio_algorithm_impulse_dynamics_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/contact-cholesky.hxx"
 #include "pinocchio/algorithm/contact-dynamics.hxx"
 #include <limits>
 
@@ -78,36 +77,36 @@ namespace pinocchio
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
       const RigidContactModel & contact_model = contact_models[contact_id];
+      RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
-      const typename Model::FrameIndex & frame_id = contact_model.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex & joint_id = frame.parent;
-      const typename Data::SE3 & oMi = data.oMi[joint_id];
-      typename Data::SE3 & oMcontact = data.oMf[frame_id];
+      const typename Model::JointIndex & joint1_id = contact_model.joint1_id;
+      const typename Data::SE3 & oMi = data.oMi[joint1_id];
+      typename Data::SE3 & oMc = contact_data.contact_placement;
 
-      // Update frame placement
-      oMcontact = oMi * frame.placement;
+      // Update contact placement
+      oMc = oMi * contact_model.joint1_placement;
 
+      Motion post_impact_velocity;
       switch(contact_model.reference_frame)
       {
         case WORLD:
         {
           //Temporary assignment
-          data.ov[0] = data.ov[joint_id];
+          post_impact_velocity = data.ov[joint1_id];
           break;
         }
         case LOCAL_WORLD_ALIGNED:
         {
           //Temporary assignment
-          data.ov[0] = data.ov[joint_id];
-          data.ov[0].linear() -= oMcontact.translation().cross(data.ov[joint_id].angular());
+          post_impact_velocity = data.ov[joint1_id];
+          post_impact_velocity.linear() -= oMc.translation().cross(data.ov[joint1_id].angular());
           break;
         }
         case LOCAL:
         {
           //Temporary assignment
-          data.ov[0] = oMcontact.actInv(data.ov[joint_id]);
+          post_impact_velocity = oMc.actInv(data.ov[joint1_id]);
           break;
         }
         default:
@@ -118,10 +117,10 @@ namespace pinocchio
       switch(contact_model.type)
       {
         case CONTACT_3D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*data.ov[0].linear();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*post_impact_velocity.linear();
           break;
         case CONTACT_6D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*data.ov[0].toVector();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*post_impact_velocity.toVector();
           break;
         default:
           assert(false && "must never happened");
@@ -131,7 +130,6 @@ namespace pinocchio
       current_row_id += contact_dim;
     }
 
-    data.ov[0].setZero();
     // Solve the system
     contact_chol.solveInPlace(contact_vector_solution);
     

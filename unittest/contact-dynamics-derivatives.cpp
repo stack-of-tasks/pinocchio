@@ -224,6 +224,51 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   BOOST_CHECK(ddq_dq.isApprox(data.ddq_dq));
 }
 
+pinocchio::Motion computeAcceleration(const pinocchio::Model & model,
+                                      const pinocchio::Data & data,
+                                      const pinocchio::JointIndex & joint_id,
+                                      const pinocchio::ReferenceFrame reference_frame,
+                                      const pinocchio::SE3 & placement = pinocchio::SE3::Identity())
+{
+  PINOCCHIO_UNUSED_VARIABLE(model);
+  using namespace pinocchio;
+  Motion res(Motion::Zero());
+  
+  const Data::SE3 & oMi = data.oMi[joint_id];
+  const Data::SE3 oMc = oMi * placement;
+  
+  const Data::SE3 & iMc = placement;
+  const Motion ov = oMi.act(data.v[joint_id]);
+  const Motion oa = oMi.act(data.a[joint_id]);
+  
+  switch (reference_frame)
+  {
+    case WORLD:
+      classicAcceleration(ov,oa,res.linear());
+      res.angular() = oa.angular();
+      break;
+    case LOCAL_WORLD_ALIGNED:
+      res.linear() = oMc.rotation() * classicAcceleration(data.v[joint_id],data.a[joint_id],iMc);
+      res.angular() = oMi.rotation() * data.a[joint_id].angular();
+      break;
+    case LOCAL:
+      classicAcceleration(data.v[joint_id],data.a[joint_id],iMc,res.linear());
+      res.angular() = iMc.rotation().transpose() * data.a[joint_id].angular();
+      break;
+    default:
+      break;
+  }
+  
+  return res;
+}
+
+pinocchio::Motion getContactAcceleration(const Model & model,
+                                         const Data & data,
+                                         const RigidContactModel & cmodel)
+{
+  return computeAcceleration(model,data,cmodel.joint1_id,cmodel.reference_frame,cmodel.joint1_placement);
+}
+
 BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_fd)
 {
   using namespace Eigen;
@@ -253,7 +298,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_fd)
   RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+//  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -263,7 +308,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_fd)
 
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
-
+  const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0);
 
@@ -287,6 +332,30 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_fd)
   VectorXd lambda_plus(constraint_dim);
 
   const double alpha = 1e-8;
+  
+  // Check dac_dq
+  const RigidContactModel & cmodel = contact_models[0];
+  
+  forwardKinematics(model,data,q,v,a);
+  const Motion ac_ref = getContactAcceleration(model,data,cmodel);
+  Data::Matrix6x dac_dq_fd(6,model.nv); dac_dq_fd.setZero();
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,mu0);
+    const Data::TangentVectorType a_plus = data_fd.ddq;
+    forwardKinematics(model,data_fd,q_plus,v,a_plus);
+
+    const Motion ac_plus = getContactAcceleration(model,data_fd,cmodel);
+    dac_dq_fd.col(k) = (ac_plus - ac_ref).toVector()/alpha;
+    v_eps[k] = 0.;
+  }
+
+  BOOST_CHECK(data.dac_dq.middleRows(0,6).isApprox(dac_dq_fd,sqrt(alpha)));
+  std::cout << "data.dac_dq.middleRows(0,6):\n" << data.dac_dq.middleRows(0,6) << std::endl;
+  std::cout << "dac_dq_fd:\n" << dac_dq_fd << std::endl;
+  
   for(int k = 0; k < model.nv; ++k)
   {
     v_eps[k] += alpha;
@@ -327,7 +396,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_fd)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_WORLD_fd )
+BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_WORLD_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -352,8 +421,8 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_WORLD_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),WORLD);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -456,8 +525,8 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL_WORLD_ALIGNED);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -597,6 +666,5 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
   BOOST_CHECK(data_dirty.dlambda_dv.isApprox(data_fresh.dlambda_dv,sqrt(alpha)));
   BOOST_CHECK(data_dirty.dlambda_dtau.isApprox(data_fresh.dlambda_dtau,sqrt(alpha)));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END ()

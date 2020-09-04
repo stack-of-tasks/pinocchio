@@ -181,26 +181,28 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      const SE3& oMContact = data.oMf[cmodel.frame_id];
-      Force & of = data.of[model.frames[cmodel.frame_id].parent];
-      //TODO: add LOCAL, WORLD, LOCAL_WORLD_ALIGNED frames.
-      switch(cmodel.reference_frame) {
-      case LOCAL:
+      const SE3 & oMc = cdata.contact_placement;
+      const JointIndex joint1_id = cmodel.joint1_id;
+      Force & of = data.of[joint1_id];
+      
+      switch(cmodel.reference_frame)
       {
-        of -= oMContact.act(cdata.contact_force);
-        break;
-      }
-      case WORLD:
-      {
-        of -= cdata.contact_force;
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED:
-      {
-        of -= cdata.contact_force;
-        of.angular().noalias() -= oMContact.translation().cross(cdata.contact_force.linear());
-        break;
-      }
+        case LOCAL:
+        {
+          of -= oMc.act(cdata.contact_force);
+          break;
+        }
+        case WORLD:
+        {
+          of -= cdata.contact_force;
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED:
+        {
+          of -= cdata.contact_force;
+          of.angular().noalias() -= oMc.translation().cross(cdata.contact_force.linear());
+          break;
+        }
       }
     }
 
@@ -218,9 +220,7 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
 
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
 
       switch(cmodel.type)
       {
@@ -231,11 +231,11 @@ namespace pinocchio
                                                                 current_row_sol_id);
           Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,
                                                                 current_row_sol_id);
-          for(JointIndex i = joint_id; i > 0; i = model.parents[i])
+          for(JointIndex i = joint1_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
-                                                joint_id,
+                                                joint1_id,
                                                 cmodel.reference_frame,
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
@@ -257,11 +257,11 @@ namespace pinocchio
                                                                 current_row_sol_id);
           typename Data::Matrix6x & contact_dvc_dq_tmp = data.dFda;
           typename Data::Matrix6x & contact_dvc_dv_tmp= data.IS;
-          for(JointIndex i = joint_id; i > 0; i = model.parents[i])
+          for(JointIndex i = joint1_id; i > 0; i = model.parents[i])
           {
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
-                                                joint_id,
+                                                joint1_id,
                                                 cmodel.reference_frame,
                                                 PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dq_tmp),
                                                 PINOCCHIO_EIGEN_CONST_CAST(typename Data::Matrix6x,contact_dvc_dv_tmp)));
@@ -282,6 +282,7 @@ namespace pinocchio
     
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
+    
     //Temporary: dlambda_dtau stores J*Minv
     typename Data::MatrixXs & JMinv = data.dlambda_dtau;
     typename Data::MatrixXs & Jc = data.dac_da;
@@ -289,7 +290,7 @@ namespace pinocchio
     JMinv.noalias() = Jc * data.Minv;
     data.dvc_dq.noalias() -= JMinv * data.dtau_dq;
 
-    MatrixType3& dic_dq = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,impulse_partial_dq);
+    MatrixType3 & dic_dq = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,impulse_partial_dq);
     dic_dq.noalias() = -data.osim * data.dvc_dq; //OUTPUT
     //TODO: Implem sparse.
     data.dtau_dq.noalias() -= Jc.transpose()*impulse_partial_dq;
@@ -306,15 +307,12 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      const typename Model::FrameIndex & frame_id = cmodel.frame_id;
-      const typename Model::Frame & frame = model.frames[frame_id];
-      const typename Model::JointIndex joint_id = frame.parent;
-      const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
-      switch(cmodel.reference_frame) {
-      case LOCAL:
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+      const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
+      switch(cmodel.reference_frame)
       {
+      case LOCAL:
         break;
-      }
       case WORLD:
       {
         const Force& of = cdata.contact_force;
@@ -354,7 +352,8 @@ namespace pinocchio
       case LOCAL_WORLD_ALIGNED:
       {
         const Force& of = cdata.contact_force;
-        switch(cmodel.type) {
+        switch(cmodel.type)
+        {
         case CONTACT_6D:
         {
           Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
