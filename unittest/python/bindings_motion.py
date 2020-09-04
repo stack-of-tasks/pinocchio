@@ -33,11 +33,17 @@ class TestMotionBindings(unittest.TestCase):
         v.linear = lin
         self.assertTrue(np.allclose(v.linear, lin))
 
+        v.linear[1] = 1.
+        self.assertTrue(v.linear[1] == 1.)
+
     def test_set_angular(self):
         v = pin.Motion.Zero()
         ang = rand(3)
         v.angular = ang
         self.assertTrue(np.allclose(v.angular, ang))
+
+        v.angular[1] = 1.
+        self.assertTrue(v.angular[1] == 1.)
 
     def test_set_vector(self):
         v = pin.Motion.Zero()

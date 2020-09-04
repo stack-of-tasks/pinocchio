@@ -1,4 +1,4 @@
-# 7) Learning to flight (aka policy learning)
+# 7) Learning to fly (aka policy learning)
 
 ## Objective
 

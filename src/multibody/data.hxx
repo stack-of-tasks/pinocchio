@@ -151,7 +151,7 @@ namespace pinocchio
     {
       if(lastChild[(Index)i] == -1) lastChild[(Index)i] = i;
       const Index & parent = model.parents[(Index)i];
-      lastChild[parent] = std::max(lastChild[(Index)i],lastChild[parent]);
+      lastChild[parent] = std::max<int>(lastChild[(Index)i],lastChild[parent]);
       
       nvSubtree[(Index)i]
       = model.joints[(Index)lastChild[(Index)i]].idx_v() + model.joints[(Index)lastChild[(Index)i]].nv()

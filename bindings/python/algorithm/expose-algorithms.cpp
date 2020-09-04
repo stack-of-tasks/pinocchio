@@ -29,7 +29,6 @@ namespace pinocchio
       exposeRegressor();
       exposeCholesky();
       exposeModelAlgo();
-      exposeCentroidalDerivatives();
       exposeImpulseDynamics();
 
       // expose derivative version of the algorithms

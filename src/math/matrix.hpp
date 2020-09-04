@@ -20,6 +20,46 @@ namespace pinocchio
     return !((m.derived().array()==m.derived().array()).all());
   }
 
+  namespace internal
+  {
+    template<typename MatrixLike, bool value = is_floating_point<typename MatrixLike::Scalar>::value>
+    struct isZeroAlgo
+    {
+      typedef typename MatrixLike::Scalar Scalar;
+      typedef typename MatrixLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<MatrixLike> & mat,
+                      const RealScalar & prec =
+                      Eigen::NumTraits< Scalar >::dummy_precision())
+      {
+        return mat.isZero(prec);
+      }
+    };
+    
+    template<typename MatrixLike>
+    struct isZeroAlgo<MatrixLike,false>
+    {
+      typedef typename MatrixLike::Scalar Scalar;
+      typedef typename MatrixLike::RealScalar RealScalar;
+      
+      static bool run(const Eigen::MatrixBase<MatrixLike> & /*vec*/,
+                      const RealScalar & prec =
+                      Eigen::NumTraits< Scalar >::dummy_precision())
+      {
+        PINOCCHIO_UNUSED_VARIABLE(prec);
+        return true;
+      }
+    };
+  }
+
+  template<typename MatrixLike>
+  inline bool isZero(const Eigen::MatrixBase<MatrixLike> & m,
+                     const typename MatrixLike::RealScalar & prec =
+                     Eigen::NumTraits< typename MatrixLike::Scalar >::dummy_precision())
+  {
+    return internal::isZeroAlgo<MatrixLike>::run(m,prec);
+  }
+
   template<typename M1, typename M2>
   struct MatrixMatrixProduct
   {
@@ -58,7 +98,7 @@ namespace pinocchio
   
   namespace internal
   {
-    template<typename MatrixLike, bool value = boost::is_floating_point<typename MatrixLike::Scalar>::value>
+    template<typename MatrixLike, bool value = is_floating_point<typename MatrixLike::Scalar>::value>
     struct isUnitaryAlgo
     {
       typedef typename MatrixLike::Scalar Scalar;
@@ -106,7 +146,7 @@ namespace pinocchio
 
   namespace internal
   {
-    template<typename VectorLike, bool value = boost::is_floating_point<typename VectorLike::Scalar>::value>
+    template<typename VectorLike, bool value = is_floating_point<typename VectorLike::Scalar>::value>
     struct isNormalizedAlgo
     {
       typedef typename VectorLike::Scalar Scalar;
@@ -116,7 +156,7 @@ namespace pinocchio
                       const RealScalar & prec =
                       Eigen::NumTraits<RealScalar>::dummy_precision())
       {
-        return math::fabs(vec.norm() - RealScalar(1)) <= prec;
+        return math::fabs(static_cast<RealScalar>(vec.norm() - RealScalar(1))) <= prec;
       }
     };
     

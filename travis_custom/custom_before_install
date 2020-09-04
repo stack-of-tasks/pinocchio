@@ -14,12 +14,12 @@ sudo apt update
 sudo free -m -t
 
 # Setup environment variables.
-export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
+export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils libmpfr-dev"
 
 # Add Python dependency
 echo "TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION"
 if [[ $TRAVIS_PYTHON_VERSION -gt 30 ]]; then
-  export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py35-eigenpy python3.5-dev python-numpy"
+  export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py36-eigenpy python3.6-dev python-numpy"
 else
   export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py27-eigenpy python2.7-dev python-numpy"
 fi

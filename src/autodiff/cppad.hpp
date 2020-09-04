@@ -2,19 +2,18 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_autodiff_ccpad_hpp__
-#define __pinocchio_autodiff_ccpad_hpp__
+#ifndef __pinocchio_autodiff_cppad_hpp__
+#define __pinocchio_autodiff_cppad_hpp__
 
 #include "pinocchio/math/fwd.hpp"
+#define PINOCCHIO_WITH_CPPAD_SUPPORT
 
 // Do not include this file directly.
 // Copy and use directly the intructions from <cppad/example/cppad_eigen.hpp>
 // to avoid redifinition of EIGEN_MATRIXBASE_PLUGIN for Eigen 3.3.0 and later
 //#include <cppad/example/cppad_eigen.hpp>
 
-#ifdef PINOCCHIO_CPPAD_REQUIRES_MATRIX_BASE_PLUGIN
-  #define EIGEN_MATRIXBASE_PLUGIN <cppad/example/eigen_plugin.hpp>
-#endif
+#define EIGEN_MATRIXBASE_PLUGIN <pinocchio/autodiff/cppad/math/eigen_plugin.hpp>
 
 #include <cppad/cppad.hpp>
 #include <Eigen/Dense>
@@ -118,6 +117,9 @@ namespace Eigen
 } // namespace Eigen
 
 // Source from #include <cppad/example/cppad_eigen.hpp>
+#include "pinocchio/utils/static-if.hpp"
+
+
 namespace CppAD
 {
   // functions that return references
@@ -131,6 +133,23 @@ namespace CppAD
   {  return CppAD::AD<Base>(0.); }
   template <class Base> AD<Base> abs2(const AD<Base>& x)
   {  return x * x; }
+
+  template<typename Scalar>
+  AD<Scalar> min(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, y, x, y, x);
+  }
+  
+  template<typename Scalar>
+  AD<Scalar> max(const AD<Scalar>& x, const AD<Scalar>& y)
+  {
+    using ::pinocchio::internal::if_then_else;
+    using ::pinocchio::internal::LT;
+    return if_then_else(LT, x, y, y, x);
+  }
+  
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
@@ -157,5 +176,7 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/spatial/log.hxx"
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
 #include "pinocchio/autodiff/cppad/math/quaternion.hpp"
+#include "pinocchio/autodiff/cppad/algorithm/aba.hpp"
 
-#endif // #ifndef __pinocchio_autodiff_ccpad_hpp__
+
+#endif // #ifndef __pinocchio_autodiff_cppad_hpp__

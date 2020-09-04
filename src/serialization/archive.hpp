@@ -215,7 +215,7 @@ namespace pinocchio
     inline void loadFromBinary(T & object,
                                const std::string & filename)
     {
-      std::ifstream ifs(filename.c_str());
+      std::ifstream ifs(filename.c_str(), std::ios::binary);
       if(ifs)
       {
         boost::archive::binary_iarchive ia(ifs);
@@ -240,7 +240,7 @@ namespace pinocchio
     void saveToBinary(const T & object,
                       const std::string & filename)
     {
-      std::ofstream ofs(filename.c_str());
+      std::ofstream ofs(filename.c_str(), std::ios::binary);
       if(ofs)
       {
         boost::archive::binary_oarchive oa(ofs);

@@ -48,6 +48,7 @@ namespace pinocchio
 
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
+  
     Data::Matrix3x getCoMVelocityDerivatives_proxy(const Model & model,
                                                    Data & data)
     {
@@ -78,9 +79,9 @@ namespace pinocchio
       bp::def("getJointVelocityDerivatives",
               getJointVelocityDerivatives_proxy,
               bp::args("model","data","joint_id","reference_frame"),
-              "Computes the partial derivaties of the spatial velocity of a given with respect to\n"
+              "Computes the partial derivatives of the spatial velocity of a given joint with respect to\n"
               "the joint configuration and velocity and returns them as a tuple.\n"
-              "The Jacobians can be either expressed in the LOCAL frame of the joint or in the WORLD coordinate frame depending on the value of the Reference Frame.\n"
+              "The Jacobians can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
               "You must first call computForwardKinematicsDerivatives before calling this function.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
@@ -91,9 +92,9 @@ namespace pinocchio
       bp::def("getJointAccelerationDerivatives",
               getJointAccelerationDerivatives_proxy,
               bp::args("model","data","joint_id","reference_frame"),
-              "Computes the partial derivaties of the spatial acceleration of a given with respect to\n"
+              "Computes the partial derivatives of the spatial acceleration of a given joint with respect to\n"
               "the joint configuration, velocity and acceleration and returns them as a tuple.\n"
-              "The Jacobians can be either expressed in the LOCAL frame of the joint or in the WORLD coordinate frame depending on the value of the Reference Frame.\n"
+              "The Jacobians can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
               "You must first call computForwardKinematicsDerivatives before calling this function.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
@@ -104,7 +105,7 @@ namespace pinocchio
       bp::def("getCenterOfMassVelocityDerivatives",
               getCoMVelocityDerivatives_proxy,
               bp::args("model","data"),
-              "Computes the partial derivaties of the com velocity of a given with respect to\n"
+              "Computes the partial derivaties of the center of mass velocity with respect to\n"
               "the joint configuration.\n"
               "You must first call computForwardKinematicsDerivatives and centerOfMass(q,v) "
               "before calling this function.\n\n"

@@ -3,11 +3,12 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_python_inertia_hpp__
-#define __pinocchio_python_inertia_hpp__
+#ifndef __pinocchio_python_spatial_inertia_hpp__
+#define __pinocchio_python_spatial_inertia_hpp__
 
 #include <eigenpy/exception.hpp>
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
@@ -74,7 +75,8 @@ namespace pinocchio
                       &InertiaPythonVisitor::setMass,
                       "Mass of the Spatial Inertia.")
         .add_property("lever",
-                      &InertiaPythonVisitor::getLever,
+                      bp::make_function((typename Inertia::Vector3 & (Inertia::*)())&Inertia::lever,
+                                        bp::return_internal_reference<>()),
                       &InertiaPythonVisitor::setLever,
                       "Center of mass location of the Spatial Inertia. It corresponds to the location of the center of mass regarding to the frame where the Spatial Inertia is expressed.")
         .add_property("inertia",
@@ -169,7 +171,6 @@ namespace pinocchio
       static Scalar getMass( const Inertia & self ) { return self.mass(); }
       static void setMass( Inertia & self, Scalar mass ) { self.mass() = mass; }
       
-      static Vector3 getLever( const Inertia & self ) { return self.lever(); }
       static void setLever( Inertia & self, const Vector3 & lever ) { self.lever() = lever; }
       
       static Matrix3 getInertia( const Inertia & self ) { return self.inertia().matrix(); }
@@ -233,4 +234,4 @@ namespace pinocchio
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_se3_hpp__
+#endif // ifndef __pinocchio_python_spatial_inertia_hpp__

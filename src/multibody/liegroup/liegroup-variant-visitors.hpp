@@ -66,7 +66,122 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigIn_t> & q,
                         const Eigen::MatrixBase<Tangent_t>  & v,
                         const Eigen::MatrixBase<ConfigOut_t>& qout);
+
+  template<typename LieGroupCollection, class Config_t>
+  inline void random(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                     const Eigen::MatrixBase<Config_t> & qout);
+
+  template<typename LieGroupCollection, class Config_t>
+  inline void normalize(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                        const Eigen::MatrixBase<Config_t> & qout);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
+  inline bool isSameConfiguration(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                          const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const typename ConfigL_t::Scalar& prec);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
+  inline typename ConfigL_t::Scalar
+  squaredDistance(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<ConfigL_t> & q0,
+                  const Eigen::MatrixBase<ConfigR_t> & q1);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
+  inline typename ConfigL_t::Scalar
+  distance(const LieGroupGenericTpl<LieGroupCollection> & lg,
+           const Eigen::MatrixBase<ConfigL_t> & q0,
+           const Eigen::MatrixBase<ConfigR_t> & q1)
+  {
+    return std::sqrt(squaredDistance(lg, q0, q1));
+  }
   
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class Tangent_t>
+  inline void difference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                         const Eigen::MatrixBase<ConfigL_t> & q0,
+                         const Eigen::MatrixBase<ConfigR_t> & q1,
+                         const Eigen::MatrixBase<Tangent_t> & v);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class ConfigOut_t>
+  inline void randomConfiguration(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                                  const Eigen::MatrixBase<ConfigL_t> & q0,
+                                  const Eigen::MatrixBase<ConfigR_t> & q1,
+                                  const Eigen::MatrixBase<ConfigOut_t> & qout);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class ConfigOut_t>
+  inline void interpolate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                          const Eigen::MatrixBase<ConfigL_t> & q0,
+                          const Eigen::MatrixBase<ConfigR_t> & q1,
+                          const typename ConfigL_t::Scalar& u,
+                          const Eigen::MatrixBase<ConfigOut_t> & qout);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianOut_t> & J,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op = SETTO);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  int self,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op = SETTO);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrate(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                  const Eigen::MatrixBase<Config_t >  & q,
+                  const Eigen::MatrixBase<Tangent_t>  & v,
+                  int self,
+                  const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                  const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                  const ArgumentPosition arg,
+                  const AssignmentOperatorType op = SETTO);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
+  void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                   const Eigen::MatrixBase<ConfigL_t> & q0,
+                   const Eigen::MatrixBase<ConfigR_t> & q1,
+                   const Eigen::MatrixBase<JacobianOut_t> & J,
+                   const ArgumentPosition arg);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                   const Eigen::MatrixBase<ConfigL_t> & q0,
+                   const Eigen::MatrixBase<ConfigR_t> & q1,
+                   const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                   int self,
+                   const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                   const ArgumentPosition arg);
+
+  template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+  void dDifference(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                   const Eigen::MatrixBase<ConfigL_t> & q0,
+                   const Eigen::MatrixBase<ConfigR_t> & q1,
+                   int self,
+                   const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                   const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                   const ArgumentPosition arg);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+  void dIntegrateTransport(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                           const Eigen::MatrixBase<Config_t > & q,
+                           const Eigen::MatrixBase<Tangent_t> & v,
+                           const Eigen::MatrixBase<JacobianIn_t> & J_in,
+                           const Eigen::MatrixBase<JacobianOut_t> & J_out,
+                           const ArgumentPosition arg);
+
+  template<typename LieGroupCollection, class Config_t, class Tangent_t, class JacobianOut_t>
+  void dIntegrateTransport(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                           const Eigen::MatrixBase<Config_t > & q,
+                           const Eigen::MatrixBase<Tangent_t> & v,
+                           const Eigen::MatrixBase<JacobianOut_t> & J,
+                           const ArgumentPosition arg);
 }
 
 /// Details

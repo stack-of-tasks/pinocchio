@@ -21,9 +21,9 @@ namespace pinocchio
             const Eigen::MatrixBase<TangentVectorType> & v,
             const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(qout.size() == model.nq, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(qout.size(), model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -45,9 +45,9 @@ namespace pinocchio
               const Scalar & u,
               const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The first configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The second configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(qout.size() == model.nq, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(qout.size(), model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -68,9 +68,9 @@ namespace pinocchio
              const Eigen::MatrixBase<ConfigVectorIn2> & q1,
              const Eigen::MatrixBase<ReturnType> & dvout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The first configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The second configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(dvout.size() == model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(dvout.size(), model.nv, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -91,9 +91,9 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1,
                   const Eigen::MatrixBase<ReturnType> & out)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The first configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The second configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(out.size() == (model.njoints-1), "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(out.size(), (model.njoints-1), "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -114,9 +114,9 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits,
                       const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(lowerLimits.size() == model.nq, "The lower limits vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(upperLimits.size() == model.nq, "The upper limits vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(qout.size() == model.nq, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(lowerLimits.size(), model.nq, "The lower limits vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(upperLimits.size(), model.nq, "The upper limits vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(qout.size(), model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -134,7 +134,7 @@ namespace pinocchio
   void
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model, const Eigen::MatrixBase<ReturnType> & qout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(qout.size() == model.nq, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(qout.size(), model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -155,10 +155,10 @@ namespace pinocchio
                   const ArgumentPosition arg,
                   const AssignmentOperatorType op)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The output argument is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -179,11 +179,11 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianMatrixType2> & Jout,
                            const ArgumentPosition arg)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jin.rows() == model.nv, "The input matrix is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.rows() == Jin.rows(), "The output argument should be the same size as input matrix");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(Jout.cols() == Jin.cols(), "The output argument should be the same size as input matrix");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(Jin.rows(), model.nv, "The input matrix is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.rows(), Jin.rows(), "The output argument should be the same size as input matrix");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(Jout.cols(), Jin.cols(), "The output argument should be the same size as input matrix");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -204,9 +204,9 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianMatrixType> & J,
                            const ArgumentPosition arg)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The input matrix is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), model.nv, "The input matrix is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -226,10 +226,10 @@ namespace pinocchio
                    const Eigen::MatrixBase<JacobianMatrix> & J,
                    const ArgumentPosition arg)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The configuration vector q0 is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The configuration vector q1 is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.rows() == model.nv, "The output argument is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(J.cols() == model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The configuration vector q0 is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The configuration vector q1 is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), model.nv, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -248,8 +248,8 @@ namespace pinocchio
                      const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                      const Eigen::MatrixBase<ConfigVectorIn2> & q1)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q0.size() == model.nq, "The first configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q0.size(), model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The second configuration vector is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -279,7 +279,7 @@ namespace pinocchio
   inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(qout.size() == model.nq, "The output argument is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(qout.size(), model.nq, "The output argument is not of the right size");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -299,9 +299,9 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
                       const Scalar & prec)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q1.size() == model.nq, "The first configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q2.size() == model.nq, "The second configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision is negative");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The first configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q2.size(), model.nq, "The second configuration vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision should be positive");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -325,9 +325,9 @@ namespace pinocchio
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(jacobian.rows() == model.nq && jacobian.cols() == model.nv
-           && "The jacobian does not have the right dimension");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(jacobian.rows(), model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(jacobian.cols(), model.nv, "The jacobian does not have the right dimension");
 
     typedef IntegrateCoeffWiseJacobianStep<LieGroup_t,ConfigVector,JacobianMatrix> Algo;
     typename Algo::ArgsType args(q.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianMatrix,jacobian));

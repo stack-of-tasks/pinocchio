@@ -33,11 +33,17 @@ class TestForceBindings(unittest.TestCase):
         f.linear = lin
         self.assertTrue(np.allclose(f.linear, lin))
 
+        f.linear[1] = 1.
+        self.assertTrue(f.linear[1] == 1.)
+
     def test_set_angular(self):
         f = pin.Force.Zero()
         ang = rand(3)
         f.angular = ang
         self.assertTrue(np.allclose(f.angular, ang))
+
+        f.angular[1] = 1.
+        self.assertTrue(f.angular[1] == 1.)
 
     def test_set_vector(self):
         f = pin.Force.Zero()

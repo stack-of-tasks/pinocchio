@@ -3,10 +3,11 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_python_se3_hpp__
-#define __pinocchio_python_se3_hpp__
+#ifndef __pinocchio_python_spatial_se3_hpp__
+#define __pinocchio_python_spatial_se3_hpp__
 
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
@@ -46,7 +47,7 @@ namespace pinocchio
 
     template<typename SE3>
     struct SE3PythonVisitor
-      : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
+    : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
     {
       typedef typename SE3::Scalar Scalar;
       typedef typename SE3::Matrix3 Matrix3;
@@ -61,51 +62,49 @@ namespace pinocchio
       {
         cl
         .def(bp::init<Matrix3,Vector3>
-             ((bp::arg("Rotation matrix"),bp::arg("Translation vector")),
+             ((bp::arg("rotation"),bp::arg("translation")),
               "Initialize from a rotation matrix and a translation vector."))
         .def(bp::init<Quaternion,Vector3>
-             ((bp::arg("Quaternion"),bp::arg("Translation vector")),
+             ((bp::arg("quat"),bp::arg("translation")),
               "Initialize from a quaternion and a translation vector."))
-        .def(bp::init<int>((bp::arg("trivial arg (should be 1)")),"Init to identity."))
+        .def(bp::init<int>((bp::arg("int")),"Init to identity."))
         .def(bp::init<SE3>((bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
-             ((bp::arg("Homogeneous matrix")),
-              "Initialize from a homogeneous matrix."))
+             ((bp::arg("homegeneous_matrix")),
+              "Initialize from an homogeneous matrix."))
 
         .add_property("rotation",
-                      &getRotation,
+                      bp::make_function((typename SE3::AngularRef (SE3::*)()) &SE3::rotation,bp::return_internal_reference<>()),
                       (void (SE3::*)(const Matrix3 &)) &SE3::rotation,
-                      "The rotation part of the transformation."
-                      )
+                      "The rotation part of the transformation.")
         .add_property("translation",
-                      &getTranslation,
+                      bp::make_function((typename SE3::LinearRef (SE3::*)()) &SE3::translation,bp::return_internal_reference<>()),
                       (void (SE3::*)(const Vector3 &)) &SE3::translation,
-                      "The translation part of the transformation."
-                      )
+                      "The translation part of the transformation.")
         
         .add_property("homogeneous",&SE3::toHomogeneousMatrix,
-                      "Returns the homegeneous matrix of *this (acting on SE3).")
+                      "Returns the equivalent homegeneous matrix (acting on SE3).")
         .add_property("action",&SE3::toActionMatrix,
-                      "Returns the action matrix of *this (acting on Motion).")
+                      "Returns the related action matrix (acting on Motion).")
         .def("toActionMatrix",&SE3::toActionMatrix,bp::arg("self"),
-             "Returns the action matrix of *this (acting on Motion).")
+             "Returns the related action matrix (acting on Motion).")
         .add_property("actionInverse",&SE3::toActionMatrixInverse,
-                      "Returns the inverse of the action matrix of *this (acting on Motion).\n"
+                      "Returns the inverse of the action matrix (acting on Motion).\n"
                       "This is equivalent to do m.inverse().action")
         .def("toActionMatrixInverse",&SE3::toActionMatrixInverse,bp::arg("self"),
-             "Returns the inverse of the action matrix of *this (acting on Motion).\n"
+             "Returns the inverse of the action matrix (acting on Motion).\n"
              "This is equivalent to do m.inverse().toActionMatrix()")
         .add_property("dualAction",&SE3::toDualActionMatrix,
-                      "Returns the dual action matrix of *this (acting on Force).")
+                      "Returns the related dual action matrix (acting on Force).")
         .def("toDualActionMatrix",&SE3::toDualActionMatrix,bp::arg("self"),
-             "Returns the dual action matrix of *this (acting on Force).")
+             "Returns the related dual action matrix (acting on Force).")
         
         .def("setIdentity",&SE3PythonVisitor::setIdentity,bp::arg("self"),
              "Set *this to the identity placement.")
         .def("setRandom",&SE3PythonVisitor::setRandom,bp::arg("self"),
              "Set *this to a random placement.")
 
-        .def("inverse",  &SE3::inverse, bp::arg("self"),
+        .def("inverse", &SE3::inverse, bp::arg("self"),
              "Returns the inverse transform")
         
         .def("act", (Vector3 (SE3::*)(const Vector3 &) const) &SE3::act,
@@ -180,7 +179,7 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<SE3>("SE3",
-                        "SE3 transformation composed defined by its translation and its rotation",
+                        "SE3 transformation defined by a 3d vector and a rotation matrix.",
                         bp::init<>())
         .def(SE3PythonVisitor<SE3>())
         .def(CopyableVisitor<SE3>())
@@ -198,9 +197,6 @@ namespace pinocchio
         { return bp::make_tuple((Matrix3)M.rotation(),(Vector3)M.translation()); }
       };  
       
-      static Vector3 getTranslation(const SE3 & self) { return self.translation(); }
-      static Matrix3 getRotation(const SE3 & self) { return self.rotation(); }
-      
       static void setIdentity(SE3 & self) { self.setIdentity(); }
       static void setRandom(SE3 & self) { self.setRandom(); }
       
@@ -212,5 +208,4 @@ namespace pinocchio
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_se3_hpp__
-
+#endif // ifndef __pinocchio_python_spatial_se3_hpp__

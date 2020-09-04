@@ -28,13 +28,8 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Matrix6x);
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dv.cols() ==  model.nv);
-    assert(model.check(data) && "data is not consistent with model.");
-    
     PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id <= model.frames.size(),"frame_id is larger than the number of frames");
     typedef typename Model::Frame Frame;
-    typedef typename Data::Motion Motion;
     const Frame & frame = model.frames[frame_id];
     const JointIndex joint_id = frame.parent;
     
@@ -108,10 +103,10 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Matrix6x);
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dq.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_dv.cols() ==  model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(a_partial_da.cols() ==  model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id <= model.frames.size(),"frame_id is larger than the number of frames");

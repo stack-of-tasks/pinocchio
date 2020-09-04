@@ -2,8 +2,8 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_aba_derivatives_hxx__
-#define __pinocchio_aba_derivatives_hxx__
+#ifndef __pinocchio_algorithm_aba_derivatives_hxx__
+#define __pinocchio_algorithm_aba_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -312,12 +312,13 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      assert(model.gravity.angular().isZero() && "The gravity must be a pure force vector, no angular part");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                     "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
-        MotionRef<typename ColsBlock::ColXpr> min(J_cols.col(k));
-        MotionRef<typename ColsBlock::ColXpr> mout(dAdq_cols.col(k));
-        mout.linear() += model.gravity.linear().cross(min.angular());
+        MotionRef<typename ColsBlock::ColXpr> m_in(J_cols.col(k));
+        MotionRef<typename ColsBlock::ColXpr> m_out(dAdq_cols.col(k));
+        m_out.linear() += model.gravity.linear().cross(m_in.angular());
       }
     }
     
@@ -342,15 +343,15 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dq.rows(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.rows(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.rows(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -410,16 +411,16 @@ namespace pinocchio
                                     const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                                     const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(fext.size(), (size_t)model.njoints, "The external forces vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dq.rows(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.rows(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.rows(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -713,4 +714,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_aba_derivatives_hxx__
+#endif // ifndef __pinocchio_algorithm_aba_derivatives_hxx__

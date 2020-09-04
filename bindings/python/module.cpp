@@ -67,6 +67,7 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   exposeExplog();
   exposeRpy();
   exposeSkew();
+  exposeLieGroups();
 
   bp::enum_< ::pinocchio::ReferenceFrame >("ReferenceFrame")
   .value("WORLD",::pinocchio::WORLD)

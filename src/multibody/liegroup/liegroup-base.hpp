@@ -11,6 +11,11 @@
 
 namespace pinocchio
 {
+#if __cplusplus >= 201103L
+  constexpr int SELF = 0;
+#else
+  enum { SELF = 0 };
+#endif
   
 #define PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,TYPENAME)               \
   typedef          LieGroupBase<Derived> Base;                        \
@@ -141,6 +146,22 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                        const Eigen::MatrixBase<JacobianOut_t> & J,
                        const AssignmentOperatorType op = SETTO) const;
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       int self,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dq(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       int self,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
     /**
      * @brief      Computes the Jacobian of a small variation of the tangent vector into tangent space at identity.
      *
@@ -157,6 +178,22 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
                        const Eigen::MatrixBase<Tangent_t>  & v,
                        const Eigen::MatrixBase<JacobianOut_t> & J,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       int self,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                       const AssignmentOperatorType op = SETTO) const;
+
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_dv(const Eigen::MatrixBase<Config_t >  & q,
+                       const Eigen::MatrixBase<Tangent_t>  & v,
+                       const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                       int self,
+                       const Eigen::MatrixBase<JacobianOut_t> & Jout,
                        const AssignmentOperatorType op = SETTO) const;
 
     /**
@@ -248,7 +285,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]     q       configuration vector.
      * @param[in]     v       tangent vector
-     * @param[in,out] J       the input matrix
+     * @param[in,out] J       the inplace matrix
      * @param[in]     arg  argument with respect to which the differentiation is performed (ARG0 corresponding to q, and ARG1 to v)
      */
     template<class Config_t, class Tangent_t, class Jacobian_t>
@@ -271,9 +308,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  Jin    the input matrix
+     * @param[in,out]  Jin    the inplace matrix
      *
-     * @param[out] Jout    Transported matrix
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dq(const Eigen::MatrixBase<Config_t >  & q,
@@ -293,9 +329,8 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[in]  q    configuration vector.
      * @param[in]  v    tangent vector
-     * @param[in]  Jin    the input matrix
+     * @param[in,out]  J    the inplace matrix
      *
-     * @param[out] Jout    Transported matrix
     */
     template <class Config_t, class Tangent_t, class Jacobian_t>
     void dIntegrateTransport_dv(const Eigen::MatrixBase<Config_t >  & q,
@@ -390,10 +425,6 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Eigen::MatrixBase<JacobianOut_t> & J) const;
-//    {
-//      PINOCCHIO_STATIC_ASSERT(arg==ARG0||arg==ARG1, arg_SHOULD_BE_ARG0_OR_ARG1);
-//      return dDifference(q0.derived(),q1.derived(),PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J),arg);
-//    }
 
     /**
      *
@@ -411,6 +442,23 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
                      const Eigen::MatrixBase<ConfigR_t> & q1,
                      const Eigen::MatrixBase<JacobianOut_t> & J,
                      const ArgumentPosition arg) const;
+
+    template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                     int self,
+                     const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                     const AssignmentOperatorType op = SETTO) const;
+
+    template<ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference(const Eigen::MatrixBase<ConfigL_t> & q0,
+                     const Eigen::MatrixBase<ConfigR_t> & q1,
+                     int self,
+                     const Eigen::MatrixBase<JacobianIn_t> & Jin,
+                     const Eigen::MatrixBase<JacobianOut_t> & Jout,
+                     const AssignmentOperatorType op = SETTO) const;
+
     /**
      * @brief      Squared distance between two joint configurations.
      *
@@ -447,6 +495,16 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     bool isSameConfiguration(const Eigen::MatrixBase<ConfigL_t> & q0,
                              const Eigen::MatrixBase<ConfigR_t> & q1,
                              const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
+
+    bool operator== (const LieGroupBase& other) const
+    {
+      return derived().isEqual_impl(other.derived());
+    }
+
+    bool operator!= (const LieGroupBase& other) const
+    {
+      return derived().isDifferent_impl(other.derived());
+    }
     /// \}
 
     /// \name API that allocates memory
@@ -477,6 +535,23 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     /// \name Default implementations
     /// \{
 
+    template <class Config_t, class Tangent_t, class JacobianIn_t, class JacobianOut_t>
+    void dIntegrate_product_impl(const Config_t & q,
+                                 const Tangent_t & v,
+                                 const JacobianIn_t & Jin,
+                                 JacobianOut_t & Jout,
+                                 bool dIntegrateOnTheLeft,
+                                 const ArgumentPosition arg,
+                                 const AssignmentOperatorType op) const;
+
+    template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianIn_t, class JacobianOut_t>
+    void dDifference_product_impl(const ConfigL_t & q0,
+                                  const ConfigR_t & q1,
+                                  const JacobianIn_t & Jin,
+                                  JacobianOut_t & Jout,
+                                  bool dDifferenceOnTheLeft,
+                                  const AssignmentOperatorType op) const;
+
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                           const Eigen::MatrixBase<ConfigR_t> & q1,
@@ -494,6 +569,15 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     bool isSameConfiguration_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                   const Eigen::MatrixBase<ConfigR_t> & q1,
                                   const Scalar & prec) const;
+ 
+    /// \brief Default equality check.
+    /// By default, two LieGroupBase of same type are considered equal.
+    bool isEqual_impl (const LieGroupBase& /*other*/) const { return true; }
+    bool isDifferent_impl (const LieGroupBase& other) const
+    {
+      return !derived().isEqual_impl(other.derived());
+    }
+
     /// Get dimension of Lie Group vector representation
     ///
     /// For instance, for SO(3), the dimension of the vector representation is

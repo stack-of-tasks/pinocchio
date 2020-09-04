@@ -25,7 +25,17 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
 
-## Pinocchio features
+If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
+
+<p align="center">
+conda install pinocchio -c conda-forge
+</p>
+
+## News
+
+**August 2020**: We are **hiring**! We are looking for a talented C++/Python software developer to enhance and promote Pinocchio inside the robotics community and beyond. Please contact @jcarpent for further details.
+
+## Pinocchio main features
 
 **Pinocchio** is fast:
 
@@ -49,7 +59,7 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 **Pinocchio** is extensible.  
 **Pinocchio** is multi-thread friendly.  
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
-**Pinocchio** is supported on Mac OS X and many Linux distributions ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+**Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Performances
 
@@ -65,6 +75,7 @@ In addition, the introspection done [here](https://github.com/rbd-benchmarks/rbd
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
+The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
 
 ## Installation
 
@@ -87,6 +98,16 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
 The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
+
+## Visualization
+
+**Pinocchio** provides support for many open-source and free visualizers:
+
+- [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph](https://github.com/openscenegraph/OpenSceneGraph) with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
+- [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
+- [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
+
+Many external viewers can also be integrated. See example [here](./bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
 
 ## Citing Pinocchio
 
@@ -127,7 +148,7 @@ You have a question or an issue? You may either directly open a [new issue](http
 
 The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
-- [Justin Carpentier](https://jcarpent.github.io) (INRIA): main developer and manager of the project
+- [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
 - [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
 - [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
 - [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
@@ -136,10 +157,12 @@ The following people have been involved in the development of **Pinocchio** and 
 - [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
 - [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
 - [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
-- [Loïc Estève](https://github.com/lesteve) (INRIA): Conda integration and support
-- [Igor Kalevatykh](https://github.com/ikalevatykh) (INRIA): Panda3d viewer support
+- [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
+- [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
 - [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
-- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (INRIA): features extension
+- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
+- [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
+- [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 

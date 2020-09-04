@@ -5,10 +5,6 @@
 #ifndef __pinocchio_aba_hxx__
 #define __pinocchio_aba_hxx__
 
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-  #include "pinocchio/autodiff/cppad.hpp"
-#endif
-
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -78,31 +74,6 @@ namespace pinocchio
         return res;
       }
     };
-    
-#ifdef PINOCCHIO_WITH_CPPAD_SUPPORT
-    /// \brief Partial specialization for CppAD::AD
-    template<typename _Scalar>
-    struct SE3actOn< CppAD::AD<_Scalar> >
-    {
-      typedef CppAD::AD<_Scalar> Scalar;
-      
-      template<int Options, typename Matrix6Type>
-      static typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type)
-      run(const SE3Tpl<Scalar,Options> & M,
-          const Eigen::MatrixBase<Matrix6Type> & I)
-      {
-        typedef SE3Tpl<Scalar,Options> SE3;
-        
-        typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
-        
-        typename SE3::ActionMatrixType dual_action_matrix(M.toDualActionMatrix());
-        typename SE3::ActionMatrixType action_matrix(M.toActionMatrixInverse());
-        ReturnType intermediate_result = dual_action_matrix*I;
-        ReturnType res = intermediate_result*action_matrix;
-        return res;
-      }
-    };
-#endif
   } // namespace internal
 
   namespace optimized
@@ -455,9 +426,9 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & tau)
 {
   assert(model.check(data) && "data is not consistent with model.");
-  PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
-  PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
-  PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");;
   
   typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
   
@@ -500,9 +471,9 @@ namespace pinocchio
 
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(v.size() == model.nv, "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(tau.size() == model.nv, "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv, "The joint torque vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
@@ -745,7 +716,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq, "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     data.Minv.template triangularView<Eigen::Upper>().setZero();

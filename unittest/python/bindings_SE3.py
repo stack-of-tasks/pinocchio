@@ -111,6 +111,13 @@ class TestSE3Bindings(unittest.TestCase):
         bma = amb.inverse()
         self.assertTrue(np.allclose(bma.act(p), (bMa.dot(p_homogeneous))[0:3]))
 
+    def test_member(self):
+        M = pin.SE3.Random()
+        trans = M.translation
+        M.translation[2] = 1.
+
+        self.assertTrue(trans[2] == M.translation[2])
+
     def test_conversions(self):
         def compute (m):
             tq_vec = pin.SE3ToXYZQUAT      (m)

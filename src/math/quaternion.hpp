@@ -91,14 +91,14 @@ namespace pinocchio
       const Scalar N2 = q.squaredNorm();
 #ifndef NDEBUG
       const Scalar epsilon = sqrt(sqrt(Eigen::NumTraits<Scalar>::epsilon()));
-      typedef apply_op_if<less_than_or_equal_to_op,boost::is_floating_point<Scalar>::value,true> static_leq;
-      assert(static_leq::op(math::fabs(N2-1.), epsilon));
+      typedef apply_op_if<less_than_or_equal_to_op,is_floating_point<Scalar>::value,true> static_leq;
+      assert(static_leq::op(math::fabs(static_cast<Scalar>(N2-Scalar(1))), epsilon));
 #endif
       const Scalar alpha = ((Scalar)3 - N2) / Scalar(2);
       PINOCCHIO_EIGEN_CONST_CAST(D,q).coeffs() *= alpha;
 #ifndef NDEBUG
       const Scalar M = Scalar(3) * math::pow(Scalar(1)-epsilon, ((Scalar)-Scalar(5))/Scalar(2)) / Scalar(4);
-      assert(static_leq::op(math::fabs(q.norm() - Scalar(1)),
+      assert(static_leq::op(math::fabs(static_cast<Scalar>(q.norm() - Scalar(1))),
                             math::max(M * sqrt(N2) * (N2 - Scalar(1))*(N2 - Scalar(1)) / Scalar(2), Eigen::NumTraits<Scalar>::dummy_precision())));
 #endif
     }
@@ -130,7 +130,7 @@ namespace pinocchio
     namespace internal
     {
 
-      template<typename Scalar, bool value = boost::is_floating_point<Scalar>::value>
+      template<typename Scalar, bool value = is_floating_point<Scalar>::value>
       struct quaternionbase_assign_impl;
       
       template<Eigen::DenseIndex i>

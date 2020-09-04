@@ -97,4 +97,14 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     BOOST_CHECK(data.f[0] == f[0]);
   }
 
+  BOOST_AUTO_TEST_CASE(test_std_vector_of_Data)
+  {
+    Model model;
+    buildModels::humanoidRandom(model);
+    
+    PINOCCHIO_ALIGNED_STD_VECTOR(Data) datas;
+    for(size_t k = 0; k < 20; ++k)
+      datas.push_back(Data(model));
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
