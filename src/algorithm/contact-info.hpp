@@ -112,12 +112,11 @@ namespace pinocchio
     /// \param[in] joint2_placement Placement of the constraint w.r.t the frame of joint2.
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
-    template<typename S2, int O2>
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
-                         const SE3Tpl<S2,O2> & joint1_placement,
+                         const SE3 & joint1_placement,
                          const JointIndex joint2_id,
-                         const SE3Tpl<S2,O2> & joint2_placement,
+                         const SE3 & joint2_placement,
                          const ReferenceFrame & reference_frame = WORLD)
     : type(type)
     , joint1_id(joint1_id)
@@ -140,7 +139,7 @@ namespace pinocchio
     ///
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
-                         const SE3Tpl<S2,O2> & joint1_placement,
+                         const SE3 & joint1_placement,
                          const ReferenceFrame & reference_frame = WORLD)
     : type(type)
     , joint1_id(joint1_id)
@@ -250,8 +249,11 @@ namespace pinocchio
       typedef RigidContactModelTpl<NewScalar,Options> ReturnType;
       ReturnType res;
       res.type = type;
-      res.frame_id = frame_id;
-      res.reference_frame =reference_frame;
+      res.joint1_id = joint1_id;
+      res.joint2_id = joint2_id;
+      res.joint1_placement = joint1_placement.template cast<NewScalar>();
+      res.joint2_placement = joint2_placement.template cast<NewScalar>();
+      res.reference_frame = reference_frame;
       res.desired_contact_placement = desired_contact_placement.template cast<NewScalar>();
       res.desired_contact_velocity = desired_contact_velocity.template cast<NewScalar>();
       res.desired_contact_acceleration = desired_contact_acceleration.template cast<NewScalar>();

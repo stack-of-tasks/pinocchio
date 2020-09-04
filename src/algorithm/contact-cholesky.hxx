@@ -259,6 +259,8 @@ namespace pinocchio
 
           const BooleanVector & indexes = extented_parents_fromRow[ee_id];
           const RigidContactModel & cmodel = contact_models[ee_id];
+          const RigidContactData & cdata = contact_datas[ee_id];
+          
           const Eigen::DenseIndex constraint_dim = cmodel.size();
 	        const SE3 & contact_placement = cdata.contact_placement;
    

@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_CASE(contact_models)
   BOOST_CHECK(cmodel1.size() == 0);
   
   // Check complete constructor
-  SE3 M(SE3::Random());
-  RigidContactModel cmodel2(CONTACT_3D,0);
+  const SE3 M(SE3::Random());
+  RigidContactModel cmodel2(CONTACT_3D,0,M);
   BOOST_CHECK(cmodel2.type == CONTACT_3D);
   BOOST_CHECK(cmodel2.joint1_id == 0);
   BOOST_CHECK(cmodel2.joint1_placement.isApprox(M));
@@ -905,7 +905,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     if(cmodel.type == CONTACT_6D)
       S.setDiagonal(Symmetric3::Vector3::Constant(mu));
     
-    const Inertia contact_inertia(mu,data_ref.oMf[frame_id].translation(),S);
+    const Inertia contact_inertia(mu,oMc.translation(),S);
     
     Inertia::Matrix6 contact_inertia_ref = Inertia::Matrix6::Zero();
     

@@ -228,19 +228,20 @@ namespace pinocchio
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
       const RigidContactModel & contact_model = contact_models[contact_id];
+      RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
       const typename Model::JointIndex joint1_id = contact_model.joint1_id;
       const typename Data::SE3 & oMi = data.oMi[joint1_id];
       
-      typename Data::SE3 & oMcontact = contact_data.contact_placement;
+      typename Data::SE3 & oMc = contact_data.contact_placement;
 
       // Update frame placement
-      oMcontact = oMi * contact_model.joint1_placement;
+      oMc = oMi * contact_model.joint1_placement;
 
       classicAcceleration(data.ov[joint1_id],
                           data.oa[joint1_id],
-                          oMcontact,
+                          oMc,
                           coriolis_centrifugal_acc_local);
       
       switch(contact_model.reference_frame)
@@ -259,7 +260,7 @@ namespace pinocchio
         case LOCAL_WORLD_ALIGNED:
         {
           // LINEAR
-          coriolis_centrifugal_acc.linear().noalias() = oMcontact.rotation() * coriolis_centrifugal_acc_local;
+          coriolis_centrifugal_acc.linear().noalias() = oMc.rotation() * coriolis_centrifugal_acc_local;
           // ANGULAR
           coriolis_centrifugal_acc.angular() = data.oa[joint1_id].angular();
           
@@ -270,7 +271,7 @@ namespace pinocchio
           // LINEAR
           coriolis_centrifugal_acc.linear() = coriolis_centrifugal_acc_local;
           // ANGULAR
-          coriolis_centrifugal_acc.angular().noalias() = oMcontact.rotation().transpose() * data.oa[joint1_id].angular();
+          coriolis_centrifugal_acc.angular().noalias() = oMc.rotation().transpose() * data.oa[joint1_id].angular();
           
           break;
         }
@@ -700,16 +701,13 @@ namespace pinocchio
         
         const typename Model::JointIndex & joint1_id = cmodel.joint1_id;
         
-        const SE3 & oMc = data.oMf[frame_id];
+        const SE3 & oMc = cdata.contact_placement;
+        
         // Update contact force value
         if(cmodel.type == CONTACT_3D)
-        {
           cdata.contact_force.linear().noalias() += settings.mu * cdata.contact_acceleration_deviation.linear();
-        }
         else
-        {
           cdata.contact_force.toVector().noalias() += settings.mu * cdata.contact_acceleration_deviation.toVector();
-        }
 
         // Add the contribution of the constraints to the force vector
         const Motion & contact_acceleration_drift = cdata.contact_acceleration_drift;
