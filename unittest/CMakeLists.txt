@@ -61,6 +61,7 @@ ADD_PINOCCHIO_UNIT_TEST(joint-jacobian)
 ADD_PINOCCHIO_UNIT_TEST(cholesky)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics)
+ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(sample-models)
 ADD_PINOCCHIO_UNIT_TEST(kinematics)
 
@@ -141,6 +142,7 @@ ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives)
 
 # Multiprecision arithmetic
 IF(BUILD_ADVANCED_TESTING)

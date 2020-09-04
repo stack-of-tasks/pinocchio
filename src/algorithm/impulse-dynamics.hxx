@@ -87,26 +87,26 @@ namespace pinocchio
       // Update contact placement
       oMc = oMi * contact_model.joint1_placement;
 
-      Motion post_impact_velocity;
+      Motion pre_impact_velocity;
       switch(contact_model.reference_frame)
       {
         case WORLD:
         {
           //Temporary assignment
-          post_impact_velocity = data.ov[joint1_id];
+          pre_impact_velocity = data.ov[joint1_id];
           break;
         }
         case LOCAL_WORLD_ALIGNED:
         {
           //Temporary assignment
-          post_impact_velocity = data.ov[joint1_id];
-          post_impact_velocity.linear() -= oMc.translation().cross(data.ov[joint1_id].angular());
+          pre_impact_velocity = data.ov[joint1_id];
+          pre_impact_velocity.linear() -= oMc.translation().cross(data.ov[joint1_id].angular());
           break;
         }
         case LOCAL:
         {
           //Temporary assignment
-          post_impact_velocity = oMc.actInv(data.ov[joint1_id]);
+          pre_impact_velocity = oMc.actInv(data.ov[joint1_id]);
           break;
         }
         default:
@@ -117,10 +117,10 @@ namespace pinocchio
       switch(contact_model.type)
       {
         case CONTACT_3D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*post_impact_velocity.linear();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.linear();
           break;
         case CONTACT_6D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*post_impact_velocity.toVector();
+          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.toVector();
           break;
         default:
           assert(false && "must never happened");

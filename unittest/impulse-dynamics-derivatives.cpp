@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),WORLD);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -173,8 +173,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_WORLD_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),WORLD);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -261,8 +261,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -349,8 +349,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),LOCAL_WORLD_ALIGNED);
-  RigidContactModel ci_RF(CONTACT_3D,model.getFrameId(RF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
