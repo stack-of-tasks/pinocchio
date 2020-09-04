@@ -20,8 +20,65 @@ namespace pinocchio
   namespace python
   {
   
+    // Forward declaration
+    template<typename vector_type, bool NoProxy = false>
+    struct StdContainerFromPythonList;
+  
     namespace details
     {
+      /// \brief Check if a PyObject can be converted to an std::vector<T>.
+      template<typename T>
+      bool from_python_list(PyObject * obj_ptr,T *)
+      {
+        namespace bp = ::boost::python;
+        
+        // Check if it is a list
+        if(!PyList_Check(obj_ptr)) return false;
+        
+        // Retrieve the underlying list
+        bp::object bp_obj(bp::handle<>(bp::borrowed(obj_ptr)));
+        bp::list bp_list(bp_obj);
+        bp::ssize_t list_size = bp::len(bp_list);
+        
+        // Check if all the elements contained in the current vector is of type T
+        for(bp::ssize_t k = 0; k < list_size; ++k)
+        {
+          bp::extract<T> elt(bp_list[k]);
+          if(!elt.check()) return false;
+        }
+        
+        return true;
+      }
+    
+      template<typename vector_type, bool NoProxy>
+      struct build_list
+      {
+        static ::boost::python::list run(vector_type & vec)
+        {
+          namespace bp = ::boost::python;
+          
+          bp::list bp_list;
+          typedef typename vector_type::iterator iterator;
+          for(iterator it = vec.begin(); it != vec.end(); ++it)
+          {
+            bp_list.append(boost::ref(*it));
+          }
+          return bp_list;
+        }
+      };
+    
+      template<typename vector_type>
+      struct build_list<vector_type,true>
+      {
+        static ::boost::python::list run(vector_type & vec)
+        {
+          namespace bp = ::boost::python;
+          
+          typedef bp::iterator<vector_type> iterator;
+          return bp::list(iterator()(vec));
+        }
+      };
+    
       template<typename Container>
       struct overload_base_get_item_for_std_vector
       : public boost::python::def_visitor< overload_base_get_item_for_std_vector<Container> >
@@ -80,7 +137,76 @@ namespace pinocchio
           return index_type();
         }
       };
+    } // namespace details
+  
+}} // namespace pinocchio::python
+
+namespace boost { namespace python { namespace converter {
+
+  template<typename Type, class Allocator>
+  struct reference_arg_from_python<std::vector<Type,Allocator> &>
+  : arg_lvalue_from_python_base
+  {
+    typedef std::vector<Type,Allocator> vector_type;
+    typedef vector_type & ref_vector_type;
+    typedef ref_vector_type result_type;
+    
+    reference_arg_from_python(PyObject* py_obj)
+    : arg_lvalue_from_python_base(converter::get_lvalue_from_python(py_obj,
+                                                                    registered<vector_type>::converters))
+    , m_data(NULL)
+    , m_source(py_obj)
+    , vec_ptr(NULL)
+    {
+      if(result() != 0) // we have found a lvalue converter
+        return;
+      
+      // Check if py_obj is a py_list, which can then be converted to an std::vector
+      bool is_convertible = ::pinocchio::python::details::from_python_list(py_obj,(Type*)(0));
+      if(!is_convertible)
+        return;
+      
+      typedef ::pinocchio::python::StdContainerFromPythonList<vector_type> Constructor;
+      Constructor::construct(py_obj,&m_data.stage1);
+      
+      void * & m_result = const_cast<void * &>(result());
+      m_result = m_data.stage1.convertible;
+      vec_ptr = reinterpret_cast<vector_type*>(m_data.storage.bytes);
     }
+    
+    result_type operator()() const
+    {
+      return ::boost::python::detail::void_ptr_to_reference(result(),
+                                                            (result_type(*)())0);
+    }
+    
+    ~reference_arg_from_python()
+    {
+      if(m_data.stage1.convertible == m_data.storage.bytes)
+      {
+        // Copy back the reference
+        const vector_type & vec = *vec_ptr;
+        list bp_list(handle<>(borrowed(m_source)));
+        for(size_t i = 0; i < vec.size(); ++i)
+        {
+          Type & elt = extract<Type &>(bp_list[i]);
+          elt = vec[i];
+        }
+      }
+    }
+      
+   private:
+    rvalue_from_python_data<ref_vector_type> m_data;
+    PyObject* m_source;
+    vector_type * vec_ptr;
+  };
+
+}}} // boost::python::converter
+
+namespace pinocchio
+{
+  namespace python
+  {
   
     ///
     /// \brief Register the conversion from a Python list to a std::vector

@@ -317,7 +317,7 @@ namespace pinocchio
       {
         typedef typename Model::ConfigVectorMap ConfigVectorMap;
         typedef bp::map_indexing_suite<ConfigVectorMap,false> map_indexing_suite;
-        StdVectorPythonVisitor<Index>::expose("StdVec_Index");
+        StdVectorPythonVisitor<Index,std::allocator<Index>,true>::expose("StdVec_Index");
         StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
         StdVectorPythonVisitor<bool,std::allocator<bool>,true>::expose("StdVec_Bool");

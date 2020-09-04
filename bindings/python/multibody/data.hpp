@@ -194,7 +194,7 @@ namespace pinocchio
         .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
         StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
         .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
-        StdVectorPythonVisitor<int>::expose("StdVec_int");
+        StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
       }
 
     };

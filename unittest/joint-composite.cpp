@@ -113,7 +113,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite2.calc(jdata_composite2,q,v);
   
   Inertia::Matrix6 I3 = I0;
-  jmodel_composite2.calc_aba(jdata_composite2,I3,true);
+  jmodel_composite2.calc_aba(jdata_composite2,armature,I3,true);
   
   if(jmodel.shortname() == "JointModelFreeFlyer")
     BOOST_CHECK((I3-I2).lpNorm<Eigen::Infinity>() < prec);
