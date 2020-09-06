@@ -28,9 +28,9 @@ namespace pinocchio
     }
   
     template<typename Matrix>
-    PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix) make_copy(const Eigen::MatrixBase<Matrix> & mat)
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix) make_copy(const Eigen::MatrixBase<Matrix> & mat)
     {
-      typedef PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix) ReturnType;
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix) ReturnType;
       return ReturnType(mat);
     }
   
