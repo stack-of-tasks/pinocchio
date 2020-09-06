@@ -29,7 +29,7 @@ class TestSpatial(PinocchioTestCase):
 
     def skewSquare(self):
         v3 = rand(3)
-  
+
         Mss = skewSquare(v3)
 
         Ms = skew(v3)

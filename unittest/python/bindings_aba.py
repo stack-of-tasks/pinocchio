@@ -2,8 +2,6 @@ import unittest
 from test_case import PinocchioTestCase as TestCase
 
 import pinocchio as pin
-
-from pinocchio.utils import rand, zero
 import numpy as np
 
 class TestABA(TestCase):
@@ -18,7 +16,7 @@ class TestABA(TestCase):
         self.ddq = np.random.rand(self.model.nv)
 
         self.fext = []
-        for k in range(self.model.njoints):
+        for _ in range(self.model.njoints):
           self.fext.append(pin.Force.Random())
 
     def test_aba(self):
@@ -26,7 +24,7 @@ class TestABA(TestCase):
         ddq = pin.aba(self.model,self.data,self.q,self.v,self.ddq)
 
         null_fext = pin.StdVec_Force()
-        for k in range(model.njoints):
+        for _ in range(model.njoints):
           null_fext.append(pin.Force.Zero())
 
         ddq_null_fext = pin.aba(self.model,self.data,self.q,self.v,self.ddq,null_fext)
@@ -41,7 +39,6 @@ class TestABA(TestCase):
         self.assertApprox(ddq_null_fext_list,ddq)
 
     def test_computeMinverse(self):
-        
         model = self.model
         Minv = pin.computeMinverse(model,self.data,self.q)
 
@@ -49,6 +46,6 @@ class TestABA(TestCase):
         M = pin.crba(model,data2,self.q)
 
         self.assertApprox(np.linalg.inv(M),Minv)
-    
+
 if __name__ == '__main__':
     unittest.main()

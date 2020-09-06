@@ -1,7 +1,7 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
+
 import pinocchio as pin
-from pinocchio.utils import rand, zero
 import numpy as np
 
 class TestDeriavtives(TestCase):
@@ -15,13 +15,12 @@ class TestDeriavtives(TestCase):
         self.v = np.random.rand((self.model.nv))
         self.a = np.random.rand((self.model.nv))
 
-
     def test_centroidal_derivatives(self):
-        
+
         res = pin.computeCentroidalDynamicsDerivatives(self.model,self.data,self.q,self.v,self.a)
 
         self.assertTrue(len(res) == 4)
-        
+
         data2 = self.model.createData()
         pin.computeCentroidalMomentumTimeVariation(self.model,data2,self.q,self.v,self.a)
 
@@ -34,6 +33,6 @@ class TestDeriavtives(TestCase):
 
         for k in range(4):
             self.assertApprox(res[k],res2[k])
-      
+
 if __name__ == '__main__':
     unittest.main()

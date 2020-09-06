@@ -1,7 +1,7 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
+
 import pinocchio as pin
-from pinocchio.utils import rand, zero
 import numpy as np
 
 class TestDeriavtives(TestCase):
@@ -16,15 +16,14 @@ class TestDeriavtives(TestCase):
         self.tau = np.random.rand((self.model.nv))
 
         self.fext = []
-        for k in range(self.model.njoints):
+        for _ in range(self.model.njoints):
           self.fext.append(pin.Force.Random())
 
     def test_aba_derivatives(self):
-        
         res = pin.computeABADerivatives(self.model,self.data,self.q,self.v,self.tau)
 
         self.assertTrue(len(res) == 3)
-        
+
         data2 = self.model.createData()
         pin.aba(self.model,data2,self.q,self.v,self.tau)
 
@@ -34,7 +33,7 @@ class TestDeriavtives(TestCase):
         res = pin.computeABADerivatives(self.model,self.data,self.q,self.v,self.tau,self.fext)
 
         self.assertTrue(len(res) == 3)
-        
+
         pin.aba(self.model,data2,self.q,self.v,self.tau,self.fext)
 
         self.assertApprox(self.data.ddq,data2.ddq)
