@@ -21,6 +21,12 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_geometry_model
   bindings_rnea
   bindings_liegroups
+  
+  # Algo derivatives
+  bindings_forward_dynamics_derivatives
+  bindings_inverse_dynamics_derivatives
+  bindings_centroidal_dynamics_derivatives
+
   explog
   rpy
   utils
