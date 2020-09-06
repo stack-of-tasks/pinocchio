@@ -4,31 +4,37 @@
 
 SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings
+
+  # Multibody
+  bindings_joint_composite
   bindings_model
   bindings_data
+  bindings_geometry_model
+  bindings_liegroups
+
+  # Spatial
+  bindings_force
+  bindings_frame
+  bindings_inertia
+  bindings_spatial
+  bindings_motion
+  bindings_SE3
+  explog
+  rpy
+
+  # Algo
   bindings_com
   bindings_com_velocity_derivatives
   bindings_regressor
   bindings_dynamics
-  bindings_force
-  bindings_frame
   bindings_kinematics
-  bindings_inertia
-  bindings_spatial
-  bindings_joint_composite
-  bindings_motion
-  bindings_SE3
-  bindings_geometry_model
   bindings_rnea
-  bindings_liegroups
   
   # Algo derivatives
   bindings_forward_dynamics_derivatives
   bindings_inverse_dynamics_derivatives
   bindings_centroidal_dynamics_derivatives
 
-  explog
-  rpy
   utils
   serialization
   version
