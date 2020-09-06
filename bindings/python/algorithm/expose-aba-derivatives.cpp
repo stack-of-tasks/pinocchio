@@ -4,28 +4,41 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
+#include "pinocchio/bindings/python/utils/eigen.hpp"
+
+#include <eigenpy/eigen-to-python.hpp>
 
 namespace pinocchio
 {
   namespace python
   {
-    void computeABADerivativesDefault(const Model & model, Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v,
-                                      const Eigen::VectorXd & tau)
+  
+    namespace bp = boost::python;
+    bp::tuple computeABADerivativesDefault(const Model & model, Data & data,
+                                           const Eigen::VectorXd & q,
+                                           const Eigen::VectorXd & v,
+                                           const Eigen::VectorXd & tau)
     {
       computeABADerivatives(model,data,q,v,tau);
+      make_symmetric(data.Minv);
+      return bp::make_tuple(make_ref(data.ddq_dq),
+                            make_ref(data.ddq_dv),
+                            make_ref(data.Minv));
     }
   
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
   
-    void computeABADerivatives_fext(const Model & model, Data & data,
-                                    const Eigen::VectorXd & q,
-                                    const Eigen::VectorXd & v,
-                                    const Eigen::VectorXd & tau,
-                                    const ForceAlignedVector & fext)
+    bp::tuple computeABADerivatives_fext(const Model & model, Data & data,
+                                         const Eigen::VectorXd & q,
+                                         const Eigen::VectorXd & v,
+                                         const Eigen::VectorXd & tau,
+                                         const ForceAlignedVector & fext)
     {
       computeABADerivatives(model,data,q,v,tau,fext);
+      make_symmetric(data.Minv);
+      return bp::make_tuple(make_ref(data.ddq_dq),
+                            make_ref(data.ddq_dv),
+                            make_ref(data.Minv));
     }
 
     void exposeABADerivatives()
@@ -52,8 +65,7 @@ namespace pinocchio
               "Computes the ABA derivatives with external contact foces,\n"
               "store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
               "which correspond to the partial derivatives of the acceleration output with respect to the joint configuration,\n"
-              "velocity and torque vectors.\n"
-              "The forces are of type StdVec_Force.");
+              "velocity and torque vectors.\n");
     }
   } // namespace python
 } // namespace pinocchio

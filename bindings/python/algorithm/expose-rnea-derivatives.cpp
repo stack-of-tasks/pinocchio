@@ -4,12 +4,14 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/bindings/python/utils/eigen.hpp"
 
 namespace pinocchio
 {
   namespace python
   {
     
+    namespace bp = boost::python;
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
     
     Data::MatrixXs computeGeneralizedGravityDerivatives(const Model & model, Data & data,
@@ -31,27 +33,29 @@ namespace pinocchio
       return res;
     }
     
-    void computeRNEADerivatives(const Model & model, Data & data,
-                                const Eigen::VectorXd & q,
-                                const Eigen::VectorXd & v,
-                                const Eigen::VectorXd & a)
-    {
-      pinocchio::computeRNEADerivatives(model,data,q,v,a);
-      // Symmetrize M
-      data.M.triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-    }
-    
-    void computeRNEADerivatives_fext(const Model & model, Data & data,
+    bp::tuple computeRNEADerivatives(const Model & model, Data & data,
                                      const Eigen::VectorXd & q,
                                      const Eigen::VectorXd & v,
-                                     const Eigen::VectorXd & a,
-                                     const ForceAlignedVector & fext)
+                                     const Eigen::VectorXd & a)
+    {
+      pinocchio::computeRNEADerivatives(model,data,q,v,a);
+      make_symmetric(data.M);
+      return bp::make_tuple(make_ref(data.dtau_dq),
+                            make_ref(data.dtau_dv),
+                            make_ref(data.M));
+    }
+    
+    bp::tuple computeRNEADerivatives_fext(const Model & model, Data & data,
+                                          const Eigen::VectorXd & q,
+                                          const Eigen::VectorXd & v,
+                                          const Eigen::VectorXd & a,
+                                          const ForceAlignedVector & fext)
     {
       pinocchio::computeRNEADerivatives(model,data,q,v,a,fext);
-      // Symmetrize M
-      data.M.triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+      make_symmetric(data.M);
+      return bp::make_tuple(make_ref(data.dtau_dq),
+                            make_ref(data.dtau_dv),
+                            make_ref(data.M));
     }
     
     void exposeRNEADerivatives()

@@ -10,6 +10,8 @@
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
 
+#include <eigenpy/eigen-to-python.hpp>
+
 namespace pinocchio
 {
   namespace python
@@ -30,11 +32,10 @@ namespace pinocchio
     {
       return cl
                .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
-               .def(bp::init<Eigen::Vector3d> (bp::args("axis"), "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
-               .add_property("axis",
-                             make_getter(&JointModelRevoluteUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
-                             make_setter(&JointModelRevoluteUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
-                             "Rotation axis of the JointModelRevoluteUnaligned.")
+               .def(bp::init<Eigen::Vector3d> (bp::args("axis"),
+                                               "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
+               .def_readwrite("axis",&JointModelRevoluteUnaligned::axis,
+                              "Rotation axis of the JointModelRevoluteUnaligned.")
                ;
     }
 
@@ -43,12 +44,12 @@ namespace pinocchio
     inline bp::class_<JointModelPrismaticUnaligned>& expose_joint_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
     {
       return cl
-               .def(bp::init<double, double, double> (bp::args("x", "y", "z"), "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
-               .def(bp::init<Eigen::Vector3d> (bp::args("axis"), "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
-               .add_property("axis",
-                             make_getter(&JointModelPrismaticUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
-                             make_setter(&JointModelPrismaticUnaligned::axis, bp::return_value_policy<bp::return_by_value>()),
-                             "Translation axis of the JointModelPrismaticUnaligned.")
+               .def(bp::init<double, double, double> (bp::args("x", "y", "z"),
+                                                      "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
+               .def(bp::init<Eigen::Vector3d> (bp::args("axis"),
+                                               "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+               .def_readwrite("axis",&JointModelPrismaticUnaligned::axis,
+                              "Translation axis of the JointModelPrismaticUnaligned.")
                ;
     }
 
