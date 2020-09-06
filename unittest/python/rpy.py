@@ -26,5 +26,19 @@ class TestRPY(TestCase):
         self.assertApprox(matrixToRpy(rpyToMatrix(rpy)), rpy)
         self.assertApprox(rpyToMatrix(rpy), rpyToMatrix(float(rpy[0]), float(rpy[1]), float(rpy[2])))
 
+        try:
+            rotate('toto',10.)
+        except ValueError:
+          self.assertTrue(True)
+        else:
+          self.assertTrue(False)
+
+        try:
+            rotate('w',10.)
+        except ValueError:
+          self.assertTrue(True)
+        else:
+          self.assertTrue(False)
+
 if __name__ == '__main__':
     unittest.main()
