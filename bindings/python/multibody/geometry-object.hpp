@@ -7,6 +7,7 @@
 
 #include <boost/python.hpp>
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -45,11 +46,8 @@ namespace pinocchio
               bp::args("self","otherGeometryObject"),
               "Copy constructor"
               ))
-        .add_property("meshScale",
-                      bp::make_getter(&GeometryObject::meshScale,
-                                      bp::return_value_policy<bp::return_by_value>()),
-                      bp::make_setter(&GeometryObject::meshScale),
-                      "Scaling parameter of the mesh.")
+        .def_readwrite("meshScale",&GeometryObject::meshScale,
+                       "Scaling parameter of the mesh.")
         .add_property("meshColor",
                       bp::make_getter(&GeometryObject::meshColor,
                                       bp::return_value_policy<bp::return_by_value>()),

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.random import rand
 
 import pinocchio as pin
-from pinocchio import skew, unSkew
+from pinocchio import skew, unSkew, skewSquare
 
 from test_case import PinocchioTestCase
 
@@ -26,6 +26,16 @@ class TestSpatial(PinocchioTestCase):
 
         x, y, z = tuple(v3.tolist())
         self.assertApprox(skew(v3), np.array([[0, -z, y], [z, 0, -x], [-y, x, 0]]))
+
+    def skewSquare(self):
+        v3 = rand(3)
+
+        Mss = skewSquare(v3)
+
+        Ms = skew(v3)
+        Mss_ref = Ms.dot(Ms)
+
+        self.assertApprox(Mss,Mss_ref)
 
 if __name__ == '__main__':
     unittest.main()

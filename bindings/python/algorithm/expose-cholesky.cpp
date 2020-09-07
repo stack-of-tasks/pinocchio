@@ -11,13 +11,6 @@ namespace pinocchio
   namespace python
   {
     
-    Data::RowMatrixXs computeMinv(const Model & model, const Data & data)
-    {
-      Data::RowMatrixXs res(model.nv,model.nv);
-      pinocchio::cholesky::computeMinv(model,data,res);
-      return res;
-    }
-    
     void exposeCholesky()
     {
       using namespace Eigen;
@@ -46,12 +39,6 @@ namespace pinocchio
                 "Returns the inverse of the inverse of the joint space inertia matrix using the results of the Cholesky decomposition\n"
                 "performed by cholesky.decompose. The result is stored in data.Minv.",
                 bp::return_value_policy<bp::return_by_value>());
-        
-        bp::def("computeMinv",
-                &computeMinv,
-                bp::args("Model","Data"),
-                "Returns the inverse of the inverse of the joint space inertia matrix using the results of the Cholesky decomposition\n"
-                "performed by cholesky.decompose.");
       }
       
     }

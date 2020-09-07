@@ -8,8 +8,10 @@ class TestLiegroupBindings(unittest.TestCase):
         R3 = pin.liegroups.R3()
         SO3 = pin.liegroups.SO3()
         R3xSO3 = R3 * SO3
+        R10 = pin.liegroups.Rn(10)
 
         self.assertEqual(R3.name, "R^3")
+        self.assertEqual(R10.name, "R^10")
         self.assertEqual(SO3.name, "SO(3)")
         self.assertEqual(R3xSO3.name, R3.name + " x " + SO3.name)
 
