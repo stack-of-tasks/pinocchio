@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -356,6 +356,31 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   }
 
   BOOST_CHECK(Jfd.isApprox(Jlog, sqrt(step)));
+}
+
+BOOST_AUTO_TEST_CASE(Jexp6_fd)
+{
+  SE3 M(SE3::Random());
+
+  const Motion v = log6(M);
+
+  SE3::Matrix6 Jexp_fd, Jexp;
+
+  Jexp6(Motion::Zero(), Jexp);
+  BOOST_CHECK(Jexp.isIdentity());
+
+  Jexp6(v, Jexp);
+
+  Motion::Vector6 dv; dv.setZero();
+  const double eps = 1e-8;
+  for (int i = 0; i < 6; ++i)
+  {
+    dv[i] = eps;
+    SE3 M_next = exp6(v+Motion(dv));
+    Jexp_fd.col(i) = log6(M.actInv(M_next)).toVector() / eps;
+    dv[i] = 0;
+  }
+  BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog6)
