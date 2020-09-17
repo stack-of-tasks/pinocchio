@@ -165,7 +165,7 @@ namespace pinocchio
   inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const bool computeSubtreeComs = true)
-  { centerOfMass(model,data,2,computeSubtreeComs); }
+  { centerOfMass(model,data,ACCELERATION,computeSubtreeComs); }
 
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
