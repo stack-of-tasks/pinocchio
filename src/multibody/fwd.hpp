@@ -48,6 +48,16 @@ namespace pinocchio
     LOCAL_WORLD_ALIGNED = 2 ///<  The LOCAL_WORLD_ALIGNED frame convention corresponds to the frame centered on the moving part (Joint, Frame, etc.) but with axes aligned with the frame of the Universe. This a MIXED representation betwenn the LOCAL and the WORLD conventions.
   };
 
+  ///
+  /// \brief List of Kinematics Level supported by Pinocchio.
+  ///
+  enum KinematicLevel
+  {
+    POSITION = 0, ///<  Refers to the quantities related to the 0-order kinematics (joint placements, center of mass position, etc.).
+    VELOCITY = 1, ///<  Refers to the quantities related to the 1st-order kinematics (joint velocities, center of mass velocity, etc.).
+    ACCELERATION = 2 ///<  Refers to the quantities related to the 2nd-order kinematics (joint accelerations, center of mass acceleration, etc.).
+  };
+
   /**
    * @}
    */
