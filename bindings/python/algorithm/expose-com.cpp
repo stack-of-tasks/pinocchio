@@ -67,8 +67,8 @@ namespace pinocchio
 
     static void
     com_default_proxy(const Model & model,
-                Data & data,
-                bool computeSubtreeComs = true)
+                      Data & data,
+                      bool computeSubtreeComs = true)
     {
       centerOfMass(model,data,computeSubtreeComs);
     }
@@ -114,6 +114,7 @@ namespace pinocchio
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_2_overload, com_2_proxy, 5, 6)
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_level_overload, com_level_proxy, 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(com_level_overload_deprecated_signature, com_level_proxy_deprecated_signature, 3, 4)
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(com_default_overload, com_default_proxy, 2, 3)
 
@@ -186,7 +187,7 @@ namespace pinocchio
 
       bp::def("centerOfMass",
               com_level_proxy_deprecated_signature,
-              com_level_overload(
+              com_level_overload_deprecated_signature(
                   bp::args("Model","Data",
                            "kinematic_level",
                            "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"
