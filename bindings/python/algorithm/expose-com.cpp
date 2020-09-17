@@ -49,10 +49,10 @@ namespace pinocchio
     static void
     com_level_proxy(const Model & model,
                     Data & data,
-                    int LEVEL,
+                    const KinematicLevel kinematic_level,
                     bool computeSubtreeComs = true)
     {
-      centerOfMass(model,data,LEVEL,computeSubtreeComs);
+      centerOfMass(model,data,kinematic_level,computeSubtreeComs);
     }
 
     static void
@@ -166,11 +166,12 @@ namespace pinocchio
               com_level_proxy,
               com_level_overload(
                   bp::args("Model","Data",
-                           "level if = 0, computes CoM position, if = 1, also computes CoM velocity and if = 2, also computes CoM acceleration",
+                           "kinematic_level",
                            "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"
                   ),
-                  "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested level."
-              )[bp::return_value_policy<bp::return_by_value>()]
+                                 "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
+                                 "If kinematic_level = POSITION, computes the CoM position, if kinematic_level = VELOCITY, also computes the CoM velocity and if kinematic_level = ACCELERATION, it also computes the CoM acceleration."
+                                 )[bp::return_value_policy<bp::return_by_value>()]
       );
 
       bp::def("centerOfMass",
