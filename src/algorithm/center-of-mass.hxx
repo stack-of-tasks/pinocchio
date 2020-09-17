@@ -102,7 +102,7 @@ namespace pinocchio
                            const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(kinematic_level >= 0 && kinematic_level <= 0);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(kinematic_level >= 0 && kinematic_level <= 2);
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
