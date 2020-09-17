@@ -98,7 +98,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const KinematicLevel kinematic_level,
+                           KinematicLevel kinematic_level,
                            const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");

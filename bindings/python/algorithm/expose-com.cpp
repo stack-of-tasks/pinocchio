@@ -49,7 +49,7 @@ namespace pinocchio
     static void
     com_level_proxy(const Model & model,
                     Data & data,
-                    const KinematicLevel kinematic_level,
+                    KinematicLevel kinematic_level,
                     bool computeSubtreeComs = true)
     {
       centerOfMass(model,data,kinematic_level,computeSubtreeComs);

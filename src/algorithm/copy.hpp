@@ -27,7 +27,17 @@ namespace pinocchio
   copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
        DataTpl<Scalar,Options,JointCollectionTpl> & dest,
-       const KinematicLevel kinematic_level);
+       KinematicLevel kinematic_level);
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED inline void
+  copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
+       DataTpl<Scalar,Options,JointCollectionTpl> & dest,
+       int kinematic_level)
+  {
+    copy(model,origin,dest,static_cast<KinematicLevel>(kinematic_level));
+  }
 
 } // namespace pinocchio 
 
@@ -42,7 +52,7 @@ namespace pinocchio
   copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
        DataTpl<Scalar,Options,JointCollectionTpl> & dest,
-       const KinematicLevel kinematic_level)
+       KinematicLevel kinematic_level)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;

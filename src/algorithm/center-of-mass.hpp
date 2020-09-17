@@ -137,8 +137,18 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const KinematicLevel kinematic_level,
+                           KinematicLevel kinematic_level,
                            const bool computeSubtreeComs = true);
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED
+  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           int kinematic_level,
+                           const bool computeSubtreeComs = true)
+  {
+    return centerOfMass(model,data,static_cast<KinematicLevel>(kinematic_level),computeSubtreeComs);
+  }
 
   ///
   /// \brief Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data.
