@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/algorithm/center-of-mass.hpp"
 
 #include <boost/python/overloads.hpp>
@@ -53,6 +54,15 @@ namespace pinocchio
                     bool computeSubtreeComs = true)
     {
       centerOfMass(model,data,kinematic_level,computeSubtreeComs);
+    }
+
+    static void
+    com_level_proxy_deprecated_signature(const Model & model,
+                                         Data & data,
+                                         int kinematic_level,
+                                         bool computeSubtreeComs = true)
+    {
+      centerOfMass(model,data,static_cast<KinematicLevel>(kinematic_level),computeSubtreeComs);
     }
 
     static void
@@ -171,7 +181,19 @@ namespace pinocchio
                   ),
                                  "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
                                  "If kinematic_level = POSITION, computes the CoM position, if kinematic_level = VELOCITY, also computes the CoM velocity and if kinematic_level = ACCELERATION, it also computes the CoM acceleration."
-                                 )[bp::return_value_policy<bp::return_by_value>()]
+                                 )
+      );
+
+      bp::def("centerOfMass",
+              com_level_proxy_deprecated_signature,
+              com_level_overload(
+                  bp::args("Model","Data",
+                           "kinematic_level",
+                           "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"
+                  ),
+                                 "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
+                                 "If kinematic_level = 0, computes the CoM position, if kinematic_level = 1, also computes the CoM velocity and if kinematic_level = 2, it also computes the CoM acceleration."
+                                 )[deprecated_function<>()]
       );
 
       bp::def("centerOfMass",
