@@ -1,7 +1,7 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
-from pinocchio.utils import rand, zero
+from pinocchio.utils import rand
 import numpy as np
 
 class TestComBindings(TestCase):
@@ -40,21 +40,30 @@ class TestComBindings(TestCase):
 
     def test_com_0(self):
         c0 = pin.centerOfMass(self.model,self.data,self.q)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
         pin.forwardKinematics(self.model,data2,self.q)
-        pin.centerOfMass(self.model,data2,0)
+        pin.centerOfMass(self.model,data2,pin.POSITION)
 
         self.assertApprox(c0,data2.com[0])
         self.assertApprox(self.data.com[0],data2.com[0])
 
     def test_com_1(self):
         v = rand(self.model.nv)
-        pin.centerOfMass(self.model,self.data,self.q,v)
+        c0 = pin.centerOfMass(self.model,self.data,self.q,v)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,v,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
         pin.forwardKinematics(self.model,data2,self.q,v)
-        pin.centerOfMass(self.model,data2,1)
+        c0 = pin.centerOfMass(self.model,data2,pin.VELOCITY)
+        c0_bis = pin.centerOfMass(self.model,data2,pin.VELOCITY,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data3 = self.model.createData()
         pin.centerOfMass(self.model,data3,self.q)
@@ -67,11 +76,17 @@ class TestComBindings(TestCase):
     def test_com_2(self):
         v = rand(self.model.nv)
         a = rand(self.model.nv)
-        pin.centerOfMass(self.model,self.data,self.q,v,a)
+        c0 = pin.centerOfMass(self.model,self.data,self.q,v,a)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,v,a,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
         pin.forwardKinematics(self.model,data2,self.q,v,a)
-        pin.centerOfMass(self.model,data2,2)
+        c0 = pin.centerOfMass(self.model,data2,pin.ACCELERATION)
+        c0_bis = pin.centerOfMass(self.model,data2,pin.ACCELERATION,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data3 = self.model.createData()
         pin.centerOfMass(self.model,data3,self.q)
