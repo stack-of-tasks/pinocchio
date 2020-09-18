@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_center_of_mass_hpp__
-#define __pinocchio_center_of_mass_hpp__
+#ifndef __pinocchio_algorithm_center_of_mass_hpp__
+#define __pinocchio_algorithm_center_of_mass_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -135,10 +135,11 @@ namespace pinocchio
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           KinematicLevel kinematic_level,
-                           const bool computeSubtreeComs = true);
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               KinematicLevel kinematic_level,
+               const bool computeSubtreeComs = true);
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   PINOCCHIO_DEPRECATED
@@ -147,7 +148,7 @@ namespace pinocchio
                            int kinematic_level,
                            const bool computeSubtreeComs = true)
   {
-    return centerOfMass(model,data,static_cast<KinematicLevel>(kinematic_level),computeSubtreeComs);
+    centerOfMass(model,data,static_cast<KinematicLevel>(kinematic_level),computeSubtreeComs);
   }
 
   ///
@@ -162,10 +163,11 @@ namespace pinocchio
   /// \param[in] computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees, expressed in the local coordinate frame of each joint.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const bool computeSubtreeComs = true)
-  { centerOfMass(model,data,ACCELERATION,computeSubtreeComs); }
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               const bool computeSubtreeComs = true)
+  { return centerOfMass(model,data,ACCELERATION,computeSubtreeComs); }
 
   ///
   /// \brief Computes both the jacobian and the the center of mass position of a given model according to a particular joint configuration.
@@ -317,4 +319,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/center-of-mass.hxx"
 
-#endif // ifndef __pinocchio_center_of_mass_hpp__
+#endif // ifndef __pinocchio_algorithm_center_of_mass_hpp__
