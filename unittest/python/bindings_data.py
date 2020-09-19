@@ -20,8 +20,8 @@ class TestData(TestCase):
 
     def test_std_vector_field(self):
         model = self.model
-        data = self.data        
-        
+        data = self.data
+
         q = pin.neutral(model)
         pin.centerOfMass(model,data,q)
 
@@ -44,7 +44,7 @@ class TestData(TestCase):
         filename = "data.pickle"
         with open(filename, 'wb') as f:
           pickle.dump(data,f)
-    
+
         with open(filename, 'rb') as f:
           data_copy = pickle.load(f)
 
