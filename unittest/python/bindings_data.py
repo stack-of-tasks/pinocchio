@@ -18,6 +18,25 @@ class TestData(TestCase):
         data3 = data2.copy()
         self.assertEqual(data2.oMi[jointId], data3.oMi[jointId])
 
+    def test_std_vector_field(self):
+        model = self.model
+        data = self.data
+
+        q = pin.neutral(model)
+        pin.centerOfMass(model,data,q)
+
+        com_list = data.com.tolist()
+        com = data.com[0]
+        with self.assertRaises(Exception) as context:
+          data.com[len(data.com)+10]
+
+        self.assertTrue('Index out of range' in str(context.exception))
+
+        with self.assertRaises(Exception) as context:
+          data.com['1']
+
+        self.assertTrue('Invalid index type' in str(context.exception))
+
     def test_pickle(self):
         import pickle
 
@@ -25,7 +44,7 @@ class TestData(TestCase):
         filename = "data.pickle"
         with open(filename, 'wb') as f:
           pickle.dump(data,f)
-    
+
         with open(filename, 'rb') as f:
           data_copy = pickle.load(f)
 

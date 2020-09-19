@@ -32,6 +32,8 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_aba
   
   # Algo derivatives
+  bindings_kinematics_derivatives
+  bindings_frame_derivatives
   bindings_forward_dynamics_derivatives
   bindings_inverse_dynamics_derivatives
   bindings_centroidal_dynamics_derivatives
