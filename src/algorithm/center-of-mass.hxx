@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_center_of_mass_hxx__
-#define __pinocchio_center_of_mass_hxx__
+#ifndef __pinocchio_algorithm_center_of_mass_hxx__
+#define __pinocchio_algorithm_center_of_mass_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -62,8 +62,7 @@ namespace pinocchio
   {
     forwardKinematics(model,data,q.derived());
 
-    const int LEVEL = 0;
-    centerOfMass(model,data,LEVEL,computeSubtreeComs);
+    centerOfMass(model,data,POSITION,computeSubtreeComs);
     return data.com[0];
   }
 
@@ -77,8 +76,7 @@ namespace pinocchio
   {
     forwardKinematics(model,data,q.derived(),v.derived());
 
-    const int LEVEL = 1;
-    centerOfMass(model,data,LEVEL,computeSubtreeComs);
+    centerOfMass(model,data,VELOCITY,computeSubtreeComs);
     return data.com[0];
   }
 
@@ -93,19 +91,19 @@ namespace pinocchio
   {
     forwardKinematics(model,data,q,v,a);
 
-    const int LEVEL = 2;
-    centerOfMass(model,data,LEVEL,computeSubtreeComs);
+    centerOfMass(model,data,ACCELERATION,computeSubtreeComs);
     return data.com[0];
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const int LEVEL,
-                           const bool computeSubtreeComs)
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+               KinematicLevel kinematic_level,
+               const bool computeSubtreeComs)
   {
     assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(LEVEL >= 0);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(kinematic_level >= 0 && kinematic_level <= 2);
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -116,9 +114,9 @@ namespace pinocchio
     typedef typename Data::Motion Motion;
     typedef typename Data::Inertia Inertia;
 
-    const bool do_position = (LEVEL>=0);
-    const bool do_velocity = (LEVEL>=1);
-    const bool do_acceleration = (LEVEL>=2);
+    const bool do_position = (kinematic_level >= POSITION);
+    const bool do_velocity = (kinematic_level >= VELOCITY);
+    const bool do_acceleration = (kinematic_level >= ACCELERATION);
 
     data.mass[0] = 0;
     if(do_position)
@@ -185,6 +183,8 @@ namespace pinocchio
       data.vcom[0] /= data.mass[0];
     if(do_acceleration)
       data.acom[0] /= data.mass[0];
+    
+    return data.com[0];
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -509,4 +509,4 @@ namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_center_of_mass_hxx__
+#endif // ifndef __pinocchio_algorithm_center_of_mass_hxx__

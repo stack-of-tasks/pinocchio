@@ -67,6 +67,13 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   .value("LOCAL_WORLD_ALIGNED",::pinocchio::LOCAL_WORLD_ALIGNED)
   .export_values()
   ;
+
+  bp::enum_< ::pinocchio::KinematicLevel >("KinematicLevel")
+  .value("POSITION",::pinocchio::POSITION)
+  .value("VELOCITY",::pinocchio::VELOCITY)
+  .value("ACCELERATION",::pinocchio::ACCELERATION)
+  .export_values()
+  ;
   
   bp::enum_< ::pinocchio::ArgumentPosition>("ArgumentPosition")
   .value("ARG0",::pinocchio::ARG0)

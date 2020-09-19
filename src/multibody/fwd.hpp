@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fwd_hpp__
@@ -38,11 +38,24 @@ namespace pinocchio
   struct GeometryModel;
   struct GeometryData;
   
+  ///
+  /// \brief List of Reference Frames supported by Pinocchio.
+  ///
   enum ReferenceFrame
   {
-    WORLD = 0,
-    LOCAL = 1,
-    LOCAL_WORLD_ALIGNED = 2
+    WORLD = 0, ///<  The WORLD frame convention corresponds to the frame concident with the Universe/Inertial frame but moving with the moving part (Joint, Frame, etc.).
+    LOCAL = 1, ///<  The LOCAL frame convention corresponds to the frame directly attached to the moving part (Joint, Frame, etc.) where the coordinates basis matches the local coordinates system associated with the moving part. It also called the BODY representation in the litterature.
+    LOCAL_WORLD_ALIGNED = 2 ///<  The LOCAL_WORLD_ALIGNED frame convention corresponds to the frame centered on the moving part (Joint, Frame, etc.) but with axes aligned with the frame of the Universe. This a MIXED representation betwenn the LOCAL and the WORLD conventions.
+  };
+
+  ///
+  /// \brief List of Kinematics Level supported by Pinocchio.
+  ///
+  enum KinematicLevel
+  {
+    POSITION = 0, ///<  Refers to the quantities related to the 0-order kinematics (joint placements, center of mass position, etc.).
+    VELOCITY = 1, ///<  Refers to the quantities related to the 1st-order kinematics (joint velocities, center of mass velocity, etc.).
+    ACCELERATION = 2 ///<  Refers to the quantities related to the 2nd-order kinematics (joint accelerations, center of mass acceleration, etc.).
   };
 
   /**

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_copy_hpp__
@@ -20,14 +20,24 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] orig  Data from which the values are copied.
   /// \param[out] dest  Data to which the values are copied
-  /// \param[in] LEVEL if =0, copy oMi. If =1, also copy v. If =2, also copy a, a_gf and f.
+  /// \param[in] kinematic_level if =0, copy oMi. If =1, also copy v. If =2, also copy a, a_gf and f.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void
   copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
        DataTpl<Scalar,Options,JointCollectionTpl> & dest,
-       int LEVEL);
+       KinematicLevel kinematic_level);
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  PINOCCHIO_DEPRECATED inline void
+  copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
+       DataTpl<Scalar,Options,JointCollectionTpl> & dest,
+       int kinematic_level)
+  {
+    copy(model,origin,dest,static_cast<KinematicLevel>(kinematic_level));
+  }
 
 } // namespace pinocchio 
 
@@ -42,27 +52,27 @@ namespace pinocchio
   copy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const DataTpl<Scalar,Options,JointCollectionTpl> & origin,
        DataTpl<Scalar,Options,JointCollectionTpl> & dest,
-       int LEVEL)
+       KinematicLevel kinematic_level)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(kinematic_level>=POSITION);
+    
     for(JointIndex jid=1; jid<(JointIndex)model.njoints; ++jid)
+    {
+      dest.oMi[jid]    = origin.oMi [jid];
+      if(kinematic_level >= VELOCITY)
       {
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(LEVEL>=0);
-
-        dest.oMi[jid]      = origin.oMi [jid];
-        if(LEVEL>=1) 
-          {
-            dest.v[jid]    = origin.v   [jid];
-          }
-        if(LEVEL>=2) 
-          {
-            dest.a[jid]    = origin.a   [jid];
-            dest.a_gf[jid] = origin.a_gf[jid];
-            dest.f[jid]    = origin.f   [jid];
-          }
+        dest.v[jid]    = origin.v   [jid];
       }
+      if(kinematic_level >= ACCELERATION)
+      {
+        dest.a[jid]    = origin.a   [jid];
+        dest.a_gf[jid] = origin.a_gf[jid];
+        dest.f[jid]    = origin.f   [jid];
+      }
+    }
   }
 
 
