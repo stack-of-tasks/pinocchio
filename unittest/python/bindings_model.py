@@ -82,7 +82,7 @@ class TestModel(TestCase):
         self.assertApprox(data.a_gf[0].np, -model.gravity.np)
         self.assertApprox(data.f[-1], model.inertias[-1] * data.a_gf[-1])
 
-    def test_map_fields(self):
+    def test_std_map_fields(self):
         model = self.model
         model.referenceConfigurations["neutral"] = pin.neutral(model)
 
