@@ -28,12 +28,14 @@ class TestData(TestCase):
         com_list = data.com.tolist()
         com = data.com[0]
         with self.assertRaises(Exception) as context:
-          data.com[len(data.com)+10]
+          com = data.com[len(data.com)+10]
+          print("com: ",com)
 
         self.assertTrue('Index out of range' in str(context.exception))
 
         with self.assertRaises(Exception) as context:
-          data.com['1']
+          com = data.com['1']
+          print("com: ",com)
 
         self.assertTrue('Invalid index type' in str(context.exception))
 
