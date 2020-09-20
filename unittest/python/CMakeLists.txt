@@ -24,12 +24,12 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
 
   # Algo
   bindings_com
-  bindings_com_velocity_derivatives
   bindings_regressor
   bindings_dynamics
   bindings_kinematics
   bindings_rnea
   bindings_aba
+  bindings_joints
   
   # Algo derivatives
   bindings_kinematics_derivatives
@@ -37,6 +37,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_forward_dynamics_derivatives
   bindings_inverse_dynamics_derivatives
   bindings_centroidal_dynamics_derivatives
+  bindings_com_velocity_derivatives
 
   utils
   serialization
