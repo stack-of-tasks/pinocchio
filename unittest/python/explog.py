@@ -56,6 +56,20 @@ class TestExpLog(TestCase):
         J = pin.Jlog6(m)
         self.assertApprox(J, eye(6))
 
+    def test_skew(self):
+        u = np.random.rand((3)) 
+        v = np.random.rand((3)) 
+
+        u_skew = pin.skew(u)
+        u_unskew = pin.unSkew(u_skew)
+
+        self.assertApprox(u,u_unskew)
+
+        v_skew = pin.skew(v)
+        u_v_square = pin.skewSquare(u,v)
+
+        self.assertApprox(u_v_square,u_skew.dot(v_skew))
+
     def test_explog(self):
         self.assertApprox(exp(42), math.exp(42))
         self.assertApprox(log(42), math.log(42))
