@@ -44,5 +44,21 @@ class TestJointsAlgo(TestCase):
 
         self.assertFalse(pin.isSameConfiguration(model,q_rand1,q_rand2,1e-8))
 
+    def test_derivatives(self):
+        model = self.model
+        
+        q = self.q
+        v = self.v
+
+        res = pin.dIntegrate(model,q,v)
+        res_0 = pin.dIntegrate(model,q,v,pin.ARG0)
+        res_1 = pin.dIntegrate(model,q,v,pin.ARG1)
+
+        q_next = pin.integrate(model,q,v)
+
+        res = pin.dDifference(model,q,q_next)
+        res_0 = pin.dDifference(model,q,q_next,pin.ARG0)
+        res_1 = pin.dDifference(model,q,q_next,pin.ARG1)
+
 if __name__ == '__main__':
     unittest.main()
