@@ -85,7 +85,7 @@ class TestModel(TestCase):
     def test_std_map_fields(self):
         model = self.model
         model.referenceConfigurations["neutral"] = pin.neutral(model)
-        q_neutral = model.referenceConfigurations["neutral"] 
+        q_neutral = model.referenceConfigurations["neutral"]
 
         q_neutral.fill(1.)
         self.assertApprox(model.referenceConfigurations["neutral"],q_neutral)
@@ -97,7 +97,7 @@ class TestModel(TestCase):
         filename = "model.pickle"
         with open(filename, 'wb') as f:
           pickle.dump(model,f)
-    
+
         with open(filename, 'rb') as f:
           model_copy = pickle.load(f)
 
