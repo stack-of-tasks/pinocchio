@@ -151,8 +151,9 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);
-  pinocchio::GeometryModel geomModel;
-  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::GeometryModel geomModel_collision, geomModel_visual;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel_collision, dir);
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::VISUAL, geomModel_visual, dir);
   
   BOOST_CHECK(model.nq == 38);
 }
