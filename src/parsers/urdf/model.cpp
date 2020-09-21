@@ -4,6 +4,7 @@
 //
 
 #include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/urdf/utils.hpp"
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -25,43 +26,29 @@ namespace pinocchio
       ///
       /// \return The converted Spatial Inertia pinocchio::Inertia.
       ///
-      inline Inertia convertFromUrdf (const ::urdf::Inertial & Y)
+      static Inertia convertFromUrdf(const ::urdf::Inertial & Y)
       {
         const ::urdf::Vector3 & p = Y.origin.position;
         const ::urdf::Rotation & q = Y.origin.rotation;
 
-        const Eigen::Vector3d com(p.x,p.y,p.z);
-        const Eigen::Matrix3d & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
+        const Inertia::Vector3 com(p.x,p.y,p.z);
+        const Inertia::Matrix3 & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
 
-        Eigen::Matrix3d I; I <<
-          Y.ixx,Y.ixy,Y.ixz,
-          Y.ixy,Y.iyy,Y.iyz,
-          Y.ixz,Y.iyz,Y.izz;
+        Inertia::Matrix3 I;
+        I << Y.ixx,Y.ixy,Y.ixz,
+             Y.ixy,Y.iyy,Y.iyz,
+             Y.ixz,Y.iyz,Y.izz;
         return Inertia(Y.mass,com,R*I*R.transpose());
       }
 
-      inline Inertia convertFromUrdf (const ::urdf::InertialSharedPtr & Y)
+      static Inertia convertFromUrdf(const ::urdf::InertialSharedPtr & Y)
       {
-        if (Y) return convertFromUrdf (*Y);
+        if (Y) return convertFromUrdf(*Y);
         return Inertia::Zero();
       }
 
-      ///
-      /// \brief Convert URDF Pose quantity to SE3.
-      ///
-      /// \param[in] M The input URDF Pose.
-      ///
-      /// \return The converted pose/transform pinocchio::SE3.
-      ///
-      inline SE3 convertFromUrdf (const ::urdf::Pose & M)
-      {
-        const ::urdf::Vector3 & p = M.position;
-        const ::urdf::Rotation & q = M.rotation;
-        return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
-      }
-
-      FrameIndex getParentLinkFrame(const ::urdf::LinkConstSharedPtr link,
-                                    UrdfVisitorBase& model)
+      static FrameIndex getParentLinkFrame(const ::urdf::LinkConstSharedPtr link,
+                                           UrdfVisitorBase & model)
       {
         PINOCCHIO_CHECK_INPUT_ARGUMENT(link && link->getParent());
         FrameIndex id = model.getBodyId(link->getParent()->name);
@@ -76,7 +63,7 @@ namespace pinocchio
       /// \param[in] model The model where the link must be added.
       ///
       void parseTree(::urdf::LinkConstSharedPtr link,
-                     UrdfVisitorBase& model)
+                     UrdfVisitorBase & model)
       {
         typedef UrdfVisitorBase::Scalar Scalar;
         typedef UrdfVisitorBase::SE3 SE3;

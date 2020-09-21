@@ -2,7 +2,9 @@ import unittest
 import pinocchio as pin
 import numpy as np
 
-class TestLiegroupBindings(unittest.TestCase):
+from test_case import PinocchioTestCase as TestCase
+
+class TestLiegroupBindings(TestCase):
 
     def test_basic(self):
         R3 = pin.liegroups.R3()
@@ -28,6 +30,13 @@ class TestLiegroupBindings(unittest.TestCase):
                     ]:
             q = lg.random()
             v = np.random.rand(lg.nv)
+
+            q_int = lg.integrate(q,v)
+
+            q_interpolate = lg.interpolate(q,q_int,0.5)
+
+            v_diff = lg.difference(q,q_int)
+            self.assertApprox(v,v_diff)
 
             J = lg.dIntegrate_dq(q, v)
 
@@ -70,6 +79,23 @@ class TestLiegroupBindings(unittest.TestCase):
 
                 J1 = lg.dDifference(q0, q1, arg, J0, SELF)
                 self.assertTrue(np.allclose(np.dot(J0, J),J1))
+
+    def test_dIntegrateTransport(self):
+        for lg in [ pin.liegroups.R3(),
+                    pin.liegroups.SO3(),
+                    pin.liegroups.SE3(),
+                    pin.liegroups.R3() * pin.liegroups.SO3(),
+                    ]:
+            q = lg.random()
+            v = np.random.rand(lg.nv)
+
+            for arg in [ pin.ARG0, pin.ARG1 ]:
+            
+                Jint = lg.dIntegrate(q, v, arg)
+                J0 = np.random.rand(lg.nv,lg.nv)
+                Jout1 = lg.dIntegrateTransport(q, v, J0, arg)
+                Jout1_ref = Jint.dot(J0)
+                self.assertApprox(Jout1,Jout1_ref)
 
 if __name__ == '__main__':
     unittest.main()

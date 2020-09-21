@@ -7,6 +7,7 @@ IF(BUILD_WITH_URDF_SUPPORT)
   SET(${PROJECT_NAME}_SOURCES
     parsers/urdf/model.cpp
     parsers/urdf/geometry.cpp
+    parsers/urdf/utils.cpp
   )
 ENDIF()
 
