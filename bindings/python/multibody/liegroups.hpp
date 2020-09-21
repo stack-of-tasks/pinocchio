@@ -92,6 +92,16 @@ struct LieGroupWrapperTpl
     }
     return J;
   }
+  
+  static JacobianMatrix_t dIntegrate(const LieGroupType& lg,
+                                     const ConfigVector_t& q,
+                                     const TangentVector_t& v,
+                                     const ArgumentPosition arg)
+  {
+    JacobianMatrix_t J(lg.nv(), lg.nv());
+    lg.dIntegrate(q, v, J, arg);
+    return J;
+  }
 
   static JacobianMatrix_t dIntegrate_dq1(const LieGroupType& lg,
       const ConfigVector_t& q, const TangentVector_t& v)
@@ -180,6 +190,7 @@ public:
     cl
     .def(bp::init<>("Default constructor"))
     .def("integrate", LieGroupWrapper::integrate)
+    .def("dIntegrate", LieGroupWrapper::dIntegrate)
     .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq1)
     .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq2)
     .def("dIntegrate_dq", LieGroupWrapper::dIntegrate_dq3)
