@@ -38,6 +38,11 @@ class TestDynamicsBindings(TestCase):
         ddq = pin.forwardDynamics(self.model,self.data,self.q,self.v0,self.tau0,self.J,self.gamma)
         self.assertLess(np.linalg.norm(ddq), self.tolerance)
 
+        KKT_inverse = pin.getKKTContactDynamicMatrixInverse(self.model,self.data,self.J)
+        M = pin.crba(self.model,self.model.createData(),self.q)
+
+        self.assertApprox(M,np.linalg.inv(KKT_inverse)[:self.model.nv,:self.model.nv])
+
         pin.computeAllTerms(self.model,data_no_q,self.q,self.v0)
         ddq_no_q = pin.forwardDynamics(self.model,data_no_q,self.tau0,self.J,self.gamma)
         self.assertLess(np.linalg.norm(ddq_no_q), self.tolerance)
