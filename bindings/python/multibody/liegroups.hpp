@@ -50,7 +50,7 @@ struct LieGroupWrapperTpl
       const ConfigVector_t& q0, const ConfigVector_t& q1,
       const ArgumentPosition arg)
   {
-    JacobianMatrix_t J (lg.nv(), lg.nv());
+    JacobianMatrix_t J(lg.nv(), lg.nv());
     lg.dDifference(q0, q1, J, arg);
     return J;
   }
@@ -60,7 +60,7 @@ struct LieGroupWrapperTpl
       const ArgumentPosition arg,
       const JacobianMatrix_t& Jin, int self)
   {
-    JacobianMatrix_t J (Jin.rows(), Jin.cols());
+    JacobianMatrix_t J(Jin.rows(), Jin.cols());
     switch (arg) {
       case ARG0:
         lg.template dDifference<ARG0>(q0, q1, Jin, self, J, SETTO);
@@ -79,7 +79,7 @@ struct LieGroupWrapperTpl
       const ArgumentPosition arg,
       int self, const JacobianMatrix_t& Jin)
   {
-    JacobianMatrix_t J (Jin.rows(), Jin.cols());
+    JacobianMatrix_t J(Jin.rows(), Jin.cols());
     switch (arg) {
       case ARG0:
         lg.template dDifference<ARG0>(q0, q1, self, Jin, J, SETTO);
@@ -106,7 +106,7 @@ struct LieGroupWrapperTpl
   static JacobianMatrix_t dIntegrate_dq1(const LieGroupType& lg,
       const ConfigVector_t& q, const TangentVector_t& v)
   {
-    JacobianMatrix_t J (lg.nv(), lg.nv());
+    JacobianMatrix_t J(lg.nv(), lg.nv());
     lg.dIntegrate_dq(q, v, J);
     return J;
   }
@@ -115,7 +115,7 @@ struct LieGroupWrapperTpl
       const ConfigVector_t& q, const TangentVector_t& v,
       const JacobianMatrix_t& Jin, int self)
   {
-    JacobianMatrix_t J (Jin.rows(), lg.nv());
+    JacobianMatrix_t J(Jin.rows(), lg.nv());
     lg.dIntegrate_dq(q, v, Jin, self, J, SETTO);
     return J;
   }
@@ -124,7 +124,7 @@ struct LieGroupWrapperTpl
       const ConfigVector_t& q, const TangentVector_t& v, int self,
       const JacobianMatrix_t& Jin)
   {
-    JacobianMatrix_t J (lg.nv(), Jin.cols());
+    JacobianMatrix_t J(lg.nv(), Jin.cols());
     lg.dIntegrate_dq(q, v, self, Jin, J, SETTO);
     return J;
   }
@@ -132,7 +132,7 @@ struct LieGroupWrapperTpl
   static JacobianMatrix_t dIntegrate_dv1(const LieGroupType& lg,
       const ConfigVector_t& q, const TangentVector_t& v)
   {
-    JacobianMatrix_t J (lg.nv(), lg.nv());
+    JacobianMatrix_t J(lg.nv(), lg.nv());
     lg.dIntegrate_dv(q, v, J);
     return J;
   }
@@ -141,7 +141,7 @@ struct LieGroupWrapperTpl
       const ConfigVector_t& q, const TangentVector_t& v,
       const JacobianMatrix_t& Jin, int self)
   {
-    JacobianMatrix_t J (Jin.rows(), lg.nv());
+    JacobianMatrix_t J(Jin.rows(), lg.nv());
     lg.dIntegrate_dv(q, v, Jin, self, J, SETTO);
     return J;
   }
@@ -150,23 +150,17 @@ struct LieGroupWrapperTpl
       const ConfigVector_t& q, const TangentVector_t& v, int self,
       const JacobianMatrix_t& Jin)
   {
-    JacobianMatrix_t J (lg.nv(), Jin.cols());
+    JacobianMatrix_t J(lg.nv(), Jin.cols());
     lg.dIntegrate_dv(q, v, self, Jin, J, SETTO);
     return J;
   }
 
-  static void dIntegrateTransport1(const LieGroupType& lg,
-      const ConfigVector_t& q, const TangentVector_t& v,
-      JacobianMatrix_t& J,
-      const ArgumentPosition arg)
-  {
-    lg.dIntegrateTransport(q, v, J, arg);
-  }
-
-  static JacobianMatrix_t dIntegrateTransport2(const LieGroupType& lg,
-      const ConfigVector_t& q, const TangentVector_t& v,
-      const JacobianMatrix_t& J,
-      const ArgumentPosition arg)
+  static JacobianMatrix_t
+  dIntegrateTransport_proxy(const LieGroupType & lg,
+                            const ConfigVector_t & q,
+                            const TangentVector_t & v,
+                            const JacobianMatrix_t & J,
+                            const ArgumentPosition arg)
   {
     JacobianMatrix_t Jout (lg.nv(), J.cols());
     lg.dIntegrateTransport(q, v, J, Jout, arg);
@@ -197,8 +191,7 @@ public:
     .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv1)
     .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv2)
     .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv3)
-    .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport1)
-    .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport2)
+    .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport_proxy)
 
     .def("difference", LieGroupWrapper::difference)
     .def("dDifference", LieGroupWrapper::dDifference1)
