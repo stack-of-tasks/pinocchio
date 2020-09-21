@@ -29,7 +29,7 @@ namespace pinocchio
         {
           urdf_ = ::urdf::parseURDF(xmlStr);
           if (!urdf_) {
-            throw std::invalid_argument ("Enable to parse URDF");
+            throw std::invalid_argument("Unable to parse URDF");
           }
           
           std::istringstream iss(xmlStr);
