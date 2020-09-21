@@ -50,7 +50,7 @@ class TestJointsAlgo(TestCase):
 
     def test_derivatives(self):
         model = self.model
-        
+
         q = self.q
         v = self.v
 
