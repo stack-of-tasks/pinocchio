@@ -39,9 +39,12 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_centroidal_dynamics_derivatives
   bindings_com_velocity_derivatives
 
+  # Others
   utils
   serialization
   version
+  bindings_std_vector
+  bindings_std_map
   )
 
 IF(hpp-fcl_FOUND)
