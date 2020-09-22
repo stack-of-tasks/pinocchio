@@ -18,8 +18,6 @@ namespace pinocchio
     ///
     /// \tparam VecType Vector Type to pickle
     ///
-    /// \sa Pickle
-    ///
     template<typename VecType>
     struct PickleVector : boost::python::pickle_suite
     { 
@@ -33,9 +31,12 @@ namespace pinocchio
       
       static void setstate(boost::python::object op, boost::python::tuple tup)
       {
-        VecType & o = boost::python::extract<VecType&>(op)();
-        boost::python::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
-        o.insert(o.begin(),begin,end);
+        if(boost::python::len(tup) > 0)
+        {
+          VecType & o = boost::python::extract<VecType&>(op)();
+          boost::python::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
+          o.insert(o.begin(),begin,end);
+        }
       }
     };
   }
