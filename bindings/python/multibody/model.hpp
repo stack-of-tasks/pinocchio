@@ -315,8 +315,8 @@ namespace pinocchio
         StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
         StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
-        StdVectorPythonVisitor<Scalar>::expose("StdVec_double");
-        bp::class_<typename Model::ConfigVectorMap>("StdMap_String_EigenVectorXd")
+        StdVectorPythonVisitor<Scalar>::expose("StdVec_Double");
+        bp::class_<typename Model::ConfigVectorMap>("StdMap_String_VectorXd")
           .def(map_indexing_suite())
           .def_pickle(PickleMap<typename Model::ConfigVectorMap>())
           .def(details::overload_base_get_item_for_std_map<typename Model::ConfigVectorMap>());
