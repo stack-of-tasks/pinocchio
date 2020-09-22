@@ -14,7 +14,7 @@ class TestSampleModels(TestCase):
         huamnoid_2 = pin.buildSampleModelHumanoidRandom(True)
         huamnoid_3 = pin.buildSampleModelHumanoidRandom(False)
 
-        self.assertTrue(huamnoid_1 == huamnoid_2)
+        self.assertTrue(huamnoid_1 != huamnoid_2)
         self.assertTrue(huamnoid_1 != huamnoid_3)
 
         manipulator_1 = pin.buildSampleModelManipulator()
