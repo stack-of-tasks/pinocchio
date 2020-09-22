@@ -39,6 +39,9 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_centroidal_dynamics_derivatives
   bindings_com_velocity_derivatives
 
+  # Parsers
+  bindings_sample_models
+
   # Others
   utils
   serialization
