@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/parsers/python.hpp"
@@ -21,7 +21,7 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    Model buildModel(const std::string & filename, const std::string & model_name, bool verbose)
+    Model buildModel(const std::string & filename, const std::string & model_name)
     {
       Py_Initialize();
 
@@ -62,11 +62,6 @@ namespace pinocchio
       catch (bp::error_already_set & e)
       {
         PyErr_PrintEx(0);
-      }
-      if (verbose)
-      {
-        std::cout << "Your model has been built. It has " << model.nv;
-        std::cout << " degrees of freedom." << std::endl;
       }
 
       // close the interpreter

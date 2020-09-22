@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_parser_python_hpp__
@@ -29,15 +29,24 @@ namespace pinocchio
     ///
     /// \input filename The full path to the model file.
     /// \input var_name Name of the Python variable which contains the model in the script.
-    /// \input verbose Verbosity mode.
     ///
     /// \returns The model constructed by the Python script.
     ///
     // TODO: look inside the context of Python and find an occurence of object Model
     PINOCCHIO_PYWRAP_DLLAPI
     Model buildModel(const std::string & filename,
-                     const std::string & var_name = "model",
-                     bool verbose = false);
+                     const std::string & var_name = "model");
+    
+    ///
+    /// \copydoc pinocchio::python::buildModel(const std::string &, const std::string &)
+    ///
+    PINOCCHIO_DEPRECATED
+    Model buildModel(const std::string & filename,
+                     const std::string & var_name,
+                     const bool /*verbose*/)
+    {
+      return buildModel(filename,var_name);
+    }
     
   } // namespace python
   
