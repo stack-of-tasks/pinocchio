@@ -112,14 +112,18 @@ namespace pinocchio
         
         .PINOCCHIO_ADD_PROPERTY(Self,contact_force,
                                 "Contact force.")
-        .PINOCCHIO_ADD_PROPERTY(Self,contact_placement,
+        .PINOCCHIO_ADD_PROPERTY(Self,oMc1,
                                 "Contact placement with respect to the WORLD frame.")
-        .PINOCCHIO_ADD_PROPERTY(Self,contact_velocity,
-                                "Current contact Spatial velocity.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact1_velocity,
+                                "Current contact Spatial velocity of the constraint 1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact2_velocity,
+                                "Current contact Spatial velocity of the constraint 2.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration,
                                 "Current contact Spatial acceleration.")
-        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_drift,
-                                "Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects).")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact1_acceleration_drift,
+                                "Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) of the contact frame 1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact2_acceleration_drift,
+                                "Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) of the contact frame 2.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_deviation,
                                 "Contact deviation from the reference acceleration (a.k.a the error).")
         

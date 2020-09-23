@@ -54,6 +54,7 @@ namespace pinocchio
       parents_fromRow.fill(-1);
       
       nv_subtree_fromRow.resize(total_dim);
+//      nv_subtree_fromRow.fill(0);
       
       last_child.resize(model.njoints);
       last_child.fill(-1);
@@ -102,8 +103,12 @@ namespace pinocchio
         const RigidContactModel & cmodel = *it;
         const JointIndex joint1_id = cmodel.joint1_id;
         const typename Model::JointModel & joint1 = model.joints[joint1_id];
+        const JointIndex joint2_id = cmodel.joint2_id;
+        const typename Model::JointModel & joint2 = model.joints[joint2_id];
         
-        const Eigen::DenseIndex nv = joint1.idx_v() + joint1.nv();
+        const Eigen::DenseIndex nv1 = joint1.idx_v() + joint1.nv();
+        const Eigen::DenseIndex nv2 = joint2.idx_v() + joint2.nv();
+        const Eigen::DenseIndex nv = std::max(nv1,nv2);
         for(Eigen::DenseIndex k = 0; k < cmodel.size(); ++k)
         {
           nv_subtree_fromRow[row_id] = nv + (num_total_constraints - row_id);
@@ -112,26 +117,50 @@ namespace pinocchio
       }
       assert(row_id == num_total_constraints);
      
-      // Allocate and fill sparsity indexes
+      // Allocate and fill sparsity joint1_indexes and joint2_indexes
       static const bool default_sparsity_value = false;
-      extented_parents_fromRow.resize(static_cast<size_t>(num_contacts),
-                                      BooleanVector::Constant(total_dim,default_sparsity_value));
-      for(size_t ee_id = 0; ee_id < extented_parents_fromRow.size(); ++ee_id)
+      joint1_indexes.resize(static_cast<size_t>(num_contacts),
+                            BooleanVector::Constant(total_dim,default_sparsity_value));
+      joint2_indexes.resize(static_cast<size_t>(num_contacts),
+                            BooleanVector::Constant(total_dim,default_sparsity_value));
+      for(size_t ee_id = 0; ee_id < joint1_indexes.size(); ++ee_id)
       {
-        BooleanVector & indexes = extented_parents_fromRow[ee_id];
-        indexes.resize(total_dim); indexes.fill(default_sparsity_value);
+        BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
+        joint1_indexes_ee.resize(total_dim); joint1_indexes_ee.fill(default_sparsity_value);
+        BooleanVector & joint2_indexes_ee = joint2_indexes[ee_id];
+        joint2_indexes_ee.resize(total_dim); joint2_indexes_ee.fill(default_sparsity_value);
         
         const RigidContactModel & cmodel = contact_models[ee_id];
+        
         const JointIndex joint1_id = cmodel.joint1_id;
-        const typename Model::JointModel & joint1 = model.joints[joint1_id];
-
-        Eigen::DenseIndex current_id = joint1.idx_v() + joint1.nv() - 1 + num_total_constraints;
-        while(parents_fromRow[current_id] != -1)
+        Eigen::DenseIndex current1_id = -1;
+        if(joint1_id > 0)
         {
-          indexes[current_id] = true;
-          current_id = parents_fromRow[current_id];
+          const typename Model::JointModel & joint1 = model.joints[joint1_id];
+          current1_id = joint1.idx_v() + joint1.nv() - 1 + num_total_constraints;
         }
-        indexes[current_id] = true;
+        
+        const JointIndex joint2_id = cmodel.joint2_id;
+        Eigen::DenseIndex current2_id = -1;
+        if(joint2_id > 0)
+        {
+          const typename Model::JointModel & joint2 = model.joints[joint2_id];
+          current2_id = joint2.idx_v() + joint2.nv() - 1 + num_total_constraints;
+        }
+
+        while(current1_id != current2_id)
+        {
+          if(current1_id > current2_id)
+          {
+            joint1_indexes_ee[current1_id] = true;
+            current1_id = parents_fromRow[current1_id];
+          }
+          else
+          {
+            joint2_indexes_ee[current2_id] = true;
+            current2_id = parents_fromRow[current2_id];
+          }
+        }
       }
       
       // Fill the sparsity pattern for each Row of the Cholesky decomposition (matrix U)
@@ -146,7 +175,7 @@ namespace pinocchio
           ++it, ++ee_id)
       {
         const RigidContactModel & cmodel = *it;
-        const BooleanVector & indexes = extented_parents_fromRow[ee_id];
+        const BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
         const Eigen::DenseIndex contact_dim = cmodel.size();
 
         for(Eigen::DenseIndex k = 0; k < contact_dim; ++k)
@@ -156,22 +185,22 @@ namespace pinocchio
           slice_vector.push_back(Slice(row_id,num_total_constraints-row_id));
           
           bool previous_index_was_true = true;
-          for(Eigen::DenseIndex indexes_id = num_total_constraints;
-              indexes_id < total_dim;
-              ++indexes_id)
+          for(Eigen::DenseIndex joint1_indexes_ee_id = num_total_constraints;
+              joint1_indexes_ee_id < total_dim;
+              ++joint1_indexes_ee_id)
           {
-            if(indexes[indexes_id])
+            if(joint1_indexes_ee[joint1_indexes_ee_id])
             {
               if(previous_index_was_true) // no discontinuity
                 slice_vector.back().size++;
               else // discontinuity; need to create a new slice
               {
-                const Slice new_slice(indexes_id,1);
+                const Slice new_slice(joint1_indexes_ee_id,1);
                 slice_vector.push_back(new_slice);
               }
             }
 
-            previous_index_was_true = indexes[indexes_id];
+            previous_index_was_true = joint1_indexes_ee[joint1_indexes_ee_id];
           }
 
           row_id++;
@@ -220,8 +249,16 @@ namespace pinocchio
         RigidContactData & cdata = contact_datas[ee_id];
 
         const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-        
-        cdata.contact_placement = data.oMi[joint1_id] * cmodel.joint1_placement;
+        if(joint1_id > 0)
+          cdata.oMc1 = data.oMi[joint1_id] * cmodel.joint1_placement;
+        else
+          cdata.oMc1 = cmodel.joint1_placement;
+
+        const typename Model::JointIndex joint2_id = cmodel.joint2_id;
+        if(joint2_id > 0)
+          cdata.oMc2 = data.oMi[joint2_id] * cmodel.joint2_placement;
+        else
+          cdata.oMc2 = cmodel.joint2_placement;
       }
 
       // Core
@@ -257,15 +294,19 @@ namespace pinocchio
         {
           const size_t ee_id = num_ee - k - 1; // start from the last end effector
 
-          const BooleanVector & indexes = extented_parents_fromRow[ee_id];
+          const BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
+          const BooleanVector & joint2_indexes_ee = joint2_indexes[ee_id];
           const RigidContactModel & cmodel = contact_models[ee_id];
           const RigidContactData & cdata = contact_datas[ee_id];
           
           const Eigen::DenseIndex constraint_dim = cmodel.size();
-	        const SE3 & contact_placement = cdata.contact_placement;
+	        const SE3 & oMc1 = cdata.oMc1;
    
-          if(indexes[jj])
+          if(joint1_indexes_ee[jj] || joint2_indexes_ee[jj])
           {
+            assert(joint1_indexes_ee[jj] != joint2_indexes_ee[jj]);
+            const int sign = joint1_indexes_ee[jj] ? +1:-1;
+            
             switch(cmodel.reference_frame)
             {
               case WORLD:
@@ -280,7 +321,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_motion.linear()[contact_dim<CONTACT_3D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_motion.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -288,7 +329,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_motion.toVector()[contact_dim<CONTACT_6D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_motion.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -303,7 +344,7 @@ namespace pinocchio
                 const ColXpr Jcol = data.J.col(j);
                 MotionRef<const ColXpr> Jcol_motion(Jcol);
 
-                const Motion Jcol_local(contact_placement.actInv(Jcol_motion));
+                const Motion Jcol_local(oMc1.actInv(Jcol_motion));
                 
                 switch(cmodel.type)
                 {
@@ -311,7 +352,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -319,7 +360,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_local.toVector()[contact_dim<CONTACT_6D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_local.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -337,7 +378,7 @@ namespace pinocchio
                 // Contact frame placement wrt world
                 Motion Jcol_local_world_aligned(Jcol_motion);
                 Jcol_local_world_aligned.linear()
-                -= contact_placement.translation().cross(Jcol_local_world_aligned.angular());
+                -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
                 
                 switch(cmodel.type)
                 {
@@ -345,7 +386,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_local_world_aligned.linear()[contact_dim<CONTACT_3D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_local_world_aligned.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -353,7 +394,7 @@ namespace pinocchio
                     for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
                     {
                       const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_local_world_aligned.toVector()[contact_dim<CONTACT_6D>::value-_i-1] - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      U(_ii,jj) = (Jcol_local_world_aligned.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                     }
                     break;
                     
@@ -366,6 +407,14 @@ namespace pinocchio
                 assert(false && "Must never happened");
             } // end switch(cmodel.reference_frame)
 
+          }
+          else if((joint1_indexes_ee[jj] == false) && (joint2_indexes_ee[jj] == false))
+          {
+            for(Eigen::DenseIndex _i = 0; _i < constraint_dim; _i++)
+            {
+              const Eigen::DenseIndex _ii = current_row - _i;
+              U(_ii,jj) = -U.row(_ii).segment(jj+1,NVT).dot(DUt_partial) * Dinv[jj];
+            }
           }
           current_row -= constraint_dim;
         }

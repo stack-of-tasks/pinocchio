@@ -181,7 +181,7 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      const SE3 & oMc = cdata.contact_placement;
+      const SE3 & oMc = cdata.oMc1;
       const JointIndex joint1_id = cmodel.joint1_id;
       Force & of = data.of[joint1_id];
       

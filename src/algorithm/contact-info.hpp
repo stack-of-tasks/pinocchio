@@ -282,9 +282,11 @@ namespace pinocchio
     
     RigidContactDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
-    , contact_velocity(Motion::Zero())
+    , contact1_velocity(Motion::Zero())
+    , contact2_velocity(Motion::Zero())
     , contact_acceleration(Motion::Zero())
-    , contact_acceleration_drift(Motion::Zero())
+    , contact1_acceleration_drift(Motion::Zero())
+    , contact2_acceleration_drift(Motion::Zero())
     , contact_acceleration_deviation(Motion::Zero())
     {}
     
@@ -293,17 +295,32 @@ namespace pinocchio
     /// \brief Resulting contact forces
     Force contact_force;
     
-    /// \brief Current contact placement with respect to the world frame
-    SE3 contact_placement;
+    /// \brief Placement of the constraint frame 1 with respect to the WORLD frame
+    SE3 oMc1;
+    
+    /// \brief Placement of the constraint frame 2 with respect to the WORLD frame
+    SE3 oMc2;
+    
+    /// \brief Relative displacement between the two frames
+    SE3 c1Mc2;
     
     /// \brief Current contact spatial velocity
-    Motion contact_velocity;
+    Motion contact_error;
+    
+    /// \brief Current contact spatial velocity of constraint 1
+    Motion contact1_velocity;
+    
+    /// \brief Current contact spatial velocity of constraint 2
+    Motion contact2_velocity;
     
     /// \brief Current contact spatial acceleration
     Motion contact_acceleration;
     
-    /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects).
-    Motion contact_acceleration_drift;
+    /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 1.
+    Motion contact1_acceleration_drift;
+    
+    /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 2.
+    Motion contact2_acceleration_drift;
     
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
@@ -312,10 +329,14 @@ namespace pinocchio
     {
       return
          contact_force == other.contact_force
-      && contact_placement == other.contact_placement
-      && contact_velocity == other.contact_velocity
+      && oMc1 == other.oMc1
+      && oMc2 == other.oMc2
+      && c1Mc2 == other.c1Mc2
+      && contact1_velocity == other.contact1_velocity
+      && contact2_velocity == other.contact2_velocity
       && contact_acceleration == other.contact_acceleration
-      && contact_acceleration_drift == other.contact_acceleration_drift
+      && contact1_acceleration_drift == other.contact1_acceleration_drift
+      && contact2_acceleration_drift == other.contact2_acceleration_drift
       && contact_acceleration_deviation == other.contact_acceleration_deviation
       ;
     }

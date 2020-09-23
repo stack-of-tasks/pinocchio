@@ -269,7 +269,7 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
       
-      const SE3 & oMc = cdata.contact_placement;
+      const SE3 & oMc = cdata.oMc1;
       Force & of = data.of[cmodel.joint1_id];
 
       switch(cmodel.reference_frame) 
@@ -319,12 +319,12 @@ namespace pinocchio
         }
         case LOCAL:
         {
-          v_tmp = cdata.contact_placement.actInv(data.ov[joint1_id]);
+          v_tmp = cdata.oMc1.actInv(data.ov[joint1_id]);
           break;
         }
         case LOCAL_WORLD_ALIGNED:
         {
-          v_tmp.linear().noalias() = cdata.contact_placement.rotation() * data.v[joint1_id].linear();  // TODO: fix it
+          v_tmp.linear().noalias() = cdata.oMc1.rotation() * data.v[joint1_id].linear();  // TODO: fix it
           v_tmp.angular().noalias() = data.ov[joint1_id].angular();
           break;
         }

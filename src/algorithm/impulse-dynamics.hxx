@@ -82,7 +82,7 @@ namespace pinocchio
 
       const typename Model::JointIndex & joint1_id = contact_model.joint1_id;
       const typename Data::SE3 & oMi = data.oMi[joint1_id];
-      typename Data::SE3 & oMc = contact_data.contact_placement;
+      typename Data::SE3 & oMc = contact_data.oMc1;
 
       // Update contact placement
       oMc = oMi * contact_model.joint1_placement;

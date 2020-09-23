@@ -37,8 +37,10 @@ namespace pinocchio
       { return this->last_child; }
       const IndexVector & getNvSubtree_fromRow() const
       { return this->nv_subtree_fromRow; }
-      const std::vector<BooleanVector> & getExtented_parents_fromRow() const
-      { return this->extented_parents_fromRow; }
+      const std::vector<BooleanVector> & getJoint1_indexes() const
+      { return this->joint1_indexes; }
+      const std::vector<BooleanVector> & getJoint2_indexes() const
+      { return this->joint2_indexes; }
     };
     
     typedef ContactCholeskyDecompositionAccessorTpl<double,0> ContactCholeskyDecompositionAccessor;
@@ -804,6 +806,278 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   
   MatrixXd H_inv_ref = H_recomposed.inverse();
   BOOST_CHECK(H_inv.isApprox(H_inv_ref));
+}
+
+BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint2)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  using namespace pinocchio::cholesky;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  const std::string RA = "rarm6_joint";
+  const std::string LA = "larm6_joint";
+  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+  RigidContactModel ci_RF(CONTACT_6D,0,model.getJointId(RF),WORLD);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidContactData(ci_RF));
+  RigidContactModel ci_LF(CONTACT_6D,0,model.getJointId(LF),WORLD);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidContactData(ci_LF));
+  RigidContactModel ci_RA(CONTACT_6D,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
+  contact_models.push_back(ci_RA);
+  contact_datas.push_back(RigidContactData(ci_RA));
+  RigidContactModel ci_LA(CONTACT_6D,0,model.getJointId(LA),LOCAL);
+  contact_models.push_back(ci_LA);
+  contact_datas.push_back(RigidContactData(ci_LA));
+  
+  // Compute Mass Matrix
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  // Compute Cholesky decomposition
+  pinocchio::cholesky::decompose(model,data_ref);
+  
+  // Compute Jacobians
+  Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv), J_RA(6,model.nv), J_LA(6,model.nv);
+  J_RF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF);
+  J_LF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF);
+  J_RA.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(RA), WORLD, J_RA);
+  J_LA.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LA), WORLD, J_LA);
+  
+  const int constraint_dim = 24;
+  const int total_dim = model.nv + constraint_dim;
+  
+  const SE3 oMRA_wla = SE3(SE3::Matrix3::Identity(),ci_RA.joint1_placement.translation());
+  
+  const double mu = 0.1;
+  Data::MatrixXs H(total_dim,total_dim); H.setZero();
+  H.topLeftCorner(constraint_dim,constraint_dim).diagonal().fill(-mu);
+  H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
+  H.middleRows<6>(0).rightCols(model.nv) = -J_RF;
+  H.middleRows<6>(6).rightCols(model.nv) = -J_LF;
+  H.middleRows<6>(12).rightCols(model.nv) = -oMRA_wla.toActionMatrixInverse()*J_RA;
+  H.middleRows<6>(18).rightCols(model.nv) = -ci_LA.joint1_placement.toActionMatrixInverse()*J_LA;
+  
+  H.triangularView<Eigen::StrictlyLower>() =
+  H.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  Data data(model); crba(model,data,q);
+  ContactCholeskyDecomposition contact_chol_decomposition;
+  contact_chol_decomposition.allocate(model, contact_models);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu);
+  
+  data.M.triangularView<Eigen::StrictlyLower>() =
+  data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  Data::MatrixXs H_recomposed = contact_chol_decomposition.matrix();
+  
+  BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
+  BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
+  BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  VectorXd v_in(VectorXd::Random(contact_chol_decomposition.size()));
+  MatrixXd mat_in(MatrixXd::Random(contact_chol_decomposition.size(),20));
+  
+  // Test Uv
+  VectorXd Uv_op_res(v_in), Uv_op_ref(v_in);
+
+  contact_chol_decomposition.Uv(Uv_op_res);
+  Uv_op_ref.noalias() = contact_chol_decomposition.U * v_in;
+
+  BOOST_CHECK(Uv_op_res.isApprox(Uv_op_ref));
+  
+  MatrixXd Uv_mat_op_res(mat_in), Uv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Uv(Uv_mat_op_res);
+  Uv_mat_op_ref.noalias() = contact_chol_decomposition.U * mat_in;
+  
+  BOOST_CHECK(Uv_mat_op_res.isApprox(Uv_mat_op_ref));
+  
+  // Test Utv
+  VectorXd Utv_op_res(v_in), Utv_op_ref(v_in);
+  
+  contact_chol_decomposition.Utv(Utv_op_res);
+  Utv_op_ref.noalias() = contact_chol_decomposition.U.transpose() * v_in;
+  
+  BOOST_CHECK(Utv_op_res.isApprox(Utv_op_ref));
+  
+  MatrixXd Utv_mat_op_res(mat_in), Utv_mat_op_ref(mat_in);
+  
+  contact_chol_decomposition.Utv(Utv_mat_op_res);
+  Utv_mat_op_ref.noalias() = contact_chol_decomposition.U.transpose() * mat_in;
+  
+  BOOST_CHECK(Utv_mat_op_res.isApprox(Utv_mat_op_ref));
+  
+  // Test Uiv
+  VectorXd Uiv_op_res(v_in), Uiv_op_ref(v_in);
+
+  contact_chol_decomposition.Uiv(Uiv_op_res);
+  Uiv_op_ref.noalias() = contact_chol_decomposition.U.inverse() * v_in;
+
+  BOOST_CHECK(Uiv_op_res.isApprox(Uiv_op_ref));
+
+  MatrixXd Uiv_mat_op_res(mat_in), Uiv_mat_op_ref(mat_in);
+
+  contact_chol_decomposition.Uiv(Uiv_mat_op_res);
+  Uiv_mat_op_ref.noalias() = contact_chol_decomposition.U.inverse() * mat_in;
+
+  BOOST_CHECK(Uiv_mat_op_res.isApprox(Uiv_mat_op_ref));
+
+  // Test Utiv
+  VectorXd Utiv_op_res(v_in), Utiv_op_ref(v_in);
+
+  contact_chol_decomposition.Utiv(Utiv_op_res);
+  Utiv_op_ref.noalias() = contact_chol_decomposition.U.inverse().transpose() * v_in;
+
+  BOOST_CHECK(Utiv_op_res.isApprox(Utiv_op_ref));
+
+  MatrixXd Utiv_mat_op_res(mat_in), Utiv_mat_op_ref(mat_in);
+
+  contact_chol_decomposition.Utiv(Utiv_mat_op_res);
+  Utiv_mat_op_ref.noalias() = contact_chol_decomposition.U.inverse().transpose() * mat_in;
+
+  BOOST_CHECK(Utiv_mat_op_res.isApprox(Utiv_mat_op_ref));
+  
+  // inverse
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
+  contact_chol_decomposition.inverse(H_inv);
+  
+  MatrixXd H_inv2 = contact_chol_decomposition.U.transpose().inverse() * contact_chol_decomposition.Dinv.asDiagonal() * contact_chol_decomposition.U.inverse();
+  
+  MatrixXd H_inv3 = MatrixXd::Identity(contact_chol_decomposition.size(),contact_chol_decomposition.size());
+  contact_chol_decomposition.solveInPlace(H_inv3);
+  
+  MatrixXd H_inv_ref = H_recomposed.inverse();
+  BOOST_CHECK(H_inv.topLeftCorner(constraint_dim,constraint_dim).isApprox(H_inv_ref.topLeftCorner(constraint_dim,constraint_dim)));
+  BOOST_CHECK(H_inv.bottomRightCorner(model.nv,model.nv).isApprox(H_inv_ref.bottomRightCorner(model.nv,model.nv)));
+  BOOST_CHECK(H_inv.topRightCorner(constraint_dim,model.nv).isApprox(H_inv_ref.topRightCorner(constraint_dim,model.nv)));
+  
+  BOOST_CHECK(H_inv_ref.isApprox(H_inv));
+  BOOST_CHECK(H_inv_ref.isApprox(H_inv2));
+  BOOST_CHECK(H_inv_ref.isApprox(H_inv3));
+  const VectorXd ei = VectorXd::Unit(contact_chol_decomposition.size(),constraint_dim);
+  VectorXd ei_inv = ei;
+  contact_chol_decomposition.solveInPlace(ei_inv);
+  VectorXd ei_inv2 = ei;
+  contact_chol_decomposition.Uiv(ei_inv2);
+  ei_inv2 = contact_chol_decomposition.Dinv.asDiagonal() * ei_inv2;
+  contact_chol_decomposition.Utiv(ei_inv2);
+
+  BOOST_CHECK(ei_inv.isApprox(H_inv_ref*ei));
+  BOOST_CHECK(ei_inv2.isApprox(H_inv_ref*ei));
+  BOOST_CHECK(ei_inv.isApprox(H_inv*ei));
+  BOOST_CHECK(ei_inv2.isApprox(H_inv*ei));
+}
+
+BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D_LOCAL)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  using namespace pinocchio::cholesky;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+  RigidContactModel loop_RF_LF_local(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidContactModel loop_RF_LF_world(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),WORLD);
+  
+  loop_RF_LF_local.joint1_placement.setRandom();
+  loop_RF_LF_local.joint2_placement.setRandom();
+  
+  contact_models.push_back(loop_RF_LF_local);
+  contact_datas.push_back(RigidContactData(loop_RF_LF_local));
+  
+  contact_models.push_back(loop_RF_LF_world);
+  contact_datas.push_back(RigidContactData(loop_RF_LF_world));
+  
+  // Compute Mass Matrix
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() =
+  data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  // Compute Cholesky decomposition
+  const double mu = 0.1;
+  pinocchio::cholesky::decompose(model,data_ref);
+  
+  // Compute Jacobians
+  Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
+  J_RF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
+  Data::Matrix6x J_RF_local = loop_RF_LF_local.joint1_placement.toActionMatrixInverse() * J_RF;
+  J_LF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
+  Data::Matrix6x J_LF_local = loop_RF_LF_local.joint2_placement.toActionMatrixInverse() * J_LF;
+  
+  Data::Matrix6x J_RF_world(6,model.nv), J_LF_world(6,model.nv);
+  J_RF_world.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF_world);
+  J_LF_world.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF_world);
+  
+  forwardKinematics(model,data_ref,q);
+  const SE3 oM1 = data_ref.oMi[loop_RF_LF_local.joint1_id] * loop_RF_LF_local.joint1_placement;
+  const SE3 oM2 = data_ref.oMi[loop_RF_LF_local.joint2_id] * loop_RF_LF_local.joint2_placement;
+  const SE3 _1M2_ = oM1.inverse() * oM2;
+  
+  const int constraint_dim = 12;
+  const int total_dim = model.nv + constraint_dim;
+  
+  Data::MatrixXs H(total_dim,total_dim); H.setZero();
+  H.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
+  H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
+  H.middleRows<6>(0).rightCols(model.nv) = J_RF_local - _1M2_.toActionMatrix() * J_LF_local;
+  H.middleRows<6>(6).rightCols(model.nv) = J_RF_world - J_LF_world;
+  
+  H.triangularView<Eigen::StrictlyLower>() =
+  H.triangularView<Eigen::StrictlyUpper>().transpose();
+  
+  Data data(model); crba(model,data,q);
+  ContactCholeskyDecomposition contact_chol_decomposition;
+  contact_chol_decomposition.allocate(model, contact_models);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu);
+  
+  Data::MatrixXs H_recomposed = contact_chol_decomposition.matrix();
+  
+  data.M.triangularView<Eigen::StrictlyLower>() =
+  data.M.triangularView<Eigen::StrictlyUpper>().transpose();
+  BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
+  BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
+  BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  // inverse
+  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
+  contact_chol_decomposition.inverse(H_inv);
+  
+  MatrixXd H_inv_ref = H_recomposed.inverse();
+  
+  BOOST_CHECK(H_inv_ref.isApprox(H_inv));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -331,7 +331,8 @@ namespace pinocchio
         is_same &= (parents_fromRow == other.parents_fromRow);
         is_same &= (nv_subtree_fromRow == other.nv_subtree_fromRow);
         is_same &= (last_child == other.last_child);
-        is_same &= (extented_parents_fromRow == other.extented_parents_fromRow);
+        is_same &= (joint1_indexes == other.joint1_indexes);
+        is_same &= (joint2_indexes == other.joint2_indexes);
 //        is_same &= (rowise_sparsity_pattern == other.rowise_sparsity_pattern);
         
         return is_same;
@@ -351,7 +352,7 @@ namespace pinocchio
       /// \brief Last child of the given joint index
       IndexVector last_child;
       
-      std::vector<BooleanVector> extented_parents_fromRow;
+      std::vector<BooleanVector> joint1_indexes, joint2_indexes;
       Vector DUt; // temporary containing the results of D * U^t
       
       /// \brief Dimension of the tangent of the configuration space of the model
