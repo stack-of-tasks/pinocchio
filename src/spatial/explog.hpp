@@ -104,7 +104,7 @@ namespace pinocchio
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
   ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
-  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  ///   + \frac{1}{||r||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
   ///
   template<AssignmentOperatorType op, typename Vector3Like, typename Matrix3Like>
@@ -134,7 +134,7 @@ namespace pinocchio
                                             n2_inv * (1 - a));
 
     switch(op)
-      {
+    {
       case SETTO:
         Jout.diagonal().setConstant(a);
         Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
@@ -159,7 +159,7 @@ namespace pinocchio
       default:
         assert(false && "Wrong Op requesed value");
         break;
-      }
+    }
   }
 
   ///
@@ -376,7 +376,7 @@ namespace pinocchio
                                                               -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
     switch(op)
-      {
+    {
       case SETTO:
       {
         Jexp3<SETTO>(w, Jout.template bottomRightCorner<3,3>());
