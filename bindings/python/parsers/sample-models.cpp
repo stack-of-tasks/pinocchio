@@ -74,7 +74,7 @@ namespace pinocchio
 
       bp::def("buildSampleModelHumanoidRandom",
               static_cast <Model (*) (bool)> (pinocchio::python::buildSampleModelHumanoidRandom),
-              bp::args("bool (usingFreeFlyer)"),
+              bp::args("using_free_flyer"),
               "Generate a (hard-coded) model of a humanoid robot with 6-DOF limbs and random joint placements.\nOnly meant for unit tests."
               );
 
@@ -86,7 +86,7 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelManipulator",
               static_cast <GeometryModel (*) (const Model&)> (pinocchio::python::buildSampleGeometryModelManipulator),
-              bp::args("Model (model)"),
+              bp::args("model"),
               "Generate a (hard-coded) geometry model of a simple manipulator."
               );
 #endif
@@ -98,14 +98,14 @@ namespace pinocchio
 
       bp::def("buildSampleModelHumanoid",
               static_cast <Model (*) (bool)> (pinocchio::python::buildSampleModelHumanoid),
-              bp::args("bool (usingFreeFlyer)"),
+              bp::args("using_free_flyer"),
               "Generate a (hard-coded) model of a simple humanoid."
               );
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildSampleGeometryModelHumanoid",
               static_cast <GeometryModel (*) (const Model&)> (pinocchio::python::buildSampleGeometryModelHumanoid),
-              bp::args("Model (model)"),
+              bp::args("model"),
               "Generate a (hard-coded) geometry model of a simple humanoid."
               );
 #endif

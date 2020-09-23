@@ -39,9 +39,15 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_centroidal_dynamics_derivatives
   bindings_com_velocity_derivatives
 
+  # Parsers
+  bindings_sample_models
+
+  # Others
   utils
   serialization
   version
+  bindings_std_vector
+  bindings_std_map
   )
 
 IF(hpp-fcl_FOUND)
@@ -57,13 +63,13 @@ IF(hpp-fcl_FOUND)
   ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 ENDIF(hpp-fcl_FOUND)
 
-IF(URDFDOM_FOUND)
+IF(urdfdom_FOUND)
   SET(${PROJECT_NAME}_PYTHON_TESTS
     ${${PROJECT_NAME}_PYTHON_TESTS}
     bindings_urdf
     bindings_geometry_model_urdf
     )
-ENDIF(URDFDOM_FOUND)
+ENDIF(urdfdom_FOUND)
 
 FOREACH(TEST ${${PROJECT_NAME}_PYTHON_TESTS})
   ADD_PYTHON_UNIT_TEST("test-py-${TEST}" "unittest/python/${TEST}.py" "bindings/python")
