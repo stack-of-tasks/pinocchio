@@ -191,6 +191,10 @@ namespace pinocchio
                        "Vector of rotor inertia parameters.")
         .def_readwrite("rotorGearRatio",&Model::rotorGearRatio,
                        "Vector of rotor gear ratio parameters.")
+        .def_readwrite("friction",&Model::friction,
+                       "Vector of joint friction parameters.")
+        .def_readwrite("damping",&Model::damping,
+                       "Vector of joint damping parameters.")
         .def_readwrite("effortLimit",&Model::effortLimit,
                        "Joint max effort.")
         .def_readwrite("velocityLimit",&Model::velocityLimit,

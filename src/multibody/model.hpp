@@ -122,6 +122,12 @@ namespace pinocchio
     /// \brief Vector of rotor gear ratio parameters
     VectorXs rotorGearRatio;
     
+    /// \brief Vector of joint friction parameters
+    TangentVectorType friction;
+    
+    /// \brief Vector of joint damping parameters
+    TangentVectorType damping;
+
     /// \brief Vector of maximal joint torques
     TangentVectorType effortLimit;
     
@@ -208,6 +214,8 @@ namespace pinocchio
       // Eigen Vectors
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
       res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
+      res.friction = friction.template cast<NewScalar>();
+      res.damping = damping.template cast<NewScalar>();
       res.effortLimit = effortLimit.template cast<NewScalar>();
       res.velocityLimit = velocityLimit.template cast<NewScalar>();
       res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
@@ -285,6 +293,16 @@ namespace pinocchio
       if(other.rotorInertia.size() != rotorInertia.size())
         return false;
       res &= other.rotorInertia == rotorInertia;
+      if(!res) return res;
+
+      if(other.friction.size() != friction.size())
+        return false;
+      res &= other.friction == friction;
+      if(!res) return res;
+
+      if(other.damping.size() != damping.size())
+        return false;
+      res &= other.damping == damping;
       if(!res) return res;
 
       if(other.rotorGearRatio.size() != rotorGearRatio.size())

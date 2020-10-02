@@ -44,6 +44,8 @@ namespace boost
       ar & make_nvp("referenceConfigurations",model.referenceConfigurations);
       ar & make_nvp("rotorInertia",model.rotorInertia);
       ar & make_nvp("rotorGearRatio",model.rotorGearRatio);
+      ar & make_nvp("friction",model.friction);
+      ar & make_nvp("damping",model.damping);
       ar & make_nvp("effortLimit",model.effortLimit);
       ar & make_nvp("velocityLimit",model.velocityLimit);
       ar & make_nvp("lowerPositionLimit",model.lowerPositionLimit);
