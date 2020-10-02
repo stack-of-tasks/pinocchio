@@ -65,6 +65,7 @@ namespace pinocchio
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
 
+    /// \brief Map between a string (key) and a configuration vector
     typedef std::map<std::string, ConfigVectorType>  ConfigVectorMap;
     
     /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
@@ -117,10 +118,10 @@ namespace pinocchio
     ConfigVectorMap referenceConfigurations;
 
     /// \brief Vector of rotor inertia parameters
-    VectorXs rotorInertia;
+    TangentVectorType rotorInertia;
     
     /// \brief Vector of rotor gear ratio parameters
-    VectorXs rotorGearRatio;
+    TangentVectorType rotorGearRatio;
     
     /// \brief Vector of joint friction parameters
     TangentVectorType friction;
@@ -135,10 +136,10 @@ namespace pinocchio
     TangentVectorType velocityLimit;
 
     /// \brief Lower joint configuration limit
-    VectorXs lowerPositionLimit;
+    ConfigVectorType lowerPositionLimit;
     
     /// \brief Upper joint configuration limit
-    VectorXs upperPositionLimit;
+    ConfigVectorType upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
