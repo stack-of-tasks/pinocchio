@@ -391,7 +391,9 @@ namespace pinocchio
                                                              joint_input_model.jointVelocitySelector(input_model.effortLimit),
                                                              joint_input_model.jointVelocitySelector(input_model.velocityLimit),
                                                              joint_input_model.jointConfigSelector(input_model.lowerPositionLimit),
-                                                             joint_input_model.jointConfigSelector(input_model.upperPositionLimit));
+                                                             joint_input_model.jointConfigSelector(input_model.upperPositionLimit),
+                                                             joint_input_model.jointVelocitySelector(input_model.friction),
+                                                             joint_input_model.jointVelocitySelector(input_model.damping));
         // Append inertia
         reduced_model.appendBodyToJoint(reduced_joint_id,
                                         input_model.inertias[joint_id],
@@ -403,10 +405,6 @@ namespace pinocchio
         = joint_input_model.jointVelocitySelector(input_model.rotorInertia);
         jmodel_out.jointVelocitySelector(reduced_model.rotorGearRatio)
         = joint_input_model.jointVelocitySelector(input_model.rotorGearRatio);
-        jmodel_out.jointVelocitySelector(reduced_model.friction)
-        = joint_input_model.jointVelocitySelector(input_model.friction);
-        jmodel_out.jointVelocitySelector(reduced_model.damping)
-        = joint_input_model.jointVelocitySelector(input_model.damping);
       }
     }
     
