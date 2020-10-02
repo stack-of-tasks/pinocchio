@@ -181,7 +181,8 @@ namespace pinocchio
       Matrix3 I3 (mc_cross * mc_cross);
       I3 /= mass();
       I3 += I6.template block<3,3>(ANGULAR,ANGULAR);
-      inertia() = Symmetric3(I3);
+      const Symmetric3 S3(I3);
+      inertia() = S3;
     }
 
     InertiaTpl(Scalar mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
