@@ -117,4 +117,68 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
   }
 }
 
+
+BOOST_AUTO_TEST_CASE(test_rpyToJac)
+{
+  // Check identity at zero
+  Eigen::Vector3d rpy(Eigen::Vector3d::Zero());
+  Eigen::Matrix3d j0 = pinocchio::rpy::rpyToJac(rpy);
+  BOOST_CHECK(j0.isIdentity());
+  Eigen::Matrix3d jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
+  BOOST_CHECK(jL.isIdentity());
+  Eigen::Matrix3d jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
+  BOOST_CHECK(jW.isIdentity());
+  Eigen::Matrix3d jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK(jA.isIdentity());
+
+  // Check correct identities between different versions
+  double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+  double p = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/M_PI)) - (M_PI/2);
+  double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+  rpy = Eigen::Vector3d(r, p, y);
+  Eigen::Matrix3d R = pinocchio::rpy::rpyToMatrix(rpy);
+  j0 = pinocchio::rpy::rpyToJac(rpy);
+  jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
+  jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
+  jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK(j0 == jL);
+  BOOST_CHECK(jW == jA);
+  BOOST_CHECK(jW.isApprox(R*jL));
+
+  // Check against analytical formulas 
+  Eigen::Vector3d jL0Expected = Eigen::Vector3d::UnitX();
+  Eigen::Vector3d jL1Expected = Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX()).toRotationMatrix().transpose().col(1);
+  Eigen::Vector3d jL2Expected = (Eigen::AngleAxisd(p, Eigen::Vector3d::UnitY())
+                               * Eigen::AngleAxisd(r, Eigen::Vector3d::UnitX())
+                                ).toRotationMatrix().transpose().col(2);
+  BOOST_CHECK(jL.col(0).isApprox(jL0Expected));
+  BOOST_CHECK(jL.col(1).isApprox(jL1Expected));
+  BOOST_CHECK(jL.col(2).isApprox(jL2Expected));
+
+  Eigen::Vector3d jW0Expected = (Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ())
+                               * Eigen::AngleAxisd(p, Eigen::Vector3d::UnitY())
+                                ).toRotationMatrix().col(0);
+  Eigen::Vector3d jW1Expected = Eigen::AngleAxisd(y, Eigen::Vector3d::UnitZ()).toRotationMatrix().col(1);
+  Eigen::Vector3d jW2Expected = Eigen::Vector3d::UnitZ();
+  BOOST_CHECK(jW.col(0).isApprox(jW0Expected));
+  BOOST_CHECK(jW.col(1).isApprox(jW1Expected));
+  BOOST_CHECK(jW.col(2).isApprox(jW2Expected));
+
+  // Check against finite differences
+  Eigen::Vector3d rpydot = Eigen::Vector3d::Random();
+  double const eps = 1e-7;
+  double const tol = 1e-5;
+
+  Eigen::Matrix3d dRdr = (pinocchio::rpy::rpyToMatrix(r + eps, p, y) - R) / eps;
+  Eigen::Matrix3d dRdp = (pinocchio::rpy::rpyToMatrix(r, p + eps, y) - R) / eps;
+  Eigen::Matrix3d dRdy = (pinocchio::rpy::rpyToMatrix(r, p, y + eps) - R) / eps;
+  Eigen::Matrix3d Rdot = dRdr * rpydot[0] + dRdp * rpydot[1] + dRdy * rpydot[2];
+
+  Eigen::Vector3d omegaL = jL * rpydot;
+  BOOST_CHECK(Rdot.isApprox(R * pinocchio::skew(omegaL), tol));
+
+  Eigen::Vector3d omegaW = jW * rpydot;
+  BOOST_CHECK(Rdot.isApprox(pinocchio::skew(omegaW) * R, tol));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
