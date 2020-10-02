@@ -93,6 +93,7 @@ namespace pinocchio
           const Inertia Y = convertFromUrdf(link->inertial);
 
           Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
+          Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
           Vector3 axis (joint->axis.x, joint->axis.y, joint->axis.z);
 
           const Scalar infty = std::numeric_limits<Scalar>::infinity();
@@ -108,11 +109,15 @@ namespace pinocchio
               max_config   = Vector::Constant(7, infty);
               min_config.tail<4>().setConstant(-1.01);
               max_config.tail<4>().setConstant( 1.01);
+              
+              friction = Vector::Constant(6, 0.);
+              damping = Vector::Constant(6, 0.);
 
               model.addJointAndBody(UrdfVisitorBase::FLOATING, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::REVOLUTE:
@@ -120,18 +125,25 @@ namespace pinocchio
 
               // TODO I think the URDF standard forbids REVOLUTE with no limits.
               assert(joint->limits);
-              if (joint->limits)
+              if(joint->limits)
               {
                 max_effort << joint->limits->effort;
                 max_velocity << joint->limits->velocity;
                 min_config << joint->limits->lower;
                 max_config << joint->limits->upper;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::REVOLUTE, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::CONTINUOUS: // Revolute joint with no joint limits
@@ -146,15 +158,24 @@ namespace pinocchio
               {
                 max_effort << joint->limits->effort;
                 max_velocity << joint->limits->velocity;
-              } else {
+              }
+              else
+              {
                 max_effort << infty;
                 max_velocity << infty;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::CONTINUOUS, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::PRISMATIC:
@@ -169,11 +190,18 @@ namespace pinocchio
                 min_config << joint->limits->lower;
                 max_config << joint->limits->upper;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::PRISMATIC, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::PLANAR:
@@ -185,11 +213,15 @@ namespace pinocchio
               max_config   = Vector::Constant(4, infty);
               min_config.tail<2>().setConstant(-1.01);
               max_config.tail<2>().setConstant( 1.01);
+              
+              friction = Vector::Constant(3, 0.);
+              damping = Vector::Constant(3, 0.);
 
               model.addJointAndBody(UrdfVisitorBase::PLANAR, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::FIXED:

@@ -97,44 +97,51 @@ namespace pinocchio
       GeometryModel& > ArgsType;
       
       template <typename JointModel>
-      static void algo (const JointModelBase<JointModel> & jmodel,
+      static void algo (const JointModelBase<JointModel> & jmodel_in,
                         const Model & modelAB,
                         const GeometryModel & geomModelAB,
-                        JointIndex parentId,
+                        JointIndex parent_id,
                         const typename Model::SE3 & pMi,
                         Model & model,
                         GeometryModel & geomModel)
       {
         // If old parent is universe, use what's provided in the input.
         // otherwise, get the parent from modelAB.
-        if (modelAB.parents[jmodel.id()] > 0)
-          parentId = model.getJointId(modelAB.names[modelAB.parents[jmodel.id()]]);
+        const JointIndex joint_id_in = jmodel_in.id();
+        if (modelAB.parents[joint_id_in] > 0)
+          parent_id = model.getJointId(modelAB.names[modelAB.parents[joint_id_in]]);
         
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existJointName(modelAB.names[jmodel.id()]),
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existJointName(modelAB.names[joint_id_in]),
                                        "The two models have conflicting joint names.");
         
-        JointIndex jid = model.addJoint (
-                                         parentId,
-                                         jmodel,
-                                         pMi * modelAB.jointPlacements[jmodel.id()],
-                                         modelAB.names[jmodel.id()],
-                                         jmodel.jointVelocitySelector(modelAB.effortLimit),
-                                         jmodel.jointVelocitySelector(modelAB.velocityLimit),
-                                         jmodel.jointConfigSelector(modelAB.lowerPositionLimit),
-                                         jmodel.jointConfigSelector(modelAB.upperPositionLimit));
-        assert (jid < model.joints.size());
+        JointIndex joint_id_out = model.addJoint(parent_id,
+                                                 jmodel_in,
+                                                 pMi * modelAB.jointPlacements[joint_id_in],
+                                                 modelAB.names[joint_id_in],
+                                                 jmodel_in.jointVelocitySelector(modelAB.effortLimit),
+                                                 jmodel_in.jointVelocitySelector(modelAB.velocityLimit),
+                                                 jmodel_in.jointConfigSelector(modelAB.lowerPositionLimit),
+                                                 jmodel_in.jointConfigSelector(modelAB.upperPositionLimit),
+                                                 jmodel_in.jointVelocitySelector(modelAB.friction),
+                                                 jmodel_in.jointVelocitySelector(modelAB.damping));
+        assert(joint_id_out < model.joints.size());
         
-        model.appendBodyToJoint (jid, modelAB.inertias[jmodel.id()]);
+        model.appendBodyToJoint(joint_id_out, modelAB.inertias[joint_id_in]);
+        
+        const typename Model::JointModel & jmodel_out = model.joints[joint_id_out];
+        jmodel_out.jointVelocitySelector(model.rotorInertia) = jmodel_in.jointVelocitySelector(modelAB.rotorInertia);
+        jmodel_out.jointVelocitySelector(model.rotorGearRatio) = jmodel_in.jointVelocitySelector(modelAB.rotorGearRatio);
         
         // Add all frames whose parent is this joint.
-        for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid) {
+        for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
+        {
           Frame frame = modelAB.frames[fid];
-          if (frame.parent == jmodel.id())
+          if (frame.parent == jmodel_in.id())
           {
             PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existFrame(frame.name, frame.type),
                                            "The two models have conflicting frame names.");
             
-            frame.parent = jid;
+            frame.parent = joint_id_out;
             assert (frame.previousFrame > 0 || frame.type == JOINT);
             if (frame.previousFrame != 0)
             {
@@ -146,19 +153,19 @@ namespace pinocchio
           }
         }
         // Add all geometries whose parent is this joint.
-        for (GeomIndex gid = 0; gid < geomModelAB.geometryObjects.size(); ++gid)
+        for(GeomIndex gid = 0; gid < geomModelAB.geometryObjects.size(); ++gid)
         {
           GeometryObject go = geomModelAB.geometryObjects[gid];
-          if (go.parentJoint == jmodel.id())
+          if(go.parentJoint == joint_id_in)
           {
-            go.parentJoint = jid;
-            assert (go.parentFrame > 0);
-            if (go.parentFrame != 0)
+            go.parentJoint = joint_id_out;
+            assert(go.parentFrame > 0);
+            if(go.parentFrame != 0)
             {
               go.parentFrame = model.getFrameId(modelAB.frames[go.parentFrame].name,
                                                 modelAB.frames[go.parentFrame].type);
             }
-            geomModel.addGeometryObject (go);
+            geomModel.addGeometryObject(go);
           }
         }
       }
@@ -389,6 +396,17 @@ namespace pinocchio
         reduced_model.appendBodyToJoint(reduced_joint_id,
                                         input_model.inertias[joint_id],
                                         SE3::Identity());
+        
+        // Copy other kinematics and dynamics properties
+        const typename Model::JointModel & jmodel_out = reduced_model.joints[reduced_joint_id];
+        jmodel_out.jointVelocitySelector(reduced_model.rotorInertia)
+        = joint_input_model.jointVelocitySelector(input_model.rotorInertia);
+        jmodel_out.jointVelocitySelector(reduced_model.rotorGearRatio)
+        = joint_input_model.jointVelocitySelector(input_model.rotorGearRatio);
+        jmodel_out.jointVelocitySelector(reduced_model.friction)
+        = joint_input_model.jointVelocitySelector(input_model.friction);
+        jmodel_out.jointVelocitySelector(reduced_model.damping)
+        = joint_input_model.jointVelocitySelector(input_model.damping);
       }
     }
     
