@@ -56,7 +56,7 @@ jobs:
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON ^
           -DBUILD_PYTHON_INTERFACE=ON ^
-          -DBUILD_WITH_COLLISION_SUPPORT=ON ^
+          -DBUILD_WITH_COLLISION_SUPPORT=OFF ^
           ..
 
         :: Build
