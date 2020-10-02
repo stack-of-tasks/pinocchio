@@ -24,15 +24,7 @@ namespace pinocchio
     template<typename Scalar>
     Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r,
                                           const Scalar p,
-                                          const Scalar y)
-    {
-      typedef Eigen::AngleAxis<Scalar> AngleAxis;
-      typedef Eigen::Matrix<Scalar,3,1> Vector3s;
-      return (AngleAxis(y, Vector3s::UnitZ())
-              * AngleAxis(p, Vector3s::UnitY())
-              * AngleAxis(r, Vector3s::UnitX())
-             ).toRotationMatrix();
-    }
+                                          const Scalar y);
 
     ///
     /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
@@ -43,11 +35,7 @@ namespace pinocchio
     ///
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
-    {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like, rpy, 3, 1);
-      return rpyToMatrix(rpy[0], rpy[1], rpy[2]);
-    }
+    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy);
 
     ///
     /// \brief Convert from Transformation Matrix to Roll, Pitch, Yaw
@@ -64,33 +52,11 @@ namespace pinocchio
     ///
     template<typename Matrix3Like>
     Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
-    matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
-    {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
-      assert(R.isUnitary() && "R is not a unitary matrix");
-
-      typedef typename Matrix3Like::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> ReturnType;
-      static const Scalar pi = PI<Scalar>();
-
-      ReturnType res = R.eulerAngles(2,1,0).reverse();
-
-      if(res[1] < -pi/2)
-        res[1] += 2*pi;
-
-      if(res[1] > pi/2)
-      {
-        res[1] = pi - res[1];
-        if(res[0] < Scalar(0))
-          res[0] += pi;
-        else
-          res[0] -= pi;
-        // res[2] > 0 according to Eigen's eulerAngles doc, no need to check its sign
-        res[2] -= pi;
-      }
-
-      return res;
-    }
+    matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R);
   } // namespace rpy
 }
+
+/* --- Details -------------------------------------------------------------------- */
+#include "pinocchio/math/rpy.hxx"
+
 #endif //#ifndef __pinocchio_math_rpy_hpp__
