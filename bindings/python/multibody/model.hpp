@@ -125,6 +125,11 @@ namespace pinocchio
       struct addJointVisitor1
       : public addJointVisitor0
       {
+        using addJointVisitor0::m_model;
+        using addJointVisitor0::m_parent_id;
+        using addJointVisitor0::m_joint_placement;
+        using addJointVisitor0::m_joint_name;
+        
         const VectorXs & m_max_effort;
         const VectorXs & m_max_velocity;
         const VectorXs & m_min_config;
@@ -138,7 +143,7 @@ namespace pinocchio
                                   const VectorXs & max_velocity,
                                   const VectorXs & min_config,
                                   const VectorXs & max_config)
-        : addJointVisitor1(model,parent_id,joint_placement,joint_name)
+        : addJointVisitor0(model,parent_id,joint_placement,joint_name)
         , m_max_effort(max_effort)
         , m_max_velocity(max_velocity)
         , m_min_config(min_config)
@@ -155,6 +160,15 @@ namespace pinocchio
       struct addJointVisitor2
       : public addJointVisitor1
       {
+        using addJointVisitor1::m_model;
+        using addJointVisitor1::m_parent_id;
+        using addJointVisitor1::m_joint_placement;
+        using addJointVisitor1::m_joint_name;
+        using addJointVisitor1::m_max_effort;
+        using addJointVisitor1::m_max_velocity;
+        using addJointVisitor1::m_min_config;
+        using addJointVisitor1::m_max_config;
+        
         const VectorXs & m_friction;
         const VectorXs & m_damping;
 
