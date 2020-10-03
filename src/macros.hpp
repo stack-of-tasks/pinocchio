@@ -10,7 +10,7 @@
 
 #if __cplusplus >= 201703L
   #define PINOCCHIO_WITH_CXX17_SUPPORT
-#elif defined(_MSVC_LANG)
+#elif defined(_MSVC_LANG) && !(defined(__EDG__) && defined(__clang__))
   #if _MSVC_LANG >= 201703L
     #define PINOCCHIO_WITH_CXX17_SUPPORT
   #endif
@@ -18,7 +18,7 @@
 
 #if __cplusplus >= 201403L
   #define PINOCCHIO_WITH_CXX14_SUPPORT
-#elif defined(_MSVC_LANG)
+#elif defined(_MSVC_LANG) && !(defined(__EDG__) && defined(__clang__))
   #if _MSVC_LANG >= 201403L
     #define PINOCCHIO_WITH_CXX14_SUPPORT
   #endif
@@ -26,7 +26,7 @@
 
 #if __cplusplus >= 201103L
   #define PINOCCHIO_WITH_CXX11_SUPPORT
-#elif defined(_WIN32)
+#elif defined(_WIN32) && !(defined(__EDG__) && defined(__clang__))
   #ifdef PINOCCHIO_WITH_CXX14_SUPPORT
     #define PINOCCHIO_WITH_CXX11_SUPPORT
   #endif
