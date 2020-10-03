@@ -11,7 +11,7 @@
 
 namespace pinocchio
 {
-#if __cplusplus >= 201103L
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
   constexpr int SELF = 0;
 #else
   enum { SELF = 0 };
