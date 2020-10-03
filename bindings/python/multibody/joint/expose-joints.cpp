@@ -16,11 +16,11 @@ namespace pinocchio
     
     static void exposeVariants()
     {
-      boost::mpl::for_each<JointModelVariant::types>(ModelExposer());
+      boost::mpl::for_each<JointModelVariant::types>(JointModelExposer());
       bp::to_python_converter<pinocchio::JointModelVariant,
                               JointVariantVisitor<pinocchio::JointModelVariant > >();
 
-      boost::mpl::for_each<JointDataVariant::types>(DataExposer());
+      boost::mpl::for_each<JointDataVariant::types>(JointDataExposer());
       bp::to_python_converter<pinocchio::JointDataVariant,
                               JointVariantVisitor<pinocchio::JointDataVariant > >();
     }
