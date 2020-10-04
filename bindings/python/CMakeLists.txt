@@ -103,7 +103,9 @@ IF(BUILD_PYTHON_INTERFACE)
   # Do not report:
   #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
   #  -Wcomment as latex equations have multi-line comments.
-  TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE -Wno-conversion -Wno-comment)
+  IF(NOT WIN32)
+    TARGET_COMPILE_OPTIONS(${PYWRAP} PRIVATE -Wno-conversion -Wno-comment)
+  ENDIF(NOT WIN32)
 
   SET_TARGET_PROPERTIES(${PYWRAP} PROPERTIES VERSION ${PROJECT_VERSION})
   IF(BUILD_WITH_COMMIT_VERSION)
