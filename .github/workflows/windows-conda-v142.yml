@@ -55,7 +55,7 @@ jobs:
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON ^
-          -DBUILD_PYTHON_INTERFACE=ON ^
+          -DBUILD_PYTHON_INTERFACE=OFF ^
           -DBUILD_WITH_COLLISION_SUPPORT=OFF ^
           ..
 
@@ -66,6 +66,6 @@ jobs:
         set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
         ctest --output-on-failure -C Release -V
 
-        :: Test Python import
-        cd ..
-        python -c "import pinocchio"
+#        :: Test Python import
+#        cd ..
+#        python -c "import pinocchio"
