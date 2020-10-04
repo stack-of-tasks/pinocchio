@@ -101,7 +101,7 @@ namespace pinocchio
     
     void loadLib(const bool generate_if_not_exist = true)
     {
-      if(not existLib() && generate_if_not_exist)
+      if(!existLib() && generate_if_not_exist)
         compileLib();
       
       const auto it = dynamicLibManager_ptr->getOptions().find("dlOpenMode");
