@@ -1,4 +1,4 @@
-name: Build Pinocchio for Windows via Conda
+name: Build Pinocchio for Windows (CLANG) via Conda
 on:
   pull_request:
   push:

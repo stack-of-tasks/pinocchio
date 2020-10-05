@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(test_quaternion)
     
     quat_value.coeffs() = Eigen::Map<Eigen::Vector4d>(static_cast< std::vector<double> >(quat_res).data());
     BOOST_CHECK(pinocchio::quaternion::defineSameRotation(quat_value,quat_ref));
-//    if(not quat_value.coeffs().isApprox(quat_ref.coeffs()))
+//    if(! quat_value.coeffs().isApprox(quat_ref.coeffs()))
 //    {
 //      std::cout << "quat_value: " << quat_value.coeffs().transpose() << std::endl;
 //      std::cout << "quat_ref: " << quat_ref.coeffs().transpose() << std::endl;

@@ -34,9 +34,9 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   _PyWarnings_Init();
 #endif
   
-  if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
+  if(! register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
     eigenpy::exposeQuaternion();
-  if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
+  if(! register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
   
   StdContainerFromPythonList< std::vector<std::string> >::register_converter();

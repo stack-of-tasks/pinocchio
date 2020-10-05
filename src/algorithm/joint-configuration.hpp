@@ -863,7 +863,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits);
@@ -884,7 +884,7 @@ namespace pinocchio
   
   */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & lowerLimits,
                       const Eigen::MatrixBase<ConfigVectorIn2> & upperLimits)
@@ -907,7 +907,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
   /**
@@ -925,7 +925,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  typename PINOCCHIO_EIGEN_PLAIN_TYPE((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS((typename ModelTpl<Scalar,Options,JointCollectionTpl>::ConfigVectorType))
   randomConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
     return randomConfiguration<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);

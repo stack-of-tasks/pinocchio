@@ -9,6 +9,7 @@
 
 /// \brief Macro giving access to the equivalent plain type of D
 #define PINOCCHIO_EIGEN_PLAIN_TYPE(D) Eigen::internal::plain_matrix_type< typename pinocchio::helper::argument_type<void(D)>::type >::type
+#define PINOCCHIO_EIGEN_PLAIN_TYPE_NO_PARENS(D) Eigen::internal::plain_matrix_type< typename pinocchio::helper::argument_type<void D>::type >::type
 
 /// \brief Similar to macro PINOCCHIO_EIGEN_PLAIN_TYPE but with guaranty to provite a column major type
 #define PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,Eigen::internal::plain_matrix_type_column_major>::type
