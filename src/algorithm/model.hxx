@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_model_hxx__
 #define __pinocchio_algorithm_model_hxx__
 
 #include <algorithm>
+#include <iterator>
 
 namespace pinocchio
 {
@@ -525,6 +526,150 @@ namespace pinocchio
     }
 #endif
     
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  ModelTpl<Scalar,Options,JointCollectionTpl>
+  changeRootJoint(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const JointIndex new_root_joint_id,
+                  const SE3Tpl<Scalar,Options> & placement)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+    typedef typename Model::IndexVector IndexVector;
+    Model model_out;
+    
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(new_root_joint_id > 0 && new_root_joint_id < model.joints.size(),
+                                   "The new_root_joint_id is not a valid joint index.")
+    
+    // First check that the model has only one root joint.
+    unsigned int num_root_joints = 0;
+    for(JointIndex joint_id = 1; joint_id < model.joints.size(); ++joint_id)
+    {
+      if(model.parents[joint_id] == 0)
+        num_root_joints += 1;
+    }
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(num_root_joints <= 1, "The input model has more than one root joint.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(num_root_joints >= 1, "The input model does not have any root joint.");
+    
+    const JointIndex former_root_joint_id = 1;
+
+    const typename Model::IndexVector & subtree_new_root_joint = model.subtrees[new_root_joint_id];
+    IndexVector joint_tree_out(subtree_new_root_joint.begin(),
+                               subtree_new_root_joint.end());
+    
+    IndexVector reordered_parent_tree_out;
+    reordered_parent_tree_out.push_back(0); // The parent of the new_root_joint is the universe
+    {
+      typename IndexVector::const_iterator it = joint_tree_out.begin();
+      std::advance(it,1);
+      for(;it != joint_tree_out.end();++it)
+      {
+        reordered_parent_tree_out.push_back(model.parents[*it]);
+      }
+    }
+    
+    const IndexVector & support_new_root_joint = model.supports[new_root_joint_id];
+    typename IndexVector::const_reverse_iterator rit = support_new_root_joint.rbegin();
+    JointIndex parent = *rit;
+    std::advance(rit,1);
+    for(;rit != support_new_root_joint.rend(); ++rit)
+    {
+      if(*rit == former_root_joint_id || *rit == 0) break;
+      joint_tree_out.push_back(*rit);
+      reordered_parent_tree_out.push_back(parent);
+      parent = *rit;
+    }
+    if(std::find(joint_tree_out.begin(),joint_tree_out.end(),former_root_joint_id) == joint_tree_out.end())
+    {
+      joint_tree_out.push_back(former_root_joint_id);
+      reordered_parent_tree_out.push_back(parent);
+    }
+    
+    // Add the remaining joints
+    const typename Model::IndexVector & joint_tree_in = model.subtrees[former_root_joint_id];
+    {
+      typename IndexVector::const_iterator it = joint_tree_in.begin();
+      std::advance(it,1);
+      for(;it != joint_tree_in.end(); ++it)
+      {
+        const JointIndex joint_id_in = *it;
+        if(std::find(joint_tree_out.begin(),joint_tree_out.end(),joint_id_in) != joint_tree_out.end())
+          continue; // already in the list
+        joint_tree_out.push_back(joint_id_in);
+        reordered_parent_tree_out.push_back(model.parents[joint_id_in]);
+      }
+    }
+    
+    assert(joint_tree_out.size() == model.joints.size()-1);
+    assert(reordered_parent_tree_out.size() == joint_tree_out.size());
+    
+    model_out.name = model.name;
+    model_out.gravity = model.gravity;
+    
+    for(size_t k = 0; k < joint_tree_out.size(); ++k)
+    {
+      const JointIndex joint_id_in = joint_tree_out[k];
+      const JointIndex parent_id = reordered_parent_tree_out[k];
+      const typename Model::JointModel & jmodel_in = model.joints[joint_id_in];
+      
+      const JointIndex joint_id_out = model_out.addJoint(model_out.getJointId(model.names[parent_id]),
+                                                         jmodel_in,
+                                                         model.jointPlacements[joint_id_in],
+                                                         model.names[joint_id_in],
+                                                         jmodel_in.jointVelocitySelector(model.effortLimit),
+                                                         jmodel_in.jointVelocitySelector(model.velocityLimit),
+                                                         jmodel_in.jointConfigSelector(model.lowerPositionLimit),
+                                                         jmodel_in.jointConfigSelector(model.upperPositionLimit),
+                                                         jmodel_in.jointVelocitySelector(model.friction),
+                                                         jmodel_in.jointVelocitySelector(model.damping));
+
+      const typename Model::JointModel & jmodel_out = model_out.joints[joint_id_out];
+      jmodel_out.jointVelocitySelector(model_out.rotorInertia) = jmodel_in.jointVelocitySelector(model.rotorInertia);
+      jmodel_out.jointVelocitySelector(model_out.rotorGearRatio) = jmodel_in.jointVelocitySelector(model.rotorGearRatio);
+      
+      model_out.appendBodyToJoint(joint_id_out,
+                                  model.inertias[joint_id_in]);
+    }
+    
+    model_out.nbodies = model.nbodies;
+    
+    // Handle the frames
+    model_out.frames = model.frames;
+    model_out.nframes = model.nframes;
+    for(FrameIndex frame_id = 0; frame_id < model.frames.size(); ++frame_id)
+    {
+      const Frame & frame_in = model.frames[frame_id];
+      Frame & frame_out = model_out.frames[frame_id];
+      
+      frame_out.parent = model_out.getJointId(model.names[frame_in.parent]);
+      frame_out.previousFrame = model_out.getFrameId(model.frames[frame_in.previousFrame].name);
+    }
+    
+    // Handle reference configuration
+    typedef typename Model::ConfigVectorMap ConfigVectorMap;
+    for(typename ConfigVectorMap::const_iterator config_it = model.referenceConfigurations.begin();
+        config_it != model.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & config_vector_in = config_it->second;
+      
+      typename Model::ConfigVectorType config_vector(model_out.nq);
+      for(JointIndex joint_id_out = 1;
+          joint_id_out < model_out.joints.size();
+          ++joint_id_out)
+      {
+        const JointIndex joint_id_in = model.getJointId(model_out.names[joint_id_out]);
+        const JointModel & joint_model_in = model.joints[joint_id_in];
+        const JointModel & joint_model_out = model_out.joints[joint_id_out];
+        
+        joint_model_out.jointConfigSelector(config_vector) = joint_model_in.jointConfigSelector(config_vector_in);
+      }
+      
+      model_out.referenceConfigurations.insert(std::make_pair(config_name, config_vector));
+    }
+    
+    return model_out;
   }
 
 } // namespace pinocchio
