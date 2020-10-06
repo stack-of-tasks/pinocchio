@@ -419,7 +419,7 @@ namespace pinocchio
     {
       typedef typename ConfigVectorLike::Scalar Scalar;
       EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigVector_t,ConfigVectorLike);
-      typedef typename Eigen::Quaternion<typename ConfigVectorLike::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
+      typedef typename Eigen::Quaternion<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorLike)::Options> Quaternion;
       typedef Eigen::Map<const Quaternion> ConstQuaternionMap;
 
       ConstQuaternionMap quat(q_joint.derived().data());
