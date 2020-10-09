@@ -476,8 +476,6 @@ BOOST_AUTO_TEST_CASE(test_get_coriolis)
   using namespace Eigen;
   using namespace pinocchio;
   
-  const double prec = Eigen::NumTraits<double>::dummy_precision();
-  
   Model model;
   buildModels::humanoidRandom(model);
   
