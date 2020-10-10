@@ -57,6 +57,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,IS);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,vxI);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,Ivx);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,oinertias);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,oYcrb);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,doYcrb);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,ddq);

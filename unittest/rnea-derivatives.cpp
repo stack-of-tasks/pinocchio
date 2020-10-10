@@ -471,4 +471,39 @@ BOOST_AUTO_TEST_CASE(test_multiple_calls)
   BOOST_CHECK(data1.M.isApprox(data2.M));
 }
 
+BOOST_AUTO_TEST_CASE(test_get_coriolis)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
+  Data data_ref(model);
+  Data data(model);
+  
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  computeCoriolisMatrix(model,data_ref,q,v);
+  
+  computeRNEADerivatives(model,data,q,v,tau);
+  getCoriolisMatrix(model,data);
+  
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.dJ.isApprox(data_ref.dJ));
+  BOOST_CHECK(data.Fcrb[0].isApprox(data_ref.dFdv));
+  for(JointIndex k = 1; k < model.joints.size(); ++k)
+  {
+    BOOST_CHECK(data.vxI[k].isApprox(data_ref.vxI[k]));
+    BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
+  }
+  
+  BOOST_CHECK(data.C.isApprox(data_ref.C));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

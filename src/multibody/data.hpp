@@ -183,10 +183,13 @@ namespace pinocchio
     /// \brief Left variation of the inertia matrix
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Ivx;
     
-    /// \brief Inertia quantities expressed in the world frame
+    /// \brief Rigid Body Inertia supported by the joint expressed in the world frame
+    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
+    
+    /// \brief Composite Rigid Body Inertia expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oYcrb;
     
-    /// \brief Time variation of the inertia quantities expressed in the world frame
+    /// \brief Time variation of Composite Rigid Body Inertia expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) doYcrb;
     
     /// \brief Temporary for derivative algorithms

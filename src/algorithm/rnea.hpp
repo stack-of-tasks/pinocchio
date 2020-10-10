@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_rnea_hpp__
-#define __pinocchio_rnea_hpp__
+#ifndef __pinocchio_algorithm_rnea_hpp__
+#define __pinocchio_algorithm_rnea_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -154,9 +154,28 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v);
 
+  ///
+  /// \brief Retrives the Coriolis Matrix \f$ C(q,\dot{q}) \f$ of the Lagrangian dynamics:
+  /// <CENTER> \f$ \begin{eqnarray} M \ddot{q} + C(q, \dot{q})\dot{q} + g(q) = \tau  \end{eqnarray} \f$ </CENTER> <BR>
+  /// after a call to the dynamics derivatives.
+  ///
+  /// \note In the previous equation, \f$ c(q, \dot{q}) = C(q, \dot{q})\dot{q} \f$.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  ///
+  /// \return The Coriolis matrix stored in data.C.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  getCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    DataTpl<Scalar,Options,JointCollectionTpl> & data);
+
 } // namespace pinocchio 
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/rnea.hxx"
 
-#endif // ifndef __pinocchio_rnea_hpp__
+#endif // ifndef __pinocchio_algorithm_rnea_hpp__

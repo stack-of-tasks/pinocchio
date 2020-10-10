@@ -55,7 +55,7 @@ namespace pinocchio
       ov = data.oMi[i].act(data.v[i]);
       data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
       data.Yaba[i] = model.inertias[i].matrix();
-      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oinertias[i] = data.oMi[i].act(model.inertias[i]);
       
       data.oh[i] = data.oYcrb[i] * ov;
       data.of[i] = ov.cross(data.oh[i]);
