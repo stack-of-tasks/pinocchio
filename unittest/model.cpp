@@ -495,4 +495,96 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
 }
 #endif // PINOCCHIO_WITH_HPP_FCL
 
+BOOST_AUTO_TEST_CASE(test_changeRootJoint)
+{
+  Model humanoid_model;
+  buildModels::humanoid(humanoid_model);
+  
+  Model humanoid_model_same = changeRootJoint(humanoid_model,1);
+//  BOOST_CHECK(humanoid_model_same.nq == humanoid_model.nq);
+//  BOOST_CHECK(humanoid_model_same.nqs == humanoid_model.nqs);
+//  BOOST_CHECK(humanoid_model_same.idx_qs == humanoid_model.idx_qs);
+//  BOOST_CHECK(humanoid_model_same.nv == humanoid_model.nv);
+//  BOOST_CHECK(humanoid_model_same.nvs == humanoid_model.nvs);
+//  BOOST_CHECK(humanoid_model_same.idx_vs == humanoid_model.idx_vs);
+//  BOOST_CHECK(humanoid_model_same.njoints == humanoid_model.njoints);
+//  BOOST_CHECK(humanoid_model_same.nframes == humanoid_model.nframes);
+//  BOOST_CHECK(humanoid_model_same.nbodies == humanoid_model.nbodies);
+//  BOOST_CHECK(humanoid_model_same.name == humanoid_model.name);
+//  BOOST_CHECK(humanoid_model_same.names == humanoid_model.names);
+//  BOOST_CHECK(humanoid_model_same.parents == humanoid_model.parents);
+//  BOOST_CHECK(humanoid_model_same.frames == humanoid_model.frames);
+//  BOOST_CHECK(humanoid_model_same.joints == humanoid_model.joints);
+//  BOOST_CHECK(humanoid_model_same.inertias == humanoid_model.inertias);
+//  BOOST_CHECK(humanoid_model_same.jointPlacements == humanoid_model.jointPlacements);
+//  BOOST_CHECK(humanoid_model_same.lowerPositionLimit == humanoid_model.lowerPositionLimit);
+//  BOOST_CHECK(humanoid_model_same.upperPositionLimit == humanoid_model.upperPositionLimit);
+//  BOOST_CHECK(humanoid_model_same.effortLimit == humanoid_model.effortLimit);
+//  BOOST_CHECK(humanoid_model_same.velocityLimit == humanoid_model.velocityLimit);
+//  BOOST_CHECK(humanoid_model_same.rotorInertia == humanoid_model.rotorInertia);
+//  BOOST_CHECK(humanoid_model_same.rotorGearRatio == humanoid_model.rotorGearRatio);
+//  BOOST_CHECK(humanoid_model_same.friction == humanoid_model.friction);
+//  BOOST_CHECK(humanoid_model_same.damping == humanoid_model.damping);
+//  BOOST_CHECK(humanoid_model_same.gravity == humanoid_model.gravity);
+//  BOOST_CHECK(humanoid_model_same.referenceConfigurations == humanoid_model.referenceConfigurations);
+  BOOST_CHECK(humanoid_model == humanoid_model_same);
+  
+  const std::string former_root_joint_name = humanoid_model.names[1];
+  const std::string new_root_joint_name = "rleg_wrist2_joint";
+  const JointIndex new_root_joint_id = humanoid_model.getJointId(new_root_joint_name);
+  std::cout << "new_root_joint_id: " << new_root_joint_id << std::endl;
+  Model humanoid_model_new_root = changeRootJoint(humanoid_model,new_root_joint_id);
+  
+  for(size_t k = 1; k < humanoid_model_new_root.joints.size(); ++k)
+  {
+    const std::string & joint_name = humanoid_model_new_root.names[k];
+    const JointIndex former_joint_id = humanoid_model.getJointId(joint_name);
+    const JointIndex former_joint_parent_id = humanoid_model.parents[former_joint_id];
+    const JointIndex new_joint_parent_id = humanoid_model_new_root.parents[k];
+    const Model::IndexVector & new_root_joint_subtree = humanoid_model.subtrees[new_root_joint_id];
+    const Model::IndexVector & new_root_joint_support = humanoid_model.supports[new_root_joint_id];
+    
+    BOOST_CHECK(humanoid_model_new_root.joints[k].shortname() == humanoid_model.joints[former_joint_id].shortname());
+    if(new_root_joint_name == joint_name)
+    {
+      BOOST_CHECK(0 == humanoid_model_new_root.parents[k]);
+    }
+    else if(former_root_joint_name == joint_name)
+    {
+      if(new_root_joint_support.size() > 2)
+      {
+        const std::string former_parent_name = humanoid_model.names[new_root_joint_support[2]];
+        BOOST_CHECK(humanoid_model_new_root.parents[k] == humanoid_model_new_root.getJointId(former_parent_name));
+      }
+    }
+    else
+    {
+      // In the subtree
+      if(std::find(new_root_joint_subtree.begin(),new_root_joint_subtree.end(),former_joint_id) != new_root_joint_subtree.end())
+      {
+        BOOST_CHECK(humanoid_model_new_root.names[humanoid_model_new_root.parents[k]] == humanoid_model.names[humanoid_model.parents[former_joint_id]]);
+      }
+      else if(std::find(new_root_joint_support.begin(),new_root_joint_support.end(),former_joint_id) != new_root_joint_support.end()) // In the support - the order has been reversed
+      {
+        const JointIndex former_joint_parent_id = humanoid_model.parents[former_joint_id];
+        const std::string former_joint_parent_name = humanoid_model.names[former_joint_parent_id];
+        
+        const JointIndex new_joint_parent_id = humanoid_model_new_root.getJointId(former_joint_parent_name);
+        if(former_joint_parent_id > 0) // Not a root joint
+        {
+          BOOST_CHECK(k == humanoid_model_new_root.parents[new_joint_parent_id]);
+        }
+        else
+        {
+          BOOST_CHECK(false);
+        }
+      }
+      else // In the remaining tree
+      {
+        BOOST_CHECK(humanoid_model_new_root.names[new_joint_parent_id] == humanoid_model.names[former_joint_parent_id]);
+      }
+    }
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

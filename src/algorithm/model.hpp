@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_model_hpp__
@@ -140,6 +140,21 @@ namespace pinocchio
                     const Eigen::MatrixBase<ConfigVectorType> & reference_configuration,
                     ModelTpl<Scalar,Options,JointCollectionTpl> & reduced_model,
                     GeometryModel & reduced_geom_model);
+
+  /**
+   *
+   *  \brief Change the root joint of a model. It assumes that the initial root joint is located at the index 1 in the input model.
+   *
+   *  \param[in] model the input model from which we want to change to root joint.
+   *  \param[in] new_root_joint_id index of the new root joint.
+   *  \param[in] placement placement with respect to the former joint frame. 
+   *
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  ModelTpl<Scalar,Options,JointCollectionTpl>
+  changeRootJoint(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const JointIndex new_root_joint_id,
+                  const SE3Tpl<Scalar,Options> & placement = SE3Tpl<Scalar,Options>::Identity());
 
 } // namespace pinocchio
 
