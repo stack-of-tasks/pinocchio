@@ -23,7 +23,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
-  /// \returns The centroidal momenta (stored in data.hg).
+  /// \returns The centroidal momenta (stored in data.hg), center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
@@ -45,7 +45,7 @@ namespace pinocchio
   /// \param[in] q The joint configuration vector (dim model.nq).
   /// \param[in] v The joint velocity vector (dim model.nv).
   ///
-  /// \returns The centroidal momenta (stored in data.hg).
+  /// \returns The centroidal momenta (stored in data.hg), center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType>
@@ -86,7 +86,8 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
-  /// \returns The centroidal momenta time derivative (stored in data.dhg). The centroidal momemta is stored in data.hg.
+  /// \returns The centroidal momenta time derivative (stored in data.dhg), centroidal momemta (stored in data.hg),
+  ///          center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
@@ -110,7 +111,8 @@ namespace pinocchio
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] a The joint acceleration vector (dim model.nv).
   ///
-  /// \returns The centroidal momenta time derivative (stored in data.dhg). The centroidal momemta is stored in data.hg.
+  /// \returns The centroidal momenta time derivative (stored in data.dhg), centroidal momemta (stored in data.hg),
+  ///          center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
