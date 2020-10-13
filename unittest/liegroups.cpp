@@ -710,6 +710,11 @@ struct TestLieGroupVariantVisitor
     random (lg_generic, q1);
     difference(lg_generic, q0, q1, v);
     BOOST_CHECK_EQUAL(lg.distance(q0, q1), distance (lg_generic, q0, q1));
+
+    ConfigVector_t q2(nq(lg_generic));
+    random(lg_generic, q2);
+    normalize(lg_generic, q2);
+    BOOST_CHECK(isNormalized(lg_generic, q2));
   }
 };
 
