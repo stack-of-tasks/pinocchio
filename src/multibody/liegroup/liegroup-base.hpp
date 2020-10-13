@@ -357,11 +357,24 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *             For instance, the quaternion must be unitary.
      *
      * @note       If the input vector is too small (i.e., qout.norm()==0), then it is left unchanged.
+     *             It is therefore possible that after this method is called `isNormalized(qout)` is still false.
      * 
      * @param[in,out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
     void normalize(const Eigen::MatrixBase<Config_t> & qout) const;
+
+    /**
+     * @brief      Check whether the input joint configuration is normalized.
+     *             For instance, the quaternion must be unitary.
+     * 
+     * @param[in]     qin  The joint configuration to check.
+     * 
+     * @return true if the input vector is normalized, false otherwise.
+     */
+    template <class Config_t>
+    bool isNormalized(const Eigen::MatrixBase<Config_t> & qin,
+                      const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
@@ -562,6 +575,10 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     
     template <class Config_t>
     void normalize_impl(const Eigen::MatrixBase<Config_t> & qout) const;
+
+    template <class Config_t>
+    bool isNormalized_impl(const Eigen::MatrixBase<Config_t> & qin,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
 
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

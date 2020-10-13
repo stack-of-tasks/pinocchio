@@ -306,6 +306,14 @@ namespace pinocchio
     }
 
     template <class Config_t>
+    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t> & qin,
+                                   const Scalar prec)
+    {
+      const Scalar norm = qin.norm();
+      return (std::abs(norm - Scalar(1.0)) < prec );
+    }
+
+    template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       Config_t & out = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
@@ -572,6 +580,14 @@ namespace pinocchio
     {
       Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       qout_.normalize();
+    }
+
+    template <class Config_t>
+    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t> & qin,
+                                   const Scalar prec)
+    {
+      const Scalar norm = qin.norm();
+      return (std::abs(norm - Scalar(1.0)) < prec );
     }
 
     template <class Config_t>
