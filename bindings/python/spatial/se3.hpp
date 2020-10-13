@@ -62,15 +62,15 @@ namespace pinocchio
       {
         cl
         .def(bp::init<Matrix3,Vector3>
-             ((bp::arg("rotation"),bp::arg("translation")),
+             ((bp::arg("self"),bp::arg("rotation"),bp::arg("translation")),
               "Initialize from a rotation matrix and a translation vector."))
         .def(bp::init<Quaternion,Vector3>
-             ((bp::arg("quat"),bp::arg("translation")),
+             ((bp::arg("self"),bp::arg("quat"),bp::arg("translation")),
               "Initialize from a quaternion and a translation vector."))
-        .def(bp::init<int>((bp::arg("int")),"Init to identity."))
-        .def(bp::init<SE3>((bp::arg("other")), "Copy constructor."))
+        .def(bp::init<int>((bp::arg("self"),bp::arg("int")),"Init to identity."))
+        .def(bp::init<SE3>((bp::arg("self"),bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
-             ((bp::arg("homegeneous_matrix")),
+             ((bp::arg("self"),bp::arg("array")),
               "Initialize from an homogeneous matrix."))
 
         .add_property("rotation",
@@ -180,7 +180,7 @@ namespace pinocchio
       {
         bp::class_<SE3>("SE3",
                         "SE3 transformation defined by a 3d vector and a rotation matrix.",
-                        bp::init<>())
+                        bp::init<>(bp::arg("self"),"Default constructor."))
         .def(SE3PythonVisitor<SE3>())
         .def(CopyableVisitor<SE3>())
         .def(PrintableVisitor<SE3>())
