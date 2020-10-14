@@ -268,10 +268,9 @@ namespace pinocchio
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
-      
+
       const SE3 & oMc = cdata.oMc1;
       Force & of = data.of[cmodel.joint1_id];
-
       switch(cmodel.reference_frame) 
       {
         case LOCAL:
@@ -354,17 +353,6 @@ namespace pinocchio
                                           contact_dac_dq,
                                           contact_dac_dv,
                                           contact_dac_da);
-          //TODO: remplacer par contact_model::NC
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            contact_dac_dq.template topRows<3>().col(j) +=
-              v_tmp.angular().cross(contact_dvc_dq.template topRows<3>().col(j))
-              - v_tmp.linear().cross(contact_dvc_dq.template bottomRows<3>().col(j)); 
-            contact_dac_dv.template topRows<3>().col(j) +=
-              v_tmp.angular().cross(contact_dac_da.template topRows<3>().col(j))
-              - v_tmp.linear().cross(contact_dac_da.template bottomRows<3>().col(j));
-          }
-          
           current_row_sol_id += 6;
           break;
         }
