@@ -51,6 +51,8 @@ namespace pinocchio
     
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
+
+    data.vcom[0].noalias() = data.hg.linear()/data.mass[0];
     
     return data.hg;
   }
@@ -93,6 +95,7 @@ namespace pinocchio
     }
 
     data.com[0] /= data.mass[0];
+
     
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
@@ -100,6 +103,8 @@ namespace pinocchio
     data.dhg = data.f[0];
     data.dhg.angular() += data.dhg.linear().cross(data.com[0]);
 
+    data.vcom[0].noalias() = data.hg.linear()/data.mass[0];
+    
     return data.dhg;
   }
   
