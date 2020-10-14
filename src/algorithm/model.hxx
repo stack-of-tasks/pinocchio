@@ -489,8 +489,8 @@ namespace pinocchio
       const GeometryModel::GeometryObject & geom = *it;
       
       const JointIndex joint_id_in_input_model = geom.parentJoint;
-      PINOCCHIO_CHECK_INPUT_ARGUMENT((bool)(joint_id_in_input_model < (JointIndex)input_model.njoints),
-                                     "Invalid joint parent index for the geometry with name " + geom.name);
+      _PINOCCHIO_CHECK_INPUT_ARGUMENT_2((joint_id_in_input_model < (JointIndex)input_model.njoints),
+                                        "Invalid joint parent index for the geometry with name " + geom.name);
       const std::string & parent_joint_name = input_model.names[joint_id_in_input_model];
       
       JointIndex reduced_joint_id = (JointIndex)-1;
