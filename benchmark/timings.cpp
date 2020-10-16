@@ -342,7 +342,8 @@ int main(int argc, const char ** argv)
     updateFramePlacements(model, data);
     total += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "Update Frame Placement = \t"; timer.toc(std::cout,NBT);
+  std::cout << "Update Frame Placement = \t" << (total/NBT)
+  << " " << timer.unitName(timer.DEFAULT_UNIT) << std::endl;
 
   
   timer.tic();

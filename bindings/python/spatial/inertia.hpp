@@ -68,7 +68,7 @@ namespace pinocchio
                                   bp::default_call_policies(),
                                   (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
              "Initialize from mass, lever and 3d inertia.")
-        .def(bp::init<Inertia>((bp::arg("other")),"Copy constructor."))
+        .def(bp::init<Inertia>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
         
         .add_property("mass",
                       &InertiaPythonVisitor::getMass,
@@ -210,7 +210,7 @@ namespace pinocchio
         bp::class_<Inertia>("Inertia",
                             "This class represenses a sparse version of a Spatial Inertia and its is defined by its mass, its center of mass location and the rotational inertia expressed around this center of mass.\n\n"
                             "Supported operations ...",
-                            bp::init<>())
+                            bp::init<>(bp::arg("self"),"Default constructor."))
         .def(InertiaPythonVisitor<Inertia>())
         .def(CopyableVisitor<Inertia>())
         .def(PrintableVisitor<Inertia>())

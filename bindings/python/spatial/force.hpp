@@ -63,12 +63,12 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<>("Default constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<Vector3,Vector3>
-             ((bp::arg("linear"),bp::arg("angular")),
+             ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Wrench vector (don't mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("Vector 6d")),"Init from a vector 6 [force,torque]"))
-        .def(bp::init<Force>((bp::arg("other")),"Copy constructor."))
+        .def(bp::init<Vector6>((bp::args("self","array")),"Init from a vector 6 [force,torque]"))
+        .def(bp::init<Force>((bp::args("self","other")),"Copy constructor."))
         
         .add_property("linear",
                       bp::make_function(&ForcePythonVisitor::getLinear,
@@ -139,7 +139,7 @@ namespace pinocchio
         bp::class_<Force>("Force",
                           "Force vectors, in se3* == F^6.\n\n"
                           "Supported operations ...",
-                          bp::init<>())
+                          bp::no_init)
         .def(ForcePythonVisitor<Force>())
         .def(CopyableVisitor<Force>())
         .def(PrintableVisitor<Force>())

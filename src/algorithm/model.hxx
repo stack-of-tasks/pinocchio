@@ -200,7 +200,7 @@ namespace pinocchio
     typedef details::AppendJointOfModelAlgoTpl<Scalar, Options, JointCollectionTpl> AppendJointOfModelAlgo;
     typedef typename AppendJointOfModelAlgo::ArgsType ArgsType;
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(frameInModelA < (FrameIndex) modelA.nframes,
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((bool)(frameInModelA < (FrameIndex) modelA.nframes),
                                    "frameInModelA is an invalid Frame index, greater than the number of frames contained in modelA.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -489,8 +489,8 @@ namespace pinocchio
       const GeometryModel::GeometryObject & geom = *it;
       
       const JointIndex joint_id_in_input_model = geom.parentJoint;
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_id_in_input_model < (JointIndex)input_model.njoints,
-                                     "Invalid joint parent index for the geometry with name " + geom.name);
+      _PINOCCHIO_CHECK_INPUT_ARGUMENT_2((joint_id_in_input_model < (JointIndex)input_model.njoints),
+                                        "Invalid joint parent index for the geometry with name " + geom.name);
       const std::string & parent_joint_name = input_model.names[joint_id_in_input_model];
       
       JointIndex reduced_joint_id = (JointIndex)-1;
