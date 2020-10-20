@@ -16,8 +16,15 @@ class TestJointsAlgo(TestCase):
     def test_basic(self):
         model = self.model
 
+        q_ones = np.ones((model.nq))
+        self.assertFalse(pin.isNormalized(model, q_ones))
+        self.assertFalse(pin.isNormalized(model, q_ones, 1e-8))
+        self.assertTrue(pin.isNormalized(model, q_ones, 1e2))
+
         q_rand = np.random.rand((model.nq))
         q_rand = pin.normalize(model,q_rand)
+        self.assertTrue(pin.isNormalized(model, q_rand))
+        self.assertTrue(pin.isNormalized(model, q_rand, 1e-8))
 
         self.assertTrue(abs(np.linalg.norm(q_rand[3:7])-1.) <= 1e-8)
 
