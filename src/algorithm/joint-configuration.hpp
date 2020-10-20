@@ -612,7 +612,7 @@ namespace pinocchio
 
   /**
    *
-   * @brief         Normalize a configuration vector.
+   * @brief         Check whether a configuration vector is normalized within the given precision provided by prec.
    *
    * @param[in]     model      Model of the kinematic tree.
    * @param[in]     q          Configuration to check (size model.nq).
@@ -627,7 +627,7 @@ namespace pinocchio
 
   /**
    *
-   * @brief         Normalize a configuration vector.
+   * @brief         Check whether a configuration vector is normalized within the given precision provided by prec.
    *
    * @param[in]     model      Model of the kinematic tree.
    * @param[in]     q          Configuration to check (size model.nq).
