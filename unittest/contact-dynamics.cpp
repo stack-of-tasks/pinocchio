@@ -82,7 +82,49 @@ BOOST_AUTO_TEST_CASE ( test_FD )
 
 }
 
-BOOST_AUTO_TEST_CASE (test_KKTMatrix)
+BOOST_AUTO_TEST_CASE(test_computeKKTMatrix)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  VectorXd q = VectorXd::Ones(model.nq);
+  q.segment<4>(3).normalize();
+  
+  pinocchio::computeJointJacobians(model, data_ref, q);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  
+  Data::Matrix6x J_RF(6, model.nv);
+  J_RF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
+  Data::Matrix6x J_LF(6, model.nv);
+  J_LF.setZero();
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
+  
+  Eigen::MatrixXd J(12, model.nv);
+  J.setZero();
+  J.topRows<6>() = J_RF;
+  J.bottomRows<6>() = J_LF;
+  
+  //Check Forward Dynamics
+  pinocchio::crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  Eigen::MatrixXd MJtJ(model.nv+12, model.nv+12);
+  MJtJ << data_ref.M, J.transpose(),
+    J, Eigen::MatrixXd::Zero(12, 12);
+
+  Eigen::MatrixXd KKTMatrix_inv(model.nv+12, model.nv+12);
+  computeKKTContactDynamicMatrixInverse(model, data, q, J, KKTMatrix_inv);
+
+  BOOST_CHECK(KKTMatrix_inv.isApprox(MJtJ.inverse()));
+}
+
+BOOST_AUTO_TEST_CASE(test_getKKTMatrix)
 {
   using namespace Eigen;
   using namespace pinocchio;

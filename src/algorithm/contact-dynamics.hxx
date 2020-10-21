@@ -87,6 +87,39 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConfigVectorType, typename ConstraintMatrixType, typename KKTMatrixType>
+  void computeKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                                             const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                             const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv,
+                                             const Scalar & inv_damping)
+  {
+    assert(model.check(data));
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(inv_damping >= 0., "mu must be positive.");
+    
+    // Compute the mass matrix.
+    crbaMinimal(model,data,q);
+    
+    // Compute the UDUt decomposition of data.M.
+    cholesky::decompose(model, data);
+    
+    using std::sqrt;
+    data.sDUiJt = J.transpose();
+    // Compute U^-1 * J.T
+    cholesky::Uiv(model, data, data.sDUiJt);
+    for(Eigen::DenseIndex k=0;k<model.nv;++k)
+      data.sDUiJt.row(k) /= sqrt(data.D[k]);
+    
+    data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+    
+    data.JMinvJt.diagonal().array() += inv_damping;
+    data.llt_JMinvJt.compute(data.JMinvJt);
+    
+    getKKTContactDynamicMatrixInverse(model,data,J,KKTMatrix_inv.const_cast_derived());
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,

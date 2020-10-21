@@ -150,6 +150,29 @@ namespace pinocchio
   /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
   /// The jacobian should be the same that was provided to forwardDynamics/impulseDynamics.
   /// Thus you should call forward Dynamics/impulseDynamics first.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] J Jacobian of the constraints.
+  /// \param[out] KKTMatrix_inv inverse of the MJtJ matrix.
+  /// \param[in] inv_damping regularization coefficient.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConfigVectorType, typename ConstraintMatrixType, typename KKTMatrixType>
+  void computeKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                                             const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                             const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv,
+                                             const Scalar & inv_damping = 0.);
+
+  ///
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
+  /// The matrix is defined when we call forwardDynamics/impulseDynamics. This method makes use of
+  /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
+  /// The jacobian should be the same that was provided to forwardDynamics/impulseDynamics.
+  /// Thus you should call forward Dynamics/impulseDynamics first.
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] J Jacobian of the constraints.
