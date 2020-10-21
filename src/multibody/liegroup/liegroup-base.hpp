@@ -374,7 +374,7 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      */
     template <class Config_t>
     bool isNormalized(const Eigen::MatrixBase<Config_t> & qin,
-                      const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
+                      const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.

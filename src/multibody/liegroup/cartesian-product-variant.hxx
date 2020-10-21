@@ -367,7 +367,7 @@ template<typename _Scalar, int _Options, template<typename,int> class LieGroupCo
 template <class Config_t>
 bool CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin,
-                   const Scalar prec) const
+                   const Scalar& prec) const
 {
   Index id_q = 0;
   for(size_t k = 0; k < liegroups.size(); ++k)

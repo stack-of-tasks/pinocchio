@@ -514,7 +514,7 @@ namespace pinocchio
   : public fusion::JointUnaryVisitorBase< IsNormalizedStep<LieGroup_t,ConfigVectorIn,Scalar> >
   {
     typedef boost::fusion::vector<const ConfigVectorIn &,
-                                  const Scalar,
+                                  const Scalar&,
                                   bool &> ArgsType;
     
     PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(IsNormalizedStepAlgo, IsNormalizedStep)
@@ -526,7 +526,7 @@ namespace pinocchio
     template<typename ConfigVectorIn>
     static void run(const JointModelBase<JointModel> & jmodel,
                     const Eigen::MatrixBase<ConfigVectorIn> & q,
-                    const typename ConfigVectorIn::Scalar prec,
+                    const typename ConfigVectorIn::Scalar& prec,
                     bool& res)
     {
       typedef typename Visitor::LieGroupMap LieGroupMap;

@@ -78,7 +78,7 @@ namespace pinocchio
   template<typename LieGroupCollection, class Config_t>
   inline bool isNormalized(const LieGroupGenericTpl<LieGroupCollection> & lg,
                            const Eigen::MatrixBase<Config_t> & qin,
-                           const typename Config_t::Scalar prec = Eigen::NumTraits<typename Config_t::Scalar>::dummy_precision());
+                           const typename Config_t::Scalar& prec = Eigen::NumTraits<typename Config_t::Scalar>::dummy_precision());
 
   template<typename LieGroupCollection, class ConfigL_t, class ConfigR_t>
   inline bool isSameConfiguration(const LieGroupGenericTpl<LieGroupCollection> & lg,

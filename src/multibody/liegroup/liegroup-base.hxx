@@ -324,7 +324,7 @@ namespace pinocchio {
   template <class Derived>
   template <class Config_t>
   bool LieGroupBase<Derived>::isNormalized
-  (const Eigen::MatrixBase<Config_t> & qin, const Scalar prec) const
+  (const Eigen::MatrixBase<Config_t> & qin, const Scalar& prec) const
   {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
     return derived().isNormalized_impl(qin, prec);

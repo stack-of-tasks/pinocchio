@@ -238,7 +238,7 @@ namespace pinocchio
     {}
 
     template <class Config_t>
-    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& /*qout*/, const Scalar /*prec*/)
+    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& /*qout*/, const Scalar& /*prec*/)
     {
       return true;
     }
