@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS, INRIA
 //
 
 #include "pinocchio/spatial/se3.hpp"
@@ -125,10 +125,10 @@ BOOST_AUTO_TEST_CASE (test_KKTMatrix)
   MJtJ << data.M, J.transpose(),
     J, Eigen::MatrixXd::Zero(12, 12);
 
-  Eigen::MatrixXd MJtJ_inv(model.nv+12, model.nv+12);
-  getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+  Eigen::MatrixXd KKTMatrix_inv(model.nv+12, model.nv+12);
+  getKKTContactDynamicMatrixInverse(model, data, J, KKTMatrix_inv);
 
-  BOOST_CHECK(MJtJ_inv.isApprox(MJtJ.inverse()));
+  BOOST_CHECK(KKTMatrix_inv.isApprox(MJtJ.inverse()));
 
   //Check Impulse Dynamics
   const double r_coeff = 1.;
@@ -138,10 +138,9 @@ BOOST_AUTO_TEST_CASE (test_KKTMatrix)
   MJtJ << data.M, J.transpose(),
     J, Eigen::MatrixXd::Zero(12, 12);
 
-  getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+  getKKTContactDynamicMatrixInverse(model, data, J, KKTMatrix_inv);
 
-  BOOST_CHECK(MJtJ_inv.isApprox(MJtJ.inverse()));
-  
+  BOOST_CHECK(KKTMatrix_inv.isApprox(MJtJ.inverse()));
 }
 
 BOOST_AUTO_TEST_CASE ( test_FD_with_damping )

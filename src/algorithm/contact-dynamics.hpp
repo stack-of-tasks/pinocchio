@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_contact_dynamics_hpp__
@@ -144,7 +144,6 @@ namespace pinocchio
       return forwardDynamics(model,data,tau,J,gamma,inv_damping);
   }
 
-  
   ///
   /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
   /// The matrix is defined when we call forwardDynamics/impulseDynamics. This method makes use of
@@ -153,14 +152,15 @@ namespace pinocchio
   /// Thus you should call forward Dynamics/impulseDynamics first.
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[out] MJtJ_inv inverse of the MJtJ matrix.
+  /// \param[in] J Jacobian of the constraints.
+  /// \param[out] KKTMatrix_inv inverse of the MJtJ matrix.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                                                const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv);
+                                                const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv);
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.

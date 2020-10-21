@@ -65,9 +65,9 @@ namespace pinocchio
                                                                          Data & data,
                                                                          const Eigen::MatrixXd & J)
     {
-      Eigen::MatrixXd MJtJ_inv(model.nv+J.rows(), model.nv+J.rows());
-      getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
-      return MJtJ_inv;
+      Eigen::MatrixXd KKTMatrix_inv(model.nv+J.rows(), model.nv+J.rows());
+      getKKTContactDynamicMatrixInverse(model, data, J, KKTMatrix_inv);
+      return KKTMatrix_inv;
     }
     
 
