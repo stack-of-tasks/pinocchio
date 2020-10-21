@@ -432,7 +432,7 @@ namespace pinocchio
 
     template <class Config_t>
     static bool isNormalized_impl(const Eigen::MatrixBase<Config_t> & qin,
-                           const Scalar prec)
+                                  const Scalar& prec)
     {
       const Scalar norm = Scalar(qin.template tail<2>().norm());
       return (std::abs(norm - Scalar(1.0)) < prec );
@@ -793,7 +793,7 @@ namespace pinocchio
 
     template <class Config_t>
     static bool isNormalized_impl(const Eigen::MatrixBase<Config_t>& qin,
-                           const Scalar prec)
+                                  const Scalar& prec)
     {
       Scalar norm = Scalar(qin.template tail<4>().norm());
       return (std::abs(norm - Scalar(1.0)) < prec );
