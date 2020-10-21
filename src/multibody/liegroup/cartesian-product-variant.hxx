@@ -372,7 +372,7 @@ isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin,
   Index id_q = 0;
   for(size_t k = 0; k < liegroups.size(); ++k)
   {
-    const Index & nq = lg_nqs[k];
+    const Index nq = lg_nqs[k];
     const bool res_k = ::pinocchio::isNormalized(liegroups[k],
         PINOCCHIO_EIGEN_CONST_CAST(Config_t, qin).segment(id_q,nq), prec);
     if(!res_k)
