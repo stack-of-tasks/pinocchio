@@ -229,7 +229,7 @@ namespace pinocchio
     }
 
     template <class Config_t>
-    bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin, const Scalar prec) const
+    bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin, const Scalar& prec) const
     {
       return lg1.isNormalized(Qo1(qin), prec) && lg2.isNormalized(Qo2(qin), prec);
     }
