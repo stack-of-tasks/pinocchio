@@ -109,7 +109,6 @@ namespace pinocchio
   /// \tparam TangentVectorType2 Type of the joint torque vector.
   /// \tparam ConstraintMatrixType Type of the constraint matrix.
   /// \tparam DriftVectorType Type of the drift vector.
-
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -145,11 +144,9 @@ namespace pinocchio
   }
 
   ///
-  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
-  /// The matrix is defined when we call forwardDynamics/impulseDynamics. This method makes use of
-  /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
-  /// The jacobian should be the same that was provided to forwardDynamics/impulseDynamics.
-  /// Thus you should call forward Dynamics/impulseDynamics first.
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints.
+  /// It computes the following matrix: <BR>
+  ///       <CENTER> \f$ \left[\begin{matrix}\mathbf{M}^{-1}-\mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & \mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1} \\ \widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & -\widehat{\mathbf{M}}^{-1}\end{matrix}\right] \f$ </CENTER> <BR>
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -167,11 +164,14 @@ namespace pinocchio
                                              const Scalar & inv_damping = 0.);
 
   ///
-  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
-  /// The matrix is defined when we call forwardDynamics/impulseDynamics. This method makes use of
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints.
+  /// It computes the following matrix: <BR>
+  ///       <CENTER> \f$ \left[\begin{matrix}\mathbf{M}^{-1}-\mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & \mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1} \\ \widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & -\widehat{\mathbf{M}}^{-1}\end{matrix}\right] \f$ </CENTER> <BR>
+  ///
+  /// \remarks The matrix is defined when one's call forwardDynamics/impulseDynamics. This method makes use of
   /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
-  /// The jacobian should be the same that was provided to forwardDynamics/impulseDynamics.
-  /// Thus you should call forward Dynamics/impulseDynamics first.
+  /// The jacobian should be the same that the one provided to forwardDynamics/impulseDynamics.
+  /// Thus forward Dynamics/impulseDynamics should have been called first.
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
