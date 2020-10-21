@@ -623,7 +623,7 @@ namespace pinocchio
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision());
+                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision());
 
   /**
    *
@@ -638,7 +638,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision())
+                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision())
   {
     return isNormalized<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,q,prec);
   }

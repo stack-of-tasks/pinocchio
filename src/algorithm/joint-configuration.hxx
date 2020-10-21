@@ -296,7 +296,7 @@ namespace pinocchio
   inline bool
   isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                const Eigen::MatrixBase<ConfigVectorIn> & q,
-               const Scalar prec)
+               const Scalar& prec)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision should be positive");
