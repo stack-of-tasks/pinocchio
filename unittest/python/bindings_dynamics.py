@@ -62,9 +62,11 @@ class TestDynamicsBindings(TestCase):
 
         pin.forwardDynamics(model,data_ref,q,v,tau,J,gamma)
         KKT_inverse_ref = pin.getKKTContactDynamicMatrixInverse(model,data_ref,J)
-        
+
         KKT_inverse = pin.computeKKTContactDynamicMatrixInverse(model,data,q,J)
+        KKT_inverse2 = pin.computeKKTContactDynamicMatrixInverse(model,data,q,J,0.)
         self.assertApprox(KKT_inverse,KKT_inverse_ref)
+        self.assertApprox(KKT_inverse2,KKT_inverse_ref)
 
     def test_forwardDynamics_rcoeff(self):
         data_no_q = self.model.createData()
