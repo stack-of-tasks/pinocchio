@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_contact_dynamics_hxx__
@@ -87,26 +87,62 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConfigVectorType, typename ConstraintMatrixType, typename KKTMatrixType>
+  void computeKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                                             const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                             const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv,
+                                             const Scalar & inv_damping)
+  {
+    assert(model.check(data));
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(inv_damping >= 0., "mu must be positive.");
+    
+    // Compute the mass matrix.
+    crbaMinimal(model,data,q);
+    
+    // Compute the UDUt decomposition of data.M.
+    cholesky::decompose(model, data);
+    
+    using std::sqrt;
+    data.sDUiJt = J.transpose();
+    // Compute U^-1 * J.T
+    cholesky::Uiv(model, data, data.sDUiJt);
+    for(Eigen::DenseIndex k=0;k<model.nv;++k)
+      data.sDUiJt.row(k) /= sqrt(data.D[k]);
+    
+    data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
+    
+    data.JMinvJt.diagonal().array() += inv_damping;
+    data.llt_JMinvJt.compute(data.JMinvJt);
+    
+    getKKTContactDynamicMatrixInverse(model,data,J,KKTMatrix_inv.const_cast_derived());
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                                                const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv)
+                                                const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv)
   {
+    assert(model.check(data));
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(KKTMatrix_inv.cols(), data.JMinvJt.cols() + model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(KKTMatrix_inv.rows(), data.JMinvJt.rows() + model.nv);
+    
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(MJtJ_inv.cols(), data.JMinvJt.cols() + model.nv);
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(MJtJ_inv.rows(), data.JMinvJt.rows() + model.nv);
-    const typename Data::MatrixXs::Index& nc = data.JMinvJt.cols();
+    const Eigen::DenseIndex nc = data.JMinvJt.cols();
     
-    KKTMatrixType& MJtJ_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,MJtJ_inv);
+    KKTMatrixType & KKTMatrix_inv_ = PINOCCHIO_EIGEN_CONST_CAST(KKTMatrixType,KKTMatrix_inv);
     
-    Eigen::Block<typename Data::MatrixXs> topLeft = MJtJ_inv_.topLeftCorner(model.nv, model.nv);
-    Eigen::Block<typename Data::MatrixXs> topRight = MJtJ_inv_.topRightCorner(model.nv, nc);
-    Eigen::Block<typename Data::MatrixXs> bottomLeft = MJtJ_inv_.bottomLeftCorner(nc, model.nv);
-    Eigen::Block<typename Data::MatrixXs> bottomRight = MJtJ_inv_.bottomRightCorner(nc, nc);
+    typedef Eigen::Block<KKTMatrixType> BlockType;
+    BlockType topLeft = KKTMatrix_inv_.topLeftCorner(model.nv, model.nv);
+    BlockType topRight = KKTMatrix_inv_.topRightCorner(model.nv, nc);
+    BlockType bottomLeft = KKTMatrix_inv_.bottomLeftCorner(nc, model.nv);
+    BlockType bottomRight = KKTMatrix_inv_.bottomRightCorner(nc, nc);
     
-    bottomRight = -Data::MatrixXs::Identity(nc,nc);    topLeft.setIdentity();
-    data.llt_JMinvJt.solveInPlace(bottomRight);    cholesky::solve(model, data, topLeft);
+    bottomRight = -Data::MatrixXs::Identity(nc,nc); data.llt_JMinvJt.solveInPlace(bottomRight);
+    topLeft.setIdentity(); cholesky::solve(model, data, topLeft);
     
     bottomLeft.noalias() = J*topLeft;
     topRight.noalias() = bottomLeft.transpose() * (-bottomRight);

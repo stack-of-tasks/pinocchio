@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_contact_dynamics_hpp__
@@ -109,7 +109,6 @@ namespace pinocchio
   /// \tparam TangentVectorType2 Type of the joint torque vector.
   /// \tparam ConstraintMatrixType Type of the constraint matrix.
   /// \tparam DriftVectorType Type of the drift vector.
-
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
@@ -144,23 +143,47 @@ namespace pinocchio
       return forwardDynamics(model,data,tau,J,gamma,inv_damping);
   }
 
-  
   ///
-  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints, [[M JT], [J 0]].
-  /// The matrix is defined when we call forwardDynamics/impulseDynamics. This method makes use of
-  /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
-  /// The jacobian should be the same that was provided to forwardDynamics/impulseDynamics.
-  /// Thus you should call forward Dynamics/impulseDynamics first.
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints.
+  /// It computes the following matrix: <BR>
+  ///       <CENTER> \f$ \left[\begin{matrix}\mathbf{M}^{-1}-\mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & \mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1} \\ \widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & -\widehat{\mathbf{M}}^{-1}\end{matrix}\right] \f$ </CENTER> <BR>
+  ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[out] MJtJ_inv inverse of the MJtJ matrix.
+  /// \param[in] J Jacobian of the constraints.
+  /// \param[out] KKTMatrix_inv inverse of the MJtJ matrix.
+  /// \param[in] inv_damping regularization coefficient.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+           typename ConfigVectorType, typename ConstraintMatrixType, typename KKTMatrixType>
+  void computeKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                                             const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                             const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv,
+                                             const Scalar & inv_damping = 0.);
+
+  ///
+  /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints.
+  /// It computes the following matrix: <BR>
+  ///       <CENTER> \f$ \left[\begin{matrix}\mathbf{M}^{-1}-\mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & \mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1} \\ \widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & -\widehat{\mathbf{M}}^{-1}\end{matrix}\right] \f$ </CENTER> <BR>
+  ///
+  /// \remarks The matrix is defined when one's call forwardDynamics/impulseDynamics. This method makes use of
+  /// the matrix decompositions performed during the forwardDynamics/impulseDynamics and returns the inverse.
+  /// The jacobian should be the same that the one provided to forwardDynamics/impulseDynamics.
+  /// Thus forward Dynamics/impulseDynamics should have been called first.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] J Jacobian of the constraints.
+  /// \param[out] KKTMatrix_inv inverse of the MJtJ matrix.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConstraintMatrixType, typename KKTMatrixType>
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                                                const Eigen::MatrixBase<KKTMatrixType> & MJtJ_inv);
+                                                const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv);
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.

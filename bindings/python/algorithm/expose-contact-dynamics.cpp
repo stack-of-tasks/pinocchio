@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2020 CNRS, INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -61,15 +61,28 @@ namespace pinocchio
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads_no_q, impulseDynamics_proxy_no_q, 4, 6)
 
+    static Eigen::MatrixXd computeKKTContactDynamicMatrixInverse_proxy(const Model & model,
+                                                                       Data & data,
+                                                                       const Eigen::VectorXd & q,
+                                                                       const Eigen::MatrixXd & J,
+                                                                       const double mu = 0)
+    {
+      Eigen::MatrixXd KKTMatrix_inv(model.nv+J.rows(), model.nv+J.rows());
+      computeKKTContactDynamicMatrixInverse(model, data, q, J, KKTMatrix_inv, mu);
+      return KKTMatrix_inv;
+    }
+  
+    BOOST_PYTHON_FUNCTION_OVERLOADS(computeKKTContactDynamicMatrixInverse_overload,
+                                    computeKKTContactDynamicMatrixInverse_proxy, 4, 5)
+
     static const Eigen::MatrixXd getKKTContactDynamicMatrixInverse_proxy(const Model & model,
                                                                          Data & data,
                                                                          const Eigen::MatrixXd & J)
     {
-      Eigen::MatrixXd MJtJ_inv(model.nv+J.rows(), model.nv+J.rows());
-      getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
-      return MJtJ_inv;
+      Eigen::MatrixXd KKTMatrix_inv(model.nv+J.rows(), model.nv+J.rows());
+      getKKTContactDynamicMatrixInverse(model, data, J, KKTMatrix_inv);
+      return KKTMatrix_inv;
     }
-    
 
     void exposeDynamics()
     {
@@ -127,7 +140,13 @@ namespace pinocchio
               " Assumes pinocchio.crba has been called."
               ));
       
-      bp::def("getKKTContactDynamicMatrixInverse",getKKTContactDynamicMatrixInverse_proxy,
+      bp::def("computeKKTContactDynamicMatrixInverse",
+              computeKKTContactDynamicMatrixInverse_proxy,
+              computeKKTContactDynamicMatrixInverse_overload(bp::args("model","data","q","J","damping"),
+              "Computes the inverse of the constraint matrix [[M J^T], [J 0]]."));
+      
+      bp::def("getKKTContactDynamicMatrixInverse",
+              getKKTContactDynamicMatrixInverse_proxy,
               bp::args("Model","Data",
                        "Contact Jacobian J(size nb_constraint * Model::nv)"),
               "Computes the inverse of the constraint matrix [[M JT], [J 0]]. forward/impulseDynamics must be called first. The jacobian should be the same that was provided to forward/impulseDynamics.");
