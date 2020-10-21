@@ -310,7 +310,8 @@ namespace pinocchio
                                    const Scalar& prec)
     {
       const Scalar norm = qin.norm();
-      return (std::abs(norm - Scalar(1.0)) < prec );
+      using std::abs;
+      return abs(norm - Scalar(1.0)) < prec;
     }
 
     template <class Config_t>
@@ -587,7 +588,8 @@ namespace pinocchio
                                    const Scalar& prec)
     {
       const Scalar norm = qin.norm();
-      return (std::abs(norm - Scalar(1.0)) < prec );
+      using std::abs;
+      return abs(norm - Scalar(1.0)) < prec;
     }
 
     template <class Config_t>
