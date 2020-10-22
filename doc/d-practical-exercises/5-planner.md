@@ -1,4 +1,4 @@
-# 5) look ahead (aka motion planning)
+# 5) Look ahead (aka motion planning)
 
 ## Objective
 
