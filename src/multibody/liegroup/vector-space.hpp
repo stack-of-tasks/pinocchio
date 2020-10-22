@@ -238,6 +238,12 @@ namespace pinocchio
     {}
 
     template <class Config_t>
+    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& /*qout*/, const Scalar& /*prec*/)
+    {
+      return true;
+    }
+
+    template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).setRandom();

@@ -321,6 +321,15 @@ namespace pinocchio {
     return derived().normalize_impl(PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout));
   }
 
+  template <class Derived>
+  template <class Config_t>
+  bool LieGroupBase<Derived>::isNormalized
+  (const Eigen::MatrixBase<Config_t> & qin, const Scalar& prec) const
+  {
+    EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(Config_t, ConfigVector_t);
+    return derived().isNormalized_impl(qin, prec);
+  }
+
   /**
    * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
    *

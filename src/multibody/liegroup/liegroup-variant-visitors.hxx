@@ -190,6 +190,38 @@ namespace pinocchio
 
 #undef PINOCCHIO_LG_VISITOR
 
+  /** @brief Visitor of the Lie Group isNormalized method */
+  template <class Matrix_t>
+  struct LieGroupIsNormalizedVisitor
+  : visitor::LieGroupVisitorBase< LieGroupIsNormalizedVisitor<Matrix_t> >
+  {
+    typedef boost::fusion::vector<const Eigen::MatrixBase<Matrix_t> &,
+                                  const typename Matrix_t::Scalar&,
+                                  bool&> ArgsType;
+    LIE_GROUP_VISITOR(LieGroupIsNormalizedVisitor);
+    template<typename LieGroupDerived>
+    static void algo(const LieGroupBase<LieGroupDerived> & lg,
+                     const Eigen::MatrixBase<Matrix_t>& qin,
+                     const typename Matrix_t::Scalar& prec,
+                     bool& res)
+    {
+      res = lg.isNormalized(qin, prec);
+    }
+  };
+
+  template<typename LieGroupCollection, class Config_t>
+  inline bool isNormalized(const LieGroupGenericTpl<LieGroupCollection> & lg,
+                           const Eigen::MatrixBase<Config_t> & qin,
+                           const typename Config_t::Scalar& prec)
+  {
+    PINOCCHIO_LG_CHECK_VECTOR_SIZE(Config_t, qin, nq(lg));
+
+    bool res;
+    typedef LieGroupIsNormalizedVisitor<Config_t> Operation;
+    Operation::run(lg,typename Operation::ArgsType(qin,prec,res));
+    return res;
+  }
+
   /** @brief Visitor of the Lie Group isSameConfiguration method */
   template <class Matrix1_t, class Matrix2_t>
   struct LieGroupIsSameConfigurationVisitor

@@ -506,7 +506,38 @@ namespace pinocchio
   };
   
   PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_1(NormalizeStepAlgo);
+
+  template<typename Visitor, typename JointModel> struct IsNormalizedStepAlgo;
   
+  template<typename LieGroup_t, typename ConfigVectorIn, typename Scalar>
+  struct IsNormalizedStep
+  : public fusion::JointUnaryVisitorBase< IsNormalizedStep<LieGroup_t,ConfigVectorIn,Scalar> >
+  {
+    typedef boost::fusion::vector<const ConfigVectorIn &,
+                                  const Scalar&,
+                                  bool &> ArgsType;
+    
+    PINOCCHIO_DETAILS_VISITOR_METHOD_ALGO_3(IsNormalizedStepAlgo, IsNormalizedStep)
+  };
+  
+  template<typename Visitor, typename JointModel>
+  struct IsNormalizedStepAlgo
+  {
+    template<typename ConfigVectorIn>
+    static void run(const JointModelBase<JointModel> & jmodel,
+                    const Eigen::MatrixBase<ConfigVectorIn> & q,
+                    const typename ConfigVectorIn::Scalar& prec,
+                    bool& res)
+    {
+      typedef typename Visitor::LieGroupMap LieGroupMap;
+      
+      typename LieGroupMap::template operation<JointModel>::type lgo;
+      res &= lgo.isNormalized(jmodel.jointConfigSelector(q.derived()), prec);
+    }
+  };
+  
+  PINOCCHIO_DETAILS_DISPATCH_JOINT_COMPOSITE_3(IsNormalizedStepAlgo);
+
   template<typename Visitor, typename JointModel> struct IsSameConfigurationStepAlgo;
   
   template<typename LieGroup_t, typename ConfigVectorIn1, typename ConfigVectorIn2, typename Scalar>

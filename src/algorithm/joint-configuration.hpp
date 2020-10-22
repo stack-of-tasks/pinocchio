@@ -612,6 +612,39 @@ namespace pinocchio
 
   /**
    *
+   * @brief         Check whether a configuration vector is normalized within the given precision provided by prec.
+   *
+   * @param[in]     model      Model of the kinematic tree.
+   * @param[in]     q          Configuration to check (size model.nq).
+   * @param[in]     prec       Precision.
+   *
+   * @return     Whether the configuration is normalized or not, within the given precision.
+   */
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision());
+
+  /**
+   *
+   * @brief         Check whether a configuration vector is normalized within the given precision provided by prec.
+   *
+   * @param[in]     model      Model of the kinematic tree.
+   * @param[in]     q          Configuration to check (size model.nq).
+   * @param[in]     prec       Precision.
+   *
+   * @return     Whether the configuration is normalized or not, within the given precision.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision())
+  {
+    return isNormalized<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,q,prec);
+  }
+
+  /**
+   *
    * @brief         Return true if the given configurations are equivalents, within the given precision.
    * @remarks       Two configurations can be equivalent but not equally coefficient wise (e.g two quaternions with opposite coefficients give rise to the same orientation, i.e. they are equivalent.).
    *
@@ -628,7 +661,7 @@ namespace pinocchio
   isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
-                      const Scalar & prec);
+                      const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision());
 
   /**
    *

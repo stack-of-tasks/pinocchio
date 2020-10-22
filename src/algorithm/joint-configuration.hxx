@@ -292,6 +292,31 @@ namespace pinocchio
     }
   }
 
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn>
+  inline bool
+  isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               const Eigen::MatrixBase<ConfigVectorIn> & q,
+               const Scalar& prec)
+  {
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision should be positive");
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    bool result = true;
+    typedef IsNormalizedStep<LieGroup_t,ConfigVectorIn,Scalar> Algo;
+    typename Algo::ArgsType args(q.derived(),prec,result);
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Algo::run(model.joints[i], args);
+      if(!result)
+        return false;
+    }
+    
+    return true;
+  }
+
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
   inline bool
   isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,

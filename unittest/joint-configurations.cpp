@@ -362,6 +362,31 @@ BOOST_AUTO_TEST_CASE ( normalize_test )
   BOOST_CHECK(q.tail(n).isApprox(Eigen::VectorXd::Ones(n)));
 }
 
+BOOST_AUTO_TEST_CASE ( is_normalized_test )
+{
+  Model model; buildAllJointsModel(model);
+
+  Eigen::VectorXd q;
+  q = Eigen::VectorXd::Ones(model.nq);
+  BOOST_CHECK(!pinocchio::isNormalized(model, q));
+  BOOST_CHECK(!pinocchio::isNormalized(model, q, 1e-8));
+  BOOST_CHECK(pinocchio::isNormalized(model, q, 1e2));
+
+  pinocchio::normalize(model, q);
+  BOOST_CHECK(pinocchio::isNormalized(model, q));
+  BOOST_CHECK(pinocchio::isNormalized(model, q, 1e-8));
+
+  q = pinocchio::neutral(model);
+  BOOST_CHECK(pinocchio::isNormalized(model, q));
+  BOOST_CHECK(pinocchio::isNormalized(model, q, 1e-8));
+
+  model.lowerPositionLimit = -1 * Eigen::VectorXd::Ones(model.nq);
+  model.upperPositionLimit = Eigen::VectorXd::Ones(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  BOOST_CHECK(pinocchio::isNormalized(model, q));
+  BOOST_CHECK(pinocchio::isNormalized(model, q, 1e-8));
+}
+
 BOOST_AUTO_TEST_CASE ( integrateCoeffWiseJacobian_test )
 {
   Model model; buildModels::humanoidRandom(model);
