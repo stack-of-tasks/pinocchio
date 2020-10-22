@@ -25,7 +25,15 @@ class GepettoVisualizer(BaseVisualizer):
     def initViewer(self, viewer=None, windowName="python-pinocchio", sceneName="world", loadModel=False):
         """Init GepettoViewer by loading the gui and creating a window."""
 
-        import gepetto.corbaserver
+        try:
+            import gepetto.corbaserver
+        except ImportError:
+            import warnings
+            msg = ("Error while importing the viewer client.\n"
+                   "Check whether gepetto-viewer is properly installed"
+                  )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+
         try:
             self.viewer = gepetto.corbaserver.Client() if viewer is None else viewer
             gui = self.viewer.gui
