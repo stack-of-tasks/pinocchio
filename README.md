@@ -117,7 +117,7 @@ To cite **Pinocchio** in your academic research, please use the following bibtex
    author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
    title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
    howpublished = {https://stack-of-tasks.github.io/pinocchio},
-   year = {2015--2019}
+   year = {2015--2020}
 }
 ```
 and the following one for the reference to the paper introducing **Pinocchio**:
