@@ -46,7 +46,7 @@ namespace pinocchio
                                  const SE3Tpl<Scalar,Options> & placement)
   {
     typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
-    ReturnType res(ReturnType::Zero(6,(model.joints-1)*6));
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
     
     computeJointKinematicRegressor(model,data,joint_id,rf,placement,res);
     
@@ -77,13 +77,14 @@ namespace pinocchio
   /// \param[in] rf Reference frame in which the result is expressed (LOCAL, LOCAL_WORLD_ALIGNED or WORLD).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  void computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const JointIndex joint_id,
-                                      const ReferenceFrame rf)
+  typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x
+  computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const JointIndex joint_id,
+                                 const ReferenceFrame rf)
   {
     typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
-    ReturnType res(ReturnType::Zero(6,(model.joints-1)*6));
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
     
     computeJointKinematicRegressor(model,data,joint_id,rf,res);
     
@@ -114,13 +115,14 @@ namespace pinocchio
   /// \param[in] rf Reference frame in which the result is expressed (LOCAL, LOCAL_WORLD_ALIGNED or WORLD).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  void computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const FrameIndex frame_id,
-                                      const ReferenceFrame rf)
+  typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x
+  computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const FrameIndex frame_id,
+                                 const ReferenceFrame rf)
   {
     typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
-    ReturnType res(ReturnType::Zero(6,(model.joints-1)*6));
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
     
     computeFrameKinematicRegressor(model,data,frame_id,rf,res);
     
