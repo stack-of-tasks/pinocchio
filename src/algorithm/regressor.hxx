@@ -2,8 +2,8 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_regressor_hxx__
-#define __pinocchio_regressor_hxx__
+#ifndef __pinocchio_algorithm_regressor_hxx__
+#define __pinocchio_algorithm_regressor_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -225,7 +225,8 @@ namespace pinocchio
 
   template<typename MotionVelocity, typename MotionAcceleration>
   inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a)
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a)
   {
     typedef typename MotionVelocity::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
@@ -390,4 +391,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_regressor_hxx__
+#endif // ifndef __pinocchio_algorithm_regressor_hxx__

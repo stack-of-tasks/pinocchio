@@ -2,8 +2,8 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_regressor_hpp__
-#define __pinocchio_regressor_hpp__
+#ifndef __pinocchio_algorithm_regressor_hpp__
+#define __pinocchio_algorithm_regressor_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -134,7 +134,9 @@ namespace pinocchio
   ///
   template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
   inline void
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a, const Eigen::MatrixBase<OutputType> & regressor);
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a,
+                const Eigen::MatrixBase<OutputType> & regressor);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a single rigid body.
@@ -149,7 +151,8 @@ namespace pinocchio
   ///
   template<typename MotionVelocity, typename MotionAcceleration>
   inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a);
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given joint,
@@ -187,7 +190,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] frameId The id of the frame.
   ///
-  /// \return The regressor of the body.
+  /// \return The dynamic regressor of the body.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
@@ -231,4 +234,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/regressor.hxx"
 
-#endif // ifndef __pinocchio_regressor_hpp__
+#endif // ifndef __pinocchio_algorithm_regressor_hpp__
