@@ -24,6 +24,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
 
   # Algo
   bindings_com
+  bindings_kinematic_regressor
   bindings_regressor
   bindings_dynamics
   bindings_kinematics

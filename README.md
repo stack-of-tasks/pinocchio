@@ -49,6 +49,7 @@ conda install pinocchio -c conda-forge
    - forward/inverse dynamics and their analytical derivatives,
    - centroidal dynamics and its analytical derivatives,
    - support of multiple precision arithmetic via Boost.Multiprecision or any similar framework,
+   - computations of kinematic and dynamic regressors for system identification and more,
    - and much more with the support of modern Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
@@ -58,7 +59,7 @@ conda install pinocchio -c conda-forge
 
 **Pinocchio** is extensible.  
 **Pinocchio** is multi-thread friendly.  
-**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).  
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Performances
