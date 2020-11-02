@@ -111,9 +111,11 @@ namespace pinocchio
                                     "Default constructor."))
         
         .PINOCCHIO_ADD_PROPERTY(Self,contact_force,
-                                "Contact force.")
+                                "Constraint force.")
         .PINOCCHIO_ADD_PROPERTY(Self,oMc1,
-                                "Contact placement with respect to the WORLD frame.")
+                                "Placement of the constraint frame 1 with respect to the WORLD frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,oMc2,
+                                "Placement of the constraint frame 2 with respect to the WORLD frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact1_velocity,
                                 "Current contact Spatial velocity of the constraint 1.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact2_velocity,
