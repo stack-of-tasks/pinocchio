@@ -286,7 +286,9 @@ namespace pinocchio
     , contact2_velocity(Motion::Zero())
     , contact_acceleration(Motion::Zero())
     , contact1_acceleration_drift(Motion::Zero())
+    , contact1_acceleration_free(Motion::Zero())
     , contact2_acceleration_drift(Motion::Zero())
+    , contact2_acceleration_free(Motion::Zero())
     , contact_acceleration_deviation(Motion::Zero())
     {}
     
@@ -307,10 +309,10 @@ namespace pinocchio
     /// \brief Current contact spatial velocity
     Motion contact_error;
     
-    /// \brief Current contact spatial velocity of constraint 1
+    /// \brief Current contact spatial velocity of the constraint 1
     Motion contact1_velocity;
     
-    /// \brief Current contact spatial velocity of constraint 2
+    /// \brief Current contact spatial velocity of the constraint 2
     Motion contact2_velocity;
     
     /// \brief Current contact spatial acceleration
@@ -319,8 +321,14 @@ namespace pinocchio
     /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 1.
     Motion contact1_acceleration_drift;
     
+    /// \brief Current free acceleration (acceleration as if there is no contraint) for the constraint frame 1.
+    Motion contact1_acceleration_free;
+    
     /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 2.
     Motion contact2_acceleration_drift;
+    
+    /// \brief Current free acceleration (acceleration as if there is no contraint) for the constraint frame 2.
+    Motion contact2_acceleration_free;
     
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
@@ -336,7 +344,9 @@ namespace pinocchio
       && contact2_velocity == other.contact2_velocity
       && contact_acceleration == other.contact_acceleration
       && contact1_acceleration_drift == other.contact1_acceleration_drift
+      && contact1_acceleration_free == other.contact1_acceleration_free
       && contact2_acceleration_drift == other.contact2_acceleration_drift
+      && contact2_acceleration_free == other.contact2_acceleration_free
       && contact_acceleration_deviation == other.contact_acceleration_deviation
       ;
     }
