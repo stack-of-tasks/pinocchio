@@ -198,9 +198,6 @@ namespace pinocchio
     /// \brief Left variation of the inertia matrix
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Ivx;
 
-    /// \brief Spatial inertias of the body *i* expressed in the world frame.
-    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
-    
     /// \brief Rigid Body Inertia supported by the joint expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
     

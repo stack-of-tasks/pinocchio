@@ -58,10 +58,9 @@ namespace pinocchio
           namespace bp = ::boost::python;
           
           bp::list bp_list;
-          typedef typename vector_type::iterator iterator;
-          for(iterator it = vec.begin(); it != vec.end(); ++it)
+          for(size_t k = 0; k < vec.size(); ++k)
           {
-            bp_list.append(boost::ref(*it));
+            bp_list.append(boost::ref(vec[k]));
           }
           return bp_list;
         }
@@ -291,7 +290,7 @@ namespace pinocchio
     template<class T, class Allocator = std::allocator<T>, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdVectorPythonVisitor
     : public ::boost::python::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy>
-    , public StdContainerFromPythonList< std::vector<T,Allocator> >
+    , public StdContainerFromPythonList< std::vector<T,Allocator>,NoProxy>
     {
       typedef std::vector<T,Allocator> vector_type;
       typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
