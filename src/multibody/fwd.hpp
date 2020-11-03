@@ -45,7 +45,7 @@ namespace pinocchio
   {
     WORLD = 0, ///<  The WORLD frame convention corresponds to the frame concident with the Universe/Inertial frame but moving with the moving part (Joint, Frame, etc.).
     LOCAL = 1, ///<  The LOCAL frame convention corresponds to the frame directly attached to the moving part (Joint, Frame, etc.) where the coordinates basis matches the local coordinates system associated with the moving part. It also called the BODY representation in the litterature.
-    LOCAL_WORLD_ALIGNED = 2 ///<  The LOCAL_WORLD_ALIGNED frame convention corresponds to the frame centered on the moving part (Joint, Frame, etc.) but with axes aligned with the frame of the Universe. This a MIXED representation betwenn the LOCAL and the WORLD conventions.
+    LOCAL_WORLD_ALIGNED = 2 ///<  The LOCAL_WORLD_ALIGNED frame convention corresponds to the frame centered on the moving part (Joint, Frame, etc.) but with axes aligned with the frame of the Universe. This a MIXED representation between the LOCAL and the WORLD conventions.
   };
 
   ///
