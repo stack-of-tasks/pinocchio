@@ -477,8 +477,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
 
@@ -536,6 +536,81 @@ namespace pinocchio
     {
       Pass2::run(model.joints[i],
                  typename Pass2::ArgsType(model,data));
+    }
+    
+    return data.C;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct GetCoriolisMatrixBackwardStep
+  : public fusion::JointUnaryVisitorBase< GetCoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &
+                                  > ArgsType;
+
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
+      
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+      
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
+
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      
+      motionSet::inertiaAction(data.oYcrb[i],dJ_cols,jmodel.jointCols(data.dFdv));
+      jmodel.jointCols(data.dFdv).noalias() += data.vxI[i] * J_cols;
+
+      data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
+      for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
+
+      Mat_tmp.noalias() = J_cols.transpose() * data.vxI[i];
+      for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
+      
+      if(parent>0)
+      {
+        data.vxI[parent] += data.vxI[i];
+      }
+      
+    }
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  getCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    DataTpl<Scalar,Options,JointCollectionTpl> & data)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Inertia::vxi(data.ov[i],data.oinertias[i],data.vxI[i]);
+    }
+    
+    typedef GetCoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
+    {
+      Pass2::run(model.joints[i],typename Pass2::ArgsType(model,data));
     }
     
     return data.C;

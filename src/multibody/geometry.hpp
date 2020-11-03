@@ -195,13 +195,13 @@ namespace pinocchio
     /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
     /// \sa GeometryModel::geometryObjects and GeometryObjects
     ///
-    std::vector<fcl::CollisionObject> collisionObjects PINOCCHIO_DEPRECATED;
+    PINOCCHIO_DEPRECATED std::vector<fcl::CollisionObject> collisionObjects;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
     ///
     /// \deprecated use \ref distanceRequests instead
-    fcl::DistanceRequest distanceRequest PINOCCHIO_DEPRECATED;
+    PINOCCHIO_DEPRECATED fcl::DistanceRequest distanceRequest;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -217,7 +217,7 @@ namespace pinocchio
     /// \brief Defines what information should be computed by collision test.
     ///
     /// \deprecated use \ref collisionRequests instead
-    fcl::CollisionRequest collisionRequest PINOCCHIO_DEPRECATED;
+    PINOCCHIO_DEPRECATED fcl::CollisionRequest collisionRequest;
 
     ///
     /// \brief Defines what information should be computed by collision test.

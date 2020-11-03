@@ -379,6 +379,18 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_aligned_vector_of_model)
+{
+  typedef PINOCCHIO_ALIGNED_STD_VECTOR(Model) VectorOfModels;
+  
+  VectorOfModels models;
+  for(size_t k = 0; k < 100; ++k)
+  {
+    models.push_back(Model());
+    buildModels::humanoidRandom(models[k]);
+  }
+}
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
 BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
 {

@@ -10,6 +10,8 @@ namespace pinocchio
   namespace python
   {
 
+    BOOST_PYTHON_FUNCTION_OVERLOADS(isNormalized_overload,isNormalized,2,3)
+
     static Eigen::VectorXd normalize_proxy(const Model & model,
                                            const Eigen::VectorXd & config)
     {
@@ -207,6 +209,18 @@ namespace pinocchio
               "\tq1: a joint configuration vector (size model.nq)\n"
               "\tq2: a joint configuration vector (size model.nq)\n"
               "\tprec: requested accuracy for the comparison\n");
+
+        bp::def("isNormalized",
+                &isNormalized<double,0,JointCollectionDefaultTpl,VectorXd>,
+                isNormalized_overload(
+                        bp::args("model","q","prec"),
+                        "Check whether a configuration vector is normalized within the given precision provided by prec.\n\n"
+                        "Parameters:\n"
+                        "\tmodel: model of the kinematic tree\n"
+                        "\tq: a joint configuration vector (size model.nq)\n"
+                        "\tprec: requested accuracy for the check\n"
+                )
+        );
     }
     
   } // namespace python

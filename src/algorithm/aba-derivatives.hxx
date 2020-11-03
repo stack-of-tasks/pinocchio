@@ -55,7 +55,7 @@ namespace pinocchio
       if(parent > 0)
         data.oa_gf[i] += (data.ov[parent] ^ ov);
 
-      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oinertias[i] = data.oMi[i].act(model.inertias[i]);
       data.oYaba[i] = data.oYcrb[i].matrix();
 
       data.oh[i] = data.oYcrb[i] * ov;

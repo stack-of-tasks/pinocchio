@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_regressor_hxx__
-#define __pinocchio_regressor_hxx__
+#ifndef __pinocchio_algorithm_regressor_hxx__
+#define __pinocchio_algorithm_regressor_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -12,6 +12,103 @@
 
 namespace pinocchio
 {
+
+  namespace internal
+  {
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+    void computeJointKinematicRegressorGeneric(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                               const JointIndex joint_id,
+                                               const ReferenceFrame rf,
+                                               const SE3Tpl<Scalar,Options> & global_frame_placement,
+                                               const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor)
+    {
+      assert(model.check(data) && "data is not consistent with model.");
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_regressor.rows(), 6);
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(kinematic_regressor.cols(), 6*(model.njoints-1));
+      
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      typedef typename Data::SE3 SE3;
+      
+      Matrix6xReturnType & kinematic_regressor_ = kinematic_regressor.const_cast_derived();
+      kinematic_regressor_.setZero();
+      
+      const SE3Tpl<Scalar,Options> & oMi = global_frame_placement;
+      SE3 oMp; // placement of the frame following the jointPlacement transform
+      SE3 iMp; // relative placement between the joint frame and the jointPlacement
+      for(JointIndex i = joint_id; i > 0; i = model.parents[i])
+      {
+        const JointIndex parent_id = model.parents[i];
+        oMp = data.oMi[parent_id] * model.jointPlacements[i];
+        switch(rf)
+        {
+          case LOCAL:
+            iMp = oMi.actInv(oMp);
+            kinematic_regressor_.template middleCols<6>((Eigen::DenseIndex)(6*(i-1))) = iMp.toActionMatrix(); // TODO: we can avoid a copy
+            break;
+          case LOCAL_WORLD_ALIGNED:
+            iMp.rotation() = oMp.rotation();
+            iMp.translation() = oMp.translation() - oMi.translation();
+            kinematic_regressor_.template middleCols<6>((Eigen::DenseIndex)(6*(i-1))) = iMp.toActionMatrix(); // TODO: we can avoid a copy
+            break;
+          case WORLD:
+            kinematic_regressor_.template middleCols<6>((Eigen::DenseIndex)(6*(i-1))) = oMp.toActionMatrix(); // TODO: we can avoid a copy
+            break;
+        }
+      }
+    }
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const JointIndex joint_id,
+                                      const ReferenceFrame rf,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_id > 0 && (Eigen::DenseIndex)joint_id < model.njoints);
+    internal::computeJointKinematicRegressorGeneric(model,data,joint_id,rf,data.oMi[joint_id],
+                                                    kinematic_regressor.const_cast_derived());
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const JointIndex joint_id,
+                                      const ReferenceFrame rf,
+                                      const SE3Tpl<Scalar,Options> & placement,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_id > 0 && (Eigen::DenseIndex)joint_id < model.njoints);
+    
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    
+    const SE3 global_placement = data.oMi[joint_id] * placement;
+    
+    internal::computeJointKinematicRegressorGeneric(model,data,joint_id,rf,global_placement,
+                                                    kinematic_regressor.const_cast_derived());
+  }
+
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const FrameIndex frame_id,
+                                      const ReferenceFrame rf,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id > 0 && (Eigen::DenseIndex)frame_id < model.nframes);
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+
+    const Frame & frame = model.frames[frame_id];
+    data.oMf[frame_id] = data.oMi[frame.parent] * frame.placement;
+    
+    internal::computeJointKinematicRegressorGeneric(model,data,frame.parent,rf,data.oMf[frame_id],
+                                                    kinematic_regressor.const_cast_derived());
+  }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
@@ -128,7 +225,8 @@ namespace pinocchio
 
   template<typename MotionVelocity, typename MotionAcceleration>
   inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a)
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a)
   {
     typedef typename MotionVelocity::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options };
@@ -293,4 +391,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_regressor_hxx__
+#endif // ifndef __pinocchio_algorithm_regressor_hxx__

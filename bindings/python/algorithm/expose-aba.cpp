@@ -6,6 +6,7 @@
 #include "pinocchio/bindings/python/utils/namespace.hpp"
 
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/bindings/python/utils/eigen.hpp"
 
 namespace pinocchio
 {
@@ -16,8 +17,7 @@ namespace pinocchio
     computeMinverse_proxy(const Model & model, Data & data, const Eigen::VectorXd & q)
     {
       computeMinverse(model,data,q);
-      data.Minv.triangularView<Eigen::StrictlyLower>() =
-      data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+      make_symmetric(data.Minv);
       return data.Minv;
     }
   

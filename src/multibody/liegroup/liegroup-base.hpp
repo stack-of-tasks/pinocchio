@@ -11,7 +11,7 @@
 
 namespace pinocchio
 {
-#if __cplusplus >= 201103L
+#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
   constexpr int SELF = 0;
 #else
   enum { SELF = 0 };
@@ -229,9 +229,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
      *          to the tangent space at \f$ q \f$.
-   *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
-   *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
-   *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
+     *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
+     *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
+     *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
      *          In the context of configuration spaces assimilated as vectorial spaces, this operation corresponds to Identity.
      *          For Lie groups, its corresponds to the canonical vector field transportation.
      *
@@ -356,10 +356,25 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      * @brief      Normalize the joint configuration given as input.
      *             For instance, the quaternion must be unitary.
      *
-     * @param[out]     qout  the normalized joint configuration.
+     * @note       If the input vector is too small (i.e., qout.norm()==0), then it is left unchanged.
+     *             It is therefore possible that after this method is called `isNormalized(qout)` is still false.
+     * 
+     * @param[in,out]     qout  the normalized joint configuration.
      */
     template <class Config_t>
     void normalize(const Eigen::MatrixBase<Config_t> & qout) const;
+
+    /**
+     * @brief      Check whether the input joint configuration is normalized.
+     *             For instance, the quaternion must be unitary.
+     * 
+     * @param[in]     qin  The joint configuration to check.
+     * 
+     * @return true if the input vector is normalized, false otherwise.
+     */
+    template <class Config_t>
+    bool isNormalized(const Eigen::MatrixBase<Config_t> & qin,
+                      const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
 
     /**
      * @brief      Generate a random joint configuration, normalizing quaternions when necessary.
@@ -560,6 +575,10 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     
     template <class Config_t>
     void normalize_impl(const Eigen::MatrixBase<Config_t> & qout) const;
+
+    template <class Config_t>
+    bool isNormalized_impl(const Eigen::MatrixBase<Config_t> & qin,
+                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision()) const;
 
     template <class ConfigL_t, class ConfigR_t>
     Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,

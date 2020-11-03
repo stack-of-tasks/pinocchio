@@ -365,6 +365,25 @@ normalize_impl (const Eigen::MatrixBase<Config_t>& qout) const
 
 template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
 template <class Config_t>
+bool CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
+isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin,
+                   const Scalar& prec) const
+{
+  Index id_q = 0;
+  for(size_t k = 0; k < liegroups.size(); ++k)
+  {
+    const Index nq = lg_nqs[k];
+    const bool res_k = ::pinocchio::isNormalized(liegroups[k],
+        PINOCCHIO_EIGEN_CONST_CAST(Config_t, qin).segment(id_q,nq), prec);
+    if(!res_k)
+      return false;
+    id_q += nq;
+  }
+  return true;
+}
+
+template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
+template <class Config_t>
 void CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 random_impl (const Eigen::MatrixBase<Config_t>& qout) const
 {

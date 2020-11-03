@@ -49,6 +49,7 @@ conda install pinocchio -c conda-forge
    - forward/inverse dynamics and their analytical derivatives,
    - centroidal dynamics and its analytical derivatives,
    - support of multiple precision arithmetic via Boost.Multiprecision or any similar framework,
+   - computations of kinematic and dynamic regressors for system identification and more,
    - and much more with the support of modern Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
@@ -58,7 +59,7 @@ conda install pinocchio -c conda-forge
 
 **Pinocchio** is extensible.  
 **Pinocchio** is multi-thread friendly.  
-**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real robotics applications).  
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).  
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Performances
@@ -112,16 +113,16 @@ Many external viewers can also be integrated. See example [here](./bindings/pyth
 ## Citing Pinocchio
 
 To cite **Pinocchio** in your academic research, please use the following bibtex lines:
-```
+```bibtex
 @misc{pinocchioweb,
    author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
    title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
    howpublished = {https://stack-of-tasks.github.io/pinocchio},
-   year = {2015--2019}
+   year = {2015--2020}
 }
 ```
 and the following one for the reference to the paper introducing **Pinocchio**:
-```
+```bibtex
 @inproceedings{carpentier2019pinocchio,
    title={The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},
    author={Carpentier, Justin and Saurel, Guilhem and Buondonno, Gabriele and Mirabel, Joseph and Lamiraux, Florent and Stasse, Olivier and Mansard, Nicolas},
@@ -131,7 +132,7 @@ and the following one for the reference to the paper introducing **Pinocchio**:
 ```
 
 The algorithms for the analytical derivatives of rigid-body dynamics algorithms are detailed here:
-```
+```bibtex
 @inproceedings{carpentier2018analytical,
   title = {Analytical Derivatives of Rigid Body Dynamics Algorithms},
   author = {Carpentier, Justin and Mansard, Nicolas},

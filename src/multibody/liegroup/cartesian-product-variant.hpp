@@ -198,6 +198,10 @@ namespace pinocchio
     void normalize_impl (const Eigen::MatrixBase<Config_t>& qout) const;
 
     template <class Config_t>
+    bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& qout,
+                            const Scalar& prec) const;
+
+    template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const;
 
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>

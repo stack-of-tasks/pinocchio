@@ -20,8 +20,9 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         model_ref = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
 
     def test_xml(self):
-        file_content = open(self.model_path,"r").read()
-        
+        with open(self.model_path) as model:
+            file_content = model.read()
+
         model_ref = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
         model = pin.buildModelFromXML(file_content,pin.JointModelFreeFlyer())
 

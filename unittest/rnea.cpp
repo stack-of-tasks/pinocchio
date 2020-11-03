@@ -336,26 +336,6 @@ BOOST_AUTO_TEST_CASE(test_compute_coriolis)
     BOOST_CHECK(dM.isApprox(dM_ref,sqrt(alpha)));
   }
   
-  //    {
-  //      //v.setZero();
-  //      v.setOnes();
-  //      Eigen::VectorXd v_fd(v);
-  //      Eigen::MatrixXd drnea_dv(model.nv,model.nv);
-  //      Data data_fd(model);
-  //
-  //      const VectorXd tau0 = rnea(model,data_fd,q,v,0*v);
-  //      const double eps = 1e-8;
-  //      for(int i = 0; i < model.nv; ++i)
-  //      {
-  //        v_fd[i] += eps;
-  //        rnea(model,data_fd,q,v_fd,0*v);
-  //        drnea_dv.col(i) = (data_fd.tau - tau0)/eps;
-  //        v_fd[i] -= eps;
-  //      }
-  //      BOOST_CHECK(v_fd.isApprox(v));
-  //      std::cout << "drnea_dv:\n" << drnea_dv.block<6,6>(0,0) << std::endl;
-  //      std::cout << "C:\n" << data.C.block<6,6>(0,0) << std::endl;
-  //    }
-  
 }
-BOOST_AUTO_TEST_SUITE_END ()
+
+BOOST_AUTO_TEST_SUITE_END()

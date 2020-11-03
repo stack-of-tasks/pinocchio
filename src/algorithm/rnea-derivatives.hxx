@@ -46,7 +46,7 @@ namespace pinocchio
       else
         data.oMi[i] = data.liMi[i];
       
-      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oinertias[i] = data.oMi[i].act(model.inertias[i]);
       data.of[i] = data.oYcrb[i] * minus_gravity;
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
@@ -243,7 +243,7 @@ namespace pinocchio
         data.a[i] += data.liMi[i].actInv(data.a[parent]);
       }
       
-      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYcrb[i] = data.oinertias[i] = data.oMi[i].act(model.inertias[i]);
       ov = data.oMi[i].act(data.v[i]);
       oa = data.oMi[i].act(data.a[i]);
       oa_gf = oa - model.gravity; // add gravity contribution

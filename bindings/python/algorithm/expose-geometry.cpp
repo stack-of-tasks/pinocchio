@@ -50,8 +50,7 @@ namespace pinocchio
       bp::def("computeDistance",&computeDistance,
               bp::args("geometry_model", "geometry_data", "pair_index"),
               "Compute the distance between the two geometry objects of a given collision pair for a GeometryModel and associated GeometryData.",
-              bp::return_value_policy<bp::return_by_value>()
-//              bp::with_custodian_and_ward_postcall<0,1>()
+              bp::with_custodian_and_ward_postcall<0,2,bp::return_value_policy<bp::reference_existing_object> >()
               );
 
       bp::def("computeDistances",

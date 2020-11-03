@@ -38,11 +38,35 @@ class TestDynamicsBindings(TestCase):
         ddq = pin.forwardDynamics(self.model,self.data,self.q,self.v0,self.tau0,self.J,self.gamma)
         self.assertLess(np.linalg.norm(ddq), self.tolerance)
 
+        KKT_inverse = pin.getKKTContactDynamicMatrixInverse(self.model,self.data,self.J)
+        M = pin.crba(self.model,self.model.createData(),self.q)
+
+        self.assertApprox(M,np.linalg.inv(KKT_inverse)[:self.model.nv,:self.model.nv])
+
         pin.computeAllTerms(self.model,data_no_q,self.q,self.v0)
         ddq_no_q = pin.forwardDynamics(self.model,data_no_q,self.tau0,self.J,self.gamma)
         self.assertLess(np.linalg.norm(ddq_no_q), self.tolerance)
 
         self.assertApprox(ddq,ddq_no_q)
+
+    def test_computeKKTMatrix(self):
+        model = self.model
+        data = model.createData()
+        data_ref = model.createData()
+
+        q = self.q
+        v = self.v
+        tau = self.tau0
+        J = self.J
+        gamma = self.gamma
+
+        pin.forwardDynamics(model,data_ref,q,v,tau,J,gamma)
+        KKT_inverse_ref = pin.getKKTContactDynamicMatrixInverse(model,data_ref,J)
+
+        KKT_inverse = pin.computeKKTContactDynamicMatrixInverse(model,data,q,J)
+        KKT_inverse2 = pin.computeKKTContactDynamicMatrixInverse(model,data,q,J,0.)
+        self.assertApprox(KKT_inverse,KKT_inverse_ref)
+        self.assertApprox(KKT_inverse2,KKT_inverse_ref)
 
     def test_forwardDynamics_rcoeff(self):
         data_no_q = self.model.createData()

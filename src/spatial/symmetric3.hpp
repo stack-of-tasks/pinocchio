@@ -28,10 +28,9 @@ namespace pinocchio
   public:    
     Symmetric3Tpl(): m_data() {}
 
-    template<typename Sc,int N,int Opt>
-    explicit Symmetric3Tpl(const Eigen::Matrix<Sc,N,N,Opt> & I)
+    template<typename Sc,int Opt>
+    explicit Symmetric3Tpl(const Eigen::Matrix<Sc,3,3,Opt> & I)
     {
-      EIGEN_STATIC_ASSERT(N==3,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
       assert( (I-I.transpose()).isMuchSmallerThan(I) );
       m_data(0) = I(0,0);
       m_data(1) = I(1,0); m_data(2) = I(1,1);

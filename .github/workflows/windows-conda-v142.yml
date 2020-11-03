@@ -1,4 +1,4 @@
-name: Build Pinocchio for Windows via Conda
+name: Build Pinocchio for Windows (v142) via Conda
 on:
   pull_request:
   push:
@@ -12,12 +12,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [windows-latest-clang-cl]
+        name: [windows-latest]
 
         include:
-          - name: windows-latest-clang-cl
+          - name: windows-latest
             os: windows-2019
-            compiler: clang-cl
 
     steps:
     - uses: actions/checkout@v2
@@ -50,13 +49,13 @@ jobs:
 
         :: Configure
         cmake ^
-          -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
+          -G "Visual Studio 16 2019" -T "v142" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_BUILD_TYPE=Release ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON ^
-          -DBUILD_PYTHON_INTERFACE=ON ^
+          -DBUILD_PYTHON_INTERFACE=OFF ^
           -DBUILD_WITH_COLLISION_SUPPORT=ON ^
           ..
 
@@ -67,6 +66,6 @@ jobs:
         set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
         ctest --output-on-failure -C Release -V
 
-        :: Test Python import
-        cd ..
-        python -c "import pinocchio"
+#        :: Test Python import
+#        cd ..
+#        python -c "import pinocchio"

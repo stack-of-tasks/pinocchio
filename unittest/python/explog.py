@@ -33,28 +33,48 @@ class TestExpLog(TestCase):
 
     def test_exp6(self):
         v = pin.Motion.Zero()
-        m = pin.exp6(v)
-        self.assertTrue(m.isIdentity())
+        M = pin.exp6(v)
+        self.assertTrue(M.isIdentity())
+
+        M2 = pin.exp6(np.array(v))
+        self.assertTrue(M2.isIdentity())
 
     def test_Jexp6(self):
         v = pin.Motion.Zero()
         J = pin.Jexp6(v)
         self.assertApprox(J,eye(6))
-    
+
+        J2 = pin.Jexp6(np.array(v))
+        self.assertApprox(J,J2)
+
     def test_log6(self):
         m = pin.SE3.Identity()
         v = pin.log6(m)
         self.assertApprox(v.vector, zero(6))
-    
+
     def test_log6_homogeneous(self):
         m = eye(4)
         v = pin.log6(m)
         self.assertApprox(v.vector, zero(6))
-    
+
     def test_Jlog6(self):
         m = pin.SE3.Identity()
         J = pin.Jlog6(m)
         self.assertApprox(J, eye(6))
+
+    def test_skew(self):
+        u = np.random.rand((3))
+        v = np.random.rand((3))
+
+        u_skew = pin.skew(u)
+        u_unskew = pin.unSkew(u_skew)
+
+        self.assertApprox(u,u_unskew)
+
+        v_skew = pin.skew(v)
+        u_v_square = pin.skewSquare(u,v)
+
+        self.assertApprox(u_v_square,u_skew.dot(v_skew))
 
     def test_explog(self):
         self.assertApprox(exp(42), math.exp(42))

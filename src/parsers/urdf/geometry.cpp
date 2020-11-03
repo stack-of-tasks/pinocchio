@@ -4,6 +4,7 @@
 
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/types.hpp"
+#include "pinocchio/parsers/urdf/utils.hpp"
 #include "pinocchio/parsers/utils.hpp"
 
 #include <boost/property_tree/xml_parser.hpp>
@@ -28,7 +29,7 @@ namespace pinocchio
         {
           urdf_ = ::urdf::parseURDF(xmlStr);
           if (!urdf_) {
-            throw std::invalid_argument ("Enable to parse URDF");
+            throw std::invalid_argument("Unable to parse URDF");
           }
           
           std::istringstream iss(xmlStr);
@@ -43,8 +44,8 @@ namespace pinocchio
           } // BOOST_FOREACH
         }
         
-        bool isCapsule (const std::string & linkName,
-                        const std::string & geomName) const
+        bool isCapsule(const std::string & linkName,
+                       const std::string & geomName) const
         {
           LinkMap_t::const_iterator _link = links_.find(linkName);
           assert (_link != links_.end());
@@ -66,8 +67,8 @@ namespace pinocchio
           return false;
         }
 
-        bool isMeshConvex (const std::string & linkName,
-                           const std::string & geomName) const
+        bool isMeshConvex(const std::string & linkName,
+                          const std::string & geomName) const
         {
           LinkMap_t::const_iterator _link = links_.find(linkName);
           assert (_link != links_.end());
@@ -96,20 +97,6 @@ namespace pinocchio
         // A mapping from link name to corresponding child of tree_
         LinkMap_t links_;
       };
-
-      ///
-      /// \brief Convert URDF Pose quantity to SE3.
-      ///
-      /// \param[in] M The input URDF Pose.
-      ///
-      /// \return The converted pose/transform pinocchio::SE3.
-      ///
-      inline SE3 convertFromUrdf (const ::urdf::Pose & M)
-      {
-        const ::urdf::Vector3 & p = M.position;
-        const ::urdf::Rotation & q = M.rotation;
-        return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
-      }
 
       template<typename Vector3>
       static void retrieveMeshScale(const ::urdf::MeshSharedPtr & mesh,
@@ -346,7 +333,7 @@ namespace pinocchio
        *
        */
       template<typename GeometryType>
-      inline void addLinkGeometryToGeomModel(const UrdfTree & tree,
+      static void addLinkGeometryToGeomModel(const UrdfTree & tree,
                                              ::hpp::fcl::MeshLoaderPtr & meshLoader,
                                              ::urdf::LinkConstSharedPtr link,
                                              UrdfGeomVisitorBase& visitor,
@@ -433,12 +420,12 @@ namespace pinocchio
        *
        */
       void recursiveParseTreeForGeom(const UrdfTree& tree,
-                            ::hpp::fcl::MeshLoaderPtr& meshLoader,
-                            ::urdf::LinkConstSharedPtr link,
-                            UrdfGeomVisitorBase& visitor,
-                            GeometryModel & geomModel,
-                            const std::vector<std::string> & package_dirs,
-                            const GeometryType type)
+                                     ::hpp::fcl::MeshLoaderPtr& meshLoader,
+                                     ::urdf::LinkConstSharedPtr link,
+                                     UrdfGeomVisitorBase& visitor,
+                                     GeometryModel & geomModel,
+                                     const std::vector<std::string> & package_dirs,
+                                     const GeometryType type)
       {
         
         switch(type)

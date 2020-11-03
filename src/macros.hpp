@@ -1,20 +1,23 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_macros_hpp__
 #define __pinocchio_macros_hpp__
 
-#if __cplusplus >= 201103L
-  #define PINOCCHIO_WITH_CXX11_SUPPORT
+// On Windows, __cplusplus is not necessarily set to the C++ version being used.
+// See https://docs.microsoft.com/fr-fr/cpp/build/reference/zc-cplusplus?view=vs-2019 for further information.
+
+#if (__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703))
+  #define PINOCCHIO_WITH_CXX17_SUPPORT
 #endif
 
-#if __cplusplus >= 201403L
+#if (__cplusplus >= 201403L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201403))
   #define PINOCCHIO_WITH_CXX14_SUPPORT
 #endif
 
-#if __cplusplus >= 201703L
-  #define PINOCCHIO_WITH_CXX17_SUPPORT
+#if (__cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1600))
+  #define PINOCCHIO_WITH_CXX11_SUPPORT
 #endif
 
 #define PINOCCHIO_STRING_LITERAL(string) #string

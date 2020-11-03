@@ -35,9 +35,9 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   _PyWarnings_Init();
 #endif
   
-  if(not register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
+  if(! register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
     eigenpy::exposeQuaternion();
-  if(not register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
+  if(! register_symbolic_link_to_registered_type<Eigen::AngleAxisd>())
     eigenpy::exposeAngleAxis();
   
   StdContainerFromPythonList< std::vector<std::string> >::register_converter();
@@ -73,6 +73,13 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   .value("WORLD",::pinocchio::WORLD)
   .value("LOCAL",::pinocchio::LOCAL)
   .value("LOCAL_WORLD_ALIGNED",::pinocchio::LOCAL_WORLD_ALIGNED)
+  .export_values()
+  ;
+
+  bp::enum_< ::pinocchio::KinematicLevel >("KinematicLevel")
+  .value("POSITION",::pinocchio::POSITION)
+  .value("VELOCITY",::pinocchio::VELOCITY)
+  .value("ACCELERATION",::pinocchio::ACCELERATION)
   .export_values()
   ;
   

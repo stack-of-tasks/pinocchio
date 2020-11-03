@@ -82,6 +82,15 @@ namespace pinocchio
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tv: the joint velocity vector (size model.nv)\n",
               bp::return_value_policy<bp::return_by_value>());
+
+      bp::def("getCoriolisMatrix",
+              &getCoriolisMatrix<double,0,JointCollectionDefaultTpl>,
+              bp::args("model","Data"),
+              "Retrives the Coriolis Matrix C(q,v) of the Lagrangian dynamics after calling one of the derivative algorithms, store the result in data.C and return it.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n",
+              bp::return_value_policy<bp::return_by_value>());
       
     }
     

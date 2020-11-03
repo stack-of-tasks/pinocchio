@@ -26,6 +26,7 @@ namespace pinocchio
       exposeCAT();
       exposeJacobian();
       exposeGeometryAlgo();
+      exposeKinematicRegressor();
       exposeRegressor();
       exposeCholesky();
       exposeModelAlgo();

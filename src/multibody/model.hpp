@@ -69,7 +69,8 @@ namespace pinocchio
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
 
-    typedef std::map<std::string, ConfigVectorType> ConfigVectorMap;
+    /// \brief Map between a string (key) and a configuration vector
+    typedef std::map<std::string, ConfigVectorType>  ConfigVectorMap;
     
     /// \brief Dense vectorized version of a joint tangent vector (e.g. velocity, acceleration, etc).
     ///        It also handles the notion of co-tangent vector (e.g. torque, etc).
@@ -128,11 +129,17 @@ namespace pinocchio
     VectorXs armature;
     
     /// \brief Vector of rotor inertia parameters
-    VectorXs rotorInertia;
+    TangentVectorType rotorInertia;
     
     /// \brief Vector of rotor gear ratio parameters
-    VectorXs rotorGearRatio;
+    TangentVectorType rotorGearRatio;
     
+    /// \brief Vector of joint friction parameters
+    TangentVectorType friction;
+    
+    /// \brief Vector of joint damping parameters
+    TangentVectorType damping;
+
     /// \brief Vector of maximal joint torques
     TangentVectorType effortLimit;
     
@@ -140,10 +147,10 @@ namespace pinocchio
     TangentVectorType velocityLimit;
 
     /// \brief Lower joint configuration limit
-    VectorXs lowerPositionLimit;
+    ConfigVectorType lowerPositionLimit;
     
     /// \brief Upper joint configuration limit
-    VectorXs upperPositionLimit;
+    ConfigVectorType upperPositionLimit;
 
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
@@ -212,42 +219,12 @@ namespace pinocchio
     ///
     bool operator!=(const ModelTpl & other) const
     { return !(*this == other); }
-    
-    ///
-    /// \brief Add a joint to the kinematic tree with given bounds.
-    ///
-    /// \remarks This method does not add a Frame of same name to the vector of frames.
-    ///         Use Model::addJointFrame.
-    /// \remarks The inertia supported by the joint is set to Zero.
-    ///
-    /// \tparam JointModelDerived The type of the joint model.
-    ///
-    /// \param[in] parent Index of the parent joint.
-    /// \param[in] joint_model The joint model.
-    /// \param[in] joint_placement Placement of the joint inside its parent joint.
-    /// \param[in] joint_name Name of the joint. If empty, the name is random.
-    /// \param[in] max_effort Maximal joint torque.
-    /// \param[in] max_velocity Maximal joint velocity.
-    /// \param[in] min_config Lower joint configuration.
-    /// \param[in] max_config Upper joint configuration.
-    ///
-    /// \return The index of the new joint.
-    ///
-    /// \sa Model::appendBodyToJoint, Model::addJointFrame
-    ///
-    JointIndex addJoint(const JointIndex parent,
-                        const JointModel & joint_model,
-                        const SE3 & joint_placement,
-                        const std::string & joint_name,
-                        const VectorXs & max_effort,
-                        const VectorXs & max_velocity,
-                        const VectorXs & min_config,
-                        const VectorXs & max_config);
 
     ///
     /// \brief Add a joint to the kinematic tree with infinite bounds.
     ///
-    /// \remarks This method also adds a Frame of same name to the vector of frames.
+    /// \remarks This method does not add a Frame of same name to the vector of frames.
+    ///         Use Model::addJointFrame.
     /// \remarks The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
@@ -265,6 +242,40 @@ namespace pinocchio
                         const JointModel & joint_model,
                         const SE3 & joint_placement,
                         const std::string & joint_name);
+    
+    ///
+    /// \copydoc ModelTpl::addJoint(const JointIndex,const JointModel &,const SE3 &,const std::string &)
+    ///
+    /// \param[in] max_effort Maximal joint torque.
+    /// \param[in] max_velocity Maximal joint velocity.
+    /// \param[in] min_config Lower joint configuration.
+    /// \param[in] max_config Upper joint configuration.
+    ///
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModel & joint_model,
+                        const SE3 & joint_placement,
+                        const std::string & joint_name,
+                        const VectorXs & max_effort,
+                        const VectorXs & max_velocity,
+                        const VectorXs & min_config,
+                        const VectorXs & max_config);
+    
+    ///
+    /// \copydoc ModelTpl::addJoint(const JointIndex,const JointModel &,const SE3 &,const std::string &,const VectorXs &,const VectorXs &,const VectorXs &,const VectorXs &)
+    ///
+    /// \param[in] friction Joint friction parameters.
+    /// \param[in] damping Joint damping parameters.
+    ///
+    JointIndex addJoint(const JointIndex parent,
+                        const JointModel & joint_model,
+                        const SE3 & joint_placement,
+                        const std::string & joint_name,
+                        const VectorXs & max_effort,
+                        const VectorXs & max_velocity,
+                        const VectorXs & min_config,
+                        const VectorXs & max_config,
+                        const VectorXs & friction,
+                        const VectorXs & damping);
 
     ///
     /// \brief Add a joint to the frame tree.

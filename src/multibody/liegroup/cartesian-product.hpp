@@ -229,6 +229,12 @@ namespace pinocchio
     }
 
     template <class Config_t>
+    bool isNormalized_impl (const Eigen::MatrixBase<Config_t>& qin, const Scalar& prec) const
+    {
+      return lg1.isNormalized(Qo1(qin), prec) && lg2.isNormalized(Qo2(qin), prec);
+    }
+
+    template <class Config_t>
     void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
     {
       lg1.random(Qo1(qout));

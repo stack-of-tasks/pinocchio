@@ -4,6 +4,7 @@
 //
 
 #include "pinocchio/parsers/urdf.hpp"
+#include "pinocchio/parsers/urdf/utils.hpp"
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>
@@ -25,43 +26,29 @@ namespace pinocchio
       ///
       /// \return The converted Spatial Inertia pinocchio::Inertia.
       ///
-      inline Inertia convertFromUrdf (const ::urdf::Inertial & Y)
+      static Inertia convertFromUrdf(const ::urdf::Inertial & Y)
       {
         const ::urdf::Vector3 & p = Y.origin.position;
         const ::urdf::Rotation & q = Y.origin.rotation;
 
-        const Eigen::Vector3d com(p.x,p.y,p.z);
-        const Eigen::Matrix3d & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
+        const Inertia::Vector3 com(p.x,p.y,p.z);
+        const Inertia::Matrix3 & R = Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix();
 
-        Eigen::Matrix3d I; I <<
-          Y.ixx,Y.ixy,Y.ixz,
-          Y.ixy,Y.iyy,Y.iyz,
-          Y.ixz,Y.iyz,Y.izz;
+        Inertia::Matrix3 I;
+        I << Y.ixx,Y.ixy,Y.ixz,
+             Y.ixy,Y.iyy,Y.iyz,
+             Y.ixz,Y.iyz,Y.izz;
         return Inertia(Y.mass,com,R*I*R.transpose());
       }
 
-      inline Inertia convertFromUrdf (const ::urdf::InertialSharedPtr & Y)
+      static Inertia convertFromUrdf(const ::urdf::InertialSharedPtr & Y)
       {
-        if (Y) return convertFromUrdf (*Y);
+        if (Y) return convertFromUrdf(*Y);
         return Inertia::Zero();
       }
 
-      ///
-      /// \brief Convert URDF Pose quantity to SE3.
-      ///
-      /// \param[in] M The input URDF Pose.
-      ///
-      /// \return The converted pose/transform pinocchio::SE3.
-      ///
-      inline SE3 convertFromUrdf (const ::urdf::Pose & M)
-      {
-        const ::urdf::Vector3 & p = M.position;
-        const ::urdf::Rotation & q = M.rotation;
-        return SE3( Eigen::Quaterniond(q.w,q.x,q.y,q.z).matrix(), Eigen::Vector3d(p.x,p.y,p.z));
-      }
-
-      FrameIndex getParentLinkFrame(const ::urdf::LinkConstSharedPtr link,
-                                    UrdfVisitorBase& model)
+      static FrameIndex getParentLinkFrame(const ::urdf::LinkConstSharedPtr link,
+                                           UrdfVisitorBase & model)
       {
         PINOCCHIO_CHECK_INPUT_ARGUMENT(link && link->getParent());
         FrameIndex id = model.getBodyId(link->getParent()->name);
@@ -76,7 +63,7 @@ namespace pinocchio
       /// \param[in] model The model where the link must be added.
       ///
       void parseTree(::urdf::LinkConstSharedPtr link,
-                     UrdfVisitorBase& model)
+                     UrdfVisitorBase & model)
       {
         typedef UrdfVisitorBase::Scalar Scalar;
         typedef UrdfVisitorBase::SE3 SE3;
@@ -106,6 +93,7 @@ namespace pinocchio
           const Inertia Y = convertFromUrdf(link->inertial);
 
           Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
+          Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
           Vector3 axis (joint->axis.x, joint->axis.y, joint->axis.z);
 
           const Scalar infty = std::numeric_limits<Scalar>::infinity();
@@ -121,11 +109,15 @@ namespace pinocchio
               max_config   = Vector::Constant(7, infty);
               min_config.tail<4>().setConstant(-1.01);
               max_config.tail<4>().setConstant( 1.01);
+              
+              friction = Vector::Constant(6, 0.);
+              damping = Vector::Constant(6, 0.);
 
               model.addJointAndBody(UrdfVisitorBase::FLOATING, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::REVOLUTE:
@@ -133,18 +125,25 @@ namespace pinocchio
 
               // TODO I think the URDF standard forbids REVOLUTE with no limits.
               assert(joint->limits);
-              if (joint->limits)
+              if(joint->limits)
               {
                 max_effort << joint->limits->effort;
                 max_velocity << joint->limits->velocity;
                 min_config << joint->limits->lower;
                 max_config << joint->limits->upper;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::REVOLUTE, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::CONTINUOUS: // Revolute joint with no joint limits
@@ -159,15 +158,24 @@ namespace pinocchio
               {
                 max_effort << joint->limits->effort;
                 max_velocity << joint->limits->velocity;
-              } else {
+              }
+              else
+              {
                 max_effort << infty;
                 max_velocity << infty;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::CONTINUOUS, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::PRISMATIC:
@@ -182,11 +190,18 @@ namespace pinocchio
                 min_config << joint->limits->lower;
                 max_config << joint->limits->upper;
               }
+              
+              if(joint->dynamics)
+              {
+                friction << joint->dynamics->friction;
+                damping << joint->dynamics->damping;
+              }
 
               model.addJointAndBody(UrdfVisitorBase::PRISMATIC, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::PLANAR:
@@ -198,11 +213,15 @@ namespace pinocchio
               max_config   = Vector::Constant(4, infty);
               min_config.tail<2>().setConstant(-1.01);
               max_config.tail<2>().setConstant( 1.01);
+              
+              friction = Vector::Constant(3, 0.);
+              damping = Vector::Constant(3, 0.);
 
               model.addJointAndBody(UrdfVisitorBase::PLANAR, axis,
-                  parentFrameId,jointPlacement,joint->name,
-                  Y,link->name,
-                  max_effort,max_velocity,min_config,max_config);
+                                    parentFrameId,jointPlacement,joint->name,
+                                    Y,link->name,
+                                    max_effort,max_velocity,min_config,max_config,
+                                    friction,damping);
               break;
 
             case ::urdf::Joint::FIXED:

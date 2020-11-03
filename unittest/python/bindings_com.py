@@ -1,7 +1,7 @@
 import unittest
 from test_case import PinocchioTestCase as TestCase
 import pinocchio as pin
-from pinocchio.utils import rand, zero
+from pinocchio.utils import rand
 import numpy as np
 
 class TestComBindings(TestCase):
@@ -39,22 +39,48 @@ class TestComBindings(TestCase):
             self.assertApprox(self.data.mass[i],data2.mass[i])
 
     def test_com_0(self):
+        data = self.data
+
         c0 = pin.centerOfMass(self.model,self.data,self.q)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data,self.q)
+        c0 = pin.centerOfMass(self.model,data,pin.POSITION)
         pin.forwardKinematics(self.model,data2,self.q)
-        pin.centerOfMass(self.model,data2,0)
+        c0_bis = pin.centerOfMass(self.model,data2,pin.POSITION,False)
+
+        self.assertApprox(c0,c0_bis)
+
+        c0_bis = pin.centerOfMass(self.model,self.data,0)
+
+        self.assertApprox(c0,c0_bis)
 
         self.assertApprox(c0,data2.com[0])
         self.assertApprox(self.data.com[0],data2.com[0])
 
     def test_com_1(self):
+        data = self.data
+
         v = rand(self.model.nv)
-        pin.centerOfMass(self.model,self.data,self.q,v)
+        c0 = pin.centerOfMass(self.model,self.data,self.q,v)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,v,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data,self.q,v)
+        c0 = pin.centerOfMass(self.model,data,pin.VELOCITY)
         pin.forwardKinematics(self.model,data2,self.q,v)
-        pin.centerOfMass(self.model,data2,1)
+        c0_bis = pin.centerOfMass(self.model,data2,pin.VELOCITY,False)
+
+        self.assertApprox(c0,c0_bis)
+
+        c0_bis = pin.centerOfMass(self.model,data2,1)
+
+        self.assertApprox(c0,c0_bis)
 
         data3 = self.model.createData()
         pin.centerOfMass(self.model,data3,self.q)
@@ -65,13 +91,25 @@ class TestComBindings(TestCase):
         self.assertApprox(self.data.com[0],data3.com[0])
 
     def test_com_2(self):
+        data = self.data
+
         v = rand(self.model.nv)
         a = rand(self.model.nv)
-        pin.centerOfMass(self.model,self.data,self.q,v,a)
+        c0 = pin.centerOfMass(self.model,self.data,self.q,v,a)
+        c0_bis = pin.centerOfMass(self.model,self.data,self.q,v,a,False)
+
+        self.assertApprox(c0,c0_bis)
 
         data2 = self.model.createData()
+        pin.forwardKinematics(self.model,data,self.q,v,a)
+        c0 = pin.centerOfMass(self.model,data,pin.ACCELERATION)
         pin.forwardKinematics(self.model,data2,self.q,v,a)
-        pin.centerOfMass(self.model,data2,2)
+        c0_bis = pin.centerOfMass(self.model,data2,pin.ACCELERATION,False)
+
+        self.assertApprox(c0,c0_bis)
+
+        c0_bis = pin.centerOfMass(self.model,data2,2)
+        self.assertApprox(c0,c0_bis)
 
         data3 = self.model.createData()
         pin.centerOfMass(self.model,data3,self.q)
@@ -133,6 +171,25 @@ class TestComBindings(TestCase):
 
         self.assertTrue((Jcom_no==Jcom_up).all())
         self.assertTrue((data_no.com[1]==data_up.com[1]).all())
+
+    def test_subtree_jacobian(self):
+        model = self.model
+        data = self.data
+
+        Jcom = pin.jacobianCenterOfMass(model,data,self.q)
+        Jcom_subtree = pin.getJacobianSubtreeCenterOfMass(model,data,0)
+        self.assertApprox(Jcom,Jcom_subtree)
+
+        data2 = model.createData()
+        Jcom_subtree2 = pin.jacobianSubtreeCenterOfMass(model,data2,self.q,0)
+        self.assertApprox(Jcom_subtree,Jcom_subtree2)
+
+        data3 = model.createData()
+        Jcom_subtree3 = pin.jacobianSubtreeCoMJacobian(model,data3,self.q,0)
+        self.assertApprox(Jcom_subtree3,Jcom_subtree2)
+
+        Jcom_subtree4 = pin.jacobianSubtreeCoMJacobian(model,data3,0)
+        self.assertApprox(Jcom_subtree3,Jcom_subtree4)
 
 if __name__ == '__main__':
     unittest.main()

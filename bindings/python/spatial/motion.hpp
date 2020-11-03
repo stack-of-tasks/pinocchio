@@ -67,12 +67,12 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<>("Default constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<Vector3,Vector3>
-             ((bp::arg("linear"),bp::arg("angular")),
+             ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Motion vector (don't mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("vec")),"Init from a vector 6 [linear velocity, angular velocity]"))
-        .def(bp::init<Motion>((bp::arg("other")),"Copy constructor."))
+        .def(bp::init<Vector6>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
+        .def(bp::init<Motion>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
         
         .add_property("linear",
                       bp::make_function(&MotionPythonVisitor::getLinear,
@@ -153,7 +153,7 @@ namespace pinocchio
         bp::class_<Motion>("Motion",
                            "Motion vectors, in se3 == M^6.\n\n"
                            "Supported operations ...",
-                           bp::init<>())
+                           bp::no_init)
         .def(MotionPythonVisitor<Motion>())
         .def(CopyableVisitor<Motion>())
         .def(PrintableVisitor<Motion>())

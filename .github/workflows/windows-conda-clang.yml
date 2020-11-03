@@ -1,0 +1,72 @@
+name: Build Pinocchio for Windows (CLANG) via Conda
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - devel
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [windows-latest-clang-cl]
+
+        include:
+          - name: windows-latest-clang-cl
+            os: windows-2019
+            compiler: clang-cl
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Checkout submodules
+      run: |
+        git submodule update --init
+    - uses: goanpeca/setup-miniconda@v1
+      with:
+        activate-environment: pinocchio
+        environment-file: .github/workflows/conda/conda-env.yml
+        python-version: 3.7
+    - name: Install cmake and update conda
+      run: |
+        conda install cmake -c main
+    
+    - name: Build Pinocchio
+      shell: cmd /C CALL {0}
+      run: |
+        :: unset extra Boost envs
+        set Boost_ROOT=
+        set BOOST_ROOT_1_69_0=
+        set BOOST_ROOT_1_72_0=
+        set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
+
+        call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
+    
+        :: Create build directory
+        mkdir build
+        pushd build
+
+        :: Configure
+        cmake ^
+          -G "Visual Studio 16 2019" -T "ClangCl" -DCMAKE_GENERATOR_PLATFORM=x64 ^
+          -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
+          -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
+          -DBUILD_WITH_URDF_SUPPORT=ON ^
+          -DBUILD_PYTHON_INTERFACE=ON ^
+          -DBUILD_WITH_COLLISION_SUPPORT=ON ^
+          ..
+
+        :: Build
+        cmake --build . --config Release --target install
+
+        :: Testing
+        set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
+        ctest --output-on-failure -C Release -V
+
+        :: Test Python import
+        cd ..
+        python -c "import pinocchio"

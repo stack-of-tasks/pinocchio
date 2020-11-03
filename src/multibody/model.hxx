@@ -62,21 +62,22 @@ namespace pinocchio
                                                         const VectorXs & max_effort,
                                                         const VectorXs & max_velocity,
                                                         const VectorXs & min_config,
-                                                        const VectorXs & max_config)
+                                                        const VectorXs & max_config,
+                                                        const VectorXs & joint_friction,
+                                                        const VectorXs & joint_damping
+                                                        )
   {
     assert( (njoints==(int)joints.size())&&(njoints==(int)inertias.size())
            &&(njoints==(int)parents.size())&&(njoints==(int)jointPlacements.size()) );
     assert((joint_model.nq()>=0) && (joint_model.nv()>=0));
     assert(joint_model.nq() >= joint_model.nv());
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_effort.size() == joint_model.nv(),
-                                   "max_effort does not have the correct dimension");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_velocity.size() == joint_model.nv(),
-                                   "max_velocity does not have the correct dimension");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(min_config.size() == joint_model.nq(),
-                                   "min_config does not have the correct dimension");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(max_config.size() == joint_model.nq(),
-                                   "max_config does not have the correct dimension");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(max_effort.size(),joint_model.nv(),"The joint maximum effort vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(max_velocity.size(),joint_model.nv(),"The joint maximum velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(min_config.size(),joint_model.nq(),"The joint lower configuration bound is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(max_config.size(),joint_model.nq(),"The joint upper configuration bound is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_friction.size(),joint_model.nv(),"The joint friction vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_damping.size(),joint_model.nv(),"The joint damping vector is not of right size");
 
     JointIndex joint_id = (JointIndex)(njoints++);
     
@@ -119,6 +120,10 @@ namespace pinocchio
       jmodel.jointVelocitySelector(rotorInertia).setZero();
       rotorGearRatio.conservativeResize(nv);
       jmodel.jointVelocitySelector(rotorGearRatio).setOnes();
+      friction.conservativeResize(nv);
+      jmodel.jointVelocitySelector(friction) = joint_friction;
+      damping.conservativeResize(nv);
+      jmodel.jointVelocitySelector(damping) = joint_damping;
     }
     
     // Init and add joint index to its parent subtrees.
@@ -132,6 +137,26 @@ namespace pinocchio
     
     return joint_id;
   }
+    
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
+  ModelTpl<Scalar,Options,JointCollectionTpl>::addJoint(const JointIndex parent,
+                                                        const JointModel & joint_model,
+                                                        const SE3 & joint_placement,
+                                                        const std::string & joint_name,
+                                                        const VectorXs & max_effort,
+                                                        const VectorXs & max_velocity,
+                                                        const VectorXs & min_config,
+                                                        const VectorXs & max_config)
+  {
+    const VectorXs friction = VectorXs::Constant(joint_model.nv(), static_cast<Scalar>(0));
+    const VectorXs damping = VectorXs::Constant(joint_model.nv(), static_cast<Scalar>(0));
+    
+    return addJoint(parent, joint_model,
+                    joint_placement, joint_name,
+                    max_effort, max_velocity, min_config, max_config,
+                    friction, damping);
+  }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex
@@ -140,17 +165,13 @@ namespace pinocchio
                                                         const SE3 & joint_placement,
                                                         const std::string & joint_name)
   {
-    VectorXs max_effort, max_velocity, min_config, max_config;
+    const VectorXs max_effort = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
+    const VectorXs max_velocity = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
+    const VectorXs min_config = VectorXs::Constant(joint_model.nq(), -std::numeric_limits<Scalar>::max());
+    const VectorXs max_config = VectorXs::Constant(joint_model.nq(), std::numeric_limits<Scalar>::max());
 
-    max_effort = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
-    max_velocity = VectorXs::Constant(joint_model.nv(), std::numeric_limits<Scalar>::max());
-    min_config = VectorXs::Constant(joint_model.nq(), -std::numeric_limits<Scalar>::max());
-    max_config = VectorXs::Constant(joint_model.nq(), std::numeric_limits<Scalar>::max());
-
-    return addJoint(parent, joint_model,
-                    joint_placement, joint_name,
-                    max_effort, max_velocity,
-                    min_config, max_config);
+    return addJoint(parent, joint_model, joint_placement, joint_name,
+                    max_effort, max_velocity, min_config, max_config);
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -199,6 +220,8 @@ namespace pinocchio
     
     // Eigen Vectors
     res.armature = armature.template cast<NewScalar>();
+    res.friction = friction.template cast<NewScalar>();
+    res.damping = damping.template cast<NewScalar>();
     res.rotorInertia = rotorInertia.template cast<NewScalar>();
     res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
     res.effortLimit = effortLimit.template cast<NewScalar>();
@@ -274,6 +297,16 @@ namespace pinocchio
     if(other.armature.size() != armature.size())
       return false;
     res &= other.armature == armature;
+    if(!res) return res;
+
+    if(other.friction.size() != friction.size())
+      return false;
+    res &= other.friction == friction;
+    if(!res) return res;
+
+    if(other.damping.size() != damping.size())
+      return false;
+    res &= other.damping == damping;
     if(!res) return res;
 
     if(other.rotorInertia.size() != rotorInertia.size())

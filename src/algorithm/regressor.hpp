@@ -1,16 +1,134 @@
 //
-// Copyright (c) 2018 CNRS
+// Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_regressor_hpp__
-#define __pinocchio_regressor_hpp__
+#ifndef __pinocchio_algorithm_regressor_hpp__
+#define __pinocchio_algorithm_regressor_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
 namespace pinocchio
 {
+  
+  ///
+  /// \copydoc computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> &,const DataTpl<Scalar,Options,JointCollectionTpl> &, const JointIndex, const ReferenceFrame, const SE3Tpl<Scalar,Options> &)
+  ///
+  /// \param[out] kinematic_regressor The kinematic regressor containing the result. Matrix of size 6*(model.njoints-1) initialized to 0.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const JointIndex joint_id,
+                                      const ReferenceFrame rf,
+                                      const SE3Tpl<Scalar,Options> & placement,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor);
+
+
+  ///
+  /// \brief Computes the kinematic regressor that links the joint placements variations of the whole kinematic tree
+  ///        to the placement variation of the frame rigidly attached to the joint and given by its placement w.r.t. to the joint frame.
+  ///
+  /// \remarks It assumes that the \ref forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> &, DataTpl<Scalar,Options,JointCollectionTpl> &, const Eigen::MatrixBase<ConfigVectorType> &) has been called first.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint.
+  /// \param[in] rf Reference frame in which the result is expressed (LOCAL, LOCAL_WORLD_ALIGNED or WORLD).
+  /// \param[in] placement Relative placement to the joint frame.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x
+  computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const JointIndex joint_id,
+                                 const ReferenceFrame rf,
+                                 const SE3Tpl<Scalar,Options> & placement)
+  {
+    typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
     
+    computeJointKinematicRegressor(model,data,joint_id,rf,placement,res);
+    
+    return res;
+  }
+
+  ///
+  /// \copydoc computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> &,const DataTpl<Scalar,Options,JointCollectionTpl> &, const JointIndex, const ReferenceFrame)
+  ///
+  /// \param[out] kinematic_regressor The kinematic regressor containing the result. Matrix of size 6*(model.njoints-1) initialized to 0.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const JointIndex joint_id,
+                                      const ReferenceFrame rf,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor);
+
+  ///
+  /// \brief Computes the kinematic regressor that links the joint placement variations of the whole kinematic tree
+  ///        to the placement variation of the joint given as input.
+  ///
+  /// \remarks It assumes that the \ref forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> &, DataTpl<Scalar,Options,JointCollectionTpl> &, const Eigen::MatrixBase<ConfigVectorType> &) has been called first.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint.
+  /// \param[in] rf Reference frame in which the result is expressed (LOCAL, LOCAL_WORLD_ALIGNED or WORLD).
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x
+  computeJointKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const JointIndex joint_id,
+                                 const ReferenceFrame rf)
+  {
+    typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
+    
+    computeJointKinematicRegressor(model,data,joint_id,rf,res);
+    
+    return res;
+  }
+  
+  ///
+  /// \copydoc computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> &, DataTpl<Scalar,Options,JointCollectionTpl> &, const FrameIndex, const ReferenceFrame)
+  ///
+  /// \param[out] kinematic_regressor The kinematic regressor containing the result. Matrix of size 6*(model.njoints-1) initialized to 0.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xReturnType>
+  void computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const FrameIndex frame_id,
+                                      const ReferenceFrame rf,
+                                      const Eigen::MatrixBase<Matrix6xReturnType> & kinematic_regressor);
+  
+  ///
+  /// \brief Computes the kinematic regressor that links the joint placement variations of the whole kinematic tree
+  ///        to the placement variation of the frame given as input.
+  ///
+  /// \remarks It assumes that the \ref framesForwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> &, DataTpl<Scalar,Options,JointCollectionTpl> &, const Eigen::MatrixBase<ConfigVectorType> &) has been called first.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] frame_id Index of the frame.
+  /// \param[in] rf Reference frame in which the result is expressed (LOCAL, LOCAL_WORLD_ALIGNED or WORLD).
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x
+  computeFrameKinematicRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const FrameIndex frame_id,
+                                 const ReferenceFrame rf)
+  {
+    typedef typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x ReturnType;
+    ReturnType res(ReturnType::Zero(6,(model.njoints-1)*6));
+    
+    computeFrameKinematicRegressor(model,data,frame_id,rf,res);
+    
+    return res;
+  }
+
   ///
   /// \brief Computes the static regressor that links the center of mass positions of all the links
   ///        to the center of mass of the complete model according to the current configuration of the robot.
@@ -75,7 +193,9 @@ namespace pinocchio
   ///
   template<typename MotionVelocity, typename MotionAcceleration, typename OutputType>
   inline void
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a, const Eigen::MatrixBase<OutputType> & regressor);
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a,
+                const Eigen::MatrixBase<OutputType> & regressor);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a single rigid body.
@@ -90,7 +210,8 @@ namespace pinocchio
   ///
   template<typename MotionVelocity, typename MotionAcceleration>
   inline Eigen::Matrix<typename MotionVelocity::Scalar,6,10,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionVelocity::Vector3)::Options>
-  bodyRegressor(const MotionDense<MotionVelocity> & v, const MotionDense<MotionAcceleration> & a);
+  bodyRegressor(const MotionDense<MotionVelocity> & v,
+                const MotionDense<MotionAcceleration> & a);
 
   ///
   /// \brief Computes the regressor for the dynamic parameters of a rigid body attached to a given joint,
@@ -128,7 +249,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] frameId The id of the frame.
   ///
-  /// \return The regressor of the body.
+  /// \return The dynamic regressor of the body.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline typename DataTpl<Scalar,Options,JointCollectionTpl>::BodyRegressorType &
@@ -172,4 +293,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/regressor.hxx"
 
-#endif // ifndef __pinocchio_regressor_hpp__
+#endif // ifndef __pinocchio_algorithm_regressor_hpp__
