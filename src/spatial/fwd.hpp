@@ -49,7 +49,7 @@ namespace pinocchio
   template<typename Vector6ArgType> class ForceRef;
   template<typename Scalar, int Options=0> class ForceTpl;
   
-  template<typename Scalar, int Options=0> class InertiaTpl;
+  template<typename Scalar, int Options=0> struct InertiaTpl;
   template<typename Scalar, int Options=0> class Symmetric3Tpl;
   
 
