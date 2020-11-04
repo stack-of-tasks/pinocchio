@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_force_dense_hpp__
@@ -48,17 +48,22 @@ namespace pinocchio
     
     // Arithmetic operators
     template<typename D2>
-    Derived & setFrom(const ForceDense<D2> & other)
+    Derived & operator=(const ForceDense<D2> & other)
+    {
+      return derived().set(other.derived());
+    }
+    
+    Derived & operator=(const ForceDense & other)
+    {
+      return derived().set(other.derived());
+    }
+    
+    template<typename D2>
+    Derived & set(const ForceDense<D2> & other)
     {
       linear() = other.linear();
       angular() = other.angular();
       return derived();
-    }
-    
-    template<typename D2>
-    Derived & operator=(const ForceDense<D2> & other)
-    {
-      return derived().setFrom(other.derived());
     }
     
     template<typename V6>
@@ -185,6 +190,10 @@ namespace pinocchio
     
     /// \returns a ForceRef on this.
     ForceRefType ref() { return derived().ref(); }
+
+  protected:
+      
+    ForceDense() {};
     
   }; // class ForceDense
   
