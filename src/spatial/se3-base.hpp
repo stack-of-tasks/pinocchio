@@ -34,6 +34,8 @@ namespace pinocchio
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
     
+    Derived & const_cast_derived() const { return *const_cast<Derived*>(&derived()); }
+    
     ConstAngularRef rotation() const  { return derived().rotation_impl(); }
     ConstLinearRef translation() const  { return derived().translation_impl(); }
     AngularRef rotation() { return derived().rotation_impl(); }

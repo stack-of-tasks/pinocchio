@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -27,6 +27,8 @@ namespace pinocchio
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
     
+    Derived & const_cast_derived() const { return *const_cast<Derived*>(&derived()); }
+    
     /**
      * @brief      Return the angular part of the force vector
      *
@@ -46,7 +48,6 @@ namespace pinocchio
     
     /// \copydoc ForceBase::linear
     LinearType linear() { return derived().linear_impl(); }
-    
     
     /**
      * @brief      Set the angular part of the force vector
