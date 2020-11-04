@@ -78,6 +78,7 @@ namespace pinocchio
 // Handle explicitely the GCC borring warning: 'anonymous variadic macros were introduced in C++11'
 #include <exception>
 #include <stdexcept>
+#include <sstream>
 
 #if defined(__GNUC__)
   #pragma GCC system_header
@@ -91,7 +92,11 @@ namespace pinocchio
 /// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
 #if !defined(PINOCCHIO_NO_THROW)
   #define PINOCCHIO_THROW(condition,exception_type,message) \
-    if (!(condition)) { throw exception_type(PINOCCHIO_STRING_LITERAL(message)); }
+    if (!(condition)) \
+    { \
+      std::stringstream ss; ss << message; \
+      throw exception_type(ss.str()); \
+    }
 #else
   #define PINOCCHIO_THROW(condition,exception_type,message)
 #endif
@@ -99,7 +104,7 @@ namespace pinocchio
 #define _PINOCCHIO_GET_OVERRIDE_FOR_CHECK_INPUT_ARGUMENT(_1, _2, MACRO_NAME, ...) MACRO_NAME
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition, message) \
-  PINOCCHIO_THROW(condition,std::invalid_argument,PINOCCHIO_STRING_LITERAL(message))
+  PINOCCHIO_THROW(condition,std::invalid_argument,message)
 
 #define _PINOCCHIO_CHECK_INPUT_ARGUMENT_1(condition) \
   _PINOCCHIO_CHECK_INPUT_ARGUMENT_2(condition,\
