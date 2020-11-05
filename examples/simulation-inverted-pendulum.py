@@ -3,8 +3,9 @@ import hppfcl as fcl
 import numpy as np
 import math
 import time
+import sys
 
-N = 2 # number of pendulums
+N = 10 # number of pendulums
 model = pin.Model()
 geom_model = pin.GeometryModel()
 
@@ -20,7 +21,7 @@ geom_model.addGeometryObject(geom0_obj)
 
 for k in range(N):
     joint_name = "joint_" + str(k+1)
-    joint_id = model.addJoint(parent_id,pin.JointModelRX(),joint_placement,joint_name)
+    joint_id = model.addJoint(parent_id,pin.JointModelRY(),joint_placement,joint_name)
 
     body_inertia = pin.Inertia.FromSphere(body_mass,body_radius)
     body_placement = joint_placement.copy()
@@ -84,7 +85,7 @@ t = 0.
 data_sim = model.createData()
 for k in range(N):
     tau_control = np.zeros((model.nv))
-    a = pin.aba(model,data_sim,q,v,tau_control) # Forward dynamics    
+    a = pin.aba(model,data_sim,q,v,tau_control) # Forward dynamics
 
     v += a*dt
     #q += v*dt
