@@ -87,7 +87,8 @@ for k in range(N):
     a = pin.aba(model,data_sim,q,v,tau_control) # Forward dynamics    
 
     v += a*dt
-    q += v*dt
+    #q += v*dt
+    q = pin.integrate(model,q,v*dt)
 
     viz.display(q)
     time.sleep(dt)
