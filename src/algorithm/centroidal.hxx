@@ -174,7 +174,7 @@ namespace pinocchio
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
     Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
-    for (long i = 0; i<model.nv; ++i)
+    for(Eigen::DenseIndex i = 0; i < model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
     data.hg.toVector().noalias() = data.Ag*v;

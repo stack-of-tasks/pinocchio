@@ -91,6 +91,7 @@ namespace pinocchio
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
       motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       
@@ -100,9 +101,9 @@ namespace pinocchio
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
-      lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = YS * data.dAdq.col(j);
+        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dAdq.col(j);
       
       jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
@@ -110,15 +111,6 @@ namespace pinocchio
         data.oYcrb[parent] += data.oYcrb[i];
         data.of[parent] += data.of[i];
       }
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
@@ -320,8 +312,7 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
       
       // Temporary variables
-      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
-      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StdY(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
@@ -331,8 +322,8 @@ namespace pinocchio
       ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-      ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
-      
+      ColsBlock dFda_cols = jmodel.jointCols(data.dFda); // Also equals to Ag_cols
+
       MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
       MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
       MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da);
@@ -368,19 +359,18 @@ namespace pinocchio
       
       if(parent > 0)
       {
-        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
-        StY.noalias() = J_cols.transpose() * data.doYcrb[i];
+        StdY.noalias() = J_cols.transpose() * data.doYcrb[i];
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         {
           rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = YS  * data.dAdq.col(j)
-          + StY * data.dVdq.col(j);
+          = dFda_cols.transpose() * data.dAdq.col(j)
+          + StdY * data.dVdq.col(j);
         }
         for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
         {
           rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = YS  * data.dAdv.col(j)
-          + StY * data.J.col(j);
+          = dFda_cols.transpose() * data.dAdv.col(j)
+          + StdY * data.J.col(j);
         }
       }
       
@@ -400,15 +390,6 @@ namespace pinocchio
         MotionRef<typename ColsBlock::ColXpr> m_out(dAdq_cols.col(k));
         m_out.linear() += model.gravity.linear().cross(m_in.angular());
       }
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   

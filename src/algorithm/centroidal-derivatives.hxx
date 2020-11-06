@@ -176,24 +176,15 @@ namespace pinocchio
       motionSet::act(J_cols, data.oh[i], dHdq_cols);
       motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
-    }
   }; // struct CentroidalDynDerivativesBackwardStep
   
   namespace
   {
     // TODO: should be moved to ForceSet
     template<typename Matrix6xLikeIn, typename Vector3Like, typename Matrix6xLikeOut>
-    inline void translateForceSet(const Eigen::MatrixBase<Matrix6xLikeIn> & Fin,
-                                  const Eigen::MatrixBase<Vector3Like> & v3,
-                                  const Eigen::MatrixBase<Matrix6xLikeOut> & Fout)
+    void translateForceSet(const Eigen::MatrixBase<Matrix6xLikeIn> & Fin,
+                           const Eigen::MatrixBase<Vector3Like> & v3,
+                           const Eigen::MatrixBase<Matrix6xLikeOut> & Fout)
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6xLikeIn,6,Eigen::Dynamic)
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
@@ -209,6 +200,21 @@ namespace pinocchio
         const ForceTypeIn fin(PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLikeIn,Fin).col(k));
         fout.linear() = fin.linear();
         fout.angular().noalias() = fin.angular() - v3.cross(fin.linear());
+      }
+    }
+  
+    template<typename Matrix6xLike, typename Vector3Like, typename Matrix6xLikeOut>
+    void translateForceSet(const Eigen::MatrixBase<Matrix6xLike> & F,
+                           const Eigen::MatrixBase<Vector3Like> & v3)
+    {
+      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix6xLike,6,Eigen::Dynamic)
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3)
+
+      for(Eigen::DenseIndex k = 0; k < F.cols(); ++k)
+      {
+        typedef ForceRef<typename Matrix6xLike::ColXpr> ForceType;
+        ForceType f(PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,F).col(k));
+        f.angular() -= v3.cross(f.linear());
       }
     }
   } // internal namespace
@@ -288,7 +294,8 @@ namespace pinocchio
     translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
     translateForceSet(data.dFdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
-    translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
+    translateForceSet(data.dFda,com,data.Ag);
+    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da) = data.Ag;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -406,7 +413,8 @@ namespace pinocchio
     translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
     translateForceSet(Ftmp,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
-    translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
+    translateForceSet(data.dFda,com,data.Ag);
+    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da) = data.Ag;
   }
   
 } // namespace pinocchio
