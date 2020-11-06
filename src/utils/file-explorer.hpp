@@ -6,7 +6,6 @@
 #define __pinocchio_file_explorer_hpp__
 
 #include <string>
-#include <iostream>
 #include <vector>
 
 namespace pinocchio

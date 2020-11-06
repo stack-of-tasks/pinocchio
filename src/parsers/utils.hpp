@@ -5,7 +5,6 @@
 #ifndef __pinocchio_parsers_utils_hpp__
 #define __pinocchio_parsers_utils_hpp__
 
-#include <iostream>
 #include <limits>
 #include <sstream>
 // #include <stdexcept>

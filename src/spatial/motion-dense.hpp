@@ -1,12 +1,11 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_motion_dense_hpp__
 #define __pinocchio_motion_dense_hpp__
 
 #include "pinocchio/spatial/skew.hpp"
-#include <iostream>
 
 namespace pinocchio
 {

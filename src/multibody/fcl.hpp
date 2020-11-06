@@ -17,7 +17,6 @@
   #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #endif
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <utility>
