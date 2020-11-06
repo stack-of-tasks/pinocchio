@@ -11,7 +11,10 @@
 
 namespace pinocchio
 {
-  
+  ///
+  /// @copydoc changeReferenceFrame(const SE3Tpl<Scalar,Options> &,const ForceDense<MotionIn> &,const ReferenceFrame,const ReferenceFrame)
+  /// \param[out] f_out Resulting force quantity.
+  ///
   template<typename Scalar, int Options, typename ForceIn, typename ForceOut>
   void changeReferenceFrame(const SE3Tpl<Scalar,Options> & placement,
                             const ForceDense<ForceIn> & f_in,
@@ -66,6 +69,18 @@ namespace pinocchio
     assert(false && "This must never happened.");
   }
 
+  ///
+  /// \brief Change the expression of a given Force vector from one reference frame to another reference frame.
+  ///
+  /// \example If ones has an initial f_in Force expressed locally (rf_in=LOCAL) in a Frame localized at a given placement value,
+  ///          ones may want to retrieve its value inside another reference frame e.g. the world (rf_out=WORLD).
+  ///
+  /// \param[in] placement Placement of the frame having force f_in
+  /// \param[in] f_in Input force quantity.
+  /// \param[in] rf_in Reference frame in which m_in is expressed
+  /// \param[in] rf_out Reference frame in which the result m_out is expressed
+  /// \param[out] f_out Resulting force quantity.
+  ///
   template<typename Scalar, int Options, typename ForceIn>
   typename ForceIn::ForcePlain
   changeReferenceFrame(const SE3Tpl<Scalar,Options> & placement,
