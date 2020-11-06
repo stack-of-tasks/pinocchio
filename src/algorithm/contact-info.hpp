@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA, CNRS
+// Copyright (c) 2019-2020 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_info_hpp__
@@ -10,6 +10,7 @@
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
 
+#include <string>
 #include <limits>
 
 namespace pinocchio
@@ -61,6 +62,9 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     typedef pinocchio::JointIndex JointIndex;
+    
+    /// \brief Name of the contact
+    std::string name;
     
     /// \brief Type of the contact.
     ContactType type;
@@ -207,7 +211,8 @@ namespace pinocchio
     bool operator==(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
     {
       return
-         type == other.type
+         name == other.name
+      && type == other.type
       && joint1_id == other.joint1_id
       && joint2_id == other.joint2_id
       && joint1_placement == other.joint1_placement
