@@ -95,6 +95,7 @@ namespace pinocchio
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(a,"Joint spatial acceleration")
+        .ADD_DATA_PROPERTY(joints,"Vector of JointData associated to each JointModel stored in the related model.")
         .ADD_DATA_PROPERTY(oa,
                            "Joint spatial acceleration expressed at the origin of the world frame.")
         .ADD_DATA_PROPERTY(a_gf,
