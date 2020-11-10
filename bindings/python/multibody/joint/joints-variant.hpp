@@ -42,7 +42,7 @@ namespace pinocchio
             bp::class_<T>(T::classname().c_str(),
                           T::classname().c_str(),
                           bp::init<>())
-            .def(JointDataDerivedPythonVisitor<T>())
+            .def(JointDataBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
         bp::implicitly_convertible<T,pinocchio::JointDataVariant>();
@@ -58,7 +58,7 @@ namespace pinocchio
             bp::class_<T>(T::classname().c_str(),
                           T::classname().c_str(),
                           bp::init<>())
-            .def(JointModelDerivedPythonVisitor<T>())
+            .def(JointModelBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
         bp::implicitly_convertible<T,pinocchio::JointModelVariant>();

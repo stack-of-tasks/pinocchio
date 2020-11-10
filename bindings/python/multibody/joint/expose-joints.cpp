@@ -6,15 +6,15 @@
 #include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-model.hpp"
-
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "pinocchio/bindings/python/multibody/joint/joint-data.hpp"
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace pinocchio
 {
   namespace python
   {
     
-    static void exposeVariants()
+    static void exposeJointVariants()
     {
       boost::mpl::for_each<JointModelVariant::types>(JointModelExposer());
       bp::to_python_converter<pinocchio::JointModelVariant,
@@ -27,10 +27,13 @@ namespace pinocchio
     
     void exposeJoints()
     {
-      exposeVariants();
+      exposeJointVariants();
+      
       JointModelPythonVisitor::expose();
-      bp::class_<JointModelVector>("StdVec_JointModelVector")
-      .def(bp::vector_indexing_suite<JointModelVector,true>());
+      StdAlignedVectorPythonVisitor<JointModel>::expose("StdVec_JointModelVector");
+      
+      JointDataPythonVisitor::expose();
+      StdAlignedVectorPythonVisitor<JointData>::expose("StdVec_JointDataVector");
     }
     
   } // namespace python

@@ -44,13 +44,13 @@ namespace pinocchio
     inline bp::class_<JointModelPrismaticUnaligned>& expose_joint_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
     {
       return cl
-               .def(bp::init<double, double, double> (bp::args("x", "y", "z"),
-                                                      "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
-               .def(bp::init<Eigen::Vector3d> (bp::args("axis"),
-                                               "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
-               .def_readwrite("axis",&JointModelPrismaticUnaligned::axis,
-                              "Translation axis of the JointModelPrismaticUnaligned.")
-               ;
+      .def(bp::init<double, double, double> (bp::args("x", "y", "z"),
+                                             "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
+      .def(bp::init<Eigen::Vector3d> (bp::args("axis"),
+                                      "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+      .def_readwrite("axis",&JointModelPrismaticUnaligned::axis,
+                     "Translation axis of the JointModelPrismaticUnaligned.")
+      ;
     }
 
     // specialization for JointModelComposite
@@ -112,31 +112,31 @@ namespace pinocchio
     inline bp::class_<JointModelComposite>& expose_joint_model<JointModelComposite> (bp::class_<JointModelComposite> & cl)
     {
       return cl
-               .def(bp::init<const size_t> (bp::args("size"), "Init JointModelComposite with a defined size"))
-               .def("__init__",
-                    bp::make_constructor(init_proxy1,
-                                         bp::default_call_policies(),
-                                         bp::args("joint_model")
-                                        ),
-                    "Init JointModelComposite from a joint"
-                   )
-               .def("__init__",
-                    bp::make_constructor(init_proxy2,
-                                         bp::default_call_policies(),
-                                         bp::args("joint_model","joint_placement")
-                                        ),
-                    "Init JointModelComposite from a joint and a placement"
-                   )
-               .add_property("joints",&JointModelComposite::joints)
-               .add_property("jointPlacements",&JointModelComposite::jointPlacements)
-               .add_property("njoints",&JointModelComposite::njoints)
-               .def("addJoint",
-                    &addJoint_proxy,
-                    addJoint_proxy_overloads(bp::args("joint_model","joint_placement"),
-                                             "Add a joint to the vector of joints."
-                                            )[bp::return_internal_reference<>()]
-                   )
-               ;
+      .def(bp::init<const size_t> (bp::args("size"), "Init JointModelComposite with a defined size"))
+      .def("__init__",
+           bp::make_constructor(init_proxy1,
+                                bp::default_call_policies(),
+                                bp::args("joint_model")
+                                ),
+           "Init JointModelComposite from a joint"
+           )
+      .def("__init__",
+           bp::make_constructor(init_proxy2,
+                                bp::default_call_policies(),
+                                bp::args("joint_model","joint_placement")
+                                ),
+           "Init JointModelComposite from a joint and a placement"
+           )
+      .add_property("joints",&JointModelComposite::joints)
+      .add_property("jointPlacements",&JointModelComposite::jointPlacements)
+      .add_property("njoints",&JointModelComposite::njoints)
+      .def("addJoint",
+           &addJoint_proxy,
+           addJoint_proxy_overloads(bp::args("joint_model","joint_placement"),
+                                    "Add a joint to the vector of joints."
+                                    )[bp::return_internal_reference<>()]
+           )
+      ;
     }
   } // namespace python
 } // namespace pinocchio
