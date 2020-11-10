@@ -1,11 +1,11 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
-#include "pinocchio/bindings/python/multibody/joint/joint.hpp"
+#include "pinocchio/bindings/python/multibody/joint/joint-model.hpp"
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
