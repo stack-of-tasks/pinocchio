@@ -14,6 +14,7 @@ class TestModel(TestCase):
         self.assertEqual(model.nbodies, 1)
         self.assertEqual(model.nq, 0)
         self.assertEqual(model.nv, 0)
+        model.name = "empty_model"
 
     def test_add_joint(self):
         model = pin.Model()
