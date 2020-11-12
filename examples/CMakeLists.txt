@@ -67,7 +67,7 @@ IF(BUILD_PYTHON_INTERFACE)
     inverse-dynamics-derivatives
     )
 
-  IF(BUILD_WITH_UDRF_SUPPORT)
+  IF(BUILD_WITH_URDF_SUPPORT)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       overview-urdf
       gepetto-viewer
