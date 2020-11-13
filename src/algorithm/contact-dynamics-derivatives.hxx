@@ -9,13 +9,14 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
+#include "pinocchio/algorithm/utils/motion.hpp"
 
 namespace pinocchio
 {
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
   struct ComputeContactDynamicsDerivativesForwardStep
-    : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
+  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -33,8 +34,9 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
@@ -48,6 +50,7 @@ namespace pinocchio
         motionSet::motionAction(ov,J_cols,dJ_cols);
         // TODO: make more efficient
         data.v[i] = data.oMi[i].actInv(data.ov[i]);
+        
         if(parent > 0)
         {
           motionSet::motionAction(data.ov[parent],J_cols,dVdq_cols);
@@ -94,7 +97,7 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
   struct ComputeContactDynamicDerivativesBackwardStep
-    : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
+  : public fusion::JointUnaryVisitorBase<ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -116,8 +119,8 @@ namespace pinocchio
                                                  typename Data::RowMatrixXs,
                                                  typename Data::RowMatrixXs> RNEABackwardStep;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
