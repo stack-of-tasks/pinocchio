@@ -94,20 +94,21 @@ namespace pinocchio
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
         .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
-        .ADD_DATA_PROPERTY(a,"Joint spatial acceleration")
         .ADD_DATA_PROPERTY(joints,"Vector of JointData associated to each JointModel stored in the related model.")
+        .ADD_DATA_PROPERTY(a,"Vector of joint accelerations expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(oa,
                            "Joint spatial acceleration expressed at the origin of the world frame.")
         .ADD_DATA_PROPERTY(a_gf,
                            "Joint spatial acceleration containing also the contribution of the gravity acceleration")
         .ADD_DATA_PROPERTY(oa_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration, but expressed at the origin of the world frame.")
         
-        .ADD_DATA_PROPERTY(v,"Joint spatial velocity expressed in the joint frame.")
-        .ADD_DATA_PROPERTY(ov,"Joint spatial velocity expressed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(v,"Vector of joint velocities expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(ov,"Vector of joint velocities expressed at the origin of the world.")
         
-        .ADD_DATA_PROPERTY(f,"Joint spatial force expresssed in the joint frame.")
-        .ADD_DATA_PROPERTY(of,"Joint spatial force expresssed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(f,"Vector of body forces expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(of,"Vector of body forces expressed at the origin of the world.")
         .ADD_DATA_PROPERTY(h,"Vector of spatial momenta expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(oh,"Vector of spatial momenta expressed at the origin of the world.")
         .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(liMi,"Body relative placement (wrt parent)")
@@ -148,6 +149,13 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i..")
         .ADD_DATA_PROPERTY(mass,"Mass of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(Jcom,"Jacobian of center of mass.")
+        
+        .ADD_DATA_PROPERTY(dAdq,"Variation of the spatial acceleration set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dAdv,"Variation of the spatial acceleration set with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dHdq,"Variation of the spatial momenta set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dFdq,"Variation of the force set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dFdv,"Variation of the force set with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dFda,"Variation of the force set with respect to the joint acceleration.")
 
         .ADD_DATA_PROPERTY(C,"Joint space Coriolis matrix.")
         .ADD_DATA_PROPERTY(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
