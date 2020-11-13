@@ -81,7 +81,7 @@ namespace pinocchio
     /// \brief Relative placement with respect to the frame of joint2.
     SE3 joint2_placement;
     
-    /// \brief Reference frame where the constraint is expressed (WORLD, LOCAL_WORLD_ALIGNED or LOCAL)
+    /// \brief Reference frame where the constraint is expressed (LOCAL_WORLD_ALIGNED or LOCAL)
     ReferenceFrame reference_frame;
     
     /// \brief Desired contact placement
@@ -100,7 +100,7 @@ namespace pinocchio
     , joint2_id(std::numeric_limits<FrameIndex>::max())
     , joint1_placement(SE3::Identity())
     , joint2_placement(SE3::Identity())
-    , reference_frame(WORLD)
+    , reference_frame(LOCAL)
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
@@ -121,7 +121,7 @@ namespace pinocchio
                          const SE3 & joint1_placement,
                          const JointIndex joint2_id,
                          const SE3 & joint2_placement,
-                         const ReferenceFrame & reference_frame = WORLD)
+                         const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
@@ -144,7 +144,7 @@ namespace pinocchio
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
                          const SE3 & joint1_placement,
-                         const ReferenceFrame & reference_frame = WORLD)
+                         const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(0)
@@ -166,7 +166,7 @@ namespace pinocchio
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
                          const JointIndex joint2_id,
-                         const ReferenceFrame & reference_frame = WORLD)
+                         const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
@@ -188,7 +188,7 @@ namespace pinocchio
     ///
     RigidContactModelTpl(const ContactType type,
                          const JointIndex joint1_id,
-                         const ReferenceFrame & reference_frame = WORLD)
+                         const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(0) // set to be the Universe
