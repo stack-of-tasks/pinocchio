@@ -67,7 +67,7 @@ IF(BUILD_PYTHON_INTERFACE)
     inverse-dynamics-derivatives
     )
 
-  IF(BUILD_WITH_UDRF_SUPPORT)
+  IF(BUILD_WITH_URDF_SUPPORT)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       overview-urdf
       gepetto-viewer
@@ -77,7 +77,7 @@ IF(BUILD_PYTHON_INTERFACE)
       robot-wrapper-viewer
       geometry-models
       )
-  ENDIF(BUILD_WITH_UDRF_SUPPORT)
+  ENDIF(BUILD_WITH_URDF_SUPPORT)
 
   IF(hpp-fcl_FOUND)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
