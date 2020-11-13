@@ -64,14 +64,14 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,WORLD);
-  RigidContactModel ci_RF_3D(CONTACT_3D,RF_id,WORLD);
+  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
+  RigidContactModel ci_RF_3D(CONTACT_3D,RF_id,LOCAL);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,WORLD);
-  RigidContactModel ci_LF_3D(CONTACT_3D,LF_id,WORLD);
+  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
+  RigidContactModel ci_LF_3D(CONTACT_3D,LF_id,LOCAL);
   
-  RigidContactModel ci_RA_3D(CONTACT_3D,RA_id,WORLD);
-  RigidContactModel ci_LA_3D(CONTACT_3D,LA_id,WORLD);
+  RigidContactModel ci_RA_3D(CONTACT_3D,RA_id,LOCAL);
+  RigidContactModel ci_LA_3D(CONTACT_3D,LA_id,LOCAL);
   
   // Define contact infos structure
   static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;

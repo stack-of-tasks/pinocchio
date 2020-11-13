@@ -132,14 +132,16 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+      
+      ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
       const ColsBlock J_cols = jmodel.jointCols(data.J);
-      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,dFda_cols);
       
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       data.oYcrb[parent] += data.oYcrb[i];
       
       if(ContactMode)
@@ -162,24 +164,34 @@ namespace pinocchio
                   std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
                   const Scalar mu)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq,
-                                   "The joint configuration vector is not of right size");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv,
-                                   "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
-                                   "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
-                                   "mu has to be positive");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(),contact_datas.size(),
-                                   "The contact models and data do not have the same vector size.");
-    
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Data::Motion Motion;
     
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
+    typedef std::vector<RigidContactModel> VectorRigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq,
+                                  "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv,
+                                  "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
+                                  "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
+                                   "mu has to be positive");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(),contact_datas.size(),
+                                  "The contact models and data do not have the same vector size.");
+    
+    // Check that all the frames are related to LOCAL or LOCAL_WORLD_ALIGNED reference frames
+    for(typename VectorRigidContactModel::const_iterator cm_it = contact_models.begin();
+        cm_it != contact_models.end(); ++cm_it)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(cm_it->reference_frame != WORLD,
+                                     "Contact model with name " + cm_it->name + " has reference_frame equals to WORLD. "
+                                     "contactDynamics is only operating from LOCAL or LOCAL_WORLD_ALIGNED reference frames.")
+    }
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -212,6 +224,7 @@ namespace pinocchio
     
     data.com[0] = data.oYcrb[0].lever();
     
+    data.Ag = data.dFda;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
     Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
     for(long i = 0; i<model.nv; ++i)
@@ -246,41 +259,35 @@ namespace pinocchio
       typename RigidContactData::Motion & vc2 = contact_data.contact2_velocity;
       typename RigidContactData::Motion & coriolis_centrifugal_acc2 = contact_data.contact2_acceleration_drift;
       
-      // Update frame placement
+      // Compute contact placement and velocities
       if(joint1_id > 0)
       {
-        oMc1 = oMi_joint1 * contact_model.joint1_placement;
+//        oMc1 = oMi_joint1 * contact_model.joint1_placement; // already computed by Cholesky
         vc1 = oMc1.actInv(data.ov[joint1_id]);
       }
       else
       {
-        oMc1 = contact_model.joint1_placement;
+//        oMc1 = contact_model.joint1_placement; // already computed by Cholesky
         vc1.setZero();
       }
 
       if(joint2_id > 0)
       {
-        oMc2 = oMi_joint2 * contact_model.joint2_placement;
+//        oMc2 = oMi_joint2 * contact_model.joint2_placement; // already computed by Cholesky
         vc2 = oMc2.actInv(data.ov[joint2_id]);
       }
       else
       {
-        oMc2 = contact_model.joint2_placement;
+//        oMc2 = contact_model.joint2_placement; // already computed by Cholesky
         vc2.setZero();
       }
 
+      // Compute relative displacement between C1 and C2 frames
       typename RigidContactData::SE3 & c1Mc2 = contact_data.c1Mc2;
-      c1Mc2 = oMc1.actInv(oMc2);
+//      c1Mc2 = oMc1.actInv(oMc2); // already computed by Cholesky
       
       switch(contact_model.reference_frame)
       {
-        case WORLD:
-        {
-          coriolis_centrifugal_acc1 = data.oa[joint1_id];
-          coriolis_centrifugal_acc2 = data.oa[joint2_id];
-          
-          break;
-        }
         case LOCAL_WORLD_ALIGNED:
         {
           // LINEAR
@@ -292,8 +299,18 @@ namespace pinocchio
           coriolis_centrifugal_acc1.angular() = data.oa[joint1_id].angular();
           
           // LINEAR
-          const SE3 c1Mo_W(SE3::Matrix3::Identity(),-oMc1.translation());
-          coriolis_centrifugal_acc2 = c1Mo_W.act(data.oa[joint2_id]);
+          if(contact_model.type == CONTACT_3D)
+          {
+            coriolis_centrifugal_acc2.linear().noalias()
+            = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
+            + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation()));
+            coriolis_centrifugal_acc2.angular().setZero();
+          }
+          else
+          {
+            coriolis_centrifugal_acc2.linear() = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc1.translation());
+            coriolis_centrifugal_acc2.angular() = data.oa[joint2_id].angular();
+          }
           
           break;
         }
@@ -301,8 +318,20 @@ namespace pinocchio
         {
           coriolis_centrifugal_acc1 = oMc1.actInv(data.oa[joint1_id]);
           if(contact_model.type == CONTACT_3D)
+          {
             coriolis_centrifugal_acc1.linear() += vc1.angular().cross(vc1.linear());
-          coriolis_centrifugal_acc2 = oMc1.actInv(data.oa[joint2_id]);
+            coriolis_centrifugal_acc1.angular().setZero();
+          }
+          
+          if(contact_model.type == CONTACT_3D)
+          {
+            coriolis_centrifugal_acc2.linear().noalias()
+            = oMc1.rotation().transpose()*(data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
+            + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation())));
+            coriolis_centrifugal_acc2.angular().setZero();
+          }
+          else
+            coriolis_centrifugal_acc2 = oMc1.actInv(data.oa[joint2_id]);
           break;
         }
         default:
