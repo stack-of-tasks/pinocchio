@@ -88,7 +88,7 @@ namespace pinocchio
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
-    /// \brief Vector of joint accelerations expressed at the centers of the joints frames.
+    /// \brief Vector of joint accelerations expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a;
     
     /// \brief Vector of joint accelerations expressed at the origin of the world.
@@ -105,20 +105,20 @@ namespace pinocchio
     /// \brief Vector of joint accelerations due to the gravity field.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_gf;
     
-    /// \brief Vector of joint accelerations expressed at the origin of the world including gravity contribution.
+    /// \brief Vector of joint accelerations expressed at the origin of the world including the gravity contribution.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_gf;
     
-    /// \brief Vector of joint velocities expressed at the centers of the joints.
+    /// \brief Vector of joint velocities expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) v;
     
-    /// \brief Vector of joint velocities expressed at the origin.
+    /// \brief Vector of joint velocities expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) ov;
     
     /// \brief Vector of body forces expressed in the local frame of the joint. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) f;
     
-    /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
+    /// \brief Vector of body forces expressed at the origin of the world. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) of;
     
@@ -129,7 +129,7 @@ namespace pinocchio
     /// \brief Vector of spatial momenta expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) h;
     
-    /// \brief Vector of spatial momenta expressed in the world frame.
+    /// \brief Vector of spatial momenta expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) oh;
     
     /// \brief Vector of absolute joint placements (wrt the world).
@@ -170,7 +170,7 @@ namespace pinocchio
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     MatrixXs C;
 
-    /// \brief Variation of the spatial momenta with respect to the joint configuration.
+    /// \brief Variation of the spatial momenta set with respect to the joint configuration.
     Matrix6x dHdq;
     
     /// \brief Variation of the forceset with respect to the joint configuration.
