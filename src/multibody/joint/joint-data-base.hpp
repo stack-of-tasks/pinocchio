@@ -11,10 +11,10 @@
   
 #define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,TYPENAME)              \
   PINOCCHIO_JOINT_MODEL_TYPEDEF_GENERIC(Joint,TYPENAME); \
-typedef TYPENAME traits<Joint>::ConfigVectorTypeConstRef ConfigVectorTypeConstRef;      \
-typedef TYPENAME traits<Joint>::ConfigVectorTypeRef ConfigVectorTypeRef;      \
-typedef TYPENAME traits<Joint>::TangentVectorTypeConstRef TangentVectorTypeConstRef;      \
-typedef TYPENAME traits<Joint>::TangentVectorTypeRef TangentVectorTypeRef;      \
+  typedef TYPENAME traits<Joint>::ConfigVectorTypeConstRef ConfigVectorTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::ConfigVectorTypeRef ConfigVectorTypeRef;      \
+  typedef TYPENAME traits<Joint>::TangentVectorTypeConstRef TangentVectorTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::TangentVectorTypeRef TangentVectorTypeRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeRef ConstraintTypeRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
