@@ -13,6 +13,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <limits>
+#include <iostream>
 
 namespace pinocchio
 {
