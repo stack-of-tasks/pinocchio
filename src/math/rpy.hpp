@@ -23,9 +23,10 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r,
-                                          const Scalar p,
-                                          const Scalar y);
+    inline Eigen::Matrix<Scalar,3,3>
+    rpyToMatrix(const Scalar r,
+                const Scalar p,
+                const Scalar y);
 
     ///
     /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
@@ -35,7 +36,7 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy);
 
     ///
@@ -52,7 +53,7 @@ namespace pinocchio
     /// \warning the method assumes \f$R\f$ is a rotation matrix. If it is not, the result is undefined.
     ///
     template<typename Matrix3Like>
-    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    inline Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R);
 
     ///
@@ -71,7 +72,7 @@ namespace pinocchio
     /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
     ///
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJac(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
   
     ///
@@ -90,7 +91,7 @@ namespace pinocchio
     /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
     ///
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
   } // namespace rpy
 }

@@ -12,9 +12,10 @@ namespace pinocchio
   namespace rpy
   {
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r,
-                                          const Scalar p,
-                                          const Scalar y)
+    inline Eigen::Matrix<Scalar,3,3>
+    rpyToMatrix(const Scalar r,
+                const Scalar p,
+                const Scalar y)
     {
       typedef Eigen::AngleAxis<Scalar> AngleAxis;
       typedef Eigen::Matrix<Scalar,3,1> Vector3s;
@@ -26,7 +27,7 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like, rpy, 3, 1);
@@ -35,7 +36,7 @@ namespace pinocchio
 
 
     template<typename Matrix3Like>
-    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    inline Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
@@ -66,7 +67,7 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJac(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
     {
       typedef typename Vector3Like::Scalar Scalar;
@@ -104,7 +105,7 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
     {
       typedef typename Vector3Like::Scalar Scalar;
