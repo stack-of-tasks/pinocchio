@@ -93,6 +93,26 @@ namespace pinocchio
     template<typename Vector3Like>
     inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
+
+    ///
+    /// \brief Compute the time derivative Jacobian of the Roll-Pitch-Yaw conversion
+    ///
+    /// Given \f$\phi = (r, p, y)\f$ and reference frame F (either LOCAL or WORLD),
+    /// the Jacobian is such that \f$ {}^F\omega = J_F(\phi)\dot{\phi} \f$,
+    /// where \f$ {}^F\omega \f$ is the angular velocity expressed in frame F
+    /// and \f$ J_F \f$ is the Jacobian computed with reference frame F
+    ///
+    /// \param[in] rpy     Roll-Pitch-Yaw vector
+    /// \param[in] rpydot  Time derivative of the Roll-Pitch-Yaw vector
+    /// \param[in] rf      Reference frame in which the angular velocity is expressed
+    ///
+    /// \return The time derivative of the Jacobian of the Roll-Pitch-Yaw conversion in the appropriate frame
+    ///
+    /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
+    ///
+    template<typename Vector3Like0, typename Vector3Like1>
+    inline Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
+    rpyToJacDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf=LOCAL);
   } // namespace rpy
 }
 

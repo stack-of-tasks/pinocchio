@@ -141,6 +141,47 @@ namespace pinocchio
         }
       }
     }
+
+    template<typename Vector3Like0, typename Vector3Like1>
+    inline Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
+    rpyToJacDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf)
+    {
+      typedef typename Vector3Like0::Scalar Scalar;
+      Eigen::Matrix<Scalar,3,3> J;
+      const Scalar p = rpy[1];
+      const Scalar dp = rpydot[1];
+      Scalar sp, cp;
+      SINCOS(p, &sp, &cp);
+      switch (rf)
+      {
+        case LOCAL:
+        {
+          const Scalar r = rpy[0];
+          const Scalar dr = rpydot[0];
+          Scalar sr, cr; SINCOS(r, &sr, &cr);
+          J << Scalar(0.0), Scalar(0.0),               -cp*dp,
+               Scalar(0.0),      -sr*dr,  cr*cp*dr - sr*sp*dp,
+               Scalar(0.0),      -cr*dr, -sr*cp*dr - cr*sp*dp;
+          return J;
+        }
+        case WORLD:
+        case LOCAL_WORLD_ALIGNED:
+        {
+          const Scalar y = rpy[2];
+          const Scalar dy = rpydot[2];
+          Scalar sy, cy; SINCOS(y, &sy, &cy);
+          J << -sp*cy*dp - cp*sy*dy,      -cy*dy, Scalar(0.0),
+                cp*cy*dy - sp*sy*dp,      -sy*dy, Scalar(0.0),
+                             -cp*dp, Scalar(0.0), Scalar(0.0);
+          return J;
+        }
+        default:
+        {
+          throw std::invalid_argument("Bad reference frame.");
+        }
+      }
+    }
+
   } // namespace rpy
 }
 #endif //#ifndef __pinocchio_math_rpy_hxx__
