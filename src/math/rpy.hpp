@@ -73,6 +73,25 @@ namespace pinocchio
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToJac(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
+  
+    ///
+    /// \brief Compute the inverse Jacobian of the Roll-Pitch-Yaw conversion
+    ///
+    /// Given \f$\phi = (r, p, y)\f$ and reference frame F (either LOCAL or WORLD),
+    /// the Jacobian is such that \f$ {}^F\omega = J_F(\phi)\dot{\phi} \f$,
+    /// where \f$ {}^F\omega \f$ is the angular velocity expressed in frame F
+    /// and \f$ J_F \f$ is the Jacobian computed with reference frame F
+    ///
+    /// \param[in] rpy Roll-Pitch-Yaw vector
+    /// \param[in] rf  Reference frame in which the angular velocity is expressed
+    ///
+    /// \return The inverse of the Jacobian of the Roll-Pitch-Yaw conversion in the appropriate frame
+    ///
+    /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
+    ///
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
   } // namespace rpy
 }
 

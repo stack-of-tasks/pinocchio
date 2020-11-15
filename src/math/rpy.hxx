@@ -101,6 +101,45 @@ namespace pinocchio
         }
       }
     }
+
+
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
+    {
+      typedef typename Vector3Like::Scalar Scalar;
+      Eigen::Matrix<Scalar,3,3> J;
+      const Scalar p = rpy[1];
+      Scalar sp, cp;
+      SINCOS(p, &sp, &cp);
+      Scalar tp = sp/cp;
+      switch (rf)
+      {
+        case LOCAL:
+        {
+          const Scalar r = rpy[0];
+          Scalar sr, cr; SINCOS(r, &sr, &cr);
+          J << Scalar(1.0), sr*tp, cr*tp,
+               Scalar(0.0),    cr,   -sr,
+               Scalar(0.0), sr/cp, cr/cp;
+          return J;
+        }
+        case WORLD:
+        case LOCAL_WORLD_ALIGNED:
+        {
+          const Scalar y = rpy[2];
+          Scalar sy, cy; SINCOS(y, &sy, &cy);
+          J << cy/cp,  sy/cp, Scalar(0.0),
+                 -sy,     cy, Scalar(0.0),
+               cy*tp,  sy*tp, Scalar(1.0);
+          return J;
+        }
+        default:
+        {
+          throw std::invalid_argument("Bad reference frame.");
+        }
+      }
+    }
   } // namespace rpy
 }
 #endif //#ifndef __pinocchio_math_rpy_hxx__

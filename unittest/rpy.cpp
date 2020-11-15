@@ -181,4 +181,31 @@ BOOST_AUTO_TEST_CASE(test_rpyToJac)
   BOOST_CHECK(Rdot.isApprox(pinocchio::skew(omegaW) * R, tol));
 }
 
+
+BOOST_AUTO_TEST_CASE(test_rpyToJacInv)
+{
+  // Check correct identities between different versions
+  double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+  double p = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/M_PI)) - (M_PI/2);
+  p *= 0.999; // ensure we are not too close to a singularity
+  double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
+  Eigen::Vector3d rpy(r, p, y);
+
+  Eigen::Matrix3d j0 = pinocchio::rpy::rpyToJac(rpy);
+  Eigen::Matrix3d j0inv = pinocchio::rpy::rpyToJacInv(rpy);
+  BOOST_CHECK(j0inv.isApprox(j0.inverse()));
+
+  Eigen::Matrix3d jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
+  Eigen::Matrix3d jLinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::LOCAL);
+  BOOST_CHECK(jLinv.isApprox(jL.inverse()));
+
+  Eigen::Matrix3d jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
+  Eigen::Matrix3d jWinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::WORLD);
+  BOOST_CHECK(jWinv.isApprox(jW.inverse()));
+
+  Eigen::Matrix3d jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  Eigen::Matrix3d jAinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  BOOST_CHECK(jAinv.isApprox(jA.inverse()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
