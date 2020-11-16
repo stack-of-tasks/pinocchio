@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -10,9 +10,6 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
-
-#include <boost/bind.hpp>
-#include <boost/utility.hpp>
 
 /// @cond DEV
 
