@@ -5,6 +5,7 @@
 
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/urdf/utils.hpp"
+#include "pinocchio/parsers/urdf/model.hxx"
 
 #include <urdf_model/model.h>
 #include <urdf_parser/urdf_parser.h>

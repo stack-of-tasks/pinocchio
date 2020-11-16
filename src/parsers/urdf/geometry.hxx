@@ -25,7 +25,7 @@ namespace pinocchio
     {
       struct UrdfGeomVisitorBase
       {
-        typedef FrameTpl<urdf_value_type, 0> Frame;
+        typedef FrameTpl<urdf_scalar_type, 0> Frame;
 
         virtual Frame getBodyFrame (const std::string& name, FrameIndex& fid) const = 0;
       };
@@ -46,7 +46,7 @@ namespace pinocchio
           }
           fid = model.getFrameId(link_name, BODY);
           PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[fid].type == BODY);
-          return model.frames[fid].template cast<urdf_value_type>();
+          return model.frames[fid].template cast<urdf_scalar_type>();
         }
       };
 
