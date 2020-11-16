@@ -20,7 +20,7 @@ namespace pinocchio
   {
     namespace details
     {
-      typedef double urdf_value_type;
+      typedef double urdf_scalar_type;
 
       template<typename _Scalar, int Options>
       class UrdfVisitorBaseTpl {
