@@ -4,15 +4,15 @@ This directory contains minimal examples on how to use **Pinocchio** with the Py
 
 ## Loading a model
 
-- Loading an embeded Model: `python -i overview-simple.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g overview-simple.cpp -o overview-simple && ./overview-simple`
-- Loading a URDF model: `python -i overview-urdf.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g overview-urdf.cpp -o overview-urdf && ./overview-urdf`
+- Loading an embeded Model: `python -i overview-simple.py` and in C++ `g++ overview-simple.cpp -o overview-simple $(pkg-config --cflags --libs pinocchio) && ./overview-simple`
+- Loading a URDF model: `python -i overview-urdf.py` and in C++ `g++ -g overview-urdf.cpp -o overview-urdf $(pkg-config --cflags --libs pinocchio) && ./overview-urdf`
 - Using RobotWrapper to encapsulate a URDF model: `python -i robot-wrapper-viewer.py`
 
 ## Computes analytical derivatives of rigid body dynamics algorithms
 
-- Computing forward kinematics derivatives: `python -i kinematics-derivatives.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g kinematics-derivatives.cpp -o kinematics-derivatives && ./kinematics-derivatives`
-- Computing forward dynamics derivatives: `python -i forward-dynamics-derivatives.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g forward-dynamics-derivatives.cpp -o forward-dynamics-derivatives && ./forward-dynamics-derivatives`
-- Computing inverse dynamics derivatives: `python -i inverse-dynamics-derivatives.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g inverse-dynamics-derivatives.cpp -o inverse-dynamics-derivatives && ./inverse-derivatives`
+- Computing forward kinematics derivatives: `python -i kinematics-derivatives.py` and in C++ `g++ kinematics-derivatives.cpp -o kinematics-derivatives $(pkg-config --cflags --libs pinocchio) && ./kinematics-derivatives`
+- Computing forward dynamics derivatives: `python -i forward-dynamics-derivatives.py` and in C++ `g++ -I -g forward-dynamics-derivatives.cpp -o forward-dynamics-derivatives $(pkg-config --cflags --libs pinocchio) && ./forward-dynamics-derivatives`
+- Computing inverse dynamics derivatives: `python -i inverse-dynamics-derivatives.py` and in C++ `g++ inverse-dynamics-derivatives.cpp -o inverse-dynamics-derivatives $(pkg-config --cflags --libs pinocchio) && ./inverse-derivatives`
 
 ## Displaying the models
 
@@ -26,13 +26,13 @@ For the following examples, you should have [gepetto-gui](https://github.com/Gep
 
 **Pinocchio** encapsulates  [FCL](https://github.com/humanoid-path-planner/hpp-fcl) in it. You can then do collision checking or distance computations with only few lines of code.
 
-- Check collisions using [FCL](https://github.com/humanoid-path-planner/hpp-fcl): `python -i collisions.py` and in C++ `g++ -I $(pkg-config --cflags pinocchio) -g collision.cpp -o collision && ./collision`
+- Check collisions using [FCL](https://github.com/humanoid-path-planner/hpp-fcl): `python -i collisions.py` and in C++ `g++ collision.cpp -o collision $(pkg-config --cflags --libs pinocchio) && ./collision`
 
 ## Multiprecision arithmetic
 
 Thanks to the full templatization of the project, **Pinocchio** is able to perform full precision arithmetic (via Boost.Multiprecision for instance).
 
-- Multiprecision example: `g++ -I $(pkg-config --cflags pinocchio) -g multiprecision.cpp -o multiprecision && ./multiprecision`
+- Multiprecision example: `g++ multiprecision.cpp -o multiprecision $(pkg-config --cflags --libs pinocchio) && ./multiprecision`
 
 ## Adding new examples
 

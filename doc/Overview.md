@@ -67,11 +67,7 @@ We start with a simple program to compute the robot inverse dynamics. It is give
 
 You can compile the C++ version by including Pinocchio and Eigen header directories.
 
-\code g++ -std=c++11 $(pkg-config --cflags --libs pinocchio) overview-simple.cpp -o overview-simple \endcode
-
-where `/path/to/pinocchio` is your chosen installation directory for Pinocchio.
-If you do not know Eigen's installation path, you can retrive it with `pkg-config --cflags eigen3`.
-On Linux, it will usually be something like `/usr/include/eigen3/`.
+\code g++ -std=c++11 overview-simple.cpp -o overview-simple $(pkg-config --cflags --libs pinocchio)  \endcode
 
 Once your code is compiled, you might then run it using
 
@@ -138,7 +134,7 @@ in Python.
 
 In similar way than the previous example, you simple need to do:
 
-\code g++ -std=c++11 $(pkg-config --cflags --libs pinocchio) overview-urdf.cpp -o overview-urdf \endcode
+\code g++ -std=c++11 overview-urdf.cpp -o overview-urdf $(pkg-config --cflags --libs pinocchio) \endcode
 
 The program typically runs with a UR5 URDF description, that can be found for example in this repository https://github.com/humanoid-path-planner/ur_description
 
