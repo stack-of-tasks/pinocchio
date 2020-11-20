@@ -25,6 +25,8 @@ jobs:
       run: |
         git submodule update --init
     - uses: goanpeca/setup-miniconda@v1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         activate-environment: pinocchio
         environment-file: .github/workflows/conda/conda-env.yml
@@ -35,6 +37,8 @@ jobs:
     
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       run: |
         :: unset extra Boost envs
         set Boost_ROOT=
