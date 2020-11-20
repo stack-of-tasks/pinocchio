@@ -15,7 +15,7 @@
 #define PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,Eigen::internal::plain_matrix_type_column_major>::type
 
 /// \brief Similar to macro PINOCCHIO_EIGEN_PLAIN_TYPE but with guaranty to provite a row major type
-#define PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,Eigen::internal::fix::plain_matrix_type_row_major>::type
+#define PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(D) pinocchio::helper::handle_return_type_without_typename<D,::pinocchio::fix::Eigen::internal::plain_matrix_type_row_major>::type
 
 /// \brief Macro giving access to the reference type of D
 #define PINOCCHIO_EIGEN_REF_CONST_TYPE(D) Eigen::internal::ref_selector<D>::type
