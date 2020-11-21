@@ -43,6 +43,12 @@ namespace pinocchio
     : Base(lg_variant)
     {}
     
+    LieGroupGenericTpl & operator=(const LieGroupGenericTpl & other)
+    {
+      static_cast<Base&>(*this) = other.toVariant();
+      return *this;
+    }
+
     const LieGroupVariant & toVariant() const
     { return static_cast<const LieGroupVariant &>(*this); }
     
