@@ -41,7 +41,7 @@ conda install pinocchio -c conda-forge
 
    - C++ template library,
    - cache friendly,
-   - automatic code generation support.
+   - automatic code generation support via [CppADCodeGen](https://github.com/joaoleal/CppADCodeGen).
 
 **Pinocchio** is versatile, implementing basic and more advanced rigid body dynamics algorithms:
 
@@ -50,7 +50,7 @@ conda install pinocchio -c conda-forge
    - centroidal dynamics and its analytical derivatives,
    - support of multiple precision arithmetic via Boost.Multiprecision or any similar framework,
    - computations of kinematic and dynamic regressors for system identification and more,
-   - and much more with the support of modern Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
+   - and much more with the support of modern and open source Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
 
