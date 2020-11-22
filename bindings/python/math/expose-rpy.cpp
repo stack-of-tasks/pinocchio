@@ -24,6 +24,8 @@ namespace pinocchio
       return pinocchio::rpy::matrixToRpy(R);
     }
 
+    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJac_overload, rpy::rpyToJac, 1, 2)
+
     Eigen::Matrix3d rotate(const std::string & axis, const double ang)
     {
       if(axis.length() != 1U)
@@ -76,6 +78,23 @@ namespace pinocchio
                 bp::args("axis", "ang"),
                 "Rotation matrix corresponding to a rotation about x, y or z"
                 " e.g. R = rot('x', pi / 4): rotate pi/4 rad about x axis");
+
+        bp::def("rpyToJac",
+                &rpyToJac<Vector3d>,
+                rpyToJac_overload(
+                    bp::args("rpy","reference_frame"),
+                    "Compute the Jacobian of the Roll-Pitch-Yaw conversion"
+                    " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
+                    " and reference frame F (either LOCAL or WORLD),"
+                    " the Jacobian is such that omega_F = J_F(phi)phidot,"
+                    " where omega_F is the angular velocity expressed in frame F"
+                    " and J_F is the Jacobian computed with reference frame F"
+                    "\nParameters:\n"
+                    "\trpy Roll-Pitch-Yaw vector"
+                    "\treference_frame  Reference frame in which the angular velocity is expressed."
+                    " Notice LOCAL_WORLD_ALIGNED is equivalent to WORLD"
+                )
+        );
       }
       
     }

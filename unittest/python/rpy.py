@@ -2,10 +2,11 @@ import unittest
 from math import pi
 
 import numpy as np
-import pinocchio as pin
+from random import random
 
+import pinocchio as pin
 from pinocchio.utils import npToTuple
-from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate
+from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate, rpyToJac
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -39,6 +40,48 @@ class TestRPY(TestCase):
           self.assertTrue(True)
         else:
           self.assertTrue(False)
+
+    def test_rpyToJac(self):
+        # Check identity at zero
+        rpy = np.zeros(3)
+        j0 = rpyToJac(rpy)
+        self.assertTrue((j0 == np.eye(3)).all())
+        jL = rpyToJac(rpy, pin.LOCAL)
+        self.assertTrue((jL == np.eye(3)).all())
+        jW = rpyToJac(rpy, pin.WORLD)
+        self.assertTrue((jW == np.eye(3)).all())
+        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
+        self.assertTrue((jA == np.eye(3)).all())
+
+        # Check correct identities between different versions
+        r = random()*2*pi - pi
+        p = random()*pi - pi/2
+        y = random()*2*pi - pi
+        rpy = np.array([r, p, y])
+        R = rpyToMatrix(rpy)
+        j0 = rpyToJac(rpy)
+        jL = rpyToJac(rpy, pin.LOCAL)
+        jW = rpyToJac(rpy, pin.WORLD)
+        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
+        self.assertTrue((j0 == jL).all())
+        self.assertTrue((jW == jA).all())
+        self.assertApprox(jW, R.dot(jL))
+
+        # Check against finite differences
+        rpydot = np.random.rand(3)
+        eps = 1e-7
+        tol = 1e-5
+
+        dRdr = (rpyToMatrix(r + eps, p, y) - R) / eps
+        dRdp = (rpyToMatrix(r, p + eps, y) - R) / eps
+        dRdy = (rpyToMatrix(r, p, y + eps) - R) / eps
+        Rdot = dRdr * rpydot[0] + dRdp * rpydot[1] + dRdy * rpydot[2]
+
+        omegaL = jL.dot(rpydot)
+        self.assertApprox(Rdot, R.dot(pin.skew(omegaL)), tol)
+
+        omegaW = jW.dot(rpydot)
+        self.assertApprox(Rdot, pin.skew(omegaW).dot(R), tol)
 
 if __name__ == '__main__':
     unittest.main()
