@@ -25,6 +25,8 @@ namespace pinocchio
     }
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJac_overload, rpy::rpyToJac, 1, 2)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacInv_overload, rpy::rpyToJacInv, 1, 2)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacDerivative_overload, rpy::rpyToJacDerivative, 2, 3)
 
     Eigen::Matrix3d rotate(const std::string & axis, const double ang)
     {
@@ -84,6 +86,40 @@ namespace pinocchio
                 rpyToJac_overload(
                     bp::args("rpy","reference_frame"),
                     "Compute the Jacobian of the Roll-Pitch-Yaw conversion"
+                    " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
+                    " and reference frame F (either LOCAL or WORLD),"
+                    " the Jacobian is such that omega_F = J_F(phi)phidot,"
+                    " where omega_F is the angular velocity expressed in frame F"
+                    " and J_F is the Jacobian computed with reference frame F"
+                    "\nParameters:\n"
+                    "\trpy Roll-Pitch-Yaw vector"
+                    "\treference_frame  Reference frame in which the angular velocity is expressed."
+                    " Notice LOCAL_WORLD_ALIGNED is equivalent to WORLD"
+                )
+        );
+
+        bp::def("rpyToJacInv",
+                &rpyToJacInv<Vector3d>,
+                rpyToJacInv_overload(
+                    bp::args("rpy","reference_frame"),
+                    "Compute the inverse Jacobian of the Roll-Pitch-Yaw conversion"
+                    " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
+                    " and reference frame F (either LOCAL or WORLD),"
+                    " the Jacobian is such that omega_F = J_F(phi)phidot,"
+                    " where omega_F is the angular velocity expressed in frame F"
+                    " and J_F is the Jacobian computed with reference frame F"
+                    "\nParameters:\n"
+                    "\trpy Roll-Pitch-Yaw vector"
+                    "\treference_frame  Reference frame in which the angular velocity is expressed."
+                    " Notice LOCAL_WORLD_ALIGNED is equivalent to WORLD"
+                )
+        );
+
+        bp::def("rpyToJacDerivative",
+                &rpyToJacDerivative<Vector3d, Vector3d>,
+                rpyToJacDerivative_overload(
+                    bp::args("rpy", "rpydot", "reference_frame"),
+                    "Compute the time derivative of the Jacobian of the Roll-Pitch-Yaw conversion"
                     " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
                     " and reference frame F (either LOCAL or WORLD),"
                     " the Jacobian is such that omega_F = J_F(phi)phidot,"

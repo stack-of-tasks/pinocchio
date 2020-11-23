@@ -2,11 +2,12 @@ import unittest
 from math import pi
 
 import numpy as np
+from numpy.linalg import inv
 from random import random
 
 import pinocchio as pin
 from pinocchio.utils import npToTuple
-from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate, rpyToJac
+from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate, rpyToJac, rpyToJacInv, rpyToJacDerivative
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -82,6 +83,64 @@ class TestRPY(TestCase):
 
         omegaW = jW.dot(rpydot)
         self.assertApprox(Rdot, pin.skew(omegaW).dot(R), tol)
+
+    def test_rpyToJacInv(self):
+        # Check correct identities between different versions
+        r = random()*2*pi - pi
+        p = random()*pi - pi/2
+        p *= 0.999 # ensure we are not too close to a singularity
+        y = random()*2*pi - pi
+        rpy = np.array([r, p, y])
+
+        j0 = rpyToJac(rpy)
+        j0inv = rpyToJacInv(rpy)
+        self.assertApprox(j0inv, inv(j0))
+
+        jL = rpyToJac(rpy, pin.LOCAL)
+        jLinv = rpyToJacInv(rpy, pin.LOCAL)
+        self.assertApprox(jLinv, inv(jL))
+
+        jW = rpyToJac(rpy, pin.WORLD)
+        jWinv = rpyToJacInv(rpy, pin.WORLD)
+        self.assertApprox(jWinv, inv(jW))
+
+        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
+        jAinv = rpyToJacInv(rpy, pin.LOCAL_WORLD_ALIGNED)
+        self.assertApprox(jAinv, inv(jA))
+
+    def test_rpyToJacDerivative(self):
+        # Check zero at zero velocity
+        r = random()*2*pi - pi
+        p = random()*pi - pi/2
+        y = random()*2*pi - pi
+        rpy = np.array([r, p, y])
+        rpydot = np.zeros(3)
+        dj0 = rpyToJacDerivative(rpy, rpydot)
+        self.assertTrue((dj0 == np.zeros((3,3))).all())
+        djL = rpyToJacDerivative(rpy, rpydot, pin.LOCAL)
+        self.assertTrue((djL == np.zeros((3,3))).all())
+        djW = rpyToJacDerivative(rpy, rpydot, pin.WORLD)
+        self.assertTrue((djW == np.zeros((3,3))).all())
+        djA = rpyToJacDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
+        self.assertTrue((djA == np.zeros((3,3))).all())
+
+        # Check correct identities between different versions
+        rpydot = np.random.rand(3)
+        dj0 = rpyToJacDerivative(rpy, rpydot)
+        djL = rpyToJacDerivative(rpy, rpydot, pin.LOCAL)
+        djW = rpyToJacDerivative(rpy, rpydot, pin.WORLD)
+        djA = rpyToJacDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
+        self.assertTrue((dj0 == djL).all())
+        self.assertTrue((djW == djA).all())
+
+        R = rpyToMatrix(rpy)
+        jL = rpyToJac(rpy, pin.LOCAL)
+        jW = rpyToJac(rpy, pin.WORLD)
+        omegaL = jL.dot(rpydot)
+        omegaW = jW.dot(rpydot)
+        self.assertApprox(omegaW, R.dot(omegaL))
+        self.assertApprox(djW, pin.skew(omegaW).dot(R).dot(jL) + R.dot(djL))
+        self.assertApprox(djW, R.dot(pin.skew(omegaL)).dot(jL) + R.dot(djL))
 
 if __name__ == '__main__':
     unittest.main()
