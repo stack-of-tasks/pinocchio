@@ -14,11 +14,6 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    Eigen::Matrix3d rpyToMatrix_proxy(const Eigen::Vector3d & rpy)
-    {
-      return pinocchio::rpy::rpyToMatrix(rpy);
-    }
-
     BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJac_overload, rpy::rpyToJac, 1, 2)
     BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacInv_overload, rpy::rpyToJacInv, 1, 2)
     BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacDerivative_overload, rpy::rpyToJacDerivative, 2, 3)
@@ -57,7 +52,7 @@ namespace pinocchio
                 " where R_a(theta) denotes the rotation of theta radians axis a");
 
         bp::def("rpyToMatrix",
-                &rpyToMatrix_proxy,
+                static_cast<Matrix3d (*)(const MatrixBase<Vector3d>&)>(&rpyToMatrix),
                 bp::arg("rpy"),
                 "Given (r, p, y), the rotation is given as R = R_z(y)R_y(p)R_x(r),"
                 " where R_a(theta) denotes the rotation of theta radians axis a");
