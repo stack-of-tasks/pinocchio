@@ -5,6 +5,8 @@
 #ifndef __pinocchio_math_rpy_hxx__
 #define __pinocchio_math_rpy_hxx__
 
+#include <Eigen/Geometry>
+
 #include "pinocchio/math/sincos.hpp"
 
 namespace pinocchio
@@ -12,10 +14,10 @@ namespace pinocchio
   namespace rpy
   {
     template<typename Scalar>
-    inline Eigen::Matrix<Scalar,3,3>
-    rpyToMatrix(const Scalar r,
-                const Scalar p,
-                const Scalar y)
+    Eigen::Matrix<Scalar,3,3>
+    rpyToMatrix(const Scalar& r,
+                const Scalar& p,
+                const Scalar& y)
     {
       typedef Eigen::AngleAxis<Scalar> AngleAxis;
       typedef Eigen::Matrix<Scalar,3,1> Vector3s;
@@ -27,7 +29,7 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like, rpy, 3, 1);
@@ -36,7 +38,7 @@ namespace pinocchio
 
 
     template<typename Matrix3Like>
-    inline Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
@@ -67,11 +69,12 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToJac(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobian(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
     {
       typedef typename Vector3Like::Scalar Scalar;
-      Eigen::Matrix<Scalar,3,3> J;
+      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType J;
       const Scalar p = rpy[1];
       Scalar sp, cp;
       SINCOS(p, &sp, &cp);
@@ -105,11 +108,12 @@ namespace pinocchio
 
 
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobianInverse(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf)
     {
       typedef typename Vector3Like::Scalar Scalar;
-      Eigen::Matrix<Scalar,3,3> J;
+      typedef Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType J;
       const Scalar p = rpy[1];
       Scalar sp, cp;
       SINCOS(p, &sp, &cp);
@@ -143,11 +147,12 @@ namespace pinocchio
     }
 
     template<typename Vector3Like0, typename Vector3Like1>
-    inline Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
-    rpyToJacDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf)
+    Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
+    computeRpyJacobianTimeDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf)
     {
       typedef typename Vector3Like0::Scalar Scalar;
-      Eigen::Matrix<Scalar,3,3> J;
+      typedef Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options> ReturnType;
+      ReturnType J;
       const Scalar p = rpy[1];
       const Scalar dp = rpydot[1];
       Scalar sp, cp;

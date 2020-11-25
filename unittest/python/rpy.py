@@ -8,7 +8,7 @@ from random import random
 from eigenpy import AngleAxis
 import pinocchio as pin
 from pinocchio.utils import npToTuple
-from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate, rpyToJac, rpyToJacInv, rpyToJacDerivative
+from pinocchio.rpy import matrixToRpy, rpyToMatrix, rotate, computeRpyJacobian, computeRpyJacobianInverse, computeRpyJacobianTimeDerivative
 
 from test_case import PinocchioTestCase as TestCase
 
@@ -123,16 +123,16 @@ class TestRPY(TestCase):
 
 
 
-    def test_rpyToJac(self):
+    def test_computeRpyJacobian(self):
         # Check identity at zero
         rpy = np.zeros(3)
-        j0 = rpyToJac(rpy)
+        j0 = computeRpyJacobian(rpy)
         self.assertTrue((j0 == np.eye(3)).all())
-        jL = rpyToJac(rpy, pin.LOCAL)
+        jL = computeRpyJacobian(rpy, pin.LOCAL)
         self.assertTrue((jL == np.eye(3)).all())
-        jW = rpyToJac(rpy, pin.WORLD)
+        jW = computeRpyJacobian(rpy, pin.WORLD)
         self.assertTrue((jW == np.eye(3)).all())
-        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
+        jA = computeRpyJacobian(rpy, pin.LOCAL_WORLD_ALIGNED)
         self.assertTrue((jA == np.eye(3)).all())
 
         # Check correct identities between different versions
@@ -141,10 +141,10 @@ class TestRPY(TestCase):
         y = random()*2*pi - pi
         rpy = np.array([r, p, y])
         R = rpyToMatrix(rpy)
-        j0 = rpyToJac(rpy)
-        jL = rpyToJac(rpy, pin.LOCAL)
-        jW = rpyToJac(rpy, pin.WORLD)
-        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
+        j0 = computeRpyJacobian(rpy)
+        jL = computeRpyJacobian(rpy, pin.LOCAL)
+        jW = computeRpyJacobian(rpy, pin.WORLD)
+        jA = computeRpyJacobian(rpy, pin.LOCAL_WORLD_ALIGNED)
         self.assertTrue((j0 == jL).all())
         self.assertTrue((jW == jA).all())
         self.assertApprox(jW, R.dot(jL))
@@ -165,7 +165,7 @@ class TestRPY(TestCase):
         omegaW = jW.dot(rpydot)
         self.assertTrue(np.allclose(Rdot, pin.skew(omegaW).dot(R), atol=tol))
 
-    def test_rpyToJacInv(self):
+    def test_computeRpyJacobianInverse(self):
         # Check correct identities between different versions
         r = random()*2*pi - pi
         p = random()*pi - pi/2
@@ -173,50 +173,50 @@ class TestRPY(TestCase):
         y = random()*2*pi - pi
         rpy = np.array([r, p, y])
 
-        j0 = rpyToJac(rpy)
-        j0inv = rpyToJacInv(rpy)
+        j0 = computeRpyJacobian(rpy)
+        j0inv = computeRpyJacobianInverse(rpy)
         self.assertApprox(j0inv, inv(j0))
 
-        jL = rpyToJac(rpy, pin.LOCAL)
-        jLinv = rpyToJacInv(rpy, pin.LOCAL)
+        jL = computeRpyJacobian(rpy, pin.LOCAL)
+        jLinv = computeRpyJacobianInverse(rpy, pin.LOCAL)
         self.assertApprox(jLinv, inv(jL))
 
-        jW = rpyToJac(rpy, pin.WORLD)
-        jWinv = rpyToJacInv(rpy, pin.WORLD)
+        jW = computeRpyJacobian(rpy, pin.WORLD)
+        jWinv = computeRpyJacobianInverse(rpy, pin.WORLD)
         self.assertApprox(jWinv, inv(jW))
 
-        jA = rpyToJac(rpy, pin.LOCAL_WORLD_ALIGNED)
-        jAinv = rpyToJacInv(rpy, pin.LOCAL_WORLD_ALIGNED)
+        jA = computeRpyJacobian(rpy, pin.LOCAL_WORLD_ALIGNED)
+        jAinv = computeRpyJacobianInverse(rpy, pin.LOCAL_WORLD_ALIGNED)
         self.assertApprox(jAinv, inv(jA))
 
-    def test_rpyToJacDerivative(self):
+    def test_computeRpyJacobianTimeDerivative(self):
         # Check zero at zero velocity
         r = random()*2*pi - pi
         p = random()*pi - pi/2
         y = random()*2*pi - pi
         rpy = np.array([r, p, y])
         rpydot = np.zeros(3)
-        dj0 = rpyToJacDerivative(rpy, rpydot)
+        dj0 = computeRpyJacobianTimeDerivative(rpy, rpydot)
         self.assertTrue((dj0 == np.zeros((3,3))).all())
-        djL = rpyToJacDerivative(rpy, rpydot, pin.LOCAL)
+        djL = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.LOCAL)
         self.assertTrue((djL == np.zeros((3,3))).all())
-        djW = rpyToJacDerivative(rpy, rpydot, pin.WORLD)
+        djW = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.WORLD)
         self.assertTrue((djW == np.zeros((3,3))).all())
-        djA = rpyToJacDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
+        djA = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
         self.assertTrue((djA == np.zeros((3,3))).all())
 
         # Check correct identities between different versions
         rpydot = np.random.rand(3)
-        dj0 = rpyToJacDerivative(rpy, rpydot)
-        djL = rpyToJacDerivative(rpy, rpydot, pin.LOCAL)
-        djW = rpyToJacDerivative(rpy, rpydot, pin.WORLD)
-        djA = rpyToJacDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
+        dj0 = computeRpyJacobianTimeDerivative(rpy, rpydot)
+        djL = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.LOCAL)
+        djW = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.WORLD)
+        djA = computeRpyJacobianTimeDerivative(rpy, rpydot, pin.LOCAL_WORLD_ALIGNED)
         self.assertTrue((dj0 == djL).all())
         self.assertTrue((djW == djA).all())
 
         R = rpyToMatrix(rpy)
-        jL = rpyToJac(rpy, pin.LOCAL)
-        jW = rpyToJac(rpy, pin.WORLD)
+        jL = computeRpyJacobian(rpy, pin.LOCAL)
+        jW = computeRpyJacobian(rpy, pin.WORLD)
         omegaL = jL.dot(rpydot)
         omegaW = jW.dot(rpydot)
         self.assertApprox(omegaW, R.dot(omegaL))

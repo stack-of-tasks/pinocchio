@@ -9,8 +9,6 @@
 #include "pinocchio/math/comparison-operators.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 
-#include <Eigen/Geometry>
-
 namespace pinocchio
 {
   namespace rpy
@@ -23,10 +21,10 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    inline Eigen::Matrix<Scalar,3,3>
-    rpyToMatrix(const Scalar r,
-                const Scalar p,
-                const Scalar y);
+    Eigen::Matrix<Scalar,3,3>
+    rpyToMatrix(const Scalar& r,
+                const Scalar& p,
+                const Scalar& y);
 
     ///
     /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
@@ -36,7 +34,7 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy);
 
     ///
@@ -53,7 +51,7 @@ namespace pinocchio
     /// \warning the method assumes \f$R\f$ is a rotation matrix. If it is not, the result is undefined.
     ///
     template<typename Matrix3Like>
-    inline Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
+    Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
     matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R);
 
     ///
@@ -72,8 +70,8 @@ namespace pinocchio
     /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
     ///
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToJac(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobian(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
   
     ///
     /// \brief Compute the inverse Jacobian of the Roll-Pitch-Yaw conversion
@@ -91,8 +89,8 @@ namespace pinocchio
     /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
     ///
     template<typename Vector3Like>
-    inline Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToJacInv(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobianInverse(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
 
     ///
     /// \brief Compute the time derivative Jacobian of the Roll-Pitch-Yaw conversion
@@ -111,8 +109,8 @@ namespace pinocchio
     /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
     ///
     template<typename Vector3Like0, typename Vector3Like1>
-    inline Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
-    rpyToJacDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf=LOCAL);
+    Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
+    computeRpyJacobianTimeDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf=LOCAL);
   } // namespace rpy
 }
 

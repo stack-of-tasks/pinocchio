@@ -111,17 +111,17 @@ BOOST_AUTO_TEST_CASE(test_matrixToRpy)
 }
 
 
-BOOST_AUTO_TEST_CASE(test_rpyToJac)
+BOOST_AUTO_TEST_CASE(test_computeRpyJacobian)
 {
   // Check identity at zero
   Eigen::Vector3d rpy(Eigen::Vector3d::Zero());
-  Eigen::Matrix3d j0 = pinocchio::rpy::rpyToJac(rpy);
+  Eigen::Matrix3d j0 = pinocchio::rpy::computeRpyJacobian(rpy);
   BOOST_CHECK(j0.isIdentity());
-  Eigen::Matrix3d jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
+  Eigen::Matrix3d jL = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL);
   BOOST_CHECK(jL.isIdentity());
-  Eigen::Matrix3d jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
+  Eigen::Matrix3d jW = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::WORLD);
   BOOST_CHECK(jW.isIdentity());
-  Eigen::Matrix3d jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  Eigen::Matrix3d jA = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
   BOOST_CHECK(jA.isIdentity());
 
   // Check correct identities between different versions
@@ -130,10 +130,10 @@ BOOST_AUTO_TEST_CASE(test_rpyToJac)
   double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
   rpy = Eigen::Vector3d(r, p, y);
   Eigen::Matrix3d R = pinocchio::rpy::rpyToMatrix(rpy);
-  j0 = pinocchio::rpy::rpyToJac(rpy);
-  jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
-  jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
-  jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  j0 = pinocchio::rpy::computeRpyJacobian(rpy);
+  jL = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL);
+  jW = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::WORLD);
+  jA = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
   BOOST_CHECK(j0 == jL);
   BOOST_CHECK(jW == jA);
   BOOST_CHECK(jW.isApprox(R*jL));
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(test_rpyToJac)
 }
 
 
-BOOST_AUTO_TEST_CASE(test_rpyToJacInv)
+BOOST_AUTO_TEST_CASE(test_computeRpyJacobianInverse)
 {
   // Check correct identities between different versions
   double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
@@ -184,25 +184,25 @@ BOOST_AUTO_TEST_CASE(test_rpyToJacInv)
   double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
   Eigen::Vector3d rpy(r, p, y);
 
-  Eigen::Matrix3d j0 = pinocchio::rpy::rpyToJac(rpy);
-  Eigen::Matrix3d j0inv = pinocchio::rpy::rpyToJacInv(rpy);
+  Eigen::Matrix3d j0 = pinocchio::rpy::computeRpyJacobian(rpy);
+  Eigen::Matrix3d j0inv = pinocchio::rpy::computeRpyJacobianInverse(rpy);
   BOOST_CHECK(j0inv.isApprox(j0.inverse()));
 
-  Eigen::Matrix3d jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
-  Eigen::Matrix3d jLinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::LOCAL);
+  Eigen::Matrix3d jL = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL);
+  Eigen::Matrix3d jLinv = pinocchio::rpy::computeRpyJacobianInverse(rpy, pinocchio::LOCAL);
   BOOST_CHECK(jLinv.isApprox(jL.inverse()));
 
-  Eigen::Matrix3d jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
-  Eigen::Matrix3d jWinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::WORLD);
+  Eigen::Matrix3d jW = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::WORLD);
+  Eigen::Matrix3d jWinv = pinocchio::rpy::computeRpyJacobianInverse(rpy, pinocchio::WORLD);
   BOOST_CHECK(jWinv.isApprox(jW.inverse()));
 
-  Eigen::Matrix3d jA = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
-  Eigen::Matrix3d jAinv = pinocchio::rpy::rpyToJacInv(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  Eigen::Matrix3d jA = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
+  Eigen::Matrix3d jAinv = pinocchio::rpy::computeRpyJacobianInverse(rpy, pinocchio::LOCAL_WORLD_ALIGNED);
   BOOST_CHECK(jAinv.isApprox(jA.inverse()));
 }
 
 
-BOOST_AUTO_TEST_CASE(test_rpyToJacDerivative)
+BOOST_AUTO_TEST_CASE(test_computeRpyJacobianTimeDerivative)
 {
   // Check zero at zero velocity
   double r = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
@@ -210,27 +210,27 @@ BOOST_AUTO_TEST_CASE(test_rpyToJacDerivative)
   double y = static_cast <double> (rand()) / (static_cast <double> (RAND_MAX/(2*M_PI))) - M_PI;
   Eigen::Vector3d rpy(r, p, y);
   Eigen::Vector3d rpydot(Eigen::Vector3d::Zero());
-  Eigen::Matrix3d dj0 = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot);
+  Eigen::Matrix3d dj0 = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot);
   BOOST_CHECK(dj0.isZero());
-  Eigen::Matrix3d djL = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::LOCAL);
+  Eigen::Matrix3d djL = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::LOCAL);
   BOOST_CHECK(djL.isZero());
-  Eigen::Matrix3d djW = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::WORLD);
+  Eigen::Matrix3d djW = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::WORLD);
   BOOST_CHECK(djW.isZero());
-  Eigen::Matrix3d djA = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::LOCAL_WORLD_ALIGNED);
+  Eigen::Matrix3d djA = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::LOCAL_WORLD_ALIGNED);
   BOOST_CHECK(djA.isZero());
 
   // Check correct identities between different versions
   rpydot = Eigen::Vector3d::Random();
-  dj0 = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot);
-  djL = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::LOCAL);
-  djW = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::WORLD);
-  djA = pinocchio::rpy::rpyToJacDerivative(rpy, rpydot, pinocchio::LOCAL_WORLD_ALIGNED);
+  dj0 = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot);
+  djL = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::LOCAL);
+  djW = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::WORLD);
+  djA = pinocchio::rpy::computeRpyJacobianTimeDerivative(rpy, rpydot, pinocchio::LOCAL_WORLD_ALIGNED);
   BOOST_CHECK(dj0 == djL);
   BOOST_CHECK(djW == djA);
 
   Eigen::Matrix3d R = pinocchio::rpy::rpyToMatrix(rpy);
-  Eigen::Matrix3d jL = pinocchio::rpy::rpyToJac(rpy, pinocchio::LOCAL);
-  Eigen::Matrix3d jW = pinocchio::rpy::rpyToJac(rpy, pinocchio::WORLD);
+  Eigen::Matrix3d jL = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::LOCAL);
+  Eigen::Matrix3d jW = pinocchio::rpy::computeRpyJacobian(rpy, pinocchio::WORLD);
   Eigen::Vector3d omegaL = jL * rpydot;
   Eigen::Vector3d omegaW = jW * rpydot;
   BOOST_CHECK(omegaW.isApprox(R*omegaL));
@@ -243,25 +243,25 @@ BOOST_AUTO_TEST_CASE(test_rpyToJacDerivative)
   Eigen::Vector3d rpyEps = rpy;
 
   rpyEps[0] += eps;
-  Eigen::Matrix3d djLdr = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::LOCAL) - jL) / eps;
+  Eigen::Matrix3d djLdr = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::LOCAL) - jL) / eps;
   rpyEps[0] = rpy[0];
   rpyEps[1] += eps;
-  Eigen::Matrix3d djLdp = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::LOCAL) - jL) / eps;
+  Eigen::Matrix3d djLdp = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::LOCAL) - jL) / eps;
   rpyEps[1] = rpy[1];
   rpyEps[2] += eps;
-  Eigen::Matrix3d djLdy = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::LOCAL) - jL) / eps;
+  Eigen::Matrix3d djLdy = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::LOCAL) - jL) / eps;
   rpyEps[2] = rpy[2];
   Eigen::Matrix3d djLf = djLdr * rpydot[0] + djLdp * rpydot[1] + djLdy * rpydot[2];
   BOOST_CHECK(djL.isApprox(djLf, tol));
 
   rpyEps[0] += eps;
-  Eigen::Matrix3d djWdr = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::WORLD) - jW) / eps;
+  Eigen::Matrix3d djWdr = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::WORLD) - jW) / eps;
   rpyEps[0] = rpy[0];
   rpyEps[1] += eps;
-  Eigen::Matrix3d djWdp = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::WORLD) - jW) / eps;
+  Eigen::Matrix3d djWdp = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::WORLD) - jW) / eps;
   rpyEps[1] = rpy[1];
   rpyEps[2] += eps;
-  Eigen::Matrix3d djWdy = (pinocchio::rpy::rpyToJac(rpyEps, pinocchio::WORLD) - jW) / eps;
+  Eigen::Matrix3d djWdy = (pinocchio::rpy::computeRpyJacobian(rpyEps, pinocchio::WORLD) - jW) / eps;
   rpyEps[2] = rpy[2];
   Eigen::Matrix3d djWf = djWdr * rpydot[0] + djWdp * rpydot[1] + djWdy * rpydot[2];
   BOOST_CHECK(djW.isApprox(djWf, tol));

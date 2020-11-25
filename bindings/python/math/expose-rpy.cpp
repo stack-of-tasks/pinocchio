@@ -14,9 +14,9 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJac_overload, rpy::rpyToJac, 1, 2)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacInv_overload, rpy::rpyToJacInv, 1, 2)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(rpyToJacDerivative_overload, rpy::rpyToJacDerivative, 2, 3)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(computeRpyJacobian_overload, rpy::computeRpyJacobian, 1, 2)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(computeRpyJacobianInverse_overload, rpy::computeRpyJacobianInverse, 1, 2)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(computeRpyJacobianTimeDerivative_overload, rpy::computeRpyJacobianTimeDerivative, 2, 3)
 
     Eigen::Matrix3d rotate(const std::string & axis, const double ang)
     {
@@ -46,7 +46,7 @@ namespace pinocchio
         bp::scope current_scope = getOrCreatePythonNamespace("rpy");
 
         bp::def("rpyToMatrix",
-                static_cast<Matrix3d (*)(const double, const double, const double)>(&rpyToMatrix),
+                static_cast<Matrix3d (*)(const double&, const double&, const double&)>(&rpyToMatrix),
                 bp::args("roll", "pitch", "yaw"),
                 "Given (r, p, y), the rotation is given as R = R_z(y)R_y(p)R_x(r),"
                 " where R_a(theta) denotes the rotation of theta radians axis a");
@@ -71,9 +71,9 @@ namespace pinocchio
                 "Rotation matrix corresponding to a rotation about x, y or z"
                 " e.g. R = rot('x', pi / 4): rotate pi/4 rad about x axis");
 
-        bp::def("rpyToJac",
-                &rpyToJac<Vector3d>,
-                rpyToJac_overload(
+        bp::def("computeRpyJacobian",
+                &computeRpyJacobian<Vector3d>,
+                computeRpyJacobian_overload(
                     bp::args("rpy","reference_frame"),
                     "Compute the Jacobian of the Roll-Pitch-Yaw conversion"
                     " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
@@ -88,9 +88,9 @@ namespace pinocchio
                 )
         );
 
-        bp::def("rpyToJacInv",
-                &rpyToJacInv<Vector3d>,
-                rpyToJacInv_overload(
+        bp::def("computeRpyJacobianInverse",
+                &computeRpyJacobianInverse<Vector3d>,
+                computeRpyJacobianInverse_overload(
                     bp::args("rpy","reference_frame"),
                     "Compute the inverse Jacobian of the Roll-Pitch-Yaw conversion"
                     " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
@@ -105,9 +105,9 @@ namespace pinocchio
                 )
         );
 
-        bp::def("rpyToJacDerivative",
-                &rpyToJacDerivative<Vector3d, Vector3d>,
-                rpyToJacDerivative_overload(
+        bp::def("computeRpyJacobianTimeDerivative",
+                &computeRpyJacobianTimeDerivative<Vector3d, Vector3d>,
+                computeRpyJacobianTimeDerivative_overload(
                     bp::args("rpy", "rpydot", "reference_frame"),
                     "Compute the time derivative of the Jacobian of the Roll-Pitch-Yaw conversion"
                     " Given phi = (r, p, y) such that that R = R_z(y)R_y(p)R_x(r)"
