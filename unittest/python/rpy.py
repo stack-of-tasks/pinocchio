@@ -48,26 +48,26 @@ class TestRPY(TestCase):
         r = random()*2*pi - pi
         p = random()*pi - pi/2
         y = random()*2*pi - pi
-        
+
         R = rpyToMatrix(r, p, y)
-        
+
         Raa = AngleAxis(y, np.array([0., 0., 1.])).matrix() \
             .dot(AngleAxis(p, np.array([0., 1., 0.])).matrix()) \
             .dot(AngleAxis(r, np.array([1., 0., 0.])).matrix())
-        
+
         self.assertApprox(R, Raa)
-        
+
         v = np.array([r, p, y])
-        
+
         Rv = rpyToMatrix(v)
-        
+
         self.assertApprox(Rv, Raa)
         self.assertApprox(Rv, R)
 
 
     def test_matrixToRpy(self):
         n = 100
-        for k in range(n):
+        for _ in range(n):
             quat = pin.Quaternion(np.random.rand(4,1)).normalized()
             R = quat.toRotationMatrix()
 
@@ -85,10 +85,10 @@ class TestRPY(TestCase):
         Rp = np.array([[ 0.0, 0.0, 1.0],
                         [ 0.0, 1.0, 0.0],
                         [-1.0, 0.0, 0.0]])
-        for k in range(n2):
+        for _ in range(n2):
             r = random()*2*pi - pi
             y = random()*2*pi - pi
-                    
+
             R = AngleAxis(y, np.array([0., 0., 1.])).matrix() \
                 .dot(Rp) \
                 .dot(AngleAxis(r, np.array([1., 0., 0.])).matrix())
@@ -105,10 +105,10 @@ class TestRPY(TestCase):
         Rp = np.array([[0.0, 0.0, -1.0],
                         [0.0, 1.0,  0.0],
                         [1.0, 0.0,  0.0]])
-        for k in range(n2):
+        for _ in range(n2):
             r = random()*2*pi - pi
             y = random()*2*pi - pi
-            
+
             R = AngleAxis(y, np.array([0., 0., 1.])).matrix() \
                     .dot(Rp) \
                     .dot(AngleAxis(r, np.array([1., 0., 0.])).matrix())
