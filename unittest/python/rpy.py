@@ -152,7 +152,7 @@ class TestRPY(TestCase):
         # Check against finite differences
         rpydot = np.random.rand(3)
         eps = 1e-7
-        tol = 1e-5
+        tol = 1e-4
 
         dRdr = (rpyToMatrix(r + eps, p, y) - R) / eps
         dRdp = (rpyToMatrix(r, p + eps, y) - R) / eps
@@ -160,10 +160,10 @@ class TestRPY(TestCase):
         Rdot = dRdr * rpydot[0] + dRdp * rpydot[1] + dRdy * rpydot[2]
 
         omegaL = jL.dot(rpydot)
-        self.assertApprox(Rdot, R.dot(pin.skew(omegaL)), tol)
+        self.assertTrue(np.allclose(Rdot, R.dot(pin.skew(omegaL)), atol=tol))
 
         omegaW = jW.dot(rpydot)
-        self.assertApprox(Rdot, pin.skew(omegaW).dot(R), tol)
+        self.assertTrue(np.allclose(Rdot, pin.skew(omegaW).dot(R), atol=tol))
 
     def test_rpyToJacInv(self):
         # Check correct identities between different versions
