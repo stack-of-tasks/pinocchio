@@ -14,8 +14,9 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   void
   getFrameVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const FrameIndex frame_id,
+                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                              const JointIndex joint_id,
+                              const SE3Tpl<Scalar,Options> & placement,
                               const ReferenceFrame rf,
                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                               const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
@@ -24,14 +25,10 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Data::Matrix6x Matrix6x;
+    typedef typename Data::SE3 SE3;
     
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Matrix6x);
-    
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id <= model.frames.size(),"frame_id is larger than the number of frames");
-    typedef typename Model::Frame Frame;
-    const Frame & frame = model.frames[frame_id];
-    const JointIndex joint_id = frame.parent;
     
     Matrix6xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
     Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
@@ -39,8 +36,7 @@ namespace pinocchio
                                 v_partial_dq_,v_partial_dv_);
     
     // Update frame placement
-    typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[joint_id] * frame.placement;
+    const SE3 oMframe = data.oMi[joint_id] * placement;
     
     typedef typename SizeDepType<1>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
     typedef MotionRef<ColsBlockOut1> MotionOut1;
@@ -48,7 +44,7 @@ namespace pinocchio
     typedef MotionRef<ColsBlockOut2> MotionOut2;
 
     Motion v_tmp;
-    const typename Data::SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
+    const typename SE3::Vector3 trans = data.oMi[joint_id].rotation() * placement.translation();
     const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
     switch (rf)
     {
@@ -70,9 +66,9 @@ namespace pinocchio
         for(Eigen::DenseIndex col_id=colRef;col_id>=0;col_id=data.parents_fromRow[(size_t)col_id])
         {
           v_tmp = v_partial_dq_.col(col_id);
-          MotionOut1(v_partial_dq_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut1(v_partial_dq_.col(col_id)) = placement.actInv(v_tmp);
           v_tmp = v_partial_dv_.col(col_id);
-          MotionOut2(v_partial_dv_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut2(v_partial_dv_.col(col_id)) = placement.actInv(v_tmp);
         }
         break;
 
