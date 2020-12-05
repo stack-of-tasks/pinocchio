@@ -21,7 +21,6 @@ namespace pinocchio
                               const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                               const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Data::Matrix6x Matrix6x;
@@ -34,9 +33,6 @@ namespace pinocchio
     Matrix6xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv);
     getJointVelocityDerivatives(model,data,joint_id,rf,
                                 v_partial_dq_,v_partial_dv_);
-    
-    // Update frame placement
-    const SE3 oMframe = data.oMi[joint_id] * placement;
     
     typedef typename SizeDepType<1>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
     typedef MotionRef<ColsBlockOut1> MotionOut1;
@@ -82,17 +78,19 @@ namespace pinocchio
   void
   getFrameAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const FrameIndex frame_id,
+                                  const JointIndex joint_id,
+                                  const SE3Tpl<Scalar,Options> & placement,
                                   const ReferenceFrame rf,
                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                                   const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
                                   const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
                                   const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
   {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     typedef typename Data::Matrix6x Matrix6x;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
     
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Matrix6x);
@@ -105,12 +103,6 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
     assert(model.check(data) && "data is not consistent with model.");
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id <= model.frames.size(),"frame_id is larger than the number of frames");
-    typedef typename Model::Frame Frame;
-    typedef typename Data::Motion Motion;
-    const Frame & frame = model.frames[frame_id];
-    const JointIndex joint_id = frame.parent;
-    
     Matrix6xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq);
     Matrix6xOut2 & a_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq);
     Matrix6xOut3 & a_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv);
@@ -118,10 +110,6 @@ namespace pinocchio
     
     getJointAccelerationDerivatives(model,data,joint_id,rf,
                                     v_partial_dq_,a_partial_dq_,a_partial_dv_,a_partial_da_);
-    
-    // Update frame placement
-    typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[joint_id] * frame.placement;
     
     typedef typename SizeDepType<1>::template ColsReturn<Matrix6xOut1>::Type ColsBlockOut1;
     typedef MotionRef<ColsBlockOut1> MotionOut1;
@@ -132,8 +120,6 @@ namespace pinocchio
     typedef typename SizeDepType<1>::template ColsReturn<Matrix6xOut4>::Type ColsBlockOut4;
     typedef MotionRef<ColsBlockOut4> MotionOut4;
 
-    Motion v_tmp;
-    const typename Data::SE3::Vector3 trans = data.oMi[joint_id].rotation() * frame.placement.translation();
     const int colRef = nv(model.joints[joint_id])+idx_v(model.joints[joint_id])-1;
     switch (rf)
     {
@@ -142,6 +128,8 @@ namespace pinocchio
         break;
 
       case LOCAL_WORLD_ALIGNED:
+      {
+        const typename SE3::Vector3 trans = data.oMi[joint_id].rotation() * placement.translation();
         for(Eigen::DenseIndex col_id=colRef;col_id>=0;col_id=data.parents_fromRow[(size_t)col_id])
         {
           MotionOut1 m1(v_partial_dq_.col(col_id));
@@ -154,21 +142,23 @@ namespace pinocchio
           m4.linear() -= trans.cross(m4.angular());
         }
         break;
-
+      }
       case LOCAL:
+      {
+        Motion v_tmp;
         for(Eigen::DenseIndex col_id=colRef;col_id>=0;col_id=data.parents_fromRow[(size_t)col_id])
         {
           v_tmp = v_partial_dq_.col(col_id);
-          MotionOut1(v_partial_dq_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut1(v_partial_dq_.col(col_id)) = placement.actInv(v_tmp);
           v_tmp = a_partial_dq_.col(col_id);
-          MotionOut2(a_partial_dq_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut2(a_partial_dq_.col(col_id)) = placement.actInv(v_tmp);
           v_tmp = a_partial_dv_.col(col_id);
-          MotionOut3(a_partial_dv_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut3(a_partial_dv_.col(col_id)) = placement.actInv(v_tmp);
           v_tmp = a_partial_da_.col(col_id);
-          MotionOut4(a_partial_da_.col(col_id)) = frame.placement.actInv(v_tmp);
+          MotionOut4(a_partial_da_.col(col_id)) = placement.actInv(v_tmp);
         }
         break;
-
+      }
       default:
         break;
     }
