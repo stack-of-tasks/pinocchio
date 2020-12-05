@@ -22,8 +22,8 @@ namespace pinocchio
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[in]  rf          Reference frame in which the velocity is expressed.
-   * @param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
-   * @param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
+   * @param[out] v_partial_dq Partial derivative of the frame spatial velocity w.r.t. \f$ q \f$.
+   * @param[out] v_partial_dv Partial derivative of the frame spatial velociy w.r.t. \f$ v \f$.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
@@ -50,10 +50,10 @@ namespace pinocchio
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[in]  rf          Reference frame in which the velocity is expressed.
-   * @param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+   * @param[out] v_partial_dq Partial derivative of the frame spatial velocity w.r.t. \f$ q \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ q \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ v \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ \dot{v} \f$.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
@@ -83,11 +83,11 @@ namespace pinocchio
    * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[in]  rf          Reference frame in which the velocity is expressed.
-   * @param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
-   * @param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-   * @param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+   * @param[out] v_partial_dq Partial derivative of the frame spatial velocity w.r.t. \f$ q \f$.
+   * @param[out] v_partial_dv Partial derivative of the frame spatial velociy w.r.t. \f$ v \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ q \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ v \f$.
+   * @param[out] a_partial_dq Partial derivative of the frame spatial acceleration w.r.t. \f$ \dot{v} \f$.
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
