@@ -163,27 +163,6 @@ namespace pinocchio
         break;
     }
   }
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
-  void getFrameAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                       const FrameIndex frame_id,
-                                       const ReferenceFrame rf,
-                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                       const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
-                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
-                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
-                                       const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
-  {
-    getFrameAccelerationDerivatives(model,data,
-                                    frame_id,rf,
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_dv),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
-    
-    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
-  }
 }
 
 #endif // ifndef __pinocchio_algorithm_frames_derivatives_hxx__
