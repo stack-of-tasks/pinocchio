@@ -207,11 +207,13 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((int) jointId < model.njoints, "The joint id is invalid.");
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
     typedef JointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix6xOut1,Matrix6xOut2> Pass1;
@@ -375,9 +377,10 @@ namespace pinocchio
           {
             atmp = oMlast.actInv(data.oa[parent]);
             motionSet::motionAction(atmp,a_partial_da_cols,a_partial_dq_cols);
+            
+            motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
           }
           
-          motionSet::motionAction<ADDTO>(vtmp,v_partial_dq_cols,a_partial_dq_cols);
           break;
       }
 
@@ -396,15 +399,19 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
                                               const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
   {
+    
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut3,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut4,Data::Matrix6x);
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_partial_dq.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dq.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_dv.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a_partial_da.cols(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((int) jointId < model.njoints, "The joint id is invalid.");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;

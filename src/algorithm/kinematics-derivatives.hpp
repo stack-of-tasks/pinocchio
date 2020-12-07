@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_kinematics_derivatives_hpp__
@@ -50,7 +50,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
-  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ v \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -78,8 +78,8 @@ namespace pinocchio
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -109,10 +109,10 @@ namespace pinocchio
   /// \param[in] jointId Index of the joint in model.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
-  /// \param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ v \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
