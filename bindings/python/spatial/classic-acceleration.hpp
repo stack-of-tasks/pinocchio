@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -11,14 +11,21 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
-    template<typename Motion1, typename Motion2>
-    inline void exposeClassicAcceleration()
+    void exposeClassicAcceleration()
     {
       bp::def("classicAcceleration",
-              &classicAcceleration<Motion1,Motion2>,
-              bp::args("spatial_velocity: Spatial velocity",
-                       "spatial_acceleration: Spatial acceleration"),
+              &classicAcceleration<Motion,Motion>,
+              bp::args("spatial_velocity",
+                       "spatial_acceleration"),
               "Computes the classic acceleration from a given spatial velocity and spatial acceleration.");
+      
+        bp::def("classicAcceleration",
+                &classicAcceleration<Motion,Motion,Motion::Scalar,Motion::Options>,
+                bp::args("spatial_velocity",
+                         "spatial_acceleration",
+                         "placement"),
+                "Computes the classic acceleration of a frame B, given the spatial velocity and spatial acceleration of a frame A,\n"
+                "and the relative placement A^M_B.");
     }
     
   } // namespace python

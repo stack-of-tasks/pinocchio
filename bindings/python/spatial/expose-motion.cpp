@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -17,7 +17,7 @@ namespace pinocchio
       MotionPythonVisitor<Motion>::expose();
       StdAlignedVectorPythonVisitor<Motion>::expose("StdVec_Motion");
       
-      exposeClassicAcceleration<Motion,Motion>();
+      exposeClassicAcceleration();
     }
     
   } // namespace python
