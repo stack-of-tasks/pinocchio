@@ -1,11 +1,11 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_visitor_fusion_hpp__
 #define __pinocchio_multibody_visitor_fusion_hpp__
 
-#define BOOST_FUSION_INVOKE_MAX_ARITY 10
+#define BOOST_FUSION_INVOKE_MAX_ARITY 12
 
 #include "pinocchio/deprecated.hpp"
 
