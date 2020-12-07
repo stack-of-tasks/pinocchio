@@ -2,6 +2,8 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
+#include <iostream>
+
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -9,8 +11,6 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
-
-#include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
@@ -538,6 +538,194 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_against_classic_formula)
   }
   
   
+}
+
+BOOST_AUTO_TEST_CASE(test_classic_acceleration_derivatives)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  
+  Data data(model), data_ref(model), data_plus(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd a = VectorXd::Random(model.nv);
+  
+  const Model::JointIndex joint_id = model.existJointName("rarm4_joint")?model.getJointId("rarm4_joint"):(Model::Index)(model.njoints-1);
+  Data::Matrix3x v3_partial_dq(3,model.nv); v3_partial_dq.setZero();
+  Data::Matrix3x a3_partial_dq(3,model.nv); a3_partial_dq.setZero();
+  Data::Matrix3x a3_partial_dv(3,model.nv); a3_partial_dv.setZero();
+  Data::Matrix3x a3_partial_da(3,model.nv); a3_partial_da.setZero();
+  
+  Data::Matrix6x v_partial_dq_ref(6,model.nv); v_partial_dq_ref.setZero();
+  Data::Matrix6x v_partial_dv_ref(6,model.nv); v_partial_dv_ref.setZero();
+  Data::Matrix6x a_partial_dq_ref(6,model.nv); a_partial_dq_ref.setZero();
+  Data::Matrix6x a_partial_dv_ref(6,model.nv); a_partial_dv_ref.setZero();
+  Data::Matrix6x a_partial_da_ref(6,model.nv); a_partial_da_ref.setZero();
+  
+  computeForwardKinematicsDerivatives(model,data_ref,q,0*v,a);
+  computeForwardKinematicsDerivatives(model,data,q,0*v,a);
+  
+  // LOCAL
+  getJointAccelerationDerivatives(model,data_ref,joint_id,LOCAL,
+                                  v_partial_dq_ref,v_partial_dv_ref,
+                                  a_partial_dq_ref,a_partial_dv_ref,a_partial_da_ref);
+  
+
+  getPointClassicAccelerationDerivatives(model,data,joint_id,SE3::Identity(),LOCAL,
+                                         v3_partial_dq,a3_partial_dq,a3_partial_dv,a3_partial_da);
+  
+  BOOST_CHECK(v3_partial_dq.isApprox(v_partial_dq_ref.middleRows<3>(Motion::LINEAR)));
+  BOOST_CHECK(a3_partial_dq.isApprox(a_partial_dq_ref.middleRows<3>(Motion::LINEAR)));
+  BOOST_CHECK(a3_partial_dv.isApprox(a_partial_dv_ref.middleRows<3>(Motion::LINEAR)));
+  BOOST_CHECK(a3_partial_da.isApprox(a_partial_da_ref.middleRows<3>(Motion::LINEAR)));
+  
+  // LOCAL_WORLD_ALIGNED
+  v_partial_dq_ref.setZero();
+  v_partial_dv_ref.setZero();
+  a_partial_dq_ref.setZero();
+  a_partial_dv_ref.setZero();
+  a_partial_da_ref.setZero();
+  getJointAccelerationDerivatives(model,data_ref,joint_id,LOCAL_WORLD_ALIGNED,
+                                  v_partial_dq_ref,v_partial_dv_ref,
+                                  a_partial_dq_ref,a_partial_dv_ref,a_partial_da_ref);
+  
+  v3_partial_dq.setZero();
+  a3_partial_dq.setZero();
+  a3_partial_dv.setZero();
+  a3_partial_da.setZero();
+  getPointClassicAccelerationDerivatives(model,data,joint_id,SE3::Identity(),LOCAL_WORLD_ALIGNED,
+                                         v3_partial_dq,a3_partial_dq,a3_partial_dv,a3_partial_da);
+  
+  BOOST_CHECK(v3_partial_dq.isApprox(v_partial_dq_ref.middleRows<3>(Motion::LINEAR)));
+//  BOOST_CHECK(a3_partial_dq.isApprox(a_partial_dq_ref.middleRows<3>(Motion::LINEAR)));
+  BOOST_CHECK(a3_partial_dv.isApprox(a_partial_dv_ref.middleRows<3>(Motion::LINEAR)));
+  BOOST_CHECK(a3_partial_da.isApprox(a_partial_da_ref.middleRows<3>(Motion::LINEAR)));
+  
+//  std::cout << "a3_partial_dq:\n" << a3_partial_dq << std::endl;
+//  std::cout << "a3_partial_dq_ref:\n" << a_partial_dq_ref.middleRows<3>(Motion::LINEAR) << std::endl;
+  
+  const SE3 iMpoint = SE3::Random();
+  computeForwardKinematicsDerivatives(model,data,q,v,a);
+  
+  v3_partial_dq.setZero();
+  a3_partial_dq.setZero();
+  a3_partial_dv.setZero();
+  a3_partial_da.setZero();
+  getPointClassicAccelerationDerivatives(model,data,joint_id,iMpoint,LOCAL,
+                                         v3_partial_dq,a3_partial_dq,a3_partial_dv,a3_partial_da);
+  
+  Data::Matrix3x v3_partial_dq_LWA(3,model.nv); v3_partial_dq_LWA.setZero();
+  Data::Matrix3x a3_partial_dq_LWA(3,model.nv); a3_partial_dq_LWA.setZero();
+  Data::Matrix3x a3_partial_LWA_dv(3,model.nv); a3_partial_LWA_dv.setZero();
+  Data::Matrix3x a3_partial_LWA_da(3,model.nv); a3_partial_LWA_da.setZero();
+  
+  getPointClassicAccelerationDerivatives(model,data,joint_id,iMpoint,LOCAL_WORLD_ALIGNED,
+                                         v3_partial_dq_LWA,a3_partial_dq_LWA,a3_partial_LWA_dv,a3_partial_LWA_da);
+  
+  const double eps = 1e-8;
+  Eigen::VectorXd v_plus = Eigen::VectorXd::Zero(model.nv);
+  
+  Data::Matrix3x v3_partial_dq_fd(3,model.nv);
+  Data::Matrix3x v3_partial_dv_fd(3,model.nv);
+  Data::Matrix3x a3_partial_dq_fd(3,model.nv);
+  Data::Matrix3x a3_partial_dv_fd(3,model.nv);
+  Data::Matrix3x a3_partial_da_fd(3,model.nv);
+  
+  Data::Matrix3x v3_partial_dq_LWA_fd(3,model.nv);
+  Data::Matrix3x v3_partial_dv_LWA_fd(3,model.nv);
+  Data::Matrix3x a3_partial_dq_LWA_fd(3,model.nv);
+  Data::Matrix3x a3_partial_dv_LWA_fd(3,model.nv);
+  Data::Matrix3x a3_partial_da_LWA_fd(3,model.nv);
+  
+  const SE3 oMpoint = data.oMi[joint_id] * iMpoint;
+  const Motion::Vector3 point_vec_L = iMpoint.actInv(data.v[joint_id]).linear(); // LOCAL
+  const Motion::Vector3 point_acc_L = classicAcceleration(data.v[joint_id],data.a[joint_id],iMpoint); // LOCAL
+  const Motion::Vector3 point_vec_LWA = oMpoint.rotation() * point_vec_L; // LOCAL_WORLD_ALIGNED
+  const Motion::Vector3 point_acc_LWA = oMpoint.rotation() * point_acc_L; // LOCAL_WORLD_ALIGNED
+  
+  // Derivatives w.r.t q
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] = eps;
+    const VectorXd q_plus = integrate(model,q,v_plus);
+    forwardKinematics(model,data_plus,q_plus,v,a);
+    
+    const SE3 oMpoint_plus = data_plus.oMi[joint_id] * iMpoint;
+    const Motion::Vector3 point_vec_L_plus = iMpoint.actInv(data_plus.v[joint_id]).linear();
+    const Motion::Vector3 point_acc_L_plus = classicAcceleration(data_plus.v[joint_id],data_plus.a[joint_id],iMpoint);
+    
+    const Motion::Vector3 point_vec_LWA_plus = oMpoint_plus.rotation() * point_vec_L_plus;
+    const Motion::Vector3 point_acc_LWA_plus = oMpoint_plus.rotation() * point_acc_L_plus;
+    
+    v3_partial_dq_fd.col(k) = (point_vec_L_plus - point_vec_L)/eps;
+    a3_partial_dq_fd.col(k) = (point_acc_L_plus - point_acc_L)/eps;
+    
+    v3_partial_dq_LWA_fd.col(k) = (point_vec_LWA_plus - point_vec_LWA)/eps;
+    a3_partial_dq_LWA_fd.col(k) = (point_acc_LWA_plus - point_acc_LWA)/eps;
+    
+    v_plus[k] = 0.;
+  }
+  
+  BOOST_CHECK(v3_partial_dq_fd.isApprox(v3_partial_dq,sqrt(eps)));
+  BOOST_CHECK(a3_partial_dq_fd.isApprox(a3_partial_dq,sqrt(eps)));
+  
+  BOOST_CHECK(v3_partial_dq_LWA_fd.isApprox(v3_partial_dq_LWA,sqrt(eps)));
+  BOOST_CHECK(a3_partial_dq_LWA_fd.isApprox(a3_partial_dq_LWA,sqrt(eps)));
+  
+  std::cout << "v3_partial_dq_LWA_fd:\n" << v3_partial_dq_LWA_fd << std::endl;
+  std::cout << "v3_partial_dq_LWA:\n" << v3_partial_dq_LWA << std::endl;
+  
+  std::cout << "a3_partial_dq_LWA_fd:\n" << a3_partial_dq_LWA_fd << std::endl;
+  std::cout << "a3_partial_dq_LWA:\n" << a3_partial_dq_LWA << std::endl;
+  
+  // Derivatives w.r.t v
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    v_plus = v;
+    v_plus[k] += eps;
+    forwardKinematics(model,data_plus,q,v_plus,a);
+    
+    const SE3 oMpoint_plus = data_plus.oMi[joint_id] * iMpoint;
+    const Motion::Vector3 point_vec_L_plus = iMpoint.actInv(data_plus.v[joint_id]).linear();
+    const Motion::Vector3 point_acc_L_plus = classicAcceleration(data_plus.v[joint_id],data_plus.a[joint_id],iMpoint);
+    
+    const Motion::Vector3 point_vec_LWA_plus = oMpoint_plus.rotation() * point_vec_L_plus;
+    const Motion::Vector3 point_acc_LWA_plus = oMpoint_plus.rotation() * point_acc_L_plus;
+    
+    v3_partial_dv_fd.col(k) = (point_vec_L_plus - point_vec_L)/eps;
+    a3_partial_dv_fd.col(k) = (point_acc_L_plus - point_acc_L)/eps;
+    
+    v3_partial_dv_LWA_fd.col(k) = (point_vec_LWA_plus - point_vec_LWA)/eps;
+    a3_partial_dv_LWA_fd.col(k) = (point_acc_LWA_plus - point_acc_LWA)/eps;
+  }
+  
+  BOOST_CHECK(v3_partial_dv_fd.isApprox(a3_partial_da,sqrt(eps)));
+  BOOST_CHECK(a3_partial_dv_fd.isApprox(a3_partial_dv,sqrt(eps)));
+  
+  // Derivatives w.r.t v
+  Eigen::VectorXd a_plus = Eigen::VectorXd::Zero(model.nv);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    a_plus = a;
+    a_plus[k] += eps;
+    forwardKinematics(model,data_plus,q,v,a_plus);
+    
+    const SE3 oMpoint_plus = data_plus.oMi[joint_id] * iMpoint;
+    const Motion::Vector3 point_acc_L_plus = classicAcceleration(data_plus.v[joint_id],data_plus.a[joint_id],iMpoint);
+    
+    const Motion::Vector3 point_acc_LWA_plus = oMpoint_plus.rotation() * point_acc_L_plus;
+    
+    a3_partial_da_fd.col(k) = (point_acc_L_plus - point_acc_L)/eps;
+    a3_partial_da_LWA_fd.col(k) = (point_acc_LWA_plus - point_acc_LWA)/eps;
+  }
+  
+  BOOST_CHECK(a3_partial_da_fd.isApprox(a3_partial_da,sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
