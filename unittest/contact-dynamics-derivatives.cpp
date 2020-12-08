@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
 }
 
 
-BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd )
+BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;

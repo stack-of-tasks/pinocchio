@@ -362,20 +362,7 @@ namespace pinocchio
         case CONTACT_3D:
         {
           typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-          //TODO: Specialize for the 3d case.
-          //TODO: We don't need all these quantities. Remove those not needed.
-          typename Data::Matrix6x & v_partial_dq_tmp = data.dFda;
-          typename Data::Matrix6x & a_partial_dq_tmp = data.SDinv;
-          typename Data::Matrix6x & a_partial_dv_tmp = data.UDinv;
-          typename Data::Matrix6x & a_partial_da_tmp = data.IS;
-          getJointAccelerationDerivatives(model, data,
-                                          joint1_id,
-                                          cmodel.reference_frame,
-                                          v_partial_dq_tmp,
-                                          a_partial_dq_tmp,
-                                          a_partial_dv_tmp,
-                                          a_partial_da_tmp);
-          //TODO: replace with contact_model::nc
+
           RowsBlock contact_dvc_dq = SizeDepType<3>::middleRows(data.dvc_dq,
                                                                 current_row_sol_id);
           RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,
@@ -384,19 +371,16 @@ namespace pinocchio
                                                                 current_row_sol_id);
           RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,
                                                                 current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            contact_dvc_dq.col(j) = v_partial_dq_tmp.template topRows<3>().col(j);
-            contact_dac_da.col(j) = a_partial_da_tmp.template topRows<3>().col(j);
-            contact_dac_dq.col(j) = a_partial_dq_tmp.template topRows<3>().col(j);
-            contact_dac_dv.col(j) = a_partial_dv_tmp.template topRows<3>().col(j);
-            contact_dac_dq.template topRows<3>().col(j) +=
-              v_tmp.angular().cross(v_partial_dq_tmp.template topRows<3>().col(j))
-              - v_tmp.linear().cross(v_partial_dq_tmp.template bottomRows<3>().col(j));
-            contact_dac_dv.template topRows<3>().col(j) +=
-              v_tmp.angular().cross(a_partial_da_tmp.template topRows<3>().col(j))
-              - v_tmp.linear().cross(a_partial_da_tmp.template bottomRows<3>().col(j));
-          }
+   
+          getPointClassicAccelerationDerivatives(model, data,
+                                                 joint1_id,
+                                                 cmodel.joint1_placement,
+                                                 cmodel.reference_frame,
+                                                 contact_dvc_dq,
+                                                 contact_dac_dq,
+                                                 contact_dac_dv,
+                                                 contact_dac_da);
+          
           current_row_sol_id += 3;
           break;
         }
