@@ -124,8 +124,13 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined (WIN32)
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif //__GNUC__
   ///
   /// \brief Full constructor.
   ///
@@ -162,10 +167,19 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#elif defined (WIN32)
+#pragma warning(pop)
+#endif //__GNUC__
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined (WIN32)
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif //__GNUC__
   ///
   /// \brief Reduced constructor.
   /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
@@ -201,16 +215,29 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#elif defined (WIN32)
+#pragma warning(pop)
+#endif //__GNUC__
 
+#if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#elif defined (WIN32)
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif //__GNUC__
   GeometryObject(const GeometryObject & other)
   : fcl(geometry)
   {
     *this = other;
   }
+#if defined(__GNUC__)
 #pragma GCC diagnostic pop
+#elif defined (WIN32)
+#pragma warning(pop)
+#endif //__GNUC__
 
   GeometryObject & operator=(const GeometryObject & other)
   {
