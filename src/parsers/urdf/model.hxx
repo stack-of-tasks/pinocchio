@@ -361,13 +361,13 @@ namespace pinocchio
       typedef UrdfVisitorBaseTpl<double, 0> UrdfVisitorBase;
 
       void PINOCCHIO_DLLAPI parseRootTree(const ::urdf::ModelInterface * urdfTree,
-                                             UrdfVisitorBase & model);
+                                          UrdfVisitorBase & model);
 
       void PINOCCHIO_DLLAPI parseRootTree(const std::string & filename,
-                                             UrdfVisitorBase & model);
+                                          UrdfVisitorBase & model);
 
       void PINOCCHIO_DLLAPI parseRootTreeFromXML(const std::string & xmlString,
-                                                    UrdfVisitorBase & model);
+                                                 UrdfVisitorBase & model);
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -379,7 +379,7 @@ namespace pinocchio
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, root_joint);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(filename, visitor);
+      details::parseRootTree(filename, visitor);
       return model;
     }
 
@@ -391,7 +391,7 @@ namespace pinocchio
     {
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(filename, visitor);
+      details::parseRootTree(filename, visitor);
       return model;
     }
     
@@ -404,7 +404,7 @@ namespace pinocchio
     {
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, rootJoint);
       if (verbose) visitor.log = &std::cout;
-      parseRootTreeFromXML(xmlStream, visitor);
+      details::parseRootTreeFromXML(xmlStream, visitor);
       return model;
     }
     
@@ -416,7 +416,7 @@ namespace pinocchio
     {
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       if (verbose) visitor.log = &std::cout;
-      parseRootTreeFromXML(xmlStream, visitor);
+      details::parseRootTreeFromXML(xmlStream, visitor);
       return model;
     }
 
@@ -430,7 +430,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, rootJoint);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(urdfTree.get(), visitor);
+      details::parseRootTree(urdfTree.get(), visitor);
       return model;
     }
 
@@ -443,7 +443,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(urdfTree.get(), visitor);
+      details::parseRootTree(urdfTree.get(), visitor);
       return model;
     }
 
@@ -458,7 +458,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, rootJoint);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(urdfTree.get(), visitor);
+      details::parseRootTree(urdfTree.get(), visitor);
       return model;
     }
 
@@ -471,7 +471,7 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
       details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       if (verbose) visitor.log = &std::cout;
-      parseRootTree(urdfTree.get(), visitor);
+      details::parseRootTree(urdfTree.get(), visitor);
       return model;
     }
 #endif
