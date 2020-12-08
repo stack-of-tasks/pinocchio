@@ -248,43 +248,24 @@ namespace pinocchio
       const int contact_dim = contact_model.size();
 
       const typename Model::JointIndex joint1_id = contact_model.joint1_id;
-      const typename Data::SE3 & oMi_joint1 = data.oMi[joint1_id];
       typename RigidContactData::SE3 & oMc1 = contact_data.oMc1;
       typename RigidContactData::Motion & vc1 = contact_data.contact1_velocity;
       typename RigidContactData::Motion & coriolis_centrifugal_acc1 = contact_data.contact1_acceleration_drift;
       
       const typename Model::JointIndex joint2_id = contact_model.joint2_id;
-      const typename Data::SE3 & oMi_joint2 = data.oMi[joint2_id];
       typename RigidContactData::SE3 & oMc2 = contact_data.oMc2;
       typename RigidContactData::Motion & vc2 = contact_data.contact2_velocity;
       typename RigidContactData::Motion & coriolis_centrifugal_acc2 = contact_data.contact2_acceleration_drift;
       
       // Compute contact placement and velocities
       if(joint1_id > 0)
-      {
-//        oMc1 = oMi_joint1 * contact_model.joint1_placement; // already computed by Cholesky
         vc1 = oMc1.actInv(data.ov[joint1_id]);
-      }
       else
-      {
-//        oMc1 = contact_model.joint1_placement; // already computed by Cholesky
         vc1.setZero();
-      }
-
       if(joint2_id > 0)
-      {
-//        oMc2 = oMi_joint2 * contact_model.joint2_placement; // already computed by Cholesky
         vc2 = oMc2.actInv(data.ov[joint2_id]);
-      }
       else
-      {
-//        oMc2 = contact_model.joint2_placement; // already computed by Cholesky
         vc2.setZero();
-      }
-
-      // Compute relative displacement between C1 and C2 frames
-      typename RigidContactData::SE3 & c1Mc2 = contact_data.c1Mc2;
-//      c1Mc2 = oMc1.actInv(oMc2); // already computed by Cholesky
       
       switch(contact_model.reference_frame)
       {

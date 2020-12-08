@@ -488,6 +488,10 @@ namespace pinocchio
                 }
                 break;
               }
+                
+              default:
+                assert(false && "must never happened");
+                break;
             }
 
           }
