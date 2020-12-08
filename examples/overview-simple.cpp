@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
