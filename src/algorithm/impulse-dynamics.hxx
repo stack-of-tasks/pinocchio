@@ -67,6 +67,8 @@ namespace pinocchio
     typedef typename Data::Force Force;
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     data.com[0] = data.oYcrb[0].lever();
+    
+    data.Ag = data.dFda;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
     Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
     for(long i = 0; i<model.nv; ++i)
