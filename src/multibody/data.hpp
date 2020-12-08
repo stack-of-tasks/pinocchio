@@ -316,7 +316,7 @@ namespace pinocchio
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint torques.
     RowMatrixXs ddq_dtau;
     
-    /// \brief Partial derivative of the contact frame acceleration with respect to the joint params
+    /// \brief Stack of partial derivative of the contact frame acceleration with respect to the joint parameters.
     MatrixXs dvc_dq;
     MatrixXs dac_dq;
     MatrixXs dac_dv;
