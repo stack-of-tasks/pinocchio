@@ -741,6 +741,68 @@ BOOST_AUTO_TEST_CASE(test_classic_acceleration_derivatives)
   BOOST_CHECK(a3_partial_da_other.isApprox(a3_partial_da));
 }
 
+BOOST_AUTO_TEST_CASE(test_classic_velocity_derivatives)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  
+  Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd a = VectorXd::Random(model.nv);
+  
+  const SE3 iMpoint = SE3::Random();
+  const Model::JointIndex joint_id = model.existJointName("rarm4_joint")?model.getJointId("rarm4_joint"):(Model::Index)(model.njoints-1);
+  Data::Matrix3x v3_partial_dq_L(3,model.nv); v3_partial_dq_L.setZero();
+  Data::Matrix3x v3_partial_dv_L(3,model.nv); v3_partial_dv_L.setZero();
+  
+  computeForwardKinematicsDerivatives(model,data,q,v,0*a);
+  getPointVelocityDerivatives(model,data,joint_id,iMpoint,LOCAL,
+                              v3_partial_dq_L,v3_partial_dv_L);
+  
+  Data::Matrix3x v_partial_dq_ref_L(3,model.nv); v_partial_dq_ref_L.setZero();
+  Data::Matrix3x v_partial_dv_ref_L(3,model.nv); v_partial_dv_ref_L.setZero();
+  Data::Matrix3x a_partial_dq_ref_L(3,model.nv); a_partial_dq_ref_L.setZero();
+  Data::Matrix3x a_partial_dv_ref_L(3,model.nv); a_partial_dv_ref_L.setZero();
+  Data::Matrix3x a_partial_da_ref_L(3,model.nv); a_partial_da_ref_L.setZero();
+  
+  computeForwardKinematicsDerivatives(model,data_ref,q,v,a);
+  getPointClassicAccelerationDerivatives(model,data_ref,joint_id,iMpoint,LOCAL,
+                                         v_partial_dq_ref_L,v_partial_dv_ref_L,
+                                         a_partial_dq_ref_L,a_partial_dv_ref_L,
+                                         a_partial_da_ref_L);
+  
+  BOOST_CHECK(v3_partial_dq_L.isApprox(v_partial_dq_ref_L));
+  BOOST_CHECK(v3_partial_dv_L.isApprox(v_partial_dv_ref_L));
+  
+  // LOCAL_WORLD_ALIGNED
+  Data::Matrix3x v3_partial_dq_LWA(3,model.nv); v3_partial_dq_LWA.setZero();
+  Data::Matrix3x v3_partial_dv_LWA(3,model.nv); v3_partial_dv_LWA.setZero();
+  
+  getPointVelocityDerivatives(model,data,joint_id,iMpoint,LOCAL_WORLD_ALIGNED,
+                              v3_partial_dq_LWA,v3_partial_dv_LWA);
+  
+  Data::Matrix3x v_partial_dq_ref_LWA(3,model.nv); v_partial_dq_ref_LWA.setZero();
+  Data::Matrix3x v_partial_dv_ref_LWA(3,model.nv); v_partial_dv_ref_LWA.setZero();
+  Data::Matrix3x a_partial_dq_ref_LWA(3,model.nv); a_partial_dq_ref_LWA.setZero();
+  Data::Matrix3x a_partial_dv_ref_LWA(3,model.nv); a_partial_dv_ref_LWA.setZero();
+  Data::Matrix3x a_partial_da_ref_LWA(3,model.nv); a_partial_da_ref_LWA.setZero();
+
+  getPointClassicAccelerationDerivatives(model,data_ref,joint_id,iMpoint,LOCAL_WORLD_ALIGNED,
+                                         v_partial_dq_ref_LWA,v_partial_dv_ref_LWA,
+                                         a_partial_dq_ref_LWA,a_partial_dv_ref_LWA,
+                                         a_partial_da_ref_LWA);
+  
+  BOOST_CHECK(v3_partial_dq_LWA.isApprox(v_partial_dq_ref_LWA));
+  BOOST_CHECK(v3_partial_dv_LWA.isApprox(v_partial_dv_ref_LWA));
+}
+
 BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
 {
   using namespace Eigen;

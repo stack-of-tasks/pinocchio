@@ -454,6 +454,132 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
+  struct PointVelocityDerivativesBackwardStep
+  : public fusion::JointUnaryVisitorBase< PointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut1,Matrix3xOut2> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  const Data &,
+                                  const typename Data::SE3 &,
+                                  const typename Data::Motion &,
+                                  const ReferenceFrame &,
+                                  Matrix3xOut1 &,
+                                  Matrix3xOut2 &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     const Model & model,
+                     const Data & data,
+                     const typename Data::SE3 & oMpoint,
+                     const typename Data::Motion & spatial_point_velocity,
+                     const ReferenceFrame & rf,
+                     const Eigen::MatrixBase<Matrix3xOut1> & v_partial_dq,
+                     const Eigen::MatrixBase<Matrix3xOut2> & v_partial_dv)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::SE3 SE3;
+      typedef typename Data::Motion Motion;
+      
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
+      Motion vtmp; // Temporary variable
+      
+      const SE3 & oMlast = oMpoint;
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::ConstType ColsBlock;
+      ColsBlock Jcols = jmodel.jointCols(data.J);
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut1>::Type ColsBlockOut1;
+      Matrix3xOut1 & v_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1,v_partial_dq);
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix3xOut2>::Type ColsBlockOut2;
+      Matrix3xOut2 & v_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut2,v_partial_dv);
+      
+      ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
+      ColsBlockOut2 v_partial_dv_cols = jmodel.jointCols(v_partial_dv_);
+      
+      const int nv = jmodel.nv();
+      Eigen::Matrix<Scalar,6,JointModel::NV,Options> v_spatial_partial_dv_cols(6,nv);
+      
+#define FOR_NV() for(Eigen::DenseIndex j = 0; j < nv; ++j)
+#define GET_LINEAR(vec6) vec6.template segment<3>(Motion::LINEAR)
+#define GET_ANGULAR(vec6) vec6.template segment<3>(Motion::ANGULAR)
+      
+      // dvec/dv
+      motionSet::se3ActionInverse(oMlast,Jcols,v_spatial_partial_dv_cols);
+      v_partial_dv_cols = v_spatial_partial_dv_cols.template middleRows<3>(Motion::LINEAR);
+ 
+      // dvec/dq
+      if(parent > 0)
+      {
+        vtmp = oMlast.actInv(data.ov[parent]);
+        FOR_NV()
+          v_partial_dq_cols.col(j).noalias()
+          = vtmp.angular().cross(GET_LINEAR(v_spatial_partial_dv_cols.col(j)))
+          + vtmp.linear().cross(GET_ANGULAR(v_spatial_partial_dv_cols.col(j)));
+      }
+
+      if(rf == LOCAL_WORLD_ALIGNED)
+      {
+        FOR_NV()
+          v_partial_dq_cols.col(j) = oMlast.rotation() * (v_partial_dq_cols.col(j)
+                                                          + GET_ANGULAR(v_spatial_partial_dv_cols.col(j)).cross(spatial_point_velocity.linear()));
+        FOR_NV()
+          v_partial_dv_cols.col(j) = oMlast.rotation() * v_partial_dv_cols.col(j);
+      }
+      
+#undef FOR_NV
+#undef GET_LINEAR
+#undef GET_ANGULAR
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
+  inline void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const Model::JointIndex joint_id,
+                                          const SE3Tpl<Scalar,Options> & placement,
+                                          const ReferenceFrame rf,
+                                          const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                          const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv)
+  {
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut1,Data::Matrix3x);
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.cols(), model.nv);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.cols(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((int) joint_id < model.njoints, "The joint id is invalid.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(rf == LOCAL || rf == LOCAL_WORLD_ALIGNED,
+                                   "The reference frame is not valid, expected LOCAL or LOCAL_WORLD_ALIGNED");
+    assert(model.check(data) && "data is not consistent with model.");
+    
+    typedef typename Data::SE3 SE3;
+    
+    const SE3 oMpoint = data.oMi[joint_id] * placement;
+    const Motion spatial_velocity = oMpoint.actInv(data.ov[joint_id]);
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
+    
+    typedef PointVelocityDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut1,Matrix3xOut2> Pass1;
+    for(JointIndex i = joint_id; i > 0; i = model.parents[i])
+    {
+      Pass1::run(model.joints[i],
+                 typename Pass1::ArgsType(model, data,
+                                          oMpoint, spatial_velocity,
+                                          rf,
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1,v_point_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut2,v_point_partial_dv)));
+      
+    }
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
   struct PointClassicAccelerationDerivativesBackwardStep
   : public fusion::JointUnaryVisitorBase< PointClassicAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut1,Matrix3xOut2,Matrix3xOut3,Matrix3xOut4> >
@@ -523,6 +649,7 @@ namespace pinocchio
 #define FOR_NV() for(Eigen::DenseIndex j = 0; j < nv; ++j)
 #define GET_LINEAR(vec6) vec6.template segment<3>(Motion::LINEAR)
 #define GET_ANGULAR(vec6) vec6.template segment<3>(Motion::ANGULAR)
+      
       // dacc/da
       motionSet::se3ActionInverse(oMlast,Jcols,a_spatial_partial_da_cols);
       a_partial_da_cols = a_spatial_partial_da_cols.template middleRows<3>(Motion::LINEAR);
