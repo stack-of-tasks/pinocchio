@@ -114,10 +114,6 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      typedef ComputeRNEADerivativesBackwardStep<Scalar,Options,JointCollectionTpl,
-                                                 typename Data::RowMatrixXs,
-                                                 typename Data::RowMatrixXs,
-                                                 typename Data::RowMatrixXs> RNEABackwardStep;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
@@ -125,39 +121,39 @@ namespace pinocchio
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
-      typename Data::RowMatrixXs & rnea_partial_dq_ = data.dtau_dq;
+      ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
+      
+      typename Data::RowMatrixXs & dtau_dq = data.dtau_dq;
       
       // Temporary variables
-      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS (jmodel.nv(),6);
-      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StY(jmodel.nv(),6);
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StdY(jmodel.nv(),6);
 
       motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       // dtau/dq
       if(parent>0)
       {
-        RNEABackwardStep::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),YS);
         if(ContactMode)
         {
           dFdq_cols.noalias() += data.doYcrb[i] * dVdq_cols;
-          StY.noalias() = J_cols.transpose() * data.doYcrb[i];
+          StdY.noalias() = J_cols.transpose() * data.doYcrb[i];
           for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
             {
-              rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-                = YS  * data.dAdq.col(j)
-                + StY * data.dVdq.col(j);
+              dtau_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+                = dFda_cols.transpose() * data.dAdq.col(j)
+                + StdY * data.dVdq.col(j);
             }
         }
         else
         {
           for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
             {
-              rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-                = YS  * data.dAdq.col(j);
+              dtau_dq.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+                = dFda_cols.transpose() * data.dAdq.col(j);
             }
         }
       }
 
-      rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+      dtau_dq.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
 
@@ -165,21 +161,21 @@ namespace pinocchio
       {
         
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
-        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv); 
-        typename Data::RowMatrixXs & rnea_partial_dv_ = data.dtau_dv;       
+        ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
+        
+        typename Data::RowMatrixXs & dtau_dv = data.dtau_dv;
         dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
         motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
-        //motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
-        
-        rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
+
+        dtau_dv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
           = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
         if(parent > 0)
         {
           for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
           {
-            rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-              = YS  * data.dAdv.col(j)
-              + StY * data.J.col(j);
+            dtau_dv.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
+              = dFda_cols.transpose() * data.dAdv.col(j)
+              + StdY * data.J.col(j);
           }
           data.doYcrb[parent] += data.doYcrb[i];
         }
@@ -193,9 +189,7 @@ namespace pinocchio
         }
       }
       if (parent > 0)
-      {
         data.of[parent] += data.of[i];
-      }
     }
   };
   
@@ -309,33 +303,10 @@ namespace pinocchio
       const RigidContactData & cdata = contact_data[k];
 
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-      const Eigen::DenseIndex colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       
-      Motion v_tmp;         
-      switch(cmodel.reference_frame)
-      {
-        case WORLD:
-        {
-          v_tmp = data.ov[joint1_id];
-          break;
-        }
-        case LOCAL:
-        {
-          v_tmp = cdata.oMc1.actInv(data.ov[joint1_id]);
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED:
-        {
-          v_tmp.linear().noalias() = cdata.oMc1.rotation() * data.v[joint1_id].linear();  // TODO: fix it
-          v_tmp.angular().noalias() = data.ov[joint1_id].angular();
-          break;
-        }
-        default:
-          assert(false && "must never happen");
-          break;
-      }
+      Motion contact1_velocity, contact1_spatial_acceleration;
+      changeReferenceFrame(cdata.oMc1,data.ov[joint1_id],WORLD,cmodel.reference_frame,contact1_velocity);
 
-      //TODO: This is only for size 6. replace with contact_model::NC
       switch(cmodel.type)
       {
         case CONTACT_6D:
