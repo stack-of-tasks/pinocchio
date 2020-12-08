@@ -521,6 +521,8 @@ namespace pinocchio
           = vtmp.angular().cross(GET_LINEAR(v_spatial_partial_dv_cols.col(j)))
           + vtmp.linear().cross(GET_ANGULAR(v_spatial_partial_dv_cols.col(j)));
       }
+      else
+        v_partial_dq_cols.setZero();
 
       if(rf == LOCAL_WORLD_ALIGNED)
       {
@@ -662,6 +664,8 @@ namespace pinocchio
         motionSet::motionAction(vtmp,a_spatial_partial_da_cols,v_spatial_partial_dq_cols);
         v_partial_dq_cols = v_spatial_partial_dq_cols.template middleRows<3>(Motion::LINEAR);
       }
+      else
+        v_partial_dq_cols.setZero();
       
       if(parent > 0)
         vtmp -= v_last;
@@ -707,6 +711,8 @@ namespace pinocchio
           - v_last.linear().cross(GET_ANGULAR(v_spatial_partial_dq_cols.col(j)));
         
       }
+      else
+        a_partial_dq_cols.setZero();
       
       if(rf == LOCAL_WORLD_ALIGNED)
       {
