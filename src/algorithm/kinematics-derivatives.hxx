@@ -657,6 +657,29 @@ namespace pinocchio
     
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
+  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                     const Model::JointIndex joint_id,
+                                                     const SE3Tpl<Scalar,Options> & placement,
+                                                     const ReferenceFrame rf,
+                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
+                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
+                                                     const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
+  {
+    EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.cols(), model.nv);
+    getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,
+                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1,v_point_partial_dq),
+                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut3,a_point_partial_dq),
+                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut4,a_point_partial_dv),
+                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut5,a_point_partial_da));
+    
+    PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut2,v_point_partial_dv) = a_point_partial_da;
+  }
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline void
   computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,

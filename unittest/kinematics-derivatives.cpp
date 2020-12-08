@@ -678,12 +678,6 @@ BOOST_AUTO_TEST_CASE(test_classic_acceleration_derivatives)
   BOOST_CHECK(v3_partial_dq_LWA_fd.isApprox(v3_partial_dq_LWA,sqrt(eps)));
   BOOST_CHECK(a3_partial_dq_LWA_fd.isApprox(a3_partial_dq_LWA,sqrt(eps)));
   
-  std::cout << "v3_partial_dq_LWA_fd:\n" << v3_partial_dq_LWA_fd << std::endl;
-  std::cout << "v3_partial_dq_LWA:\n" << v3_partial_dq_LWA << std::endl;
-  
-  std::cout << "a3_partial_dq_LWA_fd:\n" << a3_partial_dq_LWA_fd << std::endl;
-  std::cout << "a3_partial_dq_LWA:\n" << a3_partial_dq_LWA << std::endl;
-  
   // Derivatives w.r.t v
   for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
   {
@@ -726,6 +720,25 @@ BOOST_AUTO_TEST_CASE(test_classic_acceleration_derivatives)
   }
   
   BOOST_CHECK(a3_partial_da_fd.isApprox(a3_partial_da,sqrt(eps)));
+  
+  // Test other signature
+  Data data_other(model);
+  Data::Matrix3x v3_partial_dq_other(3,model.nv); v3_partial_dq_other.setZero();
+  Data::Matrix3x v3_partial_dv_other(3,model.nv); v3_partial_dv_other.setZero();
+  Data::Matrix3x a3_partial_dq_other(3,model.nv); a3_partial_dq_other.setZero();
+  Data::Matrix3x a3_partial_dv_other(3,model.nv); a3_partial_dv_other.setZero();
+  Data::Matrix3x a3_partial_da_other(3,model.nv); a3_partial_da_other.setZero();
+  
+  computeForwardKinematicsDerivatives(model,data_other,q,v,a);
+  getPointClassicAccelerationDerivatives(model,data_other,joint_id,iMpoint,LOCAL,
+                                         v3_partial_dq_other,v3_partial_dv_other,
+                                         a3_partial_dq_other,a3_partial_dv_other,a3_partial_da_other);
+  
+  BOOST_CHECK(v3_partial_dq_other.isApprox(v3_partial_dq));
+  BOOST_CHECK(v3_partial_dv_other.isApprox(a3_partial_da));
+  BOOST_CHECK(a3_partial_dq_other.isApprox(a3_partial_dq));
+  BOOST_CHECK(a3_partial_dv_other.isApprox(a3_partial_dv));
+  BOOST_CHECK(a3_partial_da_other.isApprox(a3_partial_da));
 }
 
 BOOST_AUTO_TEST_CASE(test_kinematics_hessians)
