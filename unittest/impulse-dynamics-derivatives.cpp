@@ -72,16 +72,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   VectorXd v = VectorXd::Random(model.nv);
   
   const std::string RF = "rleg6_joint";
-  //  const Model::JointIndex RF_id = model.getJointId(RF);
+  const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
-  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model.getJointId(RF),LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,RF_id,LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -102,9 +102,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   ForceVector iext((size_t)model.njoints);
   for(ForceVector::iterator it = iext.begin(); it != iext.end(); ++it)
     (*it).setZero();
-  
-//  iext[model.getJointId(LF)] = data.oMi[model.getJointId(LF)].actInv(contact_data[0].contact_force);
-//  iext[model.getJointId(RF)] = data.oMi[model.getJointId(RF)].actInv(contact_data[1].contact_force);
+
   iext[model.getJointId(LF)] = contact_data[0].contact_force;
   iext[model.getJointId(RF)] = contact_data[1].contact_force;
 
@@ -113,21 +111,18 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   computeForwardKinematicsDerivatives(model, data_ref, q, effective_v,
                                       Eigen::VectorXd::Zero(model.nv));
   
-  //TODO: Check why BOOST_CHECK(data_ref.ov[i].isApprox((1+r_coeff)*data.ov[i]+data.oa[i]))
-  //      fails for rf and lf joints. the values are good! If we set data.ddq.setRandom,
-  //      everything is okay. isApprox fails if one of the vectors is very close to zero
-  for(int i=0;i<data.ov.size();i++){
-    BOOST_CHECK(((1+r_coeff)*data.ov[i]+data.oa[i]
-                 - data_ref.ov[i]).toVector().norm()<=1e-12);
+  for(size_t i=0; i < data.ov.size(); i++)
+  {
+    BOOST_CHECK(((1+r_coeff)*data.ov[i]+data.oa[i] - data_ref.ov[i]).isZero());
   }
   
   Eigen::MatrixXd Jc(9,model.nv), dv_dq(9,model.nv), Jc_tmp(6,model.nv), dv_dq_tmp(6,model.nv);
   Jc.setZero(); dv_dq.setZero(); dv_dq_tmp.setZero(); Jc_tmp.setZero();
 
-  getJointVelocityDerivatives(model, data_ref, model.getJointId(LF),LOCAL,
+  getJointVelocityDerivatives(model, data_ref, LF_id,LOCAL,
                               dv_dq.topRows<6>(), Jc.topRows<6>());
 
-  getJointVelocityDerivatives(model, data_ref, model.getJointId(RF),LOCAL,
+  getJointVelocityDerivatives(model, data_ref, RF_id,LOCAL,
                               dv_dq_tmp, Jc_tmp);
 
   Jc.bottomRows<3>() = Jc_tmp.topRows<3>();

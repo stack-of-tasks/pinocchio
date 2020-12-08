@@ -25,6 +25,7 @@ namespace pinocchio
                                   Data &,
                                   const typename Model::JointIndex &,
                                   const ReferenceFrame &,
+                                  const Scalar &,
                                   Matrix3xOut1 &,
                                   Matrix3xOut2 &
                                   > ArgsType;
@@ -35,6 +36,7 @@ namespace pinocchio
                      Data & data,
                      const typename Model::JointIndex & joint_id,
                      const ReferenceFrame & rf,
+                     const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix3xOut1> & v_partial_dq,
                      const Eigen::MatrixBase<Matrix3xOut2> & v_partial_dv)
     {
@@ -46,9 +48,7 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
       
       const SE3 & oMlast = data.oMi[joint_id];
-//      const Motion & v_last = data.ov[joint_id];
-//      const Motion & dv_last = data.oa[joint_id];
-
+      
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
@@ -72,11 +72,11 @@ namespace pinocchio
 #define GET_LINEAR(vec6) vec6.template segment<3>(Motion::LINEAR)
 #define GET_ANGULAR(vec6) vec6.template segment<3>(Motion::ANGULAR)
       
-      
+      const Scalar factor = Scalar(1) + r_coeff;
       
       if(parent > 0)
       {
-        const Motion vtmp = oMlast.actInv(data.tmp[0]*data.ov[parent] + data.oa[parent]);
+        const Motion vtmp = oMlast.actInv(factor*data.ov[parent] + data.oa[parent]);
         FOR_NV()
           v_partial_dq_cols.col(j).noalias()
           = vtmp.angular().cross(GET_LINEAR(v_spatial_partial_dv_cols.col(j)))
@@ -87,7 +87,7 @@ namespace pinocchio
       
       if(rf == LOCAL_WORLD_ALIGNED)
       {
-        const Motion vtmp = oMlast.actInv(data.tmp[0]*data.ov[joint_id] + data.oa[joint_id]);
+        const Motion vtmp = oMlast.actInv(factor*data.ov[joint_id] + data.oa[joint_id]);
         FOR_NV()
           v_partial_dq_cols.col(j) = oMlast.rotation() * (v_partial_dq_cols.col(j)
                                                           + GET_ANGULAR(v_spatial_partial_dv_cols.col(j)).cross(vtmp.linear()));
@@ -112,6 +112,7 @@ namespace pinocchio
                                   Data &,
                                   const typename Model::JointIndex &,
                                   const ReferenceFrame &,
+                                  const Scalar &,
                                   Matrix6xOut1 &,
                                   Matrix6xOut2 &
                                   > ArgsType;
@@ -122,6 +123,7 @@ namespace pinocchio
                      Data & data,
                      const typename Model::JointIndex & joint_id,
                      const ReferenceFrame & rf,
+                     const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                      const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
     {
@@ -162,17 +164,18 @@ namespace pinocchio
 
       // dvec/dq
       ColsBlockOut1 v_partial_dq_cols = jmodel.jointCols(v_partial_dq_);
+      const Scalar factor = Scalar(1) + r_coeff;
       switch(rf)
       {
         case LOCAL_WORLD_ALIGNED:
           if(parent > 0)
           {
-            vtmp = data.tmp[0]*(data.ov[parent] - v_last);
+            vtmp = factor*(data.ov[parent] - v_last);
             vtmp += data.oa[parent] - dv_last;
           }
           else
           {
-            vtmp = -(data.tmp[0]*v_last + dv_last);
+            vtmp = -(factor*v_last + dv_last);
           }
           vtmp.linear() += vtmp.angular().cross(oMlast.translation());
           motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
@@ -180,7 +183,7 @@ namespace pinocchio
         case LOCAL:
           if(parent > 0)
           {
-            vtmp = oMlast.actInv(data.tmp[0]*data.ov[parent] + data.oa[parent]);
+            vtmp = oMlast.actInv(factor*data.ov[parent] + data.oa[parent]);
             motionSet::motionAction(vtmp,v_partial_dv_cols,v_partial_dq_cols);
           }
           break;
@@ -227,9 +230,6 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     data.dtau_dq.setZero();
     
-    //Save r_coeff in data.tmp
-    data.tmp[0] = 1 + r_coeff;
-    
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
@@ -261,17 +261,15 @@ namespace pinocchio
           of -= oMc.act(cdata.contact_force);
           break;
         }
-        case WORLD:
-        {
-          of -= cdata.contact_force;
-          break;
-        }
         case LOCAL_WORLD_ALIGNED:
         {
           of -= cdata.contact_force;
           of.angular().noalias() -= oMc.translation().cross(cdata.contact_force.linear());
           break;
         }
+        default:
+          assert(false && "Should never happened");
+          break;
       }
     }
 
@@ -306,6 +304,7 @@ namespace pinocchio
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
                                                 cmodel.reference_frame,
+                                                r_coeff,
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
           }
@@ -325,6 +324,7 @@ namespace pinocchio
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
                                                 cmodel.reference_frame,
+                                                r_coeff,
                                                 contact_dvc_dq,
                                                 contact_dvc_dv));
           }
@@ -349,10 +349,11 @@ namespace pinocchio
 
     MatrixType3 & dic_dq = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,impulse_partial_dq);
     dic_dq.noalias() = -data.osim * data.dvc_dq; //OUTPUT
+    
     //TODO: Implem sparse.
     data.dtau_dq.noalias() -= Jc.transpose()*impulse_partial_dq;
     
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,impulse_partial_dv).noalias() = -data.tmp[0]*data.osim*Jc;; //OUTPUT
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,impulse_partial_dv).noalias() = -(Scalar(1) + r_coeff)*data.osim*Jc;; //OUTPUT
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,dvimpulse_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,dvimpulse_partial_dv).noalias() = JMinv.transpose()*impulse_partial_dv; //OUTPUT
@@ -368,50 +369,50 @@ namespace pinocchio
       const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       switch(cmodel.reference_frame)
       {
-      case LOCAL:
-        break;
-      case LOCAL_WORLD_ALIGNED:
-      {
-        const Force& of = cdata.contact_force;
-        switch(cmodel.type)
-        {
-        case CONTACT_6D:
-        {
-          Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
-          Rows6Block contact_dic_dq = SizeDepType<6>::middleRows(dic_dq, current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            typedef typename Rows6Block::ColXpr ColType;
-            typedef typename Rows6Block::ColXpr ColTypeOut;
-            MotionRef<ColType> min(contact_dvc_dv.col(j));
-            ForceRef<ColTypeOut> fout(contact_dic_dq.col(j));
-            fout.linear().noalias()  += min.angular().cross(of.linear());
-            fout.angular().noalias() += min.angular().cross(of.angular());
-          }
-          current_row_sol_id += 6;
+        case LOCAL:
           break;
-        }
-        case CONTACT_3D:
+        case LOCAL_WORLD_ALIGNED:
         {
-          Rows3Block contact_dic_dq = SizeDepType<3>::middleRows(dic_dq, current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+          const Force & of = cdata.contact_force;
+          switch(cmodel.type)
           {
-            typedef typename Data::Matrix6x::ColXpr ColType;
-            MotionRef<ColType> min(data.J.col(j));
-            contact_dic_dq.col(j).noalias() += min.angular().cross(of.linear());
+            case CONTACT_6D:
+            {
+              Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
+              Rows6Block contact_dic_dq = SizeDepType<6>::middleRows(dic_dq, current_row_sol_id);
+              for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+              {
+                typedef typename Rows6Block::ColXpr ColType;
+                typedef typename Rows6Block::ColXpr ColTypeOut;
+                MotionRef<ColType> min(contact_dvc_dv.col(j));
+                ForceRef<ColTypeOut> fout(contact_dic_dq.col(j));
+                fout.linear().noalias()  += min.angular().cross(of.linear());
+                fout.angular().noalias() += min.angular().cross(of.angular());
+              }
+              current_row_sol_id += 6;
+              break;
+            }
+            case CONTACT_3D:
+            {
+              Rows3Block contact_dic_dq = SizeDepType<3>::middleRows(dic_dq, current_row_sol_id);
+              for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+              {
+                typedef typename Data::Matrix6x::ColXpr ColType;
+                MotionRef<ColType> min(data.J.col(j));
+                contact_dic_dq.col(j).noalias() += min.angular().cross(of.linear());
+              }
+              current_row_sol_id += 3;
+              break;
+            }
+            default:
+              assert(false && "must never happen");
+              break;
           }
-          current_row_sol_id += 3;
           break;
         }
         default:
           assert(false && "must never happen");
           break;
-        }
-        break;
-      }
-      default:
-        assert(false && "must never happen");
-        break;        
       }
     }
 
