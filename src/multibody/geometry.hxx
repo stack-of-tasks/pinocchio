@@ -19,8 +19,8 @@
 namespace pinocchio
 {
 // Avoid deprecated warning of collisionObjects
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
@@ -76,7 +76,7 @@ namespace pinocchio
   {}
 
   inline GeometryData::~GeometryData() {}
-#pragma GCC diagnostic pop
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,

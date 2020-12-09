@@ -124,8 +124,8 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \brief Full constructor.
   ///
@@ -162,10 +162,10 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
-#pragma GCC diagnostic pop
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \brief Reduced constructor.
   /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
@@ -201,16 +201,16 @@ struct GeometryObject
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
   {}
-#pragma GCC diagnostic pop
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   GeometryObject(const GeometryObject & other)
   : fcl(geometry)
   {
     *this = other;
   }
-#pragma GCC diagnostic pop
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   GeometryObject & operator=(const GeometryObject & other)
   {

@@ -125,8 +125,8 @@ namespace pinocchio
     BiasZeroTpl(const Base &) {}
   };
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   template<typename Scalar, int Options>
   struct SE3GroupAction< BiasZeroTpl<Scalar,Options> >
   {
@@ -138,7 +138,7 @@ namespace pinocchio
   {
     typedef BiasZeroTpl<Scalar,Options> ReturnType;
   };
-#pragma GCC diagnostic pop
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
 } // namespace pinocchio
 
