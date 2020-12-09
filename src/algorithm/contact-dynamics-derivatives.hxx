@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
+#include "pinocchio/algorithm/frames-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/utils/motion.hpp"
 
@@ -159,7 +160,6 @@ namespace pinocchio
 
       if(ContactMode)
       {
-        
         ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
         ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
         
@@ -188,7 +188,8 @@ namespace pinocchio
           mout.linear() += model.gravity.linear().cross(min.angular());
         }
       }
-      if (parent > 0)
+      
+      if(parent > 0)
         data.of[parent] += data.of[i];
     }
   };
@@ -249,7 +250,6 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef typename Data::SE3 SE3;
     typedef typename Data::Force Force;
-    typedef typename Data::Motion Motion;
     
     data.oa_gf[0] = -model.gravity;
     
@@ -275,17 +275,15 @@ namespace pinocchio
           of -= oMc.act(cdata.contact_force);
           break;
         }
-        case WORLD:
-        { 
-          of -= cdata.contact_force;
-          break;
-        }
         case LOCAL_WORLD_ALIGNED:
         {
           of -= cdata.contact_force;
           of.angular().noalias() -= oMc.translation().cross(cdata.contact_force.linear());
           break;
         }
+        default:
+          assert(false && "Should never happen");
+          break;
       }
     }
 
@@ -302,11 +300,6 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
 
-      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-      
-      Motion contact1_velocity, contact1_spatial_acceleration;
-      changeReferenceFrame(cdata.oMc1,data.ov[joint1_id],WORLD,cmodel.reference_frame,contact1_velocity);
-
       switch(cmodel.type)
       {
         case CONTACT_6D:
@@ -320,14 +313,14 @@ namespace pinocchio
                                                                 current_row_sol_id);
           RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,
                                                                 current_row_sol_id);
-          getJointAccelerationDerivatives(model, data,
-                                          joint1_id,
+          getFrameAccelerationDerivatives(model, data,
+                                          cmodel.joint1_id,
+                                          cmodel.joint1_placement,
                                           cmodel.reference_frame,
                                           contact_dvc_dq,
                                           contact_dac_dq,
                                           contact_dac_dv,
                                           contact_dac_da);
-          current_row_sol_id += 6;
           break;
         }
         case CONTACT_3D:
@@ -344,7 +337,7 @@ namespace pinocchio
                                                                 current_row_sol_id);
    
           getPointClassicAccelerationDerivatives(model, data,
-                                                 joint1_id,
+                                                 cmodel.joint1_id,
                                                  cmodel.joint1_placement,
                                                  cmodel.reference_frame,
                                                  contact_dvc_dq,
@@ -352,13 +345,13 @@ namespace pinocchio
                                                  contact_dac_dv,
                                                  contact_dac_da);
           
-          current_row_sol_id += 3;
           break;
         }
         default:
           assert(false && "must never happen");
           break;
       }
+      current_row_sol_id += cmodel.size();
     }
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
@@ -407,7 +400,6 @@ namespace pinocchio
             data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
             data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
           }
-          current_row_sol_id += 6;
           break;
         }
         case CONTACT_3D:
@@ -427,7 +419,6 @@ namespace pinocchio
             data.dtau_dq.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dq;
             data.dtau_dv.row(j).noalias() -= contact_dac_da.col(j).transpose() * contact_dlambda_dv;
           }
-          current_row_sol_id += 3;
           break;
         }
 
@@ -435,6 +426,7 @@ namespace pinocchio
           assert(false && "must never happen");
           break;
       }
+      current_row_sol_id += cmodel.size();
     }
 
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,ddq_partial_dq).noalias() = -data.Minv*data.dtau_dq; //OUTPUT
@@ -456,47 +448,11 @@ namespace pinocchio
       {
       case LOCAL:
         break;
-      case WORLD:
+      case LOCAL_WORLD_ALIGNED:
       {
         const Force & of = cdata.contact_force;
         switch(cmodel.type)
         {
-        case CONTACT_6D:
-        {
-          Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            typedef typename Data::Matrix6x::ColXpr ColType;
-            typedef typename Rows6Block::ColXpr ColTypeOut;
-            MotionRef<ColType> min(data.J.col(j));
-            ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
-            fout += min.cross(of);
-          }
-          current_row_sol_id += 6;
-          break;
-        }
-        case CONTACT_3D:
-        {
-          Rows3Block contact_dfc_dq = SizeDepType<3>::middleRows(dfc_dq, current_row_sol_id);
-          for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
-          {
-            typedef typename Data::Matrix6x::ColXpr ColType;
-            MotionRef<ColType> min(data.J.col(j));
-            contact_dfc_dq.col(j) += min.angular().cross(of.linear());
-          }
-          current_row_sol_id += 3;
-          break;
-        }
-        default:
-          assert(false && "must never happen");
-          break;
-        }
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED:
-      {
-        const Force & of = cdata.contact_force;
-        switch(cmodel.type) {
         case CONTACT_6D:
         {
           Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
@@ -510,7 +466,6 @@ namespace pinocchio
             fout.linear().noalias()  += min.angular().cross(of.linear());
             fout.angular().noalias() += min.angular().cross(of.angular());
           }
-          current_row_sol_id += 6;
           break;
         }
         case CONTACT_3D:
@@ -522,7 +477,6 @@ namespace pinocchio
             MotionRef<ColType> min(data.J.col(j));
             contact_dfc_dq.col(j).noalias() += min.angular().cross(of.linear());
           }
-          current_row_sol_id += 3;
           break;
         }
         default:
@@ -535,6 +489,7 @@ namespace pinocchio
         assert(false && "must never happen");
         break;        
       }
+      current_row_sol_id += cmodel.size();
     }
 
   }
