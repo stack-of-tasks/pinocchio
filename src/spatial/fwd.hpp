@@ -60,19 +60,11 @@ namespace pinocchio
   typedef Symmetric3Tpl <double,0> Symmetric3;
   typedef MotionZeroTpl <double,0> MotionZero;
 
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#elif defined (WIN32)
-#pragma warning(push)
-#pragma warning(disable : 4996)
-#endif //__GNUC__
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   typedef BiasZeroTpl   <double,0> BiasZero;
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#elif defined (WIN32)
-#pragma warning(pop)
-#endif //__GNUC__
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
 
   /**
    * @}

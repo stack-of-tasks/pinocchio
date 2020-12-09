@@ -40,19 +40,10 @@ namespace pinocchio
       if (joint>0) geom_data.oMg[i] =  (data.oMi[joint] * geom_model.geometryObjects[i].placement);
       else         geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
 #ifdef PINOCCHIO_WITH_HPP_FCL  
-#if defined(__GNUC__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#elif defined (WIN32)
-#pragma warning(push)
-#pragma warning(disable : 4996)
-#endif // __GNUC__
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       geom_data.collisionObjects[i].setTransform( toFclTransform3f(geom_data.oMg[i]) );
-#if defined(__GNUC__)
-#pragma GCC diagnostic pop
-#elif defined (WIN32)
-#pragma warning(pop)
-#endif // __GNUC__
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 #endif // PINOCCHIO_WITH_HPP_FCL
     }
   }
