@@ -308,7 +308,6 @@ namespace pinocchio
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
           }
-          current_row_sol_id += 6;
           break;
         }
         case CONTACT_3D:
@@ -328,13 +327,13 @@ namespace pinocchio
                                                 contact_dvc_dq,
                                                 contact_dvc_dv));
           }
-          current_row_sol_id += 3;
           break;
         }
         default:
           assert(false && "must never happen");
           break;
       }
+      current_row_sol_id += cmodel.size();
     }
     
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
@@ -389,7 +388,6 @@ namespace pinocchio
                 fout.linear().noalias()  += min.angular().cross(of.linear());
                 fout.angular().noalias() += min.angular().cross(of.angular());
               }
-              current_row_sol_id += 6;
               break;
             }
             case CONTACT_3D:
@@ -401,7 +399,6 @@ namespace pinocchio
                 MotionRef<ColType> min(data.J.col(j));
                 contact_dic_dq.col(j).noalias() += min.angular().cross(of.linear());
               }
-              current_row_sol_id += 3;
               break;
             }
             default:
@@ -414,6 +411,7 @@ namespace pinocchio
           assert(false && "must never happen");
           break;
       }
+      current_row_sol_id += cmodel.size();
     }
 
   }
