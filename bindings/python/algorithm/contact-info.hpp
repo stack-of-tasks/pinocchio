@@ -157,6 +157,8 @@ namespace pinocchio
                                 "Placement of the constraint frame 1 with respect to the WORLD frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,oMc2,
                                 "Placement of the constraint frame 2 with respect to the WORLD frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,c1Mc2,
+                                "Relative displacement between the two frames.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_placement_error,
                                 "Current contact placement error between the two contact Frames.\n"
                                 "This corresponds to the relative placement between the two contact Frames seen as a Motion error.")
