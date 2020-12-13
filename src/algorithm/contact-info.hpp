@@ -41,6 +41,29 @@ namespace pinocchio
     enum { value  = 6 };
   };
 
+  template<typename _Scalar>
+  struct BaumgarteCorrectorParametersTpl
+  {
+    typedef _Scalar Scalar;
+    
+    BaumgarteCorrectorParametersTpl()
+    : Kp(Scalar(0)), Kd(Scalar(0))
+    {};
+    
+    bool operator ==(const BaumgarteCorrectorParametersTpl & other) const
+    { return Kp == other.Kp && Kd == other.Kd; }
+    
+    bool operator !=(const BaumgarteCorrectorParametersTpl & other) const
+    { return !(*this == other); }
+    
+    // parameters
+    /// \brief Proportional corrector value.
+    Scalar Kp;
+    
+    /// \brief Damping corrector value.
+    Scalar Kd;
+  };
+
   template<typename Scalar, int Options> struct RigidContactModelTpl;
   template<typename Scalar, int Options> struct RigidContactDataTpl;
   
@@ -62,6 +85,7 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     typedef pinocchio::JointIndex JointIndex;
+    typedef BaumgarteCorrectorParametersTpl<Scalar> BaumgarteCorrectorParameters;
     
     /// \brief Name of the contact
     std::string name;
@@ -92,6 +116,9 @@ namespace pinocchio
     
     /// \brief Desired contact spatial acceleration
     Motion desired_contact_acceleration;
+    
+    /// \brief Corrector parameters
+    BaumgarteCorrectorParameters corrector;
     
     /// \brief Default constructor.
     RigidContactModelTpl()
@@ -217,7 +244,8 @@ namespace pinocchio
       && joint2_id == other.joint2_id
       && joint1_placement == other.joint1_placement
       && joint2_placement == other.joint2_placement
-      && reference_frame == other.reference_frame;
+      && reference_frame == other.reference_frame
+      && corrector == other.corrector;
     }
     
     ///
@@ -285,18 +313,6 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     
-    RigidContactDataTpl(const ContactModel & /*contact_model*/)
-    : contact_force(Force::Zero())
-    , contact1_velocity(Motion::Zero())
-    , contact2_velocity(Motion::Zero())
-    , contact_acceleration(Motion::Zero())
-    , contact1_acceleration_drift(Motion::Zero())
-    , contact1_acceleration_free(Motion::Zero())
-    , contact2_acceleration_drift(Motion::Zero())
-    , contact2_acceleration_free(Motion::Zero())
-    , contact_acceleration_deviation(Motion::Zero())
-    {}
-    
     // data
     
     /// \brief Resulting contact forces
@@ -311,8 +327,8 @@ namespace pinocchio
     /// \brief Relative displacement between the two frames
     SE3 c1Mc2;
     
-    /// \brief Current contact spatial velocity
-    Motion contact_error;
+    /// \brief Current contact placement error
+    Motion contact_placement_error;
     
     /// \brief Current contact spatial velocity of the constraint 1
     Motion contact1_velocity;
@@ -320,23 +336,40 @@ namespace pinocchio
     /// \brief Current contact spatial velocity of the constraint 2
     Motion contact2_velocity;
     
+    /// \brief Current contact velocity error
+    Motion contact_velocity_error;
+    
     /// \brief Current contact spatial acceleration
     Motion contact_acceleration;
+    
+    /// \brief Contact spatial acceleration desired
+    Motion contact_acceleration_desired;
+    
+    /// \brief Current contact spatial error (due to the integration step).
+    Motion contact_acceleration_error;
     
     /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 1.
     Motion contact1_acceleration_drift;
     
-    /// \brief Current free acceleration (acceleration as if there is no contraint) for the constraint frame 1.
-    Motion contact1_acceleration_free;
-    
     /// \brief Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) for the constraint frame 2.
     Motion contact2_acceleration_drift;
     
-    /// \brief Current free acceleration (acceleration as if there is no contraint) for the constraint frame 2.
-    Motion contact2_acceleration_free;
-    
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
+    
+    RigidContactDataTpl(const ContactModel & /*contact_model*/)
+    : contact_force(Force::Zero())
+    , contact_placement_error(Motion::Zero())
+    , contact1_velocity(Motion::Zero())
+    , contact2_velocity(Motion::Zero())
+    , contact_velocity_error(Motion::Zero())
+    , contact_acceleration(Motion::Zero())
+    , contact_acceleration_desired(Motion::Zero())
+    , contact_acceleration_error(Motion::Zero())
+    , contact1_acceleration_drift(Motion::Zero())
+    , contact2_acceleration_drift(Motion::Zero())
+    , contact_acceleration_deviation(Motion::Zero())
+    {}
     
     bool operator==(const RigidContactDataTpl & other) const
     {
@@ -345,13 +378,15 @@ namespace pinocchio
       && oMc1 == other.oMc1
       && oMc2 == other.oMc2
       && c1Mc2 == other.c1Mc2
+      && contact_placement_error == other.contact_placement_error
       && contact1_velocity == other.contact1_velocity
       && contact2_velocity == other.contact2_velocity
+      && contact_velocity_error == other.contact_velocity_error
       && contact_acceleration == other.contact_acceleration
+      && contact_acceleration_desired == other.contact_acceleration_desired
+      && contact_acceleration_error == other.contact_acceleration_error
       && contact1_acceleration_drift == other.contact1_acceleration_drift
-      && contact1_acceleration_free == other.contact1_acceleration_free
       && contact2_acceleration_drift == other.contact2_acceleration_drift
-      && contact2_acceleration_free == other.contact2_acceleration_free
       && contact_acceleration_deviation == other.contact_acceleration_deviation
       ;
     }

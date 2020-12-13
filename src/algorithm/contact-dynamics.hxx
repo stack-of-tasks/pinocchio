@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_contact_dynamics_hxx__
 
 #include "pinocchio/spatial/classic-acceleration.hpp"
+#include "pinocchio/spatial/explog.hpp"
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
@@ -246,7 +247,11 @@ namespace pinocchio
       const RigidContactModel & contact_model = contact_models[contact_id];
       RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
-
+      
+      const typename RigidContactModel::BaumgarteCorrectorParameters & corrector = contact_model.corrector;
+      const typename RigidContactData::Motion & contact_acceleration_desired = contact_data.contact_acceleration_desired;
+      typename RigidContactData::Motion & contact_acceleration_error = contact_data.contact_acceleration_error;
+        
       const typename Model::JointIndex joint1_id = contact_model.joint1_id;
       typename RigidContactData::SE3 & oMc1 = contact_data.oMc1;
       typename RigidContactData::Motion & vc1 = contact_data.contact1_velocity;
@@ -257,6 +262,8 @@ namespace pinocchio
       typename RigidContactData::Motion & vc2 = contact_data.contact2_velocity;
       typename RigidContactData::Motion & coriolis_centrifugal_acc2 = contact_data.contact2_acceleration_drift;
       
+      const typename RigidContactData::SE3 & c1Mc2 = contact_data.c1Mc2;
+      
       // Compute contact placement and velocities
       if(joint1_id > 0)
         vc1 = oMc1.actInv(data.ov[joint1_id]);
@@ -266,6 +273,21 @@ namespace pinocchio
         vc2 = oMc2.actInv(data.ov[joint2_id]);
       else
         vc2.setZero();
+      
+      // Compute placement and velocity errors
+      contact_data.contact_placement_error = -log6(c1Mc2);
+      contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
+      
+      if(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0))
+      {
+        contact_acceleration_error.setZero();
+      }
+      else
+      {
+        contact_acceleration_error.toVector()
+        = -corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
+        -  corrector.Kd * contact_data.contact_velocity_error.toVector();
+      }
       
       switch(contact_model.reference_frame)
       {
@@ -293,6 +315,8 @@ namespace pinocchio
             coriolis_centrifugal_acc2.angular() = data.oa[joint2_id].angular();
           }
           
+          contact_acceleration_error.linear() = oMc1.rotation() * contact_acceleration_error.linear();
+          contact_acceleration_error.angular() = oMc1.rotation() * contact_acceleration_error.angular();
           break;
         }
         case LOCAL:
@@ -325,11 +349,11 @@ namespace pinocchio
       {
         case CONTACT_3D:
           contact_vector_solution.segment(current_row_id,contact_dim)
-          = -coriolis_centrifugal_acc1.linear() + coriolis_centrifugal_acc2.linear();
+          = -coriolis_centrifugal_acc1.linear() + coriolis_centrifugal_acc2.linear() + contact_acceleration_error.linear() + contact_acceleration_desired.linear();
           break;
         case CONTACT_6D:
           contact_vector_solution.segment(current_row_id,contact_dim)
-          = -coriolis_centrifugal_acc1.toVector() + coriolis_centrifugal_acc2.toVector();
+          = -coriolis_centrifugal_acc1.toVector() + coriolis_centrifugal_acc2.toVector() + contact_acceleration_error.toVector() + contact_acceleration_desired.toVector();
           break;
         default:
           assert(false && "must never happened");

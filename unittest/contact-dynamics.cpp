@@ -861,6 +861,130 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   }
 }
 
+PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData)
+createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) & contact_models)
+{
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_datas;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    contact_datas.push_back(pinocchio::RigidContactData(contact_models[k]));
+  
+  return contact_datas;
+}
+
+BOOST_AUTO_TEST_CASE(test_correction)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+//  pinocchio::buildModels::humanoidRandom(model,true);
+  const JointIndex joint_id = model.addJoint(0,JointModelFreeFlyer(),SE3::Identity(),"root");
+  const Inertia box_inertia = Inertia::FromBox(100.,1.,1.,1.);
+  model.appendBodyToJoint(joint_id,box_inertia);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "root";
+  const JointIndex RF_id = model.getJointId(RF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  
+  RigidContactModel ci_RF(CONTACT_6D,RF_id,LOCAL);
+  ci_RF.joint1_placement.setIdentity();
+  ci_RF.joint2_placement.setIdentity();
+  ci_RF.corrector.Kp = 10.;
+  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
+  contact_models.push_back(ci_RF);
+  
+//  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+//  ci_LF.joint1_placement.setRandom();
+//  ci_LF.joint2_placement.setRandom();
+//  ci_LF.corrector.Kp = 50.;
+//  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
+////  contact_models.push_back(ci_LF);
+  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas = createData(contact_models);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas);
+  
+  BOOST_CHECK(contact_datas[0].oMc1.isApprox(data.oMi[ci_RF.joint1_id] * ci_RF.joint1_placement));
+  BOOST_CHECK(contact_datas[0].oMc2.isApprox(data.oMi[ci_RF.joint2_id] * ci_RF.joint2_placement));
+  BOOST_CHECK(contact_datas[0].contact1_velocity.isApprox(contact_datas[0].oMc1.actInv(data.ov[ci_RF.joint1_id])));
+  BOOST_CHECK(contact_datas[0].contact2_velocity.isZero());
+  
+//  BOOST_CHECK(contact_datas[1].oMc1.isApprox(data.oMi[ci_LF.joint1_id] * ci_LF.joint1_placement));
+//  BOOST_CHECK(contact_datas[1].oMc2.isApprox(data.oMi[ci_LF.joint2_id] * ci_LF.joint2_placement));
+  
+  const double dt = 1e-8;
+  const VectorXd q_plus = integrate(model,q,v*dt);
+
+  Data data_plus(model);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_plus = createData(contact_models);
+  initContactDynamics(model,data_plus,contact_models);
+  contactDynamics(model,data_plus,q_plus,v,tau,contact_models,contact_datas_plus);
+  
+  const Motion contact_RF_velocity_error_fd = log6(contact_datas[0].c1Mc2.act(contact_datas_plus[0].c1Mc2.inverse()))/dt;
+  BOOST_CHECK(contact_RF_velocity_error_fd.isApprox(contact_datas[0].contact_velocity_error,sqrt(dt)));
+  std::cout << "contact_RF_velocity_error_fd:\n" << contact_RF_velocity_error_fd << std::endl;
+  std::cout << "contact_velocity_error:\n" << contact_datas[0].contact_velocity_error << std::endl;
+  
+  // Simulation loop
+  {
+    const int N = 200;
+    const double dt = 1e-3;
+    const double mu = 1e-12;
+    
+    model.gravity.setZero();
+    Data data_sim(model);
+    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim = createData(contact_models);
+    initContactDynamics(model,data_sim,contact_models);
+    
+    Eigen::VectorXd q0 (model.nq);
+    const SE3 M0 = SE3::Random();
+    q0 << M0.translation(), SE3::Quaternion(M0.rotation()).coeffs();
+    const Eigen::VectorXd v0 = Eigen::VectorXd::Zero(model.nv);
+    Eigen::VectorXd a = Eigen::VectorXd(model.nv);
+    Eigen::VectorXd tau = Eigen::VectorXd::Zero(model.nv);
+    
+    Eigen::VectorXd q(q0), v(v0);
+    
+    tau = rnea(model,data_sim,q,v,0*a);
+    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,mu);
+    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim_prev(contact_data_sim);
+
+    for(int it = 0; it <= N; it++)
+    {
+      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,mu);
+      v += a*dt;
+      std::cout << "a: " << a.transpose() << std::endl;
+      std::cout << "v: " << v.transpose() << std::endl;
+      q = integrate(model,q,v*dt);
+      
+      if(it > 1)
+      {
+        for(size_t k = 0; k < contact_models.size(); ++k)
+        {
+          const RigidContactData & cdata = contact_data_sim[k];
+          const RigidContactData & cdata_prev = contact_data_sim_prev[k];
+          
+          std::cout << "cdata error: " << cdata.contact_placement_error.toVector().norm() << std::endl;
+          std::cout << "cdata error prev: " << cdata_prev.contact_placement_error.toVector().norm() << std::endl;
+          BOOST_CHECK(cdata.contact_placement_error.toVector().norm() <= cdata_prev.contact_placement_error.toVector().norm());
+        }
+      }
+      
+      contact_data_sim_prev = contact_data_sim;
+    }
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id_case3D)
 {
   using namespace Eigen;
@@ -1006,39 +1130,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
 
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
-//
-//  std::cout << "acc_1 ref:\n" << acc_1 << std::endl;
-//  std::cout << "acc_1:\n" << contact_datas[0].contact2_acceleration_drift << std::endl;
-//  BOOST_CHECK(acc_1.isApprox(contact_datas[0].contact2_acceleration_drift));
-//
-//  std::cout << "acc_2 ref:\n" << acc_2 << std::endl;
-//  std::cout << "acc_2:\n" << contact_datas[1].contact2_acceleration_drift << std::endl;
-//  BOOST_CHECK(acc_2.isApprox(contact_datas[1].contact2_acceleration_drift));
-//
-//  std::cout << "acc_3 ref:\n" << acc_3 << std::endl;
-//  std::cout << "acc_3:\n" << contact_datas[2].contact2_acceleration_drift << std::endl;
-//  BOOST_CHECK(acc_3.isApprox(contact_datas[2].contact2_acceleration_drift));
-//
-//  BOOST_CHECK(contact_datas[0].c1Mc2.isApprox(c1Mc2_1));
-//
-//  const SE3 c1Mc2_1_LWA(contact_datas[0].oMc2.rotation(),
-//                        contact_datas[0].oMc1.rotation()*c1Mc2_1.translation());
-//  BOOST_CHECK((c1Mc2_1_LWA.toActionMatrix()*(ci_RF.joint2_placement.toActionMatrixInverse()*J_RF_local)).isApprox(-J_ref.middleRows<6>(0)));
-//  BOOST_CHECK(contact_datas[0].oMc1.isApprox(ci_RF.joint1_placement));
-//
-//  BOOST_CHECK(contact_datas[1].c1Mc2.isApprox(c1Mc2_2));
-//  BOOST_CHECK((contact_datas[1].oMc1.toActionMatrixInverse()*J_LF).isApprox(-J_ref.middleRows<6>(6)));
-//  BOOST_CHECK((data_ref.oMi[ci_LF.joint2_id].toActionMatrix()*J_LF_local).isApprox(J_LF));
-//  BOOST_CHECK(contact_datas[1].oMc1.isApprox(ci_LF.joint1_placement));
-//  BOOST_CHECK(data.oa[ci_LF.joint2_id].isApprox(data_ref.oMi[ci_LF.joint2_id].act(data_ref.a[ci_LF.joint2_id])));
-//
-//  BOOST_CHECK(contact_datas[2].c1Mc2.isApprox(c1Mc2_3));
-//  BOOST_CHECK((c1Mc2_3.toActionMatrix()*(ci_RA.joint2_placement.toActionMatrixInverse()*J_RA_local)).isApprox(-J_ref.middleRows<6>(12)));
-//  BOOST_CHECK(contact_datas[2].oMc1.isApprox(ci_RA.joint1_placement));
-//  BOOST_CHECK(data.oa[ci_RA.joint2_id].isApprox(data_ref.oMi[ci_RA.joint2_id].act(data_ref.a[ci_RA.joint2_id])));
-//
-//  // Check that the decomposition is correct
-//
 
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
   Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
