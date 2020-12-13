@@ -442,6 +442,21 @@ namespace pinocchio
     Jexp6<SETTO>(nu, Jexp);
   }
 
+  /// \brief Derivative of exp6
+  /// Computed as the inverse of Jlog6
+  template<typename MotionDerived>
+  Eigen::Matrix<typename MotionDerived::Scalar,6,6,MotionDerived::Options>
+  Jexp6(const MotionDense<MotionDerived> & nu)
+  {
+    typedef typename MotionDerived::Scalar Scalar;
+    enum { Options = MotionDerived::Options };
+    typedef Eigen::Matrix<Scalar,6,6,Options> ReturnType;
+    
+    ReturnType res;
+    Jexp6(nu,res);
+    return res;
+  }
+
   /** \brief Derivative of log6
    *  \f[
    *  \left(\begin{array}{cc}
@@ -467,6 +482,21 @@ namespace pinocchio
              const Eigen::MatrixBase<Matrix6Like> & Jlog)
   {
     Jlog6_impl<Scalar>::run(M,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog));
+  }
+
+  ///
+  /// \copydoc Jlog6(const SE3Tpl<Scalar, Options> &, const Eigen::MatrixBase<Matrix6Like> &)
+  ///
+  /// \param[in] M The rigid transformation.
+  ///
+  template<typename Scalar, int Options>
+  Eigen::Matrix<Scalar,6,6,Options> Jlog6(const SE3Tpl<Scalar, Options> & M)
+  {
+    typedef Eigen::Matrix<Scalar,6,6,Options> ReturnType;
+    
+    ReturnType res;
+    Jlog6(M,res);
+    return res;
   }
   
   template<typename Scalar, int Options>

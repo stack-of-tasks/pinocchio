@@ -356,6 +356,9 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   }
 
   BOOST_CHECK(Jfd.isApprox(Jlog, sqrt(step)));
+  
+  SE3::Matrix6 Jlog2 = Jlog6(M);
+  BOOST_CHECK(Jlog2.isApprox(Jlog));
 }
 
 BOOST_AUTO_TEST_CASE(Jexp6_fd)
@@ -381,6 +384,9 @@ BOOST_AUTO_TEST_CASE(Jexp6_fd)
     dv[i] = 0;
   }
   BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
+  
+  SE3::Matrix6 Jexp2 = Jexp6(v);
+  BOOST_CHECK(Jexp2.isApprox(Jexp));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog6)
