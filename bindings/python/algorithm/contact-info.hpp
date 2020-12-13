@@ -17,6 +17,41 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+  
+  template<typename BaumgarteCorrectorParameters>
+  struct BaumgarteCorrectorParametersPythonVisitor
+  : public boost::python::def_visitor< BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters> >
+  {
+    typedef typename BaumgarteCorrectorParameters::Scalar Scalar;
+    typedef BaumgarteCorrectorParameters Self;
+
+  public:
+    
+    template<class PyClass>
+    void visit(PyClass& cl) const
+    {
+      cl
+      .def(bp::init<>(bp::arg("self"),
+                      "Default constructor."))
+      
+      .PINOCCHIO_ADD_PROPERTY(Self,Kp,"Proportional corrector value.")
+      .PINOCCHIO_ADD_PROPERTY(Self,Kd,"Damping corrector value.")
+      
+      .def(bp::self == bp::self)
+      .def(bp::self != bp::self)
+      ;
+    }
+    
+    static void expose()
+    {
+      bp::class_<BaumgarteCorrectorParameters>("BaumgarteCorrectorParameters",
+                                               "Paramaters of the Baumgarte Corrector.",
+                                               bp::no_init)
+      .def(BaumgarteCorrectorParametersPythonVisitor())
+      ;
+      
+    }
+  };
     
     template<typename RigidContactModel>
     struct RigidContactModelPythonVisitor
@@ -25,6 +60,7 @@ namespace pinocchio
       typedef typename RigidContactModel::Scalar Scalar;
       typedef RigidContactModel Self;
       typedef typename RigidContactModel::ContactData ContactData;
+      typedef typename RigidContactModel::BaumgarteCorrectorParameters BaumgarteCorrectorParameters;
 
     public:
       
@@ -67,6 +103,7 @@ namespace pinocchio
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_placement,"Desired contact placement.")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_velocity,"Desired contact spatial velocity.")
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_acceleration,"Desired contact spatial acceleration.")
+        .PINOCCHIO_ADD_PROPERTY(Self,corrector,"Corrector parameters.")
         
         .def("size", &RigidContactModel::size, "Size of the contact")
         
@@ -86,6 +123,8 @@ namespace pinocchio
                                       bp::no_init)
         .def(RigidContactModelPythonVisitor())
         ;
+        
+        BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters>::expose();
         
       }
       
@@ -118,12 +157,22 @@ namespace pinocchio
                                 "Placement of the constraint frame 1 with respect to the WORLD frame.")
         .PINOCCHIO_ADD_PROPERTY(Self,oMc2,
                                 "Placement of the constraint frame 2 with respect to the WORLD frame.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_placement_error,
+                                "Current contact placement error between the two contact Frames.\n"
+                                "This corresponds to the relative placement between the two contact Frames seen as a Motion error.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact1_velocity,
                                 "Current contact Spatial velocity of the constraint 1.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact2_velocity,
                                 "Current contact Spatial velocity of the constraint 2.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_velocity_error,
+                                "Current contact Spatial velocity error between the two contact Frames.\n"
+                                "This corresponds to the relative velocity between the two contact Frames.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration,
                                 "Current contact Spatial acceleration.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_desired,
+                                "Desired contact acceleration.")
+        .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_error,
+                                "Current contact spatial error (due to the integration step).")
         .PINOCCHIO_ADD_PROPERTY(Self,contact1_acceleration_drift,
                                 "Current contact drift acceleration (acceleration only due to the Coriolis and centrifugal effects) of the contact frame 1.")
         .PINOCCHIO_ADD_PROPERTY(Self,contact2_acceleration_drift,
