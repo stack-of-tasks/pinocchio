@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/model.hpp"
@@ -96,6 +96,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   // Regarding to the WORLD origin
   getJointJacobian(model,data,idx,WORLD,J);
+  BOOST_CHECK(J.isApprox(getJointJacobian(model,data,idx,WORLD)));
   getJointJacobianTimeVariation(model,data,idx,WORLD,dJ);
   
   Motion v_idx(J*v);
@@ -107,6 +108,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   // Regarding to the LOCAL frame
   getJointJacobian(model,data,idx,LOCAL,J);
+  BOOST_CHECK(J.isApprox(getJointJacobian(model,data,idx,LOCAL)));
   getJointJacobianTimeVariation(model,data,idx,LOCAL,dJ);
   
   v_idx = (Motion::Vector6)(J*v);
@@ -117,6 +119,7 @@ BOOST_AUTO_TEST_CASE ( test_jacobian_time_variation )
   
   // Regarding to the LOCAL_WORLD_ALIGNED frame
   getJointJacobian(model,data,idx,LOCAL_WORLD_ALIGNED,J);
+  BOOST_CHECK(J.isApprox(getJointJacobian(model,data,idx,LOCAL_WORLD_ALIGNED)));
   getJointJacobianTimeVariation(model,data,idx,LOCAL_WORLD_ALIGNED,dJ);
   
   Data::SE3 worldMlocal = data.oMi[idx];
