@@ -294,11 +294,16 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data));
     }    
 
+    // Compute the contact frame partial derivatives
+    typename Data::SE3::Matrix6 Jlog;
     Eigen::DenseIndex current_row_sol_id = 0;
+    const Eigen::DenseIndex constraint_dim = data.contact_chol.constraintDim();
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
+      typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
+      typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
 
       switch(cmodel.type)
       {
@@ -351,8 +356,75 @@ namespace pinocchio
           assert(false && "must never happen");
           break;
       }
+      
+      // Add the contribution of the corrector
+      const IndexVector & colwise_sparsity = data.contact_chol.getConstraintSparsityPattern(k);
+      assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
+      if(cmodel.corrector.Kp != Scalar(0))
+      {
+        Jlog6(cdata.c1Mc2.inverse(),Jlog);
+        
+        switch(cmodel.type)
+        {
+          case CONTACT_6D:
+          {
+            typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+            const RowsBlock contact_dvc_dq = SizeDepType<6>::middleRows(data.dvc_dq,current_row_sol_id);
+            RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
+            RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
+            const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
+            
+            // d./dq
+            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            {
+              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+              contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
+              contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kp * Jlog * contact_dac_da.col(row_id);
+            }
+            
+            // d./dv
+            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            {
+              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+              contact_dac_dv.col(row_id).noalias() += cmodel.corrector.Kd * contact_dac_da.col(row_id);
+            }
+            break;
+          }
+          case CONTACT_3D:
+          {
+            typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+            const RowsBlock contact_dvc_dq = SizeDepType<3>::middleRows(data.dvc_dq,current_row_sol_id);
+            RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
+            RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
+            const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
+            
+            // d./dq
+            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            {
+              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+              
+              const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
+              contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
+              contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kp * (cdata.oMc1.rotation().transpose()*J_col.angular()).cross(cdata.contact_placement_error.linear());
+              contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kp * contact_dac_da.col(row_id);
+            }
+            // d./dv
+            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            {
+              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+              contact_dac_dv.col(row_id).noalias() += cmodel.corrector.Kd * contact_dac_da.col(row_id);
+            }
+            break;
+          }
+          default:
+            assert(false && "must never happen");
+            break;
+        }
+      }
+      
       current_row_sol_id += cmodel.size();
     }
+    
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
 
