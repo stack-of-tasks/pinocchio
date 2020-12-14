@@ -16,7 +16,7 @@ namespace pinocchio
     typedef Eigen::Map<      SE3::Quaternion> QuatMap;
     typedef Eigen::Map<const SE3::Quaternion> QuatConstMap;
 
-    VectorXd SE3ToXYZQUAT(const SE3& M)
+    VectorXd SE3ToXYZQUAT(const SE3 & M)
     {
       Vector7d res;
       res.head<3>() = M.translation();
@@ -24,9 +24,9 @@ namespace pinocchio
       return res;
     }
 
-    bp::tuple SE3ToXYZQUATtuple(const SE3& M)
+    bp::tuple SE3ToXYZQUATtuple(const SE3 & M)
     {
-      SE3::Quaternion q (M.rotation());
+      const SE3::Quaternion q (M.rotation());
       return bp::make_tuple (
           M.translation()(0), M.translation()(1), M.translation()(2),
           q.x(), q.y(), q.z(), q.w());
