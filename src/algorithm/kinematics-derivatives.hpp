@@ -126,7 +126,7 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
   ///
-  /// \brief Computes the partial derivaties of the velocity of a point given by its placement information w.r.t. to the joint frame.
+  /// \brief Computes the partial derivatives of the velocity of a point given by its placement information w.r.t. the joint frame.
   ///        You must first call computForwardKinematicsDerivatives before calling this function.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -151,7 +151,7 @@ namespace pinocchio
                                           const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv);
 
   ///
-  /// \brief Computes the partial derivaties of the classic acceleration of a point given by its placement information w.r.t. to the joint frame.
+  /// \brief Computes the partial derivatives of the classic acceleration of a point given by its placement information w.r.t. the joint frame.
   ///        You must first call computForwardKinematicsDerivatives before calling this function.
   ///        It is important to notice that a direct outcome (for free) of this algo is v_point_partial_dq.
   ///        v_point_partial_dv is not computed it is equal to a_point_partial_da.
