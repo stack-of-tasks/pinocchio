@@ -4,12 +4,14 @@
 #
 
 IF(BUILD_WITH_URDF_SUPPORT)
-  SET(${PROJECT_NAME}_SOURCES
+  LIST(APPEND ${PROJECT_NAME}_SOURCES
     parsers/urdf/model.cpp
     parsers/urdf/geometry.cpp
     parsers/urdf/utils.cpp
   )
 ENDIF()
+
+LIST(APPEND ${PROJECT_NAME}_SOURCES utils/file-explorer.cpp)
 
 # Extract the compile definitions of the project for export
 GET_DIRECTORY_PROPERTY(CURRENT_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
