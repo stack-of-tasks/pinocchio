@@ -29,6 +29,23 @@ namespace pinocchio
       
       return bp::make_tuple(partial_dq,partial_dv);
     }
+  
+    bp::tuple getPointVelocityDerivatives_proxy(const Model & model,
+                                                Data & data,
+                                                const Model::JointIndex joint_id,
+                                                const SE3 & placement,
+                                                ReferenceFrame rf)
+    {
+      typedef Data::Matrix3x Matrix3x;
+      
+      Matrix3x v_partial_dq(Matrix6x::Zero(3,model.nv));
+      Matrix3x v_partial_dv(Matrix6x::Zero(3,model.nv));
+      
+      getPointVelocityDerivatives(model,data,joint_id,placement,rf,
+                                  v_partial_dq,v_partial_dv);
+      
+      return bp::make_tuple(v_partial_dq,v_partial_dv);
+    }
     
     bp::tuple getJointAccelerationDerivatives_proxy(const Model & model,
                                                     Data & data,
@@ -49,6 +66,25 @@ namespace pinocchio
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
   
+    bp::tuple getPointClassicAccelerationDerivatives_proxy(const Model & model,
+                                                           Data & data,
+                                                           const Model::JointIndex joint_id,
+                                                           const SE3 & placement,
+                                                           ReferenceFrame rf)
+    {
+      typedef Data::Matrix3x Matrix3x;
+      
+      Matrix3x v_partial_dq(Matrix6x::Zero(3,model.nv));
+      Matrix3x a_partial_dq(Matrix6x::Zero(3,model.nv));
+      Matrix3x a_partial_dv(Matrix6x::Zero(3,model.nv));
+      Matrix3x a_partial_da(Matrix6x::Zero(3,model.nv));
+      
+      getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,
+                                             v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
+      
+      return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
+    }
+  
     Data::Matrix3x getCoMVelocityDerivatives_proxy(const Model & model,
                                                    Data & data)
     {
@@ -57,7 +93,6 @@ namespace pinocchio
       getCenterOfMassVelocityDerivatives(model,data,partial_dq);
       return partial_dq;
     }
-    
     
     void exposeKinematicsDerivatives()
     {
@@ -81,7 +116,7 @@ namespace pinocchio
               bp::args("model","data","joint_id","reference_frame"),
               "Computes the partial derivatives of the spatial velocity of a given joint with respect to\n"
               "the joint configuration and velocity and returns them as a tuple.\n"
-              "The Jacobians can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
+              "The partial derivatives can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
               "You must first call computeForwardKinematicsDerivatives before calling this function.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
@@ -89,12 +124,38 @@ namespace pinocchio
               "\tjoint_id: index of the joint\n"
               "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
       
+      bp::def("getPointVelocityDerivatives",
+              getPointVelocityDerivatives_proxy,
+              bp::args("model","data","joint_id","placement","reference_frame"),
+              "Computes the partial derivatives of the velocity of a point given by its placement information w.r.t. the joint frame and returns them as a tuple.\n"
+              "The partial derivatives can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
+              "You must first call computeForwardKinematicsDerivatives before calling this function.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tjoint_id: index of the joint\n"
+              "\tplacement: relative placement of the point w.r.t. the joint frame\n"
+              "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+      
+      bp::def("getPointClassicAccelerationDerivatives",
+              getPointClassicAccelerationDerivatives_proxy,
+              bp::args("model","data","joint_id","placement","reference_frame"),
+              "Computes the partial derivatives of the classic acceleration of a point given by its placement information w.r.t. the joint frame and returns them as a tuple.\n"
+              "The partial derivatives can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
+              "You must first call computeForwardKinematicsDerivatives before calling this function.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tjoint_id: index of the joint\n"
+              "\tplacement: relative placement of the point w.r.t. the joint frame\n"
+              "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
+      
       bp::def("getJointAccelerationDerivatives",
               getJointAccelerationDerivatives_proxy,
               bp::args("model","data","joint_id","reference_frame"),
               "Computes the partial derivatives of the spatial acceleration of a given joint with respect to\n"
               "the joint configuration, velocity and acceleration and returns them as a tuple.\n"
-              "The Jacobians can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
+              "The partial derivatives can be either expressed in the LOCAL frame of the joint, in the LOCAL_WORLD_ALIGNED frame or in the WORLD coordinate frame depending on the value of reference_frame.\n"
               "You must first call computeForwardKinematicsDerivatives before calling this function.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
