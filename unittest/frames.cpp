@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
   VectorXd q = randomConfiguration(model);
   VectorXd v = VectorXd::Ones(model.nv);
   
-  /// In local frame
-  Model::Index idx = model.getFrameId(frame_name);
+  // In LOCAL frame
+  const Model::Index idx = model.getFrameId(frame_name);
   const Frame & frame = model.frames[idx];
   BOOST_CHECK(frame.placement.isApprox_impl(framePlacement));
   Data::Matrix6x Jjj(6,model.nv); Jjj.fill(0);
@@ -355,6 +355,7 @@ BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
   computeJointJacobians(model,data,q);
   updateFramePlacement(model, data, idx);
   getFrameJacobian(model,     data,        idx, LOCAL, Jff);
+  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model,data,idx,LOCAL)));
   computeJointJacobians(model,data_ref,q);
   getJointJacobian(model, data_ref, parent_idx, LOCAL, Jjj);
 
@@ -365,16 +366,31 @@ BOOST_AUTO_TEST_CASE ( test_get_frame_jacobian )
   Data::Matrix6x Jjj_from_frame(jXf * Jff);
   BOOST_CHECK(Jjj_from_frame.isApprox(Jjj));
   
-  BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint), 1e-12));
+  BOOST_CHECK(nu_frame.isApprox(frame.placement.actInv(nu_joint)));
   
-  // In world frame
+  // In WORLD frame
+  Jjj.fill(0); Jff.fill(0); Jff2.fill(0);
   getFrameJacobian(model,data,idx,WORLD,Jff);
-  getJointJacobian(model, data_ref, parent_idx,WORLD, Jjj);
+  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model,data,idx,WORLD)));
+  getJointJacobian(model,data_ref,parent_idx,WORLD,Jjj);
   BOOST_CHECK(Jff.isApprox(Jjj));
   
   computeFrameJacobian(model,data,q,idx,WORLD,Jff2);
   
   BOOST_CHECK(Jff2.isApprox(Jjj));
+  
+  // In WORLD frame
+  Jjj.fill(0); Jff.fill(0); Jff2.fill(0);
+  getFrameJacobian(model,data,idx,LOCAL_WORLD_ALIGNED,Jff);
+  BOOST_CHECK(Jff.isApprox(getFrameJacobian(model,data,idx,LOCAL_WORLD_ALIGNED)));
+
+  getJointJacobian(model,data_ref,parent_idx,WORLD,Jjj);
+  const SE3 oMf_translation(SE3::Matrix3::Identity(),data.oMf[idx].translation());
+  Jjj = oMf_translation.toActionMatrixInverse() * Jjj;
+  BOOST_CHECK(Jff.isApprox(Jjj));
+  
+  computeFrameJacobian(model,data,q,idx,LOCAL_WORLD_ALIGNED,Jff2);
+  BOOST_CHECK(Jff2.isApprox(Jff));
 }
 
 BOOST_AUTO_TEST_CASE ( test_frame_jacobian )

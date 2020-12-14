@@ -140,28 +140,22 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const FrameIndex frame_id,
-                               const ReferenceFrame rf,
+                               const JointIndex joint_id,
+                               const SE3Tpl<Scalar,Options> & placement,
+                               const ReferenceFrame reference_frame,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
 
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), 6);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_id < (JointIndex)model.njoints, "The index of the Joint is outside the bounds.");
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::Frame Frame;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Model::JointIndex JointIndex;
     
-    const Frame & frame = model.frames[frame_id];
-    const JointIndex & joint_id = frame.parent;
-    
-    Matrix6xLike & J_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J);
-    typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[joint_id] * frame.placement;
-    
-    details::translateJointJacobian(model,data,joint_id,rf,oMframe,data.J,J_);
+    const typename Data::SE3 oMframe = data.oMi[joint_id] * placement;
+    details::translateJointJacobian(model,data,joint_id,reference_frame,oMframe,data.J,
+                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>

@@ -142,22 +142,89 @@ namespace pinocchio
                                 const ReferenceFrame rf = LOCAL);
 
   /**
-   * @brief      Returns the jacobian of the frame expressed either expressed in the LOCAL frame coordinate system or in the WORLD coordinate system,
-   *             depending on the value of rf.
-   *             You must first call pinocchio::computeJointJacobians followed by pinocchio::framesForwardKinematics to update placement values in data structure.
+   * @brief      Returns the jacobian of the frame given by its relative placement w.r.t. a joint frame, and whose columns are either expressed in the LOCAL frame coordinate system, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the WORLD coordinate system, depending on the value of reference_frame.
+   *             You must first call pinocchio::computeJointJacobians.
    *
-   * @remark     Similarly to pinocchio::getJointJacobian with LOCAL or WORLD parameters, if rf == LOCAL, this function returns the Jacobian of the frame expressed
-   *             in the local coordinates of the frame, or if rl == WORLD, it returns the Jacobian expressed of the point coincident with the origin
+   * @remarks     Similarly to pinocchio::getJointJacobian:
+   *                - if rf == LOCAL, this function returns the Jacobian of the frame expressed in the local coordinate system of the frame
+   *                - if rf == LOCAL_WORLD_ALIGNED, this function returns the Jacobian of the frame centered on the frame origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *                - if rf == WORLD, this function returns the Jacobian of the frame expressed at the point coincident with the origin
    *             and expressed in a coordinate system aligned with the WORLD.
    *
    * @tparam JointCollection Collection of Joint types.
    * @tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
    *
-   * @param[in]  model       The kinematic model
-   * @param[in]  data        Data associated to model
-   * @param[in]  frame_id    Id of the operational Frame
-   * @param[in]  rf          Reference frame in which the Jacobian is expressed.
-   * @param[out] J           The Jacobian of the Frame expressed in the coordinates Frame.
+   * @param[in]  model                        The kinematic model
+   * @param[in]  data                           Data associated to model
+   * @param[in]  joint_id                  Index of the joint.
+   * @param[in]  reference_frame  Reference frame in which the Jacobian is expressed.
+   * @param[out] J                                  The Jacobian of the Frame expressed in the reference_frame coordinate system.
+   *
+   * @warning    The function pinocchio::computeJointJacobians should have been called first.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
+  void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const JointIndex joint_id,
+                        const SE3Tpl<Scalar,Options> & placement,
+                        const ReferenceFrame reference_frame,
+                        const Eigen::MatrixBase<Matrix6xLike> & J);
+
+  /**
+   * @brief      Returns the jacobian of the frame given by its relative placement w.r.t. a joint frame, and whose columns are either expressed in the LOCAL frame coordinate system, in the local world aligned frame or in the WORLD coordinate system, depending on the value of reference_frame.
+   *             You must first call pinocchio::computeJointJacobians.
+   *
+   * @remarks     Similarly to pinocchio::getJointJacobian:
+   *                - if rf == LOCAL, this function returns the Jacobian of the frame expressed in the local coordinate system of the frame
+   *                - if rf == LOCAL_WORLD_ALIGNED, this function returns the Jacobian of the frame centered on the frame origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *                - if rf == WORLD, this function returns the Jacobian of the frame expressed at the point coincident with the origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *
+   * @tparam JointCollection Collection of Joint types.
+   *
+   * @param[in]  model                        The kinematic model
+   * @param[in]  data                           Data associated to model
+   * @param[in]  joint_id                  Index of the joint.
+   * @param[in]  reference_frame  Reference frame in which the Jacobian is expressed.
+   *
+   * @warning    The function pinocchio::computeJointJacobians should have been called first.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
+  getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const JointIndex joint_id,
+                   const SE3Tpl<Scalar,Options> & placement,
+                   const ReferenceFrame reference_frame)
+  {
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
+    Matrix6x res(Matrix6x::Zero(6,model.nv));
+    
+    getFrameJacobian(model,data,joint_id,placement,reference_frame,res);
+    return res;
+  }
+
+  /**
+   * @brief      Returns the jacobian of the frame expressed either expressed in the local frame coordinate system, in the local world aligned frame or in the WORLD coordinate system, depending on the value of reference_frame.
+   *             You must first call pinocchio::computeJointJacobians.
+   *
+   * @remarks     Similarly to pinocchio::getJointJacobian:
+   *                - if rf == LOCAL, this function returns the Jacobian of the frame expressed in the local coordinate system of the frame
+   *                - if rf == LOCAL_WORLD_ALIGNED, this function returns the Jacobian of the frame centered on the frame origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *                - if rf == WORLD, this function returns the Jacobian of the frame expressed at the point coincident with the origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *
+   * @tparam JointCollection Collection of Joint types.
+   * @tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
+   *
+   * @param[in]  model                         The kinematic model
+   * @param[in]  data                            Data associated to model
+   * @param[in]  frame_id                   Index of the frame
+   * @param[in]  reference_frame   Reference frame in which the Jacobian is expressed.
+   * @param[out] J                                  The Jacobian of the Frame expressed in the coordinates Frame.
    *
    * @warning    The function pinocchio::computeJointJacobians should have been called first.
    */
@@ -165,8 +232,54 @@ namespace pinocchio
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                const FrameIndex frame_id,
-                               const ReferenceFrame rf,
-                               const Eigen::MatrixBase<Matrix6xLike> & J);
+                               const ReferenceFrame reference_frame,
+                               const Eigen::MatrixBase<Matrix6xLike> & J)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame_id < (FrameIndex)model.nframes, "The index of the Frame is outside the bounds.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::Frame Frame;
+    
+    const Frame & frame = model.frames[frame_id];
+    data.oMf[frame_id] = data.oMi[frame.parent] * frame.placement;
+    
+    getFrameJacobian(model,data,frame.parent,frame.placement,reference_frame,
+                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
+  }
+
+  /**
+   * @brief      Returns the jacobian of the frame expressed either expressed in the local frame coordinate system, in the local world aligned frame or in the WORLD coordinate system, depending on the value of reference_frame.
+   *             You must first call pinocchio::computeJointJacobians.
+   *
+   * @remarks     Similarly to pinocchio::getJointJacobian:
+   *                - if rf == LOCAL, this function returns the Jacobian of the frame expressed in the local coordinate system of the frame
+   *                - if rf == LOCAL_WORLD_ALIGNED, this function returns the Jacobian of the frame centered on the frame origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *                - if rf == WORLD, this function returns the Jacobian of the frame expressed at the point coincident with the origin
+   *             and expressed in a coordinate system aligned with the WORLD.
+   *
+   * @tparam JointCollection Collection of Joint types.
+   *
+   * @param[in]  model                         The kinematic model
+   * @param[in]  data                            Data associated to model
+   * @param[in]  frame_id                   Index of the frame
+   * @param[in]  reference_frame   Reference frame in which the Jacobian is expressed.
+   *
+   * @warning    The function pinocchio::computeJointJacobians should have been called first.
+   */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
+  getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const FrameIndex frame_id,
+                   const ReferenceFrame reference_frame)
+  {
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
+    Matrix6x res(Matrix6x::Zero(6,model.nv));
+    
+    getFrameJacobian(model,data,frame_id,reference_frame,res);
+    return res;
+  }
   
   ///
   /// \brief Computes the Jacobian of a specific Frame expressed in the desired reference_frame given as argument.
@@ -242,7 +355,7 @@ namespace pinocchio
   }
   
   ///
-  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD) or in the LOCAL frame (rf = LOCAL) or in the LOCAL_WORLD_ALIGNED frame (rf = LOCAL_WORLD_ALIGNED).
+  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD), in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the LOCAL frame (rf = LOCAL).
   ///
   /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
