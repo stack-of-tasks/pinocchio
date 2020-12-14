@@ -123,12 +123,15 @@ namespace pinocchio
                             BooleanVector::Constant(total_dim,default_sparsity_value));
       joint2_indexes.resize(static_cast<size_t>(num_contacts),
                             BooleanVector::Constant(total_dim,default_sparsity_value));
+      colwise_sparsity_patterns.resize(static_cast<size_t>(num_contacts),
+                                       IndexVector());
       for(size_t ee_id = 0; ee_id < joint1_indexes.size(); ++ee_id)
       {
         BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
         joint1_indexes_ee.resize(total_dim); joint1_indexes_ee.fill(default_sparsity_value);
         BooleanVector & joint2_indexes_ee = joint2_indexes[ee_id];
         joint2_indexes_ee.resize(total_dim); joint2_indexes_ee.fill(default_sparsity_value);
+        IndexVector & colwise_sparsity_patterns_ee = colwise_sparsity_patterns[ee_id];
         
         const RigidContactModel & cmodel = contact_models[ee_id];
         
@@ -198,6 +201,15 @@ namespace pinocchio
             }
           }
         }
+        
+        Eigen::DenseIndex size = 0;
+        colwise_sparsity_patterns_ee.resize(total_dim);
+        for(Eigen::DenseIndex col_id = 0; col_id < total_dim; ++col_id)
+        {
+          if(joint1_indexes_ee[col_id] || joint2_indexes_ee[col_id])
+            colwise_sparsity_patterns_ee[size++] = col_id;
+        }
+        colwise_sparsity_patterns_ee.conservativeResize(size);
       }
       
       // Fill the sparsity pattern for each Row of the Cholesky decomposition (matrix U)
