@@ -871,7 +871,7 @@ createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConta
   return contact_datas;
 }
 
-BOOST_AUTO_TEST_CASE(test_correction)
+BOOST_AUTO_TEST_CASE(test_correction_CONTACT_6D)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -903,13 +903,6 @@ BOOST_AUTO_TEST_CASE(test_correction)
   ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
   contact_models.push_back(ci_RF);
   
-//  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL);
-//  ci_LF.joint1_placement.setRandom();
-//  ci_LF.joint2_placement.setRandom();
-//  ci_LF.corrector.Kp = 50.;
-//  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
-////  contact_models.push_back(ci_LF);
-  
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas = createData(contact_models);
   initContactDynamics(model,data,contact_models);
   contactDynamics(model,data,q,v,tau,contact_models,contact_datas);
@@ -918,9 +911,6 @@ BOOST_AUTO_TEST_CASE(test_correction)
   BOOST_CHECK(contact_datas[0].oMc2.isApprox(data.oMi[ci_RF.joint2_id] * ci_RF.joint2_placement));
   BOOST_CHECK(contact_datas[0].contact1_velocity.isApprox(contact_datas[0].oMc1.actInv(data.ov[ci_RF.joint1_id])));
   BOOST_CHECK(contact_datas[0].contact2_velocity.isZero());
-  
-//  BOOST_CHECK(contact_datas[1].oMc1.isApprox(data.oMi[ci_LF.joint1_id] * ci_LF.joint1_placement));
-//  BOOST_CHECK(contact_datas[1].oMc2.isApprox(data.oMi[ci_LF.joint2_id] * ci_LF.joint2_placement));
   
   const double dt = 1e-8;
   const VectorXd q_plus = integrate(model,q,v*dt);
@@ -941,7 +931,7 @@ BOOST_AUTO_TEST_CASE(test_correction)
     const double dt = 1e-3;
     const double mu = 1e-12;
     
-    model.gravity.setZero();
+//    model.gravity.setZero();
     Data data_sim(model);
     PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim = createData(contact_models);
     initContactDynamics(model,data_sim,contact_models);
@@ -963,8 +953,6 @@ BOOST_AUTO_TEST_CASE(test_correction)
     {
       a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,mu);
       v += a*dt;
-      std::cout << "a: " << a.transpose() << std::endl;
-      std::cout << "v: " << v.transpose() << std::endl;
       q = integrate(model,q,v*dt);
       
       if(it > 1)
@@ -974,8 +962,108 @@ BOOST_AUTO_TEST_CASE(test_correction)
           const RigidContactData & cdata = contact_data_sim[k];
           const RigidContactData & cdata_prev = contact_data_sim_prev[k];
           
-          std::cout << "cdata error: " << cdata.contact_placement_error.toVector().norm() << std::endl;
-          std::cout << "cdata error prev: " << cdata_prev.contact_placement_error.toVector().norm() << std::endl;
+          BOOST_CHECK(cdata.contact_placement_error.toVector().norm() <= cdata_prev.contact_placement_error.toVector().norm());
+        }
+      }
+      
+      contact_data_sim_prev = contact_data_sim;
+    }
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+//  pinocchio::buildModels::humanoidRandom(model,true);
+  const JointIndex joint_id = model.addJoint(0,JointModelFreeFlyer(),SE3::Identity(),"root");
+  const Inertia box_inertia = Inertia::FromBox(100.,1.,1.,1.);
+  model.appendBodyToJoint(joint_id,box_inertia);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const double mu = 1e-8;
+  const std::string RF = "root";
+  const JointIndex RF_id = model.getJointId(RF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  
+  RigidContactModel ci_RF1(CONTACT_3D,RF_id,LOCAL);
+  ci_RF1.joint1_placement.translation() = SE3::Vector3(0.5,0.5,-0.5);
+  ci_RF1.joint2_placement.setRandom();
+  ci_RF1.corrector.Kp = 10.;
+  ci_RF1.corrector.Kd = 2. * sqrt(ci_RF1.corrector.Kp);
+  contact_models.push_back(ci_RF1);
+  
+  RigidContactModel ci_RF2(CONTACT_3D,RF_id,LOCAL);
+  ci_RF2.joint1_placement.translation() = SE3::Vector3(-0.5,0.5,-0.5);
+  ci_RF2.joint2_placement.setRandom();
+  ci_RF2.corrector.Kp = 10.;
+  ci_RF2.corrector.Kd = 2. * sqrt(ci_RF2.corrector.Kp);
+  contact_models.push_back(ci_RF2);
+  
+  RigidContactModel ci_RF3(CONTACT_3D,RF_id,LOCAL);
+  ci_RF3.joint1_placement.translation() = SE3::Vector3(-0.5,-0.5,-0.5);
+  ci_RF3.joint2_placement.setRandom();
+  ci_RF3.corrector.Kp = 10.;
+  ci_RF3.corrector.Kd = 2. * sqrt(ci_RF3.corrector.Kp);
+  contact_models.push_back(ci_RF3);
+  
+  RigidContactModel ci_RF4(CONTACT_3D,RF_id,LOCAL);
+  ci_RF4.joint1_placement.translation() = SE3::Vector3(0.5,-0.5,-0.5);
+  ci_RF4.joint2_placement.setRandom();
+  ci_RF4.corrector.Kp = 10.;
+  ci_RF4.corrector.Kd = 2. * sqrt(ci_RF4.corrector.Kp);
+  contact_models.push_back(ci_RF4);
+  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas = createData(contact_models);
+  initContactDynamics(model,data,contact_models);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu);
+
+  // Simulation loop
+  {
+    const int N = 200;
+    const double dt = 1e-3;
+    
+//    model.gravity.setZero();
+    Data data_sim(model);
+    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim = createData(contact_models);
+    initContactDynamics(model,data_sim,contact_models);
+    
+    Eigen::VectorXd q0 (model.nq);
+    const SE3 M0 = SE3::Random();
+    q0 << M0.translation(), SE3::Quaternion(M0.rotation()).coeffs();
+    const Eigen::VectorXd v0 = Eigen::VectorXd::Zero(model.nv);
+    Eigen::VectorXd a = Eigen::VectorXd(model.nv);
+    Eigen::VectorXd tau = Eigen::VectorXd::Zero(model.nv);
+    
+    Eigen::VectorXd q(q0), v(v0);
+    
+    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,mu);
+    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim_prev(contact_data_sim);
+
+    for(int it = 0; it <= N; it++)
+    {
+      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,mu);
+      v += a*dt;
+      q = integrate(model,q,v*dt);
+      
+      if(it > 1)
+      {
+        for(size_t k = 0; k < contact_models.size(); ++k)
+        {
+          const RigidContactData & cdata = contact_data_sim[k];
+          const RigidContactData & cdata_prev = contact_data_sim_prev[k];
+          
           BOOST_CHECK(cdata.contact_placement_error.toVector().norm() <= cdata_prev.contact_placement_error.toVector().norm());
         }
       }

@@ -275,8 +275,19 @@ namespace pinocchio
         vc2.setZero();
       
       // Compute placement and velocity errors
-      contact_data.contact_placement_error = -log6(c1Mc2);
-      contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
+      if(contact_model.type == CONTACT_6D)
+      {
+        contact_data.contact_placement_error = -log6(c1Mc2);
+        contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
+      }
+      else
+      {
+        contact_data.contact_placement_error.linear() = -c1Mc2.translation();
+        contact_data.contact_placement_error.angular().setZero();
+        
+        contact_data.contact_velocity_error.linear() = vc1.linear() - c1Mc2.rotation()*vc2.linear();
+        contact_data.contact_velocity_error.angular().setZero();
+      }
       
       if(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0))
       {
@@ -284,9 +295,17 @@ namespace pinocchio
       }
       else
       {
-        contact_acceleration_error.toVector()
-        = -corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
-        -  corrector.Kd * contact_data.contact_velocity_error.toVector();
+        if(contact_model.type == CONTACT_6D)
+          contact_acceleration_error.toVector().noalias() =
+          - corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
+          - corrector.Kd * contact_data.contact_velocity_error.toVector();
+        else
+        {
+          contact_acceleration_error.linear().noalias() =
+          - corrector.Kp * contact_data.contact_placement_error.linear()
+          - corrector.Kd * contact_data.contact_velocity_error.linear();
+          contact_acceleration_error.angular().setZero();
+        }
       }
       
       switch(contact_model.reference_frame)
