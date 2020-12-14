@@ -38,8 +38,8 @@ namespace pinocchio
     {
       typedef Data::Matrix3x Matrix3x;
       
-      Matrix3x v_partial_dq(Matrix6x::Zero(3,model.nv));
-      Matrix3x v_partial_dv(Matrix6x::Zero(3,model.nv));
+      Matrix3x v_partial_dq(Matrix3x::Zero(3,model.nv));
+      Matrix3x v_partial_dv(Matrix3x::Zero(3,model.nv));
       
       getPointVelocityDerivatives(model,data,joint_id,placement,rf,
                                   v_partial_dq,v_partial_dv);
@@ -74,10 +74,10 @@ namespace pinocchio
     {
       typedef Data::Matrix3x Matrix3x;
       
-      Matrix3x v_partial_dq(Matrix6x::Zero(3,model.nv));
-      Matrix3x a_partial_dq(Matrix6x::Zero(3,model.nv));
-      Matrix3x a_partial_dv(Matrix6x::Zero(3,model.nv));
-      Matrix3x a_partial_da(Matrix6x::Zero(3,model.nv));
+      Matrix3x v_partial_dq(Matrix3x::Zero(3,model.nv));
+      Matrix3x a_partial_dq(Matrix3x::Zero(3,model.nv));
+      Matrix3x a_partial_dv(Matrix3x::Zero(3,model.nv));
+      Matrix3x a_partial_da(Matrix3x::Zero(3,model.nv));
       
       getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,
                                              v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
@@ -175,8 +175,6 @@ namespace pinocchio
               "\tdata: data related to the model\n");
 
     }
-    
-    
     
   } // namespace python
 } // namespace pinocchio
