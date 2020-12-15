@@ -10,13 +10,25 @@ namespace pinocchio
   namespace python
   {
     
-    static Data::Matrix6x get_frame_jacobian_proxy(const Model & model,
+    static Data::Matrix6x get_frame_jacobian_proxy1(const Model & model,
                                                    Data & data,
                                                    const Model::FrameIndex frame_id,
                                                    ReferenceFrame rf)
     {
       Data::Matrix6x J(6,model.nv); J.setZero();
       getFrameJacobian(model, data, frame_id, rf, J);
+      
+      return J;
+    }
+  
+    static Data::Matrix6x get_frame_jacobian_proxy2(const Model & model,
+                                                    Data & data,
+                                                    const Model::JointIndex joint_id,
+                                                    const SE3 & placement,
+                                                    ReferenceFrame rf)
+    {
+      Data::Matrix6x J(6,model.nv); J.setZero();
+      getFrameJacobian(model, data, joint_id, placement, rf, J);
       
       return J;
     }
@@ -128,13 +140,20 @@ namespace pinocchio
               "where v is the joint velocity.");
       
       bp::def("getFrameJacobian",
-              &get_frame_jacobian_proxy,
+              &get_frame_jacobian_proxy1,
               bp::args("model","data","frame_id","reference_frame"),
-              "Computes the Jacobian of the frame given by its ID either in the local or the world frames.\n"
-              "The columns of the Jacobian are expressed in the LOCAL frame coordinates system.\n"
-              "In other words, the velocity of the frame vF expressed in the local coordinate is given by J*v,"
-              "where v is the joint velocity.\n"
-              "computeJointJacobians(model,data,q) and updateFramePlacements(model,data) must have been called first.");
+              "Computes the Jacobian of the frame given by its ID either in the LOCAL, LOCAL_WORLD_ALIGNED or the WORLD coordinates systems.\n"
+              "In other words, the velocity of the frame vF expressed in the reference frame is given by J*v,"
+              "where v is the joint velocity vector.\n"
+              "remarks: computeJointJacobians(model,data,q) must have been called first.");
+      
+      bp::def("getFrameJacobian",
+              &get_frame_jacobian_proxy2,
+              bp::args("model","data","joint_id","placement","reference_frame"),
+              "Computes the Jacobian of the frame given by its placement with respect to the Joint frame and expressed the solution either in the LOCAL, LOCAL_WORLD_ALIGNED or the WORLD coordinates systems.\n"
+              "In other words, the velocity of the frame vF expressed in the reference frame is given by J*v,"
+              "where v is the joint velocity vector.\n\n"
+              "remarks: computeJointJacobians(model,data,q) must have been called first.");
 
       bp::def("frameJacobianTimeVariation",&frame_jacobian_time_variation_proxy,
               bp::args("model","data","q","v","frame_id","reference_frame"),
