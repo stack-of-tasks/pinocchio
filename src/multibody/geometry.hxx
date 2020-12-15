@@ -7,6 +7,13 @@
 
 #include "pinocchio/multibody/model.hpp"
 
+#if BOOST_VERSION / 100 % 1000 >= 60
+  #include <boost/bind/bind.hpp>
+  #include <boost/utility.hpp>
+#else
+  #include <boost/bind.hpp>
+#endif
+
 /// @cond DEV
 
 namespace pinocchio
@@ -94,7 +101,9 @@ namespace pinocchio
 
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
   {
-
+#if BOOST_VERSION / 100 % 1000 >= 60
+    using namespace boost::placeholders;
+#endif
     GeometryObjectVector::const_iterator it
     = std::find_if(geometryObjects.begin(),
                    geometryObjects.end(),
@@ -105,6 +114,9 @@ namespace pinocchio
 
   inline bool GeometryModel::existGeometryName(const std::string & name) const
   {
+#if BOOST_VERSION / 100 % 1000 >= 60
+    using namespace boost::placeholders;
+#endif
     return std::find_if(geometryObjects.begin(),
                         geometryObjects.end(),
                         boost::bind(&GeometryObject::name, _1) == name) != geometryObjects.end();

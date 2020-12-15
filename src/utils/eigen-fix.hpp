@@ -19,32 +19,31 @@ namespace pinocchio
 }
 #endif
 
-namespace Eigen
+namespace pinocchio
 {
-  namespace internal
-  {
-    namespace fix
+  namespace fix { namespace Eigen { namespace internal {
+
+    /* plain_matrix_type_row_major : same as plain_matrix_type but guaranteed to be row-major
+    */
+    template<typename T>
+    struct plain_matrix_type_row_major
     {
-      /* plain_matrix_type_row_major : same as plain_matrix_type but guaranteed to be row-major
-       */
-      template<typename T> struct plain_matrix_type_row_major
-      {
-        enum { Rows = traits<T>::RowsAtCompileTime,
-               Cols = traits<T>::ColsAtCompileTime,
-               MaxRows = traits<T>::MaxRowsAtCompileTime,
-               MaxCols = traits<T>::MaxColsAtCompileTime
-        };
-        typedef Matrix<typename traits<T>::Scalar,
-                      Rows,
-                      Cols,
-                      (MaxCols==1&&MaxRows!=1) ? ColMajor : RowMajor,
-                      MaxRows,
-                      MaxCols
-                > type;
-      };
-    }
-  }
-} // namespace fix
+      enum { Rows = ::Eigen::internal::traits<T>::RowsAtCompileTime,
+             Cols = ::Eigen::internal::traits<T>::ColsAtCompileTime,
+             MaxRows = ::Eigen::internal::traits<T>::MaxRowsAtCompileTime,
+             MaxCols = ::Eigen::internal::traits<T>::MaxColsAtCompileTime
+     };
+     typedef ::Eigen::Matrix<typename ::Eigen::internal::traits<T>::Scalar,
+                            Rows,
+                            Cols,
+                            (MaxCols==1&&MaxRows!=1) ? ::Eigen::ColMajor : ::Eigen::RowMajor,
+                            MaxRows,
+                            MaxCols
+    > type;
+    };
+  
+  } } } // namespace fix::Eigen::internal
+} // namespace pinocchio
 
 #endif // ifndef __pinocchio_utils_eigen_fix_hpp__
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include <iostream>
@@ -10,9 +10,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE ( buildModel )
+BOOST_AUTO_TEST_CASE(buildModel)
 {
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_model.py");
 

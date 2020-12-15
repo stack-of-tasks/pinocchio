@@ -128,7 +128,7 @@ namespace pinocchio
       oss << message << std::endl; \
     else \
       oss << size_literal << " is different from " << expected_size_literal << std::endl; \
-    PINOCCHIO_THROW(true, std::invalid_argument, oss.str()); \
+    PINOCCHIO_THROW(false, std::invalid_argument, oss.str()); \
   }
 
 #define _PINOCCHIO_CHECK_ARGUMENT_SIZE_3(size, expected_size, message) \

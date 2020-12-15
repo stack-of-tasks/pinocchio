@@ -222,8 +222,8 @@ namespace pinocchio
         .add_property("parents",&Model::parents)
         .add_property("children",&Model::children)
         .add_property("names",&Model::names)
-        .add_property("name",&Model::name)
-        .add_property("referenceConfigurations", &Model::referenceConfigurations)
+        .def_readwrite("name",&Model::name)
+        .def_readwrite("referenceConfigurations", &Model::referenceConfigurations)
         
         .def_readwrite("armature",&Model::armature,
                        "Armature vector.")

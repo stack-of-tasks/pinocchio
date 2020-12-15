@@ -9,9 +9,6 @@
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
 
-#include <boost/bind.hpp>
-#include <boost/utility.hpp>
-
 /// @cond DEV
 
 namespace pinocchio

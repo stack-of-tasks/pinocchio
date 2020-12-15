@@ -7,8 +7,7 @@
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/comparison-operators.hpp"
-
-#include <Eigen/Geometry>
+#include "pinocchio/multibody/fwd.hpp"
 
 namespace pinocchio
 {
@@ -22,17 +21,10 @@ namespace pinocchio
     /// around axis \f$\alpha\f$.
     ///
     template<typename Scalar>
-    Eigen::Matrix<Scalar,3,3> rpyToMatrix(const Scalar r,
-                                          const Scalar p,
-                                          const Scalar y)
-    {
-      typedef Eigen::AngleAxis<Scalar> AngleAxis;
-      typedef Eigen::Matrix<Scalar,3,1> Vector3s;
-      return (AngleAxis(y, Vector3s::UnitZ())
-              * AngleAxis(p, Vector3s::UnitY())
-              * AngleAxis(r, Vector3s::UnitX())
-             ).toRotationMatrix();
-    }
+    Eigen::Matrix<Scalar,3,3>
+    rpyToMatrix(const Scalar& r,
+                const Scalar& p,
+                const Scalar& y);
 
     ///
     /// \brief Convert from Roll, Pitch, Yaw to rotation Matrix
@@ -43,11 +35,7 @@ namespace pinocchio
     ///
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
-    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy)
-    {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like, rpy, 3, 1);
-      return rpyToMatrix(rpy[0], rpy[1], rpy[2]);
-    }
+    rpyToMatrix(const Eigen::MatrixBase<Vector3Like> & rpy);
 
     ///
     /// \brief Convert from Transformation Matrix to Roll, Pitch, Yaw
@@ -64,33 +52,69 @@ namespace pinocchio
     ///
     template<typename Matrix3Like>
     Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
-    matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R)
-    {
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
-      assert(R.isUnitary() && "R is not a unitary matrix");
+    matrixToRpy(const Eigen::MatrixBase<Matrix3Like> & R);
 
-      typedef typename Matrix3Like::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> ReturnType;
-      static const Scalar pi = PI<Scalar>();
+    ///
+    /// \brief Compute the Jacobian of the Roll-Pitch-Yaw conversion
+    ///
+    /// Given \f$\phi = (r, p, y)\f$ and reference frame F (either LOCAL or WORLD),
+    /// the Jacobian is such that \f$ {}^F\omega = J_F(\phi)\dot{\phi} \f$,
+    /// where \f$ {}^F\omega \f$ is the angular velocity expressed in frame F
+    /// and \f$ J_F \f$ is the Jacobian computed with reference frame F
+    ///
+    /// \param[in] rpy Roll-Pitch-Yaw vector
+    /// \param[in] rf  Reference frame in which the angular velocity is expressed
+    ///
+    /// \return The Jacobian of the Roll-Pitch-Yaw conversion in the appropriate frame
+    ///
+    /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
+    ///
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobian(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
+  
+    ///
+    /// \brief Compute the inverse Jacobian of the Roll-Pitch-Yaw conversion
+    ///
+    /// Given \f$\phi = (r, p, y)\f$ and reference frame F (either LOCAL or WORLD),
+    /// the Jacobian is such that \f$ {}^F\omega = J_F(\phi)\dot{\phi} \f$,
+    /// where \f$ {}^F\omega \f$ is the angular velocity expressed in frame F
+    /// and \f$ J_F \f$ is the Jacobian computed with reference frame F
+    ///
+    /// \param[in] rpy Roll-Pitch-Yaw vector
+    /// \param[in] rf  Reference frame in which the angular velocity is expressed
+    ///
+    /// \return The inverse of the Jacobian of the Roll-Pitch-Yaw conversion in the appropriate frame
+    ///
+    /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
+    ///
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    computeRpyJacobianInverse(const Eigen::MatrixBase<Vector3Like> & rpy, const ReferenceFrame rf=LOCAL);
 
-      ReturnType res = R.eulerAngles(2,1,0).reverse();
-
-      if(res[1] < -pi/2)
-        res[1] += 2*pi;
-
-      if(res[1] > pi/2)
-      {
-        res[1] = pi - res[1];
-        if(res[0] < Scalar(0))
-          res[0] += pi;
-        else
-          res[0] -= pi;
-        // res[2] > 0 according to Eigen's eulerAngles doc, no need to check its sign
-        res[2] -= pi;
-      }
-
-      return res;
-    }
+    ///
+    /// \brief Compute the time derivative Jacobian of the Roll-Pitch-Yaw conversion
+    ///
+    /// Given \f$\phi = (r, p, y)\f$ and reference frame F (either LOCAL or WORLD),
+    /// the Jacobian is such that \f$ {}^F\omega = J_F(\phi)\dot{\phi} \f$,
+    /// where \f$ {}^F\omega \f$ is the angular velocity expressed in frame F
+    /// and \f$ J_F \f$ is the Jacobian computed with reference frame F
+    ///
+    /// \param[in] rpy     Roll-Pitch-Yaw vector
+    /// \param[in] rpydot  Time derivative of the Roll-Pitch-Yaw vector
+    /// \param[in] rf      Reference frame in which the angular velocity is expressed
+    ///
+    /// \return The time derivative of the Jacobian of the Roll-Pitch-Yaw conversion in the appropriate frame
+    ///
+    /// \note for the purpose of this function, WORLD and LOCAL_WORLD_ALIGNED are equivalent
+    ///
+    template<typename Vector3Like0, typename Vector3Like1>
+    Eigen::Matrix<typename Vector3Like0::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like0)::Options>
+    computeRpyJacobianTimeDerivative(const Eigen::MatrixBase<Vector3Like0> & rpy, const Eigen::MatrixBase<Vector3Like1> & rpydot, const ReferenceFrame rf=LOCAL);
   } // namespace rpy
 }
+
+/* --- Details -------------------------------------------------------------------- */
+#include "pinocchio/math/rpy.hxx"
+
 #endif //#ifndef __pinocchio_math_rpy_hpp__
