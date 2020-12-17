@@ -32,7 +32,7 @@ namespace boost
           typedef CppAD::cg::CG<Scalar> CGScalar;
           
           template <int N>
-          static inline CGScalar get(const boost::integral_constant<int, N> & n)
+          static inline CGScalar get(const mpl::int_<N> & n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
