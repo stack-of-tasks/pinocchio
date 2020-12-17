@@ -104,8 +104,11 @@ for k in range(N):
     kkt_constraint.compute(model,data,[constraint_model],[constraint_data],mu)
     constraint_value = constraint_data.c1Mc2.translation
 
+    J = pin.getFrameJacobian(model,data,constraint_model.joint1_id,constraint_model.joint1_placement,constraint_model.reference_frame)[:3,:]
     primal_feas = np.linalg.norm(constraint_value,np.inf)
-    if primal_feas < eps:
+    dual_feas = np.linalg.norm(J.T @ (constraint_value + y),np.inf)
+    if primal_feas < eps and dual_feas < eps:
+        print("Convergence achieved")
         break
     print("constraint_value:",np.linalg.norm(constraint_value))
     rhs = np.concatenate([-constraint_value - y*mu, np.zeros(model.nv)])
