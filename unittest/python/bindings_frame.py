@@ -53,6 +53,19 @@ class TestFrameBindings(PinocchioTestCase):
         self.assertTrue(frame1 == frame2)
         self.assertTrue(frame1 != frame3)
 
+    def test_pickle(self):
+        import pickle
+
+        frame = pin.Frame("name", 1, 2, pin.SE3.Random(), pin.OP_FRAME)
+        filename = "frame.pickle"
+        with open(filename, 'wb') as f:
+            pickle.dump(frame, f)
+
+        with open(filename, 'rb') as f:
+            frame_copy = pickle.load(f)
+
+        self.assertEqual(frame, frame_copy)
+
     def test_getters(self):
         data = self.model.createData()
         q = pin.randomConfiguration(self.model)
