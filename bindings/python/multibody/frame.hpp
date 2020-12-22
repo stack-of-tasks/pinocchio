@@ -54,9 +54,20 @@ namespace pinocchio
         .def(FramePythonVisitor())
         .def(CopyableVisitor<Frame>())
         .def(PrintableVisitor<Frame>())
+        .def_pickle(Pickle())
         ;
       }
 
+    private:
+      struct Pickle : bp::pickle_suite
+      {
+        static
+        boost::python::tuple
+        getinitargs(const Frame& f)
+        {
+          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, f.type);
+        }
+      };
     };
     
 
