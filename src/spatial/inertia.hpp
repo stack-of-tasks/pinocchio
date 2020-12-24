@@ -3,8 +3,8 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_inertia_hpp__
-#define __pinocchio_inertia_hpp__
+#ifndef __pinocchio_spatial_inertia_hpp__
+#define __pinocchio_spatial_inertia_hpp__
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/spatial/symmetric3.hpp"
@@ -554,4 +554,4 @@ namespace pinocchio
     
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_inertia_hpp__
+#endif // ifndef __pinocchio_spatial_inertia_hpp__

@@ -2,8 +2,8 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_force_dense_hpp__
-#define __pinocchio_force_dense_hpp__
+#ifndef __pinocchio_spatial_force_dense_hpp__
+#define __pinocchio_spatial_force_dense_hpp__
 
 namespace pinocchio
 {
@@ -205,4 +205,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_force_dense_hpp__
+#endif // ifndef __pinocchio_spatial_force_dense_hpp__

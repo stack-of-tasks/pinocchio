@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_motion_tpl_hpp__
-#define __pinocchio_motion_tpl_hpp__
+#ifndef __pinocchio_spatial_motion_tpl_hpp__
+#define __pinocchio_spatial_motion_tpl_hpp__
 
 namespace pinocchio
 {
@@ -169,4 +169,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_motion_tpl_hpp__
+#endif // ifndef __pinocchio_spatial_motion_tpl_hpp__
