@@ -49,13 +49,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataCompositeTpl

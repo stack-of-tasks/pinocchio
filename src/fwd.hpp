@@ -61,6 +61,12 @@ namespace pinocchio
   {
     template<typename T> struct traits {};
   }
+
+  template<class Derived>
+  struct NumericalBase
+  {
+    typedef typename traits<Derived>::Scalar Scalar;
+  };
   
   ///
   /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.

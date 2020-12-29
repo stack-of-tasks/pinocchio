@@ -17,8 +17,18 @@
 
 namespace pinocchio
 {
+
+  struct GeometryModel;
+  struct GeometryData;
+
+  template<>
+  struct traits<GeometryModel>
+  {
+    typedef double Scalar;
+  };
   
   struct GeometryModel
+  : NumericalBase<GeometryModel>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -164,7 +174,14 @@ namespace pinocchio
     
   }; // struct GeometryModel
 
+  template<>
+  struct traits<GeometryData>
+  {
+    typedef double Scalar;
+  };
+
   struct GeometryData
+  : NumericalBase<GeometryData>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     

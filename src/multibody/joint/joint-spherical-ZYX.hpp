@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_spherical_ZYX_hpp__
-#define __pinocchio_joint_spherical_ZYX_hpp__
+#ifndef __pinocchio_multibody_joint_spherical_ZYX_hpp__
+#define __pinocchio_multibody_joint_spherical_ZYX_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -270,17 +270,23 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options>
-  struct traits< JointDataSphericalZYXTpl<Scalar,Options> >
-  { typedef JointSphericalZYXTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataSphericalZYXTpl<_Scalar,_Options> >
+  {
+    typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelSphericalZYXTpl<Scalar,Options> >
-  { typedef JointSphericalZYXTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelSphericalZYXTpl<_Scalar,_Options> >
+  {
+    typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataSphericalZYXTpl
-: public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
+  : public JointDataBase< JointDataSphericalZYXTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef JointSphericalZYXTpl<_Scalar,_Options> JointDerived;
@@ -454,4 +460,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_spherical_ZYX_hpp__
+#endif // ifndef __pinocchio_multibody_joint_spherical_ZYX_hpp__

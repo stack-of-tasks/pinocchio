@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_revolute_unbounded_hpp__
-#define __pinocchio_joint_revolute_unbounded_hpp__
+#ifndef __pinocchio_multibody_joint_revolute_unbounded_hpp__
+#define __pinocchio_multibody_joint_revolute_unbounded_hpp__
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/math/sincos.hpp"
@@ -43,13 +43,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointDataRevoluteUnboundedTpl<Scalar,Options,axis> >
-  { typedef JointRevoluteUnboundedTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointDataRevoluteUnboundedTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointModelRevoluteUnboundedTpl<Scalar,Options,axis> >
-  { typedef JointRevoluteUnboundedTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointModelRevoluteUnboundedTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointRevoluteUnboundedTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointDataRevoluteUnboundedTpl
@@ -233,4 +239,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_revolute_unbounded_hpp__
+#endif // ifndef __pinocchio_multibody_joint_revolute_unbounded_hpp__

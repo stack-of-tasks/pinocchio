@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_basic_visitors_hpp__
-#define __pinocchio_joint_basic_visitors_hpp__
+#ifndef __pinocchio_multibody_joint_basic_visitors_hpp__
+#define __pinocchio_multibody_joint_basic_visitors_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
@@ -307,4 +307,4 @@ namespace pinocchio
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 
-#endif // ifndef __pinocchio_joint_basic_visitors_hpp__
+#endif // ifndef __pinocchio_multibody_joint_basic_visitors_hpp__

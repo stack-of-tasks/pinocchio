@@ -3,8 +3,8 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_prismatic_unaligned_hpp__
-#define __pinocchio_joint_prismatic_unaligned_hpp__
+#ifndef __pinocchio_multibody_joint_prismatic_unaligned_hpp__
+#define __pinocchio_multibody_joint_prismatic_unaligned_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -432,9 +432,12 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options>
-  struct traits< JointDataPrismaticUnalignedTpl<Scalar,Options> >
-  { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataPrismaticUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataPrismaticUnalignedTpl
@@ -489,9 +492,12 @@ namespace pinocchio
     
   }; // struct JointDataPrismaticUnalignedTpl
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelPrismaticUnalignedTpl<Scalar,Options> >
-  { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelPrismaticUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelPrismaticUnalignedTpl);
   template<typename _Scalar, int _Options>
@@ -614,4 +620,4 @@ namespace boost
 }
 
 
-#endif // ifndef __pinocchio_joint_prismatic_unaligned_hpp__
+#endif // ifndef __pinocchio_multibody_joint_prismatic_unaligned_hpp__

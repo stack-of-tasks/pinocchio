@@ -94,6 +94,7 @@ namespace pinocchio
 
   template<typename Derived>
   struct JointDataBase
+  : NumericalBase<Derived>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     

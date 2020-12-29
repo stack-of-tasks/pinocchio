@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_planar_hpp__
-#define __pinocchio_joint_planar_hpp__
+#ifndef __pinocchio_multibody_joint_planar_hpp__
+#define __pinocchio_multibody_joint_planar_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -427,10 +427,18 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options>
-  struct traits< JointDataPlanarTpl<Scalar,Options> > { typedef JointPlanarTpl<Scalar,Options> JointDerived; };
-  template<typename Scalar, int Options>
-  struct traits< JointModelPlanarTpl<Scalar,Options> > { typedef JointPlanarTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataPlanarTpl<_Scalar,_Options> >
+  {
+    typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelPlanarTpl<_Scalar,_Options> >
+  {
+    typedef JointPlanarTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataPlanarTpl : public JointDataBase< JointDataPlanarTpl<_Scalar,_Options> >
@@ -588,4 +596,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_planar_hpp__
+#endif // ifndef __pinocchio_multibody_joint_planar_hpp__

@@ -2,8 +2,8 @@
 // Copyright (c) 2018-2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_collection_hpp__
-#define __pinocchio_joint_collection_hpp__
+#ifndef __pinocchio_multibody_joint_collection_hpp__
+#define __pinocchio_multibody_joint_collection_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
@@ -150,4 +150,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_collection_hpp__
+#endif // ifndef __pinocchio_multibody_joint_collection_hpp__

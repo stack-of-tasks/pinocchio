@@ -27,7 +27,7 @@ namespace pinocchio
    * \ingroup pinocchio_spatial
    */
   template<class Derived>
-  struct SE3Base
+  struct SE3Base : NumericalBase<Derived>
   {
     PINOCCHIO_SE3_TYPEDEF_TPL(Derived);
     

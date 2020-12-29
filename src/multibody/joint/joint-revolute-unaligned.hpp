@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_revolute_unaligned_hpp__
-#define __pinocchio_joint_revolute_unaligned_hpp__
+#ifndef __pinocchio_multibody_joint_revolute_unaligned_hpp__
+#define __pinocchio_multibody_joint_revolute_unaligned_hpp__
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -457,13 +457,19 @@ namespace pinocchio
     
   };
 
-  template<typename Scalar, int Options>
-  struct traits< JointDataRevoluteUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataRevoluteUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits <JointModelRevoluteUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelRevoluteUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataRevoluteUnalignedTpl
@@ -541,7 +547,7 @@ namespace pinocchio
                                    const Scalar & z)
     : axis(x,y,z)
     {
-      axis.normalize();
+      normalize(axis);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
     
@@ -639,4 +645,4 @@ namespace boost
 }
 
 
-#endif // ifndef __pinocchio_joint_revolute_unaligned_hpp__
+#endif // ifndef __pinocchio_multibody_joint_revolute_unaligned_hpp__

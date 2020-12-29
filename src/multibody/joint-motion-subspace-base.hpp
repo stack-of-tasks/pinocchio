@@ -48,6 +48,7 @@ namespace pinocchio
 
   template<class Derived>
   class JointMotionSubspaceBase
+  : public NumericalBase<Derived>
   {
   protected:
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(Derived)

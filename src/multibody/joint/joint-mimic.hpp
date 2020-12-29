@@ -2,8 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_joint_mimic_hpp__
-#define __pinocchio_joint_mimic_hpp__
+#ifndef __pinocchio_multibody_joint_mimic_hpp__
+#define __pinocchio_multibody_joint_mimic_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -292,11 +292,17 @@ namespace pinocchio
   
   template<class Joint>
   struct traits< JointDataMimic<Joint> >
-  { typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived; };
+  {
+    typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
   
   template<class Joint>
   struct traits< JointModelMimic<Joint> >
-  { typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived; };
+  {
+    typedef JointMimic<typename traits<Joint>::JointDerived> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
   
   template<class JointData>
   struct JointDataMimic
@@ -663,4 +669,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_mimic_hpp__
+#endif // ifndef __pinocchio_multibody_joint_mimic_hpp__

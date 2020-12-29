@@ -2,8 +2,8 @@
 // Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_joint_revolute_unbounded_unaligned_hpp__
-#define __pinocchio_joint_revolute_unbounded_unaligned_hpp__
+#ifndef __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__
+#define __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -46,13 +46,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options>
-  struct traits< JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataRevoluteUnboundedUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits <JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelRevoluteUnboundedUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataRevoluteUnboundedUnalignedTpl
@@ -231,4 +237,4 @@ namespace boost
 }
 
 
-#endif // ifndef __pinocchio_joint_revolute_unbounded_unaligned_hpp__
+#endif // ifndef __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__

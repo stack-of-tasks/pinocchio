@@ -10,7 +10,7 @@ namespace pinocchio
 {
   
   template<class Derived>
-  class MotionBase
+  class MotionBase : NumericalBase<Derived>
   {
   public:
     MOTION_TYPEDEF_TPL(Derived);

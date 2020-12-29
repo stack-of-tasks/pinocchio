@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -79,10 +79,19 @@ enum GeometryType
   COLLISION
 };
 
-struct GeometryObject
+struct GeometryObject; //fwd
+
+template<>
+struct traits<GeometryObject>
+{
+  typedef double Scalar;
+};
+
+struct GeometryObject : NumericalBase<GeometryObject>
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
+  typedef double Scalar;
   typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
   
   /// \brief Name of the geometry object

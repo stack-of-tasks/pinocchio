@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_revolute_hpp__
-#define __pinocchio_joint_revolute_hpp__
+#ifndef __pinocchio_multibody_joint_revolute_hpp__
+#define __pinocchio_multibody_joint_revolute_hpp__
 
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -628,13 +628,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointDataRevoluteTpl<Scalar,Options,axis> >
-  { typedef JointRevoluteTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointDataRevoluteTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointModelRevoluteTpl<Scalar,Options,axis> >
-  { typedef JointRevoluteTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointModelRevoluteTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointRevoluteTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointDataRevoluteTpl
@@ -791,4 +797,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_revolute_hpp__
+#endif // ifndef __pinocchio_multibody_joint_revolute_hpp__

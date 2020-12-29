@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_prismatic_hpp__
-#define __pinocchio_joint_prismatic_hpp__
+#ifndef __pinocchio_multibody_joint_prismatic_hpp__
+#define __pinocchio_multibody_joint_prismatic_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
@@ -526,13 +526,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointDataPrismaticTpl<Scalar,Options,axis> >
-  { typedef JointPrismaticTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointDataPrismaticTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, int axis>
-  struct traits< JointModelPrismaticTpl<Scalar,Options,axis> >
-  { typedef JointPrismaticTpl<Scalar,Options,axis> JointDerived; };
+  template<typename _Scalar, int _Options, int axis>
+  struct traits< JointModelPrismaticTpl<_Scalar,_Options,axis> >
+  {
+    typedef JointPrismaticTpl<_Scalar,_Options,axis> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options, int axis>
   struct JointDataPrismaticTpl
@@ -684,4 +690,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_prismatic_hpp__
+#endif // ifndef __pinocchio_multibody_joint_prismatic_hpp__

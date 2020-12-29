@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_generic_hpp__
-#define __pinocchio_joint_generic_hpp__
+#ifndef __pinocchio_multibody_joint_generic_hpp__
+#define __pinocchio_multibody_joint_generic_hpp__
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
@@ -67,13 +67,19 @@ namespace pinocchio
     typedef TangentVector_t TangentVectorTypeRef;
   };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointDataTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointModelTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataTpl
@@ -253,4 +259,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_generic_hpp__
+#endif // ifndef __pinocchio_multibody_joint_generic_hpp__

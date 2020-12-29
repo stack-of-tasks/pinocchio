@@ -3,8 +3,8 @@
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_free_flyer_hpp__
-#define __pinocchio_joint_free_flyer_hpp__
+#ifndef __pinocchio_multibody_joint_free_flyer_hpp__
+#define __pinocchio_multibody_joint_free_flyer_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -164,13 +164,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options>
-  struct traits< JointDataFreeFlyerTpl<Scalar,Options> >
-  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataFreeFlyerTpl<_Scalar,_Options> >
+  {
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelFreeFlyerTpl<Scalar,Options> >
-  { typedef JointFreeFlyerTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelFreeFlyerTpl<_Scalar,_Options> >
+  {
+    typedef JointFreeFlyerTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataFreeFlyerTpl : public JointDataBase< JointDataFreeFlyerTpl<_Scalar,_Options> >
@@ -335,4 +341,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_free_flyer_hpp__
+#endif // ifndef __pinocchio_multibody_joint_free_flyer_hpp__

@@ -2,8 +2,8 @@
 // Copyright (c) 2015 CNRS
 //
 
-#ifndef __pinocchio_force_set_hpp__
-#define __pinocchio_force_set_hpp__
+#ifndef __pinocchio_spatial_force_set_hpp__
+#define __pinocchio_spatial_force_set_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include <Eigen/Geometry>
@@ -161,5 +161,5 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_force_set_hpp__
+#endif // ifndef __pinocchio_spatial_force_set_hpp__
 

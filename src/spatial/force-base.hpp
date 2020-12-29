@@ -19,7 +19,7 @@ namespace pinocchio
    * @tparam     Derived  { description }
    */
   template< class Derived>
-  class ForceBase
+  class ForceBase : NumericalBase<Derived>
   {
   public:
     FORCE_TYPEDEF_TPL(Derived);

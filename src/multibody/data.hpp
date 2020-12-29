@@ -24,10 +24,17 @@
 
 namespace pinocchio
 {
+
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< DataTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef _Scalar Scalar;
+  };
  
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct DataTpl
   : serialization::Serializable< DataTpl<_Scalar,_Options,JointCollectionTpl> >
+  , NumericalBase< DataTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     

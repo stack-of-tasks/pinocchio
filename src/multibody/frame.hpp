@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_frame_hpp__
-#define __pinocchio_frame_hpp__
+#ifndef __pinocchio_multibody_frame_hpp__
+#define __pinocchio_multibody_frame_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -23,12 +23,18 @@ namespace pinocchio
     BODY         = 0x1 << 3, // body frame type
     SENSOR       = 0x1 << 4  // sensor frame type
   };
+
+  template<typename _Scalar, int _Options>
+  struct traits< FrameTpl<_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+  };
   
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
   template<typename _Scalar, int _Options>
-  struct FrameTpl
+  struct FrameTpl : NumericalBase< FrameTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     typedef pinocchio::JointIndex JointIndex;
@@ -127,4 +133,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_frame_hpp__
+#endif // ifndef __pinocchio_multibody_frame_hpp__
