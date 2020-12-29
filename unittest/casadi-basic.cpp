@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #include <pinocchio/autodiff/casadi.hpp>
@@ -10,6 +10,16 @@
 #include <boost/utility/binary.hpp>
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
+
+BOOST_AUTO_TEST_CASE(test_basic)
+{
+  casadi::SX a(1,1);
+  casadi::SX b;
+  
+  casadi::MX c;
+  
+  b = a(0,0);
+}
 
 BOOST_AUTO_TEST_CASE(test_eigen)
 {
