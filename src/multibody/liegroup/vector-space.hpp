@@ -244,7 +244,7 @@ namespace pinocchio
     }
 
     template <class Config_t>
-    void random_impl (const Eigen::MatrixBase<Config_t>& qout) const
+    void random_impl(const Eigen::MatrixBase<Config_t>& qout) const
     {
       PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).setRandom();
     }
@@ -258,12 +258,11 @@ namespace pinocchio
       ConfigOut_t & res = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).derived();
       for (int i = 0; i < nq (); ++i)
       {
-        if(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||
-           upper_pos_limit[i] ==  std::numeric_limits<typename ConfigR_t::Scalar>::infinity() )
+        if(check_expression_if_real<Scalar,false>(lower_pos_limit[i] == -std::numeric_limits<typename ConfigL_t::Scalar>::infinity() ||
+                                                  upper_pos_limit[i] ==  std::numeric_limits<typename ConfigR_t::Scalar>::infinity()) )
         {
           std::ostringstream error;
           error << "non bounded limit. Cannot uniformly sample joint at rank " << i;
-          // assert(false && "non bounded limit. Cannot uniformly sample joint revolute");
           throw std::range_error(error.str());
         }
         res[i] = lower_pos_limit[i] + (( upper_pos_limit[i] - lower_pos_limit[i]) * rand())/RAND_MAX;

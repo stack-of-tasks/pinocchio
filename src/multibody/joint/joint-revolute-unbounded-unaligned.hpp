@@ -137,7 +137,7 @@ namespace pinocchio
                                             const Scalar & z)
     : axis(x,y,z)
     {
-      axis.normalize();
+      normalize(axis);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
     

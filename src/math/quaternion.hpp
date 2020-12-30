@@ -228,6 +228,52 @@ namespace pinocchio
     {
       return pinocchio::isNormalized(quat.coeffs(),prec);
     }
+  
+    ///
+    /// \brief Normalize the input quaternion.
+    ///
+    /// \param[in] quat Input quaternion
+    ///
+    template<typename Quaternion>
+    inline void normalize(const Eigen::QuaternionBase<Quaternion> & quat)
+    {
+      return pinocchio::normalize(quat.const_cast_derived().coeffs());
+    }
+  
+    ///
+    /// \returns the spherical linear interpolation between the two quaternions
+    ///
+    /// \param[in] u Interpolation factor
+    /// \param[in] quat Input quaternion
+    ///
+    template<typename Scalar, typename QuaternionIn1, typename QuaternionIn2, typename QuaternionOut>
+    inline void slerp(const Scalar & u,
+                      const Eigen::QuaternionBase<QuaternionIn1> & quat0,
+                      const Eigen::QuaternionBase<QuaternionIn2> & quat1,
+                      const Eigen::QuaternionBase<QuaternionOut> & res)
+    {
+      const Scalar one = Scalar(1) - Eigen::NumTraits<Scalar>::epsilon();
+      const Scalar d = quat0.dot(quat1);
+      const Scalar absD = fabs(d);
+      
+      const Scalar theta = acos(absD);
+      const Scalar sinTheta = sin(theta);
+
+      using namespace pinocchio::internal;
+      
+      const Scalar scale0 = if_then_else(pinocchio::internal::GE,absD,one,
+                                         Scalar(1) - u, // then
+                                         sin( ( Scalar(1) - u ) * theta) / sinTheta // else
+                                         );
+      
+      const Scalar scale1_factor = if_then_else(pinocchio::internal::LT,d,Scalar(0),Scalar(-1),Scalar(1));
+      const Scalar scale1 = if_then_else(pinocchio::internal::GE,absD,one,
+                                         u, // then
+                                         sin( ( u * theta) ) / sinTheta // else
+                                         ) * scale1_factor;
+
+      PINOCCHIO_EIGEN_CONST_CAST(QuaternionOut,res.derived()).coeffs() = scale0 * quat0.coeffs() + scale1 * quat1.coeffs();
+    }
       
   } // namespace quaternion
 

@@ -89,7 +89,7 @@ namespace pinocchio
       // acos(x) = PI/2 - x and asin(x) = x (the precision of x is not lost in PI/2).
 //      else if (tr > Scalar(2) - 1e-2) theta = asin ((R(1,0) - R(0,1)) / Scalar(2));
 //      else              theta = (pos ? acos (tr/Scalar(2)) : -acos(tr/Scalar(2)));
-      assert (theta == theta); // theta != NaN
+      assert(check_expression_if_real<Scalar>(theta == theta) && "theta is NaN"); // theta != NaN
 //      assert ((cos (theta) * R(0,0) + sin (theta) * R(1,0) > 0) &&
 //              (cos (theta) * R(1,0) - sin (theta) * R(0,0) < 1e-6));
       return theta;
@@ -268,46 +268,48 @@ namespace pinocchio
     template <class ConfigL_t, class ConfigR_t, class ConfigOut_t>
     static void interpolate_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                  const Eigen::MatrixBase<ConfigR_t> & q1,
-                                 const Scalar& u,
+                                 const Scalar & u,
                                  const Eigen::MatrixBase<ConfigOut_t>& qout)
     {
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
-      assert ( std::abs(q0.norm() - 1) < 1e-8 && "initial configuration not normalized");
-      assert ( std::abs(q1.norm() - 1) < 1e-8 && "final configuration not normalized");
-      Scalar cosTheta = q0.dot(q1);
-      Scalar sinTheta = q0(0)*q1(1) - q0(1)*q1(0);
-      Scalar theta = atan2(sinTheta, cosTheta);
-      assert (fabs (sin (theta) - sinTheta) < 1e-8);
+      assert(check_expression_if_real<Scalar>(abs(q0.norm() - 1) < 1e-8) && "initial configuration not normalized");
+      assert(check_expression_if_real<Scalar>(abs(q1.norm() - 1) < 1e-8) && "final configuration not normalized");
+      const Scalar cosTheta = q0.dot(q1);
+      const Scalar sinTheta = q0(0)*q1(1) - q0(1)*q1(0);
+      const Scalar theta = atan2(sinTheta, cosTheta);
+      assert(check_expression_if_real<Scalar>(fabs(sin(theta) - sinTheta) < 1e-8));
       
-      const Scalar PI_value = PI<Scalar>();
-
-      if (fabs (theta) > 1e-6 && fabs (theta) < PI_value - 1e-6)
-      {
-        out = (sin ((1-u)*theta)/sinTheta) * q0
-            + (sin (   u *theta)/sinTheta) * q1;
-      }
-      else if (fabs (theta) < 1e-6) // theta = 0
-      {
-        out = (1-u) * q0 + u * q1;
-      }
-      else // theta = +-PI
-      {
-        Scalar theta0 = atan2 (q0(1), q0(0));
-        SINCOS(theta0,&out[1],&out[0]);
-      }
+      static const Scalar PI_value = PI<Scalar>();
+      static const Scalar PI_value_lower = PI_value - static_cast<Scalar>(1e-6);
+      using namespace internal;
+      
+//      const Scalar theta0 = atan2(q0(1), q0(0));
+      const Scalar abs_theta = fabs(theta);
+      out[0] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
+                            (Scalar(1)-u) * q0[0] + u * q1[0], // then
+                            if_then_else(LT,abs_theta,PI_value_lower, // else
+                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[0] + (sin(   u *theta)/sinTheta) * q1[0], // then
+                                         q0(0) // cos(theta0) // else
+                                         ));
+      
+      out[1] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
+                            (Scalar(1)-u) * q0[1] + u * q1[1], // then
+                            if_then_else(LT,abs_theta,PI_value_lower, // else
+                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[1] + (sin(   u *theta)/sinTheta) * q1[1], // then
+                                         q0(1) // sin(theta0) // else
+                                         ));
     }
 
     template <class Config_t>
     static void normalize_impl (const Eigen::MatrixBase<Config_t> & qout)
     {
-      Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout).derived();
-      qout_.normalize();
+      normalize(qout.const_cast_derived());
     }
 
     template <class Config_t>
-    static bool isNormalized_impl (const Eigen::MatrixBase<Config_t> & qin,
-                                   const Scalar& prec)
+    static bool isNormalized_impl(const Eigen::MatrixBase<Config_t> & qin,
+                                  const Scalar & prec)
     {
       const Scalar norm = qin.norm();
       using std::abs;
@@ -319,7 +321,7 @@ namespace pinocchio
     {
       Config_t & out = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
       
-      const Scalar PI_value = PI<Scalar>();
+      static const Scalar PI_value = PI<Scalar>();
       const Scalar angle = -PI_value + Scalar(2)* PI_value * ((Scalar)rand())/RAND_MAX;
       SINCOS(angle, &out(1), &out(0));
     }
@@ -561,10 +563,11 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      QuaternionMap_t quat_map(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
+      QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
-      quat_map = quat0.slerp(u, quat1);
-      assert(quaternion::isNormalized(quat_map,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+      quaternion::slerp(u,quat0,quat1,quat_res);
+//      quat_res = quat0.slerp(u, quat1);
+      assert(quaternion::isNormalized(quat_res,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
     }
 
     template <class ConfigL_t, class ConfigR_t>
@@ -579,8 +582,7 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout)
     {
-      Config_t & qout_ = PINOCCHIO_EIGEN_CONST_CAST(Config_t,qout);
-      qout_.normalize();
+      normalize(qout.const_cast_derived());
     }
 
     template <class Config_t>

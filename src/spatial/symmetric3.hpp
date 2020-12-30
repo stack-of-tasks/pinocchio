@@ -2,8 +2,8 @@
 // Copyright (c) 2014-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_symmetric3_hpp__
-#define __pinocchio_symmetric3_hpp__
+#ifndef __pinocchio_spatial_symmetric3__
+#define __pinocchio_spatial_symmetric3__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/matrix.hpp"
@@ -31,7 +31,7 @@ namespace pinocchio
     template<typename Sc,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,3,3,Opt> & I)
     {
-      assert( (I-I.transpose()).isMuchSmallerThan(I) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero((I-I.transpose()))));
       m_data(0) = I(0,0);
       m_data(1) = I(1,0); m_data(2) = I(1,1);
       m_data(3) = I(2,0); m_data(4) = I(2,1); m_data(5) = I(2,2);
@@ -388,17 +388,17 @@ namespace pinocchio
       return ((i!=2)&&(j!=2)) ? m_data[i+j] : m_data[i+j+1];
     }
 
-    Symmetric3Tpl operator-(const Matrix3 &S) const
+    Symmetric3Tpl operator-(const Matrix3 & S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
       return Symmetric3Tpl( m_data(0)-S(0,0),
 			    m_data(1)-S(1,0), m_data(2)-S(1,1),
 			    m_data(3)-S(2,0), m_data(4)-S(2,1), m_data(5)-S(2,2) );
     }
 
-    Symmetric3Tpl operator+(const Matrix3 &S) const
+    Symmetric3Tpl operator+(const Matrix3 & S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
       return Symmetric3Tpl( m_data(0)+S(0,0),
 			    m_data(1)+S(1,0), m_data(2)+S(1,1),
 			    m_data(3)+S(2,0), m_data(4)+S(2,1), m_data(5)+S(2,2) );
@@ -424,7 +424,7 @@ namespace pinocchio
     Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-      assert(isUnitary(R.transpose()*R) && "R is not a Unitary matrix");
+      assert(check_expression_if_real<Scalar>(isUnitary(R.transpose()*R)) && "R is not a Unitary matrix");
 
       Symmetric3Tpl Sres;
       
@@ -471,5 +471,5 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_symmetric3_hpp__
+#endif // ifndef __pinocchio_spatial_symmetric3__
 

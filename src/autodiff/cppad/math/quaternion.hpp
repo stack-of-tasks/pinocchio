@@ -42,8 +42,8 @@ namespace pinocchio
           for(Eigen::DenseIndex k = 0; k < 4; ++k)
           {
             ADScalar t_is_negative_cond1 = CppAD::CondExpGt<Scalar>(mat.coeff(1,1), mat.coeff(0,0),
-                                                         quat_t_negative_1.coeffs().coeff(k),
-                                                         quat_t_negative_0.coeffs().coeff(k));
+                                                                    quat_t_negative_1.coeffs().coeff(k),
+                                                                    quat_t_negative_0.coeffs().coeff(k));
 
             ADScalar t_is_negative_cond2 = CppAD::CondExpGt<Scalar>(mat.coeff(2,2), mat.coeff(0,0),
                                                                     quat_t_negative_2.coeffs().coeff(k),

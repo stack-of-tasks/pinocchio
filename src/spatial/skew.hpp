@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_skew_hpp__
-#define __pinocchio_skew_hpp__
+#ifndef __pinocchio_spatial_skew_hpp__
+#define __pinocchio_spatial_skew_hpp__
 
 #include "pinocchio/macros.hpp"
 
@@ -82,12 +82,12 @@ namespace pinocchio
   inline void unSkew(const Eigen::MatrixBase<Matrix3> & M,
                      const Eigen::MatrixBase<Vector3> & v)
   {
+    typedef typename Vector3::RealScalar Scalar;
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
-    assert((M + M.transpose()).isMuchSmallerThan(M));
+    assert(check_expression_if_real<Scalar>(isZero(M + M.transpose())));
     
     Vector3 & v_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3,v);
-    typedef typename Vector3::RealScalar Scalar;
     
     v_[0] = Scalar(0.5) * (M(2,1) - M(1,2));
     v_[1] = Scalar(0.5) * (M(0,2) - M(2,0));
@@ -104,10 +104,10 @@ namespace pinocchio
   /// \return The vector entries of the skew-symmetric matrix.
   ///
   template <typename Matrix3>
-  inline Eigen::Matrix<typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options>
+  inline Eigen::Matrix<typename Matrix3::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options>
   unSkew(const Eigen::MatrixBase<Matrix3> & M)
   {
-    Eigen::Matrix<typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
+    Eigen::Matrix<typename Matrix3::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options> v;
     unSkew(M,v);
     return v;
   }
@@ -243,4 +243,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_skew_hpp__
+#endif // ifndef __pinocchio_spatial_skew_hpp__

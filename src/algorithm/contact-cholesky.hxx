@@ -327,7 +327,7 @@ namespace pinocchio
           .cwiseProduct(D.segment(jj+1,NVT));
 
         D[jj] = M(j,j) - U.row(jj).segment(jj+1,NVT).dot(DUt_partial);
-        assert(D[jj] != Scalar(0) && "The diagonal element is equal to zero.");
+        assert(check_expression_if_real<Scalar>(D[jj] != Scalar(0)) && "The diagonal element is equal to zero.");
         Dinv[jj] = Scalar(1)/D[jj];
         
         for(Eigen::DenseIndex _ii = parents_fromRow[jj]; _ii >= total_constraints_dim; _ii = parents_fromRow[_ii])
@@ -460,7 +460,7 @@ namespace pinocchio
                 
               case CONTACT_6D:
               {
-                assert(sign != 0 && "sign should be equal to +1 or -1.");
+                assert(check_expression_if_real<Scalar>(sign != 0) && "sign should be equal to +1 or -1.");
                 switch(cmodel.reference_frame)
                 {
                   case WORLD:
@@ -528,7 +528,7 @@ namespace pinocchio
         DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
 
         D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
-        assert(D[j] != Scalar(0) && "The diagonal element is equal to zero.");
+        assert(check_expression_if_real<Scalar>(D[j] != Scalar(0)) && "The diagonal element is equal to zero.");
         Dinv[j] = Scalar(1)/D[j];
 
         for(Eigen::DenseIndex _i = j-1; _i >= 0; _i--)

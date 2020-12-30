@@ -81,7 +81,7 @@ namespace pinocchio
     typedef typename Matrix3::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options };
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
-    Quaternion quat(rot); quat.normalize();
+    Quaternion quat(rot); normalize(quat.coeffs());
     rot_ = quat.toRotationMatrix();
   }
 

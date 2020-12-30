@@ -599,8 +599,8 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::Inertia Inertia;
     
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {

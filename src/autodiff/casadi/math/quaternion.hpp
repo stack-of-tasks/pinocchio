@@ -64,4 +64,21 @@ namespace pinocchio
   
 } // namespace pinocchio
 
+namespace Eigen
+{
+  namespace internal
+  {
+    template<class Scalar, int Options>
+    struct quaternionbase_assign_impl<Eigen::Matrix<::casadi::Matrix<Scalar>,3,3,Options>,3,3 >
+    {
+      template<typename QuaternionDerived>
+      EIGEN_DEVICE_FUNC static inline void
+      run(QuaternionBase<QuaternionDerived> & q, const Eigen::Matrix<::casadi::Matrix<Scalar>,3,3,Options> & a_mat)
+      {
+        ::pinocchio::quaternion::internal::quaternionbase_assign_impl<::casadi::Matrix<Scalar>, false>::run(q,a_mat);
+      }
+    };
+  }
+}
+
 #endif // ifndef __pinocchio_autodiff_casadi_math_quaternion_hpp__

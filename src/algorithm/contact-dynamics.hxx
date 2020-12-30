@@ -180,7 +180,7 @@ namespace pinocchio
                                   "The joint velocity vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
                                   "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)),
                                    "mu has to be positive");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(),contact_datas.size(),
                                   "The contact models and data do not have the same vector size.");
@@ -289,7 +289,7 @@ namespace pinocchio
         contact_data.contact_velocity_error.angular().setZero();
       }
       
-      if(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0))
+      if(check_expression_if_real<Scalar,false>(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0)))
       {
         contact_acceleration_error.setZero();
       }
@@ -642,7 +642,7 @@ namespace pinocchio
                                    "The joint velocity vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
                                    "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(settings.mu >= Scalar(0),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
                                    "mu has to be positive");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(), contact_data.size(),
                                    "contact models and data size are not the same");

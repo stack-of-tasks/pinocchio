@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_constrained_dynamics_hpp__
-#define __pinocchio_constrained_dynamics_hpp__
+#ifndef __pinocchio_algorithm_constrained_dynamics_hpp__
+#define __pinocchio_algorithm_constrained_dynamics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -297,4 +297,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/constrained-dynamics.hxx"
 
-#endif // ifndef __pinocchio_constrained_dynamics_hpp__
+#endif // ifndef __pinocchio_algorithm_constrained_dynamics_hpp__

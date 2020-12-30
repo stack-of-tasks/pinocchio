@@ -14,9 +14,6 @@ namespace pinocchio
   
   namespace cholesky
   {
-    // Forward declaration of ContactCholeskyDecompositionTpl
-    template<typename Scalar, int Options> struct ContactCholeskyDecompositionTpl;
-    
     // Forward declaration of algo
     namespace details
     {
@@ -382,8 +379,6 @@ namespace pinocchio
       mutable RowMatrix OSIMinv_tmp, Minv_tmp;
       
     };
-    
-    typedef ContactCholeskyDecompositionTpl<double,0> ContactCholeskyDecomposition;
     
   } // namespace cholesky
     

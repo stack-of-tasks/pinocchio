@@ -1,19 +1,80 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_constrained_dynamics_hxx__
-#define __pinocchio_constrained_dynamics_hxx__
+#ifndef __pinocchio_algorithm_constrained_dynamics_hxx__
+#define __pinocchio_algorithm_constrained_dynamics_hxx__
 
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/math/matrix.hpp"
 
 #include <Eigen/Cholesky>
 
 namespace pinocchio
 {
+
+  namespace internal
+  {
+    template<typename Scalar, bool is_floating_point = pinocchio::is_floating_point<Scalar>::value>
+    struct PerformCholeskySolveInPlace
+    {
+      template<typename MatrixIn, typename MatrixLLT, typename MatrixOut>
+      static void run(const Eigen::MatrixBase<MatrixIn> & mat,
+                      Eigen::LLT<MatrixLLT> & llt,
+                      const Eigen::MatrixBase<MatrixOut> & res,
+                      const bool compute)
+      {
+        if(compute) llt.compute(mat);
+        llt.solveInPlace(res.const_cast_derived());
+      }
+      
+      template<typename MatrixIn, typename MatrixLLT, typename MatrixOut>
+      static void run(const Eigen::MatrixBase<MatrixIn> & /*mat*/,
+                      const Eigen::LLT<MatrixLLT> & llt,
+                      const Eigen::MatrixBase<MatrixOut> & res)
+      {
+        llt.solveInPlace(res.const_cast_derived());
+      }
+    };
+  
+    template<typename Scalar>
+    struct PerformCholeskySolveInPlace<Scalar,false>
+    {
+      template<typename MatrixIn, typename MatrixLLT, typename MatrixOut>
+      static void run(const Eigen::MatrixBase<MatrixIn> & mat,
+                      const Eigen::LLT<MatrixLLT> & /*llt*/,
+                      const Eigen::MatrixBase<MatrixOut> & res)
+      {
+        typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixIn) mat_inv(mat.rows(),mat.cols());
+        inverse(mat,mat_inv);
+        res.const_cast_derived() = mat_inv * res;
+      }
+    };
+  
+    template<typename Scalar, bool is_floating_point = pinocchio::is_floating_point<Scalar>::value>
+    struct PerformCholeskyCompute
+    {
+      template<typename MatrixIn, typename MatrixLLT>
+      static void run(const Eigen::MatrixBase<MatrixIn> & mat,
+                      Eigen::LLT<MatrixLLT> & llt)
+      {
+        llt.compute(mat);
+      }
+    };
+  
+    template<typename Scalar>
+    struct PerformCholeskyCompute<Scalar,false>
+    {
+      template<typename MatrixIn, typename MatrixLLT>
+      static void run(const Eigen::MatrixBase<MatrixIn> &,
+                      Eigen::LLT<MatrixLLT> &)
+      {}
+    };
+  
+  }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
   typename ConstraintMatrixType, typename DriftVectorType>
@@ -51,12 +112,13 @@ namespace pinocchio
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
     
     data.JMinvJt.diagonal().array() += inv_damping;
-    data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers
-    lambda_c.noalias() = -J*data.torque_residual;
-    lambda_c -= gamma;
-    data.llt_JMinvJt.solveInPlace(lambda_c);
+    lambda_c.noalias() = -J*data.torque_residual - gamma;
+//    data.llt_JMinvJt.compute(data.JMinvJt);
+//    data.llt_JMinvJt.solveInPlace(lambda_c);
+    internal::PerformCholeskyCompute<Scalar>::run(data.JMinvJt,data.llt_JMinvJt);
+    internal::PerformCholeskySolveInPlace<Scalar>::run(data.JMinvJt,data.llt_JMinvJt,lambda_c);
     
     // Compute the joint acceleration
     a.noalias() = J.transpose() * lambda_c;
@@ -96,7 +158,8 @@ namespace pinocchio
                                              const Scalar & inv_damping)
   {
     assert(model.check(data));
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(inv_damping >= 0., "mu must be positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(inv_damping >= 0.),
+                                   "mu must be positive.");
     
     // Compute the mass matrix.
     crba(model,data,q);
@@ -114,7 +177,8 @@ namespace pinocchio
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
     
     data.JMinvJt.diagonal().array() += inv_damping;
-    data.llt_JMinvJt.compute(data.JMinvJt);
+//    data.llt_JMinvJt.compute(data.JMinvJt);
+    internal::PerformCholeskyCompute<Scalar>::run(data.JMinvJt,data.llt_JMinvJt);
     
     getKKTContactDynamicMatrixInverse(model,data,J,KKTMatrix_inv.const_cast_derived());
   }
@@ -141,7 +205,9 @@ namespace pinocchio
     BlockType bottomLeft = KKTMatrix_inv_.bottomLeftCorner(nc, model.nv);
     BlockType bottomRight = KKTMatrix_inv_.bottomRightCorner(nc, nc);
     
-    bottomRight = -Data::MatrixXs::Identity(nc,nc); data.llt_JMinvJt.solveInPlace(bottomRight);
+    bottomRight = -Data::MatrixXs::Identity(nc,nc);
+//    data.llt_JMinvJt.solveInPlace(bottomRight);
+    internal::PerformCholeskySolveInPlace<Scalar>::run(data.JMinvJt,data.llt_JMinvJt,bottomRight);
     topLeft.setIdentity(); cholesky::solve(model, data, topLeft);
     
     bottomLeft.noalias() = J*topLeft;
@@ -192,16 +258,18 @@ namespace pinocchio
     data.sDUiJt = J.transpose();
     // Compute U^-1 * J.T
     cholesky::Uiv(model, data, data.sDUiJt);
-    for(int k=0;k<model.nv;++k) data.sDUiJt.row(k) /= sqrt(data.D[k]);
+    for(int k=0;k<model.nv;++k)
+      data.sDUiJt.row(k) /= sqrt(data.D[k]);
     
     data.JMinvJt.noalias() = data.sDUiJt.transpose() * data.sDUiJt;
-    
     data.JMinvJt.diagonal().array() += inv_damping;
-    data.llt_JMinvJt.compute(data.JMinvJt);
     
     // Compute the Lagrange Multipliers related to the contact impulses
     impulse_c.noalias() = (-r_coeff - 1.) * (J * v_before);
-    data.llt_JMinvJt.solveInPlace(impulse_c);
+//    data.llt_JMinvJt.compute(data.JMinvJt);
+//    data.llt_JMinvJt.solveInPlace(impulse_c);
+    internal::PerformCholeskyCompute<Scalar>::run(data.JMinvJt,data.llt_JMinvJt);
+    internal::PerformCholeskySolveInPlace<Scalar>::run(data.JMinvJt,data.llt_JMinvJt,impulse_c);
     
     // Compute the joint velocity after impacts
     dq_after.noalias() = J.transpose() * impulse_c;
@@ -212,4 +280,4 @@ namespace pinocchio
   }
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_constrained_dynamics_hxx__
+#endif // ifndef __pinocchio_algorithm_constrained_dynamics_hxx__

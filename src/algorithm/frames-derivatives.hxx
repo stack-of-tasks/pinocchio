@@ -25,6 +25,7 @@ namespace pinocchio
     
     typedef typename Data::Matrix6x Matrix6x;
     typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
     
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Matrix6x);

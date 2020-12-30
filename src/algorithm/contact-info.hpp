@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_contact_info_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/algorithm/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
@@ -41,8 +42,17 @@ namespace pinocchio
     enum { value  = 6 };
   };
 
+  template<typename _Scalar> struct BaumgarteCorrectorParametersTpl;
+
+  template<typename _Scalar>
+  struct traits< BaumgarteCorrectorParametersTpl<_Scalar> >
+  {
+    typedef _Scalar Scalar;
+  };
+
   template<typename _Scalar>
   struct BaumgarteCorrectorParametersTpl
+  : NumericalBase< BaumgarteCorrectorParametersTpl<_Scalar> >
   {
     typedef _Scalar Scalar;
     
@@ -66,12 +76,25 @@ namespace pinocchio
 
   template<typename Scalar, int Options> struct RigidContactModelTpl;
   template<typename Scalar, int Options> struct RigidContactDataTpl;
-  
+
+  template<typename _Scalar, int _Options>
+  struct traits< RigidContactModelTpl<_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+  };
+
+  template<typename _Scalar, int _Options>
+  struct traits< RigidContactDataTpl<_Scalar,_Options> >
+  {
+    typedef _Scalar Scalar;
+  };
+
   ///
   /// \brief Contact model structure containg all the info describing the rigid contact model
   ///
   template<typename _Scalar, int _Options>
   struct RigidContactModelTpl
+  : NumericalBase< RigidContactModelTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -300,6 +323,7 @@ namespace pinocchio
   ///
   template<typename _Scalar, int _Options>
   struct RigidContactDataTpl
+  : NumericalBase< RigidContactDataTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -397,8 +421,6 @@ namespace pinocchio
     }
   };
   
-  typedef RigidContactModelTpl<double,0> RigidContactModel;
-  typedef RigidContactDataTpl<double,0> RigidContactData;
 }
 
 #endif // ifndef __pinocchio_algorithm_contact_info_hpp__

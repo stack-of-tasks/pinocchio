@@ -28,14 +28,13 @@ namespace pinocchio
                                    "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv,
                                    "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= Scalar(0),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)),
                                    "mu has to be positive");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT((r_coeff >= Scalar(0)) &&(r_coeff <= Scalar(1)) ,
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) &&(r_coeff <= Scalar(1))),
                                    "r_coeff has to be in [0,1]");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_models.size() == contact_datas.size(),
                                    "The contact models and data do not have the same vector size.");
     
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
@@ -82,14 +81,14 @@ namespace pinocchio
       RigidContactData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
-      const typename Model::JointIndex & joint1_id = contact_model.joint1_id;
+      const JointIndex joint1_id = contact_model.joint1_id;
       const typename Data::SE3 & oMi = data.oMi[joint1_id];
       typename Data::SE3 & oMc = contact_data.oMc1;
 
       // Update contact placement
       oMc = oMi * contact_model.joint1_placement;
 
-      Motion pre_impact_velocity;
+      typename Data::Motion pre_impact_velocity;
       switch(contact_model.reference_frame)
       {
         case WORLD:

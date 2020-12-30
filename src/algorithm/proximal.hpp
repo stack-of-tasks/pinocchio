@@ -43,8 +43,8 @@ namespace pinocchio
     , residual(-1.)
     , iter(0)
     {
-      assert(accuracy >= 0. && "accuracy must be positive");
-      assert(mu >= 0. && "mu must be positive");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(accuracy >= 0.) && "accuracy must be positive");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0.) && "mu must be positive");
       assert(max_iter >= 1 && "max_iter must be greater or equal to 1");
     }
     
@@ -69,7 +69,6 @@ namespace pinocchio
     
   };
   
-  typedef ProximalSettingsTpl<double> ProximalSettings;
 }
 
 #endif // ifndef __pinocchio_algorithm_proximal_hpp__

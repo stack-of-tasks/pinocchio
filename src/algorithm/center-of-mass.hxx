@@ -409,7 +409,8 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data,Jcom_subtree,computeSubtreeComs));
     }
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(data.mass[rootSubtreeId] > 0., "The mass of the subtree is not positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(data.mass[rootSubtreeId] > 0.),
+                                   "The mass of the subtree is not positive.");
     const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
     typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
     if(!computeSubtreeComs)

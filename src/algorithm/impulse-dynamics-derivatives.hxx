@@ -206,7 +206,7 @@ namespace pinocchio
                                                 const Eigen::MatrixBase<MatrixType3> & impulse_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType4> & impulse_partial_dv)
   {
-    const Eigen::DenseIndex & nc = data.contact_chol.constraintDim();
+    const Eigen::DenseIndex nc = data.contact_chol.constraintDim();
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(contact_data.size() == contact_models.size(),
                                    "contact_data and contact_models do not have the same size");
@@ -222,16 +222,18 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dv.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dv.rows() == nc);
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT((r_coeff >= Scalar(0)) && (r_coeff <= Scalar(1)) && "mu must be positive.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= (Scalar)0 && "mu must be positive.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(model.gravity.angular().isZero(),
-                                   "The gravity must be a pure force vector, no angular part");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) && (r_coeff <= Scalar(1))) && "mu must be positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= (Scalar(0))) && "mu must be positive.");
+//    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(model.gravity.angular().isZero()),
+//                                   "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");
     data.dtau_dq.setZero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Force Force;
     
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
