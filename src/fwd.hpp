@@ -21,8 +21,14 @@ namespace pinocchio {}
 
 #include "pinocchio/utils/helpers.hpp"
 #include "pinocchio/utils/cast.hpp"
+#include "pinocchio/utils/check.hpp"
 
 #include "pinocchio/container/boost-container-limits.hpp"
+
+#define PINOCCHIO_SCALAR_TYPE_DEFAULT double
+#ifndef PINOCCHIO_SCALAR_TYPE
+#define PINOCCHIO_SCALAR_TYPE PINOCCHIO_SCALAR_TYPE_DEFAULT
+#endif
 
 #ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
   #ifndef EIGEN_RUNTIME_NO_MALLOC
