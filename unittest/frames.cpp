@@ -54,6 +54,11 @@ BOOST_AUTO_TEST_CASE(cast)
   
   BOOST_CHECK(frame.cast<double>() == frame);
   BOOST_CHECK(frame.cast<double>().cast<long double>() == frame.cast<long double>());
+  
+  typedef FrameTpl<long double> Frameld;
+  Frameld frame2(frame);
+  
+  BOOST_CHECK(frame2 == frame.cast<long double>()); 
 }
 
 BOOST_AUTO_TEST_CASE ( test_kinematics )

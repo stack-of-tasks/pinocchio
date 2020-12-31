@@ -45,7 +45,7 @@ namespace pinocchio
     ///
     /// \brief Default constructor of a frame.
     ///
-    FrameTpl() : name(), parent(), placement(), type() {} // needed by std::vector
+    FrameTpl() {} // needed by std::vector
     
     ///
     /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
@@ -69,12 +69,23 @@ namespace pinocchio
     {}
     
     ///
+    /// \brief Copy constructor by casting
+    ///
+    /// \param[in] other Frame to copy
+    ///
+    template<typename S2, int O2>
+    explicit FrameTpl(const FrameTpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
+    }
+    
+    ///
     /// \returns true if *this and other matches and have the same parent, name and type.
     ///
     /// \param[in] other The frame to which the current frame is compared.
     ///
     template<typename S2, int O2>
-    bool operator == (const FrameTpl<S2,O2> & other) const
+    bool operator ==(const FrameTpl<S2,O2> & other) const
     {
       return name == other.name
       && parent == other.parent

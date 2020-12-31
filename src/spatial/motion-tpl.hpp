@@ -54,13 +54,14 @@ namespace pinocchio
     using Base::__mult__;
 
     // Constructors
-    MotionTpl() : m_data() {}
+    MotionTpl() {}
     
     template<typename V1,typename V2>
-    MotionTpl(const Eigen::MatrixBase<V1> & v, const Eigen::MatrixBase<V2> & w)
+    MotionTpl(const Eigen::MatrixBase<V1> & v,
+              const Eigen::MatrixBase<V2> & w)
     {
-      assert(v.size() == 3);
-      assert(w.size() == 3);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V1);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V2);
       linear() = v; angular() = w;
     }
     
@@ -69,7 +70,17 @@ namespace pinocchio
     : m_data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
-      assert(v.size() == 6);
+    }
+    
+    MotionTpl(const MotionTpl & other)
+    {
+      *this = other;
+    }
+    
+    template<typename S2, int O2>
+    explicit MotionTpl(const MotionTpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
     }
     
     template<int O2>

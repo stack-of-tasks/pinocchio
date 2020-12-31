@@ -46,13 +46,14 @@ namespace pinocchio
     using Base::angular;
     
     // Constructors
-    ForceTpl() : m_data() {}
+    ForceTpl() {}
     
     template<typename V1,typename V2>
-    ForceTpl(const Eigen::MatrixBase<V1> & v, const Eigen::MatrixBase<V2> & w)
+    ForceTpl(const Eigen::MatrixBase<V1> & v,
+             const Eigen::MatrixBase<V2> & w)
     {
-      assert(v.size() == 3);
-      assert(w.size() == 3);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V1);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(V2);
       linear() = v; angular() = w;
     }
     
@@ -61,12 +62,21 @@ namespace pinocchio
     : m_data(v)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(V6);
-      assert(v.size() == 6);
     }
 
     ForceTpl(const ForceTpl & clone) // Copy constructor
     : m_data(clone.toVector())
     {}
+    
+    template<typename S2, int O2>
+    explicit ForceTpl(const ForceTpl<S2,O2> & other)
+    {
+      *this = other.template  cast<Scalar>();
+    }
+    
+    template<typename F2>
+    explicit ForceTpl(const ForceBase<F2> & clone)
+    { *this = clone; }
 
     ForceTpl& operator=(const ForceTpl & clone)  // Copy assignment operator
     {

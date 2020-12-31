@@ -127,6 +127,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     
     BOOST_CHECK(model.cast<double>() == model.cast<double>());
     BOOST_CHECK(model.cast<double>().cast<long double>() == model.cast<long double>());
+    
+    typedef ModelTpl<long double> Modelld;
+    
+    Modelld model2(model);
+    BOOST_CHECK(model2 == model.cast<long double>());
   }
 
   BOOST_AUTO_TEST_CASE(test_std_vector_of_Model)

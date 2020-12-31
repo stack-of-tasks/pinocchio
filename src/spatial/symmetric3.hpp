@@ -26,7 +26,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   public:    
-    Symmetric3Tpl(): m_data() {}
+    Symmetric3Tpl() {}
 
     template<typename Sc,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,3,3,Opt> & I)
@@ -38,6 +38,17 @@ namespace pinocchio
     }
     
     explicit Symmetric3Tpl(const Vector6 & I) : m_data(I) {}
+    
+    Symmetric3Tpl(const Symmetric3Tpl & other)
+    {
+      *this = other;
+    }
+    
+    template<typename S2, int O2>
+    explicit Symmetric3Tpl(const Symmetric3Tpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
+    }
     
     Symmetric3Tpl(const Scalar & a0, const Scalar & a1, const Scalar & a2,
 		  const Scalar & a3, const Scalar & a4, const Scalar & a5)

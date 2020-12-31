@@ -210,13 +210,19 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointModelTest;
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointDataTest;
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct traits< JointDataTest<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointDataTest<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct traits< JointModelTest<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointModelTest<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct traits< JointTest<_Scalar,_Options,JointCollectionTpl> >

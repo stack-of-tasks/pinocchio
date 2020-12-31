@@ -208,7 +208,17 @@ namespace pinocchio
       // Model::addJointFrame and Model::addBodyFrame
       addFrame(Frame("universe", 0, 0, SE3::Identity(), FIXED_JOINT));
     }
-    ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
+    
+    ///
+    /// \brief Copy constructor by casting
+    ///
+    /// \param[in] other model to copy to *this
+    ///
+    template<typename S2, int O2>
+    explicit ModelTpl(const ModelTpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
+    }
     
     /// \returns A new copy of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>

@@ -165,14 +165,13 @@ namespace pinocchio
     typedef typename Eigen::Matrix<Scalar,10,1,Options> Vector10;
 
     // Constructors
-    InertiaTpl()
-    {}
+    InertiaTpl() {}
 
-    InertiaTpl(const Scalar mass, const Vector3 & com, const Matrix3 & rotational_inertia)
+    InertiaTpl(const Scalar & mass, const Vector3 & com, const Matrix3 & rotational_inertia)
     : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
-    InertiaTpl(const Matrix6 & I6)
+    explicit InertiaTpl(const Matrix6 & I6)
     {
       assert(check_expression_if_real<Scalar>(isZero(I6 - I6.transpose())));
       mass() = I6(LINEAR, LINEAR);
@@ -187,15 +186,17 @@ namespace pinocchio
       inertia() = S3;
     }
 
-    InertiaTpl(Scalar mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
+    InertiaTpl(const Scalar & mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
     : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
     InertiaTpl(const InertiaTpl & clone)  // Copy constructor
-    : m_mass(clone.mass()), m_com(clone.lever()), m_inertia(clone.inertia())
+    : m_mass(clone.mass())
+    , m_com(clone.lever())
+    , m_inertia(clone.inertia())
     {}
 
-    InertiaTpl& operator=(const InertiaTpl & clone)  // Copy assignment operator
+    InertiaTpl & operator=(const InertiaTpl & clone)  // Copy assignment operator
     {
       m_mass = clone.mass();
       m_com = clone.lever();
@@ -203,12 +204,11 @@ namespace pinocchio
       return *this;
     }
 
-    template<int O2>
-    InertiaTpl(const InertiaTpl<Scalar,O2> & clone)
-    : m_mass(clone.mass())
-    , m_com(clone.lever())
-    , m_inertia(clone.inertia().matrix())
-    {}
+    template<typename S2, int O2>
+    explicit InertiaTpl(const InertiaTpl<S2,O2> & clone)
+    {
+      *this = clone.template cast<Scalar>();
+    }
 
     // Initializers
     static InertiaTpl Zero() 
@@ -227,7 +227,7 @@ namespace pinocchio
                         Symmetric3::Identity());
     }
     
-    void setIdentity ()
+    void setIdentity()
     {
       mass() = Scalar(1); lever().setZero(); inertia().setIdentity();
     }
