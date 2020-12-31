@@ -12,7 +12,7 @@
 #undef PINOCCHIO_PYTHON_SCALAR_TYPE
 
 #define PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
-#define PINOCCHIO_PYTHON_NO_SERIAL  IZATION
+#define PINOCCHIO_PYTHON_NO_SERIALIZATION
 
 #include <eigenpy/eigenpy.hpp>
 #include <eigenpy/user-type.hpp>
