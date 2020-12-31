@@ -14,8 +14,8 @@ namespace pinocchio
     
     void exposeMotion()
     {
-      MotionPythonVisitor<Motion>::expose();
-      StdAlignedVectorPythonVisitor<Motion>::expose("StdVec_Motion");
+      MotionPythonVisitor<context::Motion>::expose();
+      StdAlignedVectorPythonVisitor<context::Motion>::expose("StdVec_Motion");
       
       exposeClassicAcceleration();
     }

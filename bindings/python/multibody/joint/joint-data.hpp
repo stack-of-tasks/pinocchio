@@ -17,6 +17,7 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
+    template<typename JointData>
     struct JointDataPythonVisitor
     {
       
@@ -25,7 +26,7 @@ namespace pinocchio
         bp::class_<JointData>("JointData",
                               "Generic Joint Data",
                               bp::no_init)
-        .def(bp::init<pinocchio::JointDataVariant>(bp::args("self","joint_data")))
+        .def(bp::init<typename JointData::JointDataVariant>(bp::args("self","joint_data")))
         .def(JointDataBasePythonVisitor<JointData>())
         .def(PrintableVisitor<JointData>())
         ;

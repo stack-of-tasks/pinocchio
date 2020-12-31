@@ -13,8 +13,8 @@ namespace pinocchio
   namespace python
   {
     
-    const Data::RowMatrixXs &
-    computeMinverse_proxy(const Model & model, Data & data, const Eigen::VectorXd & q)
+    const context::Data::RowMatrixXs &
+    computeMinverse_proxy(const context::Model & model, context::Data & data, const context::VectorXs & q)
     {
       computeMinverse(model,data,q);
       make_symmetric(data.Minv);
@@ -23,22 +23,23 @@ namespace pinocchio
   
     namespace optimized
     {
-      const Data::RowMatrixXs &
-      computeMinverse_proxy(const Model & model, Data & data)
+      const context::Data::RowMatrixXs &
+      computeMinverse_proxy(const context::Model & model, context::Data & data)
       {
         pinocchio::optimized::computeMinverse(model,data);
-        data.Minv.triangularView<Eigen::StrictlyLower>() =
-        data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+        make_symmetric(data.Minv);
         return data.Minv;
       }
     }
     
     void exposeABA()
     {
-      using namespace Eigen;
-
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
+      
       bp::def("aba",
-              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+              &aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs>,
               bp::args("model","data","q","v","tau"),
               "Compute ABA, store the result in data.ddq and return it.\n"
               "Parameters:\n"
@@ -50,7 +51,7 @@ namespace pinocchio
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
-              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
+              &aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs,context::Force>,
               bp::args("model","data","q","v","tau","fext"),
               "Compute ABA with external forces, store the result in data.ddq and return it.\n"
               "Parameters:\n"
@@ -77,7 +78,7 @@ namespace pinocchio
         bp::scope current_scope = getOrCreatePythonNamespace("optimized");
         
         bp::def("aba",
-                &pinocchio::optimized::aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+                &pinocchio::optimized::aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs>,
                 bp::args("model","data","q","v","tau"),
                 "Compute ABA, store the result in data.ddq and return it.\n"
                 "Parameters:\n"
@@ -89,7 +90,7 @@ namespace pinocchio
                 bp::return_value_policy<bp::return_by_value>());
 
         bp::def("aba",
-                &pinocchio::optimized::aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
+                &pinocchio::optimized::aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs,context::Force>,
                 bp::args("model","data","q","v","tau","fext"),
                 "Compute ABA with external forces, store the result in data.ddq and return it.\n"
                 "Parameters:\n"

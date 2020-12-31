@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -13,8 +13,8 @@ namespace pinocchio
     
     void exposeInertia()
     {
-      InertiaPythonVisitor<Inertia>::expose();
-      StdAlignedVectorPythonVisitor<Inertia>::expose("StdVec_Inertia");
+      InertiaPythonVisitor<context::Inertia>::expose();
+      StdAlignedVectorPythonVisitor<context::Inertia>::expose("StdVec_Inertia");
     }
     
   } // namespace python

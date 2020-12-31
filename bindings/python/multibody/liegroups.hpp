@@ -21,9 +21,9 @@ namespace bp = boost::python;
 template<class LieGroupType>
 struct LieGroupWrapperTpl
 {
-  typedef Eigen::Matrix<double, Eigen::Dynamic, 1> ConfigVector_t;
-  typedef Eigen::Matrix<double, Eigen::Dynamic, 1> TangentVector_t;
-  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> JacobianMatrix_t;
+  typedef Eigen::Matrix<context::Scalar, Eigen::Dynamic, 1> ConfigVector_t;
+  typedef Eigen::Matrix<context::Scalar, Eigen::Dynamic, 1> TangentVector_t;
+  typedef Eigen::Matrix<context::Scalar, Eigen::Dynamic, Eigen::Dynamic> JacobianMatrix_t;
 
   static ConfigVector_t integrate(const LieGroupType& lg,
       const ConfigVector_t& q, const TangentVector_t& v)
@@ -178,7 +178,7 @@ public:
   template<class PyClass>
   void visit(PyClass& cl) const
   {
-    typedef Eigen::Matrix<double, Eigen::Dynamic, 1> ConfigVector_t;
+    typedef Eigen::Matrix<context::Scalar, Eigen::Dynamic, 1> ConfigVector_t;
 
     typedef LieGroupWrapperTpl<LieGroupType> LieGroupWrapper;
     cl
@@ -213,7 +213,9 @@ public:
 
     .def(bp::self * bp::self)
     .def(bp::self *= bp::self)
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
     .def(bp::self == bp::self)
+#endif
     ;
   }
 

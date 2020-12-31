@@ -13,8 +13,8 @@ namespace pinocchio
     
     void exposeFrame()
     {
-      FramePythonVisitor<Frame>::expose();
-      StdAlignedVectorPythonVisitor<Frame>::expose("StdVec_Frame");
+      FramePythonVisitor<context::Frame>::expose();
+      StdAlignedVectorPythonVisitor<context::Frame>::expose("StdVec_Frame");
     }
     
   } // namespace python

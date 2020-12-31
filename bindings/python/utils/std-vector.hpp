@@ -8,12 +8,14 @@
 #include <boost/python.hpp>
 #include <boost/python/stl_iterator.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include <boost/mpl/if.hpp>
 
 #include <string>
 #include <vector>
 #include <iterator>
 
 #include "pinocchio/bindings/python/utils/pickle-vector.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 namespace pinocchio
 {
@@ -276,6 +278,84 @@ namespace pinocchio
         return details::build_list<vector_type,NoProxy>::run(self);
       }
     };
+  
+    namespace internal
+    {
+    
+//    template<typename T> struct has_operator_equal;
+      template<typename T>
+      struct has_operator_equal :
+      boost::mpl::if_<typename boost::is_base_of<NumericalBase<T>,T>::type,has_operator_equal< NumericalBase<T> >,
+      typename boost::mpl::if_<typename boost::is_base_of<Eigen::EigenBase<T>,T>::type,has_operator_equal< Eigen::EigenBase<T> >,
+      boost::true_type>::type >
+      {};
+    
+    
+      template<typename T, class A>
+      struct has_operator_equal< std::vector<T,A> > : has_operator_equal<T>
+      {};
+    
+      template<>
+      struct has_operator_equal<bool> : boost::true_type
+      {};
+    
+      template<typename EigenObject>
+      struct has_operator_equal< Eigen::EigenBase<EigenObject> > : has_operator_equal<typename EigenObject::Scalar>
+      {};
+  
+      template<typename Derived>
+      struct has_operator_equal< NumericalBase<Derived> > : has_operator_equal<typename NumericalBase<Derived>::Scalar>
+      {};
+    
+      template<typename T, bool has_operator_equal_value = boost::is_base_of<boost::true_type,has_operator_equal<T> >::value >
+      struct contains_algo;
+    
+      template<typename T>
+      struct contains_algo<T,true>
+      {
+        template<class Container, typename key_type>
+        static bool run(Container & container, key_type const & key)
+        {
+          return std::find(container.begin(), container.end(), key)
+          != container.end();
+        }
+      };
+      
+      template<typename T>
+      struct contains_algo<T,false>
+      {
+        template<class Container, typename key_type>
+        static bool run(Container & container, key_type const & key)
+        {
+          for(size_t k = 0; k < container.size(); ++k)
+          {
+            if(&container[k] == &key)
+              return true;
+          }
+          return false;
+        }
+      };
+    
+      template<class Container, bool NoProxy>
+      struct contains_vector_derived_policies
+      : public ::boost::python::vector_indexing_suite<Container,NoProxy,contains_vector_derived_policies<Container, NoProxy> >
+      {
+        typedef typename Container::value_type key_type;
+        
+        static bool contains(Container & container, key_type const & key)
+        {
+          return contains_algo<key_type>::run(container,key);
+        }
+      };
+    }
+  
+    struct EmptyPythonVisitor
+    : public ::boost::python::def_visitor<EmptyPythonVisitor>
+    {
+      template <class classT>
+      void visit(classT &) const
+      {}
+    };
     
     ///
     /// \brief Expose an std::vector from a type given as template argument.
@@ -289,29 +369,49 @@ namespace pinocchio
     ///
     template<class T, class Allocator = std::allocator<T>, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdVectorPythonVisitor
-    : public ::boost::python::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy>
+    : public ::boost::python::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy, internal::contains_vector_derived_policies<typename std::vector<T,Allocator>,NoProxy> >
     , public StdContainerFromPythonList< std::vector<T,Allocator>,NoProxy>
     {
       typedef std::vector<T,Allocator> vector_type;
       typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       
-      static ::boost::python::class_<vector_type> expose(const std::string & class_name,
-                                                         const std::string & doc_string = "")
+      static void expose(const std::string & class_name,
+                         const std::string & doc_string = "")
+      {
+        expose(class_name,doc_string,EmptyPythonVisitor());
+      }
+      
+      template<typename VisitorDerived>
+      static void expose(const std::string & class_name,
+                         const boost::python::def_visitor<VisitorDerived> & visitor)
+      {
+        expose(class_name,"",visitor);
+      }
+      
+      template<typename VisitorDerived>
+      static void expose(const std::string & class_name,
+                         const std::string & doc_string,
+                         const boost::python::def_visitor<VisitorDerived> & visitor)
       {
         namespace bp = boost::python;
         
-        bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
-        cl
-        .def(StdVectorPythonVisitor())
-        .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
-             "Returns the std::vector as a Python list.")
-        .def_pickle(PickleVector<vector_type>());
-        
-        // Register conversion
-        if(EnableFromPythonListConverter)
-          FromPythonListConverter::register_converter();
-        
-        return cl;
+        if(!register_symbolic_link_to_registered_type<vector_type>())
+        {
+          bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
+          cl
+          .def(StdVectorPythonVisitor())
+          .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
+               "Returns the std::vector as a Python list.")
+          .def(visitor)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(PickleVector<vector_type>())
+#endif
+          ;
+          
+          // Register conversion
+          if(EnableFromPythonListConverter)
+            FromPythonListConverter::register_converter();
+        }
       }
     };
     

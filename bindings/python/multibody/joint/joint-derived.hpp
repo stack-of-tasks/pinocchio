@@ -8,6 +8,7 @@
 #include <boost/python.hpp>
 #include <eigenpy/exception.hpp>
 
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 
 namespace pinocchio
@@ -60,10 +61,10 @@ namespace pinocchio
       static int get_nv(const JointModelDerived & self)
       { return self.nv(); }
       static void calc0(const JointModelDerived & self, JointDataDerived & jdata,
-                        const Eigen::VectorXd & q)
+                        const context::VectorXs & q)
       { self.calc(jdata,q); }
       static void calc1(const JointModelDerived & self, JointDataDerived & jdata,
-                        const Eigen::VectorXd & q, const Eigen::VectorXd & v)
+                        const context::VectorXs & q, const context::VectorXs & v)
       { self.calc(jdata,q,v); }
 
       static void expose()

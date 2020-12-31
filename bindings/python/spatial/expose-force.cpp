@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -13,8 +13,8 @@ namespace pinocchio
     
     void exposeForce()
     {
-      ForcePythonVisitor<Force>::expose();
-      StdAlignedVectorPythonVisitor<Force>::expose("StdVec_Force");
+      ForcePythonVisitor<context::Force>::expose();
+      StdAlignedVectorPythonVisitor<context::Force>::expose("StdVec_Force");
     }
     
   } // namespace python

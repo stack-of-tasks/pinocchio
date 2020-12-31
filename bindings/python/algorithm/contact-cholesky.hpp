@@ -10,8 +10,9 @@
 
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/comparable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::cholesky::ContactCholeskyDecomposition)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::ContactCholeskyDecomposition)
 
 namespace pinocchio
 {
@@ -30,6 +31,9 @@ namespace pinocchio
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) RigidContactModelVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) RigidContactDataVector;
+      
+      typedef pinocchio::python::context::Model Model;
+      typedef pinocchio::python::context::Data Data;
 
     public:
       
@@ -99,8 +103,7 @@ namespace pinocchio
              bp::arg("self"),
              "Retrieves the Cholesky decomposition of the Mass Matrix contained in the current decomposition.")
         
-        .def(bp::self == bp::self)
-        .def(bp::self != bp::self)
+        .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
       

@@ -9,8 +9,10 @@
 
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
+#include "pinocchio/bindings/python/utils/comparable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::RigidContactModel)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactModel)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactData)
 
 namespace pinocchio
 {
@@ -18,46 +20,45 @@ namespace pinocchio
   {
     namespace bp = boost::python;
   
-  template<typename BaumgarteCorrectorParameters>
-  struct BaumgarteCorrectorParametersPythonVisitor
-  : public boost::python::def_visitor< BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters> >
-  {
-    typedef typename BaumgarteCorrectorParameters::Scalar Scalar;
-    typedef BaumgarteCorrectorParameters Self;
-
-  public:
-    
-    template<class PyClass>
-    void visit(PyClass& cl) const
+    template<typename BaumgarteCorrectorParameters>
+    struct BaumgarteCorrectorParametersPythonVisitor
+    : public boost::python::def_visitor< BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters> >
     {
-      cl
-      .def(bp::init<>(bp::arg("self"),
-                      "Default constructor."))
+      typedef typename BaumgarteCorrectorParameters::Scalar Scalar;
+      typedef BaumgarteCorrectorParameters Self;
       
-      .PINOCCHIO_ADD_PROPERTY(Self,Kp,"Proportional corrector value.")
-      .PINOCCHIO_ADD_PROPERTY(Self,Kd,"Damping corrector value.")
+    public:
       
-      .def(bp::self == bp::self)
-      .def(bp::self != bp::self)
-      ;
-    }
-    
-    static void expose()
-    {
-      bp::class_<BaumgarteCorrectorParameters>("BaumgarteCorrectorParameters",
-                                               "Paramaters of the Baumgarte Corrector.",
-                                               bp::no_init)
-      .def(BaumgarteCorrectorParametersPythonVisitor())
-      ;
+      template<class PyClass>
+      void visit(PyClass& cl) const
+      {
+        cl
+        .def(bp::init<>(bp::arg("self"),
+                        "Default constructor."))
+        
+        .PINOCCHIO_ADD_PROPERTY(Self,Kp,"Proportional corrector value.")
+        .PINOCCHIO_ADD_PROPERTY(Self,Kd,"Damping corrector value.")
+        .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
+        ;
+      }
       
-    }
-  };
+      static void expose()
+      {
+        bp::class_<BaumgarteCorrectorParameters>("BaumgarteCorrectorParameters",
+                                                 "Paramaters of the Baumgarte Corrector.",
+                                                 bp::no_init)
+        .def(BaumgarteCorrectorParametersPythonVisitor())
+        ;
+        
+      }
+    };
     
     template<typename RigidContactModel>
     struct RigidContactModelPythonVisitor
     : public boost::python::def_visitor< RigidContactModelPythonVisitor<RigidContactModel> >
     {
       typedef typename RigidContactModel::Scalar Scalar;
+      typedef typename RigidContactModel::SE3 SE3;
       typedef RigidContactModel Self;
       typedef typename RigidContactModel::ContactData ContactData;
       typedef typename RigidContactModel::BaumgarteCorrectorParameters BaumgarteCorrectorParameters;
@@ -111,8 +112,7 @@ namespace pinocchio
              &RigidContactModelPythonVisitor::createData,
              "Create a Data object for the given model.")
         
-        .def(bp::self == bp::self)
-        .def(bp::self != bp::self)
+        .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
       
@@ -182,8 +182,7 @@ namespace pinocchio
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_deviation,
                                 "Contact deviation from the reference acceleration (a.k.a the error).")
         
-        .def(bp::self == bp::self)
-        .def(bp::self != bp::self)
+        .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
       

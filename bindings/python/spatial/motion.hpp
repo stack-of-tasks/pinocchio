@@ -9,6 +9,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/python/implicit.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
@@ -16,7 +17,7 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Motion)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Motion)
 
 namespace pinocchio
 {
@@ -119,13 +120,16 @@ namespace pinocchio
         .def(bp::self ^ bp::self)
         .def(bp::self ^ Force())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .def(bp::self * Scalar())
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              call<Motion>::isApprox,
              isApproxMotion_overload(bp::args("self","other","prec"),
@@ -135,6 +139,7 @@ namespace pinocchio
              call<Motion>::isZero,
              isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Motion, within the precision given by prec."))
+#endif
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -143,13 +148,18 @@ namespace pinocchio
         
         .def("__array__",bp::make_function((typename Motion::ToVectorReturnType (Motion::*)())&Motion::toVector,
                                             bp::return_internal_reference<>()))
-        
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
 
       static void expose()
       {
+        typedef pinocchio::MotionDense<Motion> MotionDense;
+        bp::objects::register_dynamic_id<MotionDense>();
+        bp::objects::register_conversion<Motion,MotionDense>(false);
+        
         bp::class_<Motion>("Motion",
                            "Motion vectors, in se3 == M^6.\n\n"
                            "Supported operations ...",

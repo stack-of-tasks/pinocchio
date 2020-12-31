@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -13,8 +13,8 @@ namespace pinocchio
     
     void exposeSE3()
     {
-      SE3PythonVisitor<SE3>::expose();
-      StdAlignedVectorPythonVisitor<SE3>::expose("StdVec_SE3");
+      SE3PythonVisitor<context::SE3>::expose();
+      StdAlignedVectorPythonVisitor<context::SE3>::expose("StdVec_SE3");
     }
     
   } // namespace python

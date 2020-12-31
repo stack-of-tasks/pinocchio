@@ -18,14 +18,17 @@ namespace pinocchio
     namespace python
     {
     
-      static const Eigen::VectorXd impulseDynamics_proxy(const Model & model,
-                                                         Data & data,
-                                                         const Eigen::VectorXd & q,
-                                                         const Eigen::VectorXd & v,
-                                                         const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_models,
-                                                         PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) & contact_datas,
-                                                         const double r_coeff =0.0,
-                                                         const double mu = 0.0)
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+    
+      static const context::VectorXs impulseDynamics_proxy(const context::Model & model,
+                                                           context::Data & data,
+                                                           const context::VectorXs & q,
+                                                           const context::VectorXs & v,
+                                                           const RigidContactModelVector & contact_models,
+                                                           RigidContactDataVector & contact_datas,
+                                                           const context::Scalar & r_coeff =0.0,
+                                                           const context::Scalar & mu = 0.0)
       {
         return impulseDynamics(model, data, q, v, contact_models, contact_datas, r_coeff, mu);
       }
@@ -35,8 +38,6 @@ namespace pinocchio
     
       void exposeImpulseDynamics()
       {
-        using namespace Eigen;
-                
         bp::def("impulseDynamics",
                 impulseDynamics_proxy,
                 impulseDynamics_overloads(bp::args("model","data","q","v","contact_models","contact_datas","r_coeff","mu"),

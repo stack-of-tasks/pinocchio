@@ -3,9 +3,9 @@
 #
 
 import numpy
-from .pinocchio_pywrap import *
+from .pinocchio_pywrap_default import *
 
-from .pinocchio_pywrap import __version__, __raw_version__
+from .pinocchio_pywrap_default import __version__, __raw_version__
 
 from . import utils
 from .explog import exp, log

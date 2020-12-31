@@ -15,7 +15,7 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Force)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Force)
 
 namespace pinocchio
 {
@@ -104,14 +104,17 @@ namespace pinocchio
         .def(bp::self - bp::self)
         .def(bp::self -= bp::self)
         .def(-bp::self)
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .def(bp::self * Scalar())
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              &call<Force>::isApprox,
              isApproxForce_overload(bp::args("self","other","prec"),
@@ -121,6 +124,7 @@ namespace pinocchio
              &call<Force>::isZero,
              isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
+#endif
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -129,13 +133,18 @@ namespace pinocchio
         
         .def("__array__",bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
                                            bp::return_internal_reference<>()))
-        
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
       
       static void expose()
       {
+        typedef pinocchio::ForceDense<Force> ForceDense;
+        bp::objects::register_dynamic_id<ForceDense>();
+        bp::objects::register_conversion<Force,ForceDense>(false);
+        
         bp::class_<Force>("Force",
                           "Force vectors, in se3* == F^6.\n\n"
                           "Supported operations ...",

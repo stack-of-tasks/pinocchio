@@ -15,12 +15,12 @@ namespace pinocchio
   {
   
     namespace bp = boost::python;
-    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(context::Force) ForceAlignedVector;
 
-    bp::tuple computeABADerivatives(const Model & model, Data & data,
-                                    const Eigen::VectorXd & q,
-                                    const Eigen::VectorXd & v,
-                                    const Eigen::VectorXd & tau)
+    bp::tuple computeABADerivatives(const context::Model & model, context::Data & data,
+                                    const context::VectorXs & q,
+                                    const context::VectorXs & v,
+                                    const context::VectorXs & tau)
     {
       pinocchio::computeABADerivatives(model,data,q,v,tau);
       make_symmetric(data.Minv);
@@ -29,10 +29,10 @@ namespace pinocchio
                             make_ref(data.Minv));
     }
 
-    bp::tuple computeABADerivatives_fext(const Model & model, Data & data,
-                                         const Eigen::VectorXd & q,
-                                         const Eigen::VectorXd & v,
-                                         const Eigen::VectorXd & tau,
+    bp::tuple computeABADerivatives_fext(const context::Model & model, context::Data & data,
+                                         const context::VectorXs & q,
+                                         const context::VectorXs & v,
+                                         const context::VectorXs & tau,
                                          const ForceAlignedVector & fext)
     {
       pinocchio::computeABADerivatives(model,data,q,v,tau,fext);
@@ -44,7 +44,7 @@ namespace pinocchio
 
     namespace optimized
     {
-      bp::tuple computeABADerivatives(const Model & model, Data & data)
+      bp::tuple computeABADerivatives(const context::Model & model, context::Data & data)
       {
         pinocchio::optimized::computeABADerivatives(model,data);
         make_symmetric(data.Minv);
@@ -53,7 +53,7 @@ namespace pinocchio
                               make_ref(data.Minv));
       }
 
-      bp::tuple computeABADerivatives_fext(const Model & model, Data & data,
+      bp::tuple computeABADerivatives_fext(const context::Model & model, context::Data & data,
                                            const ForceAlignedVector & fext)
       {
         pinocchio::optimized::computeABADerivatives(model,data,fext);

@@ -15,7 +15,7 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Inertia)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Inertia)
 
 namespace pinocchio
 {
@@ -42,21 +42,25 @@ namespace pinocchio
         return self.isZero(prec);
       }
     };
-    
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call<Inertia>::isApprox,2,3)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Inertia>::isZero,1,2)
 
     template<typename Inertia>
     struct InertiaPythonVisitor
       : public boost::python::def_visitor< InertiaPythonVisitor<Inertia> >
     {
-      
+      enum { Options = Inertia::Options };
       typedef typename Inertia::Scalar Scalar;
       typedef typename Inertia::Vector3 Vector3;
       typedef typename Inertia::Matrix3 Matrix3;
       typedef typename Inertia::Vector6 Vector6;
       typedef typename Inertia::Matrix6 Matrix6;
-
+      
+      typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
+      typedef MotionTpl<Scalar,Options> Motion;
+      typedef ForceTpl<Scalar,Options> Force;
+      
+      BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call<Inertia>::isApprox,2,3)
+      BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Inertia>::isZero,1,2)
+      
     public:
 
       template<class PyClass>
@@ -85,9 +89,9 @@ namespace pinocchio
                       "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the rotational inertia around the center of mass.")
         
         .def("matrix",&Inertia::matrix,bp::arg("self"))
-        .def("se3Action",&Inertia::se3Action,
+        .def("se3Action",&Inertia::template se3Action<Scalar,Options>,
              bp::args("self","M"),"Returns the result of the action of M on *this.")
-        .def("se3ActionInverse",&Inertia::se3ActionInverse,
+        .def("se3ActionInverse",&Inertia::template se3ActionInverse<Scalar,Options>,
              bp::args("self","M"),"Returns the result of the action of the inverse of M on *this.")
         
         .def("setIdentity",&Inertia::setIdentity,bp::arg("self"),
@@ -100,21 +104,30 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self * bp::other<Motion>() )
         .add_property("np",&Inertia::matrix)
-        .def("vxiv",&Inertia::vxiv,bp::args("self","v"),"Returns the result of v x Iv.")
-        .def("vtiv",&Inertia::vtiv,bp::args("self","v"),"Returns the result of v.T * Iv.")
-        .def("vxi",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::vxi,
+        .def("vxiv",
+             &Inertia::template vxiv<Motion>,
+             bp::args("self","v"),
+             "Returns the result of v x Iv.")
+        .def("vtiv",
+             &Inertia::template vtiv<Motion>,
+             bp::args("self","v"),
+             "Returns the result of v.T * Iv.")
+        .def("vxi",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template vxi<Motion>,
              bp::args("self","v"),
              "Returns the result of v x* I, a 6x6 matrix.")
-        .def("ivx",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::ivx,
+        .def("ivx",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template ivx<Motion>,
              bp::args("self","v"),
              "Returns the result of I vx, a 6x6 matrix.")
-        .def("variation",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::variation,
+        .def("variation",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template variation<Motion>,
              bp::args("self","v"),
              "Returns the time derivative of the inertia.")
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
-        
+#endif
+       
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              call<Inertia>::isApprox,
              isApproxInertia_overload(bp::args("self","other","prec"),
@@ -124,6 +137,7 @@ namespace pinocchio
              call<Inertia>::isZero,
              isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Inertia, within the precision given by prec."))
+#endif
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
@@ -137,7 +151,7 @@ namespace pinocchio
               "\nThe parameters are given as v = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
               "where I = I_C + mS^T(c)S(c) and I_C has its origin at the barycenter"
         )
-        .def("FromDynamicParameters",&Inertia::template FromDynamicParameters<Eigen::VectorXd>,
+        .def("FromDynamicParameters",&Inertia::template FromDynamicParameters<VectorXs>,
               bp::args("dynamic_parameters"),
               "Builds and inertia matrix from a vector of dynamic parameters."
               "\nThe parameters are given as dynamic_parameters = [m, mc_x, mc_y, mc_z, I_{xx}, I_{xy}, I_{yy}, I_{xz}, I_{yz}, I_{zz}]^T "
@@ -163,8 +177,9 @@ namespace pinocchio
         .staticmethod("FromBox")
         
         .def("__array__",&Inertia::matrix)
-        
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
       
@@ -177,7 +192,7 @@ namespace pinocchio
 //      static void setInertia(Inertia & self, const Vector6 & minimal_inertia) { self.inertia().data() = minimal_inertia; }
       static void setInertia(Inertia & self, const Matrix3 & symmetric_inertia)
       {
-        assert(symmetric_inertia.isApprox(symmetric_inertia.transpose()));
+        assert(check_expression_if_real<Scalar>(isZero(symmetric_inertia - symmetric_inertia.transpose())));
         self.inertia().data() <<
         symmetric_inertia(0,0),
         symmetric_inertia(1,0),
@@ -187,21 +202,23 @@ namespace pinocchio
         symmetric_inertia(2,2);
       }
 
-      static Eigen::VectorXd toDynamicParameters_proxy(const Inertia & self)
+      static VectorXs toDynamicParameters_proxy(const Inertia & self)
       {
         return self.toDynamicParameters();
       }
 
-      static Inertia* makeFromMCI(const double & mass,
+      static Inertia* makeFromMCI(const Scalar & mass,
                                   const Vector3 & lever,
                                   const Matrix3 & inertia) 
       {
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         if(! inertia.isApprox(inertia.transpose()) )
           throw eigenpy::Exception("The 3d inertia should be symmetric.");
-        if( (Eigen::Vector3d::UnitX().transpose()*inertia*Eigen::Vector3d::UnitX()<0)
-           || (Eigen::Vector3d::UnitY().transpose()*inertia*Eigen::Vector3d::UnitY()<0)
-           || (Eigen::Vector3d::UnitZ().transpose()*inertia*Eigen::Vector3d::UnitZ()<0) )
+        if( (Vector3::UnitX().transpose()*inertia*Vector3::UnitX()<0)
+           || (Vector3::UnitY().transpose()*inertia*Vector3::UnitY()<0)
+           || (Vector3::UnitZ().transpose()*inertia*Vector3::UnitZ()<0) )
           throw eigenpy::Exception("The 3d inertia should be positive.");
+#endif
         return new Inertia(mass,lever,inertia);
            }
       

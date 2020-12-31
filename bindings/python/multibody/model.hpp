@@ -24,7 +24,7 @@
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Model)
 
 namespace pinocchio
 {
@@ -32,10 +32,6 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
-  
     template<typename Model>
     struct PickleModel : bp::pickle_suite
     {
@@ -83,6 +79,7 @@ namespace pinocchio
       
       typedef typename Model::Index Index;
       typedef typename Model::JointIndex JointIndex;
+      typedef typename Model::JointModel::JointModelVariant JointModelVariant;
       typedef typename Model::FrameIndex FrameIndex;
       typedef typename Model::IndexVector IndexVector;
       
@@ -95,6 +92,10 @@ namespace pinocchio
       typedef typename Model::Data Data;
       
       typedef typename Model::VectorXs VectorXs;
+      
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
       
     protected:
       
@@ -301,9 +302,11 @@ namespace pinocchio
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::args("self","data"),
              "Check consistency of data wrt model.")
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .PINOCCHIO_ADD_STATIC_PROPERTY_READONLY_BYVALUE(Model,gravity981,"Default gravity field value on the Earth.")
         ;
@@ -398,7 +401,9 @@ namespace pinocchio
         .def(SerializableVisitor<Model>())
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(PickleModel<Model>())
+#endif
         ;
       }
     };

@@ -1,22 +1,22 @@
 //
-// Copyright (c) 2015-2020 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/utils/eigen.hpp"
 #include "pinocchio/algorithm/crba.hpp"
 
 namespace pinocchio
 {
   namespace python
   {
-    static Eigen::MatrixXd crba_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q)
+    static context::MatrixXs crba_proxy(const context::Model & model,
+                                        context::Data & data,
+                                        const context::VectorXs & q)
     {
       data.M.fill(0);
       crba(model,data,q);
-      data.M.triangularView<Eigen::StrictlyLower>()
-      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+      make_symmetric(data.M);
       return data.M;
     }
     

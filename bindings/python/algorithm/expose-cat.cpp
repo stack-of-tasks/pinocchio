@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -9,10 +9,10 @@ namespace pinocchio
 {
   namespace python
   {
-    static void computeAllTerms_proxy(const Model & model,
-                                      Data & data,
-                                      const Eigen::VectorXd & q,
-                                      const Eigen::VectorXd & v)
+    static void computeAllTerms_proxy(const context::Model & model,
+                                      context::Data & data,
+                                      const context::VectorXs & q,
+                                      const context::VectorXs & v)
     {
       data.M.fill(0);
       computeAllTerms(model,data,q,v);

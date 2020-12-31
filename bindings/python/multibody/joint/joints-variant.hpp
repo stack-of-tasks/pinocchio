@@ -45,7 +45,7 @@ namespace pinocchio
             .def(JointDataBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
-        bp::implicitly_convertible<T,pinocchio::JointDataVariant>();
+        bp::implicitly_convertible<T,context::JointCollectionDefault::JointDataVariant>();
       }
     };
 
@@ -61,7 +61,7 @@ namespace pinocchio
             .def(JointModelBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
-        bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
+        bp::implicitly_convertible<T,context::JointCollectionDefault::JointModelVariant>();
       }
     };
     

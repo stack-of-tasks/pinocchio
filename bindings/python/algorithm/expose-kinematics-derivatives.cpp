@@ -14,12 +14,12 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
-    bp::tuple getJointVelocityDerivatives_proxy(const Model & model,
-                                                Data & data,
-                                                const Model::JointIndex jointId,
+    bp::tuple getJointVelocityDerivatives_proxy(const context::Model & model,
+                                                context::Data & data,
+                                                const JointIndex jointId,
                                                 ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
@@ -30,13 +30,13 @@ namespace pinocchio
       return bp::make_tuple(partial_dq,partial_dv);
     }
   
-    bp::tuple getPointVelocityDerivatives_proxy(const Model & model,
-                                                Data & data,
-                                                const Model::JointIndex joint_id,
-                                                const SE3 & placement,
+    bp::tuple getPointVelocityDerivatives_proxy(const context::Model & model,
+                                                context::Data & data,
+                                                const JointIndex joint_id,
+                                                const context::SE3 & placement,
                                                 ReferenceFrame rf)
     {
-      typedef Data::Matrix3x Matrix3x;
+      typedef context::Data::Matrix3x Matrix3x;
       
       Matrix3x v_partial_dq(Matrix3x::Zero(3,model.nv));
       Matrix3x v_partial_dv(Matrix3x::Zero(3,model.nv));
@@ -47,12 +47,12 @@ namespace pinocchio
       return bp::make_tuple(v_partial_dq,v_partial_dv);
     }
     
-    bp::tuple getJointAccelerationDerivatives_proxy(const Model & model,
-                                                    Data & data,
-                                                    const Model::JointIndex jointId,
+    bp::tuple getJointAccelerationDerivatives_proxy(const context::Model & model,
+                                                    context::Data & data,
+                                                    const JointIndex jointId,
                                                     ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x v_partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x a_partial_dq(Matrix6x::Zero(6,model.nv));
@@ -66,13 +66,13 @@ namespace pinocchio
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
   
-    bp::tuple getPointClassicAccelerationDerivatives_proxy(const Model & model,
-                                                           Data & data,
-                                                           const Model::JointIndex joint_id,
-                                                           const SE3 & placement,
+    bp::tuple getPointClassicAccelerationDerivatives_proxy(const context::Model & model,
+                                                           context::Data & data,
+                                                           const JointIndex joint_id,
+                                                           const context::SE3 & placement,
                                                            ReferenceFrame rf)
     {
-      typedef Data::Matrix3x Matrix3x;
+      typedef context::Data::Matrix3x Matrix3x;
       
       Matrix3x v_partial_dq(Matrix3x::Zero(3,model.nv));
       Matrix3x a_partial_dq(Matrix3x::Zero(3,model.nv));
@@ -85,10 +85,10 @@ namespace pinocchio
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
   
-    Data::Matrix3x getCoMVelocityDerivatives_proxy(const Model & model,
-                                                   Data & data)
+    context::Data::Matrix3x getCoMVelocityDerivatives_proxy(const context::Model & model,
+                                                   context::Data & data)
     {
-      typedef Data::Matrix3x Matrix3x;
+      typedef context::Data::Matrix3x Matrix3x;
       Matrix3x partial_dq(Matrix3x::Zero(3,model.nv));
       getCenterOfMassVelocityDerivatives(model,data,partial_dq);
       return partial_dq;
@@ -96,10 +96,12 @@ namespace pinocchio
     
     void exposeKinematicsDerivatives()
     {
-      using namespace Eigen;
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
       
       bp::def("computeForwardKinematicsDerivatives",
-              &computeForwardKinematicsDerivatives<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+              &computeForwardKinematicsDerivatives<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs>,
               bp::args("model","data","q","v","a"),
               "Computes all the terms required to compute the derivatives of the placement, spatial velocity and acceleration\n"
               "for any joint of the model.\n"

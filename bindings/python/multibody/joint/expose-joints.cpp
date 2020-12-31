@@ -16,24 +16,24 @@ namespace pinocchio
     
     static void exposeJointVariants()
     {
+      typedef context::JointCollectionDefault::JointModelVariant JointModelVariant;
       boost::mpl::for_each<JointModelVariant::types>(JointModelExposer());
-      bp::to_python_converter<pinocchio::JointModelVariant,
-                              JointVariantVisitor<pinocchio::JointModelVariant > >();
+      bp::to_python_converter<JointModelVariant,JointVariantVisitor<JointModelVariant> >();
 
+      typedef context::JointCollectionDefault::JointDataVariant JointDataVariant;
       boost::mpl::for_each<JointDataVariant::types>(JointDataExposer());
-      bp::to_python_converter<pinocchio::JointDataVariant,
-                              JointVariantVisitor<pinocchio::JointDataVariant > >();
+      bp::to_python_converter<JointDataVariant,JointVariantVisitor<JointDataVariant> >();
     }
     
     void exposeJoints()
     {
       exposeJointVariants();
       
-      JointModelPythonVisitor::expose();
-      StdAlignedVectorPythonVisitor<JointModel>::expose("StdVec_JointModelVector");
+      JointModelPythonVisitor<context::JointModel>::expose();
+      StdAlignedVectorPythonVisitor<context::JointModel>::expose("StdVec_JointModelVector");
       
-      JointDataPythonVisitor::expose();
-      StdAlignedVectorPythonVisitor<JointData>::expose("StdVec_JointDataVector");
+      JointDataPythonVisitor<context::JointData>::expose();
+      StdAlignedVectorPythonVisitor<context::JointData>::expose("StdVec_JointDataVector");
     }
     
   } // namespace python

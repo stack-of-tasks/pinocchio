@@ -18,15 +18,18 @@ namespace pinocchio
     namespace python
     {
     
-      static void impulseDynamicsDerivatives_proxy(const Model & model,
-                                                   Data & data,
-                                                   const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_models,
-                                                   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) & contact_datas,
-                                                   const double r_coeff =0.0,
-                                                   const double mu = 0.0)
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+  
+      static void impulseDynamicsDerivatives_proxy(const context::Model & model,
+                                                   context::Data & data,
+                                                   const RigidContactModelVector & contact_models,
+                                                   RigidContactDataVector & contact_datas,
+                                                   const context::Scalar & r_coeff =0.0,
+                                                   const context::Scalar & mu = 0.0)
       {
         computeImpulseDynamicsDerivatives(model, data, contact_models,
-                                                 contact_datas, r_coeff, mu);
+                                          contact_datas, r_coeff, mu);
         return;
       }
     
@@ -36,8 +39,6 @@ namespace pinocchio
     
       void exposeImpulseDynamicsDerivatives()
       {
-        using namespace Eigen;
-        
         bp::def("computeImpulseDynamicsDerivatives",
                 impulseDynamicsDerivatives_proxy,
                 impulseDynamicsDerivatives_overloads(bp::args("model","data","contact_models","contact_datas","r_coeff","mu"),

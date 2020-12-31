@@ -17,6 +17,7 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
+    template<typename JointModel>
     struct JointModelPythonVisitor
     {
       
@@ -25,7 +26,7 @@ namespace pinocchio
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<pinocchio::JointModelVariant>())
+        .def(bp::init<typename JointModel::JointModelVariant>())
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
         ;

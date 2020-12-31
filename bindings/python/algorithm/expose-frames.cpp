@@ -10,69 +10,69 @@ namespace pinocchio
   namespace python
   {
     
-    static Data::Matrix6x get_frame_jacobian_proxy1(const Model & model,
-                                                   Data & data,
-                                                   const Model::FrameIndex frame_id,
-                                                   ReferenceFrame rf)
+    static context::Data::Matrix6x get_frame_jacobian_proxy1(const context::Model & model,
+                                                             context::Data & data,
+                                                             const context::Data::FrameIndex frame_id,
+                                                             ReferenceFrame rf)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       getFrameJacobian(model, data, frame_id, rf, J);
       
       return J;
     }
   
-    static Data::Matrix6x get_frame_jacobian_proxy2(const Model & model,
-                                                    Data & data,
-                                                    const Model::JointIndex joint_id,
-                                                    const SE3 & placement,
-                                                    ReferenceFrame rf)
+    static context::Data::Matrix6x get_frame_jacobian_proxy2(const context::Model & model,
+                                                             context::Data & data,
+                                                             const context::Data::JointIndex joint_id,
+                                                             const context::SE3 & placement,
+                                                             ReferenceFrame rf)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       getFrameJacobian(model, data, joint_id, placement, rf, J);
       
       return J;
     }
     
-    static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
-                                                       Data & data,
-                                                       const Eigen::VectorXd & q,
-                                                       Model::FrameIndex frame_id)
+    static context::Data::Matrix6x compute_frame_jacobian_proxy(const context::Model & model,
+                                                                context::Data & data,
+                                                                const context::VectorXs & q,
+                                                                context::Data::FrameIndex frame_id)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       computeFrameJacobian(model, data, q, frame_id, J);
   
       return J;
     }
     
-    static Data::Matrix6x compute_frame_jacobian_proxy(const Model & model,
-                                                       Data & data,
-                                                       const Eigen::VectorXd & q,
-                                                       Model::FrameIndex frame_id,
-                                                       ReferenceFrame reference_frame)
+    static context::Data::Matrix6x compute_frame_jacobian_proxy(const context::Model & model,
+                                                                context::Data & data,
+                                                                const context::VectorXs & q,
+                                                                context::Data::FrameIndex frame_id,
+                                                                ReferenceFrame reference_frame)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       computeFrameJacobian(model, data, q, frame_id, reference_frame, J);
   
       return J;
     }
 
-    static Data::Matrix6x get_frame_jacobian_time_variation_proxy(const Model & model,
-                                                                  Data & data,
-                                                                  Model::FrameIndex jointId,
-                                                                  ReferenceFrame rf)
+    static context::Data::Matrix6x get_frame_jacobian_time_variation_proxy(const context::Model & model,
+                                                                           context::Data & data,
+                                                                           context::Data::FrameIndex jointId,
+                                                                           ReferenceFrame rf)
     {
-      Data::Matrix6x dJ(6,model.nv); dJ.setZero();
+      context::Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       getFrameJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
     }
 
-    static Data::Matrix6x frame_jacobian_time_variation_proxy(const Model & model,
-                                                              Data & data,
-                                                              const Eigen::VectorXd & q,
-                                                              const Eigen::VectorXd & v,
-                                                              const Model::FrameIndex frame_id,
-                                                              const ReferenceFrame rf)
+    static context::Data::Matrix6x frame_jacobian_time_variation_proxy(const context::Model & model,
+                                                                       context::Data & data,
+                                                                       const context::VectorXs & q,
+                                                                       const context::VectorXs & v,
+                                                                       const context::Data::FrameIndex frame_id,
+                                                                       const ReferenceFrame rf)
     {
       computeJointJacobiansTimeVariation(model,data,q,v);
       updateFramePlacements(model,data);
@@ -80,59 +80,61 @@ namespace pinocchio
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (getFrameVelocity<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (getFrameAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (getFrameVelocity<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (getFrameAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (getFrameClassicalAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
 
     void exposeFramesAlgo()
     {
-      using namespace Eigen;
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
       
       bp::def("updateFramePlacements",
-              &updateFramePlacements<double,0,JointCollectionDefaultTpl>,
+              &updateFramePlacements<Scalar,Options,JointCollectionDefaultTpl>,
               bp::args("model","data"),
               "Computes the placements of all the operational frames according to the current joint placement stored in data"
               "and puts the results in data.");
 
       bp::def("updateFramePlacement",
-              &updateFramePlacement<double,0,JointCollectionDefaultTpl>,
+              &updateFramePlacement<Scalar,Options,JointCollectionDefaultTpl>,
               bp::args("model","data","frame_id"),
               "Computes the placement of the given operational frame (frame_id) according to the current joint placement stored in data, stores the results in data and returns it.",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("getFrameVelocity",
-              &getFrameVelocity<double,0,JointCollectionDefaultTpl>,
+              &getFrameVelocity<Scalar,Options,JointCollectionDefaultTpl>,
               getFrameVelocity_overload(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the spatial velocity of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
 
       bp::def("getFrameAcceleration",
-              &getFrameAcceleration<double,0,JointCollectionDefaultTpl>,
+              &getFrameAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
               getFrameAcceleration_overload(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the spatial acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
 
       bp::def("getFrameClassicalAcceleration",
-              &getFrameClassicalAcceleration<double,0,JointCollectionDefaultTpl>,
+              &getFrameClassicalAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
               getFrameClassicalAcceleration_overload(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the \"classical\" acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
 
       bp::def("framesForwardKinematics",
-              &framesForwardKinematics<double,0,JointCollectionDefaultTpl,VectorXd>,
+              &framesForwardKinematics<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
               bp::args("model","data","q"),
               "Calls first the forwardKinematics(model,data,q) and then update the Frame placement quantities (data.oMf).");
       
       bp::def("computeFrameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
+              (context::Data::Matrix6x (*)(const context::Model &, context::Data &, const context::VectorXs &, context::Data::FrameIndex, ReferenceFrame))&compute_frame_jacobian_proxy,
               bp::args("model","data","q","frame_id","reference_frame"),
               "Computes the Jacobian of the frame given by its frame_id in the coordinate system given by reference_frame.\n");
       
       bp::def("computeFrameJacobian",
-              (Data::Matrix6x (*)(const Model &, Data &, const Eigen::VectorXd &, Model::FrameIndex))&compute_frame_jacobian_proxy,
+              (context::Data::Matrix6x (*)(const context::Model &, context::Data &, const context::VectorXs &, context::Data::FrameIndex))&compute_frame_jacobian_proxy,
               bp::args("model","data","q","frame_id"),
               "Computes the Jacobian of the frame given by its frame_id.\n"
               "The columns of the Jacobian are expressed in the coordinates system of the Frame itself.\n"

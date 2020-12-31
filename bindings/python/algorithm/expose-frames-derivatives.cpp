@@ -13,12 +13,12 @@ namespace pinocchio
   {
     namespace bp = boost::python;
     
-    bp::tuple getFrameVelocityDerivatives_proxy1(const Model & model,
-                                                 Data & data,
-                                                 const Model::FrameIndex frame_id,
+    bp::tuple getFrameVelocityDerivatives_proxy1(const context::Model & model,
+                                                 context::Data & data,
+                                                 const context::Model::FrameIndex frame_id,
                                                  ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
@@ -29,13 +29,13 @@ namespace pinocchio
       return bp::make_tuple(partial_dq,partial_dv);
     }
   
-    bp::tuple getFrameVelocityDerivatives_proxy2(const Model & model,
-                                                 Data & data,
-                                                 const Model::JointIndex joint_id,
-                                                 const SE3 & placement,
+    bp::tuple getFrameVelocityDerivatives_proxy2(const context::Model & model,
+                                                 context::Data & data,
+                                                 const context::Model::JointIndex joint_id,
+                                                 const context::SE3 & placement,
                                                  ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
@@ -46,12 +46,12 @@ namespace pinocchio
       return bp::make_tuple(partial_dq,partial_dv);
     }
     
-    bp::tuple getFrameAccelerationDerivatives_proxy1(const Model & model,
-                                                     Data & data,
-                                                     const Model::FrameIndex frame_id,
+    bp::tuple getFrameAccelerationDerivatives_proxy1(const context::Model & model,
+                                                     context::Data & data,
+                                                     const context::Model::FrameIndex frame_id,
                                                      ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x v_partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x a_partial_dq(Matrix6x::Zero(6,model.nv));
@@ -65,13 +65,13 @@ namespace pinocchio
       return bp::make_tuple(v_partial_dq,a_partial_dq,a_partial_dv,a_partial_da);
     }
     
-    bp::tuple getFrameAccelerationDerivatives_proxy2(const Model & model,
-                                                     Data & data,
-                                                     const Model::JointIndex joint_id,
-                                                     const SE3 & placement,
+    bp::tuple getFrameAccelerationDerivatives_proxy2(const context::Model & model,
+                                                     context::Data & data,
+                                                     const context::Model::JointIndex joint_id,
+                                                     const context::SE3 & placement,
                                                      ReferenceFrame rf)
     {
-      typedef Data::Matrix6x Matrix6x;
+      typedef context::Data::Matrix6x Matrix6x;
       
       Matrix6x v_partial_dq(Matrix6x::Zero(6,model.nv));
       Matrix6x a_partial_dq(Matrix6x::Zero(6,model.nv));

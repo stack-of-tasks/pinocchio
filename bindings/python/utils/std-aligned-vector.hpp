@@ -6,7 +6,6 @@
 #define __pinocchio_python_utils_std_aligned_vector_hpp__
 
 #include <boost/python.hpp>
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <string>
 
 #include "pinocchio/container/aligned-vector.hpp"
@@ -29,29 +28,48 @@ namespace pinocchio
     ///
     template<class T, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdAlignedVectorPythonVisitor
-    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy>
+    : public ::boost::python::vector_indexing_suite<typename container::aligned_vector<T>,NoProxy, internal::contains_vector_derived_policies<typename container::aligned_vector<T>,NoProxy> >
     , public StdContainerFromPythonList< container::aligned_vector<T> >
     {
       typedef container::aligned_vector<T> vector_type;
       typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       
-      static ::boost::python::class_<vector_type> expose(const std::string & class_name,
-                                                         const std::string & doc_string = "")
+      static void expose(const std::string & class_name,
+                         const std::string & doc_string = "")
+      {
+        expose(class_name,doc_string,EmptyPythonVisitor());
+      }
+      
+      template<typename VisitorDerived>
+      static void expose(const std::string & class_name,
+                         const boost::python::def_visitor<VisitorDerived> & visitor)
+      {
+        expose(class_name,"",visitor);
+      }
+      
+      template<typename VisitorDerived>
+      static void expose(const std::string & class_name,
+                         const std::string & doc_string,
+                         const boost::python::def_visitor<VisitorDerived> & visitor)
       {
         namespace bp = boost::python;
-        
-        bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
-        cl
-        .def(StdAlignedVectorPythonVisitor())
-        .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
-             "Returns the aligned_vector as a Python list.")
-        .def_pickle(PickleVector<vector_type>());
-        
-        // Register conversion
-        if(EnableFromPythonListConverter)
-          FromPythonListConverter::register_converter();
-        
-        return cl;
+        if(!register_symbolic_link_to_registered_type<vector_type>())
+        {
+          bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
+          cl
+          .def(StdAlignedVectorPythonVisitor())
+          .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
+               "Returns the aligned_vector as a Python list.")
+          .def(visitor)
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+          .def_pickle(PickleVector<vector_type>())
+#endif
+          ;
+          
+          // Register conversion
+          if(EnableFromPythonListConverter)
+            FromPythonListConverter::register_converter();
+        }
       }
     };
   } // namespace python

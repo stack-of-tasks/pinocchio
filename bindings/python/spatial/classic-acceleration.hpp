@@ -14,13 +14,13 @@ namespace pinocchio
     void exposeClassicAcceleration()
     {
       bp::def("classicAcceleration",
-              &classicAcceleration<Motion,Motion>,
+              &classicAcceleration<context::Motion,context::Motion>,
               bp::args("spatial_velocity",
                        "spatial_acceleration"),
               "Computes the classic acceleration from a given spatial velocity and spatial acceleration.");
       
         bp::def("classicAcceleration",
-                &classicAcceleration<Motion,Motion,Motion::Scalar,Motion::Options>,
+                &classicAcceleration<context::Motion,context::Motion,context::Scalar,context::Options>,
                 bp::args("spatial_velocity",
                          "spatial_acceleration",
                          "placement"),

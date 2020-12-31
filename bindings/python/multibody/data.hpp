@@ -14,6 +14,7 @@
 #include <eigenpy/eigen-to-python.hpp>
 #include <eigenpy/exception.hpp>
 
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
@@ -21,7 +22,7 @@
 
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Data)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Data)
 
 namespace pinocchio
 {
@@ -67,12 +68,13 @@ namespace pinocchio
       }
     };
   
+    template<typename Data>
     struct DataPythonVisitor
-      : public boost::python::def_visitor< DataPythonVisitor >
+    : public boost::python::def_visitor< DataPythonVisitor<Data> >
     {
-      typedef Data::Matrix6x Matrix6x;
-      typedef Data::Matrix3x Matrix3x;
-      typedef Data::Vector3 Vector3;
+      typedef typename Data::Matrix6x Matrix6x;
+      typedef typename Data::Matrix3x Matrix3x;
+      typedef typename Data::Vector3 Vector3;
 
     public:
 
@@ -92,7 +94,7 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
-        .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
+        .def(bp::init<context::Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(joints,"Vector of JointData associated to each JointModel stored in the related model.")
         .ADD_DATA_PROPERTY(a,"Vector of joint accelerations expressed in the local frame of the joint.")
@@ -178,9 +180,11 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY(staticRegressor,"Static regressor.")
         .ADD_DATA_PROPERTY(jointTorqueRegressor,"Joint torque regressor.")
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         ;
       }
 
@@ -193,16 +197,19 @@ namespace pinocchio
                          bp::no_init)
         .def(DataPythonVisitor())
         .def(CopyableVisitor<Data>())
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def(SerializableVisitor<Data>())
-        .def_pickle(PickleData<Data>());
+        .def_pickle(PickleData<Data>())
+#endif
+        ;
         
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
         
-        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
-        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
+                                                             details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
+                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
         StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
       }
 

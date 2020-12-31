@@ -5,12 +5,13 @@
 #ifndef __pinocchio_python_geometry_data_hpp__
 #define __pinocchio_python_geometry_data_hpp__
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -28,21 +29,23 @@ namespace pinocchio
     {
       static void expose()
       {
-        bp::class_<CollisionPair> ("CollisionPair",
-                                   "Pair of ordered index defining a pair of collisions",
-                                   bp::no_init)
-        .def(bp::init<const GeomIndex &, const GeomIndex &>
-             (bp::args("self","index 1", "index 2"),
-              "Initializer of collision pair."))
-        .def(PrintableVisitor<CollisionPair>())
-        .def(CopyableVisitor<CollisionPair>())
-        .def(bp::self == bp::self)
-        .def(bp::self != bp::self)
-        .def_readwrite("first",&CollisionPair::first)
-        .def_readwrite("second",&CollisionPair::second);
+        if(!register_symbolic_link_to_registered_type<CollisionPair>())
+        {
+          bp::class_<CollisionPair>("CollisionPair",
+                                    "Pair of ordered index defining a pair of collisions",
+                                    bp::no_init)
+          .def(bp::init<const GeomIndex &, const GeomIndex &>
+               (bp::args("self","id_1", "id_2"),
+                "Initializer of collision pair."))
+          .def(PrintableVisitor<CollisionPair>())
+          .def(CopyableVisitor<CollisionPair>())
+          .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
+          .def_readwrite("first",&CollisionPair::first)
+          .def_readwrite("second",&CollisionPair::second);
+        }
         
-        bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+        StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
       }
     }; // struct CollisionPairPythonVisitor
 
@@ -121,13 +124,16 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        bp::class_<GeometryData>("GeometryData",
-                                 "Geometry data linked to a Geometry Model and a Data struct.",
-                                 bp::no_init)
-        .def(GeometryDataPythonVisitor())
-        .def(PrintableVisitor<GeometryData>())
-        .def(CopyableVisitor<GeometryData>())
-        ;
+        if(!register_symbolic_link_to_registered_type<GeometryData>())
+        {
+          bp::class_<GeometryData>("GeometryData",
+                                   "Geometry data linked to a Geometry Model and a Data struct.",
+                                   bp::no_init)
+          .def(GeometryDataPythonVisitor())
+          .def(PrintableVisitor<GeometryData>())
+          .def(CopyableVisitor<GeometryData>())
+          ;
+        }
      
       }
 

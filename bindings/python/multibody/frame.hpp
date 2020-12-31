@@ -7,8 +7,10 @@
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
+
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 namespace pinocchio
 {
@@ -41,14 +43,17 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::enum_<FrameType>("FrameType")
-            .value("OP_FRAME",OP_FRAME)
-            .value("JOINT",JOINT)
-            .value("FIXED_JOINT",FIXED_JOINT)
-            .value("BODY",BODY)
-            .value("SENSOR",SENSOR)
-            .export_values()
-            ;
+        if(!register_symbolic_link_to_registered_type<FrameType>())
+        {
+          bp::enum_<FrameType>("FrameType")
+          .value("OP_FRAME",OP_FRAME)
+          .value("JOINT",JOINT)
+          .value("FIXED_JOINT",FIXED_JOINT)
+          .value("BODY",BODY)
+          .value("SENSOR",SENSOR)
+          .export_values()
+          ;
+        }
 
         bp::class_<Frame>("Frame",
                           "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n",

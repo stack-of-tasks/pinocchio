@@ -8,6 +8,7 @@
 #include "pinocchio/bindings/python/algorithm/contact-cholesky.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
@@ -17,15 +18,17 @@ namespace pinocchio
 {
     namespace python
     {
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
     
-      static const Eigen::VectorXd contactDynamics_proxy(const Model & model,
-                                                         Data & data,
-                                                         const Eigen::VectorXd & q,
-                                                         const Eigen::VectorXd & v,
-                                                         const Eigen::VectorXd & tau,
-                                                         const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) & contact_models,
-                                                         PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) & contact_datas,
-                                                         const double mu = 0.0)
+      static const context::VectorXs contactDynamics_proxy(const context::Model & model,
+                                                           context::Data & data,
+                                                           const context::VectorXs & q,
+                                                           const context::VectorXs & v,
+                                                           const context::VectorXs & tau,
+                                                           const RigidContactModelVector & contact_models,
+                                                           RigidContactDataVector & contact_datas,
+                                                           const context::Scalar mu = 0.0)
       {
         return contactDynamics(model, data, q, v, tau, contact_models, contact_datas, mu);
       }
@@ -38,27 +41,30 @@ namespace pinocchio
         using namespace Eigen;
         
         // Expose type of contacts
-        bp::enum_<ContactType>("ContactType")
-        .value("CONTACT_3D",CONTACT_3D)
-        .value("CONTACT_6D",CONTACT_6D)
-        .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
-        ;
+        if(!register_symbolic_link_to_registered_type<ContactType>())
+        {
+          bp::enum_<ContactType>("ContactType")
+          .value("CONTACT_3D",CONTACT_3D)
+          .value("CONTACT_6D",CONTACT_6D)
+          .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
+          ;
+        }
         
-        ContactCholeskyDecompositionPythonVisitor<cholesky::ContactCholeskyDecomposition>::expose();
+        ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
         
-        RigidContactModelPythonVisitor<RigidContactModel>::expose();
-        RigidContactDataPythonVisitor<RigidContactData>::expose();
+        RigidContactModelPythonVisitor<context::RigidContactModel>::expose();
+        RigidContactDataPythonVisitor<context::RigidContactData>::expose();
         
-        typedef Eigen::aligned_allocator<RigidContactModel> RigidContactModelAllocator;
-        StdVectorPythonVisitor<RigidContactModel,RigidContactModelAllocator>::expose("StdVec_RigidContactModel");
+        typedef Eigen::aligned_allocator<context::RigidContactModel> RigidContactModelAllocator;
+        StdVectorPythonVisitor<context::RigidContactModel,RigidContactModelAllocator>::expose("StdVec_RigidContactModel");
         
-        typedef Eigen::aligned_allocator<RigidContactData> RigidContactDataAllocator;
-        StdVectorPythonVisitor<RigidContactData,RigidContactDataAllocator>::expose("StdVec_RigidContactData");
+        typedef Eigen::aligned_allocator<context::RigidContactData> RigidContactDataAllocator;
+        StdVectorPythonVisitor<context::RigidContactData,RigidContactDataAllocator>::expose("StdVec_RigidContactData");
         
-        ProximalSettingsPythonVisitor<ProximalSettings>::expose();
+        ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
         
         bp::def("initContactDynamics",
-                &initContactDynamics<double,0,JointCollectionDefaultTpl,RigidContactModelAllocator>,
+                &initContactDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,RigidContactModelAllocator>,
                 bp::args("model","data","contact_models"),
                 "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
                 "This allows to avoid online memory allocation when running these algorithms.");

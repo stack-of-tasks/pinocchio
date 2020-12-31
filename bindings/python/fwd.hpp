@@ -3,10 +3,10 @@
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_python_python_hpp__
-#define __pinocchio_python_python_hpp__
+#ifndef __pinocchio_python_fwd_hpp__
+#define __pinocchio_python_fwd_hpp__
 
-#include "pinocchio/fwd.hpp"
+#include "pinocchio/bindings/python/context.hpp"
 #include <eigenpy/eigenpy.hpp>
 
 namespace pinocchio
@@ -24,6 +24,8 @@ namespace pinocchio
 
     // Expose math module
     void exposeRpy();
+    void exposeEigenTypes();
+    void exposeConversions();
     
     // Expose multibody classes
     void exposeJoints();
@@ -47,4 +49,4 @@ namespace pinocchio
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_python_hpp__
+#endif // ifndef __pinocchio_python_fwd_hpp__
