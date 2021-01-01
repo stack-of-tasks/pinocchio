@@ -5,6 +5,8 @@
 #ifndef __pinocchio_python_context_hpp__
 #define __pinocchio_python_context_hpp__
 
+#define PINOCCHIO_PYTHON_SCALAR_TYPE_DEFAULT double
+
 #define PINOCCHIO_PYTHON_CONTEXT_FILE_DEFAULT "pinocchio/bindings/python/context/default.hpp"
 
 #ifndef PINOCCHIO_PYTHON_CONTEXT_FILE
