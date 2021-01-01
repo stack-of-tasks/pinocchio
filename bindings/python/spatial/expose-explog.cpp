@@ -42,7 +42,7 @@ namespace pinocchio
               "Exp: se3 -> SE3. Return the integral of the input"
               " spatial velocity during time 1.");
               
-      bp::def("exp6",&exp6_proxy<Motion::Vector6>,
+      bp::def("exp6",&exp6_proxy<context::Motion::Vector6>,
               bp::arg("v"),
               "Exp: se3 -> SE3. Return the integral of the input"
               " spatial velocity during time 1.");
@@ -52,12 +52,12 @@ namespace pinocchio
               "Jacobian of exp(v) which maps from the tangent of SE(3) at exp(v) to"
               " the tangent of SE(3) at Identity.");
               
-      bp::def("Jexp6",&Jexp6_proxy<Motion::Vector6>,
+      bp::def("Jexp6",&Jexp6_proxy<context::Motion::Vector6>,
               bp::arg("v"),
               "Jacobian of exp(v) which maps from the tangent of SE(3) at exp(v) to"
               " the tangent of SE(3) at Identity.");
       
-      bp::def("log6",(Motion (*)(const SE3 &))&log6<context::Scalar,context::Options>,
+      bp::def("log6",(context::Motion (*)(const context::SE3 &))&log6<context::Scalar,context::Options>,
               bp::arg("M"),
               "Log: SE3 -> se3. Pseudo-inverse of exp from SE3"
               " -> { v,w in se3, ||w|| < 2pi }.");
