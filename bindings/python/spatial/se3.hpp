@@ -16,6 +16,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -73,10 +74,10 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("quat"),bp::arg("translation")),
               "Initialize from a quaternion and a translation vector."))
         .def(bp::init<int>((bp::arg("self"),bp::arg("int")),"Init to identity."))
-        .def(bp::init<SE3>((bp::arg("self"),bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
              ((bp::arg("self"),bp::arg("array")),
               "Initialize from an homogeneous matrix."))
+        .def(bp::init<const SE3 &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
         .add_property("rotation",
                       bp::make_function((typename SE3::AngularRef (SE3::*)()) &SE3::rotation,bp::return_internal_reference<>()),
@@ -194,6 +195,8 @@ namespace pinocchio
                         "SE3 transformation defined by a 3d vector and a rotation matrix.",
                         bp::init<>(bp::arg("self"),"Default constructor."))
         .def(SE3PythonVisitor<SE3>())
+        .def(CastVisitor<SE3>())
+        .def(ExposeConstructorByCastVisitor<SE3,::pinocchio::SE3>())
         .def(CopyableVisitor<SE3>())
         .def(PrintableVisitor<SE3>())
         ;

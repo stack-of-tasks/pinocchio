@@ -14,6 +14,8 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -73,7 +75,7 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Motion vector (don't mix the order)."))
         .def(bp::init<Vector6>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
-        .def(bp::init<Motion>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
+        .def(bp::init<const Motion &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("linear",
                       bp::make_function(&MotionPythonVisitor::getLinear,
@@ -165,6 +167,8 @@ namespace pinocchio
                            "Supported operations ...",
                            bp::no_init)
         .def(MotionPythonVisitor<Motion>())
+        .def(CastVisitor<Motion>())
+        .def(ExposeConstructorByCastVisitor<Motion,::pinocchio::Motion>())
         .def(CopyableVisitor<Motion>())
         .def(PrintableVisitor<Motion>())
         ;

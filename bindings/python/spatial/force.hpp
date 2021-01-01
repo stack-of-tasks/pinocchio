@@ -12,6 +12,8 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -68,7 +70,7 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Wrench vector (don't mix the order)."))
         .def(bp::init<Vector6>((bp::args("self","array")),"Init from a vector 6 [force,torque]"))
-        .def(bp::init<Force>((bp::args("self","other")),"Copy constructor."))
+        .def(bp::init<const Force &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("linear",
                       bp::make_function(&ForcePythonVisitor::getLinear,
@@ -150,6 +152,8 @@ namespace pinocchio
                           "Supported operations ...",
                           bp::no_init)
         .def(ForcePythonVisitor<Force>())
+        .def(CastVisitor<Force>())
+        .def(ExposeConstructorByCastVisitor<Force,::pinocchio::Force>())
         .def(CopyableVisitor<Force>())
         .def(PrintableVisitor<Force>())
         ;

@@ -12,6 +12,8 @@
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -72,7 +74,9 @@ namespace pinocchio
                                   bp::default_call_policies(),
                                   (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
              "Initialize from mass, lever and 3d inertia.")
-        .def(bp::init<Inertia>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
+        
+        .def(bp::init<>(bp::arg("self"),"Default constructor."))
+        .def(bp::init<const Inertia &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("mass",
                       &InertiaPythonVisitor::getMass,
@@ -227,8 +231,10 @@ namespace pinocchio
         bp::class_<Inertia>("Inertia",
                             "This class represenses a sparse version of a Spatial Inertia and its is defined by its mass, its center of mass location and the rotational inertia expressed around this center of mass.\n\n"
                             "Supported operations ...",
-                            bp::init<>(bp::arg("self"),"Default constructor."))
+                            bp::no_init)
         .def(InertiaPythonVisitor<Inertia>())
+        .def(CastVisitor<Inertia>())
+        .def(ExposeConstructorByCastVisitor<Inertia,::pinocchio::Inertia>())
         .def(CopyableVisitor<Inertia>())
         .def(PrintableVisitor<Inertia>())
         ;

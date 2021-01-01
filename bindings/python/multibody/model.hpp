@@ -16,13 +16,15 @@
 #include <eigenpy/exception.hpp>
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/bindings/python/serialization/serializable.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/std-map.hpp"
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Model)
 
@@ -206,6 +208,7 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor. Constructs an empty model."))
+        .def(bp::init<const Model &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         // Class Members
         .add_property("nq", &Model::nq)
@@ -398,6 +401,8 @@ namespace pinocchio
                           "Articulated Rigid Body model",
                           bp::no_init)
         .def(ModelPythonVisitor())
+        .def(CastVisitor<Model>())
+        .def(ExposeConstructorByCastVisitor<Model,::pinocchio::Model>())
         .def(SerializableVisitor<Model>())
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
