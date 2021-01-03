@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 

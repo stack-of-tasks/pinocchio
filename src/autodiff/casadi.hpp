@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA, CNRS
+// Copyright (c) 2019-2020 INRIA CNRS
 //
 
 #ifndef __pinocchio_autodiff_casadi_hpp__
