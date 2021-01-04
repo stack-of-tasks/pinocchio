@@ -51,7 +51,9 @@ class TestFrameBindings(PinocchioTestCase):
         frame3 = pin.Frame("othername", 3, 4, pin.SE3.Random(), pin.BODY)
 
         self.assertTrue(frame1 == frame2)
+        self.assertFalse(frame1 != frame2)
         self.assertTrue(frame1 != frame3)
+        self.assertFalse(frame1 == frame3)
 
     def test_pickle(self):
         import pickle
