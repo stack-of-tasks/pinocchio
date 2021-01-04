@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 CNRS INRIA
+// Copyright (c) 2019-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -42,14 +42,14 @@ namespace pinocchio
       {
         //bp::extract<SE3::Scalar> to_double;
         SE3::Quaternion q(
-            (Scalar)bp::extract<Scalar>(v[6]),
-            (Scalar)bp::extract<Scalar>(v[3]),
-            (Scalar)bp::extract<Scalar>(v[4]),
-            (Scalar)bp::extract<Scalar>(v[5]));
+            (Scalar &)bp::extract<Scalar &>(v[6]),
+            (Scalar &)bp::extract<Scalar &>(v[3]),
+            (Scalar &)bp::extract<Scalar &>(v[4]),
+            (Scalar &)bp::extract<Scalar &>(v[5]));
         SE3::Vector3 t(
-            (Scalar)bp::extract<Scalar>(v[0]),
-            (Scalar)bp::extract<Scalar>(v[1]),
-            (Scalar)bp::extract<Scalar>(v[2]));
+            (Scalar &)bp::extract<Scalar &>(v[0]),
+            (Scalar &)bp::extract<Scalar &>(v[1]),
+            (Scalar &)bp::extract<Scalar &>(v[2]));
         return SE3(q.matrix(), t);
       }
 
