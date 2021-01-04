@@ -80,7 +80,7 @@ jobs:
         ./run_rnea
         cd ../../external
         export PINOCCHIO_GIT_REPOSITORY=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY
-        export PINOCCHIO_GIT_TAG=$GITHUB_REF
+        export PINOCCHIO_GIT_TAG=$(git symbolic-ref -q --short HEAD)
         mkdir build
         cd build
         cmake ..
