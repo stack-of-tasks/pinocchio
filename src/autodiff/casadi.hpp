@@ -53,12 +53,12 @@ namespace Eigen
   {
     // Specialization of Eigen::internal::cast_impl for Casadi input types
     template<typename Scalar>
-    struct cast_impl<casadi::SX,Scalar>
+    struct cast_impl<::casadi::Matrix<Scalar>,Scalar>
     {
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
       EIGEN_DEVICE_FUNC
 #endif
-      static inline Scalar run(const casadi::SX & x)
+      static inline Scalar run(const ::casadi::Matrix<Scalar> & x)
       {
         return static_cast<Scalar>(x);
       }
