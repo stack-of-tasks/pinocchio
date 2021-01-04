@@ -17,21 +17,21 @@ SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
 # Check if the submodule cmake have been initialized
-IF(NOT EXISTS "${CMAKE_SOURCE_DIR}/cmake/base.cmake")
+IF(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")
 ENDIF()
 
 SET(DOXYGEN_USE_MATHJAX YES)
 SET(DOXYGEN_USE_TEMPLATE_CSS YES)
 
-INCLUDE(cmake/base.cmake)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake)
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
-INCLUDE(cmake/boost.cmake)
-INCLUDE(cmake/python.cmake)
-INCLUDE(cmake/ide.cmake)
-INCLUDE(cmake/apple.cmake)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
+INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
 
 # If needed, set CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
