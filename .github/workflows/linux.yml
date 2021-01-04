@@ -59,7 +59,13 @@ jobs:
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
         sudo make install
-        cd ../unittest/packaging
+
+    - name: Test packaging
+      run: |
+        export PATH=$PATH:/opt/openrobots/bin
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
+        cd ../unittest/packaging/cmake
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/usr/local
@@ -67,5 +73,5 @@ jobs:
         make
         ./run_rnea
         ./load_urdf
-        cd ../../../build
+        cd ../../../../build
         sudo make uninstall
