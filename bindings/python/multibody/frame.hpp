@@ -33,6 +33,7 @@ namespace pinocchio
                          &Frame::placement,
                          "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
+          .def(bp::self == bp::self)
           ;
       }
       
@@ -51,7 +52,6 @@ namespace pinocchio
                           "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
                           bp::no_init
                          )
-        .def(bp::self == bp::self)
         .def(FramePythonVisitor())
         .def(CopyableVisitor<Frame>())
         .def(PrintableVisitor<Frame>())
