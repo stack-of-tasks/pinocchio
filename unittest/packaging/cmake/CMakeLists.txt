@@ -10,6 +10,6 @@ add_executable(run_rnea ../run_rnea.cpp)
 target_link_libraries(run_rnea PUBLIC pinocchio::pinocchio)
 
 if(DEFINED PINOCCHIO_USE_URDFDOM)
-  add_executable(load_urdf load_urdf.cpp)
+  add_executable(load_urdf ../load_urdf.cpp)
   target_link_libraries(load_urdf PUBLIC pinocchio::pinocchio)
 endif(DEFINED PINOCCHIO_USE_URDFDOM)
