@@ -90,5 +90,6 @@ jobs:
         
 
     - name: Uninstall project
+      run: |
         cd build
         sudo make uninstall
