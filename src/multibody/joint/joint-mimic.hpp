@@ -537,8 +537,8 @@ namespace pinocchio
       typedef typename CastType<NewScalar,JointModelMimic>::type ReturnType;
       
       ReturnType res(m_jmodel_ref.template cast<NewScalar>(),
-                     (NewScalar)m_scaling,
-                     (NewScalar)m_offset);
+                     pinocchio::cast<NewScalar>(m_scaling),
+                     pinocchio::cast<NewScalar>(m_offset));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }

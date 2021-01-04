@@ -554,7 +554,7 @@ namespace pinocchio
     template<typename NewScalar>
     InertiaTpl<NewScalar,Options> cast() const
     {
-      return InertiaTpl<NewScalar,Options>(static_cast<NewScalar>(mass()),
+      return InertiaTpl<NewScalar,Options>(pinocchio::cast<NewScalar>(mass()),
                                            lever().template cast<NewScalar>(),
                                            inertia().template cast<NewScalar>());
     }
