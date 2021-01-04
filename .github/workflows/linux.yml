@@ -45,7 +45,6 @@ jobs:
     - name: Run cmake
       run: |
         git submodule update --init
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
         export PATH=$PATH:/opt/openrobots/bin
         export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
@@ -73,5 +72,11 @@ jobs:
         make
         ./run_rnea
         ./load_urdf
+        cd ../unittest/packaging/pkgconfig
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_rnea
         cd ../../../../build
         sudo make uninstall
