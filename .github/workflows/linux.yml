@@ -72,11 +72,23 @@ jobs:
         make
         ./run_rnea
         ./load_urdf
-        cd ./unittest/packaging/pkgconfig
+        cd ../../pkgconfig
         mkdir build
         cd build
         cmake ..
         make
         ./run_rnea
-        cd ../../../../build
+        cd ../../external
+        export PINOCCHIO_GIT_REPOSITORY=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY
+        export PINOCCHIO_GIT_TAG=$GITHUB_REF
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_rnea
+        ./load_urdf
+        
+
+    - name: Uninstall project
+        cd build
         sudo make uninstall
