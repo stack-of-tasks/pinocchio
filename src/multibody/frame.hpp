@@ -63,7 +63,9 @@ namespace pinocchio
     {}
     
     ///
-    /// \returns true if *this and other matches and have the same parent, name and type.
+    /// \brief Equality comparison operator.
+    ///
+    /// \returns true if *this is equal to other.
     ///
     /// \param[in] other The frame to which the current frame is compared.
     ///
@@ -76,7 +78,16 @@ namespace pinocchio
       && placement == other.placement
       && type == other.type ;
     }
-    
+
+    ///
+    /// \returns true if *this is NOT equal to other.
+    ///
+    template<typename S2, int O2>
+    bool operator != (const FrameTpl<S2,O2> & other) const
+    {
+      return !(*this == other);
+    }
+
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
     FrameTpl<NewScalar,Options> cast() const
