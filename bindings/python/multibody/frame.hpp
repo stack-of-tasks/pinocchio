@@ -65,7 +65,7 @@ namespace pinocchio
     private:
       struct Pickle : bp::pickle_suite
       {
-        static bp::tuple getinitargs(const Frame & f)
+        static bp::tuple getinitargs(const Frame &)
         {
           return bp::make_tuple();
         }
