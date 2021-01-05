@@ -36,6 +36,7 @@ namespace pinocchio
                          "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
           .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
           ;
       }
       
