@@ -12,7 +12,10 @@ jobs:
         os: [ubuntu-20.04,ubuntu-18.04] 
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: recursive 
     - name: Register robotpkg
       run: | 
         sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
@@ -79,8 +82,8 @@ jobs:
         make
         ./run_rnea
         cd ../../external
-        export PINOCCHIO_GIT_REPOSITORY=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY
-        export PINOCCHIO_GIT_TAG=$(git symbolic-ref -q --short HEAD)
+        export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
+        export PINOCCHIO_GIT_TAG=$(echo ${GITHUB_REF#refs/heads/})
         mkdir build
         cd build
         cmake ..

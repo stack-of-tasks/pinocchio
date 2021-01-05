@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.11)
 
 project(ExtraLib CXX)
 
+message(STATUS "PINOCCHIO_GIT_REPOSITORY: $ENV{PINOCCHIO_GIT_REPOSITORY}")
+message(STATUS "PINOCCHIO_GIT_TAG: $ENV{PINOCCHIO_GIT_TAG}")
+
 include(FetchContent)
 FetchContent_Declare(
 #FetchContent_Populate(
@@ -13,7 +16,7 @@ FetchContent_Declare(
 )
 
 FetchContent_GetProperties(Pinocchio)
-if(NOT Pinocchio_POPULATED)   # name is lowercased
+if(NOT pinocchio_POPULATED)   # name is lowercased
   FetchContent_Populate(Pinocchio)
   message(STATUS "pinocchio source dir: ${pinocchio_SOURCE_DIR}")
   message(STATUS "pinocchio binary dir: ${pinocchio_BINARY_DIR}")
