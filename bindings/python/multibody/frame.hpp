@@ -23,6 +23,8 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
+          .def(bp::init<>(bp::arg("self"),"Default constructor"))
+          .def(bp::init<const Frame &>(bp::args("self","other"),"Copy constructor"))
           .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
                 "Initialize from name, parent joint id, parent frame id and placement wrt parent joint."))
 
@@ -33,6 +35,8 @@ namespace pinocchio
                          &Frame::placement,
                          "placement in the parent joint local frame")
           .def_readwrite("type", &Frame::type, "type of the frame")
+          .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
           ;
       }
       
@@ -54,9 +58,32 @@ namespace pinocchio
         .def(FramePythonVisitor())
         .def(CopyableVisitor<Frame>())
         .def(PrintableVisitor<Frame>())
+        .def_pickle(Pickle())
         ;
       }
 
+    private:
+      struct Pickle : bp::pickle_suite
+      {
+        static bp::tuple getinitargs(const Frame &)
+        {
+          return bp::make_tuple();
+        }
+
+        static bp::tuple getstate(const Frame & f)
+        {
+          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type);
+        }
+
+        static void setstate(Frame & f, bp::tuple tup)
+        {
+          f.name = bp::extract<std::string>(tup[0]); 
+          f.parent = bp::extract<JointIndex>(tup[1]); 
+          f.previousFrame = bp::extract<JointIndex>(tup[2]); 
+          f.placement = bp::extract<SE3&>(tup[3]); 
+          f.type = (FrameType)(int)bp::extract<int>(tup[4]); 
+        }
+      };
     };
     
 
