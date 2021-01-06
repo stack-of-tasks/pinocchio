@@ -12,7 +12,27 @@ jobs:
         os: [ubuntu-20.04,ubuntu-18.04] 
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: recursive 
+
+    # extract branch name
+    - name: Get branch name (merge)
+      if: github.event_name != 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_ENV
+
+    # extract branch name on pull request
+    - name: Get branch name (pull request)
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})" >> $GITHUB_ENV
+
+    # print branch name
+    - name: Debug
+      run: echo ${{ env.BRANCH_NAME }}
+
     - name: Register robotpkg
       run: | 
         sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
@@ -45,7 +65,6 @@ jobs:
     - name: Run cmake
       run: |
         git submodule update --init
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
         export PATH=$PATH:/opt/openrobots/bin
         export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
@@ -59,7 +78,13 @@ jobs:
         export CTEST_OUTPUT_ON_FAILURE=1
         make test
         sudo make install
-        cd ../unittest/packaging
+
+    - name: Test packaging
+      run: |
+        export PATH=$PATH:/opt/openrobots/bin
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/openrobots/lib/pkgconfig
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
+        cd ./unittest/packaging/cmake
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/usr/local
@@ -67,5 +92,26 @@ jobs:
         make
         ./run_rnea
         ./load_urdf
-        cd ../../../build
+        cd ../../pkgconfig
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_rnea
+        cd ../../external
+        export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
+        #export PINOCCHIO_GIT_REPOSITORY=$(git remote get-url origin)
+        export PINOCCHIO_GIT_TAG="test-external-"$(git rev-parse --short HEAD)
+        git tag $PINOCCHIO_GIT_TAG 
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_rnea
+        ./load_urdf
+        
+
+    - name: Uninstall project
+      run: |
+        cd build
         sudo make uninstall
