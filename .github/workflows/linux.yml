@@ -100,7 +100,9 @@ jobs:
         ./run_rnea
         cd ../../external
         export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
-        export PINOCCHIO_GIT_TAG=${{ env.BRANCH_NAME }}
+        #export PINOCCHIO_GIT_REPOSITORY=$(git remote get-url origin)
+        export PINOCCHIO_GIT_TAG="test-external-"$(git rev-parse --short HEAD)
+        git tag $PINOCCHIO_GIT_TAG 
         mkdir build
         cd build
         cmake ..
