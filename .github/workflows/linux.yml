@@ -16,6 +16,23 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive 
+
+    # extract branch name
+    - name: Get branch name (merge)
+      if: github.event_name != 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/} | tr / -)" >> $GITHUB_ENV
+
+    # extract branch name on pull request
+    - name: Get branch name (pull request)
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: echo "BRANCH_NAME=$(echo ${GITHUB_HEAD_REF} | tr / -)" >> $GITHUB_ENV
+
+    # print branch name
+    - name: Debug
+      run: echo ${{ env.BRANCH_NAME }}
+
     - name: Register robotpkg
       run: | 
         sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
@@ -83,7 +100,7 @@ jobs:
         ./run_rnea
         cd ../../external
         export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
-        export PINOCCHIO_GIT_TAG=$(echo ${GITHUB_REF#refs/heads/})
+        export PINOCCHIO_GIT_TAG=${{ env.BRANCH_NAME }}
         mkdir build
         cd build
         cmake ..
