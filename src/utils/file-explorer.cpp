@@ -1,7 +1,8 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
+#include <cstdlib>
 #include "pinocchio/utils/file-explorer.hpp"
 
 namespace pinocchio
