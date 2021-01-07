@@ -76,6 +76,9 @@ namespace pinocchio
           virtual FrameIndex getBodyId (
               const std::string& frame_name) const = 0;
 
+          virtual Frame getBodyFrame (const std::string& frame_name) const = 0;
+        
+        
           virtual JointIndex getParentId (
               const std::string& frame_name) const = 0;
         
@@ -263,6 +266,20 @@ namespace pinocchio
                   + frame_name);
           }
 
+          Frame getBodyFrame (const std::string& frame_name) const
+          {
+
+            if (model.existFrame(frame_name, BODY)) {
+              FrameIndex fid = model.getFrameId (frame_name, BODY);
+              assert(model.frames[fid].type == BODY);
+              return model.frames[fid];
+            } else
+              throw std::invalid_argument("Model does not have any body named "
+                  + frame_name);
+          }
+
+
+        
           JointIndex getParentId (const std::string& frame_name) const
           {
 
