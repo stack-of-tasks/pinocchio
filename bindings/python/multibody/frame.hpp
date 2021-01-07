@@ -43,8 +43,10 @@ namespace pinocchio
                        "placement in the parent joint local frame")
         .def_readwrite("type", &Frame::type, "type of the frame")
 
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         ;
       }
       
