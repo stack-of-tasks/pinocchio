@@ -5,6 +5,7 @@
 #ifndef __pinocchio_parsers_sdf_hpp__
 #define __pinocchio_parsers_sdf_hpp__
 
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
@@ -14,6 +15,73 @@ namespace pinocchio
   namespace sdf
   {
 
+
+    /**
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  packageDirs   A vector containing the different directories
+     *                           where to search for models and meshes, typically 
+     *                           obtained from calling pinocchio::rosPaths()
+     *
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: hpp::fcl::MeshLoader [default] or hpp::fcl::CachedMeshLoader.
+     * @param[out]  geomModel    Reference where to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
+     *
+     */
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                              const std::string & filename,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::vector<std::string> & packageDirs = std::vector<std::string> (),
+                              ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr());
+    
+
+    /**
+     * @brief      Build The GeometryModel from a URDF file. Search for meshes
+     *             in the directories specified by the user first and then in
+     *             the environment variable ROS_PACKAGE_PATH
+     *
+     * @param[in]  model         The model of the robot, built with
+     *                           urdf::buildModel
+     * @param[in]  filename      The URDF complete (absolute) file path
+     * @param[in]  packageDir    A string containing the path to the directories of the meshes,
+     *                           typically obtained from calling pinocchio::rosPaths().
+     *
+     * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   meshLoader   object used to load meshes: hpp::fcl::MeshLoader [default] or hpp::fcl::CachedMeshLoader.
+     * @param[out]  geomModel    Reference where to put the parsed information.
+     *
+     * @return      Returns the reference on geom model for convenience.
+     *
+     * \warning     If hpp-fcl has not been found during compilation, COLLISION objects can not be loaded
+     *
+     */
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                              const std::string & filename,
+                              const GeometryType type,
+                              GeometryModel & geomModel,
+                              const std::string & packageDir,
+                              hpp::fcl::MeshLoaderPtr meshLoader = hpp::fcl::MeshLoaderPtr())
+   
+    {
+      const std::vector<std::string> dirs(1,packageDir);
+      return buildGeom(model,contact_models,filename,type,geomModel,dirs,meshLoader);
+    }
+
+    
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
@@ -33,5 +101,6 @@ namespace pinocchio
 } // namespace pinocchio
 
 #include "pinocchio/parsers/sdf/model.hxx"
+#include "pinocchio/parsers/sdf/geometry.hxx"
 
 #endif // ifndef __pinocchio_parsers_sdf_hpp__

@@ -67,7 +67,8 @@ namespace pinocchio
              ixz,iyz,izz;
         
         return Inertia(mass,com,R*I*R.transpose());
-      }
+      }      
+
       
       struct SdfGraph
       {
@@ -317,29 +318,8 @@ namespace pinocchio
           }
         }
       };
-      
-      
-      void parseRootTree(SdfGraph& graph)
-      {
-        //First joint connecting universe
-        const ::sdf::ElementPtr jointElement = graph.mapOfJoints.find("static")->second;
-        const std::string childName =
-          jointElement->GetElement("child")->Get<std::string>();;
-        const ::sdf::ElementPtr childElement = graph.mapOfLinks.find(childName)->second;
-        const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
-        const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
 
-        std::cerr<<"Adding rootjoint:"<<std::endl;
-        graph.urdfVisitor.addRootJoint(convertInertiaFromSdf(inertialElem), childName);
-        std::cerr<<"Added rootjoint:"<<std::endl;
-        const std::vector<std::string>& childrenOfLink =
-          graph.childrenOfLinks.find(childName)->second;
-        for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);
-            childOfChild != std::end(childrenOfLink); ++childOfChild)
-        {
-          graph.recursiveFillModel(graph.mapOfJoints.find(*childOfChild)->second);
-        }
-      }
+      void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
     }
 
     template<typename Scalar, int Options,
