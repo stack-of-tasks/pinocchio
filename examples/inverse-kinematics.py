@@ -15,7 +15,7 @@ q      = pinocchio.neutral(model)
 eps    = 1e-4
 IT_MAX = 1000
 DT     = 1e-1
-damp   = 1e-6
+damp   = 1e-12
 
 i=0
 while True:

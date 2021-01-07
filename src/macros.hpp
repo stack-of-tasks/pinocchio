@@ -75,7 +75,22 @@ namespace pinocchio
   }
 }
 
-// Handle explicitely the GCC borring warning: 'anonymous variadic macros were introduced in C++11'
+/// \brief macros for pragma push/pop/ignore deprecated warnings
+#if defined(__GNUC__) || defined(__clang__)
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("GCC diagnostic push")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("GCC diagnostic pop")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#elif defined (WIN32)
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("warning(push)")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("warning(pop)")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("warning(disable : 4996)")
+#else
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+#endif // __GNUC__
+
+// Handle explicitely the GCC boring warning: 'anonymous variadic macros were introduced in C++11'
 #include <exception>
 #include <stdexcept>
 #include <sstream>

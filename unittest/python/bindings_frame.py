@@ -44,6 +44,30 @@ class TestFrameBindings(PinocchioTestCase):
         f.placement = new_placement
         self.assertTrue(np.allclose(f.placement.homogeneous, new_placement.homogeneous))
 
+    def test_frame_equality(self):
+        M = pin.SE3.Random()
+        frame1 = pin.Frame("name", 1, 2, M, pin.OP_FRAME)
+        frame2 = pin.Frame("name", 1, 2, M, pin.OP_FRAME)
+        frame3 = pin.Frame("othername", 3, 4, pin.SE3.Random(), pin.BODY)
+
+        self.assertTrue(frame1 == frame2)
+        self.assertFalse(frame1 != frame2)
+        self.assertTrue(frame1 != frame3)
+        self.assertFalse(frame1 == frame3)
+
+    def test_pickle(self):
+        import pickle
+
+        frame = pin.Frame("name", 1, 2, pin.SE3.Random(), pin.OP_FRAME)
+        filename = "frame.pickle"
+        with open(filename, 'wb') as f:
+            pickle.dump(frame, f)
+
+        with open(filename, 'rb') as f:
+            frame_copy = pickle.load(f)
+
+        self.assertEqual(frame, frame_copy)
+
     def test_getters(self):
         data = self.model.createData()
         q = pin.randomConfiguration(self.model)
