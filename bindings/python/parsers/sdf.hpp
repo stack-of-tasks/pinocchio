@@ -10,13 +10,14 @@ namespace pinocchio
   namespace python
   {
     void exposeSDFModel();
+    void exposeSDFGeometry();
   
     inline void exposeSDFParser()
     {
       exposeSDFModel();
+      exposeSDFGeometry();
     }
-  
   }
 }
 
-#endif // ifndef __pinocchio_python_parsers_urdf_hpp__
+#endif // ifndef __pinocchio_python_parsers_sdf_hpp__

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 22020 CNRS
+// Copyright (c) 2021 CNRS
 //
 
 #include "pinocchio/parsers/sdf.hpp"
