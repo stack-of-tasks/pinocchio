@@ -1,27 +1,15 @@
 import pinocchio as pin 
 import numpy as np
-from pinocchio import SE3 
-
-import time
 
 from numpy.linalg import norm, inv 
 from os.path import join, dirname, abspath
 from math import sqrt
-#import example_robot_data as erd 
-
-pin.seed(int(time.time()))
-
-def normInf(x):
-    return norm(x,np.inf)
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 urdf_filename = pinocchio_model_dir + '/others/robots/anymal_b_simple_description/robots/anymal.urdf' 
-# anymal = erd.loadANYmal()
-# model = anymal.model
 model = pin.buildModelFromUrdf(urdf_filename)
 data = model.createData()
 
-#q0 = model.referenceConfigurations["standing"]
 q0 = pin.neutral(model)
 
 # Add feet frames
