@@ -191,134 +191,144 @@ namespace pinocchio
           }
           else {
 
-              const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
-              const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
-
-              const ignition::math::Pose3d& childPlacement =
-                childElement->template Get<ignition::math::Pose3d>("pose");
-
-              const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
-              const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-
-              const SE3 jointPlacement = oMp.inverse() * oMc;
-
-              std::ostringstream joint_info;
-
-              FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
-              Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
-              Vector spring_stiffness(1), spring_reference(1);
-              Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
-              ignition::math::Vector3d axis_ignition;
-              Vector3 axis;
-
-              const Scalar infty = std::numeric_limits<Scalar>::infinity();
-
-              if (jointElement->HasElement("axis"))
+            SE3 cMj(SE3::Identity());
+            if (jointElement->HasElement("pose"))
+            {
+                std::cerr<<"Pose Element found for joint "<< jointName<<std::endl;
+                const ignition::math::Pose3d cMj_ig =
+                  jointElement->template Get<ignition::math::Pose3d>("pose");
+                cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
+            }
+            
+            //childElement is the link. 
+            const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
+            const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
+            
+            const ignition::math::Pose3d& childPlacement =
+              childElement->template Get<ignition::math::Pose3d>("pose");
+            
+            const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
+            const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
+            
+            const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
+            
+            std::ostringstream joint_info;
+            
+            FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
+            Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
+            Vector spring_stiffness(1), spring_reference(1);
+            Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
+            ignition::math::Vector3d axis_ignition;
+            Vector3 axis;
+            
+            const Scalar infty = std::numeric_limits<Scalar>::infinity();
+            
+            if (jointElement->HasElement("axis"))
+            {
+              const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
+              
+              axis_ignition =
+                axisElem->Get<ignition::math::Vector3d>("xyz");
+              axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
+              
+              if (axisElem->HasElement("limit"))
               {
-                const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
-
-                axis_ignition =
-                  axisElem->Get<ignition::math::Vector3d>("xyz");
-                axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
-
-                if (axisElem->HasElement("limit"))
+                const ::sdf::ElementPtr limitElem = axisElem->GetElement("limit");
+                if (limitElem->HasElement("upper"))
                 {
-                  const ::sdf::ElementPtr limitElem = axisElem->GetElement("limit");
-                  if (limitElem->HasElement("upper"))
-                  {
-                    max_config[0] = limitElem->Get<double>("upper");
-                  }
-                  if (limitElem->HasElement("lower"))
-                  {
-                    min_config[0] = limitElem->Get<double>("lower");
-                  }
-                  if (limitElem->HasElement("effort"))
-                  {
-                    max_effort[0] = limitElem->Get<double>("effort");
-                  }
-                  if (limitElem->HasElement("velocity"))
-                  {
-                    max_velocity[0] = limitElem->Get<double>("velocity");
-                  }
+                  max_config[0] = limitElem->Get<double>("upper");
                 }
-                if (axisElem->HasElement("dynamics"))
+                if (limitElem->HasElement("lower"))
                 {
-                  const ::sdf::ElementPtr dynamicsElem = axisElem->GetElement("dynamics");
-                  if (dynamicsElem->HasElement("spring_reference"))
-                  {
-                    spring_reference[0] = dynamicsElem->Get<double>("spring_reference");
-                  }
-                  if (dynamicsElem->HasElement("spring_stiffness"))
-                  {
-                    spring_stiffness[0] = dynamicsElem->Get<double>("spring_stiffness");
-                  }
-                  if (dynamicsElem->HasElement("damping"))
-                  {
-                    damping[0] = dynamicsElem->Get<double>("damping");
-                  }
+                  min_config[0] = limitElem->Get<double>("lower");
+                }
+                if (limitElem->HasElement("effort"))
+                {
+                  max_effort[0] = limitElem->Get<double>("effort");
+                }
+                if (limitElem->HasElement("velocity"))
+                {
+                  max_velocity[0] = limitElem->Get<double>("velocity");
                 }
               }
-
-              if (jointElement->template Get<std::string>("type") == "universal")
+              if (axisElem->HasElement("dynamics"))
               {
+                const ::sdf::ElementPtr dynamicsElem = axisElem->GetElement("dynamics");
+                if (dynamicsElem->HasElement("spring_reference"))
+                {
+                  spring_reference[0] = dynamicsElem->Get<double>("spring_reference");
+                }
+                if (dynamicsElem->HasElement("spring_stiffness"))
+                {
+                  spring_stiffness[0] = dynamicsElem->Get<double>("spring_stiffness");
+                }
+                if (dynamicsElem->HasElement("damping"))
+                {
+                  damping[0] = dynamicsElem->Get<double>("damping");
+                }
               }
-              else if (jointElement->template Get<std::string>("type") == "revolute")
-              {
-                joint_info << "joint REVOLUTE with axis";
-                urdfVisitor.addJointAndBody(UrdfVisitorBase::REVOLUTE, axis,
-                                      parentFrameId, jointPlacement, jointName,
-                                      Y, childName,
-                                      max_effort, max_velocity, min_config, max_config,
-                                      friction,damping);
-              }
-              else if (jointElement->template Get<std::string>("type") == "gearbox")
-              {
-                joint_info << "joint GEARBOX with axis";
-                //std::cerr<<"TODO: Fix Gearbox transmission"<<std::endl;
-                urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
-                                           Y, childName);
-              }
-              else if (jointElement->template Get<std::string>("type") == "ball")
-              {
+            }
+            
+            if (jointElement->template Get<std::string>("type") == "universal")
+            {
+            }
+            else if (jointElement->template Get<std::string>("type") == "revolute")
+            {
+              joint_info << "joint REVOLUTE with axis"<< axis.transpose();
+              urdfVisitor.addJointAndBody(UrdfVisitorBase::REVOLUTE, axis,
+                                          parentFrameId, jointPlacement, jointName,
+                                          Y, cMj.inverse(), childName,
+                                          max_effort, max_velocity, min_config, max_config,
+                                          friction,damping);
+            }
+            else if (jointElement->template Get<std::string>("type") == "gearbox")
+            {
+              joint_info << "joint GEARBOX with axis";
+              //std::cerr<<"TODO: Fix Gearbox transmission"<<std::endl;
+              urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
+                                               Y, childName);
+            }
+            else if (jointElement->template Get<std::string>("type") == "ball")
+            {
+              
+              max_effort   = Vector::Constant(3, infty);
+              max_velocity = Vector::Constant(3, infty);
+              min_config   = Vector::Constant(4,-infty);
+              max_config   = Vector::Constant(4, infty);
+              min_config.setConstant(-1.01);
+              max_config.setConstant( 1.01);
+              friction = Vector::Constant(3, 0.);
+              damping = Vector::Constant(3, 0.);
+              
+              joint_info << "joint BALL";
+              //std::cerr<<"TODO: Fix BALL JOINT"<<std::endl;
+              urdfVisitor.addJointAndBody(UrdfVisitorBase::SPHERICAL, axis,
+                                          parentFrameId, jointPlacement, jointName,
+                                          Y, cMj.inverse(), childName,
+                                          max_effort, max_velocity, min_config, max_config,
+                                          friction,damping);
+            }
+            else
+            {
+              std::cerr<<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<<std::endl;
+              
+            }
 
-                max_effort   = Vector::Constant(3, infty);
-                max_velocity = Vector::Constant(3, infty);
-                min_config   = Vector::Constant(4,-infty);
-                max_config   = Vector::Constant(4, infty);
-                min_config.setConstant(-1.01);
-                max_config.setConstant( 1.01);
-                friction = Vector::Constant(3, 0.);
-                damping = Vector::Constant(3, 0.);
-
-                joint_info << "joint BALL";
-                //std::cerr<<"TODO: Fix BALL JOINT"<<std::endl;
-                urdfVisitor.addJointAndBody(UrdfVisitorBase::SPHERICAL, axis,
-                                      parentFrameId, jointPlacement, jointName,
-                                      Y, childName,
-                                      max_effort, max_velocity, min_config, max_config,
-                                      friction,damping);
-              }
-              else
-              {
-                std::cerr<<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<<std::endl;
-
-              }
-
-
-              const std::vector<std::string>& childrenOfLink =
-                childrenOfLinks.find(childName)->second;
-
-              for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);
-                  childOfChild != std::end(childrenOfLink); ++childOfChild)
-              {
-                const ::sdf::ElementPtr childOfChildElement =
-                  mapOfJoints.find(*childOfChild)->second;
-                recursiveFillModel(childOfChildElement);
-              }
+            
+            const std::vector<std::string>& childrenOfLink =
+              childrenOfLinks.find(childName)->second;
+            
+            for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);
+                childOfChild != std::end(childrenOfLink); ++childOfChild)
+            {
+              const ::sdf::ElementPtr childOfChildElement =
+                mapOfJoints.find(*childOfChild)->second;
+              recursiveFillModel(childOfChildElement);
+            }
           }
         }
       };
-
+      
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
     }
 

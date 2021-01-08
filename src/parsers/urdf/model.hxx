@@ -60,6 +60,25 @@ namespace pinocchio
               const VectorConstRef& damping
                                        ) = 0;
 
+          virtual void addJointAndBody(
+              JointType type,
+              const Vector3& axis,
+              const FrameIndex & parentFrameId,
+              const SE3 & placement,
+              const std::string & joint_name,
+              const Inertia& Y,
+              const SE3& frame_placement,
+              const std::string & body_name,
+              const VectorConstRef& max_effort,
+              const VectorConstRef& max_velocity,
+              const VectorConstRef& min_config,
+              const VectorConstRef& max_config,
+              const VectorConstRef& friction,
+              const VectorConstRef& damping
+                                       ) = 0;
+
+
+        
           virtual void addFixedJointAndBody(
               const FrameIndex & parentFrameId,
               const SE3 & joint_placement,
@@ -144,6 +163,29 @@ namespace pinocchio
               const VectorConstRef& max_config,
               const VectorConstRef& friction,
               const VectorConstRef& damping)
+        {
+          addJointAndBody(type,axis,parentFrameId,placement,
+                          joint_name, Y, SE3::Identity(), body_name,
+                          max_effort, max_velocity, min_config, max_config,
+                          friction, damping);
+        }
+
+        
+          void addJointAndBody(
+              JointType type,
+              const Vector3& axis,
+              const FrameIndex & parentFrameId,
+              const SE3 & placement,
+              const std::string & joint_name,
+              const Inertia& Y,
+              const SE3& frame_placement,
+              const std::string & body_name,
+              const VectorConstRef& max_effort,
+              const VectorConstRef& max_velocity,
+              const VectorConstRef& min_config,
+              const VectorConstRef& max_config,
+              const VectorConstRef& friction,
+              const VectorConstRef& damping)
           {
             JointIndex joint_id;
             const Frame & frame = model.frames[parentFrameId];
@@ -211,7 +253,7 @@ namespace pinocchio
             };
 
             FrameIndex jointFrameId = model.addJointFrame(joint_id, (int)parentFrameId);
-            appendBodyToJoint(jointFrameId, Y, SE3::Identity(), body_name);
+            appendBodyToJoint(jointFrameId, Y, frame_placement, body_name);
           }
 
           void addFixedJointAndBody(
