@@ -15,8 +15,8 @@ namespace pinocchio
     namespace bp = boost::python;
 
     GeometryModel
-    buildGeomFromSdf(const Model & model,
-                     const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+    buildGeomFromSdf(Model & model,
+                     PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
                      const std::string & filename,
                      const GeometryType type,
                      const std::string & packageDir)
@@ -33,7 +33,7 @@ namespace pinocchio
     void exposeSDFGeometry()
     {
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel (*) (const Model &, const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel (*) (Model &, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","contact_models","urdf_filename","geom_type","package_dir"  ),
               "Parse the URDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"

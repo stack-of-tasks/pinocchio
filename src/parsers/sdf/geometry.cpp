@@ -71,11 +71,10 @@ namespace pinocchio
                                 ros_pkg_paths.end());
         
         if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
-        
-
         const ::sdf::ElementPtr jointElement = graph.mapOfJoints.find("static")->second;
-        const std::string childName =
-          jointElement->GetElement("child")->Get<std::string>();;
+
+        const std::string& childName =
+          jointElement->GetElement("child")->Get<std::string>();
         const ::sdf::ElementPtr childElement = graph.mapOfLinks.find(childName)->second;
         recursiveParseGraphForGeom(graph, meshLoader, childElement,
                                    geomModel, hint_directories, type);

@@ -127,7 +127,7 @@ namespace pinocchio
         if (sdf_geometry->HasElement("mesh"))
         { 
           const ::sdf::ElementPtr sdf_mesh = sdf_geometry->GetElement("mesh");
-          std::string collisionFilename = sdf_mesh->Get<std::string>("url");
+          std::string collisionFilename = sdf_mesh->Get<std::string>("uri");
           
           meshPath = retrieveResourcePath(collisionFilename, package_dirs);
           if (meshPath == "") {
@@ -312,7 +312,7 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel& buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                             const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                             PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
                              const std::string & filename,
                              const GeometryType type,
                              GeometryModel & geomModel,
@@ -324,13 +324,17 @@ namespace pinocchio
       ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
       
       //if (verbose) visitor.log = &std::cout;
+
+      //Create maps from the SDF Graph
+      graph.parseGraph(filename);
+
       
       details::parseTreeForGeom (graph, geomModel, type,
                                  package_dirs, meshLoader);
       return geomModel;
     }
-    
-  } // namespace urdf
+
+  } // namespace sdf
 } // namespace pinocchio
-            
+
 #endif // ifndef __pinocchio_multibody_parsers_sdf_geometry_hxx__
