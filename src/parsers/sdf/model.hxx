@@ -113,16 +113,12 @@ namespace pinocchio
           const ::sdf::ElementPtr modelElement = rootElement->GetElement("model");
           
           modelName = modelElement->template Get<std::string>("name");
-          
-          std::cout << "Found " << modelName << " model!" << std::endl;
 
           // parse model links
           ::sdf::ElementPtr linkElement = modelElement->GetElement("link");
           while (linkElement)
           {
             const std::string linkName = linkElement->Get<std::string>("name");
-            std::cout << "Found " << linkName << " link in "
-                      << modelName << " model!" << std::endl;
             //Inserting data in std::map
             mapOfLinks.insert(std::make_pair(linkName, linkElement));
             childrenOfLinks.insert(std::make_pair(linkName, std::vector<std::string>()));
@@ -162,6 +158,7 @@ namespace pinocchio
 
           const std::string& jointName = jointElement->template Get<std::string>("name");
 
+          std::ostringstream joint_info;
           std::string parentName;
           ignition::math::Pose3d parentPlacement;
           ::sdf::ElementPtr parentElement;
@@ -173,28 +170,26 @@ namespace pinocchio
           const std::string childName =
             jointElement->GetElement("child")->Get<std::string>();
 
-          std::cout << "Joint " << jointName << " connects " << parentName
-                    << " link to " << childName << " link" << " with joint type "
+          joint_info << "Joint " << jointName << " connects parent " << parentName
+                    << " link to child " << childName << " link" << " with joint type "
                     << jointElement->template Get<std::string>("type")<<std::endl;
 
+          
           const ::sdf::ElementPtr childElement = mapOfLinks.find(childName)->second;
+          //TODO: Check left-knee-shin-joint axis
+          if (jointElement->template Get<std::string>("type") == "ball") {
 
-          if (urdfVisitor.existFrame(childName, BODY)) {
-
-            std::cout << "Link " << childName << " already exists with parent Joint id: " << urdfVisitor.getParentId(childName) <<std::endl;
-
-            JointIndex parentJointId = urdfVisitor.getParentId(parentName);
-            JointIndex childJointId = urdfVisitor.getParentId(childName);
-            contact_models.push_back(::pinocchio::RigidContactModel(::pinocchio::CONTACT_3D,
-                                                                    parentJointId,
-                                                                    childJointId));
+            //JointIndex parentJointId = urdfVisitor.getParentId(parentName);
+            //JointIndex childJointId = urdfVisitor.getParentId(childName);
+            //contact_models.push_back(::pinocchio::RigidContactModel(::pinocchio::CONTACT_3D,
+            //                                                                  parentJointId,
+            //                                                                  childJointId));
           }
           else {
 
             SE3 cMj(SE3::Identity());
             if (jointElement->HasElement("pose"))
             {
-                std::cerr<<"Pose Element found for joint "<< jointName<<std::endl;
                 const ignition::math::Pose3d cMj_ig =
                   jointElement->template Get<ignition::math::Pose3d>("pose");
                 cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
@@ -211,9 +206,6 @@ namespace pinocchio
             const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
             
             const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
-            
-            std::ostringstream joint_info;
-            
             FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
             Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
             Vector spring_stiffness(1), spring_reference(1);
@@ -290,7 +282,6 @@ namespace pinocchio
             }
             else if (jointElement->template Get<std::string>("type") == "ball")
             {
-              
               max_effort   = Vector::Constant(3, infty);
               max_velocity = Vector::Constant(3, infty);
               min_config   = Vector::Constant(4,-infty);
@@ -332,6 +323,28 @@ namespace pinocchio
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
     }
 
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::string & filename,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
+                                                           JointCollectionTpl> visitor (model, root_joint);
+
+      ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
+      
+      if (verbose) visitor.log = &std::cout;
+
+      //Create maps from the SDF Graph
+      graph.parseGraph(filename);
+      //Use the SDF graph to create the model
+      details::parseRootTree(graph);
+      return model;
+    }
+    
     template<typename Scalar, int Options,
              template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &

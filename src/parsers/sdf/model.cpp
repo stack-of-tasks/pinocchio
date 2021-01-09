@@ -32,9 +32,7 @@ namespace pinocchio
         const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
         const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
 
-        std::cerr<<"Adding rootjoint:"<<std::endl;
         graph.urdfVisitor.addRootJoint(convertInertiaFromSdf(inertialElem), childName);
-        std::cerr<<"Added rootjoint:"<<std::endl;
         const std::vector<std::string>& childrenOfLink =
           graph.childrenOfLinks.find(childName)->second;
         for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);

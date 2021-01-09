@@ -46,7 +46,28 @@ namespace pinocchio
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr());
     
-    
+
+
+
+    ///
+    /// \brief Build the model from a URDF file with a particular joint as root of the model tree inside
+    /// the model given as reference argument.
+    ///
+    /// \param[in] filename The URDF complete file path.
+    /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] verbose Print parsing info.
+    /// \param[out] model Reference model where to put the parsed information.
+    /// \return Return the reference on argument model for convenience.
+    ///
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModel(const std::string & filename,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               const bool verbose = false);
+
+
     ///
     /// \brief Build the model from a URDF file with a fixed joint as root of the model tree.
     ///
