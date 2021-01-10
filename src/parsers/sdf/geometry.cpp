@@ -27,6 +27,7 @@ namespace pinocchio
                                       const std::vector<std::string> & package_dirs,
                                       const GeometryType type)
       {
+        const std::string& linkName = link->Get<std::string>("name");
         switch(type)
         {
           case COLLISION:
@@ -40,7 +41,6 @@ namespace pinocchio
           default:
             break;
         }
-        const std::string& linkName = link->Get<std::string>("name");
         const std::vector<std::string>& childrenOfLink =
           graph.childrenOfLinks.find(linkName)->second;
 
@@ -50,12 +50,15 @@ namespace pinocchio
         {
           const ::sdf::ElementPtr childJointElement =
             graph.mapOfJoints.find(*childOfChild)->second;
-          const std::string childLinkName =
-            childJointElement->GetElement("child")->template Get<std::string>();
-          const ::sdf::ElementPtr childLinkElement =
-            graph.mapOfLinks.find(childLinkName)->second;
-          recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
-                                    geomModel, package_dirs,type);
+
+          if (childJointElement->template Get<std::string>("type") != "ball") {
+            const std::string childLinkName =
+              childJointElement->GetElement("child")->template Get<std::string>();
+            const ::sdf::ElementPtr childLinkElement =
+              graph.mapOfLinks.find(childLinkName)->second;
+            recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
+                                       geomModel, package_dirs,type);
+          }
         }
       }
       

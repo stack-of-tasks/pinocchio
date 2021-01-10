@@ -142,6 +142,33 @@ namespace pinocchio
           }
         }
 
+        static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                               const std::string& jointName)
+        {
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+                cm = std::begin(contact_models);
+              cm != std::end(contact_models); ++cm)
+            {
+              if(cm->name == "jointName")
+                return true;
+            }
+          return false;
+        }
+
+        static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                                           const std::string& jointName)
+        {
+          std::size_t i = 0;
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+                cm = std::begin(contact_models);
+              cm != std::end(contact_models); ++cm)
+          {
+            if(cm->name == "jointName")
+              return i;
+            i++;
+            }
+          return -1;
+        }
         ///
         /// \brief Recursive procedure for reading the SDF tree.
         ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
@@ -159,33 +186,17 @@ namespace pinocchio
           const std::string& jointName = jointElement->template Get<std::string>("name");
 
           std::ostringstream joint_info;
-          std::string parentName;
-          ignition::math::Pose3d parentPlacement;
-          ::sdf::ElementPtr parentElement;
-          parentName = jointElement->GetElement("parent")->Get<std::string>();
-          parentElement = mapOfLinks.find(parentName)->second;
-          parentPlacement =
-            parentElement->template Get<ignition::math::Pose3d>("pose");
-
-          const std::string childName =
-            jointElement->GetElement("child")->Get<std::string>();
-
-          joint_info << "Joint " << jointName << " connects parent " << parentName
-                    << " link to child " << childName << " link" << " with joint type "
-                    << jointElement->template Get<std::string>("type")<<std::endl;
 
           
-          const ::sdf::ElementPtr childElement = mapOfLinks.find(childName)->second;
-          //TODO: Check left-knee-shin-joint axis
-          if (jointElement->template Get<std::string>("type") == "ball") {
-
-            //JointIndex parentJointId = urdfVisitor.getParentId(parentName);
-            //JointIndex childJointId = urdfVisitor.getParentId(childName);
-            //contact_models.push_back(::pinocchio::RigidContactModel(::pinocchio::CONTACT_3D,
-            //                                                                  parentJointId,
-            //                                                                  childJointId));
-          }
-          else {
+          const std::string parentName = jointElement->GetElement("parent")->Get<std::string>();
+          const std::string childName =
+            jointElement->GetElement("child")->Get<std::string>();          
+          const ::sdf::ElementPtr childElement =  mapOfLinks.find(childName)->second;
+          const ::sdf::ElementPtr parentElement = mapOfLinks.find(parentName)->second;
+          const ignition::math::Pose3d parentPlacement =
+            parentElement->template Get<ignition::math::Pose3d>("pose");
+          const ignition::math::Pose3d childPlacement =
+            childElement->template Get<ignition::math::Pose3d>("pose");
 
             SE3 cMj(SE3::Identity());
             if (jointElement->HasElement("pose"))
@@ -194,18 +205,68 @@ namespace pinocchio
                   jointElement->template Get<ignition::math::Pose3d>("pose");
                 cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
             }
-            
+          
+
+          const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
+          const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
+          const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
+
+          joint_info << "Joint " << jointName << " connects parent " << parentName
+                    << " link to child " << childName << " link" << " with joint type "
+                    << jointElement->template Get<std::string>("type")<<std::endl;
+
+          
+          //TODO: Check left-knee-shin-joint axis
+          //if (urdfVisitor.existFrame(childName, BODY)) {
+          if (jointElement->template Get<std::string>("type") == "ball") {
+            const JointIndex parentJointId = urdfVisitor.getParentId(parentName);
+            JointIndex existingParentJointId;
+            if (urdfVisitor.existFrame(childName, BODY))
+            {
+              if (! existConstraint(contact_models, jointName))
+              {
+                std::cout<<childName<<" already exists"<<std::endl;
+                existingParentJointId = urdfVisitor.getParentId(childName);
+                ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
+                                                    parentJointId,
+                                                    jointPlacement,
+                                                    existingParentJointId,
+                                                    SE3::Identity());
+                rcm.name = jointName;
+                contact_models.push_back(rcm);
+                
+              }
+              else
+              {
+                const int i = getConstraintId(contact_models, jointName);
+                if(i != -1) {
+                  contact_models[i].joint2_id = parentJointId;
+                  contact_models[i].joint2_placement = jointPlacement;
+                }
+                else
+                {
+                  throw std::invalid_argument("Unknown error with sdf parsing");
+                }
+              }
+            }
+            else
+            {
+              std::cout<<childName<<" not yet added to model"<<std::endl;
+              existingParentJointId = -1;
+              ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
+                                                  parentJointId,
+                                                  jointPlacement,
+                                                  existingParentJointId,
+                                                  SE3::Identity());
+              rcm.name = jointName;
+              contact_models.push_back(rcm);
+            }
+          }
+          else {            
             //childElement is the link. 
             const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
             const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
-            
-            const ignition::math::Pose3d& childPlacement =
-              childElement->template Get<ignition::math::Pose3d>("pose");
-            
-            const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
-            const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-            
-            const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
+                        
             FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
             Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
             Vector spring_stiffness(1), spring_reference(1);

@@ -322,12 +322,10 @@ namespace pinocchio
     {
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
-      
       //if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
-
       
       details::parseTreeForGeom (graph, geomModel, type,
                                  package_dirs, meshLoader);
