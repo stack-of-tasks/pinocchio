@@ -95,6 +95,12 @@ namespace pinocchio
           virtual FrameIndex getBodyId (
               const std::string& frame_name) const = 0;
 
+          virtual JointIndex getJointId (
+              const std::string& joint_name) const = 0;
+
+          virtual const std::string& getJointName (
+              const JointIndex jointId) const = 0;
+        
           virtual Frame getBodyFrame (const std::string& frame_name) const = 0;
         
         
@@ -308,6 +314,22 @@ namespace pinocchio
                   + frame_name);
           }
 
+          FrameIndex getJointId (const std::string& joint_name) const
+          {
+
+            if (model.existJointName(joint_name)) {
+              JointIndex jid = model.getJointId (joint_name);
+              return jid;
+            } else
+              throw std::invalid_argument("Model does not have any joint named "
+                  + joint_name);
+          }
+
+          const std::string& getJointName (const JointIndex jointId) const
+          {
+            return model.names[jointId];
+          }
+        
           Frame getBodyFrame (const std::string& frame_name) const
           {
 

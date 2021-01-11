@@ -79,6 +79,7 @@ namespace pinocchio
         ElementMap_t mapOfLinks, mapOfJoints;
         StringVectorMap_t childrenOfLinks;
         std::string modelName;
+        std::vector<std::string> childToBeAdded;
 
         typedef ::pinocchio::urdf::details::UrdfVisitorBase UrdfVisitorBase;
         UrdfVisitorBase& urdfVisitor;
@@ -155,6 +156,19 @@ namespace pinocchio
           return false;
         }
 
+        static bool existChildName(const std::vector<std::string>& listOfNames,
+                                   const std::string& childName)
+        {
+          for(std::vector<std::string>::const_iterator cm = std::begin(listOfNames);
+              cm != std::end(listOfNames); ++cm)
+          {
+            if((*cm) == childName)
+              return true;
+          }
+          return false;
+        }
+
+        
         static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
                                            const std::string& jointName)
         {
@@ -169,6 +183,25 @@ namespace pinocchio
             }
           return -1;
         }
+
+
+        int getConstraintIdFromChild(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                                     const std::string& childName)
+        {
+          std::size_t i = 0;
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+                cm = std::begin(contact_models);
+              cm != std::end(contact_models); ++cm)
+          {
+            const std::string childFromMap =
+              mapOfJoints.find(cm->name)->second->GetElement("child")->Get<std::string>();
+            if(childFromMap == childName)
+              return i;
+            i++;
+            }
+          return -1;
+        }
+        
         ///
         /// \brief Recursive procedure for reading the SDF tree.
         ///        The function returns an exception as soon as a necessary Inertia or Joint information are missing.
@@ -182,12 +215,9 @@ namespace pinocchio
           typedef UrdfVisitorBase::SE3 SE3;
           typedef UrdfVisitorBase::Vector Vector;
           typedef UrdfVisitorBase::Vector3 Vector3;
-
           const std::string& jointName = jointElement->template Get<std::string>("name");
 
           std::ostringstream joint_info;
-
-          
           const std::string parentName = jointElement->GetElement("parent")->Get<std::string>();
           const std::string childName =
             jointElement->GetElement("child")->Get<std::string>();          
@@ -198,19 +228,35 @@ namespace pinocchio
           const ignition::math::Pose3d childPlacement =
             childElement->template Get<ignition::math::Pose3d>("pose");
 
-            SE3 cMj(SE3::Identity());
-            if (jointElement->HasElement("pose"))
-            {
-                const ignition::math::Pose3d cMj_ig =
-                  jointElement->template Get<ignition::math::Pose3d>("pose");
-                cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
-            }
-          
+          const JointIndex parentJointId = urdfVisitor.getParentId(parentName);
+          const std::string& parentJointName = urdfVisitor.getJointName(parentJointId);
 
+          
+          SE3 cMj(SE3::Identity()), pMjp(SE3::Identity());
+
+          if (jointElement->HasElement("pose"))
+          {
+            const ignition::math::Pose3d cMj_ig =
+              jointElement->template Get<ignition::math::Pose3d>("pose");
+            cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
+          }
+
+          if (parentJointName != "root_joint") {
+            const ::sdf::ElementPtr parentJointElement = mapOfJoints.find(parentJointName)->second;
+          
+            if (parentJointElement->HasElement("pose"))
+            {
+
+              const ignition::math::Pose3d parentcMj_ig =
+                parentJointElement->template Get<ignition::math::Pose3d>("pose");
+              pMjp = ::pinocchio::sdf::details::convertFromPose3d(parentcMj_ig);
+            }
+          }
+          
           const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
           const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-          const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
-
+          const SE3 jointPlacement = pMjp.inverse() * oMp.inverse() * oMc * cMj;
+          
           joint_info << "Joint " << jointName << " connects parent " << parentName
                     << " link to child " << childName << " link" << " with joint type "
                     << jointElement->template Get<std::string>("type")<<std::endl;
@@ -219,7 +265,6 @@ namespace pinocchio
           //TODO: Check left-knee-shin-joint axis
           //if (urdfVisitor.existFrame(childName, BODY)) {
           if (jointElement->template Get<std::string>("type") == "ball") {
-            const JointIndex parentJointId = urdfVisitor.getParentId(parentName);
             JointIndex existingParentJointId;
             if (urdfVisitor.existFrame(childName, BODY))
             {
@@ -227,11 +272,23 @@ namespace pinocchio
               {
                 std::cout<<childName<<" already exists"<<std::endl;
                 existingParentJointId = urdfVisitor.getParentId(childName);
+                const ::sdf::ElementPtr prevJointElement =
+                  mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
+                std::cout<<"connected by joint "
+                         <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
+                SE3 cMj1(SE3::Identity());
+                if (prevJointElement->HasElement("pose"))
+                {
+                  const ignition::math::Pose3d prevcMj_ig =
+                    prevJointElement->template Get<ignition::math::Pose3d>("pose");
+                  cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
+                }
+
                 ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
                                                     parentJointId,
                                                     jointPlacement,
                                                     existingParentJointId,
-                                                    SE3::Identity());
+                                                    cMj1.inverse() * cMj);
                 rcm.name = jointName;
                 contact_models.push_back(rcm);
                 
@@ -252,13 +309,15 @@ namespace pinocchio
             else
             {
               std::cout<<childName<<" not yet added to model"<<std::endl;
+              std::cout<<jointName<<" corresponds to pending link"<<childName<<std::endl;
               existingParentJointId = -1;
               ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
                                                   parentJointId,
                                                   jointPlacement,
                                                   existingParentJointId,
-                                                  SE3::Identity());
+                                                  cMj);
               rcm.name = jointName;
+              childToBeAdded.push_back(childName);
               contact_models.push_back(rcm);
             }
           }
@@ -337,7 +396,6 @@ namespace pinocchio
             else if (jointElement->template Get<std::string>("type") == "gearbox")
             {
               joint_info << "joint GEARBOX with axis";
-              //std::cerr<<"TODO: Fix Gearbox transmission"<<std::endl;
               urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
                                                Y, childName);
             }
@@ -366,6 +424,17 @@ namespace pinocchio
               
             }
 
+
+            if (existChildName(childToBeAdded, childName)) {
+              int constraintId = getConstraintIdFromChild(contact_models, childName);
+              if (constraintId != -1)
+              {
+                contact_models[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
+              }
+              else {
+                throw std::invalid_argument("Something wrong here");
+              }
+            }
             
             const std::vector<std::string>& childrenOfLink =
               childrenOfLinks.find(childName)->second;
@@ -382,7 +451,7 @@ namespace pinocchio
       };
       
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
-    }
+      }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &

@@ -223,7 +223,7 @@ namespace pinocchio
           const GeometryArray geometries_array =
             getLinkGeometryArray<type>(link);
 
-          FrameIndex frame_id = graph.urdfVisitor.getBodyId (link_name);
+          FrameIndex frame_id = graph.urdfVisitor.getBodyId(link_name);
           Frame frame = graph.urdfVisitor.getBodyFrame (link_name);
           
           SE3 body_placement = frame.placement;
