@@ -122,6 +122,7 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(M,"The joint space inertia matrix")
         .ADD_DATA_PROPERTY(Minv,"The inverse of the joint space inertia matrix")
         .ADD_DATA_PROPERTY(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
+        .ADD_DATA_PROPERTY(g,"Vector of generalized gravity (dim model.nv).")
         .ADD_DATA_PROPERTY(Fcrb,"Spatial forces set, used in CRBA")
         .ADD_DATA_PROPERTY(lastChild,"Index of the last child (for CRBA)")
         .ADD_DATA_PROPERTY(nvSubtree,"Dimension of the subtree motion space (for CRBA)")
@@ -146,11 +147,10 @@ namespace pinocchio
         
         .ADD_DATA_PROPERTY(com,"CoM position of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(vcom,"CoM velocity of the subtree starting at joint index i.")
-        .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i..")
+        .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(mass,"Mass of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(Jcom,"Jacobian of center of mass.")
 
-        .ADD_DATA_PROPERTY(C,"Joint space Coriolis matrix.")
         .ADD_DATA_PROPERTY(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
