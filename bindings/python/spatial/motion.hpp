@@ -109,6 +109,9 @@ namespace pinocchio
         .def("setRandom",&MotionPythonVisitor::setRandom,bp::arg("self"),
              "Set the linear and angular components of *this to random values.")
         
+        .def("dot",(Scalar (Motion::*)(const ForceBase<Force> &) const) &Motion::dot,
+             bp::args("self","f"),"Dot product between *this and a Force f.")
+        
         .def("cross",(Motion (Motion::*)(const Motion &) const) &Motion::cross,
              bp::args("self","m"),"Action of *this onto another Motion m. Returns ¨*this x m.")
         .def("cross",(Force (Motion::*)(const Force &) const) &Motion::cross,
@@ -158,6 +161,10 @@ namespace pinocchio
 
       static void expose()
       {
+        typedef pinocchio::MotionBase<Motion> MotionBase;
+        bp::objects::register_dynamic_id<MotionBase>();
+        bp::objects::register_conversion<Motion,MotionBase>(false);
+        
         typedef pinocchio::MotionDense<Motion> MotionDense;
         bp::objects::register_dynamic_id<MotionDense>();
         bp::objects::register_conversion<Motion,MotionDense>(false);
