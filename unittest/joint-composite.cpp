@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 

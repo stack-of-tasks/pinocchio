@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 

@@ -10,6 +10,7 @@
 
 #include "pinocchio/parsers/sample-models.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/test/floating_point_comparison.hpp>

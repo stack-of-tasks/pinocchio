@@ -10,6 +10,7 @@
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 

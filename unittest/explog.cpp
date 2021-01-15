@@ -5,6 +5,7 @@
 
 #include "pinocchio/spatial/explog.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
