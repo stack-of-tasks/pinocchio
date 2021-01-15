@@ -10,6 +10,7 @@
 
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/algorithm/string.hpp>
