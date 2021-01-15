@@ -7,6 +7,7 @@
 
 namespace pinocchio {
 namespace python {
+
 namespace context {
 
 typedef PINOCCHIO_PYTHON_SCALAR_TYPE Scalar;

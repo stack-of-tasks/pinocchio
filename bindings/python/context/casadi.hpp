@@ -379,6 +379,16 @@ namespace pinocchio { namespace python {
 //    }
 //  };
 
+  inline boost::python::object getScalarType()
+  {
+    namespace bp = boost::python;
+    
+    PyObject * pyObj = reinterpret_cast<PyObject *>(::eigenpy::casadi::CasadiType::getSXType());
+    bp::object scalar_type(bp::handle<>(bp::borrowed(pyObj)));
+    
+    return scalar_type;
+  }
+
   inline void exposeSpecificTypeFeatures()
   {
     typedef pinocchio::python::context::Scalar Scalar;
