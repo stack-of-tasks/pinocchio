@@ -170,7 +170,7 @@ namespace pinocchio
     typedef typename Data::Motion Motion;
     
     typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef std::vector<RigidContactModel> VectorRigidContactModel;
+    typedef std::vector<RigidContactModel,ContactModelAllocator> VectorRigidContactModel;
     typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
     
     assert(model.check(data) && "data is not consistent with model.");
