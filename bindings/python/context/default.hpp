@@ -9,4 +9,8 @@
 #include "pinocchio/bindings/python/context/generic.hpp"
 #undef PINOCCHIO_PYTHON_SCALAR_TYPE
 
+namespace pinocchio { namespace python {
+  inline void exposeSpecificTypeFeatures() {};
+}}
+
 #endif // #ifndef __pinocchio_python_context_default_hpp__

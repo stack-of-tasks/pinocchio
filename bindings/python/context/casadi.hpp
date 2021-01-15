@@ -275,6 +275,39 @@ namespace internal {
 
 } // namespace eigenpy
 
+namespace pinocchio { namespace python {
+
+  template<typename CasadiMatrix>
+  struct CasadiMatrixToPython
+  {
+    
+    static PyObject* convert(CasadiMatrix const & x)
+    {
+      PyObject * casadi_matrix_py_ptr = PyObject_CallObject(reinterpret_cast<PyObject*>(eigenpy::casadi::CasadiType::getSXType()),
+                                                            NULL);
+      eigenpy::PySwigObject * casadi_matrix_swig_obj = eigenpy::get_PySwigObject(casadi_matrix_py_ptr);
+      assert(casadi_matrix_swig_obj != NULL);
+      
+      CasadiMatrix * casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix*>(casadi_matrix_swig_obj->ptr);
+      *casadi_matrix_obj_ptr = x;
+      
+      Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
+      return casadi_matrix_py_ptr;
+    }
+    static PyTypeObject const* get_pytype()
+    {
+      return ::eigenpy::casadi::CasadiType::getSXType();
+    }
+  };
+
+  inline void exposeSpecificTypeFeatures()
+  {
+    typedef pinocchio::python::context::Scalar Scalar;
+    boost::python::to_python_converter<Scalar,CasadiMatrixToPython<Scalar>,true>();
+  };
+
+}}
+
 namespace pinocchio { namespace python { namespace internal {
   
   template<typename T> struct has_operator_equal;

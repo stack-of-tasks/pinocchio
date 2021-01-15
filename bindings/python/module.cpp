@@ -32,6 +32,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   
   eigenpy::enableEigenPy();
   exposeEigenTypes();
+  exposeSpecificTypeFeatures();
 
 //  bp::scope().attr("XAxis")
 //  = bp::object(bp::handle<>(eigenpy::EigenToPy<const context::Vector3s &>::convert(pinocchio::XAxis::vector<context::Scalar>())));

@@ -16,6 +16,15 @@
 
 #include <eigenpy/eigenpy.hpp>
 
+namespace pinocchio { namespace python
+
+  inline void exposeSpecificTypeFeatures()
+  {
+    
+  };
+
+}}
+
 namespace pinocchio { namespace python { namespace internal {
   
   template<typename T> struct has_operator_equal;
