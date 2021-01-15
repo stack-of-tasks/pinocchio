@@ -294,16 +294,97 @@ namespace pinocchio { namespace python {
       Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
       return casadi_matrix_py_ptr;
     }
+    
     static PyTypeObject const* get_pytype()
     {
       return ::eigenpy::casadi::CasadiType::getSXType();
     }
+    
+    static void registration()
+    {
+      boost::python::to_python_converter<CasadiMatrix,CasadiMatrixToPython,true>();
+    }
   };
+
+  template<typename CasadiMatrix>
+  struct CasadiMatrixFromPython
+  {
+    struct Extractor
+    {
+      static CasadiMatrix & execute(PyObject* /*pyObj*/)
+      {
+        throw std::runtime_error("Should never be called");
+      }
+    };
+    
+    static void registration()
+    {
+      boost::python::converter::registry::insert
+      ( &extract
+       , boost::python::detail::extractor_type_id(&Extractor::execute)
+#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
+       , &get_pytype
+#endif
+       );
+    }
+    
+  private:
+    static void* extract(PyObject* pyObj)
+    {
+      if(!PyObject_TypeCheck(pyObj,::eigenpy::casadi::CasadiType::getSXType()))
+         return 0;
+      
+      eigenpy::PySwigObject * casadi_matrix_swig_obj = eigenpy::get_PySwigObject(pyObj);
+      return casadi_matrix_swig_obj->ptr;
+
+    }
+#ifndef BOOST_PYTHON_NO_PY_SIGNATURES
+    static PyTypeObject const * get_pytype()
+    {
+      return ::eigenpy::casadi::CasadiType::getSXType();
+    }
+#endif
+  };
+
+//  template<typename CasadiMatrix>
+//  struct CasadiMatrixFromPython
+//  {
+//    static void* convertible(PyObject * pyObj)
+//    {
+//      if(PyFloat_Check(pyObj))
+//        return pyObj;
+//      if(std::strcmp(pyObj->ob_type->tp_name,CasadiMatrix::type_name().c_str()) != 0)
+//        return 0;
+//
+//      return pyObj;
+//    }
+//    static void construct(PyObject * pyObj,
+//                          boost::python::converter::rvalue_from_python_stage1_data * memory)
+//    {
+//      eigenpy::PySwigObject * casadi_matrix_swig_obj = eigenpy::get_PySwigObject(pyObj);
+//      assert(casadi_matrix_swig_obj != NULL);
+//
+//      CasadiMatrix * casadi_matrix_ptr = reinterpret_cast<CasadiMatrix*>(casadi_matrix_swig_obj->ptr);
+//      const CasadiMatrix & casadi_matrix = *casadi_matrix_ptr;
+//
+//      bp::converter::rvalue_from_python_storage<CasadiMatrix>* storage = reinterpret_cast<bp::converter::rvalue_from_python_storage<CasadiMatrix>*>
+//      (reinterpret_cast<void*>(memory));
+//
+//      // Allocate memory
+//      void * storage_ptr = storage->storage.bytes;
+//      CasadiMatrix * casadi_matrix_cpp = new (storage_ptr) CasadiMatrix(casadi_matrix);
+//
+//      memory->convertible = storage->storage.bytes;
+//      Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
+//    }
+//  };
 
   inline void exposeSpecificTypeFeatures()
   {
     typedef pinocchio::python::context::Scalar Scalar;
-    boost::python::to_python_converter<Scalar,CasadiMatrixToPython<Scalar>,true>();
+    CasadiMatrixToPython<Scalar>::registration();
+    CasadiMatrixFromPython<Scalar>::registration();
+    boost::python::implicitly_convertible<double,Scalar>();
   };
 
 }}
