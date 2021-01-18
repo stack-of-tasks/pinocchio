@@ -24,6 +24,7 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
       static const Scalar PI_value = PI<Scalar>();
+      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
       Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
     
       Scalar tr = R.trace();
@@ -44,7 +45,7 @@ namespace pinocchio
                                     Scalar(1) // else
                                     ) / Scalar(2);
       const Scalar cphi = -(tr - Scalar(1))/Scalar(2);
-      const Scalar beta = theta*theta / (Scalar(1) + cphi);
+      const Scalar beta = theta*theta / (Scalar(1) + cphi + eps);
       const Vector3 tmp((R.diagonal().array() + cphi) * beta);
       
       res_[0] = if_then_else(GE,theta,PI_value_lower,
@@ -110,6 +111,7 @@ namespace pinocchio
     {
       typedef SE3Tpl<Scalar,Options> SE3;
       typedef typename SE3::Vector3 Vector3;
+      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
       
       typename SE3::ConstAngularRef R = M.rotation();
       typename SE3::ConstLinearRef p = M.translation();
@@ -118,6 +120,7 @@ namespace pinocchio
       
       Scalar theta;
       const Vector3 w(log3(R,theta)); // t in [0,π]
+      theta += eps;
       const Scalar t2 = theta*theta;
       
       Scalar st,ct; SINCOS(theta,&st,&ct);
