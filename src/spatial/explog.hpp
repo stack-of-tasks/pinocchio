@@ -38,8 +38,9 @@ namespace pinocchio
     typedef typename Vector3Like::Scalar Scalar;
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
+    const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
     
-    const Scalar t2 = v.squaredNorm();
+    const Scalar t2 = v.squaredNorm() + eps * eps;
     
     const Scalar t = math::sqrt(t2);
     Scalar ct,st; SINCOS(t,&st,&ct);
