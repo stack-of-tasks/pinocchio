@@ -247,9 +247,10 @@ namespace pinocchio
     
     const typename MotionDerived::ConstAngularType & w = nu.angular();
     const typename MotionDerived::ConstLinearType & v = nu.linear();
+    const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
     
     Scalar alpha_wxv, alpha_v, alpha_w, diagonal_term;
-    const Scalar t2 = w.squaredNorm();
+    const Scalar t2 = w.squaredNorm() + eps*eps;
     const Scalar t = math::sqrt(t2);
     Scalar ct,st; SINCOS(t,&st,&ct);
     const Scalar inv_t2 = Scalar(1)/t2;
