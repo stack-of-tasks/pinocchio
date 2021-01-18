@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_log_hxx__
@@ -24,23 +24,21 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
       static const Scalar PI_value = PI<Scalar>();
+      Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
     
       Scalar tr = R.trace();
-      theta = if_then_else(GE,tr,Scalar(3),
-                           Scalar(0), // then
-                           if_then_else(LE,tr,Scalar(-1),
-                                        PI_value, // then
-                                        math::acos((tr - Scalar(1))/Scalar(2)) // else
-                                        )
+      theta = if_then_else(LT,tr,Scalar(3),
+                           if_then_else(GT,tr,Scalar(-1),
+                                        math::acos((tr - Scalar(1))/Scalar(2)), // then
+                                        PI_value // else
+                                        ),
+                           Scalar(0) // else
                            );
       tr = math::max(math::min(tr,Scalar(3)),Scalar(-1));
-
       assert(check_expression_if_real<Scalar>(theta == theta) && "theta contains some NaN"); // theta != NaN
       
-      Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
-      
       // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
-      const Scalar PI_value_lower = PI_value - 1e-2;
+      static const Scalar PI_value_lower = PI_value - 1e-2;
       const Scalar t = if_then_else(GT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                     theta / sin(theta), // then
                                     Scalar(1) // else
