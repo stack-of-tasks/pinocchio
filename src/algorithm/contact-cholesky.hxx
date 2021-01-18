@@ -281,6 +281,7 @@ namespace pinocchio
                                      "The number of contacts inside contact_models and the one during allocation do not match.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_datas.size() == num_contacts,
                                      "The number of contacts inside contact_datas and the one during allocation do not match.");
+      PINOCCHIO_UNUSED_VARIABLE(model);
       
       const Eigen::DenseIndex total_dim = size();
       const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
