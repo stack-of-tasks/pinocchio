@@ -185,6 +185,9 @@ namespace pinocchio
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
     
+    data.dhg = data.f[0];
+    data.dhg.angular() += data.dhg.linear().cross(data.com[0]);
+    
     // JCoM
     data.Jcom = data.Ag.template middleRows<3>(Force::LINEAR)/data.mass[0];
     

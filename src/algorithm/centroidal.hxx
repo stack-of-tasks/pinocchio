@@ -95,7 +95,6 @@ namespace pinocchio
     }
 
     data.com[0] /= data.mass[0];
-
     
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
