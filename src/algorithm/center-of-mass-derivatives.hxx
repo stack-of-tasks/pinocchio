@@ -2,8 +2,8 @@
 // Copyright (c) 2019 CNRS INRIA
 //
 
-#ifndef __pinocchio_center_of_mass_derivatives_hxx__
-#define __pinocchio_center_of_mass_derivatives_hxx__
+#ifndef __pinocchio_algorithm_center_of_mass_derivatives_hxx__
+#define __pinocchio_algorithm_center_of_mass_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -83,5 +83,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_center_of_mass_derivatives_hxx__
-
+#endif // ifndef __pinocchio_algorithm_center_of_mass_derivatives_hxx__
