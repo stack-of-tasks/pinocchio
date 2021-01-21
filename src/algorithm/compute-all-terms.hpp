@@ -21,6 +21,7 @@ namespace pinocchio
   ///         - pinocchio::ccrba
   ///         - pinocchio::computeKineticEnergy
   ///         - pinocchio::computePotentialEnergy
+  ///         - pinocchio::computeGeneralizedGravity
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.

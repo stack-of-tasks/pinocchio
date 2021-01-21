@@ -36,6 +36,7 @@ namespace pinocchio
               "\t- ccrba\n"
               "\t- computeKineticEnergy\n"
               "\t- computePotentialEnergy\n"
+              "\t- computeGeneralizedGravity\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
               "\tdata: data related to the model\n"

@@ -171,11 +171,13 @@ namespace pinocchio
     
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
-    data.Jcom = data.Ag.template topRows<3>()/data.mass[0];
+    data.Jcom = data.Ag.template middleRows<3>(Force::LINEAR)/data.mass[0];
     
     data.Ig.mass() = data.Ycrb[0].mass();
     data.Ig.lever().setZero();
     data.Ig.inertia() = data.Ycrb[0].inertia();
+    
+    data.g.noalias() = -data.Ag.template middleRows<3>(Force::LINEAR).transpose() * model.gravity.linear();
     
     // Energy
     computeKineticEnergy(model, data);
