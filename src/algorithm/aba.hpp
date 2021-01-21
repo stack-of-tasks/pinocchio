@@ -25,6 +25,8 @@ namespace pinocchio
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] tau The joint torque vector (dim model.nv).
   ///
+  /// \note This also overwrites data.f, possibly leaving it in an inconsistent state
+  ///
   /// \return The current joint acceleration stored in data.ddq.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -50,6 +52,8 @@ namespace pinocchio
   /// \param[in] v The joint velocity vector (dim model.nv).
   /// \param[in] tau The joint torque vector (dim model.nv).
   /// \param[in] fext Vector of external forces expressed in the local frame of the joints (dim model.njoints)
+  ///
+  /// \note This also overwrites data.f, possibly leaving it in an inconsistent state
   ///
   /// \return The current joint acceleration stored in data.ddq.
   ///

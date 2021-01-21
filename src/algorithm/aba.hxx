@@ -46,7 +46,7 @@ namespace pinocchio
       if (parent>0)
         data.v[i] += data.liMi[i].actInv(data.v[parent]);
 
-      data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
+      data.a_gf[i] = jdata.c() + (data.v[i] ^ jdata.v());
       
       data.Yaba[i] = model.inertias[i].matrix();
       data.f[i] = model.inertias[i].vxiv(data.v[i]); // -f_ext
@@ -147,7 +147,7 @@ namespace pinocchio
       if (parent > 0)
       {
         Force & pa = data.f[i];
-        pa.toVector() += Ia * data.a[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        pa.toVector() += Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -178,10 +178,10 @@ namespace pinocchio
       const JointIndex & i = jmodel.id();
       const JointIndex & parent = model.parents[i];
       
-      data.a[i] += data.liMi[i].actInv(data.a[parent]);
+      data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
       jmodel.jointVelocitySelector(data.ddq).noalias() =
-      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a[i].toVector();
-      data.a[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a_gf[i].toVector();
+      data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
     
   };
@@ -202,7 +202,7 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
-    data.a[0] = -model.gravity;
+    data.a_gf[0] = -model.gravity;
     data.u = tau;
     
     typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
@@ -247,7 +247,7 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.v[0].setZero();
-    data.a[0] = -model.gravity;
+    data.a_gf[0] = -model.gravity;
     data.u = tau;
     
     typedef AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
