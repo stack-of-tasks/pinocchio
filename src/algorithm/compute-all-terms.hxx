@@ -35,6 +35,7 @@ namespace pinocchio
                      const Eigen::MatrixBase<TangentVectorType> & v)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
@@ -43,7 +44,6 @@ namespace pinocchio
       
       // CRBA
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      data.Ycrb[i] = model.inertias[i];
 
       // Jacobian + NLE
       data.v[i] = jdata.v();
@@ -56,7 +56,16 @@ namespace pinocchio
       else
         data.oMi[i] = data.liMi[i];
 
-      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      data.ov[i] = data.oMi[i].act(data.v[i]);
+      
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.doYcrb[i] = data.oYcrb[i].variation(data.ov[i]);
+      
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S());
+      
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
 
       data.a_gf[i] = data.a[i] = jdata.c() + (data.v[i] ^ jdata.v());
       if (parent > 0)
@@ -88,25 +97,23 @@ namespace pinocchio
                      const Model & model,
                      Data & data)
     {
-      /*
-       * F[1:6,i] = Y*S
-       * M[i,SUBTREE] = S'*F[1:6,SUBTREE]
-       * if li>0
-       *   Yli += liXi Yi
-       *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
-       */
       typedef typename Model::JointIndex JointIndex;
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-
-      /* F[1:6,i] = Y*S */
-      jdata.U() = data.Ycrb[i] * jdata.S();
       
       ColsBlock J_cols = data.J.template middleCols<JointModel::NV>(jmodel.idx_v());
+      ColsBlock dJ_cols = data.dJ.template middleCols<JointModel::NV>(jmodel.idx_v());
       ColsBlock Ag_cols = data.Ag.template middleCols<JointModel::NV>(jmodel.idx_v());
-      forceSet::se3Action(data.oMi[i],jdata.U(),Ag_cols);
+      ColsBlock dAg_cols = data.dAg.template middleCols<JointModel::NV>(jmodel.idx_v());
+      
+      // Calc Ag = Y * S
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
+      
+      // Calc dAg = Ivx + vxI
+      dAg_cols.noalias() = data.doYcrb[i] * J_cols;
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dJ_cols,dAg_cols);
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
@@ -114,13 +121,14 @@ namespace pinocchio
 
       jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose()*data.f[i];
     
-      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      data.oYcrb[parent] += data.oYcrb[i];
+      data.doYcrb[parent] += data.doYcrb[i];
       data.h[parent] += data.liMi[i].act(data.h[i]);
       data.f[parent] += data.liMi[i].act(data.f[i]);
       
       // CoM
-      data.mass[i] = data.Ycrb[i].mass();
-      data.com[i] = data.Ycrb[i].lever();
+      data.mass[i] = data.oYcrb[i].mass();
+      data.com[i] = data.oMi[i].actInv(data.oYcrb[i].lever());
       data.vcom[i] = data.h[i].linear() / data.mass[i];
     }
   };
@@ -141,7 +149,7 @@ namespace pinocchio
     data.a[0].setZero();
     data.h[0].setZero();
     data.a_gf[0] = -model.gravity;
-    data.Ycrb[0].setZero();
+    data.oYcrb[0].setZero();
 
     typedef CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
@@ -158,31 +166,38 @@ namespace pinocchio
     }
     
     // CoM
-    data.mass[0] = data.Ycrb[0].mass();
-    data.com[0] = data.Ycrb[0].lever();
+    data.mass[0] = data.oYcrb[0].mass();
+    data.com[0] = data.oYcrb[0].lever();
     data.vcom[0] = data.h[0].linear() / data.mass[0];
     
-    // JCoM
+    // Centroidal
     typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
     const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
     Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
     for(long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
     
+    const Block3x dAg_lin = data.dAg.template middleRows<3>(Force::LINEAR);
+    Block3x dAg_ang = data.dAg.template middleRows<3>(Force::ANGULAR);
+    for(Eigen::DenseIndex i = 0; i<model.nv; ++i)
+      dAg_ang.col(i) += dAg_lin.col(i).cross(data.com[0]);
+    
     data.hg = data.h[0];
     data.hg.angular() += data.hg.linear().cross(data.com[0]);
+    
+    // JCoM
     data.Jcom = data.Ag.template middleRows<3>(Force::LINEAR)/data.mass[0];
     
-    data.Ig.mass() = data.Ycrb[0].mass();
+    data.Ig.mass() = data.oYcrb[0].mass();
     data.Ig.lever().setZero();
-    data.Ig.inertia() = data.Ycrb[0].inertia();
+    data.Ig.inertia() = data.oYcrb[0].inertia();
     
+    // Gravity
     data.g.noalias() = -data.Ag.template middleRows<3>(Force::LINEAR).transpose() * model.gravity.linear();
     
     // Energy
     computeKineticEnergy(model, data);
     computePotentialEnergy(model, data);
-
   }
 
 } // namespace pinocchio

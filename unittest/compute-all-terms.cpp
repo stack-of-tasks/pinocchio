@@ -25,8 +25,8 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   using namespace pinocchio;
 
   pinocchio::Model model; buildModels::humanoidRandom(model);
-  pinocchio::Data data(model); data.M.fill (0.);
-  pinocchio::Data data_other(model); data_other.M.fill (0.);
+  pinocchio::Data data(model);
+  pinocchio::Data data_other(model);
 
   VectorXd q (VectorXd::Random(model.nq));
   VectorXd v (VectorXd::Random(model.nv));
@@ -40,19 +40,21 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  computeJointJacobians(model,data_other,q);
+  computeJointJacobiansTimeVariation(model,data_other,q,v);
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
-  ccrba(model, data_other, q, v);
+  dccrba(model, data_other, q, v);
   computeGeneralizedGravity(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.dJ.isApprox(data_other.dJ, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.dAg.isApprox(data_other.dAg, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   BOOST_CHECK (data.g.isApprox(data_other.g, 1e-12));
@@ -76,19 +78,21 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  computeJointJacobians(model,data_other,q);
+  computeJointJacobiansTimeVariation(model,data_other,q,v);
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
-  ccrba(model, data_other, q, v);
+  dccrba(model, data_other, q, v);
   computeGeneralizedGravity(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.dJ.isApprox(data_other.dJ, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.dAg.isApprox(data_other.dAg, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   BOOST_CHECK (data.g.isApprox(data_other.g, 1e-12));
@@ -113,19 +117,21 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  computeJointJacobians(model,data_other,q);
+  computeJointJacobiansTimeVariation(model,data_other,q,v);
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
-  ccrba(model, data_other, q, v);
+  dccrba(model, data_other, q, v);
   computeGeneralizedGravity(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.dJ.isApprox(data_other.dJ, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.dAg.isApprox(data_other.dAg, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   BOOST_CHECK (data.g.isApprox(data_other.g, 1e-12));
@@ -150,19 +156,21 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   nonLinearEffects(model,data_other,q,v);
   crba(model,data_other,q);
   getJacobianComFromCrba(model, data_other);
-  computeJointJacobians(model,data_other,q);
+  computeJointJacobiansTimeVariation(model,data_other,q,v);
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
-  ccrba(model, data_other, q, v);
+  dccrba(model, data_other, q, v);
   computeGeneralizedGravity(model, data_other, q);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
+  BOOST_CHECK (data.dJ.isApprox(data_other.dJ, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.dAg.isApprox(data_other.dAg, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   BOOST_CHECK (data.g.isApprox(data_other.g, 1e-12));

@@ -330,9 +330,9 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                        const Eigen::MatrixBase<ConfigVectorType> & q,
-                                        const Eigen::MatrixBase<TangentVectorType> & v)
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                                    const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
