@@ -13,7 +13,7 @@ namespace pinocchio
   ///
   /// \brief Computes the partial derivatie of the center-of-mass velocity with respect to 
   ///        the joint configuration q.
-  ///        You must first call computForwardKinematicsDerivatives and computeCenterOfMass(q,vq)
+  ///        You must first call computeAllTerms(model,data,q,v) or computeCenterOfMass(model,data,q,v)
   ///        before calling this function.
   ///
   /// \tparam JointCollection Collection of Joint types.
