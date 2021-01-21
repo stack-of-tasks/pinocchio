@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -132,6 +132,7 @@ BOOST_AUTO_TEST_SUITE(JointRevoluteUnboundedUnaligned)
     Data dataRevoluteUnboundedUnaligned(modelRevoluteUboundedUnaligned);
     
     Eigen::VectorXd q = Eigen::VectorXd::Ones (modelRUX.nq);
+    q.normalize();
     TangentVector v = TangentVector::Ones (modelRUX.nv);
     Eigen::VectorXd tauRX = Eigen::VectorXd::Ones (modelRUX.nv);
     Eigen::VectorXd tauRevoluteUnaligned = Eigen::VectorXd::Ones (modelRevoluteUboundedUnaligned.nv);
