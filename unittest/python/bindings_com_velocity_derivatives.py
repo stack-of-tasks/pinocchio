@@ -30,14 +30,13 @@ class TestVComDerivativesBindings(unittest.TestCase):
         self.rmodel.upperPositionLimit[:3] = -1.
         self.q = pin.randomConfiguration(rmodel)
         self.vq = rand(rmodel.nv)*2-1
-        self.dq = rand(rmodel.nv)*2-1
 
         self.precision = 1e-8
         
     def test_numdiff(self):
         rmodel,rdata = self.rmodel,self.rdata
         rdata_fd = self.rdata_fd
-        q,vq,dq= self.q,self.vq,self.dq
+        q,vq = self.q,self.vq
 
         #### Compute d/dq VCOM with the algo.
         pin.computeAllTerms(rmodel,rdata,q,vq)
