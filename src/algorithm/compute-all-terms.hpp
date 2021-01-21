@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_compute_all_terms_hpp__
@@ -23,6 +23,7 @@ namespace pinocchio
   ///         - pinocchio::computeJointJacobians
   ///         - pinocchio::centerOfMass
   ///         - pinocchio::jacobianCenterOfMass
+  ///         - pinocchio::ccrba
   ///         - pinocchio::computeKineticEnergy
   ///         - pinocchio::computePotentialEnergy
   ///
@@ -71,10 +72,9 @@ namespace pinocchio
                      const Eigen::MatrixBase<TangentVectorType> & v)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::Inertia Inertia;
 
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
@@ -101,16 +101,9 @@ namespace pinocchio
       
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
 
-      data.f[i] = model.inertias[i]*data.a_gf[i] + model.inertias[i].vxiv(data.v[i]); // -f_ext
+      data.h[i] = model.inertias[i]*data.v[i];
+      data.f[i] = model.inertias[i]*data.a_gf[i] + data.v[i].cross(data.h[i]); // -f_ext
       
-      // CoM
-      const Scalar & mass = model.inertias[i].mass();
-      const typename Inertia::Vector3 & lever = model.inertias[i].lever();
-      
-      data.com[i].noalias() = mass * lever;
-      data.mass[i] = mass;
-
-      data.vcom[i].noalias() = mass * (data.v[i].angular().cross(lever) + data.v[i].linear());
     }
 
   };
@@ -140,63 +133,32 @@ namespace pinocchio
        *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
        */
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::SE3 SE3;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      const SE3 & oMi = data.oMi[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
 
       /* F[1:6,i] = Y*S */
-      jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
+      jdata.U() = data.Ycrb[i] * jdata.S();
+      
+      ColsBlock J_cols = data.J.template middleCols<JointModel::NV>(jmodel.idx_v());
+      ColsBlock Ag_cols = data.Ag.template middleCols<JointModel::NV>(jmodel.idx_v());
+      forceSet::se3Action(data.oMi[i],jdata.U(),Ag_cols);
 
       /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
       data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
-      = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-
+      = J_cols.transpose()*data.Ag.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
 
       jmodel.jointVelocitySelector(data.nle) = jdata.S().transpose()*data.f[i];
-      if(parent>0)
-      {
-        /*   Yli += liXi Yi */
-        data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-
-        /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
-        Eigen::Block<typename Data::Matrix6x> jF
-        = data.Fcrb[parent].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-        Eigen::Block<typename Data::Matrix6x> iF
-        = data.Fcrb[i].block(0,jmodel.idx_v(),6,data.nvSubtree[i]);
-        forceSet::se3Action(data.liMi[i], iF, jF);
-
-        data.f[parent] += data.liMi[i].act(data.f[i]);
-      }
+    
+      data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+      data.h[parent] += data.liMi[i].act(data.h[i]);
+      data.f[parent] += data.liMi[i].act(data.f[i]);
       
       // CoM
-      const SE3 & liMi = data.liMi[i];
-      
-      data.com[parent] += (liMi.rotation()*data.com[i]
-                           + data.mass[i] * liMi.translation());
-      
-      typename SE3::Vector3 com_in_world(oMi.rotation() * data.com[i] + data.mass[i] * oMi.translation());
-      
-      data.vcom[parent] += liMi.rotation()*data.vcom[i];
-      data.mass[parent] += data.mass[i];
-      
-      typedef typename Data::Matrix6x Matrix6x;
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
-      
-      ColBlock Jcols = jmodel.jointCols(data.J);
-      
-      if( JointModel::NV==1 )
-        data.Jcom.col(jmodel.idx_v())
-        = data.mass[i] * Jcols.template topLeftCorner<3,1>()
-        - com_in_world.cross(Jcols.template bottomLeftCorner<3,1>()) ;
-      else
-        jmodel.jointCols(data.Jcom)
-        = data.mass[i] * Jcols.template topRows<3>()
-        - skew(com_in_world) * Jcols.template bottomRows<3>();
-      
-      data.com[i] /= data.mass[i];
-      data.vcom[i] /= data.mass[i];
+      data.mass[i] = data.Ycrb[i].mass();
+      data.com[i] = data.Ycrb[i].lever();
+      data.vcom[i] = data.h[i].linear() / data.mass[i];
     }
   };
   
@@ -210,16 +172,13 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
 
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     data.v[0].setZero();
     data.a[0].setZero();
+    data.h[0].setZero();
     data.a_gf[0] = -model.gravity;
-    
-    data.mass[0] = 0;
-    data.com[0].setZero();
-    data.vcom[0].setZero();
+    data.Ycrb[0].setZero();
 
     typedef CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
@@ -236,11 +195,20 @@ namespace pinocchio
     }
     
     // CoM
-    data.com[0] /= data.mass[0];
-    data.vcom[0] /= data.mass[0];
+    data.mass[0] = data.Ycrb[0].mass();
+    data.com[0] = data.Ycrb[0].lever();
+    data.vcom[0] = data.h[0].linear() / data.mass[0];
     
     // JCoM
-    data.Jcom /= data.mass[0];
+    typedef Eigen::Block<typename Data::Matrix6x,3,-1> Block3x;
+    const Block3x Ag_lin = data.Ag.template middleRows<3>(Force::LINEAR);
+    Block3x Ag_ang = data.Ag.template middleRows<3>(Force::ANGULAR);
+    for(long i = 0; i<model.nv; ++i)
+      Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
+    
+    data.hg = data.h[0];
+    data.hg.angular() += data.hg.linear().cross(data.com[0]);
+    data.Jcom = data.Ag.template topRows<3>()/data.mass[0];
     
     // Energy
     computeKineticEnergy(model, data);

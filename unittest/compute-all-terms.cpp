@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -8,6 +8,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
@@ -15,15 +16,6 @@
 #include "pinocchio/utils/timer.hpp"
 
 #include <boost/test/unit_test.hpp>
-
-#include <iostream>
-
-//#define __SSE3__
-#include <fenv.h>
-#ifdef __SSE3__
-#include <pmmintrin.h>
-#endif
-
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
@@ -82,12 +74,15 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
+  ccrba(model, data_other, q, v);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
@@ -113,12 +108,15 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
+  ccrba(model, data_other, q, v);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
@@ -144,12 +142,15 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
+  ccrba(model, data_other, q, v);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
