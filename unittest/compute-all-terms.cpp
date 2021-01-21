@@ -44,12 +44,16 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   centerOfMass(model, data_other, q, v, true);
   computeKineticEnergy(model, data_other, q, v);
   computePotentialEnergy(model, data_other, q);
+  ccrba(model, data_other, q, v);
 
   BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
   BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
               .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
   BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
+  BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
+  BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
+  BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
@@ -83,6 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
+  BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
@@ -117,6 +122,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
+  BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
@@ -151,6 +157,7 @@ BOOST_AUTO_TEST_CASE ( test_against_algo )
   BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
   BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
   BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
+  BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
   
   for (int k=0; k<model.njoints; ++k)
   {
