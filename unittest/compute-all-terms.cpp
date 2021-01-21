@@ -19,9 +19,9 @@
 
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
+BOOST_AUTO_TEST_SUITE( BOOST_TEST_MODULE )
 
-void run_test(const Model & model,const Eigen::VectorXd & q, const Eigen::VectorXd & v)
+void run_test(const Model & model, const Eigen::VectorXd & q, const Eigen::VectorXd & v)
 {
   pinocchio::Data data(model);
   pinocchio::Data data_other(model);
@@ -38,22 +38,22 @@ void run_test(const Model & model,const Eigen::VectorXd & q, const Eigen::Vector
   dccrba(model, data_other, q, v);
   computeGeneralizedGravity(model, data_other, q);
 
-  BOOST_CHECK (data.nle.isApprox(data_other.nle, 1e-12));
-  BOOST_CHECK (Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
-              .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>()), 1e-12));
-  BOOST_CHECK (data.J.isApprox(data_other.J, 1e-12));
-  BOOST_CHECK (data.dJ.isApprox(data_other.dJ, 1e-12));
-  BOOST_CHECK (data.Jcom.isApprox(data_other.Jcom, 1e-12));
-  BOOST_CHECK (data.Ag.isApprox(data_other.Ag, 1e-12));
-  BOOST_CHECK (data.dAg.isApprox(data_other.dAg, 1e-12));
-  BOOST_CHECK (data.hg.isApprox(data_other.hg, 1e-12));
-  BOOST_CHECK (data.Ig.isApprox(data_other.Ig, 1e-12));
-  BOOST_CHECK (data.g.isApprox(data_other.g, 1e-12));
+  BOOST_CHECK(data.nle.isApprox(data_other.nle));
+  BOOST_CHECK(Eigen::MatrixXd(data.M.triangularView<Eigen::Upper>())
+              .isApprox(Eigen::MatrixXd(data_other.M.triangularView<Eigen::Upper>())));
+  BOOST_CHECK(data.J.isApprox(data_other.J));
+  BOOST_CHECK(data.dJ.isApprox(data_other.dJ));
+  BOOST_CHECK(data.Jcom.isApprox(data_other.Jcom));
+  BOOST_CHECK(data.Ag.isApprox(data_other.Ag));
+  BOOST_CHECK(data.dAg.isApprox(data_other.dAg));
+  BOOST_CHECK(data.hg.isApprox(data_other.hg));
+  BOOST_CHECK(data.Ig.isApprox(data_other.Ig));
+  BOOST_CHECK(data.g.isApprox(data_other.g));
   
-  for (int k=0; k<model.njoints; ++k)
+  for(int k=0; k<model.njoints; ++k)
   {
-    BOOST_CHECK (data.com[(size_t)k].isApprox(data_other.com[(size_t)k], 1e-12));
-    BOOST_CHECK (data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k], 1e-12));
+    BOOST_CHECK(data.com[(size_t)k].isApprox(data_other.com[(size_t)k]));
+    BOOST_CHECK(data.vcom[(size_t)k].isApprox(data_other.vcom[(size_t)k]));
     BOOST_CHECK_CLOSE(data.mass[(size_t)k], data_other.mass[(size_t)k], 1e-12);
   }
   
@@ -61,40 +61,40 @@ void run_test(const Model & model,const Eigen::VectorXd & q, const Eigen::Vector
   BOOST_CHECK_CLOSE(data.potential_energy, data_other.potential_energy, 1e-12);
 }
 
-BOOST_AUTO_TEST_CASE ( test_against_algo )
+BOOST_AUTO_TEST_CASE( test_against_algo )
 {
   using namespace Eigen;
 
   pinocchio::Model model; buildModels::humanoidRandom(model);
 
-  VectorXd q (VectorXd::Random(model.nq));
-  VectorXd v (VectorXd::Random(model.nv));
+  VectorXd q(VectorXd::Random(model.nq));
+  VectorXd v(VectorXd::Random(model.nv));
 
   // -------
-  q.setZero ();
-  v.setZero ();
+  q.setZero();
+  v.setZero();
 
-  run_test(model,q,v)
+  run_test(model,q,v);
 
   // -------
-  q.setZero ();
-  v.setOnes ();
+  q.setZero();
+  v.setOnes();
 
-  run_test(model,q,v)
+  run_test(model,q,v);
   
   // -------
-  q.setOnes ();
-  q.segment<4> (3).normalize();
-  v.setOnes ();
+  q.setOnes();
+  q.segment<4>(3).normalize();
+  v.setOnes();
   
   run_test(model,q,v);
 
   // -------
-  q.setRandom ();
-  q.segment<4> (3).normalize();
-  v.setRandom ();
+  q.setRandom();
+  q.segment<4>(3).normalize();
+  v.setRandom();
   
-  run_test(model,q,v)
+  run_test(model,q,v);
 }
 
-BOOST_AUTO_TEST_SUITE_END ()
+BOOST_AUTO_TEST_SUITE_END()
