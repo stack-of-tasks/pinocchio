@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS
+// Copyright (c) 2015-2021 CNRS
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -26,6 +26,8 @@ namespace pinocchio
               bp::args("model","data","q"),
               "Computes CRBA, store the result in Data and return it.\n"
               "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
               "\tq: the joint configuration vector (size model.nq)\n");
     }
     

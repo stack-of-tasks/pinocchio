@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -107,7 +107,7 @@ namespace pinocchio
               bp::args("model","data"),
               "Computes the partial derivaties of the center of mass velocity with respect to\n"
               "the joint configuration.\n"
-              "You must first call computeForwardKinematicsDerivatives and centerOfMass(q,v) "
+              "You must first call computeAllTerms(model,data,q,v) or centerOfMass(model,data,q,v) "
               "before calling this function.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"

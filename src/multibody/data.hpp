@@ -233,7 +233,7 @@ namespace pinocchio
     Force dhg;
     
     /// \brief Centroidal Composite Rigid Body Inertia.
-    /// \note \f$ hg = Ig v_{\text{mean}}\f$ map a mean velocity to the current centroil momentum quantity.
+    /// \note \f$ hg = Ig v_{\text{mean}}\f$ map a mean velocity to the current centroidal momentum quantity.
     Inertia Ig;
 
     /// \brief Spatial forces set, used in CRBA and CCRBA

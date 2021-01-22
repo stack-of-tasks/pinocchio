@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_center_of_mass_derivatives_hxx__
-#define __pinocchio_center_of_mass_derivatives_hxx__
+#ifndef __pinocchio_algorithm_center_of_mass_derivatives_hxx__
+#define __pinocchio_algorithm_center_of_mass_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -36,14 +36,14 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
 
       Matrix3xOut & dvcom_dq = PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut,vcom_partial_dq);
       typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix3x>::Type
         dvcom_dqi = jmodel.jointCols(dvcom_dq);
 
-      Motion & vpc = data.v[0] = (parent>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
+      Motion vpc = (parent>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]
       
         typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6>::Type vxS =
@@ -77,11 +77,8 @@ namespace pinocchio
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,dvcom_dq));
     }
-    
-    data.v[0].setZero();
   }
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_center_of_mass_derivatives_hxx__
-
+#endif // ifndef __pinocchio_algorithm_center_of_mass_derivatives_hxx__
