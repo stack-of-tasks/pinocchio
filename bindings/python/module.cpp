@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -29,10 +29,8 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   bp::scope().attr("__raw_version__") = bp::str(PINOCCHIO_VERSION);
   eigenpy::enableEigenPy();
   
-  // Enable warning
-#ifndef Py_LIMITED_API
-  _PyWarnings_Init();
-#endif
+  // Enable warnings
+  bp::import("warnings");
   
   if(! register_symbolic_link_to_registered_type<Eigen::Quaterniond>())
     eigenpy::exposeQuaternion();
