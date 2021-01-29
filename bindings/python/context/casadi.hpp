@@ -395,6 +395,10 @@ namespace pinocchio { namespace python {
     CasadiMatrixToPython<Scalar>::registration();
     CasadiMatrixFromPython<Scalar>::registration();
     boost::python::implicitly_convertible<double,Scalar>();
+    boost::python::implicitly_convertible<float,Scalar>();
+    boost::python::implicitly_convertible<int,Scalar>();
+    boost::python::implicitly_convertible<long,Scalar>();
+    boost::python::implicitly_convertible<bool,Scalar>();
   };
 
 }}
