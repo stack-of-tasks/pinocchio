@@ -462,11 +462,12 @@ namespace pinocchio
    *  and
    *  \f[ \beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right) \f]
    *
-   *  \cheatsheet For \f$ M = log_6(a \times b) \f$,
-   *  \f$ \frac{\partial M}{\partial a} = Jlog_6(M) \times X_b^{-1} \f$
-   *  and \f$ \frac{\partial M}{\partial b} = Jlog_6(M) \f$. \n
-   *  For \f$ M = log_6(a^{-1}) \f$,
-   *  \f$ \frac{\partial M}{\partial a} = - Jlog_6(M) \times X_a \f$.
+   *
+   * \cheatsheet For \f$(A,B) \in SE(3)^2\f$, let \f$m_1 = log_6(A B) \f$ and
+   * \f$ m_2 = log_6(A^{-1}) \f$. Then, we have: \n
+   *  - \f$ \frac{\partial m_1}{\partial A} = Jlog_6(M_1) Ad_B^{-1} \f$,
+   *  - \f$ \frac{\partial m_1}{\partial B} = Jlog_6(M_1) \f$,
+   *  - \f$ \frac{\partial m_2}{\partial A} = - Jlog_6(M_2) Ad_A \f$.
    */
   template<typename Scalar, int Options, typename Matrix6Like>
   void Jlog6(const SE3Tpl<Scalar, Options> & M,
