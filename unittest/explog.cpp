@@ -358,6 +358,32 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   BOOST_CHECK(Jfd.isApprox(Jlog, sqrt(step)));
 }
 
+BOOST_AUTO_TEST_CASE(Jlog6_of_product_fd)
+{
+  SE3 Ma(SE3::Random());
+  SE3 Mb(SE3::Random());
+
+  SE3::Matrix6 Jlog, Ja, Jb, Jfda, Jfdb;
+  Jlog6 (Ma.inverse() * Mb, Jlog);
+  Ja = - Jlog * (Ma.inverse() * Mb).toActionMatrixInverse();
+  Jb = Jlog;
+  Jfda.setZero();
+  Jfdb.setZero();
+
+  Motion dM; dM.setZero();
+  double step = 1e-8;
+  for (int i = 0; i < 6; ++i)
+  {
+    dM.toVector()[i] = step;
+    Jfda.col(i) = (log6((Ma*exp6(dM)).inverse()*Mb).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
+    Jfdb.col(i) = (log6(Ma.inverse()*Mb*exp6(dM)).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
+    dM.toVector()[i] = 0;
+  }
+
+  BOOST_CHECK(Jfda.isApprox(Ja, sqrt(step)));
+  BOOST_CHECK(Jfdb.isApprox(Jb, sqrt(step)));
+}
+
 BOOST_AUTO_TEST_CASE(Jexplog6)
 {
   Motion v(Motion::Random());

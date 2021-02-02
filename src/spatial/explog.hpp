@@ -461,6 +461,12 @@ namespace pinocchio
    *  \f]
    *  and
    *  \f[ \beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right) \f]
+   *
+   *  \cheatsheet For \f$ M = log_6(a \times b) \f$,
+   *  \f$ \frac{\partial M}{\partial a} = Jlog_6(M) \times X_b^{-1} \f$
+   *  and \f$ \frac{\partial M}{\partial b} = Jlog_6(M) \f$. \n
+   *  For \f$ M = log_6(a^{-1}) \f$,
+   *  \f$ \frac{\partial M}{\partial a} = - Jlog_6(M) \times X_a \f$.
    */
   template<typename Scalar, int Options, typename Matrix6Like>
   void Jlog6(const SE3Tpl<Scalar, Options> & M,
