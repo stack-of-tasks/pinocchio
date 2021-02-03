@@ -23,46 +23,37 @@ namespace pinocchio
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
-      static const Scalar PI_value = PI<Scalar>();
-      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+      const static Scalar PI_value = PI<Scalar>();
+//      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
       Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
     
-      Scalar tr = R.trace();
+      const Scalar tr = R.trace();
+      const Scalar acos_arg = (tr - Scalar(1))/Scalar(2);
       theta = if_then_else(LT,tr,Scalar(3),
                            if_then_else(GT,tr,Scalar(-1),
-                                        math::acos((tr - Scalar(1))/Scalar(2)), // then
+                                        math::acos(acos_arg), // then
                                         PI_value // else
                                         ),
                            Scalar(0) // else
                            );
-      tr = math::max(math::min(tr,Scalar(3)),Scalar(-1));
       assert(check_expression_if_real<Scalar>(theta == theta) && "theta contains some NaN"); // theta != NaN
       
-      // From runs of hpp-constraints/tests/logarithm.cc: 1e-6 is too small.
-      static const Scalar PI_value_lower = PI_value - 1e-2;
-      const Scalar t = if_then_else(GT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                    theta / sin(theta), // then
-                                    Scalar(1) // else
-                                    ) / Scalar(2);
-      const Scalar cphi = -(tr - Scalar(1))/Scalar(2);
-      const Scalar beta = theta*theta / (Scalar(1) + cphi + eps);
-      const Vector3 tmp((R.diagonal().array() + cphi) * beta);
+      Vector3 anti_symmetric_R; unSkew(R,anti_symmetric_R);
+      const Scalar norm_anti_symmetric_R_squared = anti_symmetric_R.squaredNorm() ;//+ eps*eps;
+      const Scalar norm_anti_symmetric_R = math::sqrt(norm_anti_symmetric_R_squared);
       
-      res_[0] = if_then_else(GE,theta,PI_value_lower,
-                               if_then_else(GT,R(2, 1),R(1, 2),Scalar(1),Scalar(-1))
-                             * if_then_else(GT,tmp[0],Scalar(0),sqrt(tmp[0]),Scalar(0)), // then
-                             t * (R(2, 1) - R(1, 2)) // else
-                             );
-      res_[1] = if_then_else(GE,theta,PI_value_lower,
-                               if_then_else(GT,R(0,2),R(2,0),Scalar(1),Scalar(-1))
-                             * if_then_else(GT,tmp[1],Scalar(0),sqrt(tmp[1]),Scalar(0)), // then
-                             t * (R(0,2) - R(2,0)) // else
-                             );
-      res_[2] = if_then_else(GE,theta,PI_value_lower,
-                               if_then_else(GT,R(1,0),R(0,1),Scalar(1),Scalar(-1))
-                             * if_then_else(GT,tmp[2],Scalar(0),sqrt(tmp[2]),Scalar(0)), // then
-                             t * (R(1,0) - R(0,1)) // else
-                             );
+      const Scalar t = if_then_else(GE,acos_arg,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                    if_then_else(GE,theta,TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                                 theta / sin(theta), // then
+                                                 Scalar(1.) + norm_anti_symmetric_R_squared/Scalar(6) + norm_anti_symmetric_R_squared*norm_anti_symmetric_R_squared*Scalar(3)/Scalar(40) // else
+                                                 ),
+                                    (PI_value - math::asin(norm_anti_symmetric_R))/norm_anti_symmetric_R // else
+                                    );
+      
+      assert(check_expression_if_real<Scalar>(t == t) && "t contains some NaN"); // theta != NaN
+      
+      res_ = t * anti_symmetric_R;
+
     }
   };
 
