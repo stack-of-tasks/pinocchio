@@ -168,7 +168,7 @@ namespace pinocchio
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
   ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
-  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  ///   + \frac{1}{||r||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
   ///
   template<typename Vector3Like, typename Matrix3Like>
