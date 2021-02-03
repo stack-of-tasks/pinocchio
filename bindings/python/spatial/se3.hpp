@@ -84,8 +84,7 @@ namespace pinocchio
                       (void (SE3::*)(const Matrix3 &)) &SE3::rotation,
                       "The rotation part of the transformation.")
         .add_property("translation",
-//                      bp::make_function((typename SE3::LinearRef (SE3::*)()) &SE3::translation,bp::return_internal_reference<>()),
-                      bp::make_function((typename SE3::LinearRef (SE3::*)()) &SE3::translation,bp::return_value_policy<bp::return_by_value>()),
+                      bp::make_function((typename SE3::LinearRef (SE3::*)()) &SE3::translation,bp::return_internal_reference<>()),
                       (void (SE3::*)(const Vector3 &)) &SE3::translation,
                       "The translation part of the transformation.")
         
