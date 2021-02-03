@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_skew_hpp__
@@ -85,8 +85,7 @@ namespace pinocchio
     typedef typename Vector3::RealScalar Scalar;
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3,3);
     EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3,3,3);
-    assert(check_expression_if_real<Scalar>(isZero(M + M.transpose())));
-    
+
     Vector3 & v_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3,v);
     
     v_[0] = Scalar(0.5) * (M(2,1) - M(1,2));
