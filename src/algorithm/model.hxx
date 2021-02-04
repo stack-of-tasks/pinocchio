@@ -509,6 +509,8 @@ namespace pinocchio
       
       GeometryObject reduced_geom(geom);
       reduced_geom.parentJoint = reduced_joint_id;
+      reduced_geom.parentFrame = reduced_model.getBodyId(
+          input_model.frames[geom.parentFrame].name);
       reduced_geom.placement = relative_placement * geom.placement;
       reduced_geom_model.addGeometryObject(reduced_geom);
     }
