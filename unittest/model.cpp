@@ -422,13 +422,15 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
   {
     const GeometryObject & go1 = humanoid_geometry.geometryObjects[i];
     const GeometryObject & go2 = reduced_humanoid_geometry.geometryObjects[i];
-    BOOST_CHECK(go1.name == go2.name);
-    BOOST_CHECK(go1.geometry == go2.geometry);
-    BOOST_CHECK(go1.meshPath == go2.meshPath);
-    BOOST_CHECK(go1.meshScale == go2.meshScale);
-    BOOST_CHECK(go1.overrideMaterial == go2.overrideMaterial);
-    BOOST_CHECK(go1.meshColor == go2.meshColor);
-    BOOST_CHECK(go1.meshTexturePath == go2.meshTexturePath);
+    BOOST_CHECK_EQUAL(go1.name, go2.name);
+    BOOST_CHECK_EQUAL(go1.geometry, go2.geometry);
+    BOOST_CHECK_EQUAL(go1.meshPath, go2.meshPath);
+    BOOST_CHECK_EQUAL(go1.meshScale, go2.meshScale);
+    BOOST_CHECK_EQUAL(go1.overrideMaterial, go2.overrideMaterial);
+    BOOST_CHECK_EQUAL(go1.meshColor, go2.meshColor);
+    BOOST_CHECK_EQUAL(go1.meshTexturePath, go2.meshTexturePath);
+    BOOST_CHECK_EQUAL(humanoid_model.frames[go1.parentFrame].name,
+                      reduced_humanoid_model.frames[go2.parentFrame].name);
   }
   
   Data data(humanoid_model), reduced_data(reduced_humanoid_model);

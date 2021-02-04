@@ -83,6 +83,9 @@ namespace pinocchio
    *
    *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in the kinematic tree as a Frame as FIXED_JOINT.
    *
+   *  \todo At the moment, the joint and geometry order is kept while the frames
+   *  are re-ordered in a hard to predict way. Their order could be kept.
+   *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   void
