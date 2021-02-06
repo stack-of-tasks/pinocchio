@@ -51,7 +51,7 @@ class BaseVisualizer(object):
         pass
 
     def loadViewerModel(self, *args, **kwargs):
-        """Create the scene displaying the robot meshes in gepetto-viewer"""
+        """Create the scene displaying the robot meshes in the viewer"""
         pass
 
     def display(self, q):
