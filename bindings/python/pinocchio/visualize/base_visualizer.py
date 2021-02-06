@@ -54,8 +54,9 @@ class BaseVisualizer(object):
         """Create the scene displaying the robot meshes in the viewer"""
         pass
 
-    def display(self, q):
-        """Display the robot at configuration q in the viewer by placing all the bodies."""
+    def display(self, q = None):
+        """Display the robot at configuration q or refresh the rendering
+        from the current placements contained in data by placing all the bodies in the viewer."""
         pass
 
     def displayCollisions(self,visibility):

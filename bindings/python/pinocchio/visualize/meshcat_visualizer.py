@@ -146,9 +146,11 @@ class MeshcatVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
-    def display(self, q):
+    def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
-        pin.forwardKinematics(self.model,self.data,q)
+        if q is not None:
+            pin.forwardKinematics(self.model,self.data,q)
+
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         for visual in self.visual_model.geometryObjects:
             # Get mesh pose.
