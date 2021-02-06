@@ -32,7 +32,7 @@ namespace pinocchio
               "Log: SO3 -> so3 is the pseudo-inverse of Exp: so3 -> SO3. Log maps from SO3"
               " -> { v in so3, ||v|| < 2pi }.");
       
-      bp::def("log3",&log3_proxy<context::Matrix3s,context::Scalar>,
+      bp::def("log3",&log3_proxy<context::Matrix3s,context::Matrix1s>,
               bp::args("R","theta"),
               "Log: SO3 -> so3 is the pseudo-inverse of Exp: so3 -> SO3. Log maps from SO3"
               " -> { v in so3, ||v|| < 2pi }.\n"

@@ -86,11 +86,11 @@ namespace pinocchio
       return log3(R);
     }
   
-    template<typename Matrix3Like, typename Scalar>
+    template<typename Matrix3Like, typename Matrix1Like>
     Eigen::Matrix<typename Matrix3Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options>
-    log3_proxy(const Matrix3Like & R, Scalar & theta)
+    log3_proxy(const Matrix3Like & R, Eigen::Ref<Matrix1Like> theta)
     {
-      return log3(R,theta);
+      return log3(R,theta.coeffRef(0,0));
     }
     
     template<typename Matrix4Like>
