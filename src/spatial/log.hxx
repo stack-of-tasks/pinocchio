@@ -7,6 +7,33 @@
 
 namespace pinocchio
 {
+
+  namespace internal
+  {
+    template<long i0, typename Matrix3, typename Vector3>
+    void compute_theta_axis(const typename Matrix3::Scalar & val,
+                            const Eigen::MatrixBase<Matrix3> & R,
+                            typename Matrix3::Scalar & angle,
+                            const Eigen::MatrixBase<Vector3> & _axis)
+    {
+      typedef typename Matrix3::Scalar Scalar;
+      
+      static const long i1 = (i0+1) % 3;
+      static const long i2 = (i0+2) % 3;
+      Vector3 & axis = _axis.const_cast_derived();
+      
+      const Scalar s = math::sqrt(val) * if_then_else(GE,R.coeff(i2,i1),R.coeff(i1,i2),Scalar(1.),Scalar(-1.));
+      axis[i0] = s/Scalar(2);
+      axis[i1] = Scalar(1)/(2*s) * (R.coeff(i1,i0) + R.coeff(i0,i1));
+      axis[i2] = Scalar(1)/(2*s) * (R.coeff(i2,i0) + R.coeff(i0,i2));
+      const Scalar w = Scalar(1)/(2*s)*(R.coeff(i2,i1) - R.coeff(i1,i2));
+      
+      const Scalar axis_norm = axis.norm();
+      angle = 2*math::atan2(axis_norm,w);
+      axis /= axis_norm;
+    }
+  }
+
   /// \brief Generic evaluation of log3 function
   template<typename _Scalar>
   struct log3_impl
@@ -14,10 +41,10 @@ namespace pinocchio
     template<typename Matrix3Like, typename Vector3Out>
     static void run(const Eigen::MatrixBase<Matrix3Like> & R,
                     typename Matrix3Like::Scalar & theta,
-                    const Eigen::MatrixBase<Vector3Out> & res)
+                    const Eigen::MatrixBase<Vector3Out> & angle_axis)
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, R, 3, 3);
-      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Out, res, 3, 1);
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Out, angle_axis, 3, 1);
       using namespace internal;
 
       typedef typename Matrix3Like::Scalar Scalar;
@@ -25,34 +52,63 @@ namespace pinocchio
     
       const static Scalar PI_value = PI<Scalar>();
 //      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-      Vector3Out & res_ = PINOCCHIO_EIGEN_CONST_CAST(Vector3Out,res);
+      Vector3Out & angle_axis_ = angle_axis.const_cast_derived();
     
       const Scalar tr = R.trace();
-      const Scalar acos_arg = (tr - Scalar(1))/Scalar(2);
-      theta = if_then_else(LT,tr,Scalar(3),
-                           if_then_else(GT,tr,Scalar(-1),
-                                        math::acos(acos_arg), // then
-                                        PI_value // else
-                                        ),
-                           Scalar(0) // else
-                           );
-      assert(check_expression_if_real<Scalar>(theta == theta) && "theta contains some NaN"); // theta != NaN
+      const Scalar cos_value = (tr - Scalar(1))/Scalar(2);
+      const Scalar theta_nominal = if_then_else(LE,tr,Scalar(3),
+                                                if_then_else(GE,tr,Scalar(-1),
+                                                             math::acos(cos_value), // then
+                                                             PI_value // else
+                                                             ),
+                                                Scalar(0) // else
+                                                );
+      assert(check_expression_if_real<Scalar>(theta_nominal == theta_nominal) && "theta contains some NaN"); // theta != NaN
       
-      Vector3 anti_symmetric_R; unSkew(R,anti_symmetric_R);
-      const Scalar norm_anti_symmetric_R_squared = anti_symmetric_R.squaredNorm() ;//+ eps*eps;
-      const Scalar norm_anti_symmetric_R = math::sqrt(norm_anti_symmetric_R_squared);
+      Vector3 antisymmetric_R; unSkew(R,antisymmetric_R);
+      const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm() ;//+ eps*eps;
+//      const Scalar sin_value = math::sqrt(norm_antisymmetric_R_squared);
       
-      const Scalar t = if_then_else(GE,acos_arg,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                    if_then_else(GE,theta,TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                                 theta / sin(theta), // then
-                                                 Scalar(1.) + norm_anti_symmetric_R_squared/Scalar(6) + norm_anti_symmetric_R_squared*norm_anti_symmetric_R_squared*Scalar(3)/Scalar(40) // else
+      // Singular cases when theta == PI
+      Vector3 angle_axis_singular; Scalar theta_singular;
+      {
+        Vector3 val_singular;
+        val_singular.array() = 2*R.diagonal().array() - tr + Scalar(1);
+        Vector3 axis_0, axis_1, axis_2;
+        Scalar theta_0, theta_1, theta_2;
+        
+        internal::compute_theta_axis<0>(val_singular[0], R, theta_0, axis_0);
+        internal::compute_theta_axis<1>(val_singular[1], R, theta_1, axis_1);
+        internal::compute_theta_axis<2>(val_singular[2], R, theta_2, axis_2);
+        
+        theta_singular = if_then_else(GE, val_singular[0], val_singular[1],
+                                      if_then_else(GE, val_singular[0], val_singular[2],
+                                                   theta_0, theta_2),
+                                      if_then_else(GE, val_singular[1], val_singular[2],
+                                                   theta_1, theta_2));
+        
+        for(int k = 0; k < 3; ++k)
+          angle_axis_singular[k] = if_then_else(GE, val_singular[0], val_singular[1],
+                                                if_then_else(GE, val_singular[0], val_singular[2],
+                                                             axis_0[k], axis_2[k]),
+                                                if_then_else(GE, val_singular[1], val_singular[2],
+                                                             axis_1[k], axis_2[k]));
+      }
+      
+      const Scalar t = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                    if_then_else(GE,theta_nominal,TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                                 theta_nominal / sin(theta_nominal), // then
+                                                 Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40) // else
                                                  ),
-                                    (PI_value - math::asin(norm_anti_symmetric_R))/norm_anti_symmetric_R // else
+                                    theta_singular // else
                                     );
       
-      assert(check_expression_if_real<Scalar>(t == t) && "t contains some NaN"); // theta != NaN
+      theta = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                           theta_nominal, theta_singular);
       
-      res_ = t * anti_symmetric_R;
+      for(int k = 0; k < 3; ++k)
+        angle_axis_[k] = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                      t*antisymmetric_R[k], theta_singular*angle_axis_singular[k]);
 
     }
   };
