@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -207,6 +207,7 @@ namespace pinocchio
     res.children = children;
     res.names = names;
     res.subtrees = subtrees;
+    res.supports = supports;
     res.gravity = gravity.template cast<NewScalar>();
     res.name = name;
     
@@ -228,7 +229,7 @@ namespace pinocchio
 
     typename ConfigVectorMap::const_iterator it;
     for (it = referenceConfigurations.begin();
-         it != referenceConfigurations.end(); it++ )
+         it != referenceConfigurations.end(); it++)
     {
       res.referenceConfigurations.insert(std::make_pair(it->first, it->second.template cast<NewScalar>()));
     }
@@ -237,9 +238,8 @@ namespace pinocchio
     res.inertias.resize(inertias.size());
     res.jointPlacements.resize(jointPlacements.size());
     res.joints.resize(joints.size());
-    res.frames.resize(frames.size());
-
-    /// copy into vectors
+    
+    // copy into vectors
     for(size_t k = 0; k < joints.size(); ++k)
     {
       res.inertias[k] = inertias[k].template cast<NewScalar>();
@@ -247,6 +247,7 @@ namespace pinocchio
       res.joints[k] = joints[k].template cast<NewScalar>();
     }
     
+    res.frames.resize(frames.size());
     for(size_t k = 0; k < frames.size(); ++k)
     {
       res.frames[k] = frames[k].template cast<NewScalar>();
