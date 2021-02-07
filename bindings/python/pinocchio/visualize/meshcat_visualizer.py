@@ -16,7 +16,7 @@ except:
 
 def loadBVH(bvh):
     import meshcat.geometry as mg
-    
+
     num_vertices = bvh.num_vertices
     num_tris = bvh.num_tris
     vertices = np.empty((num_vertices,3))
@@ -138,18 +138,23 @@ class MeshcatVisualizer(BaseVisualizer):
             msg = "Error while loading geometry object: %s\nError message:\n%s" % (geometry_object.name, e)
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
-        material = meshcat.geometry.MeshPhongMaterial()
-        # Set material color from URDF, converting for triplet of doubles to a single int.
-        if color is None:
-            meshColor = geometry_object.meshColor
-        else:
-            meshColor = color
-        material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
-        # Add transparency, if needed.
-        if float(meshColor[3]) != 1.0:
-            material.transparent = True
-            material.opacity = float(meshColor[3])
-        self.viewer[viewer_name].set_object(obj, material)
+
+        if isinstance(obj, meshcat.geometry.Object):
+            self.viewer[viewer_name].set_object(obj)
+        elif isinstance(obj, meshcat.geometry.Geometry):
+            material = meshcat.geometry.MeshPhongMaterial()
+            # Set material color from URDF, converting for triplet of doubles to a single int.
+            if color is None:
+                meshColor = geometry_object.meshColor
+            else:
+                meshColor = color
+            material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
+            # Add transparency, if needed.
+            if float(meshColor[3]) != 1.0:
+                material.transparent = True
+                material.opacity = float(meshColor[3])
+            self.viewer[viewer_name].set_object(obj, material)
+
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
