@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_frames_hxx__
@@ -9,7 +9,7 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
-namespace pinocchio 
+namespace pinocchio
 {
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -24,7 +24,7 @@ namespace pinocchio
     typedef typename Model::JointIndex JointIndex;
     
     // The following for loop starts by index 1 because the first frame is fixed
-    // and corresponds to the universe.s
+    // and corresponds to the universe.
     for(FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
@@ -168,6 +168,7 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv, "The numbers of columns in the Jacobian matrix does not math the number of Dofs in the model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -240,6 +241,7 @@ namespace pinocchio
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
     assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(dJ.cols(), model.nv, "The numbers of columns in the Jacobian matrix does not math the number of Dofs in the model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
