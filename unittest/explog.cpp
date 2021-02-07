@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -171,8 +171,9 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   for (int i = 0; i < 3; ++i)
   {
     dR[i] = eps;
-    SE3::Matrix3 R_dR = R * exp3(dR);
-    Jfd.col(i) = (log3(R_dR) - log3(R)) / eps;
+    SE3::Matrix3 R_dR_plus = R * exp3(dR);
+    SE3::Matrix3 R_dR_minus = R * exp3(-dR);
+    Jfd.col(i) = (log3(R_dR_plus) - log3(R_dR_minus)) / (2*eps);
     dR[i] = 0;
   }
   BOOST_CHECK(Jfd.isApprox(Jlog, std::sqrt(eps)));
