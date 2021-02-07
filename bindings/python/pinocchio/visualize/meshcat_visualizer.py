@@ -14,6 +14,32 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+def loadBVH(bvh):
+    import meshcat.geometry as mg
+    
+    num_vertices = bvh.num_vertices
+    num_tris = bvh.num_tris
+    vertices = np.empty((num_vertices,3))
+    faces = np.empty((num_tris,3),dtype=int)
+
+    for k in range(num_tris):
+        tri = bvh.tri_indices(k)
+        faces[k] = [tri[i] for i in range(3)]
+
+    for k in range(num_vertices):
+        vert = bvh.vertices(k)
+        vertices[k] = vert
+
+    vertices = vertices.astype(np.float32)
+    if num_tris > 0:
+        mesh = mg.TriangularMeshGeometry(vertices, faces)
+    else:
+        mesh = mg.Points(
+                    mg.PointsGeometry(vertices.T, color=np.repeat(np.ones((3,1)),num_vertices,axis=1)),
+                    mg.PointsMaterial(size=0.002))
+
+    return mesh
+
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
@@ -102,6 +128,8 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
+            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
+                obj = loadBVH(geometry_object.geometry)
             else:
                 obj = self.loadMesh(geometry_object)
             if obj is None:
