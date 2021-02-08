@@ -14,6 +14,32 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+def loadBVH(bvh):
+    import meshcat.geometry as mg
+
+    num_vertices = bvh.num_vertices
+    num_tris = bvh.num_tris
+    vertices = np.empty((num_vertices,3))
+    faces = np.empty((num_tris,3),dtype=int)
+
+    for k in range(num_tris):
+        tri = bvh.tri_indices(k)
+        faces[k] = [tri[i] for i in range(3)]
+
+    for k in range(num_vertices):
+        vert = bvh.vertices(k)
+        vertices[k] = vert
+
+    vertices = vertices.astype(np.float32)
+    if num_tris > 0:
+        mesh = mg.TriangularMeshGeometry(vertices, faces)
+    else:
+        mesh = mg.Points(
+                    mg.PointsGeometry(vertices.T, color=np.repeat(np.ones((3,1)),num_vertices,axis=1)),
+                    mg.PointsMaterial(size=0.002))
+
+    return mesh
+
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
@@ -102,6 +128,8 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
+            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
+                obj = loadBVH(geometry_object.geometry)
             else:
                 obj = self.loadMesh(geometry_object)
             if obj is None:
@@ -110,18 +138,23 @@ class MeshcatVisualizer(BaseVisualizer):
             msg = "Error while loading geometry object: %s\nError message:\n%s" % (geometry_object.name, e)
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
-        material = meshcat.geometry.MeshPhongMaterial()
-        # Set material color from URDF, converting for triplet of doubles to a single int.
-        if color is None:
-            meshColor = geometry_object.meshColor
-        else:
-            meshColor = color
-        material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
-        # Add transparency, if needed.
-        if float(meshColor[3]) != 1.0:
-            material.transparent = True
-            material.opacity = float(meshColor[3])
-        self.viewer[viewer_name].set_object(obj, material)
+
+        if isinstance(obj, meshcat.geometry.Object):
+            self.viewer[viewer_name].set_object(obj)
+        elif isinstance(obj, meshcat.geometry.Geometry):
+            material = meshcat.geometry.MeshPhongMaterial()
+            # Set material color from URDF, converting for triplet of doubles to a single int.
+            if color is None:
+                meshColor = geometry_object.meshColor
+            else:
+                meshColor = color
+            material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
+            # Add transparency, if needed.
+            if float(meshColor[3]) != 1.0:
+                material.transparent = True
+                material.opacity = float(meshColor[3])
+            self.viewer[viewer_name].set_object(obj, material)
+
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
@@ -146,9 +179,11 @@ class MeshcatVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
-    def display(self, q):
+    def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
-        pin.forwardKinematics(self.model,self.data,q)
+        if q is not None:
+            pin.forwardKinematics(self.model,self.data,q)
+
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         for visual in self.visual_model.geometryObjects:
             # Get mesh pose.
