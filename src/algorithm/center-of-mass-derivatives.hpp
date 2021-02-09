@@ -2,8 +2,8 @@
 // Copyright (c) 2019 CNRS
 //
 
-#ifndef __pinocchio_center_of_mass_derivatives_hpp__
-#define __pinocchio_center_of_mass_derivatives_hpp__
+#ifndef __pinocchio_algorithm_center_of_mass_derivatives_hpp__
+#define __pinocchio_algorithm_center_of_mass_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -13,7 +13,7 @@ namespace pinocchio
   ///
   /// \brief Computes the partial derivatie of the center-of-mass velocity with respect to 
   ///        the joint configuration q.
-  ///        You must first call computForwardKinematicsDerivatives and computeCenterOfMass(q,vq)
+  ///        You must first call computeAllTerms(model,data,q,v) or computeCenterOfMass(model,data,q,v)
   ///        before calling this function.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -35,4 +35,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/center-of-mass-derivatives.hxx"
 
-#endif // ifndef __pinocchio_center_of_mass_derivatives_hpp__
+#endif // ifndef __pinocchio_algorithm_center_of_mass_derivatives_hpp__

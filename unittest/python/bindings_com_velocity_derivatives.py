@@ -24,30 +24,31 @@ class TestVComDerivativesBindings(unittest.TestCase):
     def setUp(self):
         self.rmodel = rmodel = pin.buildSampleModelHumanoid()
         self.rdata  = rmodel.createData()
+        self.rdata_fd  = rmodel.createData()
 
+        self.rmodel.lowerPositionLimit[:3] = -1.
+        self.rmodel.upperPositionLimit[:3] = -1.
         self.q = pin.randomConfiguration(rmodel)
         self.vq = rand(rmodel.nv)*2-1
-        self.aq = zero(rmodel.nv)
-        self.dq = rand(rmodel.nv)*2-1
 
         self.precision = 1e-8
         
     def test_numdiff(self):
         rmodel,rdata = self.rmodel,self.rdata
-        q,vq,aq,dq= self.q,self.vq,self.aq,self.dq
+        rdata_fd = self.rdata_fd
+        q,vq = self.q,self.vq
 
         #### Compute d/dq VCOM with the algo.
         pin.computeAllTerms(rmodel,rdata,q,vq)
-        pin.computeForwardKinematicsDerivatives(rmodel,rdata,q,vq,aq)
         dvc_dq = pin.getCenterOfMassVelocityDerivatives(rmodel,rdata)
         
         #### Approximate d/dq VCOM by finite diff.
         def calc_vc(q,vq):
             """ Compute COM velocity """
-            pin.centerOfMass(rmodel,rdata,q,vq)
-            return rdata.vcom[0].copy()
+            pin.centerOfMass(rmodel,rdata_fd,q,vq)
+            return rdata_fd.vcom[0].copy()
         dvc_dqn = df_dq(rmodel,lambda _q: calc_vc(_q,vq),q)
-        
+
         self.assertTrue(np.allclose(dvc_dq,dvc_dqn,atol=np.sqrt(self.precision)))
 
 if __name__ == '__main__':
