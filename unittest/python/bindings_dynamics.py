@@ -87,11 +87,8 @@ class TestDynamicsBindings(TestCase):
         data9_deprecated = self.model.createData()
         ddq7 = pin.forwardDynamics(self.model,data7,self.q,self.v,self.tau,self.J,self.gamma)
         ddq8 = pin.forwardDynamics(self.model,data8,self.q,self.v,self.tau,self.J,self.gamma,r_coeff)
-        with warnings.catch_warnings(record=True) as warning_list:
-            ddq9_deprecated = pin.forwardDynamics(self.model,data9_deprecated,self.q,self.v,self.tau,self.J,self.gamma,r_coeff,True)
-            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
+
         self.assertTrue((ddq7==ddq8).all())
-        self.assertTrue((ddq7==ddq9_deprecated).all())
 
     def test_forwardDynamics_no_q(self):
         data5 = self.data
@@ -102,11 +99,7 @@ class TestDynamicsBindings(TestCase):
         pin.computeAllTerms(self.model,data9_deprecated,self.q,self.v0)
         ddq5 = pin.forwardDynamics(self.model,data5,self.tau,self.J,self.gamma)
         ddq6 = pin.forwardDynamics(self.model,data6,self.tau,self.J,self.gamma,r_coeff)
-        with warnings.catch_warnings(record=True) as warning_list:
-            ddq9_deprecated = pin.forwardDynamics(self.model,data9_deprecated,self.q,self.v,self.tau,self.J,self.gamma,r_coeff,False)
-            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
         self.assertTrue((ddq5==ddq6).all())
-        self.assertTrue((ddq5==ddq9_deprecated).all())
 
     def test_impulseDynamics_default(self):
         data_no_q = self.model.createData()
