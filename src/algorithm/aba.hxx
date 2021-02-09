@@ -281,7 +281,7 @@ namespace pinocchio
       data.oa_gf[0] = -model.gravity;
       data.u = tau;
       
-      typedef optimized::AbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+      typedef optimized::AbaForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
       for(JointIndex i=1;i<(JointIndex)model.njoints;++i)
       {
         Pass1::run(model.joints[i],data.joints[i],
