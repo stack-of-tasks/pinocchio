@@ -1488,7 +1488,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
     BOOST_CHECK(data.joints[joint_id].StU().isApprox(StYS_ref));
     const Data::Matrix6 oYaba_ref = oMi.toDualActionMatrix() * data_ref.Yaba[joint_id] * oMi.inverse().toActionMatrix();
     BOOST_CHECK(data.oYaba[joint_id].isApprox(oYaba_ref));
-    BOOST_CHECK(data.oa_augmented[joint_id].isApprox(model.gravity+data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+    BOOST_CHECK(data.oa_augmented[joint_id].isApprox(model.gravity+data_ref.oMi[joint_id].act(data_ref.a_gf[joint_id])));
   }
   
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
