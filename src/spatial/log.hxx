@@ -51,7 +51,6 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
     
       const static Scalar PI_value = PI<Scalar>();
-//      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
       Vector3Out & angle_axis_ = angle_axis.const_cast_derived();
     
       const Scalar tr = R.trace();
@@ -66,9 +65,8 @@ namespace pinocchio
       assert(check_expression_if_real<Scalar>(theta_nominal == theta_nominal) && "theta contains some NaN"); // theta != NaN
       
       Vector3 antisymmetric_R; unSkew(R,antisymmetric_R);
-      const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm() ;//+ eps*eps;
-//      const Scalar sin_value = math::sqrt(norm_antisymmetric_R_squared);
-      
+      const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm();
+
       // Singular cases when theta == PI
       Vector3 angle_axis_singular; Scalar theta_singular;
       {
@@ -95,12 +93,9 @@ namespace pinocchio
                                                              axis_1[k], axis_2[k]));
       }
       
-      const Scalar t = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                    if_then_else(GE,theta_nominal,TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                                 theta_nominal / sin(theta_nominal), // then
-                                                 Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40) // else
-                                                 ),
-                                    theta_singular // else
+      const Scalar t = if_then_else(GE,theta_nominal,TaylorSeriesExpansion<Scalar>::template precision<2>(),
+                                    theta_nominal / sin(theta_nominal), // then
+                                    Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40) // else
                                     );
       
       theta = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
