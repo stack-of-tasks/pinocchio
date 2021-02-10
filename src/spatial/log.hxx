@@ -153,18 +153,19 @@ namespace pinocchio
     {
       typedef SE3Tpl<Scalar,Options> SE3;
       typedef typename SE3::Vector3 Vector3;
-      const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-      
+
       typename SE3::ConstAngularRef R = M.rotation();
       typename SE3::ConstLinearRef p = M.translation();
       
       using namespace internal;
       
+      Vector3 antisymmetric_R; unSkew(R,antisymmetric_R);
+      const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm();
+      
       Scalar theta;
       const Vector3 w(log3(R,theta)); // t in [0,π]
-      theta += eps;
-      const Scalar t2 = theta*theta;
-      
+      const Scalar & t2 = norm_antisymmetric_R_squared;
+
       Scalar st,ct; SINCOS(theta,&st,&ct);
       const Scalar alpha = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                         Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720), // then
@@ -173,7 +174,7 @@ namespace pinocchio
       
       const Scalar beta = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                        Scalar(1)/Scalar(12) + t2/Scalar(720), // then
-                                       Scalar(1)/t2 - st/(Scalar(2)*theta*(Scalar(1)-ct)) // else
+                                       Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct)) // else
                                        );
       
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + (beta * w.dot(p)) * w;
