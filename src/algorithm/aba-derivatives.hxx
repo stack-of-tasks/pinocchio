@@ -545,20 +545,21 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x Matrix6x;
         
-        const JointIndex & i = jmodel.id();
-        const JointIndex & parent = model.parents[i];
+        const JointIndex i = jmodel.id();
+        const JointIndex parent = model.parents[i];
         
         const typename Data::Motion & ov = data.ov[i];
-        typename Data::Motion & oa = data.oa[i];
+//        typename Data::Motion & oa = data.oa[i];
         typename Data::Force & of = data.of[i];
         const typename Data::Motion & oa_gf = data.oa_gf[i];
         
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
         const ColsBlock J_cols = jmodel.jointCols(data.J);
         
-        oa = oa_gf + model.gravity;
-        data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-        of = data.oYcrb[i] * oa_gf + ov.cross(data.oh[i]);
+        // Already done in optimized::aba
+//        oa = oa_gf + model.gravity;
+        data.oYcrb[i] = data.oinertias[i];
+        of = data.oinertias[i] * oa_gf + ov.cross(data.oh[i]);
 
         MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
         
@@ -591,7 +592,7 @@ namespace pinocchio
           dVdq_cols.setZero();
         
         // computes variation of inertias
-        data.doYcrb[i] = data.oYcrb[i].variation(ov);
+        data.doYcrb[i] = data.oinertias[i].variation(ov);
         SimilarBase::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
       }
     };
@@ -670,8 +671,8 @@ namespace pinocchio
       Minv_.template triangularView<Eigen::Upper>().setZero();
       
       /// First, compute Minv and a, the joint acceleration vector
-      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-        data.of[i] -= data.oMi[i].act(fext[i]);
+//      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+//        data.of[i] -= data.oMi[i].act(fext[i]);
       
       data.Fcrb[0].setZero();
       typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
