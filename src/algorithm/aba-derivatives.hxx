@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_aba_derivatives_hxx__
@@ -35,8 +35,8 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       typename Data::Motion & ov = data.ov[i];
 
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
@@ -91,8 +91,8 @@ namespace pinocchio
       typedef typename Data::Force Force;
       typedef typename Data::Matrix6x Matrix6x;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
 
       typename Inertia::Matrix6 & Ia = data.oYaba[i];
       
@@ -171,8 +171,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Matrix6x Matrix6x;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
       typename Data::Motion & ov = data.ov[i];
       typename Data::Motion & oa = data.oa[i];
@@ -255,8 +255,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
       typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) StdY(jmodel.nv(),6);
       
@@ -485,8 +485,8 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Matrix6x Matrix6x;
         
-        const JointIndex & i = jmodel.id();
-        const JointIndex & parent = model.parents[i];
+        const JointIndex i = jmodel.id();
+        const JointIndex parent = model.parents[i];
 
         Matrix6x & Fcrb = data.Fcrb[0];
 

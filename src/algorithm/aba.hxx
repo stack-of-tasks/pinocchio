@@ -102,7 +102,7 @@ namespace pinocchio
         typedef typename Model::JointIndex JointIndex;
         typedef typename Data::Motion Motion;
         
-        const JointIndex & i = jmodel.id();
+        const JointIndex i = jmodel.id();
         Motion & ov = data.ov[i];
         jmodel.calc(jdata.derived(),q.derived(),v.derived());
         
@@ -153,8 +153,8 @@ namespace pinocchio
         typedef typename Data::Force Force;
         typedef typename Data::Matrix6x Matrix6x;
         
-        const JointIndex & i = jmodel.id();
-        const JointIndex & parent  = model.parents[i];
+        const JointIndex i = jmodel.id();
+        const JointIndex parent  = model.parents[i];
         typename Inertia::Matrix6 & Ia = data.oYaba[i];
         
         typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
@@ -330,7 +330,7 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       
-      const JointIndex & i = jmodel.id();
+      const JointIndex i = jmodel.id();
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
       
       const JointIndex & parent = model.parents[i];
@@ -368,8 +368,8 @@ namespace pinocchio
       typedef typename Data::Inertia Inertia;
       typedef typename Data::Force Force;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent  = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       typename Inertia::Matrix6 & Ia = data.Yaba[i];
       
       jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
@@ -567,8 +567,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Inertia Inertia;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent  = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent  = model.parents[i];
       
       typename Inertia::Matrix6 & Ia = data.oYaba[i];
       typename Data::RowMatrixXs & Minv = data.Minv;
@@ -636,8 +636,8 @@ namespace pinocchio
       {
         typedef typename Model::JointIndex JointIndex;
         
-        const JointIndex & i = jmodel.id();
-        const JointIndex & parent = model.parents[i];
+        const JointIndex i = jmodel.id();
+        const JointIndex parent = model.parents[i];
         
         typename Data::RowMatrixXs & Minv = data.Minv;
         typename Data::Matrix6x & Fcrb = data.Fcrb[0];
@@ -687,8 +687,8 @@ namespace pinocchio
     {
       typedef typename Model::JointIndex JointIndex;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       typename Data::RowMatrixXs & Minv = data.Minv;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
