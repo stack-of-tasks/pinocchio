@@ -2,8 +2,8 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_aba_derivatives_hpp__
-#define __pinocchio_aba_derivatives_hpp__
+#ifndef __pinocchio_algorithm_aba_derivatives_hpp__
+#define __pinocchio_algorithm_aba_derivatives_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -252,4 +252,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba-derivatives.hxx"
 
-#endif // ifndef __pinocchio_aba_derivatives_hpp__
+#endif // ifndef __pinocchio_algorithm_aba_derivatives_hpp__

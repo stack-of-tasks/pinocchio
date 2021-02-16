@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_aba_hxx__
-#define __pinocchio_aba_hxx__
+#ifndef __pinocchio_algorithm_aba_hxx__
+#define __pinocchio_algorithm_aba_hxx__
 
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/multibody/visitor.hpp"
@@ -802,4 +802,4 @@ namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_aba_hxx__
+#endif // ifndef __pinocchio_algorithm_aba_hxx__

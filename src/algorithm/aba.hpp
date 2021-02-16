@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS
 //
 
-#ifndef __pinocchio_aba_hpp__
-#define __pinocchio_aba_hpp__
+#ifndef __pinocchio_algorithm_aba_hpp__
+#define __pinocchio_algorithm_aba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -169,4 +169,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba.hxx"
 
-#endif // ifndef __pinocchio_aba_hpp__
+#endif // ifndef __pinocchio_algorithm_aba_hpp__
