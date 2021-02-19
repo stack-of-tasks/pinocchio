@@ -54,6 +54,14 @@ class BaseVisualizer(object):
         """Create the scene displaying the robot meshes in the viewer"""
         pass
 
+    def reload(self, geometry_name, geometry_type, geometry_object = None):
+        """ Reload a geometry_object given by its name and its type"""
+        pass
+
+    def clean(self):
+        """ Delete all the objects from the whole scene """
+        pass
+
     def display(self, q = None):
         """Display the robot at configuration q or refresh the rendering
         from the current placements contained in data by placing all the bodies in the viewer."""
