@@ -179,6 +179,10 @@ class MeshcatVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
+    def delete(self, geometry_object, geometry_type):
+        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        self.viewer[viewer_name].delete()
+
     def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
         if q is not None:
