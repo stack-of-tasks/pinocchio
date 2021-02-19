@@ -54,8 +54,8 @@ class BaseVisualizer(object):
         """Create the scene displaying the robot meshes in the viewer"""
         pass
 
-    def reload(self, geometry_name, geometry_type, geometry_object = None):
-        """ Reload a geometry_object given by its name and its type"""
+    def reload(self, new_geometry_object, geometry_type = None):
+        """ Reload a geometry_object given by its type"""
         pass
 
     def clean(self):
