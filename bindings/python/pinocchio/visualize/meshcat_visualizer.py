@@ -120,7 +120,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-
         import meshcat.geometry
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
@@ -155,7 +154,6 @@ class MeshcatVisualizer(BaseVisualizer):
                 material.opacity = float(meshColor[3])
             self.viewer[viewer_name].set_object(obj, material)
 
-
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
         Parameters:
@@ -178,6 +176,18 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
+
+    def reload(self, new_geometry_object, geometry_type = None):
+        """ Reload a geometry_object given by its name and its type"""
+        geom_id = self.visual_model.getGeometryId(new_geometry_object.name)
+        self.visual_model.geometryObjects[geom_id] = new_geometry_object
+
+        visual = self.visual_model.geometryObjects[geom_id]
+        self.delete(new_geometry_object, pin.GeometryType.VISUAL)
+        self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color = None)
+
+    def clean(self):
+        self.viewer.delete()
 
     def delete(self, geometry_object, geometry_type):
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
