@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_geometry_hxx__
 #define __pinocchio_algo_geometry_hxx__
 
 #include <boost/foreach.hpp>
+#include <sstream>
 
 namespace pinocchio 
 {
@@ -70,10 +71,21 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
 
-    fcl::collide (geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                  geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                  geom_data.collisionRequests[pairId],
-                  collisionResult);
+    try
+    {
+      fcl::collide(geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
+                    geom_model.geometryObjects[pair.second].geometry.get(), oM2,
+                    geom_data.collisionRequests[pairId],
+                    collisionResult);
+    }
+    catch(std::invalid_argument & e)
+    {
+      std::stringstream ss;
+      ss << "Problem when trying to check the collision of collision pair #" << pairId << " (" << pair.first << "," << pair.second << ")" << std::endl;
+      ss << e.what() << std::endl;
+      throw std::invalid_argument(ss.str());
+    }
+    
 
     return collisionResult.isCollision();
   }
@@ -136,10 +148,21 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     geom_data.distanceResults[pairId].clear();
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
-    fcl::distance ( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                    geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                    geom_data.distanceRequests[pairId],
-                    geom_data.distanceResults[pairId]);
+    
+    try
+    {
+      fcl::distance( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
+                     geom_model.geometryObjects[pair.second].geometry.get(), oM2,
+                     geom_data.distanceRequests[pairId],
+                     geom_data.distanceResults[pairId]);
+    }
+    catch(std::invalid_argument & e)
+    {
+      std::stringstream ss;
+      ss << "Problem when trying to compute the distance of collision pair #" << pairId << " (" << pair.first << "," << pair.second << ")" << std::endl;
+      ss << e.what() << std::endl;
+      throw std::invalid_argument(ss.str());
+    }
 
     return geom_data.distanceResults[pairId];
   }
