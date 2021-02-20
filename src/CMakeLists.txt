@@ -10,6 +10,12 @@ IF(BUILD_WITH_URDF_SUPPORT)
     parsers/urdf/utils.cpp
   )
 ENDIF()
+IF(BUILD_WITH_SDF_SUPPORT)
+  LIST(APPEND ${PROJECT_NAME}_SOURCES
+    parsers/sdf/model.cpp
+    parsers/sdf/geometry.cpp
+  )
+ENDIF()
 
 LIST(APPEND ${PROJECT_NAME}_SOURCES utils/file-explorer.cpp)
 
