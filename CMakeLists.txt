@@ -59,6 +59,7 @@ OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) o
 
 # --- OPTIONAL DEPENDENCIES -------------------------
 OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
+OPTION(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" ON)
 OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required HPP-FCL)" OFF)
 OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
@@ -116,6 +117,15 @@ IF(BUILD_WITH_URDF_SUPPORT)
     MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
   ENDIF(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
 ENDIF(BUILD_WITH_URDF_SUPPORT)
+
+IF(BUILD_WITH_SDF_SUPPORT)
+  SET(CMAKE_CXX_STANDARD 11)
+  ADD_PROJECT_DEPENDENCY(SDFormat)
+  INCLUDE_DIRECTORIES(${SDFormat_INCLUDE_DIRS})
+  LINK_DIRECTORIES(${SDFormat_LIBRARY_DIRS})
+ENDIF(BUILD_WITH_SDF_SUPPORT)
+
+
 
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
@@ -195,6 +205,15 @@ IF(NOT BUILD_WITH_URDF_SUPPORT)
     )
 ENDIF(NOT BUILD_WITH_URDF_SUPPORT)
 
+IF(NOT BUILD_WITH_SDF_SUPPORT)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf.hpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/geometry.hxx
+    )
+ENDIF(NOT BUILD_WITH_SDF_SUPPORT)
+
+
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
   LIST(REMOVE_ITEM HEADERS 
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
@@ -213,6 +232,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/liegro
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/visitor")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/sdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/serialization")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
