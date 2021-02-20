@@ -5,10 +5,13 @@ from pinocchio import buildModelFromSdf, buildGeomFromSdf, neutral, JointModelFr
 from pinocchio.visualize import GepettoVisualizer
 from pinocchio import GeometryType
 from time import sleep
-from useful_recipes.user_interaction import query_yes_no
 
-sdf_filename = "/home/rbudhira/devel/src/misc/cassie-gazebo-sim/cassie/cassie_v2.sdf"
-package_dir = "/home/rbudhira/devel/src/misc/cassie-gazebo-sim"
+from os.path import join, dirname, abspath
+
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+sdf_filename = pinocchio_model_dir + "/cassie-gazebo-sim/cassie/cassie_v2.sdf"        
+package_dir = pinocchio_model_dir + "/cassie-gazebo-sim"
+
 
 (model,constraint_models) = buildModelFromSdf(sdf_filename, JointModelFreeFlyer())
 print "model parsed"
@@ -79,8 +82,27 @@ viz = GepettoVisualizer(model, collision_model, visual_model)
 
 viz.initViewer()
 viz.loadViewerModel("pinocchio")
+gui = viz.viewer.gui
+viz.display(model.q0)
+window_id = viz.viewer.gui.getWindowID('python-pinocchio')
+
+viz.viewer.gui.setBackgroundColor1(window_id, [1., 1., 1., 1.])
+viz.viewer.gui.setBackgroundColor2(window_id, [1., 1., 1., 1.])
+viz.viewer.gui.addFloor('hpp-gui/floor')
+
+viz.viewer.gui.setScale('hpp-gui/floor', [0.5, 0.5, 0.5])
+viz.viewer.gui.setColor('hpp-gui/floor', [0.7, 0.7, 0.7, 1.])
+viz.viewer.gui.setLightingMode('hpp-gui/floor', 'OFF')
+
+
 
 viz.display(q0)
+
+
+
+
+
+
 
 constraint_datas = [cm.createData() for cm in constraint_models]
 
@@ -91,16 +113,7 @@ def check_joint(model,n, ncycles=1):
         viz.display(q1)
         sleep(0.005)
 
-def check_joints():
-    for n in xrange(1,model.njoints):
-        check_joint(model,n)
-        go_on = query_yes_no("Continue?")
-        while( not go_on):
-            check_joint(model,n)
-            go_on = query_yes_no("Continue?")
-
 q = q0.copy()
-raw_input()
 
 pinocchio.computeAllTerms(model,data,q,np.zeros(model.nv))
 kkt_constraint = pinocchio.ContactCholeskyDecomposition(model,constraint_models)
@@ -144,7 +157,7 @@ def squashing(model, data, q_in):
             break
         print("constraint_value:",np.linalg.norm(constraint_value))
         print ("com_error:", np.linalg.norm(com_err))
-        rhs = np.concatenate([-constraint_value - y*mu, 3*com_err, np.zeros(model.nv-3)])
+        rhs = np.concatenate([-constraint_value - y*mu, 10.*com_err, np.zeros(model.nv-3)])
         dz = kkt_constraint.solve(rhs) 
         dy = dz[:constraint_dim]
         dq = dz[constraint_dim:]
@@ -153,3 +166,5 @@ def squashing(model, data, q_in):
         y -= alpha*(-dy + y)
         viz.display(q)
         sleep(0.05)
+
+squashing(model, data, model.q0)

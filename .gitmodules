@@ -7,3 +7,6 @@
 [submodule "models/others"]
 	path = models/others
 	url = https://github.com/Gepetto/example-robot-data.git
+[submodule "models/cassie"]
+	path = models/cassie
+	url = https://github.com/proyan/cassie-gazebo-sim.git
