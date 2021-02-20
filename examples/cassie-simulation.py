@@ -9,8 +9,8 @@ from time import sleep
 from os.path import join, dirname, abspath
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
-sdf_filename = pinocchio_model_dir + "/cassie-gazebo-sim/cassie/cassie_v2.sdf"        
-package_dir = pinocchio_model_dir + "/cassie-gazebo-sim"
+sdf_filename = pinocchio_model_dir + "/cassie/cassie/cassie_v2.sdf"        
+package_dir = pinocchio_model_dir + "/cassie"
 
 
 (model,constraint_models) = buildModelFromSdf(sdf_filename, JointModelFreeFlyer())
@@ -127,6 +127,8 @@ viz.display(q_sol)
 
 #Bring CoM between the two feet.
 
+mass = data.mass[0]
+
 def squashing(model, data, q_in):
     q = q_in.copy()
     y = np.ones((constraint_dim))
@@ -137,7 +139,7 @@ def squashing(model, data, q_in):
     com_drop_amp = 0.3
     pinocchio.computeAllTerms(model,data,q,np.zeros(model.nv))
     com_base = data.com[0].copy()
-    
+    kp = 1.
     com_des = lambda k: com_base - np.array([0., 0.,
                                              np.abs(com_drop_amp*np.sin(2.*np.pi*k/(N_full)))])
     for k in range(N):
@@ -157,8 +159,8 @@ def squashing(model, data, q_in):
             break
         print("constraint_value:",np.linalg.norm(constraint_value))
         print ("com_error:", np.linalg.norm(com_err))
-        rhs = np.concatenate([-constraint_value - y*mu, 10.*com_err, np.zeros(model.nv-3)])
-        dz = kkt_constraint.solve(rhs) 
+        rhs = np.concatenate([-constraint_value - y*mu, kp*mass*com_err, np.zeros(model.nv-3)])
+        dz = kkt_constraint.solve(rhs)
         dy = dz[:constraint_dim]
         dq = dz[constraint_dim:]
         alpha = 1.
