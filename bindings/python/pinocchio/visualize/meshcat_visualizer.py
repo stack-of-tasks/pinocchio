@@ -1,5 +1,4 @@
 from .. import pinocchio_pywrap as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 
 from . import BaseVisualizer
@@ -120,7 +119,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-
         import meshcat.geometry
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
@@ -155,7 +153,6 @@ class MeshcatVisualizer(BaseVisualizer):
                 material.opacity = float(meshColor[3])
             self.viewer[viewer_name].set_object(obj, material)
 
-
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
         Parameters:
@@ -179,6 +176,22 @@ class MeshcatVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
+    def reload(self, new_geometry_object, geometry_type = None):
+        """ Reload a geometry_object given by its name and its type"""
+        geom_id = self.visual_model.getGeometryId(new_geometry_object.name)
+        self.visual_model.geometryObjects[geom_id] = new_geometry_object
+
+        visual = self.visual_model.geometryObjects[geom_id]
+        self.delete(new_geometry_object, pin.GeometryType.VISUAL)
+        self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color = None)
+
+    def clean(self):
+        self.viewer.delete()
+
+    def delete(self, geometry_object, geometry_type):
+        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        self.viewer[viewer_name].delete()
+
     def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
         if q is not None:
@@ -199,16 +212,12 @@ class MeshcatVisualizer(BaseVisualizer):
         """Set whether to display collision objects or not.
         WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
         # TODO
-        import warnings
         warnings.warn("Plotting collision meshes is not available for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not
         WARNING: Visual meshes are always plotted for MeshcatVisualizer"""
         # TODO
-        import warnings
         warnings.warn("Visual meshes are always plotted for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
 __all__ = ['MeshcatVisualizer']
