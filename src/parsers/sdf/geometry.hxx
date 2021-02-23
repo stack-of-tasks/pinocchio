@@ -260,11 +260,25 @@ namespace pinocchio
             const boost::shared_ptr<fcl::CollisionGeometry>
               geometry(new fcl::CollisionGeometry());
 #endif // PINOCCHIO_WITH_HPP_FCL
-            Eigen::Vector4d meshColor = Eigen::Vector4d::Zero();
-            std::string meshTexturePath;
-
+           
             const ignition::math::Pose3d& pose =
               (*i)->template Get<ignition::math::Pose3d>("pose");
+
+            Eigen::Vector4d meshColor(Eigen::Vector4d::Zero());
+            std::string meshTexturePath;
+            bool overrideMaterial = false;
+            const ::sdf::ElementPtr sdf_material = (*i)->GetElement("material");
+            if (sdf_material)
+            {
+              const ignition::math::Vector4d ign_meshColor =
+                sdf_material->Get<ignition::math::Vector4d>("ambient");
+              
+              meshColor << ign_meshColor.X(),
+                ign_meshColor.Y(),
+                ign_meshColor.Z(),
+                ign_meshColor.W();
+              overrideMaterial = true;
+            }
 
             const SE3 lMg = convertFromPose3d(pose);
             const SE3 geomPlacement = body_placement * lMg;
@@ -275,7 +289,7 @@ namespace pinocchio
                                            frame_id, frame.parent,
                                            geometry,
                                            geomPlacement, meshPath, meshScale,
-                                           false, meshColor, meshTexturePath);
+                                           overrideMaterial, meshColor, meshTexturePath);
             geomModel.addGeometryObject(geometry_object);
             ++objectId;
           }
