@@ -12,30 +12,39 @@ robot = loadTalos()
 model = robot.model
 data = robot.data
 
-robot.q0 = robot.model.referenceConfigurations["half_sitting"]
+state_name = "half_sitting"
+
+robot.q0 = robot.model.referenceConfigurations[state_name]
 
 pinocchio.forwardKinematics(model, data, robot.q0)
 
-foot_joints = ["leg_right_6_joint", "leg_left_6_joint"]
-foot_joint_ids = [model.getJointId(joint_name) for joint_name in foot_joints]
-pinocchio.forwardKinematics(model, data, robot.model.referenceConfigurations["half_sitting"])
+lfFoot, rfFoot, lhFoot, rhFoot = 'left_sole_link', 'right_sole_link', 'gripper_left_fingertip_3_link', 'gripper_right_fingertip_3_link'
+
+foot_frames = [lfFoot, rfFoot, lhFoot, rhFoot]
+foot_frame_ids = [robot.model.getFrameId(frame_name) for frame_name in foot_frames]
+foot_joint_ids = [robot.model.frames[robot.model.getFrameId(frame_name)].parent for frame_name in foot_frames]
+pinocchio.forwardKinematics(model, data, robot.q0)
+pinocchio.framesForwardKinematics(model, data, robot.q0)
 
 constraint_models = []
 
-#Add contact model for contact with ground
-
-
-for joint_id in foot_joint_ids:
-    R = data.oMi[joint_id].rotation
-    tr = -data.oMi[joint_id].translation
-    foot_placement = pinocchio.SE3(np.linalg.inv(R),
-                                   np.dot(np.linalg.inv(R), tr))
+for j, frame_id in enumerate(foot_frame_ids):
     contact_model_lf1 = pinocchio.RigidContactModel(pinocchio.ContactType.CONTACT_6D,
-                                                    joint_id,
-                                                    foot_placement)
-
+                                                    foot_joint_ids[j],
+                                                    robot.model.frames[frame_id].placement,
+                                                    0,
+                                                    data.oMf[frame_id])
     constraint_models.extend([contact_model_lf1])
 
+#Change arm position
+constraint_models[3].joint2_placement = pinocchio.SE3(pinocchio.rpy.rpyToMatrix(np.array([0.,-np.pi/2,0.])),
+                                                      np.array([0.6,
+                                                                -0.40, 1.0]))
+
+constraint_models[2].joint2_placement = pinocchio.SE3(pinocchio.rpy.rpyToMatrix(np.array([0,-np.pi/2,0.])),
+                                                      np.array([0.6,
+                                                                0.4, 1.0]))
+    
 robot.initViewer()
 robot.loadViewerModel("pinocchio")
 gui = robot.viewer.gui
@@ -61,7 +70,7 @@ kkt_constraint = pinocchio.ContactCholeskyDecomposition(model,constraint_models)
 constraint_dim = sum([cm.size() for cm in constraint_models])
 N=100000
 eps = 1e-10
-mu = 0.
+mu = 1e-8#0.
 #q_sol = (q[:] + np.pi) % np.pi - np.pi
 q_sol = q.copy()
 robot.display(q_sol)
@@ -96,6 +105,7 @@ def squashing(model, data, q_in):
                                                   cm.joint1_placement,
                                                   cm.reference_frame) for cm in constraint_models])
         primal_feas = np.linalg.norm(constraint_value,np.inf)
+        print J.shape, constraint_value.shape, y.shape
         dual_feas = np.linalg.norm(J.T.dot(constraint_value + y),np.inf)
         print ("primal_feas:",primal_feas)
         print ("dual_feas:",dual_feas)
