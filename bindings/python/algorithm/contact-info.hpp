@@ -87,7 +87,12 @@ namespace pinocchio
                bp::arg("joint1_placement"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, joint index and placement only for the first joint implied in the constraint."))
-        
+        .def(bp::init<ContactType,JointIndex,bp::optional<ReferenceFrame> >
+             ((bp::arg("self"),
+               bp::arg("contact_type"),
+               bp::arg("joint1_id"),
+               bp::arg("reference_frame")),
+              "Contructor from a given ContactType and joint index. The base joint is taken as 0 in the constraint."))        
         .PINOCCHIO_ADD_PROPERTY(Self,name,
                                 "Name of the contact.")
         .PINOCCHIO_ADD_PROPERTY(Self,type,
