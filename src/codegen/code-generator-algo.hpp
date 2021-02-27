@@ -738,6 +738,139 @@ namespace pinocchio
     ADTangentVectorType ad_v, ad_tau;
   };
 
+  template<typename _Scalar>
+  struct CodeGenContactDynamics : public CodeGenBase<_Scalar>
+  {
+    typedef CodeGenBase<_Scalar> Base;
+    typedef typename Base::Scalar Scalar;
+    typedef typename Base::ADScalar ADScalar;
+    
+    typedef typename Base::Model Model;
+
+    typedef typename Base::ADConfigVectorType ADConfigVectorType;
+    typedef typename Base::ADTangentVectorType ADTangentVectorType;
+    typedef typename Base::MatrixXs MatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
+    typedef typename Base::VectorXs VectorXs;
+
+    typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
+    typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
+    typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
+    typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
+    typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
+    typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+
+    typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
+    typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
+    typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
+    typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
+    typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
+    typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+
+    typedef typename Base::ADData ADData;
+    typedef typename ADData::MatrixXs ADMatrixXs;
+    typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(ADMatrixXs) RowADMatrixXs;
+
+    Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models) const
+    {
+      Eigen::DenseIndex num_total_constraints = 0;      
+      for(typename ContactModelVector::const_iterator it = contact_models.begin();
+          it != contact_models.end();
+          ++it)
+        {
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(it->size() > 0,
+                                         "The dimension of the constraint must be positive");
+          num_total_constraints += it->size();
+        }
+      return num_total_constraints;
+    }
+    
+    CodeGenContactDynamics(const Model & model,
+                           const ContactModelVector& contact_models,
+                           const std::string & function_name = "contactDynamics",
+                           const std::string & library_name = "cg_contactDynamics_eval")
+      : Base(model,model.nq+2*model.nv,
+             model.nv + constraintDim(contact_models),
+             function_name,library_name),
+        nc(constraintDim(contact_models))
+    {
+      ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
+      ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
+      ad_tau = ADTangentVectorType(model.nv); ad_tau.setZero();
+
+      x = VectorXs::Zero(Base::getInputDimension());
+
+      for(int k=0;k<contact_models.size();++k){
+        ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
+      }
+
+      for(int k=0;k<ad_contact_models.size();++k){
+        ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
+      }
+      pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
+      Base::build_jacobian = false;
+    }
+
+    void buildMap()
+    {
+      CppAD::Independent(ad_X);
+
+      Eigen::DenseIndex it = 0;
+      ad_q = ad_X.segment(it,ad_model.nq); it += ad_model.nq;
+      ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
+      ad_tau = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
+
+      pinocchio::contactDynamics(ad_model,ad_data,
+                                 ad_q,ad_v,ad_tau,
+                                 ad_contact_models,ad_contact_datas);
+      ad_Y.head(ad_model.nv) = ad_data.ddq;
+      ad_Y.segment(ad_model.nv, nc) = ad_data.lambda_c;
+
+      ad_fun.Dependent(ad_X,ad_Y);
+      ad_fun.optimize("no_compare_op");
+    }
+
+    template<typename ConfigVectorType, typename TangentVector1, typename TangentVector2>
+    void evalFunction(const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVector1> & v,
+                      const Eigen::MatrixBase<TangentVector2> & tau)
+    {
+      // fill x
+      Eigen::DenseIndex it_x = 0;
+      x.segment(it_x,ad_model.nq) = q; it_x += ad_model.nq;
+      x.segment(it_x,ad_model.nv) = v; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = tau; it_x += ad_model.nv;
+
+      Base::evalFunction(x);
+
+      Eigen::DenseIndex it_y = 0;
+      ddq = Base::y.segment(it_y, ad_model.nv);
+      it_y += ad_model.nv;
+      lambda_c = Base::y.segment(it_y, nc);
+    }
+
+    VectorXs lambda_c, ddq;
+    
+  protected:
+
+    using Base::ad_model;
+    using Base::ad_data;
+    using Base::ad_fun;
+    using Base::ad_X;
+    using Base::ad_Y;
+    using Base::y;
+
+    ADContactModelVector ad_contact_models;
+    ADContactDataVector ad_contact_datas;
+
+    Eigen::DenseIndex nc;
+    VectorXs x;
+
+    ADConfigVectorType ad_q;
+    ADTangentVectorType ad_v, ad_tau;
+  };
+
+
   
   template<typename _Scalar>
   struct CodeGenIntegrate : public CodeGenBase<_Scalar>
