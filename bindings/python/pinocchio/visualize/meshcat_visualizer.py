@@ -40,8 +40,8 @@ def loadBVH(bvh):
 
     return mesh
 
-def createCapsule(length, radius, resolution=[30, 10]):
-    nbv = np.array([max(resolution[0], 4), max(resolution[1], 4)])
+def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
+    nbv = np.array([max(radial_resolution, 4), max(cap_resolution, 4)])
     h = length
     r = radius
     position = 0
@@ -61,19 +61,19 @@ def createCapsule(length, radius, resolution=[30, 10]):
     vertices[-1, :] = np.array([0, 0, h / 2 + r])
     indexes = np.zeros((nbv[0] * (4 * (nbv[1] - 1) + 4), 3))
     index = 0
-    slice = nbv[1] * 2
+    stride = nbv[1] * 2
     last = nbv[0] * (2 * nbv[1]) + 1
     for j in range(nbv[0]):
         j_next = (j + 1) % nbv[0]
-        indexes[index + 0] = np.array([j_next * slice + nbv[1], j_next * slice, j * slice])
-        indexes[index + 1] = np.array([j * slice + nbv[1], j_next * slice + nbv[1], j * slice])
-        indexes[index + 2] = np.array([j * slice + nbv[1] - 1, j_next * slice + nbv[1] - 1, last - 1])
-        indexes[index + 3] = np.array([j_next * slice + 2 * nbv[1] - 1, j * slice + 2 * nbv[1] - 1, last])
+        indexes[index + 0] = np.array([j_next * stride + nbv[1], j_next * stride, j * stride])
+        indexes[index + 1] = np.array([j * stride + nbv[1], j_next * stride + nbv[1], j * stride])
+        indexes[index + 2] = np.array([j * stride + nbv[1] - 1, j_next * stride + nbv[1] - 1, last - 1])
+        indexes[index + 3] = np.array([j_next * stride + 2 * nbv[1] - 1, j * stride + 2 * nbv[1] - 1, last])
         for i in range(nbv[1]-1):
-            indexes[index + 4 + i * 4 + 0] = np.array([j_next * slice + i, j_next * slice + i + 1, j * slice + i])
-            indexes[index + 4 + i * 4 + 1] = np.array([j_next * slice + i + 1, j * slice + i + 1, j * slice + i])
-            indexes[index + 4 + i * 4 + 2] = np.array([j_next * slice + nbv[1] + i + 1, j_next * slice + nbv[1] + i, j * slice + nbv[1] + i])
-            indexes[index + 4 + i * 4 + 3] = np.array([j_next * slice + nbv[1] + i + 1, j * slice + nbv[1] + i, j * slice + nbv[1] + i + 1])
+            indexes[index + 4 + i * 4 + 0] = np.array([j_next * stride + i, j_next * stride + i + 1, j * stride + i])
+            indexes[index + 4 + i * 4 + 1] = np.array([j_next * stride + i + 1, j * stride + i + 1, j * stride + i])
+            indexes[index + 4 + i * 4 + 2] = np.array([j_next * stride + nbv[1] + i + 1, j_next * stride + nbv[1] + i, j * stride + nbv[1] + i])
+            indexes[index + 4 + i * 4 + 3] = np.array([j_next * stride + nbv[1] + i + 1, j * stride + nbv[1] + i, j * stride + nbv[1] + i + 1])
         index += 4 * (nbv[1] - 1) + 4
     import meshcat.geometry
     return meshcat.geometry.TriangularMeshGeometry(vertices, indexes)
