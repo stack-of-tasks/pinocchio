@@ -13,6 +13,7 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+
 def loadBVH(bvh):
     import meshcat.geometry as mg
 
@@ -38,6 +39,44 @@ def loadBVH(bvh):
                     mg.PointsMaterial(size=0.002))
 
     return mesh
+
+def createCapsule(length, radius, resolution=[30, 10]):
+    nbv = np.array([max(resolution[0], 4), max(resolution[1], 4)])
+    h = length
+    r = radius
+    position = 0
+    vertices = np.zeros((nbv[0] * (2 * nbv[1]) + 2, 3))
+    for j in range(nbv[0]):
+        phi = (( 2 * np.pi * j) / nbv[0])
+        for i in range(nbv[1]):
+            theta = ((np.pi / 2 * i) / nbv[1])
+            vertices[position + i, :] = np.array([np.cos(theta) * np.cos(phi) * r,
+                                               np.cos(theta) * np.sin(phi) * r,
+                                               -h / 2 - np.sin(theta) * r])
+            vertices[position + i + nbv[1], :] = np.array([np.cos(theta) * np.cos(phi) * r,
+                                                        np.cos(theta) * np.sin(phi) * r,
+                                                        h / 2 + np.sin(theta) * r])
+        position += nbv[1] * 2
+    vertices[-2, :] = np.array([0, 0, -h / 2 - r])
+    vertices[-1, :] = np.array([0, 0, h / 2 + r])
+    indexes = np.zeros((nbv[0] * (4 * (nbv[1] - 1) + 4), 3))
+    index = 0
+    slice = nbv[1] * 2
+    last = nbv[0] * (2 * nbv[1]) + 1
+    for j in range(nbv[0]):
+        j_next = (j + 1) % nbv[0]
+        indexes[index + 0] = np.array([j_next * slice + nbv[1], j_next * slice, j * slice])
+        indexes[index + 1] = np.array([j * slice + nbv[1], j_next * slice + nbv[1], j * slice])
+        indexes[index + 2] = np.array([j * slice + nbv[1] - 1, j_next * slice + nbv[1] - 1, last - 1])
+        indexes[index + 3] = np.array([j_next * slice + 2 * nbv[1] - 1, j * slice + 2 * nbv[1] - 1, last])
+        for i in range(nbv[1]-1):
+            indexes[index + 4 + i * 4 + 0] = np.array([j_next * slice + i, j_next * slice + i + 1, j * slice + i])
+            indexes[index + 4 + i * 4 + 1] = np.array([j_next * slice + i + 1, j * slice + i + 1, j * slice + i])
+            indexes[index + 4 + i * 4 + 2] = np.array([j_next * slice + nbv[1] + i + 1, j_next * slice + nbv[1] + i, j * slice + nbv[1] + i])
+            indexes[index + 4 + i * 4 + 3] = np.array([j_next * slice + nbv[1] + i + 1, j * slice + nbv[1] + i, j * slice + nbv[1] + i + 1])
+        index += 4 * (nbv[1] - 1) + 4
+    import meshcat.geometry
+    return meshcat.geometry.TriangularMeshGeometry(vertices, indexes)
 
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
@@ -78,7 +117,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
         geom = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
-            obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+            if hasattr(meshcat.geometry, 'TriangularMeshGeometry'):
+                obj = createCapsule(2. * geom.halfLength, geom.radius)
+            else:
+                obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Box):
