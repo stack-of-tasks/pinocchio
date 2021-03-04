@@ -35,17 +35,11 @@ namespace pinocchio
     PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
     
-    for (GeomIndex i=0; i < (GeomIndex) geom_model.ngeoms; ++i)
+    for(GeomIndex i=0; i < (GeomIndex) geom_model.ngeoms; ++i)
     {
-      const Model::JointIndex & joint = geom_model.geometryObjects[i].parentJoint;
+      const Model::JointIndex joint = geom_model.geometryObjects[i].parentJoint;
       if (joint>0) geom_data.oMg[i] =  (data.oMi[joint] * geom_model.geometryObjects[i].placement);
       else         geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
-#ifdef PINOCCHIO_WITH_HPP_FCL  
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-      geom_data.collisionObjects[i].setTransform( toFclTransform3f(geom_data.oMg[i]) );
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
-#endif // PINOCCHIO_WITH_HPP_FCL
     }
   }
 #ifdef PINOCCHIO_WITH_HPP_FCL  
