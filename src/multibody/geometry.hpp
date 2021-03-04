@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -189,19 +189,6 @@ namespace pinocchio
     std::vector<bool> activeCollisionPairs;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-    ///
-    /// \brief Collision objects (ie a fcl placed geometry).
-    ///
-    /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
-    /// \sa GeometryModel::geometryObjects and GeometryObjects
-    ///
-    PINOCCHIO_DEPRECATED std::vector<fcl::CollisionObject> collisionObjects;
-
-    ///
-    /// \brief Defines what information should be computed by distance computation.
-    ///
-    /// \deprecated use \ref distanceRequests instead
-    PINOCCHIO_DEPRECATED fcl::DistanceRequest distanceRequest;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -213,12 +200,6 @@ namespace pinocchio
     ///
     std::vector<fcl::DistanceResult> distanceResults;
     
-    ///
-    /// \brief Defines what information should be computed by collision test.
-    ///
-    /// \deprecated use \ref collisionRequests instead
-    PINOCCHIO_DEPRECATED fcl::CollisionRequest collisionRequest;
-
     ///
     /// \brief Defines what information should be computed by collision test.
     /// There is one request per pair of geometries.
