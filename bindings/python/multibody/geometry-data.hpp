@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_data_hpp__
@@ -101,21 +101,6 @@ namespace pinocchio
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
         ;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL  
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        cl
-        .add_property("distanceRequest",
-                      bp::make_getter(&GeometryData::distanceRequest,
-                                      deprecated_member<bp::return_internal_reference<> >()),
-                      "Deprecated. Use distanceRequests attribute instead.")
-        .add_property("collisionRequest",
-                      bp::make_getter(&GeometryData::collisionRequest,
-                                      deprecated_member<bp::return_internal_reference<> >()),
-                      "Deprecated. Use collisionRequests attribute instead.")
-        ;
-#pragma GCC diagnostic pop
-#endif // PINOCCHIO_WITH_HPP_FCL
       }
              
       /* --- Expose --------------------------------------------------------- */
