@@ -30,7 +30,7 @@ class GepettoVisualizer(BaseVisualizer):
         except ImportError:
             import warnings
             msg = ("Error while importing the viewer client.\n"
-                   "Check whether gepetto-viewer is properly installed"
+                   "Check whether gepetto-gui is properly installed"
                   )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
 
