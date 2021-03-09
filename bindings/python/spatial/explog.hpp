@@ -37,6 +37,15 @@ namespace pinocchio
       ReturnType res; Jlog3(M,res);
       return res;
     }
+
+    template<typename Matrix3Like, typename Vector3Like>
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)
+    Hlog3_proxy(const Matrix3Like & M, const Vector3Like & v)
+    {
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like) ReturnType;
+      ReturnType res; Hlog3(M,v,res);
+      return res;
+    }
     
     template<typename Scalar, int Options>
     SE3Tpl<Scalar,Options> exp6_proxy(const MotionTpl<Scalar,Options> & v)

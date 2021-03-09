@@ -409,6 +409,36 @@ BOOST_AUTO_TEST_CASE(Jexplog6)
   }
 }
 
+BOOST_AUTO_TEST_CASE(Hlog3_fd)
+{
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+  SE3::Quaternion q; quaternion::uniformRandom(q);
+  Matrix3 R (q.matrix());
+
+  // Hlog3(R, v) returns the matrix H * v
+  // We check that H * e_k matches the finite difference of Hlog3(R, e_k)
+  Vector3 dR; dR.setZero();
+  double step = 1e-8;
+  for (int k = 0; k < 3; ++k)
+  {
+    Vector3 e_k (Vector3::Zero());
+    e_k[k] = 1.;
+
+    Matrix3 Hlog_e_k;
+    Hlog3(R, e_k, Hlog_e_k);
+
+    Matrix3 R_dR = R * exp3(step * e_k);
+    Matrix3 Jlog_R, Jlog_R_dR;
+    Jlog3(R, Jlog_R);
+    Jlog3(R_dR, Jlog_R_dR);
+
+    Matrix3 Hlog_e_k_fd = (Jlog_R_dR - Jlog_R ) / step;
+
+    BOOST_CHECK(Hlog_e_k.isApprox(Hlog_e_k_fd, sqrt(step)));
+  }
+}
+
 BOOST_AUTO_TEST_CASE (test_basic)
 {
   typedef pinocchio::SE3::Vector3 Vector3;

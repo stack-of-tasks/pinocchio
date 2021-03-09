@@ -35,6 +35,11 @@ namespace pinocchio
               "Jacobian of log(R) which maps from the tangent of SO(3) at R to"
               " the tangent of SO(3) at Identity.");
       
+      bp::def("Hlog3",&Hlog3_proxy<Eigen::Matrix3d, Eigen::Vector3d>,
+              bp::args("R","v"),
+              "Vector v to be multiplied to the hessian",
+              "v^T * H where H is the Hessian of log(R)");
+      
       bp::def("exp6",&exp6_proxy<double,0>,
               bp::arg("Spatial velocity (Motion)"),
               "Exp: se3 -> SE3. Return the integral of the input"

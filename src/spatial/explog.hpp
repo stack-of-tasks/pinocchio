@@ -221,6 +221,66 @@ namespace pinocchio
     Vector3 w(log3(R,t));
     Jlog3(t,w,PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like2,Jlog));
   }
+
+  template<typename Scalar, typename Vector3Like1, typename Vector3Like2, typename Matrix3Like>
+  void Hlog3(const Scalar & theta,
+             const Eigen::MatrixBase<Vector3Like1> & log,
+             const Eigen::MatrixBase<Vector3Like2> & v,
+             const Eigen::MatrixBase<Matrix3Like> & vt_Hlog)
+  {
+    typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+    Matrix3Like & vt_Hlog_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,vt_Hlog);
+
+    // theta = (log^T * log)^.5
+    // dt/dl = .5 * 2 * log^T * (log^T * log)^-.5
+    //       = log^T / theta
+    // dt_dl = log / theta
+    Scalar ctheta,stheta; SINCOS(theta,&stheta,&ctheta);
+
+    Scalar denom = .5 / (1-ctheta),
+           a = theta * stheta * denom,
+           da_dt = (stheta - theta) * denom, // da / dtheta
+           b = ( 1 - a ) / (theta*theta),
+           //db_dt = - (2 * (1 - a) / theta + da_dt ) / theta**2; // db / dtheta
+           db_dt = - (2 / theta - (theta + stheta) * denom) / (theta*theta); // db / dtheta
+
+    // Compute dl_dv_v = Jlog * v
+    // Jlog = a I3 + .5 [ log ] + b * log * log^T
+    // if v == log, then Jlog * v == v
+    Vector3 dl_dv_v (a*v + .5*log.cross(v) + b*log*log.transpose()*v);
+
+    Scalar dt_dv_v = log.dot(dl_dv_v) / theta;
+
+    // Derivative of b * log * log^T
+    vt_Hlog_.noalias() = db_dt * dt_dv_v * log * log.transpose();
+    vt_Hlog_.noalias() += b * dl_dv_v * log.transpose();
+    vt_Hlog_.noalias() += b * log * dl_dv_v.transpose();
+    // Derivative of .5 * [ log ]
+    addSkew(.5 * dl_dv_v, vt_Hlog_);
+    // Derivative of a * I3
+    vt_Hlog_.diagonal().array() += da_dt * dt_dv_v;
+  }
+
+  /** \brief Second order derivative of log3
+   *
+   *  This computes \f$ v^T H_{log} \f$.
+   *
+   *  \param[in] R the rotation matrix.
+   *  \param[in] v the 3D vector.
+   *  \param[out] vt_Hlog the product of the Hessian with the input vector
+   */
+  template<typename Matrix3Like1, typename Vector3Like, typename Matrix3Like2>
+  void Hlog3(const Eigen::MatrixBase<Matrix3Like1> & R,
+             const Eigen::MatrixBase<Vector3Like> & v,
+             const Eigen::MatrixBase<Matrix3Like2> & vt_Hlog)
+  {
+    typedef typename Matrix3Like1::Scalar Scalar;
+    typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like1)::Options> Vector3;
+
+    Scalar t;
+    Vector3 w(log3(R,t));
+    Hlog3(t,w,v,PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like2,vt_Hlog));
+  }
   
   ///
   /// \brief Exp: se3 -> SE3.
