@@ -62,7 +62,6 @@ BOOST_AUTO_TEST_CASE(test_integrate)
   casadi::SX cs_q_int(model.nq,1);
   pinocchio::casadi::copy(q_int_ad,cs_q_int);
   
-  std::cout << "cs_q_int:" << cs_q_int << std::endl;
   casadi::Function eval_integrate("eval_integrate",
                                   casadi::SXVector {cs_q,cs_v_int},
                                   casadi::SXVector {cs_q_int});
@@ -78,7 +77,6 @@ BOOST_AUTO_TEST_CASE(test_integrate)
   ConfigVector q_plus(model.nq);
   pinocchio::integrate(model,q,TangentVector::Zero(model.nv),q_plus);
   
-  std::cout << "q_int_vec: " << q_int_vec.transpose() << std::endl;
   BOOST_CHECK(q_plus.isApprox(q_int_vec));
 }
   
@@ -155,7 +153,6 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   // check return value
   casadi::DM tau_res = eval_rnea(casadi::DMVector {q_vec,v_int_vec,v_vec,a_vec})[0];
-  std::cout << "tau_res = " << tau_res << std::endl;
   Data::TangentVectorType tau_vec = Eigen::Map<Data::TangentVectorType>(static_cast< std::vector<double> >(tau_res).data(),model.nv,1);
   
   BOOST_CHECK(data.tau.isApprox(tau_vec));
@@ -406,12 +403,19 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
   TangentVector tau(TangentVector::Random(model.nv));
   
   pinocchio::aba(model,data,q,v,tau);
+  pinocchio::computeABADerivatives(model,data,q,v,tau);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+    = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
   
   pinocchio::casadi::AutoDiffABA<Scalar> ad_casadi(model);
 
   ad_casadi.evalFunction(q,v,tau);
+  ad_casadi.evalJacobian(q,v,tau);
   
-  BOOST_CHECK(ad_casadi.ddq_res.isApprox(data.ddq));    
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
 }
 
 
