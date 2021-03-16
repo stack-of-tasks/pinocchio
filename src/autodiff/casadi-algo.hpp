@@ -479,7 +479,182 @@ namespace pinocchio
     };
 
 
-    
+    template<typename _Scalar>
+    struct AutoDiffContactDynamicsDerivatives
+    {
+      typedef _Scalar Scalar;
+      typedef ::casadi::SX ADScalar;
+      typedef ::casadi::SXVector ADSVector;
+      typedef ::casadi::DM DMMatrix;
+      typedef ::casadi::DMVector DMVector;
+      enum { Options = 0 };
+
+      typedef pinocchio::ModelTpl<Scalar,Options> Model;
+      typedef pinocchio::DataTpl<Scalar,Options> Data;
+      typedef typename pinocchio::RigidContactModelTpl<Scalar,Options> ContactModel;
+      typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
+      typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
+      typedef typename pinocchio::RigidContactDataTpl<Scalar,Options> ContactData;
+      typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
+      typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+      
+      typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
+      typedef pinocchio::DataTpl<ADScalar,Options> ADData;
+      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Options> ADContactModel;
+      typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
+      typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
+      typedef typename pinocchio::RigidContactDataTpl<ADScalar,Options> ADContactData;
+      typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
+      typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+      
+      typedef typename Model::ConfigVectorType ConfigVectorType;
+      typedef typename Model::TangentVectorType TangentVectorType;
+      typedef typename ADModel::ConfigVectorType ADConfigVectorType;
+      typedef typename ADModel::TangentVectorType ADTangentVectorType;
+
+      typedef typename Data::MatrixXs MatrixXs;
+      typedef typename Data::VectorXs VectorXs;
+      typedef typename Data::RowMatrixXs RowMatrixXs;
+
+      static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
+      {
+        Eigen::DenseIndex num_total_constraints = 0;
+        for(typename ContactModelVector::const_iterator it = contact_models.begin();
+            it != contact_models.end();
+            ++it)
+        {
+          PINOCCHIO_CHECK_INPUT_ARGUMENT(it->size() > 0,
+                                         "The dimension of the constraint must be positive");
+          num_total_constraints += it->size();
+        }
+        return num_total_constraints;
+      }
+
+      typedef ::casadi::Function ADFun;
+      
+      explicit AutoDiffContactDynamicsDerivatives(const Model& model,
+                                       const ContactModelVector& contact_models)
+        : ad_model(model.template cast<ADScalar>())
+        , ad_data(ad_model)
+        , nc(constraintDim(contact_models))
+        , cs_q(ADScalar::sym("q", model.nq))
+        , cs_v(ADScalar::sym("v", model.nv))
+        , cs_tau(ADScalar::sym("tau", model.nv))
+        , q_ad(model.nq)
+        , v_ad(model.nv)
+        , tau_ad(model.nv)
+        , cs_ddq(model.nv,1)
+        , cs_lambda_c(model.nv,1)
+        , q_vec((size_t)model.nq)
+        , v_vec((size_t)model.nv)
+        , tau_vec((size_t)model.nv)
+        , ddq(model.nv)
+        , lambda_c(nc)
+        , ddq_dq(model.nv,model.nv)
+        , ddq_dv(model.nv,model.nv)
+        , ddq_dtau(model.nv,model.nv)
+        , dlambda_dq(nc,model.nv)
+        , dlambda_dv(nc,model.nv)
+        , dlambda_dtau(nc,model.nv)
+      {
+        q_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
+        v_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
+        tau_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_tau).data(),model.nv,1);
+
+
+        for(int k=0;k<contact_models.size();++k){
+          ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
+          ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
+        }
+
+        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
+        buildMap();
+      }
+
+      void buildMap()
+      {
+        pinocchio::contactDynamics(ad_model,ad_data,q_ad,v_ad,tau_ad,
+                                   ad_contact_models,ad_contact_datas);
+        pinocchio::computeContactDynamicsDerivatives(ad_model,ad_data,
+                                                     ad_contact_models,ad_contact_datas);
+        //Copy Output
+        pinocchio::casadi::copy(ad_data.ddq,cs_ddq);
+        pinocchio::casadi::copy(ad_data.lambda_c,cs_lambda_c);
+        pinocchio::casadi::copy(ad_data.ddq_dq,cs_ddq_dq);
+        pinocchio::casadi::copy(ad_data.ddq_dv,cs_ddq_dv);
+        pinocchio::casadi::copy(ad_data.ddq_dtau,cs_ddq_dtau);
+        pinocchio::casadi::copy(ad_data.dlambda_dq,cs_lambda_dq);
+        pinocchio::casadi::copy(ad_data.dlambda_dv,cs_lambda_dv);
+        pinocchio::casadi::copy(ad_data.dlambda_dtau,cs_lambda_dtau);
+
+        ad_fun = ADFun("eval_contactDynamicsDerivs",
+                       ADSVector {cs_q, cs_v, cs_tau},
+                       ADSVector {cs_ddq, cs_lambda_c,
+                           cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau,
+                           cs_lambda_dq, cs_lambda_dv, cs_lambda_dtau});
+      }
+
+      template<typename ConfigVectorType1, typename TangentVectorType1,
+               typename TangentVectorType2>
+      void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q,
+                        const Eigen::MatrixBase<TangentVectorType1> & v,
+                        const Eigen::MatrixBase<TangentVectorType2> & tau)
+      {
+        Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
+        Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
+        Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
+        fun_output = ad_fun(DMVector {q_vec, v_vec, tau_vec});
+        ddq =
+          Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
+                                        (fun_output[0]).data(),ad_model.nv,1);
+        lambda_c =
+          Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
+                                        (fun_output[1]).data(),ad_model.nv,1);
+        ddq_dq =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[2]).data(),ad_model.nv,ad_model.nv);
+        ddq_dv =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[3]).data(),ad_model.nv,ad_model.nv);
+        ddq_dtau =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[4]).data(),ad_model.nv,ad_model.nv);
+        dlambda_dq =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[5]).data(),nc,ad_model.nv);
+        dlambda_dv =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[6]).data(),nc,ad_model.nv);
+        dlambda_dtau =
+          Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
+                               (fun_output[7]).data(),nc,ad_model.nv);        
+      }
+
+      TangentVectorType ddq, lambda_c;
+      RowMatrixXs ddq_dq, ddq_dv, ddq_dtau,
+        dlambda_dq, dlambda_dv, dlambda_dtau;
+      
+    protected:
+      ADModel ad_model;
+      ADData ad_data;
+      ADContactModelVector ad_contact_models;
+      ADContactDataVector ad_contact_datas;
+      
+      Eigen::DenseIndex nc;
+      ADScalar cs_q, cs_v, cs_tau, cs_ddq, cs_lambda_c;
+
+      //Derivatives
+      ADScalar cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau,
+        cs_lambda_dq, cs_lambda_dv, cs_lambda_dtau;
+
+      ADConfigVectorType q_ad;
+      ADTangentVectorType v_ad, tau_ad;
+      ADFun ad_fun;
+
+      std::vector<DMMatrix> fun_output;
+      
+      std::vector<Scalar> q_vec, v_vec, tau_vec;      
+    };    
     
   } //namespace casadi
 
