@@ -230,10 +230,13 @@ namespace pinocchio
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)) && "mu must be positive.");
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(mu >= (Scalar)0 && "mu must be positive.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(model.gravity.angular().isZero(),
-                                   "The gravity must be a pure force vector, no angular part");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(
+                                              model.gravity.angular()[0] == Scalar(0)
+                                              && model.gravity.angular()[1] == Scalar(0)
+                                              && model.gravity.angular()[2] == Scalar(0)),
+                                  "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");
     data.dtau_dq.setZero();
@@ -360,7 +363,8 @@ namespace pinocchio
       // Add the contribution of the corrector
       const IndexVector & colwise_sparsity = data.contact_chol.getConstraintSparsityPattern(k);
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
-      if(cmodel.corrector.Kp != Scalar(0))
+
+      if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)))
       {
         Jlog6(cdata.c1Mc2.inverse(),Jlog);
         
