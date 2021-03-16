@@ -411,11 +411,105 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
 
   ad_casadi.evalFunction(q,v,tau);
   ad_casadi.evalJacobian(q,v,tau);
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_aba_derivatives_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+  
+  pinocchio::aba(model,data,q,v,tau);
+  pinocchio::computeABADerivatives(model,data,q,v,tau);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+    = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  pinocchio::casadi::AutoDiffABADerivatives<Scalar> ad_casadi(model);
+
+  ad_casadi.evalFunction(q,v,tau);
   
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
   BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
   BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
   BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+
+  const std::string RF = "rleg6_joint";  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_data;
+
+  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidContactData(ci_RF));
+
+  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidContactData(ci_LF));
+  const double mu0 = 0.;
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+  
+
+
+  pinocchio::initContactDynamics(model,data,contact_models);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
+  data.M.triangularView<Eigen::StrictlyLower>() =
+    data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+    = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
+
+  ad_casadi.evalFunction(q,v,tau);
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c));
+  ad_casadi.evalJacobian(q,v,tau);
+  
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau));
+  BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq));
+  BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv));
+  BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau));
+
 }
 
 
