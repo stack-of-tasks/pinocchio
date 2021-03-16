@@ -510,13 +510,18 @@ namespace pinocchio
    *  \end{array}\right)
    *  \f]
    *  where
+   *  \f[ M =
+   *  \left(\begin{array}{cc}
+   *  \exp(\mathbf{r}) & \mathbf{p} \\
+   *             0     & 1          \\
+   *  \end{array}\right)
+   *  \f]
    *  \f[
-   *  \def\rot{R}
    *  \begin{eqnarray}
-   *  J &=& 
-   *  \left.\frac{1}{2}[\mathbf{p}]_{\times} + \dot{\beta} (||r||) \frac{\rot^T\mathbf{p}}{||r||}\rot\rot^T
-   *  - (||r||\dot{\beta} (||r||) + 2 \beta(||r||)) \mathbf{p}\rot^T\right.\\
-   *  &&\left. + \rot^T\mathbf{p}\beta (||r||)I_3 + \beta (||r||)\rot\mathbf{p}^T\right.
+   *  J &=&
+   *  \left.\frac{1}{2}[\mathbf{p}]_{\times} + \beta'(||r||) \frac{\mathbf{r}^T\mathbf{p}}{||r||}\mathbf{r}\mathbf{r}^T
+   *  - (||r||\beta'(||r||) + 2 \beta(||r||)) \mathbf{p}\mathbf{r}^T\right.\\
+   *  &&\left. + \mathbf{r}^T\mathbf{p}\beta(||r||)I_3 + \beta(||r||)\mathbf{r}\mathbf{p}^T\right.
    *  \end{eqnarray}
    *  \f]
    *  and
