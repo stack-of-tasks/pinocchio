@@ -418,7 +418,7 @@ namespace pinocchio
                                         (fun_output[0]).data(),ad_model.nv,1);
         lambda_c =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
-                                        (fun_output[1]).data(),ad_model.nv,1);        
+                                        (fun_output[1]).data(),nc,1);
       }
 
     template<typename ConfigVectorType1, typename TangentVectorType1,
@@ -609,7 +609,7 @@ namespace pinocchio
                                         (fun_output[0]).data(),ad_model.nv,1);
         lambda_c =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
-                                        (fun_output[1]).data(),ad_model.nv,1);
+                                        (fun_output[1]).data(),nc,1);
         ddq_dq =
           Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
                                (fun_output[2]).data(),ad_model.nv,ad_model.nv);

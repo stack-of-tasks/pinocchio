@@ -402,6 +402,7 @@ void print_benchmark(const std::string& model_name,
 
 
     //Contact Dynamics Derivatives Finite Differences
+    /*
     duration.setZero();
     initContactDynamics(model,data,contact_models_subset);
     SMOOTH(NBT)
@@ -471,7 +472,8 @@ void print_benchmark(const std::string& model_name,
               << " " << "us" <<std::endl;
     csv << "contactDynamicsDerivs_fd" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
-
+    */
+    
     CodeGenContactDynamicsDerivatives<double>
       cg_contactDynamicsDerivs(model,
                                contact_models_subset,
@@ -497,7 +499,20 @@ void print_benchmark(const std::string& model_name,
     pinocchio::casadi::AutoDiffContactDynamics<double>
       casadi_contactDynamics_jacobian(model,
                                       contact_models_subset);
-
+    duration.setZero();
+    SMOOTH(NBT)
+    {
+      timer.reset();
+      casadi_contactDynamics_jacobian.evalFunction(qs[_smooth],qdots[_smooth],
+                                                   taus[_smooth]);
+      duration[_smooth] = timer.get_us_duration();
+    }
+    avg = AVG(duration);
+    stddev = STDDEV(duration);
+    std::cout << "casadi contactDyn Function: {"<<contact_info_string<<"} = \t\t" << avg
+              << " " << "us" <<std::endl;
+    csv << "casadi_contactDyn_function" << nconstraint
+        << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
     duration.setZero();
     SMOOTH(NBT)
     {
