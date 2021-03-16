@@ -4,6 +4,8 @@
 
 #include "pinocchio/codegen/cppadcg.hpp"
 #include "pinocchio/codegen/code-generator-algo.hpp"
+#include "pinocchio/autodiff/casadi-algo.hpp"
+
 #include <example-robot-data/path.hpp>
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -270,6 +272,7 @@ void print_benchmark(const std::string& model_name,
 
 
     //-----------------Sparse Eigen Cholesky----------------------------
+    /*
     duration.setZero();
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>,Eigen::Lower|Eigen::Upper> conjugateGradient_solver;
     SMOOTH(NBT)
@@ -299,6 +302,7 @@ void print_benchmark(const std::string& model_name,
               << " " << "us" <<std::endl;
     csv << "ConjugateGradCholesky" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
+    */
     //-----------------------------------------------------------------
 
     
@@ -468,7 +472,6 @@ void print_benchmark(const std::string& model_name,
     csv << "contactDynamicsDerivs_fd" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
 
-    
     CodeGenContactDynamicsDerivatives<double>
       cg_contactDynamicsDerivs(model,
                                contact_models_subset,
@@ -491,10 +494,43 @@ void print_benchmark(const std::string& model_name,
     csv << "cg_contactDynDerivs" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
 
+    pinocchio::casadi::AutoDiffContactDynamics<double>
+      casadi_contactDynamics_jacobian(model,
+                                      contact_models_subset);
+
+    duration.setZero();
+    SMOOTH(NBT)
+    {
+      timer.reset();
+      casadi_contactDynamics_jacobian.evalJacobian(qs[_smooth],qdots[_smooth],
+                                                   taus[_smooth]);
+      duration[_smooth] = timer.get_us_duration();
+    }
+    avg = AVG(duration);
+    stddev = STDDEV(duration);
+    std::cout << "casadi contactDyn Jacobian: {"<<contact_info_string<<"} = \t\t" << avg
+              << " " << "us" <<std::endl;
+    csv << "casadi_contactDyn_jacobian" << nconstraint
+        << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
 
 
-
-    
+    pinocchio::casadi::AutoDiffContactDynamicsDerivatives<double>
+      casadi_contactDynamicsDerivatives(model,
+                                        contact_models_subset);
+    duration.setZero();
+    SMOOTH(NBT)
+    {
+      timer.reset();
+      casadi_contactDynamicsDerivatives.evalFunction(qs[_smooth],qdots[_smooth],
+                                                     taus[_smooth]);
+      duration[_smooth] = timer.get_us_duration();
+    }
+    avg = AVG(duration);
+    stddev = STDDEV(duration);
+    std::cout << "casadi contactDynDerivs: {"<<contact_info_string<<"} = \t\t" << avg
+              << " " << "us" <<std::endl;
+    csv << "casadi_contactDynDerivs" << nconstraint
+        << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
     
     J.setZero();
     duration.setZero();
