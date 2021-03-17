@@ -408,7 +408,9 @@ BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
     = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
   
   pinocchio::casadi::AutoDiffABA<Scalar> ad_casadi(model);
-
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
+  
   ad_casadi.evalFunction(q,v,tau);
   ad_casadi.evalJacobian(q,v,tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
@@ -442,6 +444,8 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_casadi_algo)
     = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
   
   pinocchio::casadi::AutoDiffABADerivatives<Scalar> ad_casadi(model);
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
 
   ad_casadi.evalFunction(q,v,tau);
   
@@ -485,14 +489,14 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
   q = pinocchio::randomConfiguration(model);
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
-  
-
 
   pinocchio::initContactDynamics(model,data,contact_models);
   pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
   pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
   pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
-
+  ad_casadi.initLib();
+  ad_casadi.loadLib()
+    
   ad_casadi.evalFunction(q,v,tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
   BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c));
@@ -548,6 +552,9 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   pinocchio::casadi::AutoDiffContactDynamicsDerivatives<Scalar> ad_casadi(model,
                                                                           contact_models);
 
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
+  
   ad_casadi.evalFunction(q,v,tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
   BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c));
@@ -559,8 +566,5 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau));
 
 }
-
-
-
 
 BOOST_AUTO_TEST_SUITE_END()
