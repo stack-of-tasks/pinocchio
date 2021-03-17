@@ -5,6 +5,8 @@
 #ifndef __pinocchio_autodiff_code_generator_algo_hpp__
 #define __pinocchio_autodiff_code_generator_algo_hpp__
 
+#include <casadi/core/code_generator.hpp>
+
 #include "pinocchio/autodiff/casadi.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
@@ -332,7 +334,9 @@ namespace pinocchio
       typedef ::casadi::Function ADFun;
       
       explicit AutoDiffContactDynamics(const Model& model,
-                                       const ContactModelVector& contact_models)
+                                       const ContactModelVector& contact_models,
+                                       const std::string& filename = "casadi_contactDyn",
+                                       const std::string& libname = "libcasadi_cg_contactDyn")
         : ad_model(model.template cast<ADScalar>())
         , ad_data(ad_model)
         , nc(constraintDim(contact_models))
@@ -352,14 +356,17 @@ namespace pinocchio
         , v_int_vec((size_t)model.nv)
         , tau_vec((size_t)model.nv)
         , ddq(model.nv)
-        , lambda_c(nc)
         , ddq_dq(model.nv,model.nv)
         , ddq_dv(model.nv,model.nv)
         , ddq_dtau(model.nv,model.nv)
-        , dlambda_dq(nc,model.nv)
-        , dlambda_dv(nc,model.nv)
-        , dlambda_dtau(nc,model.nv)
+        , filename(filename)
+        , libname(libname)
+        , cg_generated(filename)
       {
+        lambda_c.resize(nc); lambda_c.setZero();
+        dlambda_dq.resize(nc,model.nv); dlambda_dq.setZero();
+        dlambda_dv.resize(nc,model.nv); dlambda_dv.setZero();
+        dlambda_dtau.resize(nc,model.nv); dlambda_dtau.setZero();
         q_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
         v_int_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_v_int).data(),model.nv,1);
         v_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
@@ -371,13 +378,50 @@ namespace pinocchio
           ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
           ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
         }
-
-        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
-        buildMap();
+        
+        initLib();
+        loadLib();
       }
+      
+      void initLib()
+      {
+        buildMap();
+        //Generated code;
+        cg_generated.add(ad_fun);
+        cg_generated.add(ad_fun_derivs);
+        cg_generated.generate();
+      }
+      
+      bool existLib() const
+      {
+        std::ifstream file((libname + ".so").c_str());
+        return file.good();
+      }
+      
+      void compileLib()
+      {
+        std::string compile_command = "clang -fPIC -shared -Ofast -DNDEBUG "
+          +filename+".c -o "+libname+".so";
+        
+        int flag = system(compile_command.c_str());
+        if (flag!=0)
+        {
+          std::cerr<<"Compilation failed"<<std::endl;
+        }
+      }
+      
+      void loadLib(const bool generate_if_not_exist = true)
+      {
+        if(!existLib() && generate_if_not_exist)
+          compileLib();
 
+        fun = ::casadi::external("eval_contactDynamics", libname+".so");
+        fun_derivs = ::casadi::external("eval_contactDynamics_derivs", libname+".so");
+      }
+      
       void buildMap()
       {
+        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
         //Integrate q + v_int = q_int
         pinocchio::integrate(ad_model,q_ad,v_int_ad,q_int_ad);
         //Run contact dynamics with new q_int
@@ -412,7 +456,7 @@ namespace pinocchio
         Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
         Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
         Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-        fun_output = ad_fun(DMVector {q_vec, v_int_vec, v_vec, tau_vec});
+        fun_output = fun(DMVector {q_vec, v_int_vec, v_vec, tau_vec});
         ddq =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
                                         (fun_output[0]).data(),ad_model.nv,1);
@@ -430,7 +474,7 @@ namespace pinocchio
       Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
       Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
       Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-      fun_output_derivs   = ad_fun_derivs (DMVector {q_vec,v_int_vec,v_vec,tau_vec});
+      fun_output_derivs   = fun_derivs (DMVector {q_vec,v_int_vec,v_vec,tau_vec});
       ddq_dq =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
                              (fun_output_derivs[0]).data(),ad_model.nv,ad_model.nv);
@@ -452,7 +496,8 @@ namespace pinocchio
       
     }
       
-      TangentVectorType ddq, lambda_c;
+      TangentVectorType ddq;
+      VectorXs lambda_c;
       RowMatrixXs ddq_dq, ddq_dv, ddq_dtau,
         dlambda_dq, dlambda_dv, dlambda_dtau;
       
@@ -472,10 +517,14 @@ namespace pinocchio
       ADConfigVectorType q_ad, q_int_ad;
       ADTangentVectorType v_ad, v_int_ad, tau_ad;
       ADFun ad_fun, ad_fun_derivs;
+      ADFun fun, fun_derivs;
 
       std::vector<DMMatrix> fun_output, fun_output_derivs;
       
-      std::vector<Scalar> q_vec, v_vec, v_int_vec, tau_vec;      
+      std::vector<Scalar> q_vec, v_vec, v_int_vec, tau_vec;
+      std::string filename, libname;
+
+      ::casadi::CodeGenerator cg_generated;      
     };
 
 
@@ -516,6 +565,8 @@ namespace pinocchio
       typedef typename Data::VectorXs VectorXs;
       typedef typename Data::RowMatrixXs RowMatrixXs;
 
+      typedef ::casadi::Function ADFun;
+
       static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
       {
         Eigen::DenseIndex num_total_constraints = 0;
@@ -529,11 +580,9 @@ namespace pinocchio
         }
         return num_total_constraints;
       }
-
-      typedef ::casadi::Function ADFun;
       
       explicit AutoDiffContactDynamicsDerivatives(const Model& model,
-                                       const ContactModelVector& contact_models)
+                                                  const ContactModelVector& contact_models)
         : ad_model(model.template cast<ADScalar>())
         , ad_data(ad_model)
         , nc(constraintDim(contact_models))
@@ -549,14 +598,15 @@ namespace pinocchio
         , v_vec((size_t)model.nv)
         , tau_vec((size_t)model.nv)
         , ddq(model.nv)
-        , lambda_c(nc)
         , ddq_dq(model.nv,model.nv)
         , ddq_dv(model.nv,model.nv)
         , ddq_dtau(model.nv,model.nv)
-        , dlambda_dq(nc,model.nv)
-        , dlambda_dv(nc,model.nv)
-        , dlambda_dtau(nc,model.nv)
       {
+        lambda_c.resize(nc); lambda_c.setZero();
+        dlambda_dq.resize(nc,model.nv); dlambda_dq.setZero();
+        dlambda_dv.resize(nc,model.nv); dlambda_dv.setZero();
+        dlambda_dtau.resize(nc,model.nv); dlambda_dtau.setZero();
+        
         q_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
         v_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
         tau_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_tau).data(),model.nv,1);
