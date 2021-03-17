@@ -201,9 +201,6 @@ void print_benchmark(const std::string& model_name,
     duration.setZero();
     SMOOTH(NBT)
     {
-      computeAllTerms(model,data,qs[_smooth],qdots[_smooth]);
-      contact_chol_subset.compute(model,data,contact_models_subset,
-                                  contact_datas_subset, mu);
       timer.reset();
       cg_contactDynamics.evalFunction(qs[_smooth],qdots[_smooth],
                                       taus[_smooth]);
@@ -216,6 +213,22 @@ void print_benchmark(const std::string& model_name,
     csv << "cg_contactDyn" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
 
+    duration.setZero();
+    SMOOTH(NBT)
+    {
+      timer.reset();
+      cg_contactDynamics.evalJacobian(qs[_smooth],qdots[_smooth],
+                                      taus[_smooth]);
+      duration[_smooth] = timer.get_us_duration();
+    }
+    avg = AVG(duration);
+    stddev = STDDEV(duration);
+    std::cout << "cg_contactDyn_jacobian: {"<<contact_info_string<<"} = \t\t" << avg
+              << " " << "us" <<std::endl;
+    csv << "cg_contactDyn_jacobian" << nconstraint
+        << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
+
+    
     duration.setZero();
     Eigen::LDLT<Eigen::MatrixXd> MJtJ_ldlt(contact_chol_subset.size());
     Eigen::MatrixXd MJtJ(Eigen::MatrixXd::Zero(contact_chol_subset.size(),
@@ -272,7 +285,7 @@ void print_benchmark(const std::string& model_name,
 
 
     //-----------------Sparse Eigen Cholesky----------------------------
-    /*
+
     duration.setZero();
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>,Eigen::Lower|Eigen::Upper> conjugateGradient_solver;
     SMOOTH(NBT)
@@ -302,7 +315,7 @@ void print_benchmark(const std::string& model_name,
               << " " << "us" <<std::endl;
     csv << "ConjugateGradCholesky" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
-    */
+
     //-----------------------------------------------------------------
 
     
@@ -402,7 +415,7 @@ void print_benchmark(const std::string& model_name,
 
 
     //Contact Dynamics Derivatives Finite Differences
-    /*
+
     duration.setZero();
     initContactDynamics(model,data,contact_models_subset);
     SMOOTH(NBT)
@@ -472,7 +485,7 @@ void print_benchmark(const std::string& model_name,
               << " " << "us" <<std::endl;
     csv << "contactDynamicsDerivs_fd" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
-    */
+
     
     CodeGenContactDynamicsDerivatives<double>
       cg_contactDynamicsDerivs(model,
@@ -498,7 +511,13 @@ void print_benchmark(const std::string& model_name,
 
     pinocchio::casadi::AutoDiffContactDynamics<double>
       casadi_contactDynamics_jacobian(model,
-                                      contact_models_subset);
+                                      contact_models_subset,
+                                      model_name+"_casadi_contactDynamics_fn_"+contact_info_string,
+                                      "lib"+model_name+"_casadi_contactDynamics_fn_"+contact_info_string);
+
+    casadi_contactDynamics_jacobian.initLib();
+    casadi_contactDynamics_jacobian.loadLib();
+
     duration.setZero();
     SMOOTH(NBT)
     {
@@ -531,7 +550,12 @@ void print_benchmark(const std::string& model_name,
 
     pinocchio::casadi::AutoDiffContactDynamicsDerivatives<double>
       casadi_contactDynamicsDerivatives(model,
-                                        contact_models_subset);
+                                        contact_models_subset,
+                                        model_name+"_casadi_contactDynamicsDerivs_fn_"+contact_info_string,
+                                        "lib"+model_name+"_casadi_contactDynamicsDerivs_fn_"+contact_info_string);
+    casadi_contactDynamicsDerivatives.initLib();
+    casadi_contactDynamicsDerivatives.loadLib();
+    
     duration.setZero();
     SMOOTH(NBT)
     {
@@ -546,7 +570,7 @@ void print_benchmark(const std::string& model_name,
               << " " << "us" <<std::endl;
     csv << "casadi_contactDynDerivs" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
-    
+
     J.setZero();
     duration.setZero();
     SMOOTH(NBT)
@@ -576,6 +600,7 @@ void print_benchmark(const std::string& model_name,
     csv << "constrainedDynamics" << nconstraint
         << avg << stddev << duration.maxCoeff() << duration.minCoeff() << csv.endl;
   }
+
 }
 
 int main(int argc, const char ** argv)
