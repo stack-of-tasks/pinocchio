@@ -70,6 +70,17 @@ visual_model = collision_model
 viz = GepettoVisualizer(model, collision_model, visual_model)
 viz.initViewer()
 viz.loadViewerModel("pinocchio")
+gui = viz.viewer.gui
+window_id = viz.viewer.gui.getWindowID('python-pinocchio')
+
+viz.viewer.gui.setBackgroundColor1(window_id, [1., 1., 1., 1.])
+viz.viewer.gui.setBackgroundColor2(window_id, [1., 1., 1., 1.])
+#viz.viewer.gui.addFloor('hpp-gui/floor')
+
+#viz.viewer.gui.setScale('hpp-gui/floor', [0.5, 0.5, 0.5])
+#viz.viewer.gui.setColor('hpp-gui/floor', [0.7, 0.7, 0.7, 1.])
+#viz.viewer.gui.setLightingMode('hpp-gui/floor', 'OFF')
+
 
 q0 = pin.neutral(model)
 viz.display(q0)
@@ -106,7 +117,7 @@ for k in range(N):
 
     J = pin.getFrameJacobian(model,data,constraint_model.joint1_id,constraint_model.joint1_placement,constraint_model.reference_frame)[:3,:]
     primal_feas = np.linalg.norm(constraint_value,np.inf)
-    dual_feas = np.linalg.norm(J.T @ (constraint_value + y),np.inf)
+    dual_feas = np.linalg.norm(J.T.dot(constraint_value + y),np.inf)
     if primal_feas < eps and dual_feas < eps:
         print("Convergence achieved")
         break
@@ -131,7 +142,7 @@ v = np.zeros((model.nv))
 tau = np.zeros((model.nv))
 dt = 5e-3
 
-T_sim = 10
+T_sim = 100000
 t = 0
 mu_sim = 1e-10
 constraint_model.corrector.Kp = 10
