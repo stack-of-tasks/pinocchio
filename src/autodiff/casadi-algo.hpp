@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2021 INRIA
 //
 
 #ifndef __pinocchio_autodiff_code_generator_algo_hpp__
