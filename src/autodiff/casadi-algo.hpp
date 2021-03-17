@@ -18,8 +18,9 @@ namespace pinocchio
 {
   namespace casadi
   {
+
     template<typename _Scalar>
-    struct AutoDiffABA
+    struct AutoDiffAlgoBase
     {
       typedef _Scalar Scalar;
       typedef ::casadi::SX ADScalar;
@@ -44,9 +45,106 @@ namespace pinocchio
       
       typedef ::casadi::Function ADFun;
       
-      explicit AutoDiffABA(const Model& model)
+      AutoDiffAlgoBase(const Model& model,
+                       const std::string& filename,
+                       const std::string& libname,
+                       const std::string& fun_name)
         : ad_model(model.template cast<ADScalar>())
-        , ad_data(ad_model)
+        , ad_data(ad_model)  
+        , filename(filename)
+        , libname(libname)
+        , fun_name(fun_name)
+        , cg_generated(filename)
+        , build_forward(true)
+        , build_jacobian(true) { }
+
+      /// \brief build the mapping Y = f(X)
+      virtual void buildMap() = 0;
+      
+      void initLib()
+      {
+        buildMap();
+        //Generated code;
+        cg_generated.add(ad_fun);
+        if(build_jacobian)
+        {
+          cg_generated.add(ad_fun_derivs);
+        }
+        cg_generated.generate();
+      }
+
+      bool existLib() const
+      {
+        std::ifstream file((libname + ".so").c_str());
+        return file.good();
+      }
+
+      void compileLib()
+      {
+        std::string compile_command = "clang -fPIC -shared -Ofast -DNDEBUG "
+          +filename+".c -o "+libname+".so";
+        
+        int flag = system(compile_command.c_str());
+        if (flag!=0)
+        {
+          std::cerr<<"Compilation failed"<<std::endl;
+        }
+      }
+
+      void loadLib(const bool generate_if_not_exist = true)
+      {
+        if(!existLib() && generate_if_not_exist)
+          compileLib();
+
+        fun = ::casadi::external(fun_name, libname+".so");
+        if (build_jacobian)
+        {
+          fun_derivs = ::casadi::external(fun_name+"_derivs", libname+".so");
+        }
+      }
+
+    protected:
+      ADModel ad_model;
+      ADData ad_data;
+      std::string filename, libname, fun_name;
+      ::casadi::CodeGenerator cg_generated;
+
+      /// \brief Options to generate or not the source code for the evaluation function
+      bool build_forward;      
+      /// \brief Options to build or not the Jacobian of he function
+      bool build_jacobian;
+      
+      ADFun ad_fun, ad_fun_derivs;
+      ADFun fun, fun_derivs;
+      std::vector<DMMatrix> fun_output, fun_output_derivs;
+    };
+    
+    
+    template<typename _Scalar>
+    struct AutoDiffABA : public AutoDiffAlgoBase<_Scalar>
+    {
+      typedef AutoDiffAlgoBase<_Scalar> Base;
+      typedef typename Base::Scalar Scalar;
+
+      typedef typename Base::TangentVectorType TangentVectorType;
+      typedef typename Base::RowMatrixXs RowMatrixXs;
+      typedef typename Base::VectorXs VectorXs;
+      typedef typename Base::MatrixXs MatrixXs;
+      
+      typedef typename Base::ADFun ADFun;
+      typedef typename Base::DMVector DMVector;
+      typedef typename Base::DMMatrix DMMatrix;
+      typedef typename Base::ADScalar ADScalar;
+      typedef typename Base::ADSVector ADSVector;
+      typedef typename Base::ADConfigVectorType ADConfigVectorType;
+      typedef typename Base::ADTangentVectorType ADTangentVectorType;
+
+      
+      explicit AutoDiffABA(const Model& model,
+                           const std::string& filename = "casadi_aba",
+                           const std::string& libname = "libcasadi_cg_aba",
+                           const std::string& fun_name = "eval_f")
+        : Base(model, filename, libname, fun_name)
         , cs_q(ADScalar::sym("q", model.nq))
         , cs_v(ADScalar::sym("v", model.nv))
         , cs_tau(ADScalar::sym("tau", model.nv))
@@ -72,11 +170,10 @@ namespace pinocchio
         tau_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_tau).data(),model.nv,1);
 
         Eigen::Map<TangentVectorType>(v_int_vec.data(),model.nv,1).setZero();
-       
-        buildMap();
+        
       }
 
-      void buildMap()
+      virtual void buildMap()
       {
         //Integrate q + v_int = q_int
         pinocchio::integrate(ad_model,q_ad,v_int_ad,q_int_ad);
@@ -89,22 +186,17 @@ namespace pinocchio
         cs_ddq_dv = jacobian(cs_ddq, cs_v);
         cs_ddq_dtau = jacobian(cs_ddq, cs_tau);
 
-        ad_fun = ADFun("eval_aba",
+        ad_fun = ADFun(fun_name,
                        ADSVector {cs_q, cs_v_int, cs_v, cs_tau},
                        ADSVector {cs_ddq});
-        ad_fun_dq = ADFun("eval_ddq_dq",
-                          ADSVector {cs_q,cs_v_int,cs_v,cs_tau},
-                          ADSVector {cs_ddq_dq});
-        ad_fun_dv = ADFun("eval_ddq_dv",
-                          ADSVector {cs_q,cs_v_int, cs_v, cs_tau},
-                          ADSVector {cs_ddq_dv});
-        ad_fun_dtau = ADFun("eval_ddq_dtau",
-                            ADSVector {cs_q,cs_v_int, cs_v, cs_tau},
-                            ADSVector {cs_ddq_dtau});
-    
+        
+        ad_fun_derivs = ADFun(fun_name+"_derivs",
+                              ADSVector {cs_q,cs_v_int,cs_v,cs_tau},
+                              ADSVector {cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau});    
       }
 
-      template<typename ConfigVectorType1, typename TangentVectorType1, typename TangentVectorType2>
+      template<typename ConfigVectorType1,
+               typename TangentVectorType1, typename TangentVectorType2>
       void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q,
                         const Eigen::MatrixBase<TangentVectorType1> & v,
                         const Eigen::MatrixBase<TangentVectorType2> & tau)
@@ -112,10 +204,10 @@ namespace pinocchio
         Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
         Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
         Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-        fun_output = ad_fun(DMVector {q_vec, v_int_vec, v_vec, tau_vec})[0];
+        fun_output = fun(DMVector {q_vec, v_int_vec, v_vec, tau_vec});
         ddq =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
-                                        (fun_output).data(),ad_model.nv,1);
+                                        (fun_output[0]).data(),ad_model.nv,1);
       }
 
     template<typename ConfigVectorType1, typename TangentVectorType1, typename TangentVectorType2>
@@ -126,31 +218,36 @@ namespace pinocchio
       Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
       Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
       Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-      fun_output_dq   = ad_fun_dq  (DMVector {q_vec,v_int_vec,v_vec,tau_vec})[0];
-      fun_output_dv   = ad_fun_dv  (DMVector {q_vec,v_int_vec,v_vec,tau_vec})[0];
-      fun_output_dtau = ad_fun_dtau(DMVector {q_vec,v_int_vec,v_vec,tau_vec})[0];
+      fun_output_derivs   = fun_derivs (DMVector {q_vec,v_int_vec,v_vec,tau_vec});
 
       ddq_dq =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_dq).data(),ad_model.nv,ad_model.nv);
+                                (fun_output_derivs[0]).data(),ad_model.nv,ad_model.nv);
       ddq_dv =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_dv).data(),ad_model.nv,ad_model.nv);
+                                (fun_output_derivs[1]).data(),ad_model.nv,ad_model.nv);
       ddq_dtau =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_dtau).data(),ad_model.nv,ad_model.nv);
+                                (fun_output_derivs[2]).data(),ad_model.nv,ad_model.nv);
     }
       
       TangentVectorType ddq;
       RowMatrixXs ddq_dq, ddq_dv, ddq_dtau;
       
     protected:
-      ADModel ad_model;
-      ADData ad_data;
-      /// \brief Options to generate or not the source code for the evaluation function
-      bool build_forward;      
-      /// \brief Options to build or not the Jacobian of he function
-      bool build_jacobian;
+      using Base::ad_model;
+      using Base::ad_data;
+      using Base::filename;
+      using Base::libname;
+      using Base::fun_name;
+      using Base::cg_generated;
+
+      using Base::ad_fun;
+      using Base::ad_fun_derivs;
+      using Base::fun;
+      using Base::fun_derivs;
+      using Base::fun_output;
+      using Base::fun_output_derivs;
       
       ADScalar cs_q, cs_v, cs_tau, cs_v_int, cs_ddq;
 
@@ -159,42 +256,35 @@ namespace pinocchio
 
       ADConfigVectorType q_ad, q_int_ad;
       ADTangentVectorType v_ad, v_int_ad, tau_ad;
-      ADFun ad_fun, ad_fun_dq, ad_fun_dv, ad_fun_dtau;
-
-      DMMatrix fun_output, fun_output_dq, fun_output_dv, fun_output_dtau;
       
       std::vector<Scalar> q_vec, v_vec, v_int_vec, tau_vec;      
     };
 
     template<typename _Scalar>
-    struct AutoDiffABADerivatives
+    struct AutoDiffABADerivatives : public AutoDiffAlgoBase<_Scalar>
     {
-      typedef _Scalar Scalar;
-      typedef ::casadi::SX ADScalar;
-      typedef ::casadi::SXVector ADSVector;
-      typedef ::casadi::DM DMMatrix;
-      typedef ::casadi::DMVector DMVector;
-      enum { Options = 0 };
+      
+      typedef AutoDiffAlgoBase<_Scalar> Base;
+      typedef typename Base::Scalar Scalar;
 
-      typedef pinocchio::ModelTpl<Scalar,Options> Model;
-      typedef pinocchio::DataTpl<Scalar,Options> Data;
-      typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
-      typedef pinocchio::DataTpl<ADScalar,Options> ADData;
+      typedef typename Base::TangentVectorType TangentVectorType;
+      typedef typename Base::RowMatrixXs RowMatrixXs;
+      typedef typename Base::VectorXs VectorXs;
+      typedef typename Base::MatrixXs MatrixXs;
       
-      typedef typename Model::ConfigVectorType ConfigVectorType;
-      typedef typename Model::TangentVectorType TangentVectorType;
-      typedef typename ADModel::ConfigVectorType ADConfigVectorType;
-      typedef typename ADModel::TangentVectorType ADTangentVectorType;
-
-      typedef typename Data::MatrixXs MatrixXs;
-      typedef typename Data::VectorXs VectorXs;
-      typedef typename Data::RowMatrixXs RowMatrixXs;
+      typedef typename Base::ADFun ADFun;
+      typedef typename Base::DMVector DMVector;
+      typedef typename Base::DMMatrix DMMatrix;
+      typedef typename Base::ADScalar ADScalar;
+      typedef typename Base::ADSVector ADSVector;
+      typedef typename Base::ADConfigVectorType ADConfigVectorType;
+      typedef typename Base::ADTangentVectorType ADTangentVectorType;
       
-      typedef ::casadi::Function ADFun;
-      
-      explicit AutoDiffABADerivatives(const Model& model)
-        : ad_model(model.template cast<ADScalar>())
-        , ad_data(ad_model)
+      explicit AutoDiffABADerivatives(const Model& model,
+                                      const std::string& filename = "casadi_abaDerivs",
+                                      const std::string& libname = "libcasadi_cg_abaDerivs",
+                                      const std::string& fun_name = "eval_f")
+        : Base(model, filename, libname, fun_name)
         , cs_q(ADScalar::sym("q", model.nq))
         , cs_v(ADScalar::sym("v", model.nv))
         , cs_tau(ADScalar::sym("tau", model.nv))
@@ -213,11 +303,11 @@ namespace pinocchio
         q_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
         v_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_v).data(),model.nv,1);
         tau_ad = Eigen::Map<ADTangentVectorType>(static_cast< std::vector<ADScalar> >(cs_tau).data(),model.nv,1);
-       
-        buildMap();
+
+        Base::build_jacobian = false;
       }
 
-      void buildMap()
+      virtual void buildMap()
       {
         //Run ABA with new q_int
         pinocchio::computeABADerivatives(ad_model,ad_data,q_ad,v_ad,tau_ad);
@@ -229,12 +319,13 @@ namespace pinocchio
         pinocchio::casadi::copy(ad_data.ddq_dv,cs_ddq_dv);
         pinocchio::casadi::copy(ad_data.Minv,cs_ddq_dtau);
 
-        ad_fun = ADFun("eval_aba_derivs",
+        ad_fun = ADFun(fun_name,
                        ADSVector {cs_q, cs_v, cs_tau},
                        ADSVector {cs_ddq, cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau});
       }
 
-      template<typename ConfigVectorType1, typename TangentVectorType1, typename TangentVectorType2>
+      template<typename ConfigVectorType1,
+               typename TangentVectorType1, typename TangentVectorType2>
       void evalFunction(const Eigen::MatrixBase<ConfigVectorType1> & q,
                         const Eigen::MatrixBase<TangentVectorType1> & v,
                         const Eigen::MatrixBase<TangentVectorType2> & tau)
@@ -242,7 +333,7 @@ namespace pinocchio
         Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
         Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
         Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-        fun_output = ad_fun(DMVector {q_vec, v_vec, tau_vec});
+        fun_output = fun(DMVector {q_vec, v_vec, tau_vec});
 
         ddq =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
@@ -262,60 +353,63 @@ namespace pinocchio
       RowMatrixXs ddq_dq, ddq_dv, ddq_dtau;
       
     protected:
-      ADModel ad_model;
-      ADData ad_data;
-      
-      ADScalar cs_q, cs_v, cs_tau, cs_ddq;
+      using Base::ad_model;
+      using Base::ad_data;
+      using Base::filename;
+      using Base::libname;
+      using Base::fun_name;
+      using Base::cg_generated;
 
+      using Base::ad_fun;
+      using Base::ad_fun_derivs;
+      using Base::fun;
+      using Base::fun_derivs;
+      using Base::fun_output;
+      using Base::fun_output_derivs;
+
+      ADScalar cs_q, cs_v, cs_tau, cs_ddq;
       //Derivatives
       ADScalar cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau;
 
       ADConfigVectorType q_ad;
-      ADTangentVectorType v_ad, tau_ad;
-      ADFun ad_fun;
-
-      std::vector<DMMatrix> fun_output;
-      
+      ADTangentVectorType v_ad, tau_ad;      
       std::vector<Scalar> q_vec, v_vec, tau_vec;
     };
 
 
     template<typename _Scalar>
-    struct AutoDiffContactDynamics
+    struct AutoDiffContactDynamics : public AutoDiffAlgoBase<_Scalar>
     {
-      typedef _Scalar Scalar;
-      typedef ::casadi::SX ADScalar;
-      typedef ::casadi::SXVector ADSVector;
-      typedef ::casadi::DM DMMatrix;
-      typedef ::casadi::DMVector DMVector;
-      enum { Options = 0 };
+      typedef AutoDiffAlgoBase<_Scalar> Base;
+      typedef typename Base::Scalar Scalar;
+      typedef typename Base::ADScalar ADScalar;
+      typedef typename Base::ADSVector ADSVector;
+      
+      typedef typename Base::TangentVectorType TangentVectorType;
+      typedef typename Base::RowMatrixXs RowMatrixXs;
+      typedef typename Base::VectorXs VectorXs;
+      typedef typename Base::MatrixXs MatrixXs;
+      
+      typedef typename Base::ADFun ADFun;
+      typedef typename Base::DMVector DMVector;
+      typedef typename Base::DMMatrix DMMatrix;
+      typedef typename Base::ADConfigVectorType ADConfigVectorType;
+      typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
-      typedef pinocchio::ModelTpl<Scalar,Options> Model;
-      typedef pinocchio::DataTpl<Scalar,Options> Data;
-      typedef typename pinocchio::RigidContactModelTpl<Scalar,Options> ContactModel;
+      
+      typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
       typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
       typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<Scalar,Options> ContactData;
+      typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
       typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
       typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
       
-      typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
-      typedef pinocchio::DataTpl<ADScalar,Options> ADData;
-      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Options> ADContactModel;
+      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
       typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
       typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<ADScalar,Options> ADContactData;
+      typedef typename pinocchio::RigidContactDataTpl<ADScalar, Base::Options> ADContactData;
       typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
       typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
-      
-      typedef typename Model::ConfigVectorType ConfigVectorType;
-      typedef typename Model::TangentVectorType TangentVectorType;
-      typedef typename ADModel::ConfigVectorType ADConfigVectorType;
-      typedef typename ADModel::TangentVectorType ADTangentVectorType;
-
-      typedef typename Data::MatrixXs MatrixXs;
-      typedef typename Data::VectorXs VectorXs;
-      typedef typename Data::RowMatrixXs RowMatrixXs;
 
       static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
       {
@@ -330,15 +424,13 @@ namespace pinocchio
         }
         return num_total_constraints;
       }
-
-      typedef ::casadi::Function ADFun;
       
       explicit AutoDiffContactDynamics(const Model& model,
                                        const ContactModelVector& contact_models,
                                        const std::string& filename = "casadi_contactDyn",
-                                       const std::string& libname = "libcasadi_cg_contactDyn")
-        : ad_model(model.template cast<ADScalar>())
-        , ad_data(ad_model)
+                                       const std::string& libname = "libcasadi_cg_contactDyn",
+                                       const std::string& fun_name = "eval_f")
+        : Base(model, filename, libname, fun_name)
         , nc(constraintDim(contact_models))
         , cs_q(ADScalar::sym("q", model.nq))
         , cs_v(ADScalar::sym("v", model.nv))
@@ -359,9 +451,6 @@ namespace pinocchio
         , ddq_dq(model.nv,model.nv)
         , ddq_dv(model.nv,model.nv)
         , ddq_dtau(model.nv,model.nv)
-        , filename(filename)
-        , libname(libname)
-        , cg_generated(filename)
       {
         lambda_c.resize(nc); lambda_c.setZero();
         dlambda_dq.resize(nc,model.nv); dlambda_dq.setZero();
@@ -378,48 +467,9 @@ namespace pinocchio
           ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
           ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
         }
-        
-        initLib();
-        loadLib();
       }
-      
-      void initLib()
-      {
-        buildMap();
-        //Generated code;
-        cg_generated.add(ad_fun);
-        cg_generated.add(ad_fun_derivs);
-        cg_generated.generate();
-      }
-      
-      bool existLib() const
-      {
-        std::ifstream file((libname + ".so").c_str());
-        return file.good();
-      }
-      
-      void compileLib()
-      {
-        std::string compile_command = "clang -fPIC -shared -Ofast -DNDEBUG "
-          +filename+".c -o "+libname+".so";
-        
-        int flag = system(compile_command.c_str());
-        if (flag!=0)
-        {
-          std::cerr<<"Compilation failed"<<std::endl;
-        }
-      }
-      
-      void loadLib(const bool generate_if_not_exist = true)
-      {
-        if(!existLib() && generate_if_not_exist)
-          compileLib();
-
-        fun = ::casadi::external("eval_contactDynamics", libname+".so");
-        fun_derivs = ::casadi::external("eval_contactDynamics_derivs", libname+".so");
-      }
-      
-      void buildMap()
+            
+      virtual void buildMap()
       {
         pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
         //Integrate q + v_int = q_int
@@ -439,10 +489,10 @@ namespace pinocchio
         cs_lambda_dv = jacobian(cs_lambda_c, cs_v);
         cs_lambda_dtau = jacobian(cs_lambda_c, cs_tau);
         
-        ad_fun = ADFun("eval_contactDynamics",
+        ad_fun = ADFun(fun_name,
                        ADSVector {cs_q, cs_v_int, cs_v, cs_tau},
                        ADSVector {cs_ddq, cs_lambda_c});
-        ad_fun_derivs = ADFun("eval_contactDynamics_derivs",
+        ad_fun_derivs = ADFun(fun_name+"_derivs",
                               ADSVector {cs_q,cs_v_int,cs_v,cs_tau},
                               ADSVector {cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau,
                                   cs_lambda_dq, cs_lambda_dv, cs_lambda_dtau});
@@ -502,8 +552,20 @@ namespace pinocchio
         dlambda_dq, dlambda_dv, dlambda_dtau;
       
     protected:
-      ADModel ad_model;
-      ADData ad_data;
+      using Base::ad_model;
+      using Base::ad_data;
+      using Base::filename;
+      using Base::libname;
+      using Base::fun_name;
+      using Base::cg_generated;
+
+      using Base::ad_fun;
+      using Base::ad_fun_derivs;
+      using Base::fun;
+      using Base::fun_derivs;
+      using Base::fun_output;
+      using Base::fun_output_derivs;
+      
       ADContactModelVector ad_contact_models;
       ADContactDataVector ad_contact_datas;
       
@@ -516,56 +578,44 @@ namespace pinocchio
 
       ADConfigVectorType q_ad, q_int_ad;
       ADTangentVectorType v_ad, v_int_ad, tau_ad;
-      ADFun ad_fun, ad_fun_derivs;
-      ADFun fun, fun_derivs;
 
-      std::vector<DMMatrix> fun_output, fun_output_derivs;
-      
       std::vector<Scalar> q_vec, v_vec, v_int_vec, tau_vec;
-      std::string filename, libname;
-
-      ::casadi::CodeGenerator cg_generated;      
     };
 
 
     template<typename _Scalar>
-    struct AutoDiffContactDynamicsDerivatives
+    struct AutoDiffContactDynamicsDerivatives : public AutoDiffAlgoBase<_Scalar>
     {
-      typedef _Scalar Scalar;
-      typedef ::casadi::SX ADScalar;
-      typedef ::casadi::SXVector ADSVector;
-      typedef ::casadi::DM DMMatrix;
-      typedef ::casadi::DMVector DMVector;
-      enum { Options = 0 };
+      typedef AutoDiffAlgoBase<_Scalar> Base;
+      typedef typename Base::Scalar Scalar;
+      typedef typename Base::ADScalar ADScalar;
+      typedef typename Base::ADSVector ADSVector;
+      
+      typedef typename Base::TangentVectorType TangentVectorType;
+      typedef typename Base::RowMatrixXs RowMatrixXs;
+      typedef typename Base::VectorXs VectorXs;
+      typedef typename Base::MatrixXs MatrixXs;
+      
+      typedef typename Base::ADFun ADFun;
+      typedef typename Base::DMVector DMVector;
+      typedef typename Base::DMMatrix DMMatrix;
+      typedef typename Base::ADConfigVectorType ADConfigVectorType;
+      typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
-      typedef pinocchio::ModelTpl<Scalar,Options> Model;
-      typedef pinocchio::DataTpl<Scalar,Options> Data;
-      typedef typename pinocchio::RigidContactModelTpl<Scalar,Options> ContactModel;
+      
+      typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
       typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
       typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<Scalar,Options> ContactData;
+      typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
       typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
       typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
       
-      typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
-      typedef pinocchio::DataTpl<ADScalar,Options> ADData;
-      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Options> ADContactModel;
+      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
       typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
       typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<ADScalar,Options> ADContactData;
+      typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
       typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
       typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
-      
-      typedef typename Model::ConfigVectorType ConfigVectorType;
-      typedef typename Model::TangentVectorType TangentVectorType;
-      typedef typename ADModel::ConfigVectorType ADConfigVectorType;
-      typedef typename ADModel::TangentVectorType ADTangentVectorType;
-
-      typedef typename Data::MatrixXs MatrixXs;
-      typedef typename Data::VectorXs VectorXs;
-      typedef typename Data::RowMatrixXs RowMatrixXs;
-
-      typedef ::casadi::Function ADFun;
 
       static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
       {
@@ -582,9 +632,11 @@ namespace pinocchio
       }
       
       explicit AutoDiffContactDynamicsDerivatives(const Model& model,
-                                                  const ContactModelVector& contact_models)
-        : ad_model(model.template cast<ADScalar>())
-        , ad_data(ad_model)
+                                                  const ContactModelVector& contact_models,
+                                                  const std::string& filename = "casadi_contactDynDerivs",
+                                                  const std::string& libname = "libcasadi_cg_contactDynDerivs",
+                                                  const std::string& fun_name = "eval_f")
+        : Base(model, filename, libname, fun_name)
         , nc(constraintDim(contact_models))
         , cs_q(ADScalar::sym("q", model.nq))
         , cs_v(ADScalar::sym("v", model.nv))
@@ -617,12 +669,13 @@ namespace pinocchio
           ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
         }
 
-        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
-        buildMap();
+        Base::build_jacobian = false;
+        
       }
 
-      void buildMap()
+      virtual void buildMap()
       {
+        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
         pinocchio::contactDynamics(ad_model,ad_data,q_ad,v_ad,tau_ad,
                                    ad_contact_models,ad_contact_datas);
         pinocchio::computeContactDynamicsDerivatives(ad_model,ad_data,
@@ -637,7 +690,7 @@ namespace pinocchio
         pinocchio::casadi::copy(ad_data.dlambda_dv,cs_lambda_dv);
         pinocchio::casadi::copy(ad_data.dlambda_dtau,cs_lambda_dtau);
 
-        ad_fun = ADFun("eval_contactDynamicsDerivs",
+        ad_fun = ADFun(fun_name,
                        ADSVector {cs_q, cs_v, cs_tau},
                        ADSVector {cs_ddq, cs_lambda_c,
                            cs_ddq_dq, cs_ddq_dv, cs_ddq_dtau,
@@ -653,7 +706,7 @@ namespace pinocchio
         Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
         Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
         Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-        fun_output = ad_fun(DMVector {q_vec, v_vec, tau_vec});
+        fun_output = fun(DMVector {q_vec, v_vec, tau_vec});
         ddq =
           Eigen::Map<TangentVectorType>(static_cast< std::vector<Scalar> >
                                         (fun_output[0]).data(),ad_model.nv,1);
@@ -685,8 +738,19 @@ namespace pinocchio
         dlambda_dq, dlambda_dv, dlambda_dtau;
       
     protected:
-      ADModel ad_model;
-      ADData ad_data;
+      using Base::ad_model;
+      using Base::ad_data;
+      using Base::filename;
+      using Base::libname;
+      using Base::fun_name;
+      using Base::cg_generated;
+
+      using Base::ad_fun;
+      using Base::ad_fun_derivs;
+      using Base::fun;
+      using Base::fun_derivs;
+      using Base::fun_output;
+      using Base::fun_output_derivs;
       ADContactModelVector ad_contact_models;
       ADContactDataVector ad_contact_datas;
       
@@ -699,9 +763,6 @@ namespace pinocchio
 
       ADConfigVectorType q_ad;
       ADTangentVectorType v_ad, tau_ad;
-      ADFun ad_fun;
-
-      std::vector<DMMatrix> fun_output;
       
       std::vector<Scalar> q_vec, v_vec, tau_vec;      
     };    
