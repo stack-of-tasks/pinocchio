@@ -817,7 +817,13 @@ namespace pinocchio
       : Base(model,model.nq+2*model.nv,
              model.nv + constraintDim(contact_models),
              function_name,library_name),
-        nc(constraintDim(contact_models))
+        nc(constraintDim(contact_models)),
+        da_dq(MatrixXs::Zero(model.nv,model.nq)),
+        da_dv(MatrixXs::Zero(model.nv,model.nv)),
+        da_dtau(MatrixXs::Zero(model.nv,model.nv)),
+        dlambda_dq(MatrixXs::Zero(nc,model.nq)),
+        dlambda_dv(MatrixXs::Zero(nc,model.nv)),
+        dlambda_dtau(MatrixXs::Zero(nc,model.nv))
     {
       ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
@@ -833,7 +839,6 @@ namespace pinocchio
         ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
       }
       pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
-      Base::build_jacobian = false;
     }
 
     void buildMap()
@@ -874,8 +879,31 @@ namespace pinocchio
       lambda_c = Base::y.segment(it_y, nc);
     }
 
+    using Base::evalJacobian;
+    template<typename ConfigVectorType, typename TangentVector1, typename TangentVector2>
+    void evalJacobian(const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVector1> & v,
+                      const Eigen::MatrixBase<TangentVector2> & a)    
+    {
+      // fill x
+      Eigen::DenseIndex it = 0;
+      x.segment(it,ad_model.nq) = q; it += ad_model.nq;
+      x.segment(it,ad_model.nv) = v; it += ad_model.nv;
+      x.segment(it,ad_model.nv) = a; it += ad_model.nv;
+
+      evalJacobian(x);
+      it = 0;
+      da_dq = Base::jac.middleCols(it,ad_model.nq).topRows(ad_model.nv); it += ad_model.nq;
+      dlambda_dq = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
+      da_dv = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv); it += ad_model.nv;
+      dlambda_dv = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
+      da_dtau = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv); it += ad_model.nv;
+      dlambda_dtau = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
+    }
     VectorXs lambda_c, ddq;
-    
+    MatrixXs da_dq,da_dv,da_dtau;
+    MatrixXs dlambda_dq,dlambda_dv,dlambda_dtau;
+
   protected:
 
     using Base::ad_model;
