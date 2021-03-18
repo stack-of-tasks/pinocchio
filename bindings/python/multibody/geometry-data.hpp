@@ -32,7 +32,7 @@ namespace pinocchio
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::no_init)
         .def(bp::init<const GeomIndex &, const GeomIndex &>
-             (bp::args("self","index 1", "index 2"),
+             (bp::args("self","index1", "index2"),
               "Initializer of collision pair."))
         .def(PrintableVisitor<CollisionPair>())
         .def(CopyableVisitor<CollisionPair>())
@@ -89,7 +89,7 @@ namespace pinocchio
 #endif // PINOCCHIO_WITH_HPP_FCL
         
         .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
-             bp::args("self","GeometryModel"),
+             bp::args("self","geometry_model"),
              "Fill inner and outer objects maps")
         .def("activateCollisionPair",
              static_cast<void (GeometryData::*)(const PairIndex)>(&GeometryData::activateCollisionPair),
