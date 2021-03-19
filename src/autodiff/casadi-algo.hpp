@@ -58,6 +58,8 @@ namespace pinocchio
         , build_forward(true)
         , build_jacobian(true) { }
 
+      virtual ~AutoDiffAlgoBase() {}
+      
       /// \brief build the mapping Y = f(X)
       virtual void buildMap() = 0;
       
@@ -173,6 +175,8 @@ namespace pinocchio
         
       }
 
+      virtual ~AutoDiffABA() {}
+      
       virtual void buildMap()
       {
         //Integrate q + v_int = q_int
@@ -307,6 +311,8 @@ namespace pinocchio
         Base::build_jacobian = false;
       }
 
+      virtual ~AutoDiffABADerivatives() {}
+      
       virtual void buildMap()
       {
         //Run ABA with new q_int
@@ -468,6 +474,9 @@ namespace pinocchio
           ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
         }
       }
+
+      virtual ~AutoDiffContactDynamics() {}
+      
             
       virtual void buildMap()
       {
@@ -672,6 +681,9 @@ namespace pinocchio
         Base::build_jacobian = false;
         
       }
+      
+      virtual ~AutoDiffContactDynamicsDerivatives() {}
+      
 
       virtual void buildMap()
       {

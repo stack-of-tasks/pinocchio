@@ -45,6 +45,8 @@ namespace pinocchio
       dtau_dv = MatrixXs::Zero(model.nv,model.nv);
       dtau_da = MatrixXs::Zero(model.nv,model.nv);
     }
+
+    virtual ~CodeGenRNEA() {}
     
     void buildMap()
     {
@@ -145,6 +147,8 @@ namespace pinocchio
       da_dtau = MatrixXs::Zero(model.nv,model.nv);
     }
 
+    virtual ~CodeGenABA() {}
+
     void buildMap()
     {
       CppAD::Independent(ad_X);
@@ -241,6 +245,8 @@ namespace pinocchio
       
       Base::build_jacobian = false;
     }
+
+    virtual ~CodeGenCRBA() {}
     
     void buildMap()
     {
@@ -330,6 +336,8 @@ namespace pinocchio
       
       Base::build_jacobian = false;
     }
+
+    virtual ~CodeGenMinv() {}
     
     void buildMap()
     {
@@ -429,6 +437,8 @@ namespace pinocchio
       
       Base::build_jacobian = false;
     }
+
+    virtual ~CodeGenRNEADerivatives() {}
     
     void buildMap()
     {
@@ -465,8 +475,8 @@ namespace pinocchio
       // fill x
       Eigen::DenseIndex it_x = 0;
       x.segment(it_x,ad_model.nq) = q; it_x += ad_model.nq;
-      x.segment(it_x,ad_model.nq) = v; it_x += ad_model.nv;
-      x.segment(it_x,ad_model.nq) = a; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = v; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = a; it_x += ad_model.nv;
       
       Base::evalFunction(x);
       
@@ -537,6 +547,8 @@ namespace pinocchio
       Base::build_jacobian = false;
     }
 
+    virtual ~CodeGenABADerivatives() {}
+    
     void buildMap()
     {
       CppAD::Independent(ad_X);
@@ -572,8 +584,8 @@ namespace pinocchio
       // fill x
       Eigen::DenseIndex it_x = 0;
       x.segment(it_x,ad_model.nq) = q; it_x += ad_model.nq;
-      x.segment(it_x,ad_model.nq) = v; it_x += ad_model.nv;
-      x.segment(it_x,ad_model.nq) = tau; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = v; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = tau; it_x += ad_model.nv;
       
       Base::evalFunction(x);
       
@@ -659,8 +671,15 @@ namespace pinocchio
       : Base(model,model.nq+2*model.nv,
              3*model.nv*model.nv + 3*constraintDim(contact_models)*model.nv,
              function_name,library_name),
-        nc(constraintDim(contact_models))
+        nc(constraintDim(contact_models)),
+        dddq_dq(model.nv, model.nv),
+        dddq_dv(model.nv, model.nv),
+        dddq_dtau(model.nv, model.nv)
     {
+      dlambda_dq.resize(nc, model.nv); dlambda_dq.setZero();
+      dlambda_dv.resize(nc, model.nv); dlambda_dv.setZero();
+      dlambda_dtau.resize(nc, model.nv); dlambda_dtau.setZero();
+      
       ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_tau = ADTangentVectorType(model.nv); ad_tau.setZero();
@@ -679,6 +698,8 @@ namespace pinocchio
       Base::build_jacobian = false;
     }
 
+    virtual ~CodeGenContactDynamicsDerivatives() {}
+    
     void buildMap()
     {
       CppAD::Independent(ad_X);
@@ -720,8 +741,8 @@ namespace pinocchio
       // fill x
       Eigen::DenseIndex it_x = 0;
       x.segment(it_x,ad_model.nq) = q; it_x += ad_model.nq;
-      x.segment(it_x,ad_model.nq) = v; it_x += ad_model.nv;
-      x.segment(it_x,ad_model.nq) = tau; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = v; it_x += ad_model.nv;
+      x.segment(it_x,ad_model.nv) = tau; it_x += ad_model.nv;
 
       Base::evalFunction(x);
       
@@ -821,10 +842,14 @@ namespace pinocchio
         da_dq(MatrixXs::Zero(model.nv,model.nq)),
         da_dv(MatrixXs::Zero(model.nv,model.nv)),
         da_dtau(MatrixXs::Zero(model.nv,model.nv)),
-        dlambda_dq(MatrixXs::Zero(nc,model.nq)),
-        dlambda_dv(MatrixXs::Zero(nc,model.nv)),
-        dlambda_dtau(MatrixXs::Zero(nc,model.nv))
+        ddq(model.nv)
     {
+      lambda_c.resize(nc); lambda_c.setZero();
+      dlambda_dq.resize(nc, model.nq); dlambda_dq.setZero();
+      dlambda_dv.resize(nc, model.nv); dlambda_dv.setZero();
+      dlambda_dtau.resize(nc,model.nv); dlambda_dtau.setZero();
+
+      
       ad_q = ADConfigVectorType(model.nq); ad_q = neutral(ad_model);
       ad_v = ADTangentVectorType(model.nv); ad_v.setZero();
       ad_tau = ADTangentVectorType(model.nv); ad_tau.setZero();
@@ -841,6 +866,8 @@ namespace pinocchio
       pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
     }
 
+    virtual ~CodeGenContactDynamics() {}
+    
     void buildMap()
     {
       CppAD::Independent(ad_X);
@@ -890,15 +917,15 @@ namespace pinocchio
       x.segment(it,ad_model.nq) = q; it += ad_model.nq;
       x.segment(it,ad_model.nv) = v; it += ad_model.nv;
       x.segment(it,ad_model.nv) = a; it += ad_model.nv;
-
+      
       evalJacobian(x);
       it = 0;
-      da_dq = Base::jac.middleCols(it,ad_model.nq).topRows(ad_model.nv); it += ad_model.nq;
-      dlambda_dq = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
-      da_dv = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv); it += ad_model.nv;
-      dlambda_dv = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
-      da_dtau = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv); it += ad_model.nv;
-      dlambda_dtau = Base::jac.middleCols(it,nc).bottomRows(nc); it += nc;
+      da_dq = Base::jac.middleCols(it,ad_model.nq).topRows(ad_model.nv);
+      dlambda_dq = Base::jac.middleCols(it,ad_model.nq).bottomRows(nc); it += ad_model.nq;
+      da_dv = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv);
+      dlambda_dv = Base::jac.middleCols(it,ad_model.nv).bottomRows(nc);  it += ad_model.nv;
+      da_dtau = Base::jac.middleCols(it,ad_model.nv).topRows(ad_model.nv);
+      dlambda_dtau = Base::jac.middleCols(it,ad_model.nv).bottomRows(nc);  it += ad_model.nv;
     }
     VectorXs lambda_c, ddq;
     MatrixXs da_dq,da_dv,da_dtau;
