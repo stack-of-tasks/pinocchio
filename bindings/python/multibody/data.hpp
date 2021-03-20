@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -188,9 +188,14 @@ namespace pinocchio
         
         StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3")
         .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+        serialize<StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
+        
         StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
         .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+        serialize<StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
+        
         StdVectorPythonVisitor<int>::expose("StdVec_Int");
+        serialize<StdVectorPythonVisitor<int>::vector_type>();
       }
 
     };

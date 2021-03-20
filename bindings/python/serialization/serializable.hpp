@@ -8,6 +8,7 @@
 #include <boost/python.hpp>
 
 #include "pinocchio/serialization/serializable.hpp"
+#include "pinocchio/bindings/python/serialization/serialization.hpp"
 
 namespace pinocchio
 {
@@ -52,6 +53,8 @@ namespace pinocchio
         .def("loadFromBinary",(void (Derived::*)(boost::asio::streambuf &))&Derived::loadFromBinary,
              bp::args("self","buffer"),"Loads *this from a binary buffer.")
         ;
+        
+        serialize<Derived>();
       }
 
     };
