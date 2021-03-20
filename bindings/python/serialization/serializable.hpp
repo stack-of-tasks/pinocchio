@@ -32,7 +32,7 @@ namespace pinocchio
              bp::arg("filename"),"Loads *this from a text file.")
         
         .def("saveToString",&Derived::saveToString,
-             bp::arg("seld"),
+             bp::arg("self"),
              "Parses the current object to a string.")
         .def("loadFromString",&Derived::loadFromString,
              bp::args("self","string"),
