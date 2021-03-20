@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_serialization_serializable_hpp__
