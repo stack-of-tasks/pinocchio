@@ -1,10 +1,11 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
+#include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/archive.hpp"
 
 #include "pinocchio/serialization/eigen.hpp"
@@ -120,6 +121,18 @@ void generic_test(const T & object,
   {
     T object_loaded;
     loadFromBinary(object_loaded,bin_filename);
+    
+    // Check
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+  }
+  
+  // Load and save as binary stream
+  boost::asio::streambuf buffer;
+  saveToBinary(object,buffer);
+  
+  {
+    T object_loaded;
+    loadFromBinary(object_loaded,buffer);
     
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
