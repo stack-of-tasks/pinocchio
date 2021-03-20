@@ -19,7 +19,7 @@ namespace pinocchio
     ///
     /// \returns The submodule related to the namespace name.
     ///
-    inline bp::object getOrCreatePythonNamespace(const std::string & submodule_name)
+    inline boost::python::object getOrCreatePythonNamespace(const std::string & submodule_name)
     {
       namespace bp = boost::python;
       
