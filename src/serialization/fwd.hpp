@@ -8,6 +8,8 @@
 #include "pinocchio/fwd.hpp"
 #include <boost/serialization/nvp.hpp>
 
+#include "pinocchio/serialization/eigen.hpp"
+
 #define BOOST_SERIALIZATION_MAKE_NVP(member) boost::serialization::make_nvp(##member,member)
 
 namespace pinocchio
