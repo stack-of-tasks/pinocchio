@@ -11,9 +11,11 @@ from . import utils
 from .explog import exp, log
 
 # Manually register submodules
-import sys
-sys.modules['pinocchio.rpy'] = rpy
-sys.modules['pinocchio.cholesky'] = cholesky
+import sys, inspect
+
+submodules = inspect.getmembers(pinocchio_pywrap, inspect.ismodule)
+for module_info in submodules:
+  sys.modules['pinocchio.' + module_info[0]] = module_info[1]
 
 if WITH_HPP_FCL:
   try:
