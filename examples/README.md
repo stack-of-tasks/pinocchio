@@ -1,6 +1,22 @@
 # Pinocchio examples in Python
 
 This directory contains minimal examples on how to use **Pinocchio** with the Python bindings or directly in C++. 
+Some examples require the installation of external packages like 3D viewers. You can install them easily via **pip** or **conda**.
+
+Installing **meshcat**:
+```bash
+pip install meshcat
+```
+
+Installing **gepetto-viewer**:
+```bash
+conda install gepetto-viewer-corba -c conda-forge
+```
+
+Installing **panda3d_viewer**:
+```bash
+pip install panda3d_viewer
+```
 
 ## Loading a model
 
