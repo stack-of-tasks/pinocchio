@@ -16,7 +16,8 @@ namespace pinocchio
     static void buffer_copy(boost::asio::streambuf & dest,
                             const boost::asio::streambuf & source)
     {
-      boost::asio::buffer_copy(dest.prepare(source.size()),source.data());
+      std::size_t bytes_copied = boost::asio::buffer_copy(dest.prepare(source.size()),source.data());
+      dest.commit(bytes_copied);
     }
   
     static boost::asio::streambuf & prepare_proxy(boost::asio::streambuf & self, const std::size_t n)
