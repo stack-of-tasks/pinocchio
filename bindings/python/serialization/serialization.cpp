@@ -35,7 +35,7 @@ namespace pinocchio
       bp::class_<StreamBuffer,boost::noncopyable>("StreamBuffer",
                                                   "Stream buffer to save/load serialized objects in binary mode.",
                                                   bp::init<>(bp::arg("self"),"Default constructor."))
-      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
+//      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
       .def("size",&StreamBuffer::size,"Get the size of the input sequence.")
       .def("max_size",&StreamBuffer::max_size,"Get the maximum size of the StreamBuffer.")
       .def("prepare",prepare_proxy,"Reserve data.",bp::return_internal_reference<>())
