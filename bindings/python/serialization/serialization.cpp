@@ -17,6 +17,11 @@ namespace pinocchio
     {
       boost::asio::buffer_copy(dest.prepare(source.size()),source.data());
     }
+  
+    static void prepare_proxy(boost::asio::streambuf & self, const std::size_t n)
+    {
+      self.prepare(n);
+    }
     
     void exposeSerialization()
     {
@@ -24,9 +29,15 @@ namespace pinocchio
       
       bp::scope current_scope = getOrCreatePythonNamespace("serialization");
       
-      bp::class_<boost::asio::streambuf,boost::noncopyable>("StreamBuffer",
-                                                            "Stream buffer to save/load serialized objects in binary mode.",
-                                                            bp::init<>(bp::arg("self"),"Default constructor."));
+      typedef boost::asio::streambuf StreamBuffer;
+      bp::class_<StreamBuffer,boost::noncopyable>("StreamBuffer",
+                                                  "Stream buffer to save/load serialized objects in binary mode.",
+                                                  bp::init<>(bp::arg("self"),"Default constructor."))
+      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
+      .def("size",&StreamBuffer::size,"Get the size of the input sequence.")
+      .def("max_size",&StreamBuffer::max_size,"Get the maximum size of the StreamBuffer.")
+      .def("prepare",prepare_proxy,"Reserve data.")
+      ;
       
       bp::def("buffer_copy",buffer_copy,
               bp::args("dest","source"),
