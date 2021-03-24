@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -47,25 +47,33 @@ namespace pinocchio
 
       bp::def("computeABADerivatives",
               computeABADerivativesDefault,
-              bp::args("Model","Data",
-                       "Configuration q (size Model::nq)",
-                       "Velocity v (size Model::nv)",
-                       "Torque tau (size Model::nv)"),
-              "Computes the ABA derivatives, store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
+              bp::args("model","data","q","v","tau"),
+              "Computes the ABA derivatives, store the result in data.ddq_dq, data.ddq_dv and data.Minv (aka ddq_dtau)\n"
               "which correspond to the partial derivatives of the joint acceleration vector output with respect to the joint configuration,\n"
-              "velocity and torque vectors.");
+              "velocity and torque vectors.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\ttau: the joint torque vector (size model.nv)\n\n"
+              "Returns: (ddq_dq, ddq_dv, ddq_da)");
 
       bp::def("computeABADerivatives",
               computeABADerivatives_fext,
-              bp::args("Model","Data",
-                       "q: configuration vector (size model.nq)",
-                       "v: velocity vector (size model.nv)",
-                       "a: acceleration vector (size model.nv)",
-                       "fext: vector external forces (size model.njoints)"),
+              bp::args("model","data","q","v","tau","fext"),
               "Computes the ABA derivatives with external contact foces,\n"
-              "store the result in data.ddq_dq, data.ddq_dv and data.Minv\n"
+              "store the result in data.ddq_dq, data.ddq_dv and data.Minv (aka ddq_dtau)\n"
               "which correspond to the partial derivatives of the acceleration output with respect to the joint configuration,\n"
-              "velocity and torque vectors.\n");
+              "velocity and torque vectors.\n\n"
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tdata: data related to the model\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\ttau: the joint torque vector (size model.nv)\n"
+              "\tfext: list of external forces expressed in the local frame of the joints (size model.njoints)\n\n"
+              "Returns: (ddq_dq, ddq_dv, ddq_da)");
     }
   } // namespace python
 } // namespace pinocchio
