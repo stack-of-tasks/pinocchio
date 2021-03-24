@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -70,7 +70,8 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
               "\tdata: data related to the model\n"
-              "\tq: the joint configuration vector (size model.nq)\n");
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "Returns: dtau_statique_dq\n");
               
       bp::def("computeStaticTorqueDerivatives",
               computeStaticTorqueDerivatives,
@@ -81,12 +82,13 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tdata: data related to the model\n"
               "\tq: the joint configuration vector (size model.nq)\n"
-              "\tfext: list of external forces expressed in the local frame of the joints (size model.njoints)\n");
+              "\tfext: list of external forces expressed in the local frame of the joints (size model.njoints)\n"
+              "Returns: dtau_statique_dq\n");
       
       bp::def("computeRNEADerivatives",
               computeRNEADerivatives,
               bp::args("model","data","q","v","a"),
-              "Computes the RNEA partial derivatives, store the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "Computes the RNEA partial derivatives, store the result in data.dtau_dq, data.dtau_dv and data.M (aka dtau_da)\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.\n\n"
               "Parameters:\n"
@@ -94,13 +96,14 @@ namespace pinocchio
               "\tdata: data related to the model\n"
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tv: the joint velocity vector (size model.nv)\n"
-              "\ta: the joint acceleration vector (size model.nv)\n");
+              "\ta: the joint acceleration vector (size model.nv)\n\n"
+              "Returns: (dtau_dq, dtau_dv, dtau_da)\n");
       
       bp::def("computeRNEADerivatives",
               computeRNEADerivatives_fext,
               bp::args("model","data","q","v","a","fext"),
               "Computes the RNEA partial derivatives with external contact foces,\n"
-              "store the result in data.dtau_dq, data.dtau_dv and data.dtau_da\n"
+              "store the result in data.dtau_dq, data.dtau_dv and data.M (aka dtau_da)\n"
               "which correspond to the partial derivatives of the torque output with respect to the joint configuration,\n"
               "velocity and acceleration vectors.\n\n"
               "Parameters:\n"
@@ -109,7 +112,8 @@ namespace pinocchio
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tv: the joint velocity vector (size model.nv)\n"
               "\ta: the joint acceleration vector (size model.nv)\n"
-              "\tfext: list of external forces expressed in the local frame of the joints (size model.njoints)\n");
+              "\tfext: list of external forces expressed in the local frame of the joints (size model.njoints)\n\n"
+              "Returns: (dtau_dq, dtau_dv, dtau_da)\n");
     }
     
     
