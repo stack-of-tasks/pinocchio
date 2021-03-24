@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_model_hpp__
@@ -43,8 +43,7 @@ namespace pinocchio
         .def("addGeometryObject",
              static_cast <GeometryModel::GeomIndex (GeometryModel::*)(const GeometryObject &,
                                                                       const Model &)>(&GeometryModel::addGeometryObject),
-             bp::args("self","geometry_object",
-                      "model"),
+             bp::args("self","geometry_object","model"),
              "Add a GeometryObject to a GeometryModel and set its parent joint by reading its value in the model.\n"
              "Parameters\n"
              "\tgeometry_object : a GeometryObject\n"
@@ -65,7 +64,7 @@ namespace pinocchio
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
         .def("addCollisionPair",&GeometryModel::addCollisionPair,
-             bp::args("collision_pair"),
+             bp::args("self","collision_pair"),
              "Add a collision pair given by the index of the two collision objects.")
         .def("addAllCollisionPairs",&GeometryModel::addAllCollisionPairs,
              "Add all collision pairs.\n"
@@ -76,10 +75,10 @@ namespace pinocchio
         .def("removeAllCollisionPairs",&GeometryModel::removeAllCollisionPairs,
              "Remove all collision pairs.")
         .def("existCollisionPair",&GeometryModel::existCollisionPair,
-             bp::args("collision_pair"),
+             bp::args("self","collision_pair"),
              "Check if a collision pair exists.")
         .def("findCollisionPair", &GeometryModel::findCollisionPair,
-             bp::args("collision_pair"),
+             bp::args("self","collision_pair"),
              "Return the index of a collision pair.")
 
         .def(bp::self == bp::self)
@@ -96,7 +95,7 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<GeometryModel>("GeometryModel",
-                                  "Geometry model (const)",
+                                  "Geometry model containing the collision or visual geometries associated to a model.",
                                   bp::no_init)
         .def(GeometryModelPythonVisitor())
         .def(PrintableVisitor<GeometryModel>())
