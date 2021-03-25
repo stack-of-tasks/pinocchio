@@ -163,7 +163,7 @@ namespace pinocchio
     if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
 
-  inline void GeometryModel::addCollisionPairs(const MatrixXb & map,
+  inline void GeometryModel::setCollisionPairs(const MatrixXb & map,
                                                const bool upper)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(map.rows(),(Eigen::DenseIndex)ngeoms,

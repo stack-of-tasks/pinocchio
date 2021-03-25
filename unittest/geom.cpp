@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
   GeometryModel geom_model_copy, geom_model_copy_lower;
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model_copy, package_dirs);
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model_copy_lower, package_dirs);
-  geom_model_copy.addCollisionPairs(collision_map);
-  geom_model_copy_lower.addCollisionPairs(collision_map_lower,false);
+  geom_model_copy.setCollisionPairs(collision_map);
+  geom_model_copy_lower.setCollisionPairs(collision_map_lower,false);
   
   BOOST_CHECK(geom_model_copy.collisionPairs.size() == geom_model.collisionPairs.size());
   BOOST_CHECK(geom_model_copy_lower.collisionPairs.size() == geom_model.collisionPairs.size());
