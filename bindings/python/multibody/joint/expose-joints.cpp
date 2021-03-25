@@ -29,7 +29,7 @@ namespace pinocchio
     {
       exposeVariants();
       JointModelPythonVisitor::expose();
-      StdAlignedVectorPythonVisitor<JointModelVector,true>::expose("StdVec_JointModelVector");
+      StdAlignedVectorPythonVisitor<JointModel,true>::expose("StdVec_JointModelVector");
     }
     
   } // namespace python
