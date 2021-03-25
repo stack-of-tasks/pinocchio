@@ -30,7 +30,7 @@ namespace pinocchio
     typedef ::pinocchio::GeometryObject GeometryObject;
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(GeometryObject) GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
-    typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
+    typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     
     typedef pinocchio::GeomIndex GeomIndex;
   
@@ -183,7 +183,7 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef std::vector<GeomIndex> GeomIndexList;
-    typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
+    typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     
     ///
