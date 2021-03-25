@@ -235,11 +235,11 @@ namespace pinocchio
     return (PairIndex) std::distance(collisionPairs.begin(), it);
   }
   
-  inline void GeometryData::activateCollisionPair(const PairIndex pairId)
+  inline void GeometryData::activateCollisionPair(const PairIndex pair_id)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
-                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
-    activeCollisionPairs[pairId] = true;
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair_id < activeCollisionPairs.size(),
+                                   "The input argument pair_id is larger than the number of collision pairs contained in activeCollisionPairs.");
+    activeCollisionPairs[pair_id] = true;
   }
 
   inline void GeometryData::activateAllCollisionPairs()
@@ -305,11 +305,11 @@ namespace pinocchio
     }
   }
 
-  inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
+  inline void GeometryData::deactivateCollisionPair(const PairIndex pair_id)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
-                                   "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
-    activeCollisionPairs[pairId] = false;
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pair_id < activeCollisionPairs.size(),
+                                   "The input argument pair_id is larger than the number of collision pairs contained in activeCollisionPairs.");
+    activeCollisionPairs[pair_id] = false;
   }
 
   inline void GeometryData::deactivateAllCollisionPairs()

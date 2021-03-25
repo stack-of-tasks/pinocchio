@@ -50,16 +50,16 @@ namespace pinocchio
 
   inline bool computeCollision(const GeometryModel & geom_model,
                                GeometryData & geom_data,
-                               const PairIndex & pairId)
+                               const PairIndex & pair_id)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geom_model.collisionPairs.size() );
-    const CollisionPair & pair = geom_model.collisionPairs[pairId];
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
+    const CollisionPair & pair = geom_model.collisionPairs[pair_id];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.collisionResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id      < geom_data.collisionResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    fcl::CollisionResult& collisionResult = geom_data.collisionResults[pairId];
+    fcl::CollisionResult& collisionResult = geom_data.collisionResults[pair_id];
     collisionResult.clear();
 
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
@@ -69,13 +69,13 @@ namespace pinocchio
     {
       fcl::collide(geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
                     geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                    geom_data.collisionRequests[pairId],
+                    geom_data.collisionRequests[pair_id],
                     collisionResult);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
-      ss << "Problem when trying to check the collision of collision pair #" << pairId << " (" << pair.first << "," << pair.second << ")" << std::endl;
+      ss << "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
       ss << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
@@ -130,16 +130,16 @@ namespace pinocchio
 
   inline fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                                GeometryData & geom_data,
-                                               const PairIndex & pairId)
+                                               const PairIndex & pair_id)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId < geom_model.collisionPairs.size() );
-    const CollisionPair & pair = geom_model.collisionPairs[pairId];
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
+    const CollisionPair & pair = geom_model.collisionPairs[pair_id];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pairId      < geom_data.distanceResults.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id      < geom_data.distanceResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    geom_data.distanceResults[pairId].clear();
+    geom_data.distanceResults[pair_id].clear();
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
     
@@ -147,18 +147,18 @@ namespace pinocchio
     {
       fcl::distance( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
                      geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                     geom_data.distanceRequests[pairId],
-                     geom_data.distanceResults[pairId]);
+                     geom_data.distanceRequests[pair_id],
+                     geom_data.distanceResults[pair_id]);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
-      ss << "Problem when trying to compute the distance of collision pair #" << pairId << " (" << pair.first << "," << pair.second << ")" << std::endl;
+      ss << "Problem when trying to compute the distance of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
       ss << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
 
-    return geom_data.distanceResults[pairId];
+    return geom_data.distanceResults[pair_id];
   }
   
   inline std::size_t computeDistances(const GeometryModel & geom_model,

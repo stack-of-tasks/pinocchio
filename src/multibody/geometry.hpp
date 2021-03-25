@@ -272,11 +272,11 @@ namespace pinocchio
     /// condition can be used to temporarily remove a pair without touching the model, in a versatile
     /// manner.
     ///
-    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] pair_id the index of the pair in GeomModel::collisionPairs vector.
     ///
     /// \sa GeomData
     ///
-    void activateCollisionPair(const PairIndex pairId);
+    void activateCollisionPair(const PairIndex pair_id);
     
     ///
     /// \brief Activate all collision pairs.
@@ -300,13 +300,13 @@ namespace pinocchio
     ///
     /// Deactivate a collision pair.
     ///
-    /// Calls indeed GeomData::activateCollisionPair(pairId)
+    /// Calls indeed GeomData::activateCollisionPair(pair_id)
     ///
-    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] pair_id the index of the pair in GeomModel::collisionPairs vector.
     ///
     /// \sa GeomData::activateCollisionPair
     ///
-    void deactivateCollisionPair(const PairIndex pairId);
+    void deactivateCollisionPair(const PairIndex pair_id);
     
     ///
     /// \brief Deactivate all collision pairs.
