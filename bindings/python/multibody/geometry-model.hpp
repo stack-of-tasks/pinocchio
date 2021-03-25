@@ -74,7 +74,7 @@ namespace pinocchio
              setCollisionPairs_overload(bp::args("self","collision_map","upper"),
                                         "Set the collision pairs from a given input array.\n"
                                         "Each entry of the input matrix defines the activation of a given collision pair"
-                                        "(map[i,j] > 0 means that the pair (i,j) is active)."))
+                                        "(map[i,j] == True means that the pair (i,j) is active)."))
         .def("removeCollisionPair",&GeometryModel::removeCollisionPair,
              bp::args("self","collision_pair"),
              "Remove a collision pair.")

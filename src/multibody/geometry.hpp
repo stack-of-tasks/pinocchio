@@ -101,7 +101,7 @@ namespace pinocchio
     ///
     /// \brief Set the collision pairs from a given input array.
     ///        Each entry of the input matrix defines the activation of a given collision pair
-    ///        (map[i,j] > 0 means that the pair (i,j) is active).
+    ///        (map[i,j] == true means that the pair (i,j) is active).
     ///
     /// \param[in] collision_map Associative array.
     /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array. 
