@@ -88,7 +88,8 @@ namespace pinocchio
                       "note: This radius information might be usuful in continuous collision checking")
 #endif // PINOCCHIO_WITH_HPP_FCL
         
-        .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
+        .def("fillInnerOuterObjectMaps",
+             &GeometryData::fillInnerOuterObjectMaps,
              bp::args("self","geometry_model"),
              "Fill inner and outer objects maps")
         .def("activateCollisionPair",
@@ -96,9 +97,23 @@ namespace pinocchio
              bp::args("self","pair_id"),
              "Activate the collsion pair pair_id in geomModel.collisionPairs if it exists.\n"
              "note: Only active pairs are check for collision and distance computations.")
-        .def("deactivateCollisionPair",&GeometryData::deactivateCollisionPair,
+        .def("setActiveCollisionPairs",
+             &GeometryData::setActiveCollisionPairs,
+             setActiveCollisionPairs_overload(bp::args("self","geometry_model","collision_map","upper"),
+                                              "Set the collision pair association from a given input array.\n"
+                                              "Each entry of the input matrix defines the activation of a given collision pair."))
+        .def("deactivateCollisionPair",
+             &GeometryData::deactivateCollisionPair,
              bp::args("self","pair_id"),
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
+        .def("deactivateAllCollisionPairs",
+             &GeometryData::deactivateAllCollisionPairs,
+             bp::args("self"),
+             "Deactivate all collision pairs.")
+        .def("setSecurityMargins",
+             &GeometryData::setSecurityMargins,
+             setSecurityMargins_overload(bp::args("self","geometry_model","security_margin_map","upper"),
+                                         "Set the security margin of all the collision request in a row, according to the values stored in the associative map."))
         ;
 
       }
@@ -115,6 +130,11 @@ namespace pinocchio
         ;
      
       }
+      
+    protected:
+      
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setActiveCollisionPairs_overload,GeometryData::setActiveCollisionPairs,2,3)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setSecurityMargins_overload,GeometryData::setSecurityMargins,2,3)
 
     };
     
