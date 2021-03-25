@@ -99,14 +99,14 @@ namespace pinocchio
     void addAllCollisionPairs();
     
     ///
-    /// \brief Add the collision pairs from a given input array.
+    /// \brief Set the collision pairs from a given input array.
     ///        Each entry of the input matrix defines the activation of a given collision pair
     ///        (map[i,j] > 0 means that the pair (i,j) is active).
     ///
     /// \param[in] collision_map Associative array.
     /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array. 
     ///
-    void addCollisionPairs(const MatrixXb & collision_map,
+    void setCollisionPairs(const MatrixXb & collision_map,
                            const bool upper = true);
    
     ///
