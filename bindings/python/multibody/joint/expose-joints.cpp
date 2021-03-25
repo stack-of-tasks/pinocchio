@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 CNRS
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/fwd.hpp"
@@ -7,7 +7,7 @@
 #include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint.hpp"
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
+#include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 namespace pinocchio
 {
@@ -29,8 +29,7 @@ namespace pinocchio
     {
       exposeVariants();
       JointModelPythonVisitor::expose();
-      bp::class_<JointModelVector>("StdVec_JointModelVector")
-      .def(bp::vector_indexing_suite<JointModelVector,true>());
+      StdAlignedVectorPythonVisitor<JointModelVector,true>::expose("StdVec_JointModelVector");
     }
     
   } // namespace python

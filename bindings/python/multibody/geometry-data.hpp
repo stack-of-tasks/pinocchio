@@ -5,12 +5,12 @@
 #ifndef __pinocchio_python_geometry_data_hpp__
 #define __pinocchio_python_geometry_data_hpp__
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -41,8 +41,7 @@ namespace pinocchio
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
         
-        bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+        StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
       }
     }; // struct CollisionPairPythonVisitor
 
