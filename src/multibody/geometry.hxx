@@ -194,10 +194,10 @@ namespace pinocchio
     removeAllCollisionPairs();
     for (GeomIndex i = 0; i < ngeoms; ++i)
     {
-      const JointIndex& joint_i = geometryObjects[i].parentJoint;
+      const JointIndex joint_i = geometryObjects[i].parentJoint;
       for (GeomIndex j = i+1; j < ngeoms; ++j)
       {
-        const JointIndex& joint_j = geometryObjects[j].parentJoint;
+        const JointIndex joint_j = geometryObjects[j].parentJoint;
         if (joint_i != joint_j)
           addCollisionPair(CollisionPair(i,j));
       }
@@ -217,7 +217,7 @@ namespace pinocchio
     if (it != collisionPairs.end()) { collisionPairs.erase(it); }
   }
   
-  inline void GeometryModel::removeAllCollisionPairs () { collisionPairs.clear(); }
+  inline void GeometryModel::removeAllCollisionPairs() { collisionPairs.clear(); }
 
   inline bool GeometryModel::existCollisionPair(const CollisionPair & pair) const
   {
