@@ -139,7 +139,6 @@ namespace pinocchio
     /// \return The index of the CollisionPair in collisionPairs.
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
-    
 
     ///
     /// \brief Returns true if *this and other are equal.
@@ -169,9 +168,8 @@ namespace pinocchio
 
     /// \brief Vector of GeometryObjects used for collision computations
     GeometryObjectVector geometryObjects;
-    ///
+    
     /// \brief Vector of collision pairs.
-    ///
     CollisionPairVector collisionPairs;
     
   }; // struct GeometryModel
@@ -247,7 +245,7 @@ namespace pinocchio
     /// \brief A list of associated collision GeometryObjects to a given joint Id
     ///
     /// Outer objects can be seen as geometry objects that may often be
-    /// obstacles to the Inner objects of given joint
+    /// obstacles to the Inner objects of a given joint
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
     GeometryData(const GeometryModel & geomModel);
@@ -268,7 +266,7 @@ namespace pinocchio
     ///
     /// Activate a collision pair, for which collisions and distances would now be computed.
     ///
-    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
+    /// The collision (resp distance) between two geometries of GeomModel::geometryObjects
     /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
     /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
     /// condition can be used to temporarily remove a pair without touching the model, in a versatile
