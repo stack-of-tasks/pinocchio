@@ -5,6 +5,8 @@
 #ifndef __pinocchio_multibody_geometry_hxx__
 #define __pinocchio_multibody_geometry_hxx__
 
+#include <algorithm>
+
 #include "pinocchio/multibody/model.hpp"
 
 #if BOOST_VERSION / 100 % 1000 >= 60
@@ -160,6 +162,32 @@ namespace pinocchio
                                    "The input pair.second is larger than the number of geometries contained in the GeometryModel");
     if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
   }
+
+  inline void GeometryModel::addCollisionPairs(const MatrixXb & map,
+                                               const bool upper)
+  {
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(map.rows(),(Eigen::DenseIndex)ngeoms,
+                                  "Input map does not have the correct number of rows.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(map.cols(),(Eigen::DenseIndex)ngeoms,
+                                  "Input map does not have the correct number of columns.");
+    removeAllCollisionPairs();
+    for(Eigen::DenseIndex i = 0; i < (Eigen::DenseIndex)ngeoms; ++i)
+    {
+      for(Eigen::DenseIndex j = i+1; j < (Eigen::DenseIndex)ngeoms; ++j)
+      {
+        if(upper)
+        {
+          if(map(i,j))
+            collisionPairs.push_back(CollisionPair((std::size_t)i,(std::size_t)j));
+        }
+        else
+        {
+          if(map(j,i))
+            collisionPairs.push_back(CollisionPair((std::size_t)i,(std::size_t)j));
+        }
+      }
+    }
+  }
   
   inline void GeometryModel::addAllCollisionPairs()
   {
@@ -214,11 +242,50 @@ namespace pinocchio
     activeCollisionPairs[pairId] = true;
   }
 
+  inline void GeometryData::activateAllCollisionPairs()
+  {
+    std::fill(activeCollisionPairs.begin(),activeCollisionPairs.end(),true);
+  }
+
+  inline void GeometryData::setActiveCollisionPairs(const GeometryModel & geom_model,
+                                                    const MatrixXb & map,
+                                                    const bool upper)
+  {
+    const Eigen::DenseIndex ngeoms = (Eigen::DenseIndex)geom_model.ngeoms;
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(map.rows(),ngeoms,"Input map does not have the correct number of rows.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(map.cols(),ngeoms,"Input map does not have the correct number of columns.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(geom_model.collisionPairs.size(),activeCollisionPairs.size(),"Current geometry data and the input geometry model are not conistent.");
+    
+    for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      
+      Eigen::DenseIndex i,j;
+      if(upper)
+      {
+        j = (Eigen::DenseIndex)std::max(cp.first,cp.second);
+        i = (Eigen::DenseIndex)std::min(cp.first,cp.second);
+      }
+      else
+      {
+        i = (Eigen::DenseIndex)std::max(cp.first,cp.second);
+        j = (Eigen::DenseIndex)std::min(cp.first,cp.second);
+      }
+      activeCollisionPairs[k] = map(i,j);
+        
+    }
+  }
+
   inline void GeometryData::deactivateCollisionPair(const PairIndex pairId)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pairId < activeCollisionPairs.size(),
                                    "The input argument pairId is larger than the number of collision pairs contained in activeCollisionPairs.");
     activeCollisionPairs[pairId] = false;
+  }
+
+  inline void GeometryData::deactivateAllCollisionPairs()
+  {
+    std::fill(activeCollisionPairs.begin(),activeCollisionPairs.end(),false);
   }
 
 } // namespace pinocchio

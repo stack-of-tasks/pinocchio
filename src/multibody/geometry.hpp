@@ -30,6 +30,7 @@ namespace pinocchio
     typedef ::pinocchio::GeometryObject GeometryObject;
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(GeometryObject) GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
+    typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     
     typedef pinocchio::GeomIndex GeomIndex;
   
@@ -96,6 +97,17 @@ namespace pinocchio
     /// \note Collision pairs between geometries having the same parent joint are not added.
     ///
     void addAllCollisionPairs();
+    
+    ///
+    /// \brief Add the collision pairs from a given input array.
+    ///        Each entry of the input matrix defines the activation of a given collision pair
+    ///        (map[i,j] > 0 means that the pair (i,j) is active).
+    ///
+    /// \param[in] collision_map Associative array.
+    /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array. 
+    ///
+    void addCollisionPairs(const MatrixXb & collision_map,
+                           const bool upper = true);
    
     ///
     /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
@@ -173,6 +185,7 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef std::vector<GeomIndex> GeomIndexList;
+    typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
@@ -266,6 +279,25 @@ namespace pinocchio
     /// \sa GeomData
     ///
     void activateCollisionPair(const PairIndex pairId);
+    
+    ///
+    /// \brief Activate all collision pairs.
+    ///
+    /// \sa GeomData::deactivateAllCollisionPairs, GeomData::activateCollisionPair, GeomData::deactivateCollisionPair
+    ///
+    void activateAllCollisionPairs();
+    
+    ///
+    /// \brief Set the collision pair association from a given input array.
+    ///        Each entry of the input matrix defines the activation of a given collision pair.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] collision_map Associative array.
+    /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array.
+    ///
+    void setActiveCollisionPairs(const GeometryModel & geom_model,
+                                 const MatrixXb & collision_map,
+                                 const bool upper = true);
 
     ///
     /// Deactivate a collision pair.
@@ -277,6 +309,13 @@ namespace pinocchio
     /// \sa GeomData::activateCollisionPair
     ///
     void deactivateCollisionPair(const PairIndex pairId);
+    
+    ///
+    /// \brief Deactivate all collision pairs.
+    ///
+    /// \sa GeomData::activateAllCollisionPairs, GeomData::activateCollisionPair, GeomData::deactivateCollisionPair
+    ///
+    void deactivateAllCollisionPairs();
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
