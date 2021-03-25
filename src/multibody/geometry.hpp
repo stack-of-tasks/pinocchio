@@ -314,6 +314,17 @@ namespace pinocchio
     /// \sa GeomData::activateAllCollisionPairs, GeomData::activateCollisionPair, GeomData::deactivateCollisionPair
     ///
     void deactivateAllCollisionPairs();
+    
+    ///
+    /// \brief Set the security margin of all the collision request in a row, according to the values stored in the associative map.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] security_margin_map Associative map related the security margin of a given input collision pair (i,j).
+    /// \param[in] upper Wheter the security_margin_map is an upper or lower triangular filled array.
+    ///
+    void setSecurityMargins(const GeometryModel & geom_model,
+                            const MatrixXs & security_margin_map,
+                            const bool upper = true);
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     

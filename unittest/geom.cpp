@@ -235,7 +235,27 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
     
     geom_data_copy_lower.setActiveCollisionPairs(geom_model, collision_map_lower, false);
     BOOST_CHECK(geom_data_copy_lower.activeCollisionPairs == geom_data.activeCollisionPairs);
+  }
+  
+  // Test security margins
+  {
+    GeometryData geom_data_upper(geom_model), geom_data_lower(geom_model);
     
+    const GeometryData::MatrixXs security_margin_map(GeometryData::MatrixXs::Ones((Eigen::DenseIndex)geom_model.ngeoms,(Eigen::DenseIndex)geom_model.ngeoms));
+    GeometryData::MatrixXs security_margin_map_upper(security_margin_map);
+    security_margin_map_upper.triangularView<Eigen::Lower>().fill(0.);
+    
+    geom_data_upper.setSecurityMargins(geom_model, security_margin_map);
+    for(size_t k = 0; k < geom_data_upper.collisionRequests.size(); ++k)
+    {
+      BOOST_CHECK(geom_data_upper.collisionRequests[k].security_margin == 1.);
+    }
+    
+    geom_data_lower.setSecurityMargins(geom_model, security_margin_map, false);
+    for(size_t k = 0; k < geom_data_lower.collisionRequests.size(); ++k)
+    {
+      BOOST_CHECK(geom_data_lower.collisionRequests[k].security_margin == 1.);
+    }
   }
 }
   

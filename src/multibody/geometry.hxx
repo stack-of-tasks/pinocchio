@@ -271,8 +271,37 @@ namespace pinocchio
         i = (Eigen::DenseIndex)std::max(cp.first,cp.second);
         j = (Eigen::DenseIndex)std::min(cp.first,cp.second);
       }
+      
       activeCollisionPairs[k] = map(i,j);
-        
+    }
+  }
+
+  inline void GeometryData::setSecurityMargins(const GeometryModel & geom_model,
+                                               const MatrixXs & security_margin_map,
+                                               const bool upper)
+  {
+    const Eigen::DenseIndex ngeoms = (Eigen::DenseIndex)geom_model.ngeoms;
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(security_margin_map.rows(),ngeoms,"Input map does not have the correct number of rows.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(security_margin_map.cols(),ngeoms,"Input map does not have the correct number of columns.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(geom_model.collisionPairs.size(),collisionRequests.size(),"Current geometry data and the input geometry model are not conistent.");
+    
+    for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      
+      Eigen::DenseIndex i,j;
+      if(upper)
+      {
+        j = (Eigen::DenseIndex)std::max(cp.first,cp.second);
+        i = (Eigen::DenseIndex)std::min(cp.first,cp.second);
+      }
+      else
+      {
+        i = (Eigen::DenseIndex)std::max(cp.first,cp.second);
+        j = (Eigen::DenseIndex)std::min(cp.first,cp.second);
+      }
+      
+      collisionRequests[k].security_margin = security_margin_map(i,j);
     }
   }
 
