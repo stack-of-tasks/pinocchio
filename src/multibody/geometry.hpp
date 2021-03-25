@@ -184,6 +184,7 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef std::vector<GeomIndex> GeomIndexList;
     typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
