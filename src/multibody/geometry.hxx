@@ -148,8 +148,8 @@ namespace pinocchio
     }
 #else
     os << "WARNING** Without fcl library, no collision checking or distance computations are possible. Only geometry placements can be computed." << std::endl;
-    os << "Number of geometry objects = " << geomData.oMg.size() << std::endl;
 #endif
+    os << "Number of geometry objects = " << geomData.oMg.size() << std::endl;
 
     return os;
   }
@@ -276,6 +276,7 @@ namespace pinocchio
     }
   }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::setSecurityMargins(const GeometryModel & geom_model,
                                                const MatrixXs & security_margin_map,
                                                const bool upper)
@@ -304,6 +305,7 @@ namespace pinocchio
       collisionRequests[k].security_margin = security_margin_map(i,j);
     }
   }
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
   inline void GeometryData::deactivateCollisionPair(const PairIndex pair_id)
   {

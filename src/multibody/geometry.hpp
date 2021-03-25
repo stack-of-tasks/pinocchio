@@ -316,6 +316,7 @@ namespace pinocchio
     ///
     void deactivateAllCollisionPairs();
     
+#ifdef PINOCCHIO_WITH_HPP_FCL
     ///
     /// \brief Set the security margin of all the collision request in a row, according to the values stored in the associative map.
     ///
@@ -326,6 +327,7 @@ namespace pinocchio
     void setSecurityMargins(const GeometryModel & geom_model,
                             const MatrixXs & security_margin_map,
                             const bool upper = true);
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
