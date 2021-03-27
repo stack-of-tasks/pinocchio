@@ -376,10 +376,15 @@ namespace pinocchio
         typedef typename Model::ConfigVectorMap ConfigVectorMap;
         typedef bp::map_indexing_suite<ConfigVectorMap,false> map_indexing_suite;
         StdVectorPythonVisitor<Index>::expose("StdVec_Index");
+        serialize< std::vector<Index> >();
         StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
+        serialize< std::vector<IndexVector> >();
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
+        serialize< std::vector<std::string> >();
         StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
+        serialize< std::vector<bool> >();
         StdVectorPythonVisitor<Scalar>::expose("StdVec_Double");
+        serialize< std::vector<Scalar> >();
         bp::class_<typename Model::ConfigVectorMap>("StdMap_String_VectorXd")
           .def(map_indexing_suite())
           .def_pickle(PickleMap<typename Model::ConfigVectorMap>())

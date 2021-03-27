@@ -2,29 +2,6 @@
 // Copyright (c) 2017-2020 CNRS INRIA
 //
 
-/*
- Code adapted from: https://gist.githubusercontent.com/mtao/5798888/raw/5be9fa9b66336c166dba3a92c0e5b69ffdb81501/eigen_boost_serialization.hpp
- Copyright (c) 2015 Michael Tao
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- */
-
 #ifndef __pinocchio_serialization_eigen_matrix_hpp__
 #define __pinocchio_serialization_eigen_matrix_hpp__
 
@@ -40,28 +17,60 @@ namespace boost
   namespace serialization
   {
     
-    template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-    void save(Archive & ar, const Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int /*version*/)
+    template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+    void save(Archive & ar, const Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
     {
       Eigen::DenseIndex rows(m.rows()), cols(m.cols());
-      ar & BOOST_SERIALIZATION_NVP(rows);
-      ar & BOOST_SERIALIZATION_NVP(cols);
+      if (Rows == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(rows);
+      if (Cols == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(cols);
       ar & make_nvp("data",make_array(m.data(), (size_t)m.size()));
     }
     
-    template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-    void load(Archive & ar, Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int /*version*/)
+    template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+    void load(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int /*version*/)
     {
-      Eigen::DenseIndex rows,cols;
-      ar >> BOOST_SERIALIZATION_NVP(rows);
-      ar >> BOOST_SERIALIZATION_NVP(cols);
+      Eigen::DenseIndex rows = Rows, cols = Cols;
+      if (Rows == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(rows);
+      if (Cols == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(cols);
       m.resize(rows,cols);
-//      if(m.size() > 0)
-        ar >> make_nvp("data",make_array(m.data(), (size_t)m.size()));
+      ar >> make_nvp("data",make_array(m.data(), (size_t)m.size()));
     }
     
-    template <class Archive, typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-    void serialize(Archive & ar, Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols> & m, const unsigned int version)
+    template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+    void serialize(Archive & ar, Eigen::Matrix<Scalar,Rows,Cols,Options,MaxRows,MaxCols> & m, const unsigned int version)
+    {
+      split_free(ar,m,version);
+    }
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void save(Archive & ar, const Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int /*version*/)
+    {
+      Eigen::DenseIndex rows(m.rows()), cols(m.cols());
+      if (PlainObjectBase::RowsAtCompileTime == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(rows);
+      if (PlainObjectBase::ColsAtCompileTime == Eigen::Dynamic)
+        ar & BOOST_SERIALIZATION_NVP(cols);
+      ar & make_nvp("data",make_array(m.data(), (size_t)m.size()));
+    }
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void load(Archive & ar, Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int /*version*/)
+    {
+      Eigen::DenseIndex rows = PlainObjectBase::RowsAtCompileTime, cols = PlainObjectBase::ColsAtCompileTime;
+      if (PlainObjectBase::RowsAtCompileTime == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(rows);
+      if (PlainObjectBase::ColsAtCompileTime == Eigen::Dynamic)
+        ar >> BOOST_SERIALIZATION_NVP(cols);
+      m.resize(rows,cols);
+      ar >> make_nvp("data",make_array(m.data(), (size_t)m.size()));
+    }
+  
+    template <class Archive, typename PlainObjectBase, int MapOptions, typename StrideType>
+    void serialize(Archive & ar, Eigen::Map<PlainObjectBase,MapOptions,StrideType> & m, const unsigned int version)
     {
       split_free(ar,m,version);
     }

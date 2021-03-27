@@ -1,16 +1,16 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_data_hpp__
 #define __pinocchio_python_geometry_data_hpp__
 
-#include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -32,7 +32,7 @@ namespace pinocchio
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::no_init)
         .def(bp::init<const GeomIndex &, const GeomIndex &>
-             (bp::args("self","index 1", "index 2"),
+             (bp::args("self","index1", "index2"),
               "Initializer of collision pair."))
         .def(PrintableVisitor<CollisionPair>())
         .def(CopyableVisitor<CollisionPair>())
@@ -41,8 +41,7 @@ namespace pinocchio
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
         
-        bp::class_< std::vector<CollisionPair> >("StdVec_CollisionPair")
-        .def(bp::vector_indexing_suite< std::vector<CollisionPair> >());
+        StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
       }
     }; // struct CollisionPairPythonVisitor
 
@@ -88,34 +87,36 @@ namespace pinocchio
                       "note: This radius information might be usuful in continuous collision checking")
 #endif // PINOCCHIO_WITH_HPP_FCL
         
-        .def("fillInnerOuterObjectMaps", &GeometryData::fillInnerOuterObjectMaps,
-             bp::args("self","GeometryModel"),
+        .def("fillInnerOuterObjectMaps",
+             &GeometryData::fillInnerOuterObjectMaps,
+             bp::args("self","geometry_model"),
              "Fill inner and outer objects maps")
         .def("activateCollisionPair",
              static_cast<void (GeometryData::*)(const PairIndex)>(&GeometryData::activateCollisionPair),
              bp::args("self","pair_id"),
              "Activate the collsion pair pair_id in geomModel.collisionPairs if it exists.\n"
              "note: Only active pairs are check for collision and distance computations.")
-        .def("deactivateCollisionPair",&GeometryData::deactivateCollisionPair,
+        .def("setActiveCollisionPairs",
+             &GeometryData::setActiveCollisionPairs,
+             setActiveCollisionPairs_overload(bp::args("self","geometry_model","collision_map","upper"),
+                                              "Set the collision pair association from a given input array.\n"
+                                              "Each entry of the input matrix defines the activation of a given collision pair."))
+        .def("deactivateCollisionPair",
+             &GeometryData::deactivateCollisionPair,
              bp::args("self","pair_id"),
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
+        .def("deactivateAllCollisionPairs",
+             &GeometryData::deactivateAllCollisionPairs,
+             bp::args("self"),
+             "Deactivate all collision pairs.")
+#ifdef PINOCCHIO_WITH_HPP_FCL
+        .def("setSecurityMargins",
+             &GeometryData::setSecurityMargins,
+             setSecurityMargins_overload(bp::args("self","geometry_model","security_margin_map","upper"),
+                                         "Set the security margin of all the collision request in a row, according to the values stored in the associative map."))
+#endif // PINOCCHIO_WITH_HPP_FCL
         ;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL  
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        cl
-        .add_property("distanceRequest",
-                      bp::make_getter(&GeometryData::distanceRequest,
-                                      deprecated_member<bp::return_internal_reference<> >()),
-                      "Deprecated. Use distanceRequests attribute instead.")
-        .add_property("collisionRequest",
-                      bp::make_getter(&GeometryData::collisionRequest,
-                                      deprecated_member<bp::return_internal_reference<> >()),
-                      "Deprecated. Use collisionRequests attribute instead.")
-        ;
-#pragma GCC diagnostic pop
-#endif // PINOCCHIO_WITH_HPP_FCL
       }
              
       /* --- Expose --------------------------------------------------------- */
@@ -130,6 +131,11 @@ namespace pinocchio
         ;
      
       }
+      
+    protected:
+      
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setActiveCollisionPairs_overload,GeometryData::setActiveCollisionPairs,2,3)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setSecurityMargins_overload,GeometryData::setSecurityMargins,2,3)
 
     };
     
