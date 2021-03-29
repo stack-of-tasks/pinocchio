@@ -278,7 +278,7 @@ namespace pinocchio
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addFrame(const Frame & frame)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent >= 0 && frame.parent < njoints,
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent < (JointIndex)njoints,
                                    "The index of the parent frame is not valid.");
     
     // Check if the frame.name exists with the same type
