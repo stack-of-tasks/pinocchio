@@ -289,7 +289,7 @@ namespace pinocchio
       return getFrameId(frame.name,frame.type);
     
     frames.push_back(frame);
-    if(frame.inertia.mass() > Scalar(0))
+//    if(frame.inertia.mass() > Scalar(0))
       inertias[frame.parent] += frame.placement.act(frame.inertia);
     nframes++;
     return FrameIndex(nframes - 1);
