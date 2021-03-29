@@ -557,7 +557,7 @@ namespace pinocchio
     {
       return
          (m_mass >  Scalar(0) && m_inertia.isValid())
-      || (m_mass == Scalar(0) && (m_inertia.data() == Scalar(0)).all());
+      || (m_mass == Scalar(0) && (m_inertia.data().array() == Scalar(0)).all());
     }
 
   protected:
