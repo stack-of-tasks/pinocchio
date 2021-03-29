@@ -132,6 +132,8 @@ namespace pinocchio
     FrameType type;
     
     /// \brief Inertia information attached to the frame.
+    ///        This inertia will be appended to the inertia supported by the parent joint when calling ModelTpl::addFrame.
+    ///        It won't be processed otherwise by the algorithms.
     Inertia inertia;
 
   }; // struct FrameTpl
