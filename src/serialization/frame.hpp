@@ -34,7 +34,7 @@ namespace boost
     template<typename Scalar, int Options>
     struct version< pinocchio::FrameTpl<Scalar,Options> >
     {
-      BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+      enum { value = 1 };
     };
     
   }
