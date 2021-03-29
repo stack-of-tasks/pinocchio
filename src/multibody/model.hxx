@@ -281,13 +281,16 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent < (JointIndex)njoints,
                                    "The index of the parent frame is not valid.");
     
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.inertia.isValid(),
+                                   "The input inertia is not valid.")
+    
     // Check if the frame.name exists with the same type
     if(existFrame(frame.name,frame.type))
       return getFrameId(frame.name,frame.type);
     
-    // else: we must add a new frames to the current stack
     frames.push_back(frame);
-    inertias[frame.parent] += frame.placement.act(frame.inertia);
+    if(frame.inertia.mass() > Scalar(0))
+      inertias[frame.parent] += frame.placement.act(frame.inertia);
     nframes++;
     return FrameIndex(nframes - 1);
   }
