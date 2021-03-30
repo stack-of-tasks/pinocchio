@@ -253,7 +253,7 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef typename Data::SE3 SE3;
     typedef typename Data::Force Force;
-    
+    typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
     
     typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
@@ -269,6 +269,9 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
 
+      // Temporary variable
+      typename Data::Vector3 of_temp_linear;
+      //Force & of_temp = data.of[0];
       const SE3 & oMc1 = cdata.oMc1;
       Force & of1 = data.of[cmodel.joint1_id];
       const SE3 & oMc2 = cdata.oMc2;
@@ -281,9 +284,23 @@ namespace pinocchio
           if(cmodel.joint1_id > 0) {
             of1 -= oMc1.act(cdata.contact_force);
           }
-          
           if(cmodel.joint2_id > 0) {
-            of2 += oMc1.act(cdata.contact_force);
+            switch(cmodel.type) {
+            case CONTACT_6D: {
+                of2 += oMc1.act(cdata.contact_force);
+                break;
+            }
+            case CONTACT_3D: {
+              of_temp_linear.noalias() = oMc1.rotation()*cdata.contact_force.linear();
+              of2.linear() += of_temp_linear;
+              of2.angular().noalias() += oMc2.translation().cross(of_temp_linear);
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
+            }
           }
           break;
         }
@@ -293,7 +310,6 @@ namespace pinocchio
             of1 -= cdata.contact_force;
             of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
           }
-
           if(cmodel.joint2_id > 0) {
             of2 += cdata.contact_force;
             of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
@@ -305,7 +321,6 @@ namespace pinocchio
           break;
       }
     }
-
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
