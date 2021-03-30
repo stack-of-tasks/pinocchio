@@ -364,8 +364,8 @@ namespace pinocchio
        *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
        */
 
-      const Scalar eps = std::numeric_limits<Scalar>::epsilon();
-      
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
       const Scalar & mab = mass()+Yb.mass();
       const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
@@ -376,7 +376,7 @@ namespace pinocchio
 
     InertiaTpl& __pequ__(const InertiaTpl & Yb)
     {
-      const Scalar eps = std::numeric_limits<Scalar>::epsilon();
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
       
       const InertiaTpl& Ya = *this;
       const Scalar & mab = mass()+Yb.mass();
