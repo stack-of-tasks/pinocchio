@@ -525,6 +525,7 @@ namespace pinocchio
     
     ///
     /// \brief Adds a frame to the kinematic tree.
+    ///        The inertia stored within the frame will be happened to the inertia supported by the joint (frame.parent).
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
     ///

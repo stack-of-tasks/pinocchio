@@ -364,8 +364,10 @@ namespace pinocchio
        *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
        */
 
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
       const Scalar & mab = mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/mab;
+      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
                         (mass()*lever()+Yb.mass()*Yb.lever())*mab_inv,
@@ -374,9 +376,11 @@ namespace pinocchio
 
     InertiaTpl& __pequ__(const InertiaTpl & Yb)
     {
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+      
       const InertiaTpl& Ya = *this;
-      const Scalar & mab = Ya.mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/mab;
+      const Scalar & mab = mass()+Yb.mass();
+      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
@@ -551,6 +555,15 @@ namespace pinocchio
                                            lever().template cast<NewScalar>(),
                                            inertia().template cast<NewScalar>());
     }
+    
+    // TODO: adjust code
+//    /// \brief Check whether *this is a valid inertia, resulting from a positive mass distribution
+//    bool isValid() const
+//    {
+//      return
+//         (m_mass >  Scalar(0) && m_inertia.isValid())
+//      || (m_mass == Scalar(0) && (m_inertia.data().array() == Scalar(0)).all());
+//    }
 
   protected:
     Scalar m_mass;

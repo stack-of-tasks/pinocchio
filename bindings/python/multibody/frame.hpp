@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_frame_hpp__
@@ -17,7 +17,7 @@ namespace pinocchio
     namespace bp = boost::python;
 
     struct FramePythonVisitor
-      : public boost::python::def_visitor< FramePythonVisitor >
+    : public bp::def_visitor< FramePythonVisitor >
     {
       template<class PyClass>
       void visit(PyClass& cl) const 
@@ -25,8 +25,8 @@ namespace pinocchio
         cl
           .def(bp::init<>(bp::arg("self"),"Default constructor"))
           .def(bp::init<const Frame &>(bp::args("self","other"),"Copy constructor"))
-          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&,FrameType> ((bp::arg("name (string)"),bp::arg("index of parent joint"), bp::args("index of parent frame"), bp::arg("SE3 placement"), bp::arg("type (FrameType)")),
-                "Initialize from name, parent joint id, parent frame id and placement wrt parent joint."))
+          .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType, bp::optional<const Inertia&> > ((bp::arg("name"),bp::arg("parent_joint"), bp::args("parent_frame"), bp::arg("placement"), bp::arg("type"), bp::arg("inertia")),
+                "Initialize from a given name, type, parent joint index, parent frame index and placement wrt parent joint and an spatial inertia object."))
 
           .def_readwrite("name", &Frame::name, "name  of the frame")
           .def_readwrite("parent", &Frame::parent, "id of the parent joint")
@@ -34,7 +34,9 @@ namespace pinocchio
           .def_readwrite("placement",
                          &Frame::placement,
                          "placement in the parent joint local frame")
-          .def_readwrite("type", &Frame::type, "type of the frame")
+          .def_readwrite("type", &Frame::type, "Type of the frame")
+          .def_readwrite("inertia", &Frame::inertia,"Inertia information attached to the frame.")
+        
           .def(bp::self == bp::self)
           .def(bp::self != bp::self)
           ;
@@ -72,7 +74,7 @@ namespace pinocchio
 
         static bp::tuple getstate(const Frame & f)
         {
-          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type);
+          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type, f.inertia);
         }
 
         static void setstate(Frame & f, bp::tuple tup)
@@ -81,7 +83,9 @@ namespace pinocchio
           f.parent = bp::extract<JointIndex>(tup[1]); 
           f.previousFrame = bp::extract<JointIndex>(tup[2]); 
           f.placement = bp::extract<SE3&>(tup[3]); 
-          f.type = (FrameType)(int)bp::extract<int>(tup[4]); 
+          f.type = (FrameType)(int)bp::extract<int>(tup[4]);
+          if(bp::len(tup) > 5)
+            f.inertia = bp::extract<Inertia&>(tup[5]);
         }
       };
     };

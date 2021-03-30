@@ -454,6 +454,15 @@ namespace pinocchio
     {
       return Symmetric3Tpl<NewScalar,Options>(m_data.template cast<NewScalar>());
     }
+    
+    // TODO: adjust code
+//    bool isValid() const
+//    {
+//      return
+//         m_data(0) >= Scalar(0)
+//      && m_data(2) >= Scalar(0)
+//      && m_data(5) >= Scalar(0);
+//    }
 
   protected:
     Vector6 m_data;

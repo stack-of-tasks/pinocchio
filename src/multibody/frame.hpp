@@ -1,11 +1,12 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_frame_hpp__
 #define __pinocchio_frame_hpp__
 
 #include "pinocchio/spatial/se3.hpp"
+#include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 
 #include <string>
@@ -35,11 +36,18 @@ namespace pinocchio
     enum { Options = _Options };
     typedef _Scalar Scalar;
     typedef SE3Tpl<Scalar,Options> SE3;
+    typedef InertiaTpl<Scalar,Options> Inertia;
     
     ///
     /// \brief Default constructor of a frame.
     ///
-    FrameTpl() : name(), parent(), placement(), type() {} // needed by std::vector
+    FrameTpl()
+    : name()
+    , parent()
+    , placement()
+    , type()
+    , inertia(Inertia::Zero())
+    {} // needed by std::vector
     
     ///
     /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
@@ -48,18 +56,21 @@ namespace pinocchio
     /// \param[in] parent Index of the parent joint in the kinematic tree.
     /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
     /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
-    /// \param[in] type The type of the frame, see the enum FrameType
+    /// \param[in] type The type of the frame, see the enum FrameType.
+    /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
              const JointIndex parent,
              const FrameIndex previousFrame,
              const SE3 & frame_placement,
-             const FrameType type)
+             const FrameType type,
+             const Inertia & inertia = Inertia::Zero())
     : name(name)
     , parent(parent)
     , previousFrame(previousFrame)
     , placement(frame_placement)
     , type(type)
+    , inertia(inertia)
     {}
     
     ///
@@ -76,7 +87,8 @@ namespace pinocchio
       && parent == other.parent
       && previousFrame == other.previousFrame
       && placement == other.placement
-      && type == other.type ;
+      && type == other.type
+      && inertia == other.inertia;
     }
 
     ///
@@ -97,7 +109,8 @@ namespace pinocchio
                      parent,
                      previousFrame,
                      placement.template cast<NewScalar>(),
-                     type);
+                     type,
+                     inertia.template cast<NewScalar>());
       return res;
     }
     
@@ -115,22 +128,30 @@ namespace pinocchio
     /// \brief Placement of the frame wrt the parent joint.
     SE3 placement;
 
-    /// \brief Type of the frame
+    /// \brief Type of the frame.
     FrameType type;
+    
+    /// \brief Inertia information attached to the frame.
+    ///        This inertia will be appended to the inertia supported by the parent joint when calling ModelTpl::addFrame.
+    ///        It won't be processed otherwise by the algorithms.
+    Inertia inertia;
 
   }; // struct FrameTpl
 
   template<typename Scalar, int Options>
-  inline std::ostream & operator << (std::ostream& os, const FrameTpl<Scalar,Options> & f)
+  inline std::ostream & operator << (std::ostream& os,
+                                     const FrameTpl<Scalar,Options> & f)
   {
     os
     << "Frame name: "
     << f.name
     << " paired to (parent joint/ previous frame)"
-    << "(" <<f.parent << "/" << f.previousFrame << ")"
+    << "(" << f.parent << "/" << f.previousFrame << ")"
     << std::endl
-    << "with relative placement wrt parent joint:\n" <<
-    f.placement
+    << "with relative placement wrt parent joint:\n"
+    << f.placement
+    << "containing inertia:\n"
+    << f.inertia
     << std::endl;
     
     return os;
