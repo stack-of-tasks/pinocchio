@@ -556,13 +556,14 @@ namespace pinocchio
                                            inertia().template cast<NewScalar>());
     }
     
-    /// \brief Check whether *this is a valid inertia, resulting from a positive mass distribution
-    bool isValid() const
-    {
-      return
-         (m_mass >  Scalar(0) && m_inertia.isValid())
-      || (m_mass == Scalar(0) && (m_inertia.data().array() == Scalar(0)).all());
-    }
+    // TODO: adjust code
+//    /// \brief Check whether *this is a valid inertia, resulting from a positive mass distribution
+//    bool isValid() const
+//    {
+//      return
+//         (m_mass >  Scalar(0) && m_inertia.isValid())
+//      || (m_mass == Scalar(0) && (m_inertia.data().array() == Scalar(0)).all());
+//    }
 
   protected:
     Scalar m_mass;
