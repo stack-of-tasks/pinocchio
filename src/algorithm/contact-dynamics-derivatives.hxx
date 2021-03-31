@@ -281,17 +281,24 @@ namespace pinocchio
       {
         case LOCAL:
         {
-          if(cmodel.joint1_id > 0) {
-            of1 -= oMc1.act(cdata.contact_force);
-          }
-          if(cmodel.joint2_id > 0) {
-            switch(cmodel.type) {
-            case CONTACT_6D: {
-                of2 += oMc1.act(cdata.contact_force);
-                break;
+          switch(cmodel.type) {
+          case CONTACT_6D: {
+            if(cmodel.joint1_id > 0) {
+              of1 -= oMc1.act(cdata.contact_force);
             }
-            case CONTACT_3D: {
-              of_temp_linear.noalias() = oMc1.rotation()*cdata.contact_force.linear();
+            if(cmodel.joint2_id > 0) {   
+              of2 += oMc1.act(cdata.contact_force);
+            }
+            break;
+          }
+          case CONTACT_3D: {
+            of_temp_linear.noalias() = oMc1.rotation()*cdata.contact_force.linear();
+            
+            if(cmodel.joint1_id > 0) {
+              of1.linear().noalias() -= of_temp_linear;
+              of1.angular().noalias() -= oMc1.translation().cross(of_temp_linear);
+            }
+            if(cmodel.joint2_id > 0) {
               of2.linear() += of_temp_linear;
               of2.angular().noalias() += oMc2.translation().cross(of_temp_linear);
               break;
