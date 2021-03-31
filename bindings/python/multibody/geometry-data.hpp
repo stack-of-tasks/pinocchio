@@ -96,6 +96,10 @@ namespace pinocchio
              bp::args("self","pair_id"),
              "Activate the collsion pair pair_id in geomModel.collisionPairs if it exists.\n"
              "note: Only active pairs are check for collision and distance computations.")
+        .def("setGeometryCollisionStatus",
+             &GeometryData::setGeometryCollisionStatus,
+             bp::args("self","geom_model","geom_id","enable_collision"),
+             "Enable or disable collision for the given geometry given by its geometry id with all the other geometries registered in the list of collision pairs.")
         .def("setActiveCollisionPairs",
              &GeometryData::setActiveCollisionPairs,
              setActiveCollisionPairs_overload(bp::args("self","geometry_model","collision_map","upper"),
