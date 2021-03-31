@@ -297,6 +297,17 @@ namespace pinocchio
     void setActiveCollisionPairs(const GeometryModel & geom_model,
                                  const MatrixXb & collision_map,
                                  const bool upper = true);
+    
+    ///
+    /// \brief Enable or disable collision for the given geometry given by its geometry id with all the other geometries registered in the list of collision pairs.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] geom_id Index of the geometry.
+    /// \param[in] enable_collision If true, the collision will be enable, otherwise disable.
+    ///
+    void setGeometryCollisionStatus(const GeometryModel & geom_model,
+                                    const GeomIndex geom_id,
+                                    bool enable_collision);
 
     ///
     /// Deactivate a collision pair.

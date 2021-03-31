@@ -276,6 +276,26 @@ namespace pinocchio
     }
   }
 
+  inline void GeometryData::setGeometryCollisionStatus(const GeometryModel & geom_model,
+                                                       const GeomIndex geom_id,
+                                                       const bool enable_collision)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(geom_id < geom_model.ngeoms,
+                                   "The index of the geometry is not valid");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(geom_model.collisionPairs.size(),activeCollisionPairs.size(),
+                                  "Current geometry data and the input geometry model are not conistent.");
+    
+    for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      if(cp.first == geom_id || cp.second == geom_id)
+      {
+        activeCollisionPairs[k] = enable_collision;
+      }
+    }
+    
+  }
+
 #ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::setSecurityMargins(const GeometryModel & geom_model,
                                                const MatrixXs & security_margin_map,
