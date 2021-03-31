@@ -224,6 +224,7 @@ namespace pinocchio
           throw std::invalid_argument("The polyhedron retrived is empty");
         }
 
+        geometry->computeLocalAABB();
         return geometry;
       }
 #endif // PINOCCHIO_WITH_HPP_FCL
