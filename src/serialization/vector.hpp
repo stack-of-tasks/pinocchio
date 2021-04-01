@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_serialization_vector_hpp__
@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <boost/version.hpp>
+#include <boost/core/addressof.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 
