@@ -24,6 +24,14 @@ namespace boost
   {
     template<class Archive>
     void serialize(Archive & ar,
+                   pinocchio::CollisionPair & collision_pair,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("pair",base_object<pinocchio::CollisionPair::Base>(collision_pair));
+    }
+  
+    template<class Archive>
+    void serialize(Archive & ar,
                    pinocchio::GeometryData & geom_data,
                    const unsigned int /*version*/)
     {
