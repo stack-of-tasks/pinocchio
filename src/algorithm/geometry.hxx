@@ -90,15 +90,19 @@ namespace pinocchio
   {
     bool isColliding = false;
     
-    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
+    for (std::size_t cp_index = 0;
+         cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      if(geom_data.activeCollisionPairs[cpt])
+      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+      
+      if(geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        computeCollision(geom_model,geom_data,cpt);
-        if(!isColliding && geom_data.collisionResults[cpt].isCollision())
+        computeCollision(geom_model,geom_data,cp_index);
+        if(!isColliding && geom_data.collisionResults[cp_index].isCollision())
         {
           isColliding = true;
-          geom_data.collisionPairIndex = cpt; // first pair to be in collision
+          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
           if(stopAtFirstCollision)
             return true;
         }
@@ -166,15 +170,20 @@ namespace pinocchio
   {
     std::size_t min_index = geom_model.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
-    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
+    
+    for (std::size_t cp_index = 0;
+         cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      if(geom_data.activeCollisionPairs[cpt])
+      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+      
+      if(   geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        computeDistance(geom_model,geom_data,cpt);
-        if(geom_data.distanceResults[cpt].min_distance < min_dist)
+        computeDistance(geom_model,geom_data,cp_index);
+        if(geom_data.distanceResults[cp_index].min_distance < min_dist)
         {
-          min_index = cpt;
-          min_dist = geom_data.distanceResults[cpt].min_distance;
+          min_index = cp_index;
+          min_dist = geom_data.distanceResults[cp_index].min_distance;
         }
       }
     }
