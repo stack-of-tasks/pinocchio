@@ -235,7 +235,7 @@ namespace pinocchio
       const_cast<hpp::fcl::CollisionGeometry&>(*geometry).computeLocalAABB();
       
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
-      const Model::JointIndex & i = geom_object.parentJoint;
+      const Model::JointIndex i = geom_object.parentJoint;
       assert (i<geom_data.radius.size());
 
       double radius = geom_data.radius[i] * geom_data.radius[i];
