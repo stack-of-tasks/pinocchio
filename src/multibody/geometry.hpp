@@ -266,7 +266,7 @@ namespace pinocchio
     ///
     /// \param[in] geom_model GeometryModel associated to the new GeometryData
     ///
-    GeometryData(const GeometryModel & geom_model);
+    explicit GeometryData(const GeometryModel & geom_model);
    
     ///
     /// \brief Copy constructor
