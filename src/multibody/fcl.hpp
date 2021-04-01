@@ -158,6 +158,9 @@ struct GeometryObject
 
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
+  
+  /// \brief It true, no collision or distance check will be done between the Geometry and any other geometry
+  bool disable_collision;
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
@@ -196,6 +199,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
+  , disable_collision(false)
   {}
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -235,6 +239,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
+  , disable_collision(false)
   {}
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -259,6 +264,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     overrideMaterial    = other.overrideMaterial;
     meshColor           = other.meshColor;
     meshTexturePath     = other.meshTexturePath;
+    disable_collision   = other.disable_collision;
     return *this;
   }
 

@@ -54,13 +54,14 @@ namespace pinocchio
 
   inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
   {
-    return (   lhs.name         == rhs.name
-            && lhs.parentFrame  == rhs.parentFrame
-            && lhs.parentJoint  == rhs.parentJoint
-            && lhs.geometry     == rhs.geometry
-            && lhs.placement    == rhs.placement
-            && lhs.meshPath     == rhs.meshPath
-            && lhs.meshScale    == rhs.meshScale
+    return (   lhs.name                 == rhs.name
+            && lhs.parentFrame          == rhs.parentFrame
+            && lhs.parentJoint          == rhs.parentJoint
+            && lhs.geometry             == rhs.geometry
+            && lhs.placement            == rhs.placement
+            && lhs.meshPath             == rhs.meshPath
+            && lhs.meshScale            == rhs.meshScale
+            && lhs.disable_collision    == rhs.disable_collision
             );
   }
 
@@ -77,6 +78,7 @@ namespace pinocchio
         << "Position in parent frame: \t \n" << geom_object.placement << "\n"
         << "Absolute path to mesh file: \t \n" << geom_object.meshPath << "\n"
         << "Scale for transformation of the mesh: \t \n" << geom_object.meshScale.transpose() << "\n"
+        << "Disable collision: \t \n" << geom_object.disable_collision << "\n"
         << std::endl;
     return os;
   }
