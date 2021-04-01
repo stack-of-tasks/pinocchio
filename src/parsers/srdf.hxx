@@ -41,7 +41,7 @@ namespace pinocchio
         // Iterate over collision pairs
         BOOST_FOREACH(const ptree::value_type & v, pt.get_child("robot"))
         {
-          if (v.first == "disable_collisions")
+          if (v.first == "disableCollisions")
           {
             const std::string link1 = v.second.get<std::string>("<xmlattr>.link1");
             const std::string link2 = v.second.get<std::string>("<xmlattr>.link2");
