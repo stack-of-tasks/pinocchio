@@ -1,22 +1,20 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hxx__
 #define __pinocchio_multibody_fcl_hxx__
 
 #include <ostream>
+#include <limits>
 
 namespace pinocchio
 {
 
-  ///
-  /// \brief Default constructor of a collision pair from two collision object indexes.
-  /// \remarks The two indexes must be different, otherwise the constructor throws.
-  ///
-  /// \param[in] co1 Index of the first collision object.
-  /// \param[in] co2 Index of the second collision object.
-  ///
+  inline CollisionPair::CollisionPair()
+  : Base((std::numeric_limits<GeomIndex>::max)(),(std::numeric_limits<GeomIndex>::max)())
+  {}
+
   inline CollisionPair::CollisionPair(const GeomIndex co1, const GeomIndex co2) 
   : Base(co1,co2)
   {
@@ -27,6 +25,11 @@ namespace pinocchio
   {
     return (first == rhs.first  && second == rhs.second)
       ||   (first == rhs.second && second == rhs.first );
+  }
+
+  inline bool CollisionPair::operator!=(const CollisionPair& other) const
+  {
+    return !(*this == other);
   }
 
   inline void CollisionPair::disp(std::ostream & os) const
