@@ -65,6 +65,11 @@ namespace pinocchio
               "Update the geometry for a given configuration and "
               "compute the distance between each collision pair"
               );
+      
+      bp::def("computeBodyRadius",
+              &computeBodyRadius<double,0,JointCollectionDefaultTpl>,
+              bp::args("model","geometry_model","geometry_data"),
+              "Compute the radius of the geometry volumes attached to every joints.");
 #endif // PINOCCHIO_WITH_HPP_FCL
       
     }

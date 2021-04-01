@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -10,6 +10,29 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+
+  #if(WIN32)
+    // It appears that std::snprintf is missing for Windows.
+    #if !(( defined(_MSC_VER) && _MSC_VER < 1900 ) || ( defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR) ))
+      #include <cstdio>
+      #include <stdarg.h>
+      namespace std
+      {
+        inline int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
+        {
+          int res;
+          
+          va_list args;
+          va_start(args, format);
+          res = vsnprintf(buffer, buf_size, format, args);
+          va_end(args);
+          
+          return res;
+        }
+      }
+    #endif
+  #endif
+  
   #include <hpp/fcl/collision_object.h>
   #include <hpp/fcl/collision.h>
   #include <hpp/fcl/distance.h>

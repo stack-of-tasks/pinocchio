@@ -257,6 +257,48 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
       BOOST_CHECK(geom_data_lower.collisionRequests[k].security_margin == 1.);
     }
   }
+  
+  // Test enableGeometryCollision
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.deactivateAllCollisionPairs();
+    geom_data.setGeometryCollisionStatus(geom_model,0,true);
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      if(cp.first == 0 || cp.second == 0)
+      {
+        BOOST_CHECK(geom_data.activeCollisionPairs[k]);
+      }
+      else
+      {
+        BOOST_CHECK(!geom_data.activeCollisionPairs[k]);
+      }
+    }
+    
+  }
+  
+  // Test disableGeometryCollision
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.activateAllCollisionPairs();
+    geom_data.setGeometryCollisionStatus(geom_model,0,false);
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      if(cp.first == 0 || cp.second == 0)
+      {
+        BOOST_CHECK(!geom_data.activeCollisionPairs[k]);
+      }
+      else
+      {
+        BOOST_CHECK(geom_data.activeCollisionPairs[k]);
+      }
+    }
+    
+  }
 }
   
 BOOST_AUTO_TEST_CASE ( test_collisions )
