@@ -7,10 +7,13 @@
 
 #include <eigenpy/memory.hpp>
 
+#include "pinocchio/serialization/geometry.hpp"
+
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -42,6 +45,7 @@ namespace pinocchio
         .def_readwrite("second",&CollisionPair::second);
         
         StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
+        serialize< std::vector<CollisionPair> >();
       }
     }; // struct CollisionPairPythonVisitor
 
@@ -132,6 +136,7 @@ namespace pinocchio
         .def(GeometryDataPythonVisitor())
         .def(PrintableVisitor<GeometryData>())
         .def(CopyableVisitor<GeometryData>())
+        .def(SerializableVisitor<GeometryData>())
         ;
      
       }
