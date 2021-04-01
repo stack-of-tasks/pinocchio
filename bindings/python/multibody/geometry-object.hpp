@@ -69,6 +69,8 @@ namespace pinocchio
                        "Boolean that tells whether material information is stored inside the given GeometryObject.")
         .def_readwrite("meshTexturePath", &GeometryObject::meshTexturePath,
                        "Path to the mesh texture file.")
+        .def_readwrite("disableCollision", &GeometryObject::disableCollision,
+                       "If true, no collision or distance check will be done between the Geometry and any other geometry.")
 
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)

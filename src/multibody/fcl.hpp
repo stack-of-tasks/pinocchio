@@ -159,7 +159,7 @@ struct GeometryObject
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
   
-  /// \brief It true, no collision or distance check will be done between the Geometry and any other geometry
+  /// \brief If true, no collision or distance check will be done between the Geometry and any other geometry
   bool disableCollision;
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
