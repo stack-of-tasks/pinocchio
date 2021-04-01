@@ -59,7 +59,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    fcl::CollisionResult& collisionResult = geom_data.collisionResults[pair_id];
+    fcl::CollisionResult & collisionResult = geom_data.collisionResults[pair_id];
     collisionResult.clear();
 
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
@@ -67,10 +67,10 @@ namespace pinocchio
 
     try
     {
-      fcl::collide(geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                   geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                   geom_data.collisionRequests[pair_id],
-                   collisionResult);
+      const GeometryData::ComputeCollision & do_computations = geom_data.collision_functors[pair_id];
+      do_computations(oM1, oM2,
+                      geom_data.collisionRequests[pair_id],
+                      collisionResult);
     }
     catch(std::invalid_argument & e)
     {
@@ -149,10 +149,10 @@ namespace pinocchio
     
     try
     {
-      fcl::distance( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                     geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                     geom_data.distanceRequests[pair_id],
-                     geom_data.distanceResults[pair_id]);
+      const GeometryData::ComputeDistance & do_computations = geom_data.distance_functors[pair_id];
+      do_computations(oM1, oM2,
+                      geom_data.distanceRequests[pair_id],
+                      geom_data.distanceResults[pair_id]);
     }
     catch(std::invalid_argument & e)
     {

@@ -188,6 +188,9 @@ namespace pinocchio
     typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     
+    typedef ::hpp::fcl::ComputeCollision ComputeCollision;
+    typedef ::hpp::fcl::ComputeDistance ComputeDistance;
+    
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
     ///        See updateGeometryPlacements to update the placements.
@@ -237,7 +240,14 @@ namespace pinocchio
     /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
-#endif // PINOCCHIO_WITH_HPP_FCL   
+    
+    /// \brief Functoqr associated to the computation of collisions.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeCollision) collision_functors;
+    
+    /// \brief Functoqr associated to the computation of distances.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeDistance) distance_functors;
+    
+#endif // PINOCCHIO_WITH_HPP_FCL
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
     ///
