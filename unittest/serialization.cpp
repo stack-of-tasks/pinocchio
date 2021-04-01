@@ -4,11 +4,12 @@
 
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 
 #include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/archive.hpp"
 
-#include "pinocchio/serialization/eigen.hpp"
 #include "pinocchio/serialization/spatial.hpp"
 
 #include "pinocchio/serialization/frame.hpp"
@@ -16,6 +17,8 @@
 #include "pinocchio/serialization/joints.hpp"
 #include "pinocchio/serialization/model.hpp"
 #include "pinocchio/serialization/data.hpp"
+
+#include "pinocchio/serialization/geometry.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
 
@@ -77,7 +80,7 @@ void generic_test(const T & object,
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
   
-  // Load and save as string stream
+  // Load and save as string stream (TXT format)
   std::stringstream ss_out;
   saveToStringStream(object,ss_out);
   
@@ -646,6 +649,29 @@ BOOST_AUTO_TEST_CASE(test_data_serialization)
   Data data(model);
   
   generic_test(data,TEST_SERIALIZATION_FOLDER"/Data","Data");
+}
+
+BOOST_AUTO_TEST_CASE(test_geometry_data_serialization)
+{
+  using namespace pinocchio;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoid(model);
+  pinocchio::Data data(model);
+  
+#ifdef PINOCCHIO_WITH_HPP_FCL
+  pinocchio::GeometryModel geom_model;
+  pinocchio::buildModels::humanoidGeometries(model,geom_model);
+  pinocchio::GeometryData geom_data(geom_model);
+  
+  const Eigen::VectorXd q = pinocchio::neutral(model);
+  pinocchio::forwardKinematics(model,data,q);
+  pinocchio::updateGeometryPlacements(model,data,geom_model,geom_data,q);
+  
+  generic_test(geom_data,TEST_SERIALIZATION_FOLDER"/GeomData","GeomData");
+#endif
+  
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END()
