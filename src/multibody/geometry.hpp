@@ -9,6 +9,8 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
+#include "pinocchio/serialization/serializable.hpp"
+
 #include <map>
 #include <list>
 #include <utility>
@@ -174,6 +176,7 @@ namespace pinocchio
   }; // struct GeometryModel
 
   struct GeometryData
+  : serialization::Serializable<GeometryData>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
