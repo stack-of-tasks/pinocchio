@@ -19,7 +19,7 @@ namespace pinocchio
       namespace bp = boost::python;
       bp::import("hppfcl");
       
-      typedef ::hpp::fcl::Transform3f Transform3f;
+      using namespace ::hpp::fcl;
       
       // Register implicit conversion SE3 <=> ::hpp::fcl::Transform3f
       bp::implicitly_convertible< SE3,Transform3f >();
