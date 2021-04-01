@@ -226,7 +226,7 @@ namespace pinocchio
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
     /// attached to the body from the joint center.
     ///
-    std::vector<double> radius;
+    std::vector<Scalar> radius;
 
     ///
     /// \brief Index of the collision pair
@@ -249,8 +249,21 @@ namespace pinocchio
     /// obstacles to the Inner objects of a given joint
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
-    GeometryData(const GeometryModel & geomModel);
+    ///
+    /// \brief Default constructor from a GeometryModel
+    ///
+    /// \param[in] geom_model GeometryModel associated to the new GeometryData
+    ///
+    GeometryData(const GeometryModel & geom_model);
+   
+    ///
+    /// \brief Copy constructor
+    ///
+    /// \param[in] other GeometryData to copy
+    ///
     GeometryData(const GeometryData & other);
+    
+    /// \brief Destructor
     ~GeometryData();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
