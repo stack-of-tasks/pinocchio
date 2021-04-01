@@ -255,6 +255,9 @@ namespace pinocchio
     typedef typename Data::Force Force;
     typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
+
+    //Temp variable
+    Force of_temp;
     
     typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
@@ -269,9 +272,7 @@ namespace pinocchio
       const RigidContactModel & cmodel = contact_models[k];
       const RigidContactData & cdata = contact_data[k];
 
-      // Temporary variable
-      typename Data::Vector3 of_temp_linear;
-      //Force & of_temp = data.of[0];
+      // TODO: Temporary variable
       const SE3 & oMc1 = cdata.oMc1;
       Force & of1 = data.of[cmodel.joint1_id];
       const SE3 & oMc2 = cdata.oMc2;
@@ -279,53 +280,52 @@ namespace pinocchio
 
       switch(cmodel.reference_frame) 
       {
-        case LOCAL:
-        {
-          switch(cmodel.type) {
-          case CONTACT_6D: {
-            if(cmodel.joint1_id > 0) {
-              of1 -= oMc1.act(cdata.contact_force);
-            }
-            if(cmodel.joint2_id > 0) {   
-              of2 += oMc1.act(cdata.contact_force);
-            }
-            break;
-          }
-          case CONTACT_3D: {
-            of_temp_linear.noalias() = oMc1.rotation()*cdata.contact_force.linear();
-            
-            if(cmodel.joint1_id > 0) {
-              of1.linear().noalias() -= of_temp_linear;
-              of1.angular().noalias() -= oMc1.translation().cross(of_temp_linear);
-            }
-            if(cmodel.joint2_id > 0) {
-              of2.linear() += of_temp_linear;
-              of2.angular().noalias() += oMc2.translation().cross(of_temp_linear);
-              break;
-            }
-            default: {
-              assert(false && "must never happen");
-              break;
-            }
-            }
-          }
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED:
-        {
+      case LOCAL: {
+        switch(cmodel.type) {
+        case CONTACT_6D: {
           if(cmodel.joint1_id > 0) {
-            of1 -= cdata.contact_force;
-            of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+            of1 -= oMc1.act(cdata.contact_force);
           }
           if(cmodel.joint2_id > 0) {
-            of2 += cdata.contact_force;
-            of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
+            of_temp = oMc1.act(cdata.contact_force);
+            of2 += of_temp;
           }
           break;
         }
-        default:
-          assert(false && "Should never happen");
-          break;
+        case CONTACT_3D: {
+          of_temp.linear().noalias() = oMc1.rotation()*cdata.contact_force.linear();
+          
+          if(cmodel.joint1_id > 0) {
+            of1.linear().noalias() -= of_temp.linear();
+            of1.angular().noalias() -= oMc1.translation().cross(of_temp.linear());
+          }
+          if(cmodel.joint2_id > 0) {
+            of2.linear() += of_temp.linear();
+            of2.angular().noalias() += oMc2.translation().cross(of_temp.linear());
+            break;
+          }
+          default: {
+            assert(false && "must never happen");
+            break;
+          }
+        }
+        }
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED: {
+        if(cmodel.joint1_id > 0) {
+          of1 -= cdata.contact_force;
+          of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+        }
+        if(cmodel.joint2_id > 0) {
+          of2 += cdata.contact_force;
+          of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
+        }
+        break;
+      }
+      default:
+        assert(false && "Should never happen");
+        break;
       }
     }
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
@@ -383,8 +383,9 @@ namespace pinocchio
                                             j2_dvc_dq,
                                             j2_dac_dq,
                                             j2_dac_dv,
-                                            j2_dac_da);          
-            
+                                            j2_dac_da);
+
+            //TODO: This is only in case reference_frame is LOCAL
             contact_dvc_dq -= cdata.c1Mc2.toActionMatrix() * j2_dvc_dq;
             contact_dac_dq -= cdata.c1Mc2.toActionMatrix() * j2_dac_dq;
             contact_dac_dv -= cdata.c1Mc2.toActionMatrix() * j2_dac_dv;
@@ -431,10 +432,11 @@ namespace pinocchio
                                                    j2_dac_dv,
                                                    j2_dac_da);
             
-            contact_dvc_dq -= cdata.c1Mc2.toActionMatrix().template topLeftCorner<3,3>() * j2_dvc_dq;
-            contact_dac_dq -= cdata.c1Mc2.toActionMatrix().template topLeftCorner<3,3>() * j2_dac_dq;
-            contact_dac_dv -= cdata.c1Mc2.toActionMatrix().template topLeftCorner<3,3>() * j2_dac_dv;
-            contact_dac_da -= cdata.c1Mc2.toActionMatrix().template topLeftCorner<3,3>() * j2_dac_da;
+            //TODO: This is only in case reference_frame is LOCAL            
+            contact_dvc_dq -= cdata.c1Mc2.rotation() * j2_dvc_dq;
+            contact_dac_dq -= cdata.c1Mc2.rotation() * j2_dac_dq;
+            contact_dac_dv -= cdata.c1Mc2.rotation() * j2_dac_dv;
+            contact_dac_da -= cdata.c1Mc2.rotation() * j2_dac_da;
           }
           //END TODO: Memory assignment here
           
