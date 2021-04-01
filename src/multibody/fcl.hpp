@@ -20,10 +20,14 @@
       {
         int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
         {
+          int res;
+          
           va_list args;
           va_start(args, format);
-          vsnprintf(buffer, buf_size, format, args);
+          res = vsnprintf(buffer, buf_size, format, args);
           va_end(args);
+          
+          return res;
         }
       }
     #endif
