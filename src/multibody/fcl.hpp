@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -18,7 +18,7 @@
       #include <stdarg.h>
       namespace std
       {
-        int snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
+        int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
         {
           va_list args;
           va_start(args, format);
