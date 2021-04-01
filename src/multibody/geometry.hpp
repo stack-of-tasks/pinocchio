@@ -265,6 +265,9 @@ namespace pinocchio
     ///
     GeometryData(const GeometryData & other);
     
+    /// \brief Empty constructor
+    GeometryData() {};
+    
     /// \brief Destructor
     ~GeometryData();
 
