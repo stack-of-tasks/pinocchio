@@ -123,6 +123,10 @@ namespace pinocchio
              setSecurityMargins_overload(bp::args("self","geometry_model","security_margin_map","upper"),
                                          "Set the security margin of all the collision request in a row, according to the values stored in the associative map."))
 #endif // PINOCCHIO_WITH_HPP_FCL
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        
         ;
 
       }

@@ -59,6 +59,7 @@ namespace pinocchio
    
     CollisionPair(const GeomIndex co1, const GeomIndex co2);
     bool                  operator == (const CollisionPair& rhs) const;
+    bool                  operator != (const CollisionPair& rhs) const;
     void                  disp        (std::ostream & os)        const;
     friend std::ostream & operator << (std::ostream & os,const CollisionPair & X);
 
