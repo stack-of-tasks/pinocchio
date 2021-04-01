@@ -103,8 +103,8 @@ namespace pinocchio
       if(geom_data.activeCollisionPairs[cp_index]
          && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        computeCollision(geom_model,geom_data,cp_index);
-        if(!isColliding && geom_data.collisionResults[cp_index].isCollision())
+        bool res = computeCollision(geom_model,geom_data,cp_index);
+        if(!isColliding && res)
         {
           isColliding = true;
           geom_data.collisionPairIndex = cp_index; // first pair to be in collision
