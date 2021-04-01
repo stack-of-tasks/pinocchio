@@ -13,7 +13,7 @@
 
   #if(WIN32)
     // It appears that std::snprintf is missing for Windows.
-    #if !( defined(_MSC_VER) && _MSC_VER < 1900 ) || ( defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR) )
+    #if !(( defined(_MSC_VER) && _MSC_VER < 1900 ) || ( defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR) ))
       #include <cstdio>
       #include <stdarg.h>
       namespace std
