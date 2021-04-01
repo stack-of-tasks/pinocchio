@@ -34,6 +34,9 @@ namespace pinocchio
         bp::class_<CollisionPair> ("CollisionPair",
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::no_init)
+        .def(bp::init<>
+             (bp::args("self"),
+              "Empty constructor."))
         .def(bp::init<const GeomIndex &, const GeomIndex &>
              (bp::args("self","index1", "index2"),
               "Initializer of collision pair."))
