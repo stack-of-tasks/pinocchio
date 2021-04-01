@@ -60,6 +60,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
     fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    //collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
     
     fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
     collision_result.clear();
