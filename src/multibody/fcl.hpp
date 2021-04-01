@@ -18,7 +18,7 @@
       #include <stdarg.h>
       namespace std
       {
-        int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
+        inline int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
         {
           int res;
           
