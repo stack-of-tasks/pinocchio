@@ -37,9 +37,9 @@ namespace pinocchio
     
     for(GeomIndex i=0; i < (GeomIndex) geom_model.ngeoms; ++i)
     {
-      const Model::JointIndex joint = geom_model.geometryObjects[i].parentJoint;
-      if (joint>0) geom_data.oMg[i] =  (data.oMi[joint] * geom_model.geometryObjects[i].placement);
-      else         geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
+      const Model::JointIndex joint_id = geom_model.geometryObjects[i].parentJoint;
+      if (joint_id>0) geom_data.oMg[i] =  (data.oMi[joint_id] * geom_model.geometryObjects[i].placement);
+      else            geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
     }
   }
 #ifdef PINOCCHIO_WITH_HPP_FCL  
@@ -50,7 +50,7 @@ namespace pinocchio
 
   inline bool computeCollision(const GeometryModel & geom_model,
                                GeometryData & geom_data,
-                               const PairIndex & pair_id)
+                               const PairIndex pair_id)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
     const CollisionPair & pair = geom_model.collisionPairs[pair_id];
@@ -68,9 +68,9 @@ namespace pinocchio
     try
     {
       fcl::collide(geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                    geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                    geom_data.collisionRequests[pair_id],
-                    collisionResult);
+                   geom_model.geometryObjects[pair.second].geometry.get(), oM2,
+                   geom_data.collisionRequests[pair_id],
+                   collisionResult);
     }
     catch(std::invalid_argument & e)
     {
@@ -134,7 +134,7 @@ namespace pinocchio
 
   inline fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                                GeometryData & geom_data,
-                                               const PairIndex & pair_id)
+                                               const PairIndex pair_id)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
     const CollisionPair & pair = geom_model.collisionPairs[pair_id];
@@ -187,6 +187,7 @@ namespace pinocchio
         }
       }
     }
+    
     return min_index;
   }
   

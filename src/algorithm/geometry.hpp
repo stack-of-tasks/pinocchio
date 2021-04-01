@@ -97,7 +97,7 @@ namespace pinocchio
   ///
   bool computeCollision(const GeometryModel & geom_model,
                         GeometryData & geom_data,
-                        const PairIndex & pair_id);
+                        const PairIndex pair_id);
 
   ///
   /// \brief Calls computeCollision for every active pairs of GeometryData. 
@@ -153,7 +153,7 @@ namespace pinocchio
   ///
   fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                         GeometryData & geom_data,
-                                        const PairIndex & pair_id);
+                                        const PairIndex pair_id);
   
   ///
   /// Compute the forward kinematics, update the geometry placements and
