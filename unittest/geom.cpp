@@ -351,7 +351,6 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
     
     const hpp::fcl::CollisionResult & res = geom_data.collisionResults[cp_index];
     
-    std::cout << "cp_index: " << cp_index << std::endl;
     BOOST_CHECK(res.isCollision() == other_res.isCollision());
     BOOST_CHECK(!res.isCollision());
   }
