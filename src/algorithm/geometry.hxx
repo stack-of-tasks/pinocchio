@@ -231,6 +231,7 @@ namespace pinocchio
         = geom_object.geometry;
       
       // Force computation of the Local AABB
+      // TODO: change for a more elegant solution
       const_cast<hpp::fcl::CollisionGeometry&>(*geometry).computeLocalAABB();
       
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
