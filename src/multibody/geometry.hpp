@@ -360,6 +360,35 @@ namespace pinocchio
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
     
+    ///
+    /// \brief Returns true if *this and other are equal.
+    ///
+    bool operator==(const GeometryData & other) const
+    {
+      return
+         oMg                  == other.oMg
+      && activeCollisionPairs == other.activeCollisionPairs
+#ifdef PINOCCHIO_WITH_HPP_FCL
+      && distanceRequests     == other.distanceRequests
+      && distanceResults      == other.distanceResults
+      && collisionRequests    == other.collisionRequests
+      && collisionResults     == other.collisionResults
+      && radius               == other.radius
+      && collisionPairIndex   == other.collisionPairIndex
+#endif
+      && innerObjects         == other.innerObjects
+      && outerObjects         == other.outerObjects
+      ;
+    }
+    
+    ///
+    /// \brief Returns true if *this and other are not equal.
+    ///
+    bool operator!=(const GeometryData & other) const
+    {
+      return !(*this == other);
+    }
+    
   }; // struct GeometryData
 
 } // namespace pinocchio
