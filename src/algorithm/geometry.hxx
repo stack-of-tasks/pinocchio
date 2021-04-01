@@ -229,6 +229,10 @@ namespace pinocchio
     {
       const GeometryObject::CollisionGeometryPtr & geometry
         = geom_object.geometry;
+      
+      // Force computation of the Local AABB
+      const_cast<hpp::fcl::CollisionGeometry&>(*geometry).computeLocalAABB();
+      
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
       const Model::JointIndex & i = geom_object.parentJoint;
       assert (i<geom_data.radius.size());
