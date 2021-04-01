@@ -245,7 +245,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  GeometryObject(const GeometryObject & other, bool deep_copy = false)
+  GeometryObject(const GeometryObject & other)
   : fcl(geometry)
   {
     *this = other;
