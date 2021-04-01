@@ -331,7 +331,33 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
   pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
 
   BOOST_CHECK(computeCollisions(geom_model,geom_data) == false);
+  BOOST_CHECK(computeCollisions(geom_model,geom_data,false) == false);
   
+  for(size_t cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
+  {
+    const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+    const GeometryObject & obj1 = geom_model.geometryObjects[cp.first];
+    const GeometryObject & obj2 = geom_model.geometryObjects[cp.second];
+     
+    hpp::fcl::CollisionResult other_res;
+    computeCollision(geom_model,geom_data,cp_index);
+    
+    fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[cp.first ])),
+                     oM2 (toFclTransform3f(geom_data.oMg[cp.second]));
+    
+    fcl::collide(obj1.geometry.get(), oM1,
+                 obj2.geometry.get(), oM2,
+                 geom_data.collisionRequests[cp_index],
+                 other_res);
+    
+    const hpp::fcl::CollisionResult & res = geom_data.collisionResults[cp_index];
+    
+    std::cout << "cp_index: " << cp_index << std::endl;
+    BOOST_CHECK(res.isCollision() == other_res.isCollision());
+    BOOST_CHECK(!res.isCollision());
+  }
+    
+  // test other signatures
   {
     Data data(model);
     GeometryData geom_data(geom_model);
