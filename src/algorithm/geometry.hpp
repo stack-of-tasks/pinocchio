@@ -198,6 +198,11 @@ namespace pinocchio
 
   ///
   /// Compute the radius of the geometry volumes attached to every joints.
+  ///
+  /// \param[in] model Kinematic model of the system
+  /// \param[in] geom_model Geometry model of the system
+  /// \param[out] geom_data Geometry data of the system
+  ///
   /// \sa GeometryData::radius
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
