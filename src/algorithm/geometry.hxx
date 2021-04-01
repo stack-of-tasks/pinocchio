@@ -177,7 +177,7 @@ namespace pinocchio
       const CollisionPair & cp = geom_model.collisionPairs[cp_index];
       
       if(   geom_data.activeCollisionPairs[cp_index]
-         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
         computeDistance(geom_model,geom_data,cp_index);
         if(geom_data.distanceResults[cp_index].min_distance < min_dist)
