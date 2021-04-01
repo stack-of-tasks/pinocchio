@@ -323,8 +323,7 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
   
   Data data(model);
   GeometryData geom_data(geom_model);
-  fcl::CollisionResult result;
-  
+
   pinocchio::srdf::loadReferenceConfigurations(model,srdf_filename,false);
   Eigen::VectorXd q = model.referenceConfigurations["half_sitting"];
 
@@ -387,8 +386,7 @@ BOOST_AUTO_TEST_CASE ( test_distances )
   
   Data data(model);
   GeometryData geom_data(geom_model);
-  fcl::CollisionResult result;
-  
+
   pinocchio::srdf::loadReferenceConfigurations(model,srdf_filename,false);
   Eigen::VectorXd q = model.referenceConfigurations["half_sitting"];
   
