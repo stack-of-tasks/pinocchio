@@ -15,6 +15,7 @@
 #else
   #include <boost/bind.hpp>
 #endif
+#include <boost/foreach.hpp>
 
 /// @cond DEV
 

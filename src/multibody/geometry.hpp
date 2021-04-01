@@ -9,7 +9,6 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#include <boost/foreach.hpp>
 #include <map>
 #include <list>
 #include <utility>
