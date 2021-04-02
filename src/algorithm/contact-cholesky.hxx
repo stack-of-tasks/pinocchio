@@ -521,7 +521,7 @@ namespace pinocchio
 
       }
 
-      // Upper left diagonal part of U
+      // Upper left triangular part of U
       for(Eigen::DenseIndex j = total_constraints_dim-1; j>=0; --j)
       {
         const Eigen::DenseIndex slice_dim = total_dim - j - 1;
