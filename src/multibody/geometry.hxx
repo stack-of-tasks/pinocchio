@@ -57,8 +57,8 @@ namespace pinocchio
       const GeometryObject & obj_1 = geom_model.geometryObjects[cp.first];
       const GeometryObject & obj_2 = geom_model.geometryObjects[cp.second];
       
-      collision_functors.push_back(ComputeCollision(obj_1.geometry.get(),obj_2.geometry.get()));
-      distance_functors.push_back(ComputeDistance(obj_1.geometry.get(),obj_2.geometry.get()));
+      collision_functors.push_back(ComputeCollision(obj_1,obj_2));
+      distance_functors.push_back(ComputeDistance(obj_1,obj_2));
     }
 #endif
     fillInnerOuterObjectMaps(geom_model);

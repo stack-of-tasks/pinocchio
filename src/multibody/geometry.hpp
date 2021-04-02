@@ -189,8 +189,8 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     
 #ifdef PINOCCHIO_WITH_HPP_FCL
-    typedef ::hpp::fcl::ComputeCollision ComputeCollision;
-    typedef ::hpp::fcl::ComputeDistance ComputeDistance;
+    typedef ComputeCollision ComputeCollision;
+    typedef ComputeDistance ComputeDistance;
 #endif
     
     ///
