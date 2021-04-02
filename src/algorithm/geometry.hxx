@@ -71,18 +71,13 @@ namespace pinocchio
     try
     {
       GeometryData::ComputeCollision & do_computations = geom_data.collision_functors[pair_id];
-      do_computations.o1 = geom_model.geometryObjects[pair.first].geometry.get();
-      do_computations.o2 = geom_model.geometryObjects[pair.second].geometry.get();
-      
-      do_computations(oM1, oM2,
-                      collision_request,
-                      collision_result);
+      do_computations(oM1, oM2, collision_request, collision_result);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
       ss << "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
-      ss << e.what() << std::endl;
+      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
     
@@ -149,6 +144,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
+    fcl::DistanceRequest & distance_request = geom_data.distanceRequests[pair_id];
     fcl::DistanceResult & distance_result = geom_data.distanceResults[pair_id];
     distance_result.clear();
     
@@ -158,18 +154,13 @@ namespace pinocchio
     try
     {
       GeometryData::ComputeDistance & do_computations = geom_data.distance_functors[pair_id];
-      do_computations.o1 = geom_model.geometryObjects[pair.first].geometry.get();
-      do_computations.o2 = geom_model.geometryObjects[pair.second].geometry.get();
-      
-      do_computations(oM1, oM2,
-                      geom_data.distanceRequests[pair_id],
-                      distance_result);
+      do_computations(oM1, oM2, distance_request, distance_result);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
       ss << "Problem when trying to compute the distance of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
-      ss << e.what() << std::endl;
+      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
 
