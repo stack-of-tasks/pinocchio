@@ -116,13 +116,13 @@ namespace pinocchio
              &Inertia::template vtiv<Motion>,
              bp::args("self","v"),
              "Returns the result of v.T * Iv.")
-        .def("vxi",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template vxi<Motion>,
+        .def("vxi",(Matrix6 (Inertia::*)(const MotionDense<Motion> &) const)&Inertia::template vxi<Motion>,
              bp::args("self","v"),
              "Returns the result of v x* I, a 6x6 matrix.")
-        .def("ivx",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template ivx<Motion>,
+        .def("ivx",(Matrix6 (Inertia::*)(const MotionDense<Motion> &) const)&Inertia::template ivx<Motion>,
              bp::args("self","v"),
              "Returns the result of I vx, a 6x6 matrix.")
-        .def("variation",(Matrix6 (Inertia::*)(const Motion &) const)&Inertia::template variation<Motion>,
+        .def("variation",(Matrix6 (Inertia::*)(const MotionDense<Motion> &) const)&Inertia::template variation<Motion>,
              bp::args("self","v"),
              "Returns the time derivative of the inertia.")
         
