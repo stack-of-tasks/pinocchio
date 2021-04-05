@@ -281,22 +281,22 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     
     ComputeCollision(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
-    , o1(o1)
-    , o2(o2)
+    , o1(&o1)
+    , o2(&o2)
     {}
     
     virtual ~ComputeCollision() {};
     
   protected:
-    const GeometryObject & o1;
-    const GeometryObject & o2;
+    const GeometryObject * o1;
+    const GeometryObject * o2;
     
     virtual std::size_t run(const fcl::Transform3f& tf1, const fcl::Transform3f& tf2,
                             const fcl::CollisionRequest& request, fcl::CollisionResult& result) const
     {
       typedef ::hpp::fcl::CollisionGeometry const * Pointer;
-      const_cast<Pointer&>(Base::o1) = o1.geometry.get();
-      const_cast<Pointer&>(Base::o2) = o2.geometry.get();
+      const_cast<Pointer&>(Base::o1) = o1->geometry.get();
+      const_cast<Pointer&>(Base::o2) = o2->geometry.get();
       return Base::run(tf1, tf2, request, result);
     }
   };
@@ -308,22 +308,22 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     
     ComputeDistance(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
-    , o1(o1)
-    , o2(o2)
+    , o1(&o1)
+    , o2(&o2)
     {}
     
     virtual ~ComputeDistance() {};
     
   protected:
-    const GeometryObject & o1;
-    const GeometryObject & o2;
+    const GeometryObject * o1;
+    const GeometryObject * o2;
     
     virtual hpp::fcl::FCL_REAL run(const fcl::Transform3f& tf1, const fcl::Transform3f& tf2,
                                    const fcl::DistanceRequest& request, fcl::DistanceResult& result) const
     {
       typedef ::hpp::fcl::CollisionGeometry const * Pointer;
-      const_cast<Pointer&>(Base::o1) = o1.geometry.get();
-      const_cast<Pointer&>(Base::o2) = o2.geometry.get();
+      const_cast<Pointer&>(Base::o1) = o1->geometry.get();
+      const_cast<Pointer&>(Base::o2) = o2->geometry.get();
       return Base::run(tf1, tf2, request, result);
     }
   };
