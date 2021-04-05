@@ -8,8 +8,8 @@ from os.path import *
 # Load UR robot arm
 # This path refers to Pinocchio source code but you can define your own directory here.
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
-model_path = pinocchio_model_dir + '/others/robots'
-mesh_dir = model_path
+model_path = pinocchio_model_dir + '/example-robot-data/robots'
+mesh_dir = pinocchio_model_dir
 # You should change here to set up your own URDF file
 urdf_filename = model_path + '/ur_description/urdf/ur5_robot.urdf'
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_filename, mesh_dir)

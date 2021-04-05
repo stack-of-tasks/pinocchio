@@ -6,8 +6,8 @@ from os.path import dirname, join, abspath
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
-model_path = join(pinocchio_model_dir,"others/robots")
-mesh_dir = model_path
+model_path = join(pinocchio_model_dir,"example-robot-data/robots")
+mesh_dir = pinocchio_model_dir
 urdf_filename = "romeo_small.urdf"
 urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 
@@ -15,7 +15,7 @@ urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 model = pin.buildModelFromUrdf(urdf_model_path,pin.JointModelFreeFlyer())
 
 # Load collision geometries
-geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,model_path,pin.GeometryType.COLLISION)
+geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,mesh_dir,pin.GeometryType.COLLISION)
 
 # Add collisition pairs
 geom_model.addAllCollisionPairs()

@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 BOOST_AUTO_TEST_CASE ( build_model )
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
   
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, model);
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )
 BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  const std::string dir = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
   
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model);

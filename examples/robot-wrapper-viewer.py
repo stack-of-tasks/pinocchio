@@ -29,10 +29,10 @@ if len(argv)>1:
 # Conversion with str seems to be necessary when executing this file with ipython
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
-model_path = join(pinocchio_model_dir,"others/robots")
-mesh_dir = model_path
+model_path = join(pinocchio_model_dir,"example-robot-data/robots")
+mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/urdf"),urdf_filename)
+urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
 
 robot = RobotWrapper.BuildFromURDF(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
