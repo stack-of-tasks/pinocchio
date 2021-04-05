@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE ( loading_model )
 
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
 
   Model model;
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
 
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > package_dirs;
-  std::string mesh_dir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  std::string mesh_dir  = PINOCCHIO_MODEL_DIR;
   package_dirs.push_back(mesh_dir);
 
   Model model;
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
   
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
   
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE ( test_distances )
   
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
   
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE ( test_append_geom_models )
 
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
   
   Model model;
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE (radius)
   std::vector < std::string > packageDirs;
 
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
-  std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
+  std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
 
   pinocchio::Model model;
