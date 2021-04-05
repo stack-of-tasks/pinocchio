@@ -296,6 +296,9 @@ namespace pinocchio
     , S((Scalar)0)
     {}
     
+    JointDataMimic(const JointDataMimic & other)
+    { *this = other; }
+    
     JointDataMimic(const JointDataBase<JointData> & jdata,
                    const Scalar & scaling)
     : m_jdata_ref(jdata.derived())
