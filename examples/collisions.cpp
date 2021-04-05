@@ -14,7 +14,7 @@
 int main(int /*argc*/, char ** /*argv*/)
 {
   using namespace pinocchio;
-  const std::string robots_model_path = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  const std::string robots_model_path = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/");
   
   // You should change here to set up your own URDF file
   const std::string urdf_filename = robots_model_path + std::string("talos_data/urdf/talos_reduced.urdf");
