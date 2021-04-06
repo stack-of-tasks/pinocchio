@@ -46,6 +46,7 @@ namespace pinocchio
   
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
     void exposePool();
+    void exposeParallelAlgorithms();
 #endif
 
   } // namespace python

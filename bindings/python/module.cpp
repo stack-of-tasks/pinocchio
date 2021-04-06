@@ -98,6 +98,7 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   exposePool();
+  exposeParallelAlgorithms();
 #endif
   
   exposeVersion();
