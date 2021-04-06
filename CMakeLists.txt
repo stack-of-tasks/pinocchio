@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2021 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -32,6 +32,8 @@ INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+INCLUDE(CMakeDependentOption)
 
 # If needed, set CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
@@ -63,6 +65,7 @@ OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision suppor
 OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
+OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 
@@ -122,6 +125,10 @@ ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
 IF(BUILD_WITH_CASADI_SUPPORT)
   ADD_PROJECT_DEPENDENCY(casadi 3.4.5 REQUIRED PKG_CONFIG_REQUIRES "casadi >= 3.4.5")
 ENDIF(BUILD_WITH_CASADI_SUPPORT)
+
+IF(BUILD_WITH_OPENMP_SUPPORT)
+  FIND_PACKAGE(OpenMP REQUIRED)
+ENDIF(BUILD_WITH_OPENMP_SUPPORT)
 
 SET(BOOST_REQUIRED_COMPONENTS filesystem serialization system)
 
