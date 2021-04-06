@@ -96,6 +96,10 @@ BOOST_PYTHON_MODULE(pinocchio_pywrap)
   exposeFCL();
 #endif // PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
   
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+  exposePool();
+#endif
+  
   exposeVersion();
   exposeDependencies();
   exposeConversions();

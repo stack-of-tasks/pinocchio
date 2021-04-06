@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -43,6 +43,9 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
     void exposeFCL();
 #endif // PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+    void exposePool();
+#endif
 
   } // namespace python
 } // namespace pinocchio
