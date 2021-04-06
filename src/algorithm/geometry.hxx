@@ -122,10 +122,7 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    
     updateGeometryPlacements(model, data, geom_model, geom_data, q);
-    
     return computeCollisions(geom_model,geom_data, stopAtFirstCollision);
   }
 
