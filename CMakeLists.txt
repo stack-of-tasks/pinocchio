@@ -66,6 +66,7 @@ OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differe
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
+cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENM "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 
