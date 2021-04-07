@@ -27,8 +27,8 @@ namespace pinocchio
     typedef typename Base::Model Model;
     typedef typename Base::Data Data;
     typedef typename Base::DataVector DataVector;
-    typedef GeometryModel GeometryModel;
-    typedef GeometryData GeometryData;
+    typedef ::pinocchio::GeometryModel GeometryModel;
+    typedef ::pinocchio::GeometryData GeometryData;
     
     typedef std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > GeometryModelVector;
     typedef std::vector<GeometryData,Eigen::aligned_allocator<GeometryData> > GeometryDataVector;
