@@ -25,8 +25,8 @@ int main(int argc, char ** argv)
   
   // Sample a random joint configuration as well as random joint velocity and acceleration
   Eigen::VectorXd q = randomConfiguration(model);
-  Eigen::VectorXd v = Eigen::VectorXd(model.nv);
-  Eigen::VectorXd a = Eigen::VectorXd(model.nv);
+  Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
   
   // Computes the kinematics derivatives for all the joints of the robot
   computeForwardKinematicsDerivatives(model, data, q, v, a);

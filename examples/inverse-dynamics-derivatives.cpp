@@ -26,8 +26,8 @@ int main(int argc, char ** argv)
   
   // Sample a random joint configuration as well as random joint velocity and acceleration
   Eigen::VectorXd q = randomConfiguration(model);
-  Eigen::VectorXd v = Eigen::VectorXd(model.nv);
-  Eigen::VectorXd a = Eigen::VectorXd(model.nv);
+  Eigen::VectorXd v = Eigen::VectorXd::Zero(model.nv);
+  Eigen::VectorXd a = Eigen::VectorXd::Zero(model.nv);
   
   // Allocate result container
   Eigen::MatrixXd djoint_torque_dq = Eigen::MatrixXd::Zero(model.nv,model.nv);
