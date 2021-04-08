@@ -125,7 +125,7 @@ namespace pinocchio
               buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
           bp::args("model", "geom_model", "list_of_joints_to_lock",
                    "reference_configuration"),
-          "Build a reduced model and a rededuced geometry model  from a given "
+          "Build a reduced model and a reduced geometry model from a given "
           "input model,"
           "a given input geometry model and a list of joint to lock.\n\n"
           "Parameters:\n"
@@ -143,7 +143,7 @@ namespace pinocchio
               buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
           bp::args("model", "list_of_geom_models", "list_of_joints_to_lock",
                    "reference_configuration"),
-          "Build a reduced model and a rededuced geometry model  from a given "
+          "Build a reduced model and a reduced geometry model from a given "
           "input model,"
           "a given input geometry model and a list of joint to lock.\n\n"
           "Parameters:\n"
