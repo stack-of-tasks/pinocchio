@@ -68,6 +68,8 @@ jobs:
 
         :: Testing
         set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
+        .\unittest\Release\test-cpp-urdf.exe
+        .\examples\Release\example-cpp-geometry-models.exe
         ctest --output-on-failure -C Release -V
 
 #        :: Test Python import
