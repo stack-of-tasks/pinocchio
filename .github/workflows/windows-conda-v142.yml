@@ -35,6 +35,10 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
+
+    - name: Display the path
+      run: echo %cd%
+      shell: cmd
     
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
