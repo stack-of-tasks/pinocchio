@@ -36,8 +36,8 @@ namespace pinocchio
     /// \param[in] model input model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    ModelPoolTpl(const Model & model,
-                 const int pool_size = omp_get_max_threads())
+    explicit ModelPoolTpl(const Model & model,
+                          const int pool_size = omp_get_max_threads())
     : m_model(model)
     , m_datas((size_t)pool_size, Data(model))
     , m_size(pool_size)
