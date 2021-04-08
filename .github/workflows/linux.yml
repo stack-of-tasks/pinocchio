@@ -41,12 +41,13 @@ jobs:
       run: |
         sudo rm -rf /usr/local/share/boost/1.69.0
         export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
-        export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils libomp-dev"
+        export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
         export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py"$PYTHON3_VERSION"-eigenpy python-numpy"
         export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py"$PYTHON3_VERSION"-hpp-fcl"
         echo $APT_DEPENDENCIES
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
+        sudo apt install libomp-dev libomp5
     - name: Free disk space
       run: |
         sudo apt clean
