@@ -32,7 +32,9 @@ INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
-SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+IF(APPLE) # Use the handmade approach
+  SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake/find-external/OpenMP ${CMAKE_MODULE_PATH})
+ENDIF(APPLE)
 INCLUDE(CMakeDependentOption)
 
 # If needed, set CMake policy for APPLE systems
