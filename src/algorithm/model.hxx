@@ -6,7 +6,6 @@
 #define __pinocchio_algorithm_model_hxx__
 
 #include <algorithm>
-#include <functional>
 
 namespace pinocchio
 {
@@ -481,14 +480,12 @@ namespace pinocchio
       GeometryModel &reduced_geom_model) {
 
     const std::vector<GeometryModel> temp_input_geoms { input_geom_model };
-    std::vector<GeometryModel> temp_reduced_geom_models { reduced_geom_model };
-    std::vector<std::reference_wrapper<GeometryModel>>
-        temp_reduced_geom_models_refs(temp_reduced_geom_models.begin(),
-                                      temp_reduced_geom_models.end());
+    std::vector<GeometryModel> temp_reduced_geom_models;
 
     buildReducedModel(input_model, temp_input_geoms, list_of_joints_to_lock,
                       reference_configuration, reduced_model,
-                      temp_reduced_geom_models_refs);
+                      temp_reduced_geom_models);
+    reduced_geom_model = temp_reduced_geom_models.front();
   }
 
   template <typename Scalar, int Options,
@@ -500,21 +497,15 @@ namespace pinocchio
       const std::vector<JointIndex> &list_of_joints_to_lock,
       const Eigen::MatrixBase<ConfigVectorType> &reference_configuration,
       ModelTpl<Scalar, Options, JointCollectionTpl> &reduced_model,
-      std::vector<std::reference_wrapper<GeometryModel>>
-          &list_of_reduced_geom_models) {
+      std::vector<GeometryModel> &list_of_reduced_geom_models) {
     typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
     buildReducedModel(input_model, list_of_joints_to_lock,
                       reference_configuration, reduced_model);
 
     // for all GeometryModels
-    // TODO: the check below could only come up from C++,
-    // as the python wrapper creates list of the same size
-    assert(list_of_reduced_geom_models.size() == list_of_geom_models.size());
-    for (unsigned int i=0; i < list_of_reduced_geom_models.size(); ++i) {
-      auto &input_geom_model =
-        list_of_geom_models[i];
-      auto &reduced_geom_model =
-              list_of_reduced_geom_models[i];
+    for (auto &input_geom_model : list_of_geom_models) {
+      GeometryModel reduced_geom_model;
+
       // Add all the geometries
       typedef GeometryModel::GeometryObject GeometryObject;
       typedef GeometryModel::GeometryObjectVector GeometryObjectVector;
@@ -544,26 +535,28 @@ namespace pinocchio
           relative_placement = reduced_model.frames[reduced_frame_id].placement;
         }
 
+
         GeometryObject reduced_geom(geom);
         reduced_geom.parentJoint = reduced_joint_id;
         reduced_geom.parentFrame =
             reduced_model.getBodyId(input_model.frames[geom.parentFrame].name);
         reduced_geom.placement = relative_placement * geom.placement;
-        reduced_geom_model.get().addGeometryObject(reduced_geom);
+        reduced_geom_model.addGeometryObject(reduced_geom);
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-      // Add all the collision pairs - the index of the geometry objects should
-      // have not changed
+        // Add all the collision pairs - the index of the geometry objects
+        // should have not changed
 
-      typedef GeometryModel::CollisionPairVector CollisionPairVector;
-      for (CollisionPairVector::const_iterator it =
-               input_geom_model.collisionPairs.begin();
-           it != input_geom_model.collisionPairs.end(); ++it) {
-        const CollisionPair &cp = *it;
-        reduced_geom_model.get().addCollisionPair(cp);
-      }
+        typedef GeometryModel::CollisionPairVector CollisionPairVector;
+        for (CollisionPairVector::const_iterator it =
+                 input_geom_model.collisionPairs.begin();
+             it != input_geom_model.collisionPairs.end(); ++it) {
+          const CollisionPair &cp = *it;
+          reduced_geom_model.addCollisionPair(cp);
+        }
 #endif
+      list_of_reduced_geom_models.push_back(reduced_geom_model);
     }
   }
 

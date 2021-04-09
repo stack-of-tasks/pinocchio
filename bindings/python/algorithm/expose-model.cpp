@@ -42,13 +42,10 @@ namespace pinocchio
         const Eigen::MatrixBase<ConfigVectorType> &reference_configuration) {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       Model reduced_model;
-      std::vector<GeometryModel> reduced_geom_models(list_of_geom_models.size());
-      std::vector<std::reference_wrapper<GeometryModel>>
-          reduced_geom_models_refs(reduced_geom_models.begin(),
-                                   reduced_geom_models.end());
+      std::vector<GeometryModel> reduced_geom_models;
 
       buildReducedModel(model,list_of_geom_models,list_of_joints_to_lock,
-                        reference_configuration,reduced_model,reduced_geom_models_refs);
+                        reference_configuration,reduced_model,reduced_geom_models);
       
       return bp::make_tuple(reduced_model,reduced_geom_models);
     }
@@ -65,12 +62,8 @@ namespace pinocchio
       Model reduced_model;
       std::vector<GeometryModel> geom_models{ geom_model };
       std::vector<GeometryModel> reduced_geom_models(1); // in this case it's a single element
-      std::vector<std::reference_wrapper<GeometryModel>>
-          reduced_geom_models_refs(reduced_geom_models.begin(),
-                                   reduced_geom_models.end());
-
       buildReducedModel(model,geom_models,list_of_joints_to_lock,
-                        reference_configuration,reduced_model,reduced_geom_models_refs);
+                        reference_configuration,reduced_model,reduced_geom_models);
       
       return bp::make_tuple(reduced_model,reduced_geom_models.front());
     }

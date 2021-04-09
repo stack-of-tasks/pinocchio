@@ -65,6 +65,7 @@ visual_model_reduced, collision_model_reduced = geometric_models_reduced[
 # options 1-3 only take joint ids
 print('joints to lock (only ids):', jointsToLockIDs)
 print('reduced model: dim=' + str(len(model_reduced.joints)))
+print('-' * 30)
 
 # Option 4: Build a RobotWrapper and reduce the model using the wrapper
 # reference_configuration is optional: if not provided, neutral configuration used
