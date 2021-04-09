@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2021 CNRS INRIA
 #
 
 # ----------------------------------------------------
@@ -50,6 +50,11 @@ IF(CPPADCG_FOUND)
   SET_PROPERTY(TARGET timings-cg PROPERTY CXX_STANDARD 11)
   TARGET_LINK_LIBRARIES(timings-cg PUBLIC ${CMAKE_DL_LIBS})
 ENDIF(CPPADCG_FOUND)
+
+IF(BUILD_WITH_OPENMP_SUPPORT)
+  ADD_BENCH(timings-parallel TRUE)
+  TARGET_LINK_LIBRARIES(timings-parallel PRIVATE OpenMP::OpenMP_CXX)
+ENDIF(BUILD_WITH_OPENMP_SUPPORT)
 
 # timings
 # 

@@ -37,9 +37,9 @@ namespace pinocchio
     
     for(GeomIndex i=0; i < (GeomIndex) geom_model.ngeoms; ++i)
     {
-      const Model::JointIndex joint = geom_model.geometryObjects[i].parentJoint;
-      if (joint>0) geom_data.oMg[i] =  (data.oMi[joint] * geom_model.geometryObjects[i].placement);
-      else         geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
+      const Model::JointIndex joint_id = geom_model.geometryObjects[i].parentJoint;
+      if (joint_id>0) geom_data.oMg[i] =  (data.oMi[joint_id] * geom_model.geometryObjects[i].placement);
+      else            geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
     }
   }
 #ifdef PINOCCHIO_WITH_HPP_FCL  
@@ -50,38 +50,39 @@ namespace pinocchio
 
   inline bool computeCollision(const GeometryModel & geom_model,
                                GeometryData & geom_data,
-                               const PairIndex & pair_id)
+                               const PairIndex pair_id)
   {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( geom_model.collisionPairs.size() == geom_data.collisionResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
     const CollisionPair & pair = geom_model.collisionPairs[pair_id];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id      < geom_data.collisionResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    fcl::CollisionResult& collisionResult = geom_data.collisionResults[pair_id];
-    collisionResult.clear();
+    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
+    
+    fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
+    collision_result.clear();
 
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
 
     try
     {
-      fcl::collide(geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                    geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                    geom_data.collisionRequests[pair_id],
-                    collisionResult);
+      GeometryData::ComputeCollision & do_computations = geom_data.collision_functors[pair_id];
+      do_computations(oM1, oM2, collision_request, collision_result);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
       ss << "Problem when trying to check the collision of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
-      ss << e.what() << std::endl;
+      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
     
 
-    return collisionResult.isCollision();
+    return collision_result.isCollision();
   }
   
   inline bool computeCollisions(const GeometryModel & geom_model,
@@ -90,15 +91,19 @@ namespace pinocchio
   {
     bool isColliding = false;
     
-    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
+    for (std::size_t cp_index = 0;
+         cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      if(geom_data.activeCollisionPairs[cpt])
+      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+      
+      if(geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        computeCollision(geom_model,geom_data,cpt);
-        if(!isColliding && geom_data.collisionResults[cpt].isCollision())
+        bool res = computeCollision(geom_model,geom_data,cp_index);
+        if(!isColliding && res)
         {
           isColliding = true;
-          geom_data.collisionPairIndex = cpt; // first pair to be in collision
+          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
           if(stopAtFirstCollision)
             return true;
         }
@@ -117,10 +122,7 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision)
   {
-    assert(model.check(data) && "data is not consistent with model.");
-    
     updateGeometryPlacements(model, data, geom_model, geom_data, q);
-    
     return computeCollisions(geom_model,geom_data, stopAtFirstCollision);
   }
 
@@ -130,31 +132,32 @@ namespace pinocchio
 
   inline fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                                GeometryData & geom_data,
-                                               const PairIndex & pair_id)
+                                               const PairIndex pair_id)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( geom_model.collisionPairs.size() == geom_data.collisionResults.size() );
     const CollisionPair & pair = geom_model.collisionPairs[pair_id];
 
-    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id      < geom_data.distanceResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    geom_data.distanceResults[pair_id].clear();
+    fcl::DistanceRequest & distance_request = geom_data.distanceRequests[pair_id];
+    fcl::DistanceResult & distance_result = geom_data.distanceResults[pair_id];
+    distance_result.clear();
+    
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
     
     try
     {
-      fcl::distance( geom_model.geometryObjects[pair.first ].geometry.get(), oM1,
-                     geom_model.geometryObjects[pair.second].geometry.get(), oM2,
-                     geom_data.distanceRequests[pair_id],
-                     geom_data.distanceResults[pair_id]);
+      GeometryData::ComputeDistance & do_computations = geom_data.distance_functors[pair_id];
+      do_computations(oM1, oM2, distance_request, distance_result);
     }
     catch(std::invalid_argument & e)
     {
       std::stringstream ss;
       ss << "Problem when trying to compute the distance of collision pair #" << pair_id << " (" << pair.first << "," << pair.second << ")" << std::endl;
-      ss << e.what() << std::endl;
+      ss << "hpp-fcl original error:\n" << e.what() << std::endl;
       throw std::invalid_argument(ss.str());
     }
 
@@ -166,18 +169,24 @@ namespace pinocchio
   {
     std::size_t min_index = geom_model.collisionPairs.size();
     double min_dist = std::numeric_limits<double>::infinity();
-    for (std::size_t cpt = 0; cpt < geom_model.collisionPairs.size(); ++cpt)
+    
+    for (std::size_t cp_index = 0;
+         cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      if(geom_data.activeCollisionPairs[cpt])
+      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+      
+      if(   geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        computeDistance(geom_model,geom_data,cpt);
-        if(geom_data.distanceResults[cpt].min_distance < min_dist)
+        computeDistance(geom_model,geom_data,cp_index);
+        if(geom_data.distanceResults[cp_index].min_distance < min_dist)
         {
-          min_index = cpt;
-          min_dist = geom_data.distanceResults[cpt].min_distance;
+          min_index = cp_index;
+          min_dist = geom_data.distanceResults[cp_index].min_distance;
         }
       }
     }
+    
     return min_index;
   }
   
@@ -235,7 +244,7 @@ namespace pinocchio
       const_cast<hpp::fcl::CollisionGeometry&>(*geometry).computeLocalAABB();
       
       const GeometryModel::SE3 & jMb = geom_object.placement; // placement in joint.
-      const Model::JointIndex & i = geom_object.parentJoint;
+      const Model::JointIndex i = geom_object.parentJoint;
       assert (i<geom_data.radius.size());
 
       double radius = geom_data.radius[i] * geom_data.radius[i];

@@ -7,10 +7,13 @@
 
 #include <eigenpy/memory.hpp>
 
+#include "pinocchio/serialization/geometry.hpp"
+
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
 
@@ -31,6 +34,9 @@ namespace pinocchio
         bp::class_<CollisionPair> ("CollisionPair",
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::no_init)
+        .def(bp::init<>
+             (bp::args("self"),
+              "Empty constructor."))
         .def(bp::init<const GeomIndex &, const GeomIndex &>
              (bp::args("self","index1", "index2"),
               "Initializer of collision pair."))
@@ -42,6 +48,7 @@ namespace pinocchio
         .def_readwrite("second",&CollisionPair::second);
         
         StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
+        serialize< std::vector<CollisionPair> >();
       }
     }; // struct CollisionPairPythonVisitor
 
@@ -119,6 +126,10 @@ namespace pinocchio
              setSecurityMargins_overload(bp::args("self","geometry_model","security_margin_map","upper"),
                                          "Set the security margin of all the collision request in a row, according to the values stored in the associative map."))
 #endif // PINOCCHIO_WITH_HPP_FCL
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+        
         ;
 
       }
@@ -132,6 +143,7 @@ namespace pinocchio
         .def(GeometryDataPythonVisitor())
         .def(PrintableVisitor<GeometryData>())
         .def(CopyableVisitor<GeometryData>())
+        .def(SerializableVisitor<GeometryData>())
         ;
      
       }

@@ -97,7 +97,7 @@ namespace pinocchio
   ///
   bool computeCollision(const GeometryModel & geom_model,
                         GeometryData & geom_data,
-                        const PairIndex & pair_id);
+                        const PairIndex pair_id);
 
   ///
   /// \brief Calls computeCollision for every active pairs of GeometryData. 
@@ -153,7 +153,7 @@ namespace pinocchio
   ///
   fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                         GeometryData & geom_data,
-                                        const PairIndex & pair_id);
+                                        const PairIndex pair_id);
   
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -198,6 +198,11 @@ namespace pinocchio
 
   ///
   /// Compute the radius of the geometry volumes attached to every joints.
+  ///
+  /// \param[in] model Kinematic model of the system
+  /// \param[in] geom_model Geometry model of the system
+  /// \param[out] geom_data Geometry data of the system
+  ///
   /// \sa GeometryData::radius
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

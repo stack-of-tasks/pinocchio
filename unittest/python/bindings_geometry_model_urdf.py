@@ -10,11 +10,12 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
 
     def setUp(self):
         self.current_file = os.path.dirname(str(os.path.abspath(__file__)))
-        self.model_dir = os.path.abspath(os.path.join(self.current_file, "../../models/others/robots"))
+        self.mesh_path = os.path.abspath(os.path.join(self.current_file, "../../models"))
+        self.model_dir = os.path.abspath(os.path.join(self.current_file, "../../models/example-robot-data/robots"))
         self.model_path = os.path.abspath(os.path.join(self.model_dir, "romeo_description/urdf/romeo.urdf"))
 
     def test_load(self):
-        hint_list = [self.model_dir, "wrong/hint"]
+        hint_list = [self.mesh_path, "wrong/hint"]
         expected_mesh_path = os.path.join(self.model_dir,'romeo_description/meshes/V1/collision/LHipPitch.dae')
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
@@ -24,7 +25,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         self.assertEqual(os.path.normpath(col.meshPath), os.path.normpath(expected_mesh_path))
 
     def test_self_load(self):
-        hint_list = [self.model_dir]
+        hint_list = [self.mesh_path]
 
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
         collision_model_ref = pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, hint_list)
@@ -34,11 +35,11 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
 
         collision_model_self = pin.GeometryModel()
-        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, self.model_dir)
+        pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, self.mesh_path)
         self.assertTrue(checkGeom(collision_model_ref, collision_model_self))
 
         hint_vec = pin.StdVec_StdString()
-        hint_vec.append(self.model_dir)
+        hint_vec.append(self.mesh_path)
 
         collision_model_self = pin.GeometryModel()
         pin.buildGeomFromUrdf(model, self.model_path, pin.GeometryType.COLLISION, collision_model_self, hint_vec)
@@ -46,7 +47,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
  
 
     def test_multi_load(self):
-        hint_list = [self.model_dir, "wrong/hint"]
+        hint_list = [self.mesh_path, "wrong/hint"]
         expected_collision_path = os.path.join(self.model_dir,'romeo_description/meshes/V1/collision/LHipPitch.dae')
         expected_visual_path = os.path.join(self.model_dir,'romeo_description/meshes/V1/visual/LHipPitch.dae')
 
@@ -87,19 +88,19 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
     def test_deprecated_signatures(self):
         model = pin.buildModelFromUrdf(self.model_path, pin.JointModelFreeFlyer())
   
-        hint_list = [self.model_dir, "wrong/hint"]
-        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
+        hint_list = [self.mesh_path, "wrong/hint"]
+        pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION)
 
         hint_vec = pin.StdVec_StdString()
-        hint_vec.append(self.model_dir)
-        collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION)
+        hint_vec.append(self.mesh_path)
+        pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION)
 
-        collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION)
+        pin.buildGeomFromUrdf(model, self.model_path, self.mesh_path, pin.GeometryType.COLLISION)
       
         if pin.WITH_HPP_FCL_BINDINGS:
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
-            collision_model = pin.buildGeomFromUrdf(model, self.model_path, self.model_dir, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
+            pin.buildGeomFromUrdf(model, self.model_path, hint_list, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
+            pin.buildGeomFromUrdf(model, self.model_path, hint_vec, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
+            pin.buildGeomFromUrdf(model, self.model_path, self.mesh_path, pin.GeometryType.COLLISION, pin.hppfcl.MeshLoader())
 
 if __name__ == '__main__':
     unittest.main()

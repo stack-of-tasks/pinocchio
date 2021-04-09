@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 CNRS
+// Copyright (c) 2021 CNRS INRIA
 //
 
 #include "pinocchio/macros.hpp"
@@ -19,12 +19,12 @@ bool check_exception_msg (const std::exception& exception)
 
 BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
-void function_1(std::vector<int> v, int size)
+void function_1(std::vector<int> v, size_t size)
 {
   PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), size);
       //"size of input vector should be " << size)
 }
-void function_2(std::vector<int> v, int size)
+void function_2(std::vector<int> v, size_t size)
 {
   PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), size,
       "custom message " << "with stream");

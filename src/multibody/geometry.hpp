@@ -9,7 +9,8 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#include <boost/foreach.hpp>
+#include "pinocchio/serialization/serializable.hpp"
+
 #include <map>
 #include <list>
 #include <utility>
@@ -175,6 +176,7 @@ namespace pinocchio
   }; // struct GeometryModel
 
   struct GeometryData
+  : serialization::Serializable<GeometryData>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -185,6 +187,11 @@ namespace pinocchio
     typedef std::vector<GeomIndex> GeomIndexList;
     typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
+    
+#ifdef PINOCCHIO_WITH_HPP_FCL
+    typedef ::pinocchio::ComputeCollision ComputeCollision;
+    typedef ::pinocchio::ComputeDistance ComputeDistance;
+#endif
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
@@ -226,7 +233,7 @@ namespace pinocchio
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
     /// attached to the body from the joint center.
     ///
-    std::vector<double> radius;
+    std::vector<Scalar> radius;
 
     ///
     /// \brief Index of the collision pair
@@ -235,7 +242,14 @@ namespace pinocchio
     /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
-#endif // PINOCCHIO_WITH_HPP_FCL   
+    
+    /// \brief Functoqr associated to the computation of collisions.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeCollision) collision_functors;
+    
+    /// \brief Functoqr associated to the computation of distances.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeDistance) distance_functors;
+    
+#endif // PINOCCHIO_WITH_HPP_FCL
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
     ///
@@ -249,8 +263,24 @@ namespace pinocchio
     /// obstacles to the Inner objects of a given joint
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
-    GeometryData(const GeometryModel & geomModel);
+    ///
+    /// \brief Default constructor from a GeometryModel
+    ///
+    /// \param[in] geom_model GeometryModel associated to the new GeometryData
+    ///
+    explicit GeometryData(const GeometryModel & geom_model);
+   
+    ///
+    /// \brief Copy constructor
+    ///
+    /// \param[in] other GeometryData to copy
+    ///
     GeometryData(const GeometryData & other);
+    
+    /// \brief Empty constructor
+    GeometryData() {};
+    
+    /// \brief Destructor
     ~GeometryData();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
@@ -341,6 +371,35 @@ namespace pinocchio
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
+    
+    ///
+    /// \brief Returns true if *this and other are equal.
+    ///
+    bool operator==(const GeometryData & other) const
+    {
+      return
+         oMg                  == other.oMg
+      && activeCollisionPairs == other.activeCollisionPairs
+#ifdef PINOCCHIO_WITH_HPP_FCL
+      && distanceRequests     == other.distanceRequests
+      && distanceResults      == other.distanceResults
+      && collisionRequests    == other.collisionRequests
+      && collisionResults     == other.collisionResults
+      && radius               == other.radius
+      && collisionPairIndex   == other.collisionPairIndex
+#endif
+      && innerObjects         == other.innerObjects
+      && outerObjects         == other.outerObjects
+      ;
+    }
+    
+    ///
+    /// \brief Returns true if *this and other are not equal.
+    ///
+    bool operator!=(const GeometryData & other) const
+    {
+      return !(*this == other);
+    }
     
   }; // struct GeometryData
 

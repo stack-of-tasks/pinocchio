@@ -82,6 +82,7 @@ namespace pinocchio
     using Base::__mequ__;
     using Base::__mult__;
     
+    /// \brief Default constructor from a 6 dimensional vector.
     MotionRef(typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) v_like)
     : m_ref(v_like)
     {
@@ -89,6 +90,11 @@ namespace pinocchio
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
       assert(v_like.size() == 6);
     }
+    
+    /// \brief Copy constructor from another MotionRef.
+    MotionRef(const MotionRef & other)
+    : m_ref(other.m_ref)
+    {}
     
     ToVectorConstReturnType toVector_impl() const { return m_ref; }
     ToVectorReturnType toVector_impl() { return m_ref; }

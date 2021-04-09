@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE ( test_timings )
     {
       std::vector<Eigen::VectorXd> randvec(NBT);
       for(size_t i=0;i<NBT;++i ) randvec[i] = Eigen::VectorXd::Random(model.nv);
-      Eigen::VectorXd zero = Eigen::VectorXd(model.nv);
+      Eigen::VectorXd zero = Eigen::VectorXd::Zero(model.nv);
       Eigen::VectorXd res (model.nv);
 
 

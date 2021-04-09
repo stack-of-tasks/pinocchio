@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #include <iostream>
@@ -19,9 +19,9 @@ BOOST_AUTO_TEST_CASE(test_removeCollisionPairs)
 {
   using namespace pinocchio::urdf;
   using namespace pinocchio::srdf;
-  const string model_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
-  const string model_dir = PINOCCHIO_MODEL_DIR + std::string("/others/robots");
-  const string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/srdf/romeo.srdf");
+  const string model_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  const string model_dir = PINOCCHIO_MODEL_DIR;
+  const string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
   
   Model model;
   buildModel(model_filename, model);

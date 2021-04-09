@@ -2,9 +2,6 @@ name: Build Pinocchio for Windows (CLANG) via Conda
 on:
   pull_request:
   push:
-    branches:
-      - master
-      - devel
 
 jobs:
   build:

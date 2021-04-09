@@ -70,7 +70,7 @@ struct PinocchioTicToc
   inline double toc(const Unit factor)
   {
     gettimeofday(&t0,NULL);
-    double dt = (t0-stack.top())*factor;
+    double dt = (t0-stack.top())*(double)factor;
     stack.pop();
     return dt;
   }

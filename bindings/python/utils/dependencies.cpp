@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 INRIA
+// Copyright (c) 2020-2021 INRIA
 //
 
 #include <boost/python.hpp>
@@ -29,6 +29,13 @@ namespace pinocchio
       
       bp::scope().attr("WITH_CPPAD") =
 #ifdef PINOCCHIO_WITH_CPPAD
+      true;
+#else
+      false;
+#endif
+      
+      bp::scope().attr("WITH_OPENMP") =
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
       true;
 #else
       false;
