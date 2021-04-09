@@ -167,7 +167,7 @@ namespace pinocchio
       const std::vector<JointIndex> &list_of_joints_to_lock,
       const Eigen::MatrixBase<ConfigVectorType> &reference_configuration,
       ModelTpl<Scalar, Options, JointCollectionTpl> &reduced_model,
-      std::vector<std::reference_wrapper<GeometryModel>> &list_of_reduced_geom_models);
+      std::vector<GeometryModel> &list_of_reduced_geom_models);
 
 } // namespace pinocchio
 

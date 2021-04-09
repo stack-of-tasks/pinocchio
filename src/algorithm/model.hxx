@@ -502,7 +502,8 @@ namespace pinocchio
     buildReducedModel(input_model, list_of_joints_to_lock, reference_configuration, reduced_model);
 
     // for all GeometryModels
-    for (const GeometryModel &input_geom_model : list_of_geom_models) {
+    for (size_t gmi = 0; gmi < list_of_geom_models.size(); ++gmi) {
+      const GeometryModel &input_geom_model = list_of_geom_models[gmi];
       GeometryModel reduced_geom_model;
 
       // Add all the geometries
