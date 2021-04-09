@@ -109,6 +109,7 @@ namespace pinocchio
         
         .ADD_DATA_PROPERTY(f,"Vector of body forces expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(of,"Vector of body forces expressed at the origin of the world.")
+        .ADD_DATA_PROPERTY(of_augmented,"Vector of body forces expressed at the origin of the world, in the context of lagrangian formulation")
         .ADD_DATA_PROPERTY(h,"Vector of spatial momenta expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(oh,"Vector of spatial momenta expressed at the origin of the world.")
         .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
