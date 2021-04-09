@@ -180,11 +180,11 @@ class RobotWrapper(object):
                     reference_configuration=None):
         """
           Reduced the robot model given a list of joints to lock.
-          Parameters:\n
-          \tlist_of_joints_to_lock: list of joint indexes/names to lock\n
+          Parameters:
+          \tlist_of_joints_to_lock: list of joint indexes/names to lock.
           \treference_configuration: reference configuration to compute the
-          placement of the lock joints.\n
-        If not provided, reference_configuration defaults to the robot's neutral configuration.
+          placement of the lock joints. If not provided, reference_configuration
+        defaults to the robot's neutral configuration.
 
         NOTE: This operation is not reversible, the original model is lost.
         """
