@@ -59,16 +59,16 @@ print('joints to lock (only ids):', jointsToLockIDs)
 print('reduced model: dim=' + str(len(model_reduced.joints)))
 print('-' * 30)
 
-# Option 4: Build a RobotWrapper and reduce the model using the wrapper
+# Option 4: Build a reduced model of a robot using RobotWrapper
 # reference_configuration is optional: if not provided, neutral configuration used
 # you can even mix joint names and joint ids
 mixed_jointsToLockIDs = [jointsToLockIDs[0], 'wrist_2_joint', 'wrist_3_joint']
 robot = pin.RobotWrapper.BuildFromURDF(urdf_filename, mesh_dir)
-robot.reduceModel(list_of_joints_to_lock=mixed_jointsToLockIDs,
-                  reference_configuration=initialJointConfig)
+reduced_robot = robot.buildReducedRobot(list_of_joints_to_lock=mixed_jointsToLockIDs,
+                                        reference_configuration=initialJointConfig)
 
 # Check dimensions of the reduced model and joint info
 print('mixed joints to lock (names and ids):', mixed_jointsToLockIDs)
-print('RobotWrapper reduced model: dim=' + str(len(robot.model.joints)))
+print('RobotWrapper reduced model: dim=' + str(len(reduced_robot.model.joints)))
 for jn in robot.model.joints:
     print(jn)

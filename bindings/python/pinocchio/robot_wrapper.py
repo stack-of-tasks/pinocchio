@@ -175,18 +175,18 @@ class RobotWrapper(object):
     def framesForwardKinematics(self, q):
         pin.framesForwardKinematics(self.model, self.data, q)
 
-    def reduceModel(self,
-                    list_of_joints_to_lock,
-                    reference_configuration=None):
+    def buildReducedRobot(self,
+                          list_of_joints_to_lock,
+                          reference_configuration=None):
         """
-          Reduced the robot model given a list of joints to lock.
+          Build a reduced robot model given a list of joints to lock.
           Parameters:
           \tlist_of_joints_to_lock: list of joint indexes/names to lock.
           \treference_configuration: reference configuration to compute the
           placement of the lock joints. If not provided, reference_configuration
-        defaults to the robot's neutral configuration.
+          defaults to the robot's neutral configuration.
 
-        NOTE: This operation is not reversible, the original model is lost.
+          Returns: a new robot model.
         """
 
         # if joint to lock is a string, try to find its index
@@ -205,9 +205,9 @@ class RobotWrapper(object):
             list_of_geom_models=[self.visual_model, self.collision_model],
             list_of_joints_to_lock=lockjoints_idx,
             reference_configuration=reference_configuration)
-        self.model, self.visual_model, self.collision_model = model, geom_models[
-            0], geom_models[1]
-        self.rebuildData()
+
+        return RobotWrapper(model=model, visual_model=geom_models[0],
+                            collision_model=geom_models[1])
 
     def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         """
