@@ -494,6 +494,22 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
   {
     BOOST_CHECK(geom_data.oMg[i].isApprox(reduded_geom_data.oMg[i]));
   }
+  
+  // Test other signature
+  std::vector<GeometryModel> full_geometry_models;
+  full_geometry_models.push_back(humanoid_geometry);
+  full_geometry_models.push_back(humanoid_geometry);
+  full_geometry_models.push_back(humanoid_geometry);
+  
+  std::vector<GeometryModel> reduced_geometry_models;
+  
+  Model reduced_humanoid_model_other_sig;
+  buildReducedModel(humanoid_model,full_geometry_models,joints_to_lock,
+                    reference_config_humanoid,reduced_humanoid_model_other_sig,reduced_geometry_models);
+  
+  BOOST_CHECK(reduced_geometry_models[0] == reduced_humanoid_geometry);
+  BOOST_CHECK(reduced_geometry_models[1] == reduced_humanoid_geometry);
+  BOOST_CHECK(reduced_geometry_models[2] == reduced_humanoid_geometry);
 }
 #endif // PINOCCHIO_WITH_HPP_FCL
 
