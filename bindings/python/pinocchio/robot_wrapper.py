@@ -175,6 +175,40 @@ class RobotWrapper(object):
     def framesForwardKinematics(self, q):
         pin.framesForwardKinematics(self.model, self.data, q)
 
+    def buildReducedRobot(self,
+                          list_of_joints_to_lock,
+                          reference_configuration=None):
+        """
+          Build a reduced robot model given a list of joints to lock.
+          Parameters:
+          \tlist_of_joints_to_lock: list of joint indexes/names to lock.
+          \treference_configuration: reference configuration to compute the
+          placement of the lock joints. If not provided, reference_configuration
+          defaults to the robot's neutral configuration.
+
+          Returns: a new robot model.
+        """
+
+        # if joint to lock is a string, try to find its index
+        lockjoints_idx = []
+        for jnt in list_of_joints_to_lock:
+            idx = jnt
+            if isinstance(jnt, str):
+                idx = self.model.getJointId(jnt)
+            lockjoints_idx.append(idx)
+
+        if reference_configuration is None:
+            reference_configuration = pin.neutral(self.model)
+
+        model, geom_models = pin.buildReducedModel(
+            model=self.model,
+            list_of_geom_models=[self.visual_model, self.collision_model],
+            list_of_joints_to_lock=lockjoints_idx,
+            reference_configuration=reference_configuration)
+
+        return RobotWrapper(model=model, visual_model=geom_models[0],
+                            collision_model=geom_models[1])
+
     def getFrameJacobian(self, frame_id, rf_frame=pin.ReferenceFrame.LOCAL):
         """
             It computes the Jacobian of frame given by its id (frame_id) either expressed in the

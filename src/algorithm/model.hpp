@@ -144,6 +144,32 @@ namespace pinocchio
                     ModelTpl<Scalar,Options,JointCollectionTpl> & reduced_model,
                     GeometryModel & reduced_geom_model);
 
+  /**
+   *
+   *  \brief Build a reduced model and a rededuced geometry model  from a given input model, a given input geometry model and a list of joint to lock.
+   *
+   *  \param[in] model the input model to reduce.
+   *  \param[in] list_of_geom_models the input geometry model to reduce (example: visual_model, collision_model).
+   *  \param[in] list_of_joints_to_lock list of joints to lock in the input model.
+   *  \param[in] reference_configuration reference configuration.
+   *  \param[out] reduced_model the reduced model.
+   *  \param[out] list_of_reduced_geom_model the list of reduced geometry models.
+   *
+   *  \remarks All the joints that have been set to be fixed in the new reduced_model now appear in the kinematic tree as a Frame as FIXED_JOINT.  
+   *
+   */
+  template <typename Scalar, int Options,
+            template <typename, int> class JointCollectionTpl,
+            typename GeometryModelAllocator,
+            typename ConfigVectorType>
+  void buildReducedModel(
+      const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
+      const std::vector<GeometryModel,GeometryModelAllocator> &list_of_geom_models,
+      const std::vector<JointIndex> &list_of_joints_to_lock,
+      const Eigen::MatrixBase<ConfigVectorType> &reference_configuration,
+      ModelTpl<Scalar, Options, JointCollectionTpl> &reduced_model,
+      std::vector<GeometryModel,GeometryModelAllocator> &list_of_reduced_geom_models);
+
 } // namespace pinocchio
 
 #include "pinocchio/algorithm/model.hxx"
