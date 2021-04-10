@@ -115,13 +115,13 @@ namespace pinocchio
                        "geom_model",
                        "list_of_joints_to_lock",
                        "reference_configuration"),
-              "Build a reduced model and a rededuced geometry model from a given input model,"
-              "an input geometry model and a list of joint to lock.\n\n"
+              "Build a reduced model and a reduced geometry model from a given input model,"
+              "an input geometry model and a list of joints to lock.\n\n"
               "Parameters:\n"
-              "\tmodel: input kinematic modell to reduce\n"
+              "\tmodel: input kinematic model to reduce\n"
               "\tgeom_model: input geometry model to reduce\n"
               "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
-              "\treference_configuration: reference configuration to compute the placement of the lock joints\n");
+              "\treference_configuration: reference configuration to compute the placement of the locked joints\n");
 
       bp::def("buildReducedModel",
               (bp::tuple(*)(const Model &,
@@ -133,13 +133,13 @@ namespace pinocchio
                        "reference_configuration"),
               "Build a reduced model and the related reduced geometry models from a given "
               "input model,"
-              "a list of input geometry model and a list of joint to lock.\n\n"
+              "a list of input geometry models and a list of joints to lock.\n\n"
               "Parameters:\n"
               "\tmodel: input kinematic model to reduce\n"
               "\tlist_of_geom_models: input geometry models to reduce\n"
               "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
               "\treference_configuration: reference configuration to compute the "
-              "placement of the lock joints\n");
+              "placement of the locked joints\n");
     }
     
   } // namespace python
