@@ -31,10 +31,6 @@ If you want to directly dive into **Pinocchio**, only one single line is suffici
 conda install pinocchio -c conda-forge
 </p>
 
-## News
-
-**August 2020**: We are **hiring**! We are looking for a talented C++/Python software developer to enhance and promote Pinocchio inside the robotics community and beyond. Please contact @jcarpent for further details.
-
 ## Pinocchio main features
 
 **Pinocchio** is fast:
@@ -164,6 +160,7 @@ The following people have been involved in the development of **Pinocchio** and 
 - [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
 - [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
 - [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
+- [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
