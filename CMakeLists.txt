@@ -150,9 +150,10 @@ IF(BUILD_PYTHON_INTERFACE)
     OUTPUT_VARIABLE _python_implementation_value
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET)
-
+  
+  MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
   IF(_python_implementation_value MATCHES "PyPy")
-    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY)
+    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
   ENDIF()
   
 ELSE(BUILD_PYTHON_INTERFACE)
