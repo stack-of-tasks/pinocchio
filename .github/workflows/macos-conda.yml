@@ -21,11 +21,15 @@ jobs:
         python-version: 3.8
 
     - name: Install cmake and update conda
+      shell: bash -l {0}
       run: |
+        conda activate pinocchio
         conda install cmake -c main
     
     - name: Build Pinocchio
+      shell: bash -l {0}
       run: |
+        conda activate pinocchio
         echo $CONDA_PREFIX
         
         mkdir build
@@ -39,6 +43,7 @@ jobs:
         make install
 
     - name: Uninstall Pinocchio
+      shell: bash -l {0}
       run: |
         cd build
         make uninstall
