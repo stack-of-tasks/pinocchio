@@ -144,6 +144,18 @@ IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON(REQUIRED)
   SEARCH_FOR_BOOST_PYTHON(REQUIRED)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.6.2 REQUIRED)
+  
+  # Check wether this a PyPy Python
+  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
+    OUTPUT_VARIABLE _python_implementation_value
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+  
+  MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
+  IF(_python_implementation_value MATCHES "PyPy")
+    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
+  ENDIF()
+  
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
