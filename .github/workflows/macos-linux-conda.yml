@@ -1,10 +1,16 @@
-name: Build Pinocchio for Mac OS X via Conda
+name: Build Pinocchio for Mac OS X/Linux via Conda
 
 on: [push,pull_request]
 
 jobs:
-  pinocchio-osx-conda:
-    runs-on: macos-latest
+  pinocchio-conda:
+    name: Pinocchio on ${{ matrix.os }} with Conda
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
 
     steps:
     - uses: actions/checkout@v2
@@ -25,6 +31,7 @@ jobs:
       run: |
         conda activate pinocchio
         conda install cmake -c main
+        conda install llvm-openmp -c conda-forge
     
     - name: Build Pinocchio
       shell: bash -l {0}
@@ -35,7 +42,7 @@ jobs:
         mkdir build
         cd build
 
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF
+        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
