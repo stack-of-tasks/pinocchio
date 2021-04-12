@@ -1,0 +1,49 @@
+name: Build Pinocchio for Mac OS X via Conda
+
+on: [push,pull_request]
+
+jobs:
+  pinocchio-osx-conda:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init
+
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: pinocchio
+        auto-update-conda: true
+        environment-file: .github/workflows/conda/conda-env.yml
+        python-version: 3.8
+
+    - name: Install cmake and update conda
+      shell: bash -l {0}
+      run: |
+        conda activate pinocchio
+        conda install cmake -c main
+    
+    - name: Build Pinocchio
+      shell: bash -l {0}
+      run: |
+        conda activate pinocchio
+        echo $CONDA_PREFIX
+        
+        mkdir build
+        cd build
+
+        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF
+        make
+        make build_tests
+        export CTEST_OUTPUT_ON_FAILURE=1
+        make test
+        make install
+
+    - name: Uninstall Pinocchio
+      shell: bash -l {0}
+      run: |
+        cd build
+        make uninstall
