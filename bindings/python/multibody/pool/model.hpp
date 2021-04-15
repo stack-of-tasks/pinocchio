@@ -64,6 +64,8 @@ namespace pinocchio
              "Update the model, meaning that all the datas will be refreshed accordingly.")
         .def("update",(void (ModelPool::*)(const Data &))&ModelPool::update,
              bp::args("self","data"),"Update all the datas with the input data value.")
+        .def("update",(void (ModelPool::*)(const Model &, const Data &))&ModelPool::update,
+             bp::args("self","model","data"),"Update the model and data together.")
         ;
       }
       
