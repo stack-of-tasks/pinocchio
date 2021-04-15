@@ -112,6 +112,20 @@ namespace pinocchio
                 GeometryData(m_geometry_model));
     }
     
+    ///
+    /// \brief Update the geometry model and data with the new input values.
+    ///        In this case, all the geometry_datas will be replaced
+    ///
+    /// \param[in] geometry_model new geometry model value.
+    /// \param[in] geometry_data new geometry data value
+    ///
+    void update(const GeometryModel & geometry_model,
+                const GeometryData & geometry_data)
+    {
+      m_geometry_model = geometry_model;
+      update(geometry_data);
+    }
+    
     /// \brief Destructor
     virtual ~GeometryPoolTpl() {};
     
@@ -130,7 +144,7 @@ namespace pinocchio
       if(size() < new_size)
       {
         typename GeometryDataVector::iterator it = m_geometry_datas.begin();
-        std::advance(it, (size_t)(new_size - size()));
+        std::advance(it, (long)(new_size - size()));
         std::fill(it,m_geometry_datas.end(),m_geometry_datas[0]);
       }
     }

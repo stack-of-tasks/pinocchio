@@ -243,10 +243,10 @@ namespace pinocchio
     ///
     PairIndex collisionPairIndex;
     
-    /// \brief Functoqr associated to the computation of collisions.
+    /// \brief Functor associated to the computation of collisions.
     PINOCCHIO_ALIGNED_STD_VECTOR(ComputeCollision) collision_functors;
     
-    /// \brief Functoqr associated to the computation of distances.
+    /// \brief Functor associated to the computation of distances.
     PINOCCHIO_ALIGNED_STD_VECTOR(ComputeDistance) distance_functors;
     
 #endif // PINOCCHIO_WITH_HPP_FCL

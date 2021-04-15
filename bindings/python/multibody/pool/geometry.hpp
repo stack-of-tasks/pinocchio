@@ -60,7 +60,10 @@ namespace pinocchio
              bp::args("self","geometry_model"),
              "Update the geometry model, meaning that all the datas will be refreshed accordingly.")
         .def("update",(void (GeometryPool::*)(const GeometryData &))&GeometryPool::update,
-             bp::args("self","data"),"Update all the geometry datas with the input geometry data value.")
+             bp::args("self","geometry_data"),"Update all the geometry datas with the input geometry data value.")
+        .def("update",(void (GeometryPool::*)(const GeometryModel &, const GeometryData &))&GeometryPool::update,
+             bp::args("self","geometry_model","geometry_data"),
+             "Update the geometry model and data together.")
         ;
       }
       

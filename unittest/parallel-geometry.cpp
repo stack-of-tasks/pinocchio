@@ -16,6 +16,32 @@ using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
+BOOST_AUTO_TEST_CASE(test_pool)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+  
+  pinocchio::Model model;
+  pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+  Data data(model);
+  
+  const std::string package_path = PINOCCHIO_MODEL_DIR;
+  hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
+  std::vector<std::string> package_paths(1,package_path);
+  pinocchio::GeometryModel geometry_model;
+  pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
+  
+  
+  const int num_thread = omp_get_max_threads();
+  GeometryPool pool(model,pinocchio::GeometryModel(),num_thread);
+  
+  pool.update(geometry_model);
+  BOOST_CHECK(pool.geometry_model() == geometry_model);
+  pool.update(GeometryData(geometry_model));
+  
+  pool.update(geometry_model,GeometryData(geometry_model));
+}
+
 BOOST_AUTO_TEST_CASE(test_talos)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
