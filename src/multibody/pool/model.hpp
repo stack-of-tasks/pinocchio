@@ -77,6 +77,20 @@ namespace pinocchio
     {
       std::fill(m_datas.begin(),m_datas.end(),data);
     }
+
+    ///
+    /// \brief Update the model and data with the new input values.
+    ///        In this case, all the geometry_datas will be replaced
+    ///
+    /// \param[in] geometry_model new geometry model value.
+    /// \param[in] geometry_data new geometry data value
+    ///
+    void update(const Model & model,
+                const Data & data)
+    {
+      m_model = model;
+      update(data);
+    }
     
     /// \brief Returns the size of the pool.
     int size() const { return m_size; }
@@ -88,7 +102,7 @@ namespace pinocchio
       if(m_size < new_size)
       {
         typename DataVector::iterator it = m_datas.begin();
-        std::advance(it, (size_t)(new_size - m_size));
+        std::advance(it, (long)(new_size - m_size));
         std::fill(it,m_datas.end(),m_datas[0]);
       }
       do_resize(new_size); // call Derived::do_resize();
