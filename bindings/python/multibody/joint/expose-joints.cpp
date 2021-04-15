@@ -14,22 +14,13 @@ namespace pinocchio
   namespace python
   {
     
-    static void exposeVariants()
-    {
-      boost::mpl::for_each<JointModelVariant::types>(JointModelExposer());
-      bp::to_python_converter<pinocchio::JointModelVariant,
-                              JointVariantVisitor<pinocchio::JointModelVariant > >();
-
-      boost::mpl::for_each<JointDataVariant::types>(JointDataExposer());
-      bp::to_python_converter<pinocchio::JointDataVariant,
-                              JointVariantVisitor<pinocchio::JointDataVariant > >();
-    }
-    
     void exposeJoints()
     {
-      exposeVariants();
+      boost::mpl::for_each<JointModelVariant::types>(JointModelExposer());
+      boost::mpl::for_each<JointDataVariant::types>(JointDataExposer());
+      
       JointModelPythonVisitor::expose();
-      StdAlignedVectorPythonVisitor<JointModel,true>::expose("StdVec_JointModelVector");
+      StdAlignedVectorPythonVisitor<JointModel>::expose("StdVec_JointModelVector");
     }
     
   } // namespace python
