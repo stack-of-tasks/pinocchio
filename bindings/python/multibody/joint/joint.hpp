@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_python_joint_hpp__
-#define __pinocchio_python_joint_hpp__
+#ifndef __pinocchio_python_multibody_joint_joint_hpp__
+#define __pinocchio_python_multibody_joint_joint_hpp__
 
 #include <boost/python.hpp>
 
@@ -17,22 +17,20 @@ namespace pinocchio
     namespace bp = boost::python;
     
     struct JointModelPythonVisitor
-      : public boost::python::def_visitor< JointModelPythonVisitor >
+    : public boost::python::def_visitor< JointModelPythonVisitor >
     {
-
-    public:
-
+      
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
         cl
-        .def(bp::init<>())
+        .def(bp::init<>(bp::arg("self")))
         // All are add_properties cause ReadOnly
-        .add_property("id",&JointModelPythonVisitor::getId)
-        .add_property("idx_q",&JointModelPythonVisitor::getIdx_q)
-        .add_property("idx_v",&JointModelPythonVisitor::getIdx_v)
-        .add_property("nq",&JointModelPythonVisitor::getNq)
-        .add_property("nv",&JointModelPythonVisitor::getNv)
+        .add_property("id",&getId)
+        .add_property("idx_q",&getIdx_q)
+        .add_property("idx_v",&getIdx_v)
+        .add_property("nq",&getNq)
+        .add_property("nv",&getNv)
         .def("setIndexes",&JointModel::setIndexes)
         .def("shortname",&JointModel::shortname)
         ;
@@ -49,7 +47,7 @@ namespace pinocchio
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<pinocchio::JointModelVariant>())
+        .def(bp::init<JointModel>(bp::args("self","other")))
         .def(JointModelPythonVisitor())
         .def(PrintableVisitor<JointModel>())
         ;
@@ -59,4 +57,4 @@ namespace pinocchio
     
 }} // namespace pinocchio::python
 
-#endif // ifndef __pinocchio_python_joint_hpp__
+#endif // ifndef __pinocchio_python_multibody_joint_joint_hpp__
