@@ -301,7 +301,7 @@ namespace pinocchio
       Vector10 v;
 
       v[0] = mass();
-      v.template segment<3>(1) = mass() * lever();
+      v.template segment<3>(1).noalias() = mass() * lever();
       v.template segment<6>(4) = (inertia() - AlphaSkewSquare(mass(),lever())).data();
 
       return v;

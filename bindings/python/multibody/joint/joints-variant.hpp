@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_joints_variant_hpp__
@@ -45,7 +45,7 @@ namespace pinocchio
             .def(JointDataDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
-        bp::implicitly_convertible<T,pinocchio::JointDataVariant>();
+        bp::implicitly_convertible<T,pinocchio::JointData>();
       }
     };
 
@@ -61,7 +61,7 @@ namespace pinocchio
             .def(JointModelDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
-        bp::implicitly_convertible<T,pinocchio::JointModelVariant>();
+        bp::implicitly_convertible<T,pinocchio::JointModel>();
       }
     };
     
