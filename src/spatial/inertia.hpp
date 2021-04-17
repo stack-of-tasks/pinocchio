@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -238,37 +238,73 @@ namespace pinocchio
                         Symmetric3::RandomPositive());
     }
     
-    static InertiaTpl FromSphere(const Scalar m, const Scalar radius)
+    ///
+    /// \brief Computes the Inertia of a sphere defined by its mass and its radius.
+    ///
+    /// \param[in] mass of the sphere.
+    /// \param[in] radius of the sphere.
+    ///
+    static InertiaTpl FromSphere(const Scalar mass, const Scalar radius)
     {
-      return FromEllipsoid(m,radius,radius,radius);
+      return FromEllipsoid(mass,radius,radius,radius);
+    }
+    
+    ///
+    /// \brief Computes the Inertia of an ellipsoid defined by its mass and main semi-axis dimensions (x,y,z).
+    ///
+    /// \param[in] mass of the ellipsoid.
+    /// \param[in] x semi-axis dimension along the local X axis.
+    /// \param[in] y semi-axis dimension along the local Y axis.
+    /// \param[in] z semi-axis dimension along the local Z axis.
+    ///
+    static InertiaTpl FromEllipsoid(const Scalar mass,
+                                    const Scalar x,
+                                    const Scalar y,
+                                    const Scalar z)
+    {
+      const Scalar a = mass * (y*y + z*z) / Scalar(5);
+      const Scalar b = mass * (x*x + z*z) / Scalar(5);
+      const Scalar c = mass * (y*y + x*x) / Scalar(5);
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                          Scalar(0), Scalar(0), c));
     }
 
-    static InertiaTpl FromEllipsoid(const Scalar m, const Scalar x,
-                                    const Scalar y, const Scalar z)
+    ///
+    /// \brief Computes the Inertia of a cylinder defined by its mass, radius and length along the Z axis.
+    ///
+    /// \param[in] mass of the cylinder.
+    /// \param[in] radius of the cylinder.
+    /// \param[in] length of the cylinder.
+    ///
+    static InertiaTpl FromCylinder(const Scalar mass,
+                                   const Scalar radius,
+                                   const Scalar length)
     {
-      Scalar a = m * (y*y + z*z) / Scalar(5);
-      Scalar b = m * (x*x + z*z) / Scalar(5);
-      Scalar c = m * (y*y + x*x) / Scalar(5);
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
-                                                       Scalar(0), Scalar(0), c));
+      const Scalar radius_square = radius * radius;
+      const Scalar a = mass * (radius_square / Scalar(4) + length*length / Scalar(12));
+      const Scalar c = mass * (radius_square / Scalar(2));
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), a,
+                                                          Scalar(0), Scalar(0), c));
     }
-
-    static InertiaTpl FromCylinder(const Scalar m, const Scalar r, const Scalar l)
+    
+    ///
+    /// \brief Computes the Inertia of a box defined by its mass and main dimensions (x,y,z).
+    ///
+    /// \param[in] mass of the box.
+    /// \param[in] x dimension along the local X axis.
+    /// \param[in] y dimension along the local Y axis.
+    /// \param[in] z dimension along the local Z axis.
+    ///
+    static InertiaTpl FromBox(const Scalar mass,
+                              const Scalar x,
+                              const Scalar y,
+                              const Scalar z)
     {
-      Scalar a = m * (r*r / Scalar(4) + l*l / Scalar(12));
-      Scalar c = m * (r*r / Scalar(2));
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), a,
-                                                       Scalar(0), Scalar(0), c));
-    }
-
-    static InertiaTpl FromBox(const Scalar m, const Scalar x,
-                              const Scalar y, const Scalar z)
-    {
-      Scalar a = m * (y*y + z*z) / Scalar(12);
-      Scalar b = m * (x*x + z*z) / Scalar(12);
-      Scalar c = m * (y*y + x*x) / Scalar(12);
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
-                                                       Scalar(0), Scalar(0), c));
+      const Scalar a = mass * (y*y + z*z) / Scalar(12);
+      const Scalar b = mass * (x*x + z*z) / Scalar(12);
+      const Scalar c = mass * (y*y + x*x) / Scalar(12);
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                          Scalar(0), Scalar(0), c));
     }
 
     void setRandom()

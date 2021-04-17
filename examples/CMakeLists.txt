@@ -83,7 +83,7 @@ IF(BUILD_PYTHON_INTERFACE)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
       sample-model-viewer
       display-shapes
-      simulation-inverted-pendulum
+      simulation-pendulum
       )
     IF(BUILD_WITH_URDF_SUPPORT)
       LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
