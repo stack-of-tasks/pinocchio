@@ -118,7 +118,7 @@ model.lowerPositionLimit.fill(-math.pi)
 model.upperPositionLimit.fill(+math.pi)
 
 if args.with_cart:
-    model.lowerPositionLimit[0] = model.upperPositionLimit[0] = 0. 
+    model.lowerPositionLimit[0] = model.upperPositionLimit[0] = 0.
 
 data_sim = model.createData()
 
@@ -140,7 +140,7 @@ for k in range(N):
     viz.display(q)
     toc = time.time()
     ellapsed = toc - tic
-    
+
     dt_sleep = max(0,dt - (ellapsed))
     time.sleep(dt_sleep)
     t += dt
