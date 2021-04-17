@@ -24,6 +24,10 @@ pip install panda3d_viewer
 - Loading a URDF model: `python -i overview-urdf.py` and in C++ `g++ -g overview-urdf.cpp -o overview-urdf $(pkg-config --cflags --libs pinocchio) && ./overview-urdf`
 - Using RobotWrapper to encapsulate a URDF model: `python -i robot-wrapper-viewer.py`
 
+## Simulating a model
+
+-  Simulating a multiple pendulum: `python -i simulation-pendulum.py --with-cart -N=2`
+
 ## Computes analytical derivatives of rigid body dynamics algorithms
 
 - Computing forward kinematics derivatives: `python -i kinematics-derivatives.py` and in C++ `g++ kinematics-derivatives.cpp -o kinematics-derivatives $(pkg-config --cflags --libs pinocchio) && ./kinematics-derivatives`
