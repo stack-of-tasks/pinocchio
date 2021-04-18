@@ -55,12 +55,14 @@ namespace pinocchio
              "Returns the total dimension of the constraints contained in the Cholesky factorization.")
         .def("numContacts", &Self::numContacts, bp::arg("self"),
              "Returns the number of contacts associated to this decomposition.")
-        
+	.def("getConstraintSparsityPattern", &Self::getConstraintSparsityPattern,
+	     bp::args("self", "constraint_id"),
+	     "Returns the associated sparsity of the constraints.",
+	     bp::return_value_policy<bp::return_by_value>())
         .def("matrix",
              (Matrix (Self::*)(void) const)&Self::matrix,
              bp::arg("self"),
              "Returns the matrix resulting from the decomposition.")
-        
         .def("compute",
              (void (*)(Self & self, const Model &, Data &, const RigidContactModelVector &, RigidContactDataVector &, const Scalar))&compute,
              bp::args("self","model","data","contact_models","contact_datas","mu"),
