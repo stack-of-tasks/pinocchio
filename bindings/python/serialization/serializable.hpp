@@ -52,6 +52,11 @@ namespace pinocchio
              bp::args("self","buffer"),"Saves *this inside a binary buffer.")
         .def("loadFromBinary",(void (Derived::*)(boost::asio::streambuf &))&Derived::loadFromBinary,
              bp::args("self","buffer"),"Loads *this from a binary buffer.")
+        
+        .def("saveToBinary",(void (Derived::*)(serialization::StaticBuffer &) const)&Derived::saveToBinary,
+             bp::args("self","buffer"),"Saves *this inside a static binary buffer.")
+        .def("loadFromBinary",(void (Derived::*)(serialization::StaticBuffer &))&Derived::loadFromBinary,
+             bp::args("self","buffer"),"Loads *this from a static binary buffer.")
         ;
         
         serialize<Derived>();

@@ -41,6 +41,16 @@ namespace pinocchio
       .def("prepare",prepare_proxy,"Reserve data.",bp::return_internal_reference<>())
       ;
       
+      typedef pinocchio::serialization::StaticBuffer StaticBuffer;
+      bp::class_<StaticBuffer>("StaticBuffer",
+                               "Static buffer to save/load serialized objects in binary mode with pre-allocated memory.",
+                               bp::init<size_t>(bp::args("self","size"),"Default constructor from a given size capacity."))
+      .def("size",&StaticBuffer::size,bp::arg("self"),
+           "Get the size of the input sequence.")
+      .def("reserve",&StaticBuffer::resize,bp::arg("new_size"),
+           "Increase the capacity of the vector to a value that's greater or equal to new_size.")
+      ;
+      
       bp::def("buffer_copy",buffer_copy,
               bp::args("dest","source"),
               "Copy bytes from a source buffer to a target buffer.");

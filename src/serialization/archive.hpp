@@ -6,6 +6,7 @@
 #define __pinocchio_serialization_archive_hpp__
 
 #include "pinocchio/serialization/fwd.hpp"
+#include "pinocchio/serialization/static-buffer.hpp"
 
 #include <fstream>
 #include <string>
@@ -19,6 +20,9 @@
 #include <boost/archive/binary_oarchive.hpp>
 
 #include <boost/asio/streambuf.hpp>
+#include <boost/iostreams/device/array.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
 
 // Handle NAN inside TXT or XML archives
 #include <boost/math/special_functions/nonfinite_num_facets.hpp>
@@ -261,7 +265,7 @@ namespace pinocchio
     /// \tparam T Type of the object to deserialize.
     ///
     /// \param[out] object Object in which the loaded data are copied.
-    /// \param[in] container Input buffer containing the serialized data.
+    /// \param[in] buffer Input buffer containing the serialized data.
     ///
     template<typename T>
     inline void loadFromBinary(T & object,
@@ -277,7 +281,7 @@ namespace pinocchio
     /// \tparam T Type of the object to serialize.
     ///
     /// \param[in]  object Object in which the loaded data are copied.
-    /// \param[out] container Output buffer containing the serialized data.
+    /// \param[out] buffer Output buffer containing the serialized data.
     ///
     template<typename T>
     void saveToBinary(const T & object,
@@ -286,8 +290,46 @@ namespace pinocchio
       boost::archive::binary_oarchive oa(buffer);
       oa & object;
     }
+
+    ///
+    /// \brief Loads an object from a static binary buffer.
+    ///        The buffer should be of a sufficient size.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[out] object Object in which the loaded data are copied.
+    /// \param[in] buffer Input buffer containing the serialized data.
+    ///
+    template<typename T>
+    inline void loadFromBinary(T & object,
+                               StaticBuffer & buffer)
+    {
+      boost::iostreams::stream_buffer< boost::iostreams::basic_array<char> > stream(buffer.data(), buffer.size());
+
+      boost::archive::binary_iarchive ia(stream);
+      ia >> object;
+    }
+
+    ///
+    /// \brief Saves an object to a static binary buffer.
+    ///        The buffer should be of a sufficient size.
+    ///
+    /// \tparam T Type of the object to deserialize.
+    ///
+    /// \param[in]  object Object in which the loaded data are copied.
+    /// \param[out] buffer Output buffer containing the serialized data.
+    ///
+    template<typename T>
+    inline void saveToBinary(const T & object,
+                             StaticBuffer & buffer)
+    {
+      boost::iostreams::stream_buffer< boost::iostreams::basic_array<char> > stream(buffer.data(), buffer.size());
+
+      boost::archive::binary_oarchive oa(stream);
+      oa & object;
+    }
     
-  }
+  } // namespace serialization
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_serialization_archive_hpp__

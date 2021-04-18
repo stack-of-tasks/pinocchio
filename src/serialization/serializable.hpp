@@ -96,6 +96,18 @@ namespace pinocchio
         pinocchio::serialization::saveToBinary(derived(),container);
       }
       
+      /// \brief Loads a Derived object from a static binary container.
+      void loadFromBinary(StaticBuffer & container)
+      {
+        pinocchio::serialization::loadFromBinary(derived(),container);
+      }
+      
+      /// \brief Saves a Derived object as a static binary container.
+      void saveToBinary(StaticBuffer & container) const
+      {
+        pinocchio::serialization::saveToBinary(derived(),container);
+      }
+      
     };
     
   }
