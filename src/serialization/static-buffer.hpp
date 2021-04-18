@@ -17,7 +17,7 @@ namespace pinocchio
     {
       
       /// \brief Defautl constructor from a given size
-      StaticBuffer(const size_t n)
+      explicit StaticBuffer(const size_t n)
       : m_size(n)
       {
         m_data.reserve(n);
