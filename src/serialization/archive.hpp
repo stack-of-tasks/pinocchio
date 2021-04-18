@@ -261,7 +261,7 @@ namespace pinocchio
     /// \tparam T Type of the object to deserialize.
     ///
     /// \param[out] object Object in which the loaded data are copied.
-    /// \param[in] container Input buffer containing the serialized data.
+    /// \param[in] buffer Input buffer containing the serialized data.
     ///
     template<typename T>
     inline void loadFromBinary(T & object,
@@ -277,7 +277,7 @@ namespace pinocchio
     /// \tparam T Type of the object to serialize.
     ///
     /// \param[in]  object Object in which the loaded data are copied.
-    /// \param[out] container Output buffer containing the serialized data.
+    /// \param[out] buffer Output buffer containing the serialized data.
     ///
     template<typename T>
     void saveToBinary(const T & object,
@@ -287,7 +287,7 @@ namespace pinocchio
       oa & object;
     }
     
-  }
+  } // namespace serialization
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_serialization_archive_hpp__
