@@ -140,6 +140,34 @@ void generic_test(const T & object,
     // Check
     BOOST_CHECK(run_call_equality_op(object_loaded,object));
   }
+  
+  // Load and save as static binary stream
+  pinocchio::serialization::StaticBuffer static_buffer(10000000);
+  saveToBinary(object,static_buffer);
+  
+  {
+    T object_loaded;
+    loadFromBinary(object_loaded,static_buffer);
+    
+    // Check
+    BOOST_CHECK(run_call_equality_op(object_loaded,object));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_static_buffer)
+{
+  using namespace pinocchio::serialization;
+  const size_t size = 10000000;
+  StaticBuffer static_buffer(size);
+  BOOST_CHECK(size == static_buffer.size());
+  
+  const size_t new_size = 2*size;
+  static_buffer.resize(new_size);
+  BOOST_CHECK(new_size == static_buffer.size());
+  
+  BOOST_CHECK(static_buffer.data() != NULL);
+  BOOST_CHECK(reinterpret_cast<const StaticBuffer &>(static_buffer).data() != NULL);
+  BOOST_CHECK(reinterpret_cast<const StaticBuffer &>(static_buffer).data() == static_buffer.data());
 }
 
 BOOST_AUTO_TEST_CASE(test_eigen_serialization)
