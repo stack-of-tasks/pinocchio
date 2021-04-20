@@ -348,6 +348,22 @@ namespace pinocchio
                                        "The index of the constraint is invalid.");
         return colwise_sparsity_patterns[constraint_id];
       }
+
+      const BooleanVector & getJoint1SparsityPattern(const size_t constraint_id) const
+      {
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < joint1_indexes.size(),
+                                       "The index of the constraint is invalid.");
+        return joint1_indexes[constraint_id];
+      }
+
+      const BooleanVector & getJoint2SparsityPattern(const size_t constraint_id) const
+      {
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < joint2_indexes.size(),
+                                       "The index of the constraint is invalid.");
+        return joint2_indexes[constraint_id];
+      }
+
+      
       
     protected:
       
