@@ -256,8 +256,9 @@ namespace pinocchio
     typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
 
-    //Temp variable
-    Force of_temp;
+    //TODO: Temp variable
+    Force of_temp, of_temp2;
+    Motion a_temp;
     
     typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
@@ -345,6 +346,7 @@ namespace pinocchio
       const RigidContactData & cdata = contact_data[k];
       typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
       typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
+      typedef typename ContactCholeskyDecomposition::BooleanVector BooleanVector;
 
       switch(cmodel.type)
       {
@@ -438,19 +440,77 @@ namespace pinocchio
             contact_dac_dv -= cdata.c1Mc2.rotation() * j2_dac_dv;
             contact_dac_da -= cdata.c1Mc2.rotation() * j2_dac_da;
           }
-          //END TODO: Memory assignment here
-          
+          //END TODO: Memory assignment here          
           break;
         }
         default:
           assert(false && "must never happen");
           break;
       }
-      
-      // Add the contribution of the corrector
+
       const IndexVector & colwise_sparsity = data.contact_chol.getConstraintSparsityPattern(k);
+      const BooleanVector& joint2_indexes  = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
 
+      //Derivative of closed loop kinematic tree
+      if(cmodel.joint1_id >0  && cmodel.joint2_id >0 )
+      {
+        switch(cmodel.type)
+	{
+	case CONTACT_6D:
+	{
+	  //TODO: THIS IS FOR THE LOCAL FRAME ONLY	  
+	  const Motion& o_acc_c2 = data.oa[cmodel.joint2_id];
+	  typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+	  const RowsBlock contact_dvc_dq = SizeDepType<6>::middleRows(data.dvc_dq,current_row_sol_id);
+	  RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
+	  RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
+	  const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
+	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
+	  const Eigen::DenseIndex colRef2 =
+	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
+	  of_temp = cdata.oMc1.act(cdata.contact_force);
+
+	  // d./dq
+	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+	  {
+	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
+	    motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_temp.toVector());
+	    
+	    if(joint2_indexes[col_id]) {
+	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_temp).toVector();
+	    }
+	    else {
+	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_temp).toVector();
+	    }
+
+	    motionSet::act(data.J.col(col_id), of_temp, of_temp2.toVector());
+	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
+	    {
+	      if(joint2_indexes[col_id]) {
+		data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
+	      }
+	      else {
+		data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
+	      }
+	    }  
+	  }
+	  break;
+	}
+	case CONTACT_3D:
+	{
+	  break;
+	}
+	default:
+	{
+	  assert(false && "must never happen");
+	  break;
+	}
+	}
+      }
+
+      // Add the contribution of the corrector
       if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)))
       {
         Jlog6(cdata.c1Mc2.inverse(),Jlog);
