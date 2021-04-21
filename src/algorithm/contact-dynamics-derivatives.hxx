@@ -259,6 +259,7 @@ namespace pinocchio
     //TODO: Temp variable
     Force of_temp, of_temp2;
     Motion a_temp;
+    SE3 se3_temp;
     
     typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
@@ -378,9 +379,10 @@ namespace pinocchio
             //TODO: Memory assignment here
             typename Data::Matrix6x j2_dvc_dq(6,model.nv), j2_dac_dq(6,model.nv), j2_dac_dv(6,model.nv), j2_dac_da(6,model.nv);
             j2_dvc_dq.setZero(); j2_dac_dq.setZero(); j2_dac_dv.setZero(); j2_dac_da.setZero();
+	    se3_temp = cmodel.joint2_placement * cdata.c1Mc2.inverse();
             getFrameAccelerationDerivatives(model, data,
                                             cmodel.joint2_id,
-                                            cmodel.joint2_placement,
+                                            se3_temp,
                                             cmodel.reference_frame,
                                             j2_dvc_dq,
                                             j2_dac_dq,
@@ -388,10 +390,10 @@ namespace pinocchio
                                             j2_dac_da);
 
             //TODO: This is only in case reference_frame is LOCAL
-            contact_dvc_dq -= cdata.c1Mc2.toActionMatrix() * j2_dvc_dq;
-            contact_dac_dq -= cdata.c1Mc2.toActionMatrix() * j2_dac_dq;
-            contact_dac_dv -= cdata.c1Mc2.toActionMatrix() * j2_dac_dv;
-            contact_dac_da -= cdata.c1Mc2.toActionMatrix() * j2_dac_da;
+            contact_dvc_dq -= j2_dvc_dq;
+            contact_dac_dq -= j2_dac_dq;
+            contact_dac_dv -= j2_dac_dv;
+            contact_dac_da -= j2_dac_da;
           }
           //END TODO
           
@@ -424,21 +426,24 @@ namespace pinocchio
           
             //TODO: Memory assignment here
             typename Data::Matrix3x j2_dvc_dq(3,model.nv), j2_dac_dq(3,model.nv), j2_dac_dv(3,model.nv), j2_dac_da(3,model.nv);
+	    
             j2_dvc_dq.setZero(); j2_dac_dq.setZero(); j2_dac_dv.setZero(); j2_dac_da.setZero();
+	    se3_temp.translation() = cmodel.joint2_placement.translation();
+	    se3_temp.rotation() = cmodel.joint2_placement.rotation() * cdata.c1Mc2.inverse().rotation();
             getPointClassicAccelerationDerivatives(model, data,
                                                    cmodel.joint2_id,
-                                                   cmodel.joint2_placement,
-                                                   cmodel.reference_frame,
+                                                   se3_temp,
+						   cmodel.reference_frame,
                                                    j2_dvc_dq,
                                                    j2_dac_dq,
                                                    j2_dac_dv,
                                                    j2_dac_da);
             
             //TODO: This is only in case reference_frame is LOCAL            
-            contact_dvc_dq -= cdata.c1Mc2.rotation() * j2_dvc_dq;
-            contact_dac_dq -= cdata.c1Mc2.rotation() * j2_dac_dq;
-            contact_dac_dv -= cdata.c1Mc2.rotation() * j2_dac_dv;
-            contact_dac_da -= cdata.c1Mc2.rotation() * j2_dac_da;
+            contact_dvc_dq -= j2_dvc_dq;
+            contact_dac_dq -= j2_dac_dq;
+            contact_dac_dv -= j2_dac_dv;
+            contact_dac_da -= j2_dac_da;
           }
           //END TODO: Memory assignment here          
           break;
