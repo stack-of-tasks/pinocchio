@@ -306,11 +306,11 @@ namespace pinocchio
             of2.angular().noalias() += oMc2.translation().cross(of_temp.linear());
             break;
           }
-          default: {
-            assert(false && "must never happen");
-            break;
-          }
-        }
+	}
+	default: {
+	  assert(false && "must never happen");
+	  break;
+	}
         }
         break;
       }
