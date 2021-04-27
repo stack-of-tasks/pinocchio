@@ -33,6 +33,9 @@ namespace pinocchio
         .add_property("nv",&getNv)
         .def("setIndexes",&JointModel::setIndexes)
         .def("shortname",&JointModel::shortname)
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 

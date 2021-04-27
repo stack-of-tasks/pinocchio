@@ -114,35 +114,39 @@ namespace pinocchio
     }
 
     template<>
-    inline bp::class_<JointModelComposite>& expose_joint_model<JointModelComposite> (bp::class_<JointModelComposite> & cl)
+    bp::class_<JointModelComposite> & expose_joint_model<JointModelComposite>(bp::class_<JointModelComposite> & cl)
     {
       return cl
-               .def(bp::init<const size_t> (bp::args("self","size"),
-                                            "Init JointModelComposite with a defined size"))
-               .def("__init__",
-                    bp::make_constructor(init_proxy1,
-                                         bp::default_call_policies(),
-                                         bp::args("joint_model")
-                                        ),
-                    "Init JointModelComposite from a joint"
-                   )
-               .def("__init__",
-                    bp::make_constructor(init_proxy2,
-                                         bp::default_call_policies(),
-                                         bp::args("joint_model","joint_placement")
-                                        ),
-                    "Init JointModelComposite from a joint and a placement"
-                   )
-               .add_property("joints",&JointModelComposite::joints)
-               .add_property("jointPlacements",&JointModelComposite::jointPlacements)
-               .add_property("njoints",&JointModelComposite::njoints)
-               .def("addJoint",
-                    &addJoint_proxy,
-                    addJoint_proxy_overloads(bp::args("self","joint_model","joint_placement"),
-                                             "Add a joint to the vector of joints."
-                                            )[bp::return_internal_reference<>()]
-                   )
-               ;
+      .def(bp::init<const size_t> (bp::args("self","size"),
+                                   "Init JointModelComposite with a defined size"))
+      .def("__init__",
+           bp::make_constructor(init_proxy1,
+                                bp::default_call_policies(),
+                                bp::args("joint_model")
+                                ),
+           "Init JointModelComposite from a joint"
+           )
+      .def("__init__",
+           bp::make_constructor(init_proxy2,
+                                bp::default_call_policies(),
+                                bp::args("joint_model","joint_placement")
+                                ),
+           "Init JointModelComposite from a joint and a placement"
+           )
+      .add_property("joints",&JointModelComposite::joints)
+      .add_property("jointPlacements",&JointModelComposite::jointPlacements)
+      .add_property("njoints",&JointModelComposite::njoints)
+      .def("addJoint",
+           &addJoint_proxy,
+           addJoint_proxy_overloads(bp::args("self","joint_model","joint_placement"),
+                                    "Add a joint to the vector of joints."
+                                    )[bp::return_internal_reference<>()]
+           )
+      
+      .def(bp::self == bp::self)
+      .def(bp::self != bp::self)
+      
+      ;
     }
   } // namespace python
 } // namespace pinocchio
