@@ -7,6 +7,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
 
   # Multibody
   bindings_joint_composite
+  bindings_joints
   bindings_model
   bindings_data
   bindings_geometry_model
