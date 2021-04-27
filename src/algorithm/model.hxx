@@ -332,7 +332,7 @@ namespace pinocchio
     
     for(JointIndex joint_id = 1; joint_id < (JointIndex)input_model.njoints; ++joint_id)
     {
-      const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : input_model.joints.size();
+      const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : 0;
       
       const JointIndex input_parent_joint_index = input_model.parents[joint_id];
       const std::string & joint_name = input_model.names[joint_id];
