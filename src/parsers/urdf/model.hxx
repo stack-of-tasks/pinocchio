@@ -202,12 +202,13 @@ namespace pinocchio
               const std::string & body_name)
           {
             const Frame & parent_frame = model.frames[parent_frame_id];
+            const JointIndex parent_frame_parent = parent_frame.parent;
 
             const SE3 placement = parent_frame.placement * joint_placement;
             FrameIndex fid = model.addFrame(Frame(joint_name, parent_frame.parent, parent_frame_id,
                                                   placement, FIXED_JOINT, Y));
 
-            model.addBodyFrame(body_name, parent_frame.parent, placement, (int)fid);
+            model.addBodyFrame(body_name, parent_frame_parent, placement, (int)fid);
           }
 
           void appendBodyToJoint(
