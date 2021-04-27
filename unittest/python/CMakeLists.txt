@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2021 CNRS INRIA
 #
 
 SET(${PROJECT_NAME}_PYTHON_TESTS
@@ -30,7 +30,7 @@ SET(${PROJECT_NAME}_PYTHON_TESTS
   bindings_kinematics
   bindings_rnea
   bindings_aba
-  bindings_joints
+  bindings_joint_algorithms
   
   # Algo derivatives
   bindings_kinematics_derivatives
