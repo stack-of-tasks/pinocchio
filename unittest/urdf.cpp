@@ -178,12 +178,10 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint_from_UDRFTree )
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   
-  std::cout << "parseURDFFile" << std::endl;
   ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
   
   pinocchio::Model model;
-  std::cout << "buildModel" << std::endl;
-  pinocchio::urdf::buildModel(urdfTree, pinocchio::JointModelFreeFlyer(), model, true);
+  pinocchio::urdf::buildModel(urdfTree, pinocchio::JointModelFreeFlyer(), model);
   
   BOOST_CHECK(model.nq == 38);
 }
