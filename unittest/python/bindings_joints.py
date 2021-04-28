@@ -1,5 +1,5 @@
 import unittest
-import pinocchio as pin 
+import pinocchio as pin
 import numpy as np
 
 joint_types = [
