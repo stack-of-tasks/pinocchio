@@ -276,7 +276,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
-  addFrame(const Frame & frame)
+  addFrame(const Frame & frame, const bool append_inertia)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent < (JointIndex)njoints,
                                    "The index of the parent frame is not valid.");
@@ -290,7 +290,7 @@ namespace pinocchio
       return getFrameId(frame.name,frame.type);
     
     frames.push_back(frame);
-//    if(frame.inertia.mass() > Scalar(0))
+    if(append_inertia)
       inertias[frame.parent] += frame.placement.act(frame.inertia);
     nframes++;
     return FrameIndex(nframes - 1);

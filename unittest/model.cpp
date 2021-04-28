@@ -281,6 +281,39 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
   }
 #endif
 
+BOOST_AUTO_TEST_CASE(test_buildReducedModel_empty)
+{
+  Model humanoid_model;
+  buildModels::humanoid(humanoid_model);
+  
+  static const std::vector<JointIndex> empty_index_vector;
+  
+  humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
+  humanoid_model.upperPositionLimit.head<3>().fill( 1.);
+  
+  humanoid_model.referenceConfigurations.insert(std::pair<std::string,Eigen::VectorXd>("neutral",neutral(humanoid_model)));
+  Eigen::VectorXd reference_config_humanoid = randomConfiguration(humanoid_model);
+  Model humanoid_copy_model = buildReducedModel(humanoid_model,empty_index_vector,reference_config_humanoid);
+  
+  BOOST_CHECK(humanoid_copy_model.names == humanoid_model.names);
+  BOOST_CHECK(humanoid_copy_model.joints == humanoid_model.joints);
+  BOOST_CHECK(humanoid_copy_model == humanoid_model);
+  BOOST_CHECK(humanoid_copy_model.referenceConfigurations["neutral"].isApprox(neutral(humanoid_copy_model)));
+  
+  const std::vector<JointIndex> empty_joints_to_lock;
+  
+  const Model reduced_humanoid_model = buildReducedModel(humanoid_model,empty_joints_to_lock,reference_config_humanoid);
+  BOOST_CHECK(reduced_humanoid_model.njoints == humanoid_model.njoints);
+  BOOST_CHECK(reduced_humanoid_model.frames == humanoid_model.frames);
+  BOOST_CHECK(reduced_humanoid_model.jointPlacements == humanoid_model.jointPlacements);
+  BOOST_CHECK(reduced_humanoid_model.joints == humanoid_model.joints);
+  
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)reduced_humanoid_model.njoints; ++joint_id)
+  {
+    BOOST_CHECK(reduced_humanoid_model.inertias[joint_id].isApprox(humanoid_model.inertias[joint_id]));
+  }
+}
+
 BOOST_AUTO_TEST_CASE(test_buildReducedModel)
 {
   Model humanoid_model;

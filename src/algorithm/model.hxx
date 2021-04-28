@@ -300,7 +300,7 @@ namespace pinocchio
     typedef typename Model::JointData JointData;
     typedef typename Model::Frame Frame;
     typedef typename Model::SE3 SE3;
-    
+
     // Sort indexes
     std::sort(list_of_joints_to_lock.begin(),list_of_joints_to_lock.end());
     
@@ -317,7 +317,6 @@ namespace pinocchio
     reduced_model.joints                .reserve((size_t)njoints);
     reduced_model.jointPlacements       .reserve((size_t)njoints);
     reduced_model.parents               .reserve((size_t)njoints);
-    reduced_model.inertias              .reserve((size_t)njoints);
     
     reduced_model.names[0] = input_model.names[0];
     reduced_model.joints[0] = input_model.joints[0];
@@ -332,7 +331,7 @@ namespace pinocchio
     
     for(JointIndex joint_id = 1; joint_id < (JointIndex)input_model.njoints; ++joint_id)
     {
-      const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : input_model.joints.size();
+      const JointIndex joint_id_to_lock = (current_index_to_lock < list_of_joints_to_lock.size()) ? list_of_joints_to_lock[current_index_to_lock] : 0;
       
       const JointIndex input_parent_joint_index = input_model.parents[joint_id];
       const std::string & joint_name = input_model.names[joint_id];
@@ -369,15 +368,11 @@ namespace pinocchio
         Frame frame = Frame(joint_name,
                             reduced_parent_joint_index, reduced_previous_frame_index,
                             liMi,
-                            FIXED_JOINT);
+                            FIXED_JOINT,
+                            input_model.inertias[joint_id]);
         
         FrameIndex frame_id = reduced_model.addFrame(frame);
         reduced_model.frames[frame_id].previousFrame = frame_id; // a bit weird, but this is a solution for missing parent frame
-        
-        // Add the Inertia of the link supported by joint_id
-        reduced_model.appendBodyToJoint(reduced_parent_joint_index,
-                                        input_model.inertias[joint_id],
-                                        frame.placement);
         
         current_index_to_lock++;
       }
@@ -436,34 +431,34 @@ namespace pinocchio
     for(++frame_it;frame_it != input_model.frames.end(); ++frame_it)
     {
       const Frame & input_frame = *frame_it;
-      const std::string & input_joint_name = input_model.names[input_frame.parent];
+      const std::string & support_joint_name = input_model.names[input_frame.parent];
       
-      std::vector<JointIndex>::const_iterator joint_id_it = std::find(list_of_joints_to_lock.begin(),
-                                                                      list_of_joints_to_lock.end(),
-                                                                      input_frame.parent);
+      std::vector<JointIndex>::const_iterator support_joint_it = std::find(list_of_joints_to_lock.begin(),
+                                                                           list_of_joints_to_lock.end(),
+                                                                           input_frame.parent);
       
-      if(joint_id_it != list_of_joints_to_lock.end())
+      if(support_joint_it != list_of_joints_to_lock.end())
       {
         if(   input_frame.type == JOINT
            && reduced_model.existFrame(input_frame.name)
-           && input_joint_name == input_frame.name)
+           && support_joint_name == input_frame.name)
           continue; // this means that the Joint is now fixed and has been replaced by a Frame. No need to add a new one.
         
         // The joint has been removed and replaced by a Frame
-        const FrameIndex joint_frame_id = reduced_model.getFrameId(input_joint_name);
+        const FrameIndex joint_frame_id = reduced_model.getFrameId(support_joint_name);
         const Frame & joint_frame = reduced_model.frames[joint_frame_id];
         Frame reduced_frame = input_frame;
         reduced_frame.placement = joint_frame.placement * input_frame.placement;
         reduced_frame.parent = joint_frame.parent;
         reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
-        reduced_model.addFrame(reduced_frame);
+        reduced_model.addFrame(reduced_frame, false);
       }
       else
       {
         Frame reduced_frame = input_frame;
         reduced_frame.parent = reduced_model.getJointId(input_model.names[input_frame.parent]);
         reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
-        reduced_model.addFrame(reduced_frame);
+        reduced_model.addFrame(reduced_frame, false);
       }
     }
   }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_joint_variants_hpp__
@@ -34,6 +34,9 @@ namespace pinocchio
         .add_property("nv",&get_nv)
         .def("setIndexes",&JointModelDerived::setIndexes)
         .def("shortname",&JointModelDerived::shortname)
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 
@@ -72,6 +75,9 @@ namespace pinocchio
           .add_property("Dinv",&get_Dinv)
           .add_property("UDinv",&get_UDinv)
           .def("shortname",&JointDataDerived::shortname)
+        
+          .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
         ;
       }
 
