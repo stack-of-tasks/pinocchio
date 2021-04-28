@@ -95,6 +95,8 @@ namespace pinocchio
       
       typedef typename Model::VectorXs VectorXs;
       
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addFrame_overload,Model::addFrame,1,2)
+      
     public:
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -189,7 +191,10 @@ namespace pinocchio
         
         .def("existFrame",&Model::existFrame,existFrame_overload(bp::args("self","name","type"),"Returns true if the frame given by its name exists inside the Model with the given type."))
         
-        .def("addFrame",(std::size_t (Model::*)(const Frame &)) &Model::addFrame,bp::args("self","frame"),"Add a frame to the vector of frames.")
+        .def("addFrame",&Model::addFrame,
+             addFrame_overload((bp::arg("self"), bp::arg("frame"), bp::arg("append_inertia") = true),
+                               "Add a frame to the vector of frames. If append_inertia set to True, "
+                               "the inertia value contained in frame will be added to the inertia supported by the parent joint."))
         
         .def("createData",
              &ModelPythonVisitor::createData,bp::arg("self"),
