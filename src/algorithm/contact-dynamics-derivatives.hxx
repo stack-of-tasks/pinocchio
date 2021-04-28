@@ -458,7 +458,7 @@ namespace pinocchio
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
 
       //Derivative of closed loop kinematic tree
-      if(cmodel.joint1_id >0  && cmodel.joint2_id >0 )
+      if(cmodel.joint2_id >0 )
       {
         switch(cmodel.type)
 	{
