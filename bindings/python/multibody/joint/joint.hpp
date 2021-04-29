@@ -35,7 +35,7 @@ namespace pinocchio
              &JointModel::setIndexes,
              bp::args("self","id","idx_q","idx_v"))
         .def("hasSameIndexes",
-             &JointModel::hasSameIndexes,
+             &JointModel::hasSameIndexes<JointModel>,
              bp::args("self","other"),
              "Check if this has same indexes than other.")
         .def("shortname",&JointModel::shortname,bp::arg("self"))
