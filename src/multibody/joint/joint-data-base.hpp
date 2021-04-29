@@ -120,13 +120,14 @@ namespace pinocchio
       return os;
     }
     
-    bool operator==(const JointDataBase<Derived> & other) const
+    template<typename OtherDerived>
+    bool operator==(const JointDataBase<OtherDerived> & other) const
     {
       return derived().isEqual(other.derived());
     }
     
     /// \brief Default operator== implementation
-    bool isEqual(const JointDataBase<Derived> & other) const
+    bool isEqual(const JointDataBase & other) const
     {
       return S() == other.S()
           && M() == other.M()
@@ -135,6 +136,14 @@ namespace pinocchio
           && U() == other.U()
           && Dinv() == other.Dinv()
           && UDinv() == other.UDinv()
+      ;
+    }
+    
+    /// \brief Default operator== implementation
+    template<typename OtherDerived>
+    bool isEqual(const JointDataBase<OtherDerived> & /*other*/) const
+    {
+      return false;
       ;
     }
     
