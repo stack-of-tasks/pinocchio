@@ -160,6 +160,12 @@ namespace pinocchio
     
     bool isEqual(const JointModelBase<Derived> & other) const
     {
+      return derived().hasSameIndexes(other.derived());
+    }
+    
+    template <class OtherDerived>
+    bool hasSameIndexes(const JointModelBase<OtherDerived> & other) const
+    {
       return other.id() == id()
       && other.idx_q() == idx_q()
       && other.idx_v() == idx_v();
