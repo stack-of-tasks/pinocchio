@@ -1,7 +1,10 @@
 //
-// Copyright(c) 2015-2020 CNRS INRIA
+// Copyright(c) 2015-2021 CNRS INRIA
 // Copyright(c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
+
+#include <boost/test/unit_test.hpp>
+#include <iostream>
 
 #include "pinocchio/math/fwd.hpp"
 #include "pinocchio/multibody/joint/joints.hpp"
@@ -10,9 +13,6 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/compute-all-terms.hpp"
-
-#include <boost/test/unit_test.hpp>
-#include <iostream>
 
 using namespace pinocchio;
 
@@ -141,11 +141,11 @@ struct TestJointModelIsEqual : TestJointModel<TestJointModelIsEqual>
   static void test(const JointModelBase<JointModel> & jmodel)
   {
     JointModel jmodel_copy = jmodel.derived();
-    BOOST_CHECK(jmodel_copy == jmodel.derived());
+    BOOST_CHECK(jmodel_copy == jmodel);
     
     JointModel jmodel_any;
-    BOOST_CHECK(jmodel_any != jmodel.derived());
-    BOOST_CHECK(!jmodel_any.isEqual(jmodel.derived()));
+    BOOST_CHECK(jmodel_any != jmodel);
+    BOOST_CHECK(!jmodel_any.isEqual(jmodel));
   }
 };
   
@@ -173,6 +173,8 @@ struct TestJointModelCast : TestJointModel<TestJointModelCast>
   static void test(const JointModelBase<JointModel> & jmodel)
   {
     typedef typename JointModel::Scalar Scalar;
+    BOOST_CHECK(jmodel == jmodel);
+    BOOST_CHECK(jmodel.template cast<Scalar>().isEqual(jmodel));
     BOOST_CHECK(jmodel.template cast<Scalar>() == jmodel);
     BOOST_CHECK(jmodel.template cast<long double>().template cast<double>() == jmodel);
   }
