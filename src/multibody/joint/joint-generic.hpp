@@ -209,8 +209,13 @@ namespace pinocchio
     template<typename JointModelDerived>
     bool isEqual(const JointModelBase<JointModelDerived> & other) const
     {
-      return Base::hasSameIndexes(other.derived())
-      && ::pinocchio::isEqual(*this,other.derived());;
+      return ::pinocchio::isEqual(*this,other.derived());;
+    }
+    
+    template<typename JointModelDerived>
+    bool hasSameIndexes(const JointModelBase<JointModelDerived> & other) const
+    {
+      return ::pinocchio::hasSameIndexes(*this,other.derived());
     }
     
     bool isEqual(const JointModelTpl & other) const
