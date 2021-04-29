@@ -167,13 +167,19 @@ namespace pinocchio
     
     JointModelTpl(const JointModelVariant & jmodel_variant)
     : JointCollection::JointModelVariant(jmodel_variant)
-    {}
+    {
+      setIndexes(::pinocchio::id(jmodel_variant),
+                 ::pinocchio::nq(jmodel_variant),
+                 ::pinocchio::nv(jmodel_variant));
+    }
     
     template<typename JointModelDerived>
     JointModelTpl(const JointModelBase<JointModelDerived> & jmodel)
     : JointModelVariant((JointModelVariant)jmodel.derived())
     {
       BOOST_MPL_ASSERT((boost::mpl::contains<typename JointModelVariant::types,JointModelDerived>));
+
+      setIndexes(jmodel.id(),jmodel.nq(),jmodel.nv());
     }
     
     JointModelVariant & toVariant()
