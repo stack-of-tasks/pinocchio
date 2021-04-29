@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_composite_hpp__
@@ -156,13 +156,14 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
+    typedef JointModel JointModelVariant;
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef InertiaTpl<Scalar,Options> Inertia;
   
-    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModelVariant) JointModelVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
     
     using Base::id;
     using Base::idx_q;
@@ -325,6 +326,7 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelCompositeTpl & other) const
     {
+      std::cout << "JointModelCompositeTpl::isEqual" << std::endl;
       return Base::isEqual(other)
       && nq() == other.nq()
       && nv() == other.nv()
