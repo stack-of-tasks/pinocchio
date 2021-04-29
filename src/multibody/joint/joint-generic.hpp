@@ -131,7 +131,7 @@ namespace pinocchio
     template<typename JointDataDerived>
     bool isEqual(const JointDataBase<JointDataDerived> & other) const
     {
-      return ::pinocchio::isEqual(other.derived());
+      return ::pinocchio::isEqual(*this,other.derived());
     }
     
     bool isEqual(const JointDataTpl & other) const
@@ -142,6 +142,11 @@ namespace pinocchio
     bool operator==(const JointDataTpl & other) const
     {
       return isEqual(other);
+    }
+    
+    bool operator!=(const JointDataTpl & other) const
+    {
+      return !(*this == other);
     }
 
   };
@@ -271,6 +276,14 @@ namespace pinocchio
                   const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
   {
     return joint_data_generic == joint_data.derived();
+  }
+
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  bool operator!=(const JointDataBase<JointDataDerived> & joint_data,
+                  const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
+  {
+    return joint_data_generic != joint_data.derived();
   }
 
   template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
