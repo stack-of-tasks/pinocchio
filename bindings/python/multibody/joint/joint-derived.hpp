@@ -28,19 +28,19 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self")))
         // All are add_properties cause ReadOnly
-        .add_property("id",&getId)
-        .add_property("idx_q",&getIdx_q)
-        .add_property("idx_v",&getIdx_v)
-        .add_property("nq",&getNq)
-        .add_property("nv",&getNv)
+        .add_property("id",&get_id)
+        .add_property("idx_q",&get_idx_q)
+        .add_property("idx_v",&get_idx_v)
+        .add_property("nq",&get_nq)
+        .add_property("nv",&get_nv)
         .def("setIndexes",
-             &JointModel::setIndexes,
+             &JointModelDerived::setIndexes,
              bp::args("self","id","idx_q","idx_v"))
         .def("hasSameIndexes",
-             &JointModel::hasSameIndexes,
+             &JointModelDerived::hasSameIndexes,
              bp::args("self","other"),
              "Check if this has same indexes than other.")
-        .def("shortname",&JointModel::shortname,bp::arg("self"))
+        .def("shortname",&JointModelDerived::shortname,bp::arg("self"))
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
@@ -57,9 +57,6 @@ namespace pinocchio
       { return self.nq(); }
       static int get_nv(const JointModelDerived & self)
       { return self.nv(); }
-
-      static void expose()
-      {}
 
     };
 
