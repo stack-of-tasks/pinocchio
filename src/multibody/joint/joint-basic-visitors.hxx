@@ -552,10 +552,10 @@ namespace pinocchio
     typedef boost::fusion::vector<const JointDataDerived &> ArgsType;
     
     template<typename JointData>
-    static bool algo(const JointDataBase<JointModel> & jdata_lhs,
+    static bool algo(const JointDataBase<JointData> & jdata_lhs,
                      const JointDataDerived & jdata_rhs)
     {
-      return jdata_lhs == jdata_rhs;
+      return jdata_lhs.derived() == jdata_rhs;
     }
 
   };
