@@ -43,6 +43,7 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   pinocchio::JointModel jma(jmodel);
   BOOST_CHECK(jmodel == jma);
   BOOST_CHECK(jma == jmodel);
+  BOOST_CHECK(jma.hasSameIndexes(jmodel));
   
   pinocchio::JointData jda(jdata);
   BOOST_CHECK(jda == jdata);

@@ -311,7 +311,7 @@ namespace pinocchio
     static bool algo(const JointModelBase<JointModel> & jmodel_lhs,
                      const JointModelDerived & jmodel_rhs)
     {
-      return jmodel_lhs == jmodel_rhs;
+      return jmodel_lhs.derived() == jmodel_rhs;
     }
 
   };
@@ -321,6 +321,29 @@ namespace pinocchio
                const JointModelBase<JointModelDerived> & jmodel)
   {
     typedef JointModelComparisonOperatorVisitor<Scalar,Options,JointCollectionTpl,JointModelDerived> Algo;
+    return Algo::run(jmodel_generic,typename Algo::ArgsType(boost::ref(jmodel.derived())));
+  }
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  struct JointModelHasSameIndexesVisitor
+  : fusion::JointUnaryVisitorBase< JointModelHasSameIndexesVisitor<Scalar,Options,JointCollectionTpl,JointModelDerived>,bool>
+  {
+    typedef boost::fusion::vector<const JointModelDerived &> ArgsType;
+    
+    template<typename JointModel>
+    static bool algo(const JointModelBase<JointModel> & jmodel_lhs,
+                     const JointModelDerived & jmodel_rhs)
+    {
+      return jmodel_lhs.derived().hasSameIndexes(jmodel_rhs);
+    }
+
+  };
+
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool hasSameIndexes(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
+                      const JointModelBase<JointModelDerived> & jmodel)
+  {
+    typedef JointModelHasSameIndexesVisitor<Scalar,Options,JointCollectionTpl,JointModelDerived> Algo;
     return Algo::run(jmodel_generic,typename Algo::ArgsType(boost::ref(jmodel.derived())));
   }
 

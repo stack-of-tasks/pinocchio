@@ -187,6 +187,19 @@ namespace pinocchio
                const JointModelBase<JointModelDerived> & jmodel);
 
   
+  /**
+   * @brief      Check whether JointModelTpl<Scalar,...> has the indexes than another JointModelDerived
+   *
+   * @param[in]  jmodel_generic  The generic joint model containing a variant.
+   * @param[in]  jmodel  The other joint modelto compare with
+   *
+   * @return     True if the two joints have the same indexes.
+   */
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool hasSameIndexes(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
+                      const JointModelBase<JointModelDerived> & jmodel);
+
+  
   //
   // Visitors on JointDatas
   //
