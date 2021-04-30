@@ -85,7 +85,7 @@ jobs:
         set PATH=%PATH%;%CONDA_PREFIX%\Library\bin
         .\unittest\Release\test-cpp-urdf.exe
         .\examples\Release\example-cpp-geometry-models.exe
-        ctest --output-on-failure -C Release -V --repeat until-pass:5
+        ctest --output-on-failure -C Release -V --repeat until-pass:1
 
 #        :: Test Python import
 #        cd ..
