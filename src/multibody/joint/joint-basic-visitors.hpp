@@ -174,6 +174,31 @@ namespace pinocchio
   typename CastType< NewScalar,JointModelTpl<Scalar,Options,JointCollectionTpl> >::type
   cast_joint(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
 
+  /**
+   * @brief      Visit a JointModelTpl<Scalar,...> to compare it to JointModelDerived
+   *
+   * @param[in]  jmodel_generic  The generic joint model containing a variant.
+   * @param[in]  jmodel  The other joint model for the comparison.
+   *
+   * @return     True if the two joint models are equal.
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool isEqual(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
+               const JointModelBase<JointModelDerived> & jmodel);
+
+  
+  /**
+   * @brief      Check whether JointModelTpl<Scalar,...> has the indexes than another JointModelDerived
+   *
+   * @param[in]  jmodel_generic  The generic joint model containing a variant.
+   * @param[in]  jmodel  The other joint modelto compare with
+   *
+   * @return     True if the two joints have the same indexes.
+   */
+  template<typename NewScalar, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool hasSameIndexes(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
+                      const JointModelBase<JointModelDerived> & jmodel);
+
   
   //
   // Visitors on JointDatas
@@ -263,6 +288,18 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
   udinv_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+
+  /**
+   * @brief      Visit a JointDataTpl<Scalar,...> to compare it to another JointData
+   *
+   * @param[in]  jdata_generic  The generic joint data containing a variant.
+   * @param[in]  jdata  The other joint data for the comparison.
+   *
+   * @return     True if the two joints data are equal.
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  bool isEqual(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
+               const JointDataBase<JointDataDerived> & jmodel);
   
 } // namespace pinocchio
 

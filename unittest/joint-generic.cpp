@@ -22,24 +22,47 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   typedef typename LieGroup<JointModel>::type LieGroupType;
 
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
+  
   Eigen::VectorXd q1, q2;
-  Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv()));
-  Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
-  bool update_I = false;
-
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
+  
+  Eigen::VectorXd
+  v1(Eigen::VectorXd::Random(jdata.S().nv())),
+  v2(Eigen::VectorXd::Random(jdata.S().nv()));
+  
+  Inertia::Matrix6
+  Ia(pinocchio::Inertia::Random().matrix()),
+  Ia2(pinocchio::Inertia::Random().matrix());
+  bool update_I = false;
+
 
   jmodel.calc(jdata.derived(), q1, v1);
   jmodel.calc_aba(jdata.derived(), Ia, update_I);
 
   pinocchio::JointModel jma(jmodel);
-  pinocchio::JointData jda(jdata.derived());
+  BOOST_CHECK(jmodel == jma);
+  BOOST_CHECK(jma == jmodel);
+  BOOST_CHECK(jma.hasSameIndexes(jmodel));
+  
+  pinocchio::JointData jda(jdata);
+  BOOST_CHECK(jda == jdata);
+  BOOST_CHECK(jdata == jda);
 
   jma.calc(jda, q1, v1);
   jma.calc_aba(jda, Ia, update_I);
+  
+  pinocchio::JointData jda_other(jdata);
+  
+  jma.calc(jda_other, q2, v2);
+  jma.calc_aba(jda_other, Ia2, update_I);
+  
+  BOOST_CHECK(jda_other != jda);
+  BOOST_CHECK(jda != jda_other);
+  BOOST_CHECK(jda_other != jdata);
+  BOOST_CHECK(jdata != jda_other);
 
-  std::string error_prefix("JointModel on " + jma.shortname());
+  const std::string error_prefix("JointModel on " + jma.shortname());
   BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
   BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv() ,std::string(error_prefix + " - nv "));
 
@@ -316,10 +339,11 @@ BOOST_AUTO_TEST_CASE(isEqual)
   jmodelx.setIndexes(0,0,0);
   
   JointModel jmodelx_copy = jmodelx;
+  BOOST_CHECK(jmodelx_copy == jmodelx);
   BOOST_CHECK(jmodelx_copy == jmodelx.derived());
   
   JointModel jmodely(joint_revolutey);
-  // TDDO: the comparison of two variants is not supported by some old version of BOOST
+  // TODO: the comparison of two variants is not supported by some old version of BOOST
 //  BOOST_CHECK(jmodely.toVariant() != jmodelx.toVariant());
   BOOST_CHECK(jmodely != jmodelx);
 }

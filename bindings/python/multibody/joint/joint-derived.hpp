@@ -18,7 +18,7 @@ namespace pinocchio
     
     template<class JointModelDerived>
     struct JointModelDerivedPythonVisitor
-      : public boost::python::def_visitor< JointModelDerivedPythonVisitor<JointModelDerived> >
+    : public boost::python::def_visitor< JointModelDerivedPythonVisitor<JointModelDerived> >
     {
     public:
 
@@ -26,14 +26,21 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         cl
+        .def(bp::init<>(bp::arg("self")))
         // All are add_properties cause ReadOnly
         .add_property("id",&get_id)
         .add_property("idx_q",&get_idx_q)
         .add_property("idx_v",&get_idx_v)
         .add_property("nq",&get_nq)
         .add_property("nv",&get_nv)
-        .def("setIndexes",&JointModelDerived::setIndexes)
-        .def("shortname",&JointModelDerived::shortname)
+        .def("setIndexes",
+             &JointModelDerived::setIndexes,
+             bp::args("self","id","idx_q","idx_v"))
+        .def("hasSameIndexes",
+             &JointModelDerived::template hasSameIndexes<JointModelDerived>,
+             bp::args("self","other"),
+             "Check if this has same indexes than other.")
+        .def("shortname",&JointModelDerived::shortname,bp::arg("self"))
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
@@ -51,14 +58,11 @@ namespace pinocchio
       static int get_nv(const JointModelDerived & self)
       { return self.nv(); }
 
-      static void expose()
-      {}
-
     };
 
     template<class JointDataDerived>
     struct JointDataDerivedPythonVisitor
-      : public boost::python::def_visitor< JointDataDerivedPythonVisitor<JointDataDerived> >
+    : public boost::python::def_visitor< JointDataDerivedPythonVisitor<JointDataDerived> >
     {
     public:
 

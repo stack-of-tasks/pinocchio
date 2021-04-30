@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_joint_generic_hpp__
@@ -128,10 +128,25 @@ namespace pinocchio
     static std::string classname() { return "JointData"; }
     std::string shortname() const { return ::pinocchio::shortname(*this); }
     
+    template<typename JointDataDerived>
+    bool isEqual(const JointDataBase<JointDataDerived> & other) const
+    {
+      return ::pinocchio::isEqual(*this,other.derived());
+    }
+    
     bool isEqual(const JointDataTpl & other) const
     {
-      return Base::isEqual(other)
-      && toVariant() == other.toVariant();
+      return Base::isEqual(other) && toVariant() == other.toVariant();
+    }
+    
+    bool operator==(const JointDataTpl & other) const
+    {
+      return isEqual(other);
+    }
+    
+    bool operator!=(const JointDataTpl & other) const
+    {
+      return !(*this == other);
     }
 
   };
@@ -167,7 +182,8 @@ namespace pinocchio
     
     JointModelTpl(const JointModelVariant & jmodel_variant)
     : JointCollection::JointModelVariant(jmodel_variant)
-    {}
+    {
+    }
     
     template<typename JointModelDerived>
     JointModelTpl(const JointModelBase<JointModelDerived> & jmodel)
@@ -185,11 +201,31 @@ namespace pinocchio
     JointDataDerived createData() const
     { return ::pinocchio::createData<Scalar,Options,JointCollectionTpl>(*this); }
 
-    using Base::isEqual;
+    template<typename JointModelDerived>
+    bool isEqual(const JointModelBase<JointModelDerived> & other) const
+    {
+      return ::pinocchio::isEqual(*this,other.derived());;
+    }
+    
+    template<typename JointModelDerived>
+    bool hasSameIndexes(const JointModelBase<JointModelDerived> & other) const
+    {
+      return ::pinocchio::hasSameIndexes(*this,other.derived());
+    }
+    
     bool isEqual(const JointModelTpl & other) const
     {
-      return Base::isEqual(other)
-      && toVariant() == other.toVariant();
+      return Base::isEqual(other) && toVariant() == other.toVariant();
+    }
+    
+    bool operator==(const JointModelTpl & other) const
+    {
+      return isEqual(other);
+    }
+    
+    bool operator!=(const JointModelTpl & other) const
+    {
+      return !(*this == other);
     }
 
     template<typename ConfigVector>
@@ -219,7 +255,9 @@ namespace pinocchio
     JointIndex     id_impl()      const { return ::pinocchio::id(*this); }
 
     void setIndexes(JointIndex id, int nq, int nv)
-    { ::pinocchio::setIndexes(*this,id, nq, nv); }
+    {
+      ::pinocchio::setIndexes(*this, id, nq, nv);
+    }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
@@ -231,6 +269,36 @@ namespace pinocchio
   
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointData) JointDataVector;
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
+
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  bool operator==(const JointDataBase<JointDataDerived> & joint_data,
+                  const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
+  {
+    return joint_data_generic == joint_data.derived();
+  }
+
+  
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  bool operator!=(const JointDataBase<JointDataDerived> & joint_data,
+                  const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
+  {
+    return joint_data_generic != joint_data.derived();
+  }
+
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool operator==(const JointModelBase<JointModelDerived> & joint_model,
+                  const JointModelTpl<Scalar,Options,JointCollectionTpl> & joint_model_generic)
+  {
+    return joint_model_generic == joint_model.derived();
+  }
+
+  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  bool operator!=(const JointModelBase<JointModelDerived> & joint_model,
+                  const JointModelTpl<Scalar,Options,JointCollectionTpl> & joint_model_generic)
+  {
+    return joint_model_generic != joint_model.derived();
+  }
 
 } // namespace pinocchio
 

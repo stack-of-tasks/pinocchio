@@ -57,7 +57,7 @@ namespace pinocchio
         expose_joint_model<T>(
             bp::class_<T>(T::classname().c_str(),
                           T::classname().c_str(),
-                          bp::init<>())
+                          bp::no_init)
             .def(JointModelDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );

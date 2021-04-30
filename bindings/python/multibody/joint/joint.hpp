@@ -31,8 +31,14 @@ namespace pinocchio
         .add_property("idx_v",&getIdx_v)
         .add_property("nq",&getNq)
         .add_property("nv",&getNv)
-        .def("setIndexes",&JointModel::setIndexes)
-        .def("shortname",&JointModel::shortname)
+        .def("setIndexes",
+             &JointModel::setIndexes,
+             bp::args("self","id","idx_q","idx_v"))
+        .def("hasSameIndexes",
+             &JointModel::hasSameIndexes<JointModel>,
+             bp::args("self","other"),
+             "Check if this has same indexes than other.")
+        .def("shortname",&JointModel::shortname,bp::arg("self"))
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
