@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
@@ -172,33 +172,17 @@ namespace pinocchio
         // current1_id and current2_id now contains the common ancestor to the two joints.
         if(cmodel.type == CONTACT_3D && cmodel.reference_frame != WORLD)
         {
-          if(cmodel.reference_frame == LOCAL) // We just need to add the common parent when dealing with CONTACT_3D
+          JointIndex current_id = current1_id;
+          while(current_id > 0)
           {
-            if(current1_id > 0 && current2_id > 0)
+            const typename Model::JointModel & joint = model.joints[current_id];
+            Eigen::DenseIndex current_row_id = joint.idx_v() + num_total_constraints;
+            for(int k = 0; k < joint.nv(); ++k,++current_row_id)
             {
-              const typename Model::JointModel & joint = model.joints[current1_id];
-              Eigen::DenseIndex current_row_id = joint.idx_v() + num_total_constraints;
-              for(int k = 0; k < joint.nv(); ++k,++current_row_id)
-              {
-                joint1_indexes_ee[current_row_id] = true;
-                joint2_indexes_ee[current_row_id] = true;
-              }
+              joint1_indexes_ee[current_row_id] = true;
+              joint2_indexes_ee[current_row_id] = true;
             }
-          }
-          else // cmodel.reference_frame == LOCAL_WORLD_ALIGNED | We should go up to the root of the kinematic tree
-          {
-            JointIndex current_id = current1_id;
-            while(current_id > 0)
-            {
-              const typename Model::JointModel & joint = model.joints[current_id];
-              Eigen::DenseIndex current_row_id = joint.idx_v() + num_total_constraints;
-              for(int k = 0; k < joint.nv(); ++k,++current_row_id)
-              {
-                joint1_indexes_ee[current_row_id] = true;
-                joint2_indexes_ee[current_row_id] = true;
-              }
-              current_id = model.parents[current_id];
-            }
+            current_id = model.parents[current_id];
           }
         }
         
