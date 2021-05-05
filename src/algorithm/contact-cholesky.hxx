@@ -372,10 +372,9 @@ namespace pinocchio
                   {
                     if(sign == 0)
                     {
-                      const Motion Jcol_local1(oMc1.actInv(Jcol_motion));
-                      Motion Jcol_local2(oMc2.actInv(Jcol_motion));
-                      Jcol_local2.linear() = c1Mc2.rotation()*Jcol_local2.linear();
-                      const typename Motion::Vector3 Jdiff_linear = Jcol_local1.linear() - Jcol_local2.linear();
+                      const Motion Jcol_local1(oMc1.actInv(Jcol_motion)); // TODO: simplify computations
+                      const Motion Jcol_local2(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
+                      const typename Motion::Vector3 Jdiff_linear = Jcol_local1.linear() - c1Mc2.rotation()*Jcol_local2.linear();
                       for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                       {
                         const Eigen::DenseIndex _ii = current_row - _i;
