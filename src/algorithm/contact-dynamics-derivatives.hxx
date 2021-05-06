@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
+#include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/utils/motion.hpp"
@@ -252,6 +253,7 @@ namespace pinocchio
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
     typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
@@ -505,6 +507,46 @@ namespace pinocchio
 	}
 	case CONTACT_3D:
 	{
+	  const Motion& o_acc_c2 = getClassicalAcceleration(model, data, cmodel.joint2_id, WORLD);
+	  typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
+	  const RowsBlock contact_dvc_dq = SizeDepType<3>::middleRows(data.dvc_dq,current_row_sol_id);
+	  RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
+	  RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
+	  const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
+	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
+	  const Eigen::DenseIndex colRef2 =
+	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
+
+	  of_temp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
+	  of_temp.angular().noalias() = cdata.oMc2.translation().cross(of_temp.linear());
+
+	  // d./dq
+	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+	  {
+	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
+
+	    //Check if J_col.angular() should be here
+	    a_temp.linear() = o_acc_c2.linear().cross(J_col.angular()) + o_acc_c2.angular().cross(J_col.linear());
+
+	    if(joint2_indexes[col_id]) {
+	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().inverse() * a_temp.linear();
+	    }
+	    else {
+	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().inverse() * a_temp.linear();
+	    }
+	    
+	    motionSet::act(data.J.col(col_id), of_temp, of_temp2.toVector());
+	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
+	    {
+	      if(joint2_indexes[col_id]) {
+		data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
+	      }
+	      else {
+		data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
+	      }
+	    }
+	  }
 	  break;
 	}
 	default:
