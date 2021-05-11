@@ -86,6 +86,31 @@ namespace pinocchio
    *
    * @param[in]  model       The kinematic model
    * @param[in]  data        Data associated to model
+   * @param[in]  joint_id    Id of the parent joint
+   * @param[in]  placement   frame placement with respect to the parent joint
+   * @param[in]  rf          Reference frame in which the velocity is expressed.
+   *
+   * @return     The spatial velocity of the Frame expressed in the desired reference frame.
+   *
+   * @warning    Fist or second order forwardKinematics should have been called first
+   */
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+		   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+		   const JointIndex joint_id,
+		   const SE3Tpl<Scalar,Options> & placement,
+		   const ReferenceFrame rf = LOCAL);
+  
+
+
+  /**
+   * @brief      Returns the spatial velocity of the Frame expressed in the desired reference frame.
+   *             You must first call pinocchio::forwardKinematics to update placement and velocity values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
    * @param[in]  frame_id    Id of the operational Frame
    * @param[in]  rf          Reference frame in which the velocity is expressed.
    *
@@ -93,12 +118,44 @@ namespace pinocchio
    *
    * @warning    Fist or second order forwardKinematics should have been called first
    */
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const FrameIndex frame_id,
-                   const ReferenceFrame rf = LOCAL);
+                   const ReferenceFrame rf = LOCAL)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    const typename Model::Frame & frame = model.frames[frame_id];
+
+    return getFrameVelocity(model, data, frame.parent, frame.placement, rf);
+  }
+
+  
+  /**
+   * @brief      Returns the spatial acceleration of the Frame expressed in the desired reference frame.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  joint_id    Id of the parent joint
+   * @param[in]  placement   frame placement with respect to the parent joint
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
+   *
+   * @return The spatial acceleration of the Frame expressed in the desired reference frame.
+   *
+   * @warning    Second order forwardKinematics should have been called first
+   */
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const JointIndex joint_id,
+		       const SE3Tpl<Scalar,Options> & placement,
+                       const ReferenceFrame rf = LOCAL);
+
 
   /**
    * @brief      Returns the spatial acceleration of the Frame expressed in the desired reference frame.
@@ -113,12 +170,44 @@ namespace pinocchio
    *
    * @warning    Second order forwardKinematics should have been called first
    */
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const FrameIndex frame_id,
-                       const ReferenceFrame rf = LOCAL);
+                       const ReferenceFrame rf = LOCAL)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    const typename Model::Frame & frame = model.frames[frame_id];
+    return getFrameAcceleration(model, data, frame.parent, frame.placement, rf);
+    
+  }
+  
+  /**
+   * @brief      Returns the "classical" acceleration of the Frame expressed in the desired reference frame.
+   *             This is different from the "spatial" acceleration in that centrifugal effects are accounted for.
+   *             You must first call pinocchio::forwardKinematics to update placement, velocity and acceleration values in data structure.
+   *
+   * @param[in]  model       The kinematic model
+   * @param[in]  data        Data associated to model
+   * @param[in]  joint_id    Id of the parent joint
+   * @param[in]  placement   frame placement with respect to the parent joint
+   * @param[in]  rf          Reference frame in which the acceleration is expressed.
+   *
+   * @return The classical acceleration of the Frame expressed in the desired reference frame.
+   *
+   * @warning    Second order forwardKinematics should have been called first
+   */
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  inline MotionTpl<Scalar, Options>
+  getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                const JointIndex joint_id,
+				const SE3Tpl<Scalar,Options> & placement,
+                                const ReferenceFrame rf = LOCAL);
+
 
   /**
    * @brief      Returns the "classical" acceleration of the Frame expressed in the desired reference frame.
@@ -134,13 +223,21 @@ namespace pinocchio
    *
    * @warning    Second order forwardKinematics should have been called first
    */
+
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline MotionTpl<Scalar, Options>
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const FrameIndex frame_id,
-                                const ReferenceFrame rf = LOCAL);
+                                const ReferenceFrame rf = LOCAL)
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    const typename Model::Frame & frame = model.frames[frame_id];
+    return getFrameClassicalAcceleration(model, data, frame.parent, frame.placement, rf);
+  }
 
+  
   /**
    * @brief      Returns the jacobian of the frame given by its relative placement w.r.t. a joint frame, and whose columns are either expressed in the LOCAL frame coordinate system, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the WORLD coordinate system, depending on the value of reference_frame.
    *             You must first call pinocchio::computeJointJacobians.
