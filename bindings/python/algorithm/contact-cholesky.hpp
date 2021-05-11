@@ -59,6 +59,10 @@ namespace pinocchio
 	     bp::args("self", "constraint_id"),
 	     "Returns the associated sparsity of the constraints.",
 	     bp::return_value_policy<bp::return_by_value>())
+	.def("getLoopSparsityPattern", &Self::getLoopSparsityPattern,
+	     bp::args("self", "constraint_id"),
+	     "Returns the sparsity of the loop constraints (indexes that connect c1 with c2)",
+	     bp::return_value_policy<bp::return_by_value>())	  
 	.def("getJoint1SparsityPattern", &Self::getJoint1SparsityPattern,
 	     bp::args("self", "constraint_id"),
 	     "Returns the associated sparsity introduced because of first joint",
