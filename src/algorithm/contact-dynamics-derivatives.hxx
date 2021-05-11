@@ -9,6 +9,7 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
+#include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/utils/motion.hpp"
@@ -455,7 +456,7 @@ namespace pinocchio
           break;
       }
 
-      const IndexVector & colwise_sparsity = data.contact_chol.getConstraintSparsityPattern(k);
+      const IndexVector & colwise_sparsity = data.contact_chol.getLoopSparsityPattern(k);
       const BooleanVector& joint2_indexes  = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
 
@@ -507,18 +508,16 @@ namespace pinocchio
 	}
 	case CONTACT_3D:
 	{
-	  const Motion& o_acc_c2 = getClassicalAcceleration(model, data, cmodel.joint2_id, WORLD);
+	  const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data, cmodel.joint2_id, cmodel.joint2_placement, LOCAL);
+	  a_temp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
+
 	  typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-	  const RowsBlock contact_dvc_dq = SizeDepType<3>::middleRows(data.dvc_dq,current_row_sol_id);
 	  RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
-	  RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
-	  const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
 	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
 
 	  of_temp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
-	  of_temp.angular().noalias() = cdata.oMc2.translation().cross(of_temp.linear());
 
 	  // d./dq
 	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
@@ -527,23 +526,26 @@ namespace pinocchio
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 
 	    //Check if J_col.angular() should be here
-	    a_temp.linear() = o_acc_c2.linear().cross(J_col.angular()) + o_acc_c2.angular().cross(J_col.linear());
+	    a_temp.linear().noalias() = a_temp.angular().cross(J_col.angular());
 
 	    if(joint2_indexes[col_id]) {
-	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().inverse() * a_temp.linear();
+	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_temp.linear();
 	    }
 	    else {
-	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().inverse() * a_temp.linear();
+	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_temp.linear();
 	    }
 	    
-	    motionSet::act(data.J.col(col_id), of_temp, of_temp2.toVector());
+	    of_temp2.linear().noalias() = of_temp.linear().cross(J_col.angular());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
+	      const MotionRef<typename Data::Matrix6x::ColXpr> J2_col(data.J.col(j));      
+	      //Temporary assignment
+	      of_temp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());		
 	      if(joint2_indexes[col_id]) {
-		data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
+		data.dtau_dq(j,col_id) += of_temp2.angular().transpose() * of_temp2.linear();
 	      }
 	      else {
-		data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
+		data.dtau_dq(j,col_id) -= of_temp2.angular().transpose() * of_temp2.linear();
 	      }
 	    }
 	  }
