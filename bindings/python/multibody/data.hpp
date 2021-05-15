@@ -165,6 +165,7 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
+	.ADD_DATA_PROPERTY(ddq_dtau,"Partial derivative of the joint acceleration vector with respect to the joint torque.")
         .ADD_DATA_PROPERTY(dvc_dq,"Partial derivative of the constraint velocity vector with respect to the joint configuration.")
           
         .ADD_DATA_PROPERTY(dac_dq,"Partial derivative of the contact acceleration vector with respect to the joint configuration.")
