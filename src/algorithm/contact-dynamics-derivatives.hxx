@@ -202,7 +202,6 @@ namespace pinocchio
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                                                 std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
-                                                const Scalar mu,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
@@ -232,7 +231,6 @@ namespace pinocchio
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)) && "mu must be positive.");
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(
                                               model.gravity.angular()[0] == Scalar(0)
