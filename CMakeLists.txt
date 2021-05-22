@@ -181,14 +181,6 @@ IF(BUILD_WITH_HPP_FCL_SUPPORT)
   ENDIF(BUILD_PYTHON_INTERFACE)
 ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 
-# Enforce the preprocessed version of boost::list and boost::vector
-# This information is redundant with the content of include/pinocchio/container/boost-container-limits.hpp
-# but it avoids any compilation issue.
-ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
-ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
-
-LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
-
 # Path to boost headers
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
