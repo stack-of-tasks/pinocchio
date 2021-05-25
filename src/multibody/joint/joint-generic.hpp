@@ -271,7 +271,7 @@ namespace pinocchio
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
 
   
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
   bool operator==(const JointDataBase<JointDataDerived> & joint_data,
                   const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
   {
@@ -279,21 +279,21 @@ namespace pinocchio
   }
 
   
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
   bool operator!=(const JointDataBase<JointDataDerived> & joint_data,
                   const JointDataTpl<Scalar,Options,JointCollectionTpl> & joint_data_generic)
   {
     return joint_data_generic != joint_data.derived();
   }
 
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
   bool operator==(const JointModelBase<JointModelDerived> & joint_model,
                   const JointModelTpl<Scalar,Options,JointCollectionTpl> & joint_model_generic)
   {
     return joint_model_generic == joint_model.derived();
   }
 
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointModelDerived>
   bool operator!=(const JointModelBase<JointModelDerived> & joint_model,
                   const JointModelTpl<Scalar,Options,JointCollectionTpl> & joint_model_generic)
   {
