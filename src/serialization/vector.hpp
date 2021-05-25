@@ -23,11 +23,11 @@ namespace boost
     namespace fixme
     {
     
-      template<class T>
+      template<class T, class Allocator>
       inline const nvp<T>
-      make_nvp(const char* n, T* v) BOOST_NOEXCEPT
+      make_nvp(const char* n, typename std::vector<T,Allocator>::iterator & it) BOOST_NOEXCEPT
       {
-        return nvp<T>(n, *v);
+        return nvp<T>(n, *it);
       }
       
       template<class T>
@@ -83,6 +83,10 @@ namespace boost
         nvp(const nvp & rhs) :
         std::pair<const char *, std::vector<T,Allocator> *>(rhs.first, rhs.second)
         {}
+        
+        typedef typename std::vector<T,Allocator>::const_iterator const_iterator;
+        typedef typename std::vector<T,Allocator>::iterator iterator;
+        
       public:
         explicit nvp(const char * name_, std::vector<T,Allocator> & t) :
         // note: added _ to suppress useless gcc warning
@@ -110,10 +114,10 @@ namespace boost
           ar << BOOST_SERIALIZATION_NVP(count);
           if (!const_value().empty())
           {
-            for(typename std::vector<T,Allocator>::const_iterator hint = const_value().begin();
+            for(const_iterator hint = const_value().begin();
                 hint != const_value().end(); ++hint)
             {
-              ar & boost::serialization::fixme::make_nvp("item", &(*hint));
+              ar & boost::serialization::fixme::make_nvp<T,Allocator>("item", const_cast<iterator&>(hint));
             }
           }
         }
@@ -126,10 +130,10 @@ namespace boost
           std::size_t count;
           ar >> BOOST_SERIALIZATION_NVP(count);
           value().resize(count);
-          for(typename std::vector<T,Allocator>::iterator hint = value().begin();
+          for(iterator hint = value().begin();
               hint != value().end(); ++hint)
           {
-            ar >> boost::serialization::fixme::make_nvp("item", &(*hint));
+            ar >> boost::serialization::fixme::make_nvp<T,Allocator>("item", hint);
           }
         }
         
