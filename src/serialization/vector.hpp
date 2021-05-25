@@ -19,6 +19,7 @@ namespace boost
     
 
 #if BOOST_VERSION / 100 % 1000 == 58
+    
     namespace fixme
     {
       
@@ -75,6 +76,10 @@ namespace boost
         nvp(const nvp & rhs) :
         std::pair<const char *, std::vector<T,Allocator> *>(rhs.first, rhs.second)
         {}
+        
+        typedef typename std::vector<T,Allocator>::const_iterator const_iterator;
+        typedef typename std::vector<T,Allocator>::iterator iterator;
+        
       public:
         explicit nvp(const char * name_, std::vector<T,Allocator> & t) :
         // note: added _ to suppress useless gcc warning
@@ -102,7 +107,7 @@ namespace boost
           ar << BOOST_SERIALIZATION_NVP(count);
           if (!const_value().empty())
           {
-            for(typename std::vector<T,Allocator>::const_iterator hint = const_value().begin();
+            for(const_iterator hint = const_value().begin();
                 hint != const_value().end(); ++hint)
             {
               ar & boost::serialization::make_nvp("item", *hint);
@@ -118,10 +123,79 @@ namespace boost
           std::size_t count;
           ar >> BOOST_SERIALIZATION_NVP(count);
           value().resize(count);
-          for(typename std::vector<T,Allocator>::iterator hint = value().begin();
+          for(iterator hint = value().begin();
               hint != value().end(); ++hint)
           {
             ar >> boost::serialization::make_nvp("item", *hint);
+          }
+        }
+        
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
+      };
+
+      template<typename Allocator>
+      struct nvp< std::vector<bool,Allocator> > :
+      public std::pair<const char *, std::vector<bool,Allocator> *>,
+      public wrapper_traits<const nvp< std::vector<bool,Allocator> > >
+      {
+        //private:
+        nvp(const nvp & rhs) :
+        std::pair<const char *, std::vector<bool,Allocator> *>(rhs.first, rhs.second)
+        {}
+        
+        typedef typename std::vector<bool,Allocator>::const_iterator const_iterator;
+        typedef typename std::vector<bool,Allocator>::iterator iterator;
+        
+      public:
+        explicit nvp(const char * name_, std::vector<bool,Allocator> & t) :
+        // note: added _ to suppress useless gcc warning
+        std::pair<const char *, std::vector<bool,Allocator> *>(name_, boost::addressof(t))
+        {}
+        
+        const char * name() const {
+          return this->first;
+        }
+        
+        std::vector<bool,Allocator> & value() const {
+          return *(this->second);
+        }
+        
+        const std::vector<bool,Allocator> & const_value() const {
+          return *(this->second);
+        }
+        
+        template<class Archive>
+        void save(Archive & ar,
+                  const unsigned int /* file_version */
+        ) const
+        {
+          const size_t count(const_value().size());
+          ar << BOOST_SERIALIZATION_NVP(count);
+          if (!const_value().empty())
+          {
+            for(const_iterator hint = const_value().begin();
+                hint != const_value().end(); ++hint)
+            {
+              bool v = *hint;
+              ar & boost::serialization::make_nvp("item", v);
+            }
+          }
+        }
+        
+        template<class Archive>
+        void load(Archive & ar,
+                  const unsigned int /* file_version */
+        )
+        {
+          std::size_t count;
+          ar >> BOOST_SERIALIZATION_NVP(count);
+          value().resize(count);
+          for(iterator hint = value().begin();
+              hint != value().end(); ++hint)
+          {
+            bool v;
+            ar >> boost::serialization::make_nvp("item", v);
+            *hint = v;
           }
         }
         
