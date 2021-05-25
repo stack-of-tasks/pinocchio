@@ -105,7 +105,7 @@ namespace boost
             for(typename std::vector<T,Allocator>::const_iterator hint = const_value().begin();
                 hint != const_value().end(); ++hint)
             {
-              ar & boost::serialization::make_nvp("item", *hint);
+              ar & boost::serialization::make_nvp("item", const_cast<T&>(*hint));
             }
           }
         }
