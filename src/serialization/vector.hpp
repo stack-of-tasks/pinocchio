@@ -113,7 +113,7 @@ namespace boost
             for(typename std::vector<T,Allocator>::const_iterator hint = const_value().begin();
                 hint != const_value().end(); ++hint)
             {
-              ar & boost::serialization::fixme::make_nvp("item", hint);
+              ar & boost::serialization::fixme::make_nvp("item", &(*hint));
             }
           }
         }
@@ -129,7 +129,7 @@ namespace boost
           for(typename std::vector<T,Allocator>::iterator hint = value().begin();
               hint != value().end(); ++hint)
           {
-            ar >> boost::serialization::fixme::make_nvp("item", hint);
+            ar >> boost::serialization::fixme::make_nvp("item", &(*hint));
           }
         }
         
