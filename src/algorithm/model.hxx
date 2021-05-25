@@ -473,7 +473,7 @@ namespace pinocchio
                     GeometryModel & reduced_geom_model)
   {
 
-    const std::vector<GeometryModel> temp_input_geoms { input_geom_model };
+    const std::vector<GeometryModel> temp_input_geoms(1,input_geom_model);
     std::vector<GeometryModel> temp_reduced_geom_models;
 
     buildReducedModel(input_model, temp_input_geoms, list_of_joints_to_lock,
