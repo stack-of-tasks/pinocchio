@@ -19,8 +19,16 @@ namespace boost
     
 
 #if BOOST_VERSION / 100 % 1000 == 58
+    
     namespace fixme
     {
+    
+      template<class T>
+      inline const nvp<T>
+      make_nvp(const char* n, T* v) BOOST_NOEXCEPT
+      {
+        return nvp<T>(n, *v);
+      }
       
       template<class T>
       struct nvp :
@@ -105,7 +113,7 @@ namespace boost
             for(typename std::vector<T,Allocator>::const_iterator hint = const_value().begin();
                 hint != const_value().end(); ++hint)
             {
-              ar & boost::serialization::make_nvp("item", const_cast<T&>(*hint));
+              ar & boost::serialization::fixme::make_nvp("item", hint);
             }
           }
         }
@@ -121,7 +129,7 @@ namespace boost
           for(typename std::vector<T,Allocator>::iterator hint = value().begin();
               hint != value().end(); ++hint)
           {
-            ar >> boost::serialization::make_nvp("item", *hint);
+            ar >> boost::serialization::fixme::make_nvp("item", hint);
           }
         }
         
