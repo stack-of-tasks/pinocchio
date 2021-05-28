@@ -32,7 +32,7 @@ namespace pinocchio
       serialize<Capsule>();
       serialize<Box>();
       serialize<Cone>();
-      serialize<Capsule>();
+      serialize<Cylinder>();
       serialize<Plane>();
       serialize<Halfspace>();
       
