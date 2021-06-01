@@ -313,8 +313,6 @@ namespace pinocchio
       }
       
       // Restore the status of dAdq_cols (remove gravity)
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
-                                     "The gravity must be a pure force vector, no angular part");
       for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
       {
         MotionRef<typename ColsBlock::ColXpr> m_in(J_cols.col(k));
@@ -344,6 +342,8 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.rows(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.rows(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                   "The gravity must be a pure force vector, no angular part");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -413,6 +413,8 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dv.rows(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(aba_partial_dtau.rows(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                   "The gravity must be a pure force vector, no angular part");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -611,6 +613,8 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                     "The gravity must be a pure force vector, no angular part");
       assert(model.check(data) && "data is not consistent with model.");
       
       typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
@@ -663,6 +667,8 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
       PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                     "The gravity must be a pure force vector, no angular part");
       assert(model.check(data) && "data is not consistent with model.");
       
       typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
