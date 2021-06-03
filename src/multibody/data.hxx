@@ -316,7 +316,7 @@ namespace pinocchio
     && data1.bodyRegressor == data2.bodyRegressor
     && data1.jointTorqueRegressor == data2.jointTorqueRegressor
 //    && data1.contact_chol == data2.contact_chol
-    && data1.contact_vector_solution == data2.contact_vector_solution
+    && data1.primal_dual_contact_solution == data2.primal_dual_contact_solution
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean

@@ -409,8 +409,8 @@ namespace pinocchio
     // Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
-    // Rhs vector when solving the contact dynamics KKT problem
-    VectorXs contact_vector_solution;
+    /// \brief RHS vector when solving the contact dynamics KKT problem
+    VectorXs primal_dual_contact_solution;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

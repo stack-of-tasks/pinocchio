@@ -23,7 +23,7 @@ namespace pinocchio
                                   const std::vector<RigidContactModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
     data.contact_chol.allocate(model,contact_models);
-    data.contact_vector_solution.resize(data.contact_chol.size());
+    data.primal_dual_contact_solution.resize(data.contact_chol.size());
 
     data.lambda_c.resize(data.contact_chol.constraintDim());
     data.impulse_c.resize(data.contact_chol.constraintDim());
@@ -196,7 +196,7 @@ namespace pinocchio
     
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
-    typename Data::VectorXs & contact_vector_solution = data.contact_vector_solution;
+    typename Data::VectorXs & primal_dual_contact_solution = data.primal_dual_contact_solution;
     
     data.oYcrb[0].setZero();
     data.of[0].setZero();
@@ -388,7 +388,7 @@ namespace pinocchio
     // Retrieve the joint space acceleration
     a = contact_vector_solution.tail(model.nv);
 
-    data.lambda_c = -contact_vector_solution.head(contact_chol.constraintDim());
+    data.lambda_c = -primal_dual_contact_solution.head(contact_chol.constraintDim());
     
     // Retrieve the contact forces
     Eigen::DenseIndex current_row_sol_id = 0;
@@ -403,14 +403,14 @@ namespace pinocchio
       {
         case CONTACT_3D:
         {
-          fext.linear() = -contact_vector_solution.template segment<3>(current_row_sol_id);
+          fext.linear() = -primal_dual_contact_solution.template segment<3>(current_row_sol_id);
           fext.angular().setZero();
           break;
         }
         case CONTACT_6D:
         {
           typedef typename Data::VectorXs::template FixedSegmentReturnType<6>::Type Segment6d;
-          const ForceRef<Segment6d> f_sol(contact_vector_solution.template segment<6>(current_row_sol_id));
+          const ForceRef<Segment6d> f_sol(primal_dual_contact_solution.template segment<6>(current_row_sol_id));
           fext = -f_sol;
           break;
         }

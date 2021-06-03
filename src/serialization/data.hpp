@@ -123,7 +123,7 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinematic_hessians);
-      PINOCCHIO_MAKE_DATA_NVP(ar,data,contact_vector_solution);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,primal_dual_contact_solution);
     }
     
   } // namespace serialization
