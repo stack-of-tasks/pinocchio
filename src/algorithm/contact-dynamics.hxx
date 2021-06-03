@@ -684,7 +684,7 @@ namespace pinocchio
       if(cmodel.type == CONTACT_6D)
         S.setDiagonal(Symmetric3::Vector3::Constant(settings.mu));
       
-      Inertia contact_inertia(settings.mu,oMc.translation(),S);
+      const Inertia contact_inertia(settings.mu,oMc.translation(),S);
       data.oYaba[joint1_id] += contact_inertia.matrix();
       
       typename Data::Motion & joint_velocity = data.ov[joint1_id];
