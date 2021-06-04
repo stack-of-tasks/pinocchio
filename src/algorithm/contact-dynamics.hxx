@@ -24,8 +24,10 @@ namespace pinocchio
   {
     data.contact_chol.allocate(model,contact_models);
     data.primal_dual_contact_solution.resize(data.contact_chol.size());
+    data.primal_rhs_contact.resize(data.contact_chol.constraintDim());
 
     data.lambda_c.resize(data.contact_chol.constraintDim());
+    data.lambda_c_prox.resize(data.contact_chol.constraintDim());
     data.impulse_c.resize(data.contact_chol.constraintDim());
     
     // TODO: should be moved elsewhere
@@ -39,6 +41,7 @@ namespace pinocchio
     data.osim.resize(data.contact_chol.constraintDim(), data.contact_chol.constraintDim());
 
     data.lambda_c.setZero();
+    data.lambda_c_prox.setZero();
     data.dlambda_dq.setZero();
     data.dlambda_dv.setZero();
     data.dlambda_dtau.setZero();
@@ -163,7 +166,7 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
                   const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                   std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
-                  const Scalar mu)
+                  ProximalSettingsTpl<Scalar> & settings)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -180,7 +183,7 @@ namespace pinocchio
                                   "The joint velocity vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
                                   "The joint torque vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
                                    "mu has to be positive");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(),contact_datas.size(),
                                   "The contact models and data do not have the same vector size.");
@@ -197,6 +200,7 @@ namespace pinocchio
     typename Data::TangentVectorType & a = data.ddq;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
     typename Data::VectorXs & primal_dual_contact_solution = data.primal_dual_contact_solution;
+    typename Data::VectorXs & primal_rhs_contact = data.primal_rhs_contact;
     
     data.oYcrb[0].setZero();
     data.of[0].setZero();
@@ -232,9 +236,9 @@ namespace pinocchio
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
 
     // Computes the Cholesky decomposition
-    contact_chol.compute(model,data,contact_models,contact_datas,mu);
+    contact_chol.compute(model,data,contact_models,contact_datas,settings.mu);
 
-    contact_vector_solution.tail(model.nv) = tau - data.nle;
+    primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
 
     // Temporary variables
 //    Motion coriolis_centrifugal_acc1, coriolis_centrifugal_acc2; // Coriolis/centrifugal acceleration of the contact frame.
@@ -362,16 +366,16 @@ namespace pinocchio
           assert(false && "must never happened");
           break;
       }
-
+      
       contact_data.contact_acceleration = coriolis_centrifugal_acc2;
       switch(contact_model.type)
       {
         case CONTACT_3D:
-          contact_vector_solution.segment(current_row_id,contact_dim)
+          primal_rhs_contact.segment(current_row_id,contact_dim)
           = -coriolis_centrifugal_acc1.linear() + coriolis_centrifugal_acc2.linear() + contact_acceleration_error.linear() + contact_acceleration_desired.linear();
           break;
         case CONTACT_6D:
-          contact_vector_solution.segment(current_row_id,contact_dim)
+          primal_rhs_contact.segment(current_row_id,contact_dim)
           = -coriolis_centrifugal_acc1.toVector() + coriolis_centrifugal_acc2.toVector() + contact_acceleration_error.toVector() + contact_acceleration_desired.toVector();
           break;
         default:
@@ -383,11 +387,23 @@ namespace pinocchio
     }
     
     // Solve the system
-    contact_chol.solveInPlace(contact_vector_solution);
+//    Scalar primal_infeasibility = Scalar(0);
+    int it = 1;
+    data.lambda_c_prox.setZero();
+    for(; it <= settings.max_iter; ++it)
+    {
+      primal_dual_contact_solution.head(contact_chol.constraintDim()) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
+      primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
+      contact_chol.solveInPlace(primal_dual_contact_solution);
+      settings.residual = (primal_dual_contact_solution.head(contact_chol.constraintDim()) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
+      if(check_expression_if_real<Scalar,false>(settings.residual <= settings.accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
+        break;
+      data.lambda_c_prox = -primal_dual_contact_solution.head(contact_chol.constraintDim());
+    }
+    settings.iter = it;
     
     // Retrieve the joint space acceleration
-    a = contact_vector_solution.tail(model.nv);
-
+    a = primal_dual_contact_solution.tail(model.nv);
     data.lambda_c = -primal_dual_contact_solution.head(contact_chol.constraintDim());
     
     // Retrieve the contact forces
