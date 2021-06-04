@@ -323,6 +323,30 @@ namespace Eigen
 //      EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type predux(const Packet& a) const
 //      { return internal::predux_max(a); }
     };
+  
+    template<typename S1, typename S2>
+    struct scalar_max_op< S1,::casadi::Matrix<S2> > : binary_op_base< S1,::casadi::Matrix<S2> >
+    {
+      typedef S1 LhsScalar;
+      typedef ::casadi::Matrix<S2> RhsScalar;
+      typedef typename ScalarBinaryOpTraits<LhsScalar,RhsScalar,scalar_max_op>::ReturnType result_type;
+      
+      EIGEN_EMPTY_STRUCT_CTOR(scalar_max_op)
+      EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type operator() (const LhsScalar& a, const RhsScalar& b) const
+      { return ::pinocchio::math::internal::call_max<LhsScalar,RhsScalar>::run(a,b); }
+    };
+  
+    template<typename S1, typename S2>
+    struct scalar_max_op< ::casadi::Matrix<S1>,S2 > : binary_op_base< ::casadi::Matrix<S1>,S2 >
+    {
+      typedef ::casadi::Matrix<S1> LhsScalar;
+      typedef S2 RhsScalar;
+      typedef typename ScalarBinaryOpTraits<LhsScalar,RhsScalar,scalar_max_op>::ReturnType result_type;
+      
+      EIGEN_EMPTY_STRUCT_CTOR(scalar_max_op)
+      EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const result_type operator() (const LhsScalar& a, const RhsScalar& b) const
+      { return ::pinocchio::math::internal::call_max<LhsScalar,RhsScalar>::run(a,b); }
+    };
   }
 }
 
