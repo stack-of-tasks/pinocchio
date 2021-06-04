@@ -47,7 +47,8 @@ namespace pinocchio
       static void expose()
       {
         bp::class_<ProximalSettings>("ProximalSettings",
-                                     "Structure containing all the settings paramters for the Proximal algorithms.")
+                                     "Structure containing all the settings paramters for the Proximal algorithms.",
+                                     bp::no_init)
         .def(ProximalSettingsPythonVisitor<ProximalSettings>())
         ;
         
