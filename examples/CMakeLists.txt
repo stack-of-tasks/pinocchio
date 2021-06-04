@@ -84,6 +84,7 @@ IF(BUILD_PYTHON_INTERFACE)
       sample-model-viewer
       display-shapes
       simulation-inverted-pendulum
+      simulation-contact-dynamics
       )
     IF(BUILD_WITH_URDF_SUPPORT)
       LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
