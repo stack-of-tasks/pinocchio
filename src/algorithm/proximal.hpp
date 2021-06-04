@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_algorithm_proximal_hpp__
@@ -25,8 +25,8 @@ namespace pinocchio
     /// \brief Default constructor.
     ProximalSettingsTpl()
     : accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
-    , mu(10.)
-    , max_iter(10)
+    , mu(Eigen::NumTraits<Scalar>::dummy_precision())
+    , max_iter(1)
     , residual(-1.)
     , iter(0)
     {}
@@ -68,6 +68,8 @@ namespace pinocchio
     int iter;
     
   };
+
+  typedef ProximalSettingsTpl<double> ProximalSettings;
   
 }
 
