@@ -133,6 +133,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) empty_contact_datas;
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
 
   computeAllTerms(model,data_ref,q,v);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
@@ -143,7 +144,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_empty)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   
   initContactDynamics(model,data,empty_contact_models);
-  contactDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_datas,prox_settings);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -215,19 +216,22 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_double_init)
   contact_models_6D6D.push_back(ci_LF);
   contact_datas_6D6D.push_back(RigidContactData(ci_LF));
   
+  const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
+  
   initContactDynamics(model,data1,contact_models_empty);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 0));
-  contactDynamics(model,data1,q,v,tau,contact_models_empty,contact_datas_empty);
+  contactDynamics(model,data1,q,v,tau,contact_models_empty,contact_datas_empty,prox_settings);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
   initContactDynamics(model,data1,contact_models_6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 1*6));
-  contactDynamics(model,data1,q,v,tau,contact_models_6D,contact_datas_6D);
+  contactDynamics(model,data1,q,v,tau,contact_models_6D,contact_datas_6D,prox_settings);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
   initContactDynamics(model,data1,contact_models_6D6D);
   BOOST_CHECK(data1.contact_chol.size() == (model.nv + 2*6));
-  contactDynamics(model,data1,q,v,tau,contact_models_6D6D,contact_datas_6D6D);
+  contactDynamics(model,data1,q,v,tau,contact_models_6D6D,contact_datas_6D6D,prox_settings);
   BOOST_CHECK(!hasNaN(data1.ddq));
   
   initContactDynamics(model,data2,contact_models_6D6D);
@@ -308,8 +312,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
+  ProximalSettings prox_settings(1e-12,mu0,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
@@ -422,8 +427,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
+  ProximalSettings prox_settings(1e-12,mu0,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   // Check that the decomposition is correct
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -530,8 +536,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
+  ProximalSettings prox_settings(1e-12,mu0,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   // Check that the decomposition is correct
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -702,8 +709,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,0*data_ref.ddq);
   
+  ProximalSettings prox_settings(1e-12,mu0,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   std::cout << "acc_1 ref:\n" << acc_1 << std::endl;
   std::cout << "acc_1:\n" << contact_datas[0].contact2_acceleration_drift << std::endl;
@@ -806,7 +814,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   
   Data data_bis(model);
   initContactDynamics(model,data_bis,contact_models_bis);
-  contactDynamics(model,data_bis,q,v,tau,contact_models_bis,contact_datas_bis,mu0);
+  contactDynamics(model,data_bis,q,v,tau,contact_models_bis,contact_datas_bis,prox_settings);
   
   BOOST_CHECK(data_bis.ddq.isApprox(data.ddq));
   std::cout << "ddq: " << data_bis.ddq.transpose() << std::endl;
@@ -946,12 +954,13 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_6D)
     Eigen::VectorXd q(q0), v(v0);
     
     tau = rnea(model,data_sim,q,v,0*a);
-    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,mu);
+    ProximalSettings prox_settings(1e-12,mu,1);
+    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,prox_settings);
     PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim_prev(contact_data_sim);
 
     for(int it = 0; it <= N; it++)
     {
-      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,mu);
+      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,prox_settings);
       v += a*dt;
       q = integrate(model,q,v*dt);
       
@@ -1026,8 +1035,9 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
   contact_models.push_back(ci_RF4);
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas = createData(contact_models);
+  ProximalSettings prox_settings(1e-12,mu,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   // Simulation loop
   {
@@ -1048,12 +1058,12 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
     
     Eigen::VectorXd q(q0), v(v0);
     
-    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,mu);
+    contactDynamics(model,data_sim,q0,v0,tau,contact_models,contact_data_sim,prox_settings);
     PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_sim_prev(contact_data_sim);
 
     for(int it = 0; it <= N; it++)
     {
-      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,mu);
+      a = contactDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,prox_settings);
       v += a*dt;
       q = integrate(model,q,v*dt);
       
@@ -1216,8 +1226,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
   forwardKinematics(model,data_ref,q,v,0*data_ref.ddq);
 
+  ProximalSettings prox_settings(1e-12,0,1);
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   const Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
   Eigen::MatrixXd KKT_matrix = contact_chol.matrix();
@@ -1230,7 +1241,6 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   std::cout << "KKT_matrix_ref.topRightCorner(constraint_dim,model.nv):\n" << KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) << std::endl;
 
   // Check solutions
-  forwardKinematics(model,data_ref,q,v,0*data_ref.ddq);
   forwardKinematics(model,data,q,v,data.ddq);
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
@@ -1299,7 +1309,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
 
   Data data_bis(model);
   initContactDynamics(model,data_bis,contact_models_bis);
-  contactDynamics(model,data_bis,q,v,tau,contact_models_bis,contact_datas_bis,mu0);
+  contactDynamics(model,data_bis,q,v,tau,contact_models_bis,contact_datas_bis,prox_settings);
 
   BOOST_CHECK(data_bis.ddq.isApprox(data.ddq));
   std::cout << "ddq: " << data_bis.ddq.transpose() << std::endl;
@@ -1518,8 +1528,9 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
   
+  ProximalSettings prox_settings_cd(1e-12,mu0,1);
   initContactDynamics(model, data_ref, contact_models);
-  contactDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref);
+  contactDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref, prox_settings_cd);
   forwardKinematics(model, data_ref, q, v, v*0);
   
   updateFramePlacements(model,data_ref);
@@ -1671,8 +1682,9 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
   
+  ProximalSettings prox_settings_cd(1e-12,0,1);
   initContactDynamics(model, data_ref, contact_models);
-  contactDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref);
+  contactDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref, prox_settings_cd);
   forwardKinematics(model, data_ref, q, v, v*0);
   
   Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
