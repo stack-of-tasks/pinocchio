@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 INRIA
+// Copyright (c) 2020-2021 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -28,12 +28,21 @@ namespace pinocchio
                                                            const context::VectorXs & tau,
                                                            const RigidContactModelVector & contact_models,
                                                            RigidContactDataVector & contact_datas,
-                                                           const context::Scalar mu = 0.0)
+                                                           context::ProximalSettings & prox_settings)
       {
-        return contactDynamics(model, data, q, v, tau, contact_models, contact_datas, mu);
+        return contactDynamics(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
       }
     
-      BOOST_PYTHON_FUNCTION_OVERLOADS(contactDynamics_overloads, contactDynamics_proxy, 7, 8)
+      static const context::VectorXs contactDynamics_proxy_default(const context::Model & model,
+                                                                   context::Data & data,
+                                                                   const context::VectorXs & q,
+                                                                   const context::VectorXs & v,
+                                                                   const context::VectorXs & tau,
+                                                                   const RigidContactModelVector & contact_models,
+                                                                   RigidContactDataVector & contact_datas)
+    {
+        return contactDynamics(model, data, q, v, tau, contact_models, contact_datas);
+      }
     
     
       void exposeContactDynamics()
@@ -71,10 +80,17 @@ namespace pinocchio
         
         bp::def("contactDynamics",
                 contactDynamics_proxy,
-                contactDynamics_overloads(bp::args("model","data","q","v","tau","contact_models","contact_datas","mu"),
-                                          "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
-                                          "When using contactDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
-                                          "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces."));
+                bp::args("model","data","q","v","tau","contact_models","contact_datas","prox_settings"),
+                "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
+                "When using contactDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
+                "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces.");
+        
+        bp::def("contactDynamics",
+                contactDynamics_proxy_default,
+                bp::args("model","data","q","v","tau","contact_models","contact_datas"),
+                "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
+                "When using contactDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
+                "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces.");
       }
     }
 }
