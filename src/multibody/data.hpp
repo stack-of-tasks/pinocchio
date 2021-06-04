@@ -406,11 +406,14 @@ namespace pinocchio
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
     
-    // Cholesky decomposition of the KKT contact matrix
+    /// \brief Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
     
     /// \brief RHS vector when solving the contact dynamics KKT problem
     VectorXs primal_dual_contact_solution;
+    
+    /// \brief Primal RHS in contact dynamic equations
+    VectorXs primal_rhs_contact;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
