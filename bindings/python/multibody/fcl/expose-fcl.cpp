@@ -8,6 +8,7 @@
 
 #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <hpp/fcl/serialization/BVH_model.h>
+  #include <hpp/fcl/serialization/geometric_shapes.h>
 #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
 namespace pinocchio
@@ -26,6 +27,15 @@ namespace pinocchio
       bp::implicitly_convertible< Transform3f,SE3 >();
       
       // Expose serialization of basic geometries to binary buffers
+      serialize<TriangleP>();
+      serialize<Sphere>();
+      serialize<Capsule>();
+      serialize<Box>();
+      serialize<Cone>();
+      serialize<Cylinder>();
+      serialize<Plane>();
+      serialize<Halfspace>();
+      
       serialize< BVHModel<OBB> >();
       serialize< BVHModel<RSS> >();
       serialize< BVHModel<OBBRSS> >();
