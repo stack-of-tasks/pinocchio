@@ -89,12 +89,13 @@ The online **Pinocchio** documentation of the last release is available [here](h
 ## Examples
 
 We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python) directory.
-Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html)
+Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
 
-**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
+**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
 The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
+Additionnal materials were presented during the [Memmo](https://www.memmo-project.eu/) summer school and available [here](https://memory-of-motion.github.io/summer-school/materials).
 
 ## Visualization
 
