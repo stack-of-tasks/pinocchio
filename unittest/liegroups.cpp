@@ -12,6 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/mpl/vector.hpp>
 
 #define EIGEN_VECTOR_IS_APPROX(Va, Vb, precision)                              \
   BOOST_CHECK_MESSAGE((Va).isApprox(Vb, precision),                            \
