@@ -551,7 +551,9 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut1,Data::Matrix3x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
-    
+
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::JointIndex JointIndex;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.cols(), model.nv);
@@ -750,7 +752,12 @@ namespace pinocchio
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut3,Data::Matrix3x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut4,Data::Matrix3x);
     
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::SE3 SE3;
+    typedef typename Data::Motion Motion;
+    typedef typename SE3::Vector3 Vector3;
+    typedef typename Model::JointIndex JointIndex;
     
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dq.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(a_point_partial_dq.cols(), model.nv);
@@ -761,13 +768,12 @@ namespace pinocchio
                                    "The reference frame is not valid, expected LOCAL or LOCAL_WORLD_ALIGNED");
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef typename Data::SE3 SE3;
-    typedef typename Data::Motion Motion;
     
     const SE3 oMpoint = data.oMi[joint_id] * placement;
     const Motion spatial_velocity = oMpoint.actInv(data.ov[joint_id]);
     const Motion spatial_acceleration = oMpoint.actInv(data.oa[joint_id]);
-    const typename SE3::Vector3 point_acc = classicAcceleration(spatial_velocity, spatial_acceleration);
+    const Vector3 point_acc = classicAcceleration(spatial_velocity, spatial_acceleration);
+    
     
     typedef PointClassicAccelerationDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,Matrix3xOut1,Matrix3xOut2,Matrix3xOut3,Matrix3xOut4> Pass1;
     for(JointIndex i = joint_id; i > 0; i = model.parents[i])

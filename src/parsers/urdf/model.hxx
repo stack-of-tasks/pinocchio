@@ -27,9 +27,10 @@ namespace pinocchio
       class UrdfVisitorBaseTpl {
         public:
           enum JointType {
-            REVOLUTE, CONTINUOUS, PRISMATIC, FLOATING, PLANAR
+            REVOLUTE, CONTINUOUS, PRISMATIC, FLOATING, PLANAR, SPHERICAL
           };
 
+          typedef enum ::pinocchio::FrameType FrameType;
           typedef _Scalar Scalar;
           typedef SE3Tpl<Scalar,Options> SE3;
           typedef InertiaTpl<Scalar,Options> Inertia;
@@ -59,6 +60,25 @@ namespace pinocchio
               const VectorConstRef& damping
                                        ) = 0;
 
+          virtual void addJointAndBody(
+              JointType type,
+              const Vector3& axis,
+              const FrameIndex & parentFrameId,
+              const SE3 & placement,
+              const std::string & joint_name,
+              const Inertia& Y,
+              const SE3& frame_placement,
+              const std::string & body_name,
+              const VectorConstRef& max_effort,
+              const VectorConstRef& max_velocity,
+              const VectorConstRef& min_config,
+              const VectorConstRef& max_config,
+              const VectorConstRef& friction,
+              const VectorConstRef& damping
+                                       ) = 0;
+
+
+        
           virtual void addFixedJointAndBody(
               const FrameIndex & parentFrameId,
               const SE3 & joint_placement,
@@ -74,6 +94,21 @@ namespace pinocchio
 
           virtual FrameIndex getBodyId (
               const std::string& frame_name) const = 0;
+
+          virtual JointIndex getJointId (
+              const std::string& joint_name) const = 0;
+
+          virtual const std::string& getJointName (
+              const JointIndex jointId) const = 0;
+        
+          virtual Frame getBodyFrame (const std::string& frame_name) const = 0;
+        
+        
+          virtual JointIndex getParentId (
+              const std::string& frame_name) const = 0;
+        
+          virtual bool existFrame (
+              const std::string& frame_name, const FrameType type) const = 0;
 
           UrdfVisitorBaseTpl () : log (NULL) {}
 
@@ -134,6 +169,29 @@ namespace pinocchio
               const VectorConstRef& max_config,
               const VectorConstRef& friction,
               const VectorConstRef& damping)
+        {
+          addJointAndBody(type,axis,parentFrameId,placement,
+                          joint_name, Y, SE3::Identity(), body_name,
+                          max_effort, max_velocity, min_config, max_config,
+                          friction, damping);
+        }
+
+        
+          void addJointAndBody(
+              JointType type,
+              const Vector3& axis,
+              const FrameIndex & parentFrameId,
+              const SE3 & placement,
+              const std::string & joint_name,
+              const Inertia& Y,
+              const SE3& frame_placement,
+              const std::string & body_name,
+              const VectorConstRef& max_effort,
+              const VectorConstRef& max_velocity,
+              const VectorConstRef& min_config,
+              const VectorConstRef& max_config,
+              const VectorConstRef& friction,
+              const VectorConstRef& damping)
           {
             JointIndex joint_id;
             const Frame & frame = model.frames[parentFrameId];
@@ -187,12 +245,21 @@ namespace pinocchio
                     friction, damping
                     );
                 break;
+              case Base::SPHERICAL:
+                joint_id = model.addJoint(frame.parent,
+                    typename JointCollection::JointModelSpherical(),
+                    frame.placement * placement,
+                    joint_name,
+                    max_effort,max_velocity,min_config,max_config,
+                    friction, damping
+                    );
+                break;
               default:
                 PINOCCHIO_CHECK_INPUT_ARGUMENT(false, "The joint type is not correct.");
             };
 
             FrameIndex jointFrameId = model.addJointFrame(joint_id, (int)parentFrameId);
-            appendBodyToJoint(jointFrameId, Y, SE3::Identity(), body_name);
+            appendBodyToJoint(jointFrameId, Y, frame_placement, body_name);
           }
 
           void addFixedJointAndBody(
@@ -237,6 +304,7 @@ namespace pinocchio
 
           FrameIndex getBodyId (const std::string& frame_name) const
           {
+
             if (model.existFrame(frame_name, BODY)) {
               FrameIndex fid = model.getFrameId (frame_name, BODY);
               assert(model.frames[fid].type == BODY);
@@ -246,31 +314,54 @@ namespace pinocchio
                   + frame_name);
           }
 
-        private:
-          ///
-          /// \brief The four possible cartesian types of an 3D axis.
-          ///
-          enum CartesianAxis { AXIS_X=0, AXIS_Y=1, AXIS_Z=2, AXIS_UNALIGNED };
-
-          ///
-          /// \brief Extract the cartesian property of a particular 3D axis.
-          ///
-          /// \param[in] axis The input URDF axis.
-          ///
-          /// \return The property of the particular axis pinocchio::urdf::CartesianAxis.
-          ///
-          static inline CartesianAxis extractCartesianAxis (const Vector3 & axis)
+          FrameIndex getJointId (const std::string& joint_name) const
           {
-            if( axis == Vector3(1., 0., 0.))
-              return AXIS_X;
-            else if( axis == Vector3(0., 1., 0.))
-              return AXIS_Y;
-            else if( axis == Vector3(0., 0., 1.))
-              return AXIS_Z;
-            else
-              return AXIS_UNALIGNED;
+
+            if (model.existJointName(joint_name)) {
+              JointIndex jid = model.getJointId (joint_name);
+              return jid;
+            } else
+              throw std::invalid_argument("Model does not have any joint named "
+                  + joint_name);
           }
 
+          const std::string& getJointName (const JointIndex jointId) const
+          {
+            return model.names[jointId];
+          }
+        
+          Frame getBodyFrame (const std::string& frame_name) const
+          {
+
+            if (model.existFrame(frame_name, BODY)) {
+              FrameIndex fid = model.getFrameId (frame_name, BODY);
+              assert(model.frames[fid].type == BODY);
+              return model.frames[fid];
+            } else
+              throw std::invalid_argument("Model does not have any body named "
+                  + frame_name);
+          }
+
+
+        
+          JointIndex getParentId (const std::string& frame_name) const
+          {
+
+            if (model.existFrame(frame_name, BODY)) {
+              FrameIndex fid = model.getFrameId (frame_name, BODY);
+              assert(model.frames[fid].type == BODY);
+              return model.frames[fid].parent;
+            } else
+              throw std::invalid_argument("Model does not have any body named "
+                  + frame_name);
+          }
+        
+          bool existFrame (
+              const std::string& frame_name, const FrameType type) const
+          {
+            return model.existFrame(frame_name, BODY);
+          }
+        
           template <typename TypeX, typename TypeY, typename TypeZ,
                    typename TypeUnaligned>
           JointIndex addJoint(
@@ -320,6 +411,32 @@ namespace pinocchio
                 break;
             }
           }
+
+        private:
+          ///
+          /// \brief The four possible cartesian types of an 3D axis.
+          ///
+          enum CartesianAxis { AXIS_X=0, AXIS_Y=1, AXIS_Z=2, AXIS_UNALIGNED };
+
+          ///
+          /// \brief Extract the cartesian property of a particular 3D axis.
+          ///
+          /// \param[in] axis The input URDF axis.
+          ///
+          /// \return The property of the particular axis pinocchio::urdf::CartesianAxis.
+          ///
+          static inline CartesianAxis extractCartesianAxis (const Vector3 & axis)
+          {
+            if( axis == Vector3(1., 0., 0.))
+              return AXIS_X;
+            else if( axis == Vector3(0., 1., 0.))
+              return AXIS_Y;
+            else if( axis == Vector3(0., 0., 1.))
+              return AXIS_Z;
+            else
+              return AXIS_UNALIGNED;
+          }
+
       };
 
       template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

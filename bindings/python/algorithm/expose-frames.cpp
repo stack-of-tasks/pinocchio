@@ -13,7 +13,7 @@ namespace pinocchio
     static context::Data::Matrix6x get_frame_jacobian_proxy1(const context::Model & model,
                                                              context::Data & data,
                                                              const context::Data::FrameIndex frame_id,
-                                                             ReferenceFrame rf)
+                                                             ReferenceFrame rf = LOCAL)
     {
       context::Data::Matrix6x J(6,model.nv); J.setZero();
       getFrameJacobian(model, data, frame_id, rf, J);
@@ -25,13 +25,67 @@ namespace pinocchio
                                                              context::Data & data,
                                                              const context::Data::JointIndex joint_id,
                                                              const context::SE3 & placement,
-                                                             ReferenceFrame rf)
+                                                             ReferenceFrame rf = LOCAL)
     {
       context::Data::Matrix6x J(6,model.nv); J.setZero();
       getFrameJacobian(model, data, joint_id, placement, rf, J);
-      
       return J;
     }
+
+
+    static context::Data::Motion get_frame_velocity_proxy1(const context::Model & model,
+                                                             context::Data & data,
+                                                             const context::Data::FrameIndex frame_id,
+                                                             ReferenceFrame rf = LOCAL)
+    {
+      return getFrameVelocity(model, data, frame_id, rf);
+    }
+  
+    static context::Data::Motion get_frame_velocity_proxy2(const context::Model & model,
+                                                             context::Data & data,
+                                                             const context::Data::JointIndex joint_id,
+                                                             const context::SE3 & placement,
+                                                             ReferenceFrame rf = LOCAL)
+    {
+      return getFrameVelocity(model, data, joint_id, placement, rf);
+    }
+
+
+    static context::Data::Motion get_frame_acceleration_proxy1(const context::Model & model,
+								 context::Data & data,
+								 const context::Data::FrameIndex frame_id,
+								 ReferenceFrame rf = LOCAL)
+    {
+      return getFrameAcceleration(model, data, frame_id, rf);
+    }
+  
+    static context::Data::Motion get_frame_acceleration_proxy2(const context::Model & model,
+								 context::Data & data,
+								 const context::Data::JointIndex joint_id,
+								 const context::SE3 & placement,
+								 ReferenceFrame rf = LOCAL)
+    {
+      return getFrameAcceleration(model, data, joint_id, placement, rf);
+    }
+
+
+    static context::Data::Motion get_frame_classical_acceleration_proxy1(const context::Model & model,
+                                                             context::Data & data,
+									   const context::Data::FrameIndex frame_id,
+									   ReferenceFrame rf = LOCAL)
+    {
+      return getFrameClassicalAcceleration(model, data, frame_id, rf);
+    }
+  
+    static context::Data::Motion get_frame_classical_acceleration_proxy2(const context::Model & model,
+									   context::Data & data,
+									   const context::Data::JointIndex joint_id,
+									   const context::SE3 & placement,
+									   ReferenceFrame rf = LOCAL)
+    {
+      return getFrameClassicalAcceleration(model, data, joint_id, placement, rf);
+    }
+
     
     static context::Data::Matrix6x compute_frame_jacobian_proxy(const context::Model & model,
                                                                 context::Data & data,
@@ -80,10 +134,15 @@ namespace pinocchio
       return get_frame_jacobian_time_variation_proxy(model, data, frame_id, rf);
     }
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload, (getFrameVelocity<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload, (getFrameAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload, (getFrameClassicalAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload_proxy1, get_frame_velocity_proxy1, 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload_proxy1, get_frame_acceleration_proxy1, 3, 4)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload_proxy1, get_frame_classical_acceleration_proxy1, 3, 4)
 
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameVelocity_overload_proxy2, get_frame_velocity_proxy2, 4, 5)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameAcceleration_overload_proxy2, get_frame_acceleration_proxy2, 4, 5)
+    BOOST_PYTHON_FUNCTION_OVERLOADS(getFrameClassicalAcceleration_overload_proxy2, get_frame_classical_acceleration_proxy2, 4, 5)
+
+    
     void exposeFramesAlgo()
     {
       typedef context::Scalar Scalar;
@@ -103,26 +162,50 @@ namespace pinocchio
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("getFrameVelocity",
-              &getFrameVelocity<Scalar,Options,JointCollectionDefaultTpl>,
-              getFrameVelocity_overload(
+	      &get_frame_velocity_proxy1,
+              getFrameVelocity_overload_proxy1(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the spatial velocity of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
 
+      bp::def("getFrameVelocity",
+	      &get_frame_velocity_proxy2,
+              getFrameVelocity_overload_proxy2(
+               bp::args("model","data","joint_id","placement","reference_frame"),
+	       "Returns the spatial velocity of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
+
+      
       bp::def("getFrameAcceleration",
-              &getFrameAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
-              getFrameAcceleration_overload(
+	      &get_frame_acceleration_proxy1,
+              getFrameAcceleration_overload_proxy1(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the spatial acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
 
+      bp::def("getFrameAcceleration",
+	      &get_frame_acceleration_proxy2,
+              getFrameAcceleration_overload_proxy2(
+	       bp::args("model","data","joint_id","placement","reference_frame"),
+                "Returns the spatial acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+
+      
       bp::def("getFrameClassicalAcceleration",
-              &getFrameClassicalAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
-              getFrameClassicalAcceleration_overload(
+	      &get_frame_classical_acceleration_proxy1,
+              getFrameClassicalAcceleration_overload_proxy1(
                 bp::args("model","data","frame_id","reference_frame"),
                 "Returns the \"classical\" acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
                 "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
 
+      bp::def("getFrameClassicalAcceleration",
+	      &get_frame_classical_acceleration_proxy2,
+              getFrameClassicalAcceleration_overload_proxy2(
+                bp::args("model","data","frame_id","reference_frame"),
+                "Returns the \"classical\" acceleration of the frame expressed in the coordinate system given by reference_frame.\n"
+                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+
+      
       bp::def("framesForwardKinematics",
               &framesForwardKinematics<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
               bp::args("model","data","q"),

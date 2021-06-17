@@ -3,6 +3,7 @@
 //
 
 #include "pinocchio/autodiff/casadi.hpp"
+#include "pinocchio/autodiff/casadi-algo.hpp"
 
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
@@ -61,7 +62,6 @@ BOOST_AUTO_TEST_CASE(test_integrate)
   casadi::SX cs_q_int(model.nq,1);
   pinocchio::casadi::copy(q_int_ad,cs_q_int);
   
-  std::cout << "cs_q_int:" << cs_q_int << std::endl;
   casadi::Function eval_integrate("eval_integrate",
                                   casadi::SXVector {cs_q,cs_v_int},
                                   casadi::SXVector {cs_q_int});
@@ -77,7 +77,6 @@ BOOST_AUTO_TEST_CASE(test_integrate)
   ConfigVector q_plus(model.nq);
   pinocchio::integrate(model,q,TangentVector::Zero(model.nv),q_plus);
   
-  std::cout << "q_int_vec: " << q_int_vec.transpose() << std::endl;
   BOOST_CHECK(q_plus.isApprox(q_int_vec));
 }
   
@@ -154,7 +153,6 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
   
   // check return value
   casadi::DM tau_res = eval_rnea(casadi::DMVector {q_vec,v_int_vec,v_vec,a_vec})[0];
-  std::cout << "tau_res = " << tau_res << std::endl;
   Data::TangentVectorType tau_vec = Eigen::Map<Data::TangentVectorType>(static_cast< std::vector<double> >(tau_res).data(),model.nv,1);
   
   BOOST_CHECK(data.tau.isApprox(tau_vec));
@@ -384,5 +382,189 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives)
     Data::MatrixXs ddq_dtau_res_direct_map = Eigen::Map<Data::MatrixXs>(static_cast< std::vector<double> >(ddq_dtau_res_direct).data(),model.nv,model.nv);
     BOOST_CHECK(ddq_dtau_ref.isApprox(ddq_dtau_res_direct_map));
   }
+
+BOOST_AUTO_TEST_CASE(test_aba_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+  
+  pinocchio::aba(model,data,q,v,tau);
+  pinocchio::computeABADerivatives(model,data,q,v,tau);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+    = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  pinocchio::casadi::AutoDiffABA<Scalar> ad_casadi(model);
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
+  
+  ad_casadi.evalFunction(q,v,tau);
+  ad_casadi.evalJacobian(q,v,tau);
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_aba_derivatives_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+  
+  pinocchio::aba(model,data,q,v,tau);
+  pinocchio::computeABADerivatives(model,data,q,v,tau);
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+    = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  pinocchio::casadi::AutoDiffABADerivatives<Scalar> ad_casadi(model);
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
+
+  ad_casadi.evalFunction(q,v,tau);
+  
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+
+  const std::string RF = "rleg6_joint";  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_data;
+
+  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidContactData(ci_RF));
+
+  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidContactData(ci_LF));
+  const double mu0 = 0.;
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+
+  pinocchio::initContactDynamics(model,data,contact_models);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
+  pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
+  ad_casadi.initLib();
+  ad_casadi.loadLib()
+    
+  ad_casadi.evalFunction(q,v,tau);
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c));
+  ad_casadi.evalJacobian(q,v,tau);
+  
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau));
+  BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq));
+  BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv));
+  BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau));
+
+}
+
+BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
+{
+  typedef double Scalar;
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef pinocchio::DataTpl<Scalar> Data;
+  typedef typename Model::ConfigVectorType ConfigVector;
+  typedef typename Model::TangentVectorType TangentVector;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  pinocchio::Data data(model);
+
+  const std::string RF = "rleg6_joint";  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_data;
+
+  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidContactData(ci_RF));
+
+  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidContactData(ci_LF));
+  const double mu0 = 0.;
+  
+  ConfigVector q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+  TangentVector v(TangentVector::Random(model.nv));
+  TangentVector tau(TangentVector::Random(model.nv));
+  
+  pinocchio::initContactDynamics(model,data,contact_models);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
+  pinocchio::casadi::AutoDiffContactDynamicsDerivatives<Scalar> ad_casadi(model,
+                                                                          contact_models);
+
+  ad_casadi.initLib();
+  ad_casadi.loadLib();
+  
+  ad_casadi.evalFunction(q,v,tau);
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
+  BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau));
+  BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq));
+  BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv));
+  BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau));
+
+}
 
 BOOST_AUTO_TEST_SUITE_END()

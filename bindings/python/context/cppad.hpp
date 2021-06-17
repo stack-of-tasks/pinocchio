@@ -16,22 +16,29 @@
 
 #include <eigenpy/eigenpy.hpp>
 
-namespace pinocchio { namespace python
-
-  inline void exposeSpecificTypeFeatures()
+namespace pinocchio
+{
+  namespace python
   {
-    
-  };
+    inline void exposeSpecificTypeFeatures() { };
 
-}}
+  }
+}
 
-namespace pinocchio { namespace python { namespace internal {
+namespace pinocchio
+{
+  namespace python
+  {
+    namespace internal
+    {
   
-  template<typename T> struct has_operator_equal;
+      template<typename T> struct has_operator_equal;
   
-  template<typename Scalar>
-  struct has_operator_equal< ::CppAD::AD<Scalar> > : boost::false_type
-  {};
-}}}
+      template<typename Scalar>
+      struct has_operator_equal< ::CppAD::AD<Scalar> > : boost::false_type   {};
+      
+    }
+  }
+}
 
 #endif // #ifndef __pinocchio_python_context_cppad_hpp__

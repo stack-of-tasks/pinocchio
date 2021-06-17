@@ -65,7 +65,8 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const FrameIndex frame_id,
+		   const JointIndex joint_id,
+		   const SE3Tpl<Scalar,Options> & placement,
                    const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
@@ -73,17 +74,16 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Motion Motion;
 
-    const typename Model::Frame & frame = model.frames[frame_id];
-    const typename Model::SE3 & oMi = data.oMi[frame.parent];
-    const typename Model::Motion & v = data.v[frame.parent];
+    const typename Model::SE3 & oMi = data.oMi[joint_id];
+    const typename Model::Motion & v = data.v[joint_id];
     switch(rf)
     {
       case LOCAL:
-        return frame.placement.actInv(v);
+        return placement.actInv(v);
       case WORLD:
         return oMi.act(v);
       case LOCAL_WORLD_ALIGNED:
-        return Motion(oMi.rotation() * (v.linear() + v.angular().cross(frame.placement.translation())),
+        return Motion(oMi.rotation() * (v.linear() + v.angular().cross(placement.translation())),
                       oMi.rotation() * v.angular());
       default:
         throw std::invalid_argument("Bad reference frame.");
@@ -94,7 +94,8 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                       const FrameIndex frame_id,
+                       const JointIndex joint_id,
+		       const SE3Tpl<Scalar,Options> & placement,
                        const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
@@ -102,17 +103,16 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::Motion Motion;
 
-    const typename Model::Frame & frame = model.frames[frame_id];
-    const typename Model::SE3 & oMi = data.oMi[frame.parent];
-    const typename Model::Motion & a = data.a[frame.parent];
+    const typename Model::SE3 & oMi = data.oMi[joint_id];
+    const typename Model::Motion & a = data.a[joint_id];
     switch(rf)
     {
-      case LOCAL:
-        return frame.placement.actInv(a);
+    case LOCAL:
+        return placement.actInv(a);
       case WORLD:
         return oMi.act(a);
       case LOCAL_WORLD_ALIGNED:
-        return Motion(oMi.rotation() * (a.linear() + a.angular().cross(frame.placement.translation())),
+        return Motion(oMi.rotation() * (a.linear() + a.angular().cross(placement.translation())),
                       oMi.rotation() * a.angular());
       default:
         throw std::invalid_argument("Bad reference frame.");
@@ -123,20 +123,21 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const FrameIndex frame_id,
+				const JointIndex joint_id,
+				const SE3Tpl<Scalar,Options> & placement,
                                 const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
     typedef MotionTpl<Scalar, Options> Motion;
-    Motion vel = getFrameVelocity(model, data, frame_id, rf);
-    Motion acc = getFrameAcceleration(model, data, frame_id, rf);
+    Motion vel = getFrameVelocity(model, data, joint_id, placement, rf);
+    Motion acc = getFrameAcceleration(model, data, joint_id, placement, rf);
 
     acc.linear() += vel.angular().cross(vel.linear());
 
     return acc;
   }
-
+  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getFrameJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                DataTpl<Scalar,Options,JointCollectionTpl> & data,

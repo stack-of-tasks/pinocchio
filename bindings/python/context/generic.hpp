@@ -1,3 +1,6 @@
+#ifndef __pinocchio_python_context_generic_hpp__
+#define __pinocchio_python_context_generic_hpp__
+
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
@@ -43,3 +46,5 @@ typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
 typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
 
 }}}
+
+#endif // #ifndef __pinocchio_python_context_generic_hpp__

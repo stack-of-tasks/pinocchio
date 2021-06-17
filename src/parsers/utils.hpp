@@ -72,7 +72,7 @@ namespace pinocchio
       std::string scheme = string.substr(0, pos_separator);
       std::string path = string.substr(pos_separator+3, std::string::npos);
 
-      if(scheme == "package")
+      if(scheme == "package" || scheme == "model")
       {
         // if exists p1/string, path = p1/string,
         // else if exists p2/string, path = p2/string

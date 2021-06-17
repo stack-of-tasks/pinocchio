@@ -109,6 +109,7 @@ namespace pinocchio
         
         .ADD_DATA_PROPERTY(f,"Vector of body forces expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(of,"Vector of body forces expressed at the origin of the world.")
+        .ADD_DATA_PROPERTY(of_augmented,"Vector of body forces expressed at the origin of the world, in the context of lagrangian formulation")
         .ADD_DATA_PROPERTY(h,"Vector of spatial momenta expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(oh,"Vector of spatial momenta expressed at the origin of the world.")
         .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
@@ -164,8 +165,15 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
+	.ADD_DATA_PROPERTY(ddq_dtau,"Partial derivative of the joint acceleration vector with respect to the joint torque.")
         .ADD_DATA_PROPERTY(dvc_dq,"Partial derivative of the constraint velocity vector with respect to the joint configuration.")
+          
+        .ADD_DATA_PROPERTY(dac_dq,"Partial derivative of the contact acceleration vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dac_dv,"Partial derivative of the contact acceleration vector vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dac_da,"Partial derivative of the contact acceleration vector vector with respect to the joint acceleration.")
 
+        .ADD_DATA_PROPERTY(osim,"Operational space inertia matrix.")
+          
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dq,"Partial derivative of the contact force vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dv,"Partial derivative of the contact force vector with respect to the joint velocity.")
         
