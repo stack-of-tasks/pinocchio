@@ -42,7 +42,7 @@ namespace pinocchio
     
     typename Data::TangentVectorType & dq_after = data.dq_after;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
-    typename Data::VectorXs & contact_vector_solution = data.contact_vector_solution;
+    typename Data::VectorXs & primal_dual_contact_solution = data.primal_dual_contact_solution;
     
     data.oYcrb[0].setZero();
     typedef ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1, false> Pass1;
@@ -73,7 +73,7 @@ namespace pinocchio
     for(long i = 0; i<model.nv; ++i)
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
 
-    contact_vector_solution.tail(model.nv).setZero();
+    primal_dual_contact_solution.tail(model.nv).setZero();
     Eigen::DenseIndex current_row_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
@@ -118,10 +118,10 @@ namespace pinocchio
       switch(contact_model.type)
       {
         case CONTACT_3D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.linear();
+          primal_dual_contact_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.linear();
           break;
         case CONTACT_6D:
-          contact_vector_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.toVector();
+          primal_dual_contact_solution.segment(current_row_id,contact_dim) = -(1+r_coeff)*pre_impact_velocity.toVector();
           break;
         default:
           assert(false && "must never happened");
@@ -132,12 +132,12 @@ namespace pinocchio
     }
 
     // Solve the system
-    contact_chol.solveInPlace(contact_vector_solution);
+    contact_chol.solveInPlace(primal_dual_contact_solution);
     
     // Retrieve the joint space delta v
-    data.ddq = contact_vector_solution.tail(model.nv);
+    data.ddq = primal_dual_contact_solution.tail(model.nv);
     dq_after = data.ddq + v_before;
-    data.impulse_c = -contact_vector_solution.head(contact_chol.constraintDim());
+    data.impulse_c = -primal_dual_contact_solution.head(contact_chol.constraintDim());
 
     // Retrieve the impulses
     Eigen::DenseIndex current_row_sol_id = 0;
@@ -152,14 +152,14 @@ namespace pinocchio
       {
         case CONTACT_3D:
         {
-          impulse.linear() = -contact_vector_solution.template segment<3>(current_row_sol_id);
+          impulse.linear() = -primal_dual_contact_solution.template segment<3>(current_row_sol_id);
           impulse.angular().setZero();
           break;
         }
         case CONTACT_6D:
         {
           typedef typename Data::VectorXs::template FixedSegmentReturnType<6>::Type Segment6d;
-          const ForceRef<Segment6d> i_sol(contact_vector_solution.template segment<6>(current_row_sol_id));
+          const ForceRef<Segment6d> i_sol(primal_dual_contact_solution.template segment<6>(current_row_sol_id));
           impulse = -i_sol;
           break;
         }
