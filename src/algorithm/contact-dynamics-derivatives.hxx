@@ -316,14 +316,34 @@ namespace pinocchio
         break;
       }
       case LOCAL_WORLD_ALIGNED: {
-        if(cmodel.joint1_id > 0) {
-          of1 -= cdata.contact_force;
-          of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
-        }
-        if(cmodel.joint2_id > 0) {
-          of2 += cdata.contact_force;
-          of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
-        }
+        switch(cmodel.type) {
+	case CONTACT_6D: {
+	  if(cmodel.joint1_id > 0) {
+	    of1 -= cdata.contact_force;
+	    of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+	  }
+	  if(cmodel.joint2_id > 0) {
+	    of2 += cdata.contact_force;
+	    of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
+	  }
+	  break;
+	}
+	case CONTACT_3D: {
+	  if(cmodel.joint1_id > 0) {
+	    of1.linear() -= cdata.contact_force.linear();
+	    of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+	  }
+	  if(cmodel.joint2_id > 0) {
+	    of2.linear() += cdata.contact_force.linear();
+	    of2.angular().noalias() += oMc2.translation().cross(cdata.contact_force.linear());
+	  }
+	  break;
+	}
+	default: {
+	  assert(false && "must never happen");
+	  break;
+	}
+	}
         break;
       }
       default:
