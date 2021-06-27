@@ -331,6 +331,8 @@ namespace pinocchio
         break;
       }
     }
+
+    //Backward Pass
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
@@ -475,7 +477,22 @@ namespace pinocchio
 	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
-	  of_temp = cdata.oMc1.act(cdata.contact_force);
+
+	  switch(cmodel.reference_frame) {
+	  case LOCAL: {
+	    of_temp = cdata.oMc1.act(cdata.contact_force);
+	    break;
+	  }
+	  case LOCAL_WORLD_ALIGNED: {
+	    of_temp = cdata.contact_force;
+	    of_temp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
+	    break;
+	  }
+	  default: {
+	    assert(false && "must never happen");
+	    break;
+	  }
+	  }
 
 	  // d./dq
 	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
@@ -483,22 +500,35 @@ namespace pinocchio
 	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 	    motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_temp.toVector());
-	    
-	    if(joint2_indexes[col_id]) {
-	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_temp).toVector();
+
+	    switch(cmodel.reference_frame) {
+	    case LOCAL: {
+	      if(joint2_indexes[col_id]) {
+          contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_temp).toVector();
+	      }
+	      else {
+          contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_temp).toVector();
+	      }
+	      break;
 	    }
-	    else {
-	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_temp).toVector();
+	    case LOCAL_WORLD_ALIGNED: {
+	      // Do nothing
+	      break;
 	    }
+	    default: {
+	      assert(false && "must never happen");
+	      break;
+	    }
+      }
 
 	    motionSet::act(data.J.col(col_id), of_temp, of_temp2.toVector());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
 	      if(joint2_indexes[col_id]) {
-		data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
+          data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
 	      }
 	      else {
-		data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
+          data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
 	      }
 	    }  
 	  }
@@ -506,8 +536,6 @@ namespace pinocchio
 	}
 	case CONTACT_3D:
 	{
-	  const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data, cmodel.joint2_id, cmodel.joint2_placement, LOCAL);
-	  a_temp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
 
 	  typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
 	  RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
@@ -515,7 +543,25 @@ namespace pinocchio
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
 
-	  of_temp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
+	  switch(cmodel.reference_frame) {
+	  case LOCAL: {
+	    of_temp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
+	    const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data,
+								    cmodel.joint2_id,
+								    cmodel.joint2_placement,
+								    cmodel.reference_frame);
+	    a_temp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
+	    break;
+	  }
+	  case LOCAL_WORLD_ALIGNED: {
+	    of_temp.linear() = cdata.contact_force.linear();
+	    break;
+	  }
+	  default: {
+	    assert(false && "must never happen");
+	    break;
+	  }
+	  }
 
 	  // d./dq
 	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
@@ -523,16 +569,27 @@ namespace pinocchio
 	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 
-	    //Check if J_col.angular() should be here
-	    a_temp.linear().noalias() = a_temp.angular().cross(J_col.angular());
-
+	    switch(cmodel.reference_frame) {
+	    case LOCAL: {
+	      a_temp.linear().noalias() = a_temp.angular().cross(J_col.angular());
 	    if(joint2_indexes[col_id]) {
 	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_temp.linear();
 	    }
 	    else {
 	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_temp.linear();
 	    }
-	    
+	      break;
+	    }
+	    case LOCAL_WORLD_ALIGNED: {
+	      // Do nothing
+	      break;
+	    }
+	    default: {
+	      assert(false && "must never happen");
+	      break;
+	    }
+	    }
+
 	    of_temp2.linear().noalias() = of_temp.linear().cross(J_col.angular());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
@@ -753,16 +810,15 @@ namespace pinocchio
         {
         case CONTACT_6D:
         {
-          Rows6Block contact_dvc_dv = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
           Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             typedef typename Rows6Block::ColXpr ColType;
             typedef typename Rows6Block::ColXpr ColTypeOut;
-            MotionRef<ColType> min(contact_dvc_dv.col(j));
+	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
             ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
-            fout.linear().noalias()  += min.angular().cross(of.linear());
-            fout.angular().noalias() += min.angular().cross(of.angular());
+            fout.linear().noalias() += J_col.angular().cross(of.linear());
+            fout.angular().noalias() += J_col.angular().cross(of.angular());
           }
           break;
         }
@@ -772,8 +828,8 @@ namespace pinocchio
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             typedef typename Data::Matrix6x::ColXpr ColType;
-            MotionRef<ColType> min(data.J.col(j));
-            contact_dfc_dq.col(j).noalias() += min.angular().cross(of.linear());
+	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+	    contact_dfc_dq.col(j).noalias() += J_col.angular().cross(of.linear());
           }
           break;
         }
