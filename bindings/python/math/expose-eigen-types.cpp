@@ -44,6 +44,7 @@ namespace pinocchio
         static void run()
         {
           eigenpy::exposeType<context::Scalar>();
+          eigenpy::exposeType<context::Scalar,Eigen::RowMajor>();
         };
       };
     
