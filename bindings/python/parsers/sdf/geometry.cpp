@@ -1,8 +1,10 @@
 //
-// Copyright (c) 2020 CNRS
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
-#include "pinocchio/parsers/sdf.hpp"
+#ifdef PINOCCHIO_WITH_SDFORMAT
+  #include "pinocchio/parsers/sdf.hpp"
+#endif
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
 
 #include <boost/python.hpp>
@@ -14,6 +16,7 @@ namespace pinocchio
 
     namespace bp = boost::python;
 
+#ifdef PINOCCHIO_WITH_SDFORMAT
     GeometryModel
     buildGeomFromSdf(Model & model,
                      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
@@ -28,13 +31,14 @@ namespace pinocchio
       
       return geometry_model;
     }
-
+#endif
   
     void exposeSDFGeometry()
     {
+#ifdef PINOCCHIO_WITH_SDFORMAT
       bp::def("buildGeomFromSdf",
               static_cast <GeometryModel (*) (Model &, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
-              bp::args("model","contact_models","urdf_filename","geom_type","package_dir"  ),
+              bp::args("model","contact_models","urdf_filename","geom_type","package_dir"),
               "Parse the URDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"
               "Parameters:\n"
@@ -43,6 +47,7 @@ namespace pinocchio
               "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
               "\tpackage_dir: path pointing to the folder containing the meshes of the robot\n"
               );
+#endif
     }
   }
 }

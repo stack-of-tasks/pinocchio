@@ -1,8 +1,10 @@
 //
-// Copyright (c) 2021 CNRS
+// Copyright (c) 2021 CNRS INRIA
 //
 
-#include "pinocchio/parsers/sdf.hpp"
+#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
+  #include "pinocchio/parsers/sdf.hpp"
+#endif
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
 
 #include <boost/python.hpp>
@@ -15,6 +17,7 @@ namespace pinocchio
 
     namespace bp = boost::python;
 
+#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
     bp::tuple buildModelFromSdf(const std::string & filename)
     {
       Model model;
@@ -32,10 +35,11 @@ namespace pinocchio
       pinocchio::sdf::buildModel(filename, root_joint, model, contact_models);
       return bp::make_tuple(model,contact_models);
     }
-
+#endif
     
     void exposeSDFModel()
     {
+#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
       bp::def("buildModelFromSdf",
               static_cast <bp::tuple (*) (const std::string &)> (pinocchio::python::buildModelFromSdf),
               bp::args("sdf_filename"),
@@ -47,9 +51,7 @@ namespace pinocchio
               bp::args("sdf_filename","root_joint"),
               "Append to a given model a SDF structure given by its filename and the root joint."
               );
-
-
-      
+#endif
     }
   }
 }
