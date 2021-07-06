@@ -33,15 +33,6 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
   
-  Eigen::VectorXd
-  v1(Eigen::VectorXd::Random(jdata.S().nv())),
-  v2(Eigen::VectorXd::Random(jdata.S().nv()));
-  
-  Inertia::Matrix6
-  Ia(pinocchio::Inertia::Random().matrix()),
-  Ia2(pinocchio::Inertia::Random().matrix());
-  bool update_I = false;
-
 
   jmodel.calc(jdata.derived(), q1, v1);
   jmodel.calc_aba(jdata.derived(), armature, Ia, update_I);
