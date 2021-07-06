@@ -214,15 +214,17 @@ namespace pinocchio
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
         
-        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
-        serialize<StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
-        
-        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
-        serialize<StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
-        
+        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
+                                                             details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+
+        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
+                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+
         StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+        serialize<typename StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
+        serialize<typename StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
+#endif
         serialize<StdVectorPythonVisitor<int>::vector_type>();
       }
 

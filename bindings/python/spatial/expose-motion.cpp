@@ -21,7 +21,9 @@ namespace pinocchio
       exposeClassicAcceleration();
       MotionPythonVisitor<context::Motion>::expose();
       StdAlignedVectorPythonVisitor<context::Motion>::expose("StdVec_Motion");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       serialize<StdAlignedVectorPythonVisitor<context::Motion>::vector_type>();
+#endif
     }
     
   } // namespace python

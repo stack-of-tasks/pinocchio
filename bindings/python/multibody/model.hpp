@@ -81,7 +81,8 @@ namespace pinocchio
       
       typedef typename Model::Index Index;
       typedef typename Model::JointIndex JointIndex;
-      typedef typename Model::JointModel::JointModelVariant JointModelVariant;
+      typedef typename Model::JointModel JointModel;
+      typedef typename JointModel::JointModelVariant JointModelVariant;
       typedef typename Model::FrameIndex FrameIndex;
       typedef typename Model::IndexVector IndexVector;
       
@@ -400,7 +401,9 @@ namespace pinocchio
         StdVectorPythonVisitor<Scalar,std::allocator<Scalar>,true>::expose("StdVec_Double");
         serialize< std::vector<std::string> >();
         serialize< std::vector<bool> >();
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         serialize< std::vector<Scalar> >();
+#endif
         bp::class_<typename Model::ConfigVectorMap>("StdMap_String_VectorXd")
           .def(map_indexing_suite())
           .def_pickle(PickleMap<typename Model::ConfigVectorMap>())

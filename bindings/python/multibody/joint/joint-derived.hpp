@@ -53,8 +53,10 @@ namespace pinocchio
              bp::args("self","other"),
              "Check if this has same indexes than other.")
         
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         ;
       }
 
@@ -101,8 +103,10 @@ namespace pinocchio
                &JointDataDerived::shortname,
                bp::arg("self"))
         
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def(bp::self == bp::self)
           .def(bp::self != bp::self)
+#endif
         ;
       }
 

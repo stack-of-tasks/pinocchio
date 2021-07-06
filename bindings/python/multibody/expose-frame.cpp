@@ -19,7 +19,9 @@ namespace pinocchio
     {
       FramePythonVisitor<context::Frame>::expose();
       StdAlignedVectorPythonVisitor<context::Frame>::expose("StdVec_Frame");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       serialize<StdAlignedVectorPythonVisitor<context::Frame>::vector_type>();
+#endif
     }
     
   } // namespace python

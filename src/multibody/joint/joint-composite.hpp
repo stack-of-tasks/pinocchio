@@ -337,7 +337,6 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelCompositeTpl & other) const
     {
-      std::cout << "JointModelCompositeTpl::isEqual" << std::endl;
       return Base::isEqual(other)
       && nq() == other.nq()
       && nv() == other.nv()

@@ -19,7 +19,9 @@ namespace pinocchio
     {
       ForcePythonVisitor<context::Force>::expose();
       StdAlignedVectorPythonVisitor<context::Force>::expose("StdVec_Force");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       serialize<StdAlignedVectorPythonVisitor<context::Force>::vector_type>();
+#endif
     }
     
   } // namespace python

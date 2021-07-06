@@ -7,7 +7,6 @@
 #include "pinocchio/bindings/python/multibody/joint/joints-variant.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-model.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-data.hpp"
-#include "pinocchio/bindings/python/multibody/joint/joint.hpp"
 
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 

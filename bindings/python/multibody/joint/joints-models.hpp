@@ -143,8 +143,10 @@ namespace pinocchio
                                     )[bp::return_internal_reference<>()]
            )
       
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       .def(bp::self == bp::self)
       .def(bp::self != bp::self)
+#endif
       
       ;
     }

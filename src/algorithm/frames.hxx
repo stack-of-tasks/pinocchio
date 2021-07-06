@@ -65,10 +65,11 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-		   const JointIndex joint_id,
-		   const SE3Tpl<Scalar,Options> & placement,
+                   const JointIndex joint_id,
+                   const SE3Tpl<Scalar,Options> & placement,
                    const ReferenceFrame rf)
   {
+    PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -95,9 +96,10 @@ namespace pinocchio
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const JointIndex joint_id,
-		       const SE3Tpl<Scalar,Options> & placement,
+                       const SE3Tpl<Scalar,Options> & placement,
                        const ReferenceFrame rf)
   {
+    PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -123,14 +125,14 @@ namespace pinocchio
   inline MotionTpl<Scalar, Options>
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-				const JointIndex joint_id,
-				const SE3Tpl<Scalar,Options> & placement,
+                                const JointIndex joint_id,
+                                const SE3Tpl<Scalar,Options> & placement,
                                 const ReferenceFrame rf)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
     typedef MotionTpl<Scalar, Options> Motion;
-    Motion vel = getFrameVelocity(model, data, joint_id, placement, rf);
+    const Motion vel = getFrameVelocity(model, data, joint_id, placement, rf);
     Motion acc = getFrameAcceleration(model, data, joint_id, placement, rf);
 
     acc.linear() += vel.angular().cross(vel.linear());
@@ -146,7 +148,6 @@ namespace pinocchio
                                const ReferenceFrame reference_frame,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
-
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.rows(), 6);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J.cols(), model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_id < (JointIndex)model.njoints, "The index of the Joint is outside the bounds.");

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2021 CNRS INRIA
 #
 
 import numpy
@@ -13,7 +13,7 @@ from .explog import exp, log
 # Manually register submodules
 import sys, inspect
 
-submodules = inspect.getmembers(pinocchio_pywrap, inspect.ismodule)
+submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:
   sys.modules['pinocchio.' + module_info[0]] = module_info[1]
 

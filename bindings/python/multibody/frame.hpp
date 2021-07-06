@@ -24,6 +24,7 @@ namespace pinocchio
     : public boost::python::def_visitor< FramePythonVisitor<Frame> >
     {
       typedef typename Frame::SE3 SE3;
+      typedef typename Frame::Inertia Inertia;
       
       template<class PyClass>
       void visit(PyClass & cl) const

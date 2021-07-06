@@ -58,7 +58,7 @@ namespace pinocchio
             bp::class_<T>(T::classname().c_str(),
                           T::classname().c_str(),
                           bp::no_init)
-            .def(JointModelDerivedPythonVisitor<T>())
+            .def(JointModelBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
         );
         bp::implicitly_convertible<T,context::JointModel>();
