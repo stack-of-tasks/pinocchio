@@ -214,7 +214,7 @@ namespace pinocchio
         data.oa_gf[i] += data.oa_gf[parent]; // does take into account the gravity field
         jmodel.jointVelocitySelector(data.ddq).noalias() =
         jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.oa_gf[i].toVector();
-        data.oa_gf[i].toVector() += J_cols * jmodel.jointVelocitySelector(data.ddq);
+        data.oa_gf[i].toVector().noalias() += J_cols * jmodel.jointVelocitySelector(data.ddq);
         
         // Handle consistent output
         data.oa[i] = data.oa_gf[i] + model.gravity;

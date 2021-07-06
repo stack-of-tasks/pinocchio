@@ -409,8 +409,8 @@ namespace pinocchio
                     }
                     else // sign == -1
                     {
-                      Motion Jcol_local(oMc2.actInv(Jcol_motion));
-                      Jcol_local.linear() = c1Mc2.rotation()*Jcol_local.linear();
+                      Motion Jcol_local(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
+                      Jcol_local.linear() = c1Mc2.rotation()*Jcol_local.linear(); // TODO: simplify computations
                       for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                       {
                         const Eigen::DenseIndex _ii = current_row - _i;

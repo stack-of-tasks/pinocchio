@@ -45,18 +45,18 @@ namespace pinocchio
       
       typedef ::casadi::Function ADFun;
       
-      AutoDiffAlgoBase(const Model& model,
-                       const std::string& filename,
-                       const std::string& libname,
-                       const std::string& fun_name)
-        : ad_model(model.template cast<ADScalar>())
-        , ad_data(ad_model)  
-        , filename(filename)
-        , libname(libname)
-        , fun_name(fun_name)
-        , cg_generated(filename)
-        , build_forward(true)
-        , build_jacobian(true) { }
+      AutoDiffAlgoBase(const Model & model,
+                       const std::string & filename,
+                       const std::string & libname,
+                       const std::string & fun_name)
+      : ad_model(model.template cast<ADScalar>())
+      , ad_data(ad_model)
+      , filename(filename)
+      , libname(libname)
+      , fun_name(fun_name)
+      , cg_generated(filename)
+      , build_forward(true)
+      , build_jacobian(true) { }
 
       virtual ~AutoDiffAlgoBase() {}
       
@@ -87,7 +87,7 @@ namespace pinocchio
           +filename+".c -o "+libname+".so";
         
         int flag = system(compile_command.c_str());
-        if (flag!=0)
+        if(flag!=0)
         {
           std::cerr<<"Compilation failed"<<std::endl;
         }
@@ -99,7 +99,7 @@ namespace pinocchio
           compileLib();
 
         fun = ::casadi::external(fun_name, libname+".so");
-        if (build_jacobian)
+        if(build_jacobian)
         {
           fun_derivs = ::casadi::external(fun_name+"_derivs", libname+".so");
         }
@@ -146,25 +146,25 @@ namespace pinocchio
                            const std::string& filename = "casadi_aba",
                            const std::string& libname = "libcasadi_cg_aba",
                            const std::string& fun_name = "eval_f")
-        : Base(model, filename, libname, fun_name)
-        , cs_q(ADScalar::sym("q", model.nq))
-        , cs_v(ADScalar::sym("v", model.nv))
-        , cs_tau(ADScalar::sym("tau", model.nv))
-        , cs_v_int(ADScalar::sym("v_inc", model.nv))
-        , q_ad(model.nq)
-        , q_int_ad(model.nq)
-        , v_ad(model.nv)
-        , v_int_ad(model.nv)
-        , tau_ad(model.nv)
-        , cs_ddq(model.nv,1)
-        , q_vec((size_t)model.nq)
-        , v_vec((size_t)model.nv)
-        , v_int_vec((size_t)model.nv)
-        , tau_vec((size_t)model.nv)
-        , ddq(model.nv)
-        , ddq_dq(model.nv,model.nv)
-        , ddq_dv(model.nv,model.nv)
-        , ddq_dtau(model.nv,model.nv)
+      : Base(model, filename, libname, fun_name)
+      , ddq(model.nv)
+      , ddq_dq(model.nv,model.nv)
+      , ddq_dv(model.nv,model.nv)
+      , ddq_dtau(model.nv,model.nv)
+      , cs_q(ADScalar::sym("q", model.nq))
+      , cs_v(ADScalar::sym("v", model.nv))
+      , cs_tau(ADScalar::sym("tau", model.nv))
+      , cs_v_int(ADScalar::sym("v_inc", model.nv))
+      , cs_ddq(model.nv,1)
+      , q_ad(model.nq)
+      , q_int_ad(model.nq)
+      , v_ad(model.nv)
+      , v_int_ad(model.nv)
+      , tau_ad(model.nv)
+      , q_vec((size_t)model.nq)
+      , v_vec((size_t)model.nv)
+      , v_int_vec((size_t)model.nv)
+      , tau_vec((size_t)model.nv)
       {
         q_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_q).data(),model.nq,1);
         v_int_ad = Eigen::Map<ADConfigVectorType>(static_cast< std::vector<ADScalar> >(cs_v_int).data(),model.nv,1);
@@ -214,26 +214,26 @@ namespace pinocchio
                                         (fun_output[0]).data(),ad_model.nv,1);
       }
 
-    template<typename ConfigVectorType1, typename TangentVectorType1, typename TangentVectorType2>
-    void evalJacobian(const Eigen::MatrixBase<ConfigVectorType1> & q,
-                      const Eigen::MatrixBase<TangentVectorType1> & v,
-                      const Eigen::MatrixBase<TangentVectorType2> & tau)
-    {
-      Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
-      Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
-      Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
-      fun_output_derivs   = fun_derivs (DMVector {q_vec,v_int_vec,v_vec,tau_vec});
-
-      ddq_dq =
+      template<typename ConfigVectorType1, typename TangentVectorType1, typename TangentVectorType2>
+      void evalJacobian(const Eigen::MatrixBase<ConfigVectorType1> & q,
+                        const Eigen::MatrixBase<TangentVectorType1> & v,
+                        const Eigen::MatrixBase<TangentVectorType2> & tau)
+      {
+        Eigen::Map<ConfigVectorType1>(q_vec.data(),ad_model.nq,1) = q;
+        Eigen::Map<TangentVectorType1>(v_vec.data(),ad_model.nv,1) = v;
+        Eigen::Map<TangentVectorType2>(tau_vec.data(),ad_model.nv,1) = tau;
+        fun_output_derivs   = fun_derivs (DMVector {q_vec,v_int_vec,v_vec,tau_vec});
+        
+        ddq_dq =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_derivs[0]).data(),ad_model.nv,ad_model.nv);
-      ddq_dv =
+                             (fun_output_derivs[0]).data(),ad_model.nv,ad_model.nv);
+        ddq_dv =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_derivs[1]).data(),ad_model.nv,ad_model.nv);
-      ddq_dtau =
+                             (fun_output_derivs[1]).data(),ad_model.nv,ad_model.nv);
+        ddq_dtau =
         Eigen::Map<MatrixXs>(static_cast< std::vector<Scalar> >
-                                (fun_output_derivs[2]).data(),ad_model.nv,ad_model.nv);
-    }
+                             (fun_output_derivs[2]).data(),ad_model.nv,ad_model.nv);
+      }
       
       TangentVectorType ddq;
       RowMatrixXs ddq_dq, ddq_dv, ddq_dtau;

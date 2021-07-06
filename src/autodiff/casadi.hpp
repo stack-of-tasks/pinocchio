@@ -285,6 +285,7 @@ namespace pinocchio
 namespace Eigen
 {
 
+  // Max operator
   template<typename Scalar>
   struct ScalarBinaryOpTraits< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar>, internal::scalar_max_op< ::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar> > >
   {

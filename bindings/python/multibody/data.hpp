@@ -72,6 +72,7 @@ namespace pinocchio
     struct DataPythonVisitor
     : public boost::python::def_visitor< DataPythonVisitor<Data> >
     {
+      typedef typename Data::Matrix6 Matrix6;
       typedef typename Data::Matrix6x Matrix6x;
       typedef typename Data::Matrix3x Matrix3x;
       typedef typename Data::Vector3 Vector3;
@@ -213,13 +214,15 @@ namespace pinocchio
         
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
+        typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) StdVec_Matrix6;
         
         StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
                                                              details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
 
         StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
                                                               details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
-
+        StdAlignedVectorPythonVisitor<Matrix6,false>::expose("StdVec_Matrix6",
+                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6>());
         StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         serialize<typename StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();

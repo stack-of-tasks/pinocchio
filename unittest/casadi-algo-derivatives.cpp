@@ -489,13 +489,14 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
   q = pinocchio::randomConfiguration(model);
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
+  pinocchio::ProximalSettings prox_settings(1e-12,mu0,1);
 
   pinocchio::initContactDynamics(model,data,contact_models);
-  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
-  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0);
   pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
   ad_casadi.initLib();
-  ad_casadi.loadLib()
+  ad_casadi.loadLib();
     
   ad_casadi.evalFunction(q,v,tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq));
@@ -545,9 +546,10 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   q = pinocchio::randomConfiguration(model);
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
+  pinocchio::ProximalSettings prox_settings(1e-12,mu0,1);
   
   pinocchio::initContactDynamics(model,data,contact_models);
-  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,mu0);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
   pinocchio::casadi::AutoDiffContactDynamicsDerivatives<Scalar> ad_casadi(model,
                                                                           contact_models);
