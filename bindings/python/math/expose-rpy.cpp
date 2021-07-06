@@ -1,8 +1,6 @@
 //
-// Copyright (c) 2019-2020 CNRS INRIA
+// Copyright (c) 2019-2021 CNRS INRIA
 //
-
-#include <boost/python.hpp>
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/namespace.hpp"

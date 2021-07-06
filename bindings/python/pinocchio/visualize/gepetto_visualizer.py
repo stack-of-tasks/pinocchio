@@ -31,7 +31,7 @@ class GepettoVisualizer(BaseVisualizer):
         except ImportError:
             import warnings
             msg = ("Error while importing the viewer client.\n"
-                   "Check whether gepetto-viewer is properly installed"
+                   "Check whether gepetto-gui is properly installed"
                   )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
 
@@ -178,14 +178,15 @@ class GepettoVisualizer(BaseVisualizer):
         # Finally, refresh the layout to obtain your first rendering.
         gui.refresh()
 
-    def display(self, q):
+    def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
         if 'viewer' not in self.__dict__:
             return
 
         gui = self.viewer.gui
         # Update the robot kinematics and geometry.
-        pin.forwardKinematics(self.model,self.data,q)
+        if q is not None:
+            pin.forwardKinematics(self.model,self.data,q)
 
         if self.display_collisions:
             pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)

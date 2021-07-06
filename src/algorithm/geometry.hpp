@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_geometry_hpp__
@@ -90,14 +90,14 @@ namespace pinocchio
   ///
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
-  /// \param[in] pairId The collsion pair index in the GeometryModel.
+  /// \param[in] pair_id The collsion pair index in the GeometryModel.
   ///
   /// \return Return true is the collision objects are colliding.
-  /// \note The complete collision result is also available in geom_data.collisionResults[pairId]
+  /// \note The complete collision result is also available in geom_data.collisionResults[pair_id]
   ///
   bool computeCollision(const GeometryModel & geom_model,
                         GeometryData & geom_data,
-                        const PairIndex & pairId);
+                        const PairIndex pair_id);
 
   ///
   /// \brief Calls computeCollision for every active pairs of GeometryData. 
@@ -145,15 +145,15 @@ namespace pinocchio
   ///
   /// \param[in] GeomModel the geometry model (const)
   /// \param[out] GeomData the corresponding geometry data, where computations are done.
-  /// \param[in] pairId The index of the collision pair in geom model.
+  /// \param[in] pair_id The index of the collision pair in geom model.
   ///
   /// \return A reference on fcl struct containing the distance result, referring an element
   /// of vector geom_data::distanceResults.
-  /// \note The complete distance result is also available in geom_data.distanceResults[pairId]
+  /// \note The complete distance result is also available in geom_data.distanceResults[pair_id]
   ///
   fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
                                         GeometryData & geom_data,
-                                        const PairIndex & pairId);
+                                        const PairIndex pair_id);
   
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -198,6 +198,11 @@ namespace pinocchio
 
   ///
   /// Compute the radius of the geometry volumes attached to every joints.
+  ///
+  /// \param[in] model Kinematic model of the system
+  /// \param[in] geom_model Geometry model of the system
+  /// \param[out] geom_data Geometry data of the system
+  ///
   /// \sa GeometryData::radius
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

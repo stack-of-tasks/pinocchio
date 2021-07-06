@@ -31,10 +31,6 @@ If you want to directly dive into **Pinocchio**, only one single line is suffici
 conda install pinocchio -c conda-forge
 </p>
 
-## News
-
-**August 2020**: We are **hiring**! We are looking for a talented C++/Python software developer to enhance and promote Pinocchio inside the robotics community and beyond. Please contact @jcarpent for further details.
-
 ## Pinocchio main features
 
 **Pinocchio** is fast:
@@ -93,12 +89,13 @@ The online **Pinocchio** documentation of the last release is available [here](h
 ## Examples
 
 We provide some basic examples on how to use **Pinocchio** in Python in the [examples/python](./examples/python) directory.
-Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html)
+Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
 
-**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robotics control.
+**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
 The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
+Additionnal materials were presented during the [Memmo](https://www.memmo-project.eu/) summer school and available [here](https://memory-of-motion.github.io/summer-school/materials).
 
 ## Visualization
 
@@ -164,6 +161,7 @@ The following people have been involved in the development of **Pinocchio** and 
 - [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
 - [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
 - [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
+- [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 

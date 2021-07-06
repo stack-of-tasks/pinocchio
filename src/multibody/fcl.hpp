@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -10,6 +10,29 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+
+  #if(WIN32)
+    // It appears that std::snprintf is missing for Windows.
+    #if !(( defined(_MSC_VER) && _MSC_VER < 1900 ) || ( defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR) ))
+      #include <cstdio>
+      #include <stdarg.h>
+      namespace std
+      {
+        inline int _snprintf(char* buffer, std::size_t buf_size, const char* format, ...)
+        {
+          int res;
+          
+          va_list args;
+          va_start(args, format);
+          res = vsnprintf(buffer, buf_size, format, args);
+          va_end(args);
+          
+          return res;
+        }
+      }
+    #endif
+  #endif
+  
   #include <hpp/fcl/collision_object.h>
   #include <hpp/fcl/collision.h>
   #include <hpp/fcl/distance.h>
@@ -28,13 +51,25 @@
 
 namespace pinocchio
 {
-  struct CollisionPair: public std::pair<GeomIndex, GeomIndex>
+  struct CollisionPair
+  : public std::pair<GeomIndex, GeomIndex>
   {
 
     typedef std::pair<GeomIndex, GeomIndex> Base;
    
+    /// \brief Empty constructor
+    CollisionPair();
+    
+    ///
+    /// \brief Default constructor of a collision pair from two collision object indexes.
+    /// \remarks The two indexes must be different, otherwise the constructor throws.
+    ///
+    /// \param[in] co1 Index of the first collision object.
+    /// \param[in] co2 Index of the second collision object.
+    ///
     CollisionPair(const GeomIndex co1, const GeomIndex co2);
     bool                  operator == (const CollisionPair& rhs) const;
+    bool                  operator != (const CollisionPair& rhs) const;
     void                  disp        (std::ostream & os)        const;
     friend std::ostream & operator << (std::ostream & os,const CollisionPair & X);
 
@@ -131,6 +166,9 @@ struct GeometryObject : NumericalBase<GeometryObject>
 
   /// \brief Absolute path to the mesh texture file.
   std::string meshTexturePath;
+  
+  /// \brief If true, no collision or distance check will be done between the Geometry and any other geometry
+  bool disableCollision;
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
@@ -169,6 +207,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
+  , disableCollision(false)
   {}
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -208,6 +247,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , overrideMaterial(overrideMaterial)
   , meshColor(meshColor)
   , meshTexturePath(meshTexturePath)
+  , disableCollision(false)
   {}
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -217,6 +257,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   : fcl(geometry)
   {
     *this = other;
+    
   }
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
@@ -232,12 +273,72 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     overrideMaterial    = other.overrideMaterial;
     meshColor           = other.meshColor;
     meshTexturePath     = other.meshTexturePath;
+    disableCollision   = other.disableCollision;
     return *this;
   }
 
   friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geomObject);
 };
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+
+  struct ComputeCollision
+  : ::hpp::fcl::ComputeCollision
+  {
+    typedef ::hpp::fcl::ComputeCollision Base;
+    typedef boost::shared_ptr<const fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    
+    ComputeCollision(const GeometryObject & o1, const GeometryObject & o2)
+    : Base(o1.geometry.get(),o2.geometry.get())
+    , o1(o1.geometry)
+    , o2(o2.geometry)
+    {}
+    
+    virtual ~ComputeCollision() {};
+    
+  protected:
+    ConstCollisionGeometryPtr o1;
+    ConstCollisionGeometryPtr o2;
+    
+    virtual std::size_t run(const fcl::Transform3f& tf1, const fcl::Transform3f& tf2,
+                            const fcl::CollisionRequest& request, fcl::CollisionResult& result) const
+    {
+      typedef ::hpp::fcl::CollisionGeometry const * Pointer;
+      const_cast<Pointer&>(Base::o1) = o1.get();
+      const_cast<Pointer&>(Base::o2) = o2.get();
+      return Base::run(tf1, tf2, request, result);
+    }
+  };
+
+  struct ComputeDistance
+  : ::hpp::fcl::ComputeDistance
+  {
+    typedef ::hpp::fcl::ComputeDistance Base;
+    typedef boost::shared_ptr<fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    
+    ComputeDistance(const GeometryObject & o1, const GeometryObject & o2)
+    : Base(o1.geometry.get(),o2.geometry.get())
+    , o1(o1.geometry)
+    , o2(o2.geometry)
+    {}
+    
+    virtual ~ComputeDistance() {};
+    
+  protected:
+    ConstCollisionGeometryPtr o1;
+    ConstCollisionGeometryPtr o2;
+    
+    virtual hpp::fcl::FCL_REAL run(const fcl::Transform3f& tf1, const fcl::Transform3f& tf2,
+                                   const fcl::DistanceRequest& request, fcl::DistanceResult& result) const
+    {
+      typedef ::hpp::fcl::CollisionGeometry const * Pointer;
+      const_cast<Pointer&>(Base::o1) = o1.get();
+      const_cast<Pointer&>(Base::o2) = o2.get();
+      return Base::run(tf1, tf2, request, result);
+    }
+  };
   
+#endif
 
 } // namespace pinocchio
 

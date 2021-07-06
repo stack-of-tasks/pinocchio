@@ -59,6 +59,7 @@ namespace pinocchio
     using Base::operator==;
     using Base::operator!=;
     
+    /// \brief Default constructor from a 6 dimensional vector.
     ForceRef(typename PINOCCHIO_EIGEN_REF_TYPE(Vector6ArgType) f_like)
     : m_ref(f_like)
     {
@@ -66,6 +67,11 @@ namespace pinocchio
                           YOU_TRIED_CALLING_A_VECTOR_METHOD_ON_A_MATRIX);
       assert(f_like.size() == 6);
     }
+    
+    /// \brief Copy constructor from another ForceRef.
+    ForceRef(const ForceRef & other)
+    : m_ref(other.m_ref)
+    {}
     
     ToVectorConstReturnType toVector_impl() const { return m_ref; }
     ToVectorReturnType toVector_impl() { return m_ref; }

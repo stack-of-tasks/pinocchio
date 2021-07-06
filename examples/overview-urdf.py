@@ -6,7 +6,7 @@ from os.path import dirname, join, abspath
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
 # You should change here to set up your own URDF file or just pass it as an argument of this example.
-urdf_filename = pinocchio_model_dir + '/others/robots/ur_description/urdf/ur5_robot.urdf' if len(argv)<2 else argv[1]
+urdf_filename = pinocchio_model_dir + '/example-robot-data/robots/ur_description/urdf/ur5_robot.urdf' if len(argv)<2 else argv[1]
 
 # Load the urdf model
 model    = pinocchio.buildModelFromUrdf(urdf_filename)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -263,19 +263,20 @@ namespace pinocchio
           }
 
           void addFixedJointAndBody(
-              const FrameIndex & parentFrameId,
+              const FrameIndex & parent_frame_id,
               const SE3 & joint_placement,
               const std::string & joint_name,
-              const Inertia& Y,
+              const Inertia & Y,
               const std::string & body_name)
           {
-            const Frame & frame = model.frames[parentFrameId];
+            const Frame & parent_frame = model.frames[parent_frame_id];
+            const JointIndex parent_frame_parent = parent_frame.parent;
 
-            FrameIndex fid = model.addFrame(Frame(joint_name, frame.parent, parentFrameId,
-                  frame.placement * joint_placement, FIXED_JOINT)
-                );
+            const SE3 placement = parent_frame.placement * joint_placement;
+            FrameIndex fid = model.addFrame(Frame(joint_name, parent_frame.parent, parent_frame_id,
+                                                  placement, FIXED_JOINT, Y));
 
-            appendBodyToJoint((FrameIndex)fid, Y, SE3::Identity(), body_name);
+            model.addBodyFrame(body_name, parent_frame_parent, placement, (int)fid);
           }
 
           void appendBodyToJoint(

@@ -14,6 +14,71 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+
+def loadBVH(bvh):
+    import meshcat.geometry as mg
+
+    num_vertices = bvh.num_vertices
+    num_tris = bvh.num_tris
+    vertices = np.empty((num_vertices,3))
+    faces = np.empty((num_tris,3),dtype=int)
+
+    for k in range(num_tris):
+        tri = bvh.tri_indices(k)
+        faces[k] = [tri[i] for i in range(3)]
+
+    for k in range(num_vertices):
+        vert = bvh.vertices(k)
+        vertices[k] = vert
+
+    vertices = vertices.astype(np.float32)
+    if num_tris > 0:
+        mesh = mg.TriangularMeshGeometry(vertices, faces)
+    else:
+        mesh = mg.Points(
+                    mg.PointsGeometry(vertices.T, color=np.repeat(np.ones((3,1)),num_vertices,axis=1)),
+                    mg.PointsMaterial(size=0.002))
+
+    return mesh
+
+def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
+    nbv = np.array([max(radial_resolution, 4), max(cap_resolution, 4)])
+    h = length
+    r = radius
+    position = 0
+    vertices = np.zeros((nbv[0] * (2 * nbv[1]) + 2, 3))
+    for j in range(nbv[0]):
+        phi = (( 2 * np.pi * j) / nbv[0])
+        for i in range(nbv[1]):
+            theta = ((np.pi / 2 * i) / nbv[1])
+            vertices[position + i, :] = np.array([np.cos(theta) * np.cos(phi) * r,
+                                               np.cos(theta) * np.sin(phi) * r,
+                                               -h / 2 - np.sin(theta) * r])
+            vertices[position + i + nbv[1], :] = np.array([np.cos(theta) * np.cos(phi) * r,
+                                                        np.cos(theta) * np.sin(phi) * r,
+                                                        h / 2 + np.sin(theta) * r])
+        position += nbv[1] * 2
+    vertices[-2, :] = np.array([0, 0, -h / 2 - r])
+    vertices[-1, :] = np.array([0, 0, h / 2 + r])
+    indexes = np.zeros((nbv[0] * (4 * (nbv[1] - 1) + 4), 3))
+    index = 0
+    stride = nbv[1] * 2
+    last = nbv[0] * (2 * nbv[1]) + 1
+    for j in range(nbv[0]):
+        j_next = (j + 1) % nbv[0]
+        indexes[index + 0] = np.array([j_next * stride + nbv[1], j_next * stride, j * stride])
+        indexes[index + 1] = np.array([j * stride + nbv[1], j_next * stride + nbv[1], j * stride])
+        indexes[index + 2] = np.array([j * stride + nbv[1] - 1, j_next * stride + nbv[1] - 1, last - 1])
+        indexes[index + 3] = np.array([j_next * stride + 2 * nbv[1] - 1, j * stride + 2 * nbv[1] - 1, last])
+        for i in range(nbv[1]-1):
+            indexes[index + 4 + i * 4 + 0] = np.array([j_next * stride + i, j_next * stride + i + 1, j * stride + i])
+            indexes[index + 4 + i * 4 + 1] = np.array([j_next * stride + i + 1, j * stride + i + 1, j * stride + i])
+            indexes[index + 4 + i * 4 + 2] = np.array([j_next * stride + nbv[1] + i + 1, j_next * stride + nbv[1] + i, j * stride + nbv[1] + i])
+            indexes[index + 4 + i * 4 + 3] = np.array([j_next * stride + nbv[1] + i + 1, j * stride + nbv[1] + i, j * stride + nbv[1] + i + 1])
+        index += 4 * (nbv[1] - 1) + 4
+    import meshcat.geometry
+    return meshcat.geometry.TriangularMeshGeometry(vertices, indexes)
+
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
@@ -53,7 +118,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
         geom = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
-            obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+            if hasattr(meshcat.geometry, 'TriangularMeshGeometry'):
+                obj = createCapsule(2. * geom.halfLength, geom.radius)
+            else:
+                obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Box):
@@ -94,7 +162,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-
         import meshcat.geometry
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
@@ -102,6 +169,8 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
+            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
+                obj = loadBVH(geometry_object.geometry)
             else:
                 obj = self.loadMesh(geometry_object)
             if obj is None:
@@ -110,18 +179,22 @@ class MeshcatVisualizer(BaseVisualizer):
             msg = "Error while loading geometry object: %s\nError message:\n%s" % (geometry_object.name, e)
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
-        material = meshcat.geometry.MeshPhongMaterial()
-        # Set material color from URDF, converting for triplet of doubles to a single int.
-        if color is None:
-            meshColor = geometry_object.meshColor
-        else:
-            meshColor = color
-        material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
-        # Add transparency, if needed.
-        if float(meshColor[3]) != 1.0:
-            material.transparent = True
-            material.opacity = float(meshColor[3])
-        self.viewer[viewer_name].set_object(obj, material)
+
+        if isinstance(obj, meshcat.geometry.Object):
+            self.viewer[viewer_name].set_object(obj)
+        elif isinstance(obj, meshcat.geometry.Geometry):
+            material = meshcat.geometry.MeshPhongMaterial()
+            # Set material color from URDF, converting for triplet of doubles to a single int.
+            if color is None:
+                meshColor = geometry_object.meshColor
+            else:
+                meshColor = color
+            material.color = int(meshColor[0] * 255) * 256**2 + int(meshColor[1] * 255) * 256 + int(meshColor[2] * 255)
+            # Add transparency, if needed.
+            if float(meshColor[3]) != 1.0:
+                material.transparent = True
+                material.opacity = float(meshColor[3])
+            self.viewer[viewer_name].set_object(obj, material)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
@@ -146,9 +219,27 @@ class MeshcatVisualizer(BaseVisualizer):
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
 
-    def display(self, q):
+    def reload(self, new_geometry_object, geometry_type = None):
+        """ Reload a geometry_object given by its name and its type"""
+        geom_id = self.visual_model.getGeometryId(new_geometry_object.name)
+        self.visual_model.geometryObjects[geom_id] = new_geometry_object
+
+        visual = self.visual_model.geometryObjects[geom_id]
+        self.delete(new_geometry_object, pin.GeometryType.VISUAL)
+        self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color = None)
+
+    def clean(self):
+        self.viewer.delete()
+
+    def delete(self, geometry_object, geometry_type):
+        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        self.viewer[viewer_name].delete()
+
+    def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
-        pin.forwardKinematics(self.model,self.data,q)
+        if q is not None:
+            pin.forwardKinematics(self.model,self.data,q)
+
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         for visual in self.visual_model.geometryObjects:
             # Get mesh pose.
@@ -164,16 +255,12 @@ class MeshcatVisualizer(BaseVisualizer):
         """Set whether to display collision objects or not.
         WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
         # TODO
-        import warnings
         warnings.warn("Plotting collision meshes is not available for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not
         WARNING: Visual meshes are always plotted for MeshcatVisualizer"""
         # TODO
-        import warnings
         warnings.warn("Visual meshes are always plotted for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
 __all__ = ['MeshcatVisualizer']

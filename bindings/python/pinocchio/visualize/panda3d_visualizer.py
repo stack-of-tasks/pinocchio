@@ -88,9 +88,10 @@ class Panda3dVisualizer(BaseVisualizer):
         elif geometry_type is pin.GeometryType.COLLISION:
             return self.collision_group + '/' + geometry_object.name
 
-    def display(self, q):
+    def display(self, q = None):
         """Display the robot at configuration q in the viewer by placing all the bodies."""
-        pin.forwardKinematics(self.model, self.data, q)
+        if q is not None:
+            pin.forwardKinematics(self.model, self.data, q)
 
         def move(group, model, data):
             pin.updateGeometryPlacements(self.model, self.data, model, data)

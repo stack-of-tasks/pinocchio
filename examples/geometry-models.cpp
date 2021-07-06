@@ -16,8 +16,8 @@ int main(int argc, char ** argv)
 {
   using namespace pinocchio;
 
-  const std::string model_path = (argc<=1) ? PINOCCHIO_MODEL_DIR + std::string("/others/robots") : argv[1];
-  const std::string mesh_dir = model_path;
+  const std::string model_path = (argc<=1) ? PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots") : argv[1];
+  const std::string mesh_dir = (argc<=1) ? PINOCCHIO_MODEL_DIR : argv[1];
   const std::string urdf_filename = model_path + "/ur_description/urdf/ur5_robot.urdf";
 
   // Load the urdf model

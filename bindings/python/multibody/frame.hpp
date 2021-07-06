@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_frame_hpp__
@@ -31,8 +31,8 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<const Frame &>(bp::args("self","other"),"Copy constructor"))
-        .def(bp::init<const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType>((bp::arg("self"),bp::arg("name"),bp::arg("parent_joint_id"),bp::args("parent_frame_id"),bp::arg("placement"),bp::arg("type")),
-                "Initialize from name, the parent joint id, the parent frame id, the placement wrt parent joint and the type (pinocchio.FrameType)."))
+        .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType, bp::optional<const Inertia&> > ((bp::arg("name"),bp::arg("parent_joint"), bp::args("parent_frame"), bp::arg("placement"), bp::arg("type"), bp::arg("inertia")),
+             "Initialize from a given name, type, parent joint index, parent frame index and placement wrt parent joint and an spatial inertia object."))
         .def(bp::init<const Frame &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
         .def_readwrite("name", &Frame::name, "name of the frame")
@@ -42,6 +42,7 @@ namespace pinocchio
                        &Frame::placement,
                        "placement in the parent joint local frame")
         .def_readwrite("type", &Frame::type, "type of the frame")
+        .def_readwrite("inertia", &Frame::inertia,"Inertia information attached to the frame.")
 
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
@@ -87,7 +88,7 @@ namespace pinocchio
 
         static bp::tuple getstate(const Frame & f)
         {
-          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type);
+          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type, f.inertia);
         }
 
         static void setstate(Frame & f, bp::tuple tup)
@@ -96,7 +97,9 @@ namespace pinocchio
           f.parent = bp::extract<JointIndex>(tup[1]); 
           f.previousFrame = bp::extract<JointIndex>(tup[2]); 
           f.placement = bp::extract<SE3&>(tup[3]); 
-          f.type = (FrameType)(int)bp::extract<int>(tup[4]); 
+          f.type = (FrameType)(int)bp::extract<int>(tup[4]);
+          if(bp::len(tup) > 5)
+            f.inertia = bp::extract<Inertia&>(tup[5]);
         }
       };
     };

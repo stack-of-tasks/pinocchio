@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_serialization_serializable_hpp__
@@ -83,6 +83,31 @@ namespace pinocchio
       {
         pinocchio::serialization::saveToBinary(derived(),filename);
       }
+      
+      /// \brief Loads a Derived object from a binary container.
+      void loadFromBinary(boost::asio::streambuf & container)
+      {
+        pinocchio::serialization::loadFromBinary(derived(),container);
+      }
+      
+      /// \brief Saves a Derived object as a binary container.
+      void saveToBinary(boost::asio::streambuf & container) const
+      {
+        pinocchio::serialization::saveToBinary(derived(),container);
+      }
+      
+      /// \brief Loads a Derived object from a static binary container.
+      void loadFromBinary(StaticBuffer & container)
+      {
+        pinocchio::serialization::loadFromBinary(derived(),container);
+      }
+      
+      /// \brief Saves a Derived object as a static binary container.
+      void saveToBinary(StaticBuffer & container) const
+      {
+        pinocchio::serialization::saveToBinary(derived(),container);
+      }
+      
     };
     
   }

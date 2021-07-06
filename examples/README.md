@@ -1,12 +1,32 @@
 # Pinocchio examples in Python
 
 This directory contains minimal examples on how to use **Pinocchio** with the Python bindings or directly in C++. 
+Some examples require the installation of external packages like 3D viewers. You can install them easily via **pip** or **conda**.
+
+Installing **meshcat**:
+```bash
+pip install meshcat
+```
+
+Installing **gepetto-viewer**:
+```bash
+conda install gepetto-viewer-corba -c conda-forge
+```
+
+Installing **panda3d_viewer**:
+```bash
+pip install panda3d_viewer
+```
 
 ## Loading a model
 
 - Loading an embeded Model: `python -i overview-simple.py` and in C++ `g++ overview-simple.cpp -o overview-simple $(pkg-config --cflags --libs pinocchio) && ./overview-simple`
 - Loading a URDF model: `python -i overview-urdf.py` and in C++ `g++ -g overview-urdf.cpp -o overview-urdf $(pkg-config --cflags --libs pinocchio) && ./overview-urdf`
 - Using RobotWrapper to encapsulate a URDF model: `python -i robot-wrapper-viewer.py`
+
+## Simulating a model
+
+-  Simulating a multiple pendulum: `python -i simulation-pendulum.py --with-cart -N=2`
 
 ## Computes analytical derivatives of rigid body dynamics algorithms
 

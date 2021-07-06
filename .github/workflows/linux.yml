@@ -47,6 +47,7 @@ jobs:
         echo $APT_DEPENDENCIES
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
+        sudo apt install libomp-dev libomp5
     - name: Free disk space
       run: |
         sudo apt clean
@@ -72,7 +73,7 @@ jobs:
         export MAKEFLAGS="-j1"
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3)
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include <iostream>
@@ -125,9 +125,9 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   typedef pinocchio::Data Data;
   typedef pinocchio::GeometryData GeometryData;
 
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
 
   Model model;
@@ -155,6 +155,151 @@ BOOST_AUTO_TEST_CASE ( loading_model )
   fcl::DistanceResult distance_res = computeDistance(geomModel,geomData,idx);
   BOOST_CHECK(distance_res.min_distance > 0.);
 }
+
+BOOST_AUTO_TEST_CASE(manage_collision_pairs)
+{
+  typedef pinocchio::Model Model;
+  typedef pinocchio::GeometryModel GeometryModel;
+  typedef pinocchio::GeometryData GeometryData;
+
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  std::vector < std::string > package_dirs;
+  std::string mesh_dir  = PINOCCHIO_MODEL_DIR;
+  package_dirs.push_back(mesh_dir);
+
+  Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
+  GeometryModel geom_model;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model, package_dirs);
+  geom_model.addAllCollisionPairs();
+  
+  GeometryModel::MatrixXb collision_map(GeometryModel::MatrixXb::Zero((Eigen::DenseIndex)geom_model.ngeoms,(Eigen::DenseIndex)geom_model.ngeoms));
+
+  for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
+  {
+    const CollisionPair & cp = geom_model.collisionPairs[k];
+    collision_map((Eigen::DenseIndex)cp.first,(Eigen::DenseIndex)cp.second) = true;
+  }
+  GeometryModel::MatrixXb collision_map_lower = collision_map.transpose();
+  
+  GeometryModel geom_model_copy, geom_model_copy_lower;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model_copy, package_dirs);
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model_copy_lower, package_dirs);
+  geom_model_copy.setCollisionPairs(collision_map);
+  geom_model_copy_lower.setCollisionPairs(collision_map_lower,false);
+  
+  BOOST_CHECK(geom_model_copy.collisionPairs.size() == geom_model.collisionPairs.size());
+  BOOST_CHECK(geom_model_copy_lower.collisionPairs.size() == geom_model.collisionPairs.size());
+  for(size_t k = 0; k < geom_model_copy.collisionPairs.size(); ++k)
+  {
+    BOOST_CHECK(geom_model.existCollisionPair(geom_model_copy.collisionPairs[k]));
+    BOOST_CHECK(geom_model.existCollisionPair(geom_model_copy_lower.collisionPairs[k]));
+  }
+  for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
+  {
+    BOOST_CHECK(geom_model_copy.existCollisionPair(geom_model.collisionPairs[k]));
+    BOOST_CHECK(geom_model_copy_lower.existCollisionPair(geom_model.collisionPairs[k]));
+  }
+  
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.activateAllCollisionPairs();
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+      BOOST_CHECK(geom_data.activeCollisionPairs[k]);
+  }
+  
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.deactivateAllCollisionPairs();
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+      BOOST_CHECK(!geom_data.activeCollisionPairs[k]);
+  }
+  
+  {
+    GeometryData geom_data(geom_model), geom_data_copy(geom_model), geom_data_copy_lower(geom_model);
+    geom_data_copy.deactivateAllCollisionPairs();
+    geom_data_copy_lower.deactivateAllCollisionPairs();
+    
+    GeometryData::MatrixXb collision_map(GeometryModel::MatrixXb::Zero((Eigen::DenseIndex)geom_model.ngeoms,(Eigen::DenseIndex)geom_model.ngeoms));
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      collision_map((Eigen::DenseIndex)cp.first,(Eigen::DenseIndex)cp.second) = geom_data.activeCollisionPairs[k];
+    }
+    GeometryData::MatrixXb collision_map_lower = collision_map.transpose();
+    
+    geom_data_copy.setActiveCollisionPairs(geom_model, collision_map);
+    BOOST_CHECK(geom_data_copy.activeCollisionPairs == geom_data.activeCollisionPairs);
+    
+    geom_data_copy_lower.setActiveCollisionPairs(geom_model, collision_map_lower, false);
+    BOOST_CHECK(geom_data_copy_lower.activeCollisionPairs == geom_data.activeCollisionPairs);
+  }
+  
+  // Test security margins
+  {
+    GeometryData geom_data_upper(geom_model), geom_data_lower(geom_model);
+    
+    const GeometryData::MatrixXs security_margin_map(GeometryData::MatrixXs::Ones((Eigen::DenseIndex)geom_model.ngeoms,(Eigen::DenseIndex)geom_model.ngeoms));
+    GeometryData::MatrixXs security_margin_map_upper(security_margin_map);
+    security_margin_map_upper.triangularView<Eigen::Lower>().fill(0.);
+    
+    geom_data_upper.setSecurityMargins(geom_model, security_margin_map);
+    for(size_t k = 0; k < geom_data_upper.collisionRequests.size(); ++k)
+    {
+      BOOST_CHECK(geom_data_upper.collisionRequests[k].security_margin == 1.);
+    }
+    
+    geom_data_lower.setSecurityMargins(geom_model, security_margin_map, false);
+    for(size_t k = 0; k < geom_data_lower.collisionRequests.size(); ++k)
+    {
+      BOOST_CHECK(geom_data_lower.collisionRequests[k].security_margin == 1.);
+    }
+  }
+  
+  // Test enableGeometryCollision
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.deactivateAllCollisionPairs();
+    geom_data.setGeometryCollisionStatus(geom_model,0,true);
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      if(cp.first == 0 || cp.second == 0)
+      {
+        BOOST_CHECK(geom_data.activeCollisionPairs[k]);
+      }
+      else
+      {
+        BOOST_CHECK(!geom_data.activeCollisionPairs[k]);
+      }
+    }
+    
+  }
+  
+  // Test disableGeometryCollision
+  {
+    GeometryData geom_data(geom_model);
+    geom_data.activateAllCollisionPairs();
+    geom_data.setGeometryCollisionStatus(geom_model,0,false);
+    
+    for(size_t k = 0; k < geom_data.activeCollisionPairs.size(); ++k)
+    {
+      const CollisionPair & cp = geom_model.collisionPairs[k];
+      if(cp.first == 0 || cp.second == 0)
+      {
+        BOOST_CHECK(!geom_data.activeCollisionPairs[k]);
+      }
+      else
+      {
+        BOOST_CHECK(geom_data.activeCollisionPairs[k]);
+      }
+    }
+    
+  }
+}
   
 BOOST_AUTO_TEST_CASE ( test_collisions )
 {
@@ -163,11 +308,11 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
   typedef pinocchio::Data Data;
   typedef pinocchio::GeometryData GeometryData;
   
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
-  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/srdf/romeo.srdf");
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
   
   Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
@@ -178,15 +323,39 @@ BOOST_AUTO_TEST_CASE ( test_collisions )
   
   Data data(model);
   GeometryData geom_data(geom_model);
-  fcl::CollisionResult result;
-  
+
   pinocchio::srdf::loadReferenceConfigurations(model,srdf_filename,false);
   Eigen::VectorXd q = model.referenceConfigurations["half_sitting"];
 
   pinocchio::updateGeometryPlacements(model, data, geom_model, geom_data, q);
 
   BOOST_CHECK(computeCollisions(geom_model,geom_data) == false);
+  BOOST_CHECK(computeCollisions(geom_model,geom_data,false) == false);
   
+  for(size_t cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
+  {
+    const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+    const GeometryObject & obj1 = geom_model.geometryObjects[cp.first];
+    const GeometryObject & obj2 = geom_model.geometryObjects[cp.second];
+     
+    hpp::fcl::CollisionResult other_res;
+    computeCollision(geom_model,geom_data,cp_index);
+    
+    fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[cp.first ])),
+                     oM2 (toFclTransform3f(geom_data.oMg[cp.second]));
+    
+    fcl::collide(obj1.geometry.get(), oM1,
+                 obj2.geometry.get(), oM2,
+                 geom_data.collisionRequests[cp_index],
+                 other_res);
+    
+    const hpp::fcl::CollisionResult & res = geom_data.collisionResults[cp_index];
+    
+    BOOST_CHECK(res.isCollision() == other_res.isCollision());
+    BOOST_CHECK(!res.isCollision());
+  }
+    
+  // test other signatures
   {
     Data data(model);
     GeometryData geom_data(geom_model);
@@ -201,11 +370,11 @@ BOOST_AUTO_TEST_CASE ( test_distances )
   typedef pinocchio::Data Data;
   typedef pinocchio::GeometryData GeometryData;
   
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
-  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/srdf/romeo.srdf");
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
   
   Model model;
   pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
@@ -216,8 +385,7 @@ BOOST_AUTO_TEST_CASE ( test_distances )
   
   Data data(model);
   GeometryData geom_data(geom_model);
-  fcl::CollisionResult result;
-  
+
   pinocchio::srdf::loadReferenceConfigurations(model,srdf_filename,false);
   Eigen::VectorXd q = model.referenceConfigurations["half_sitting"];
   
@@ -237,9 +405,9 @@ BOOST_AUTO_TEST_CASE ( test_append_geom_models )
   typedef pinocchio::Model Model;
   typedef pinocchio::GeometryModel GeometryModel;
 
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
-  const std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
   
   Model model;
@@ -267,8 +435,8 @@ BOOST_AUTO_TEST_CASE (radius)
 {
   std::vector < std::string > packageDirs;
 
-  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
-  std::string meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots/");
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  std::string meshDir  = PINOCCHIO_MODEL_DIR;
   packageDirs.push_back(meshDir);
 
   pinocchio::Model model;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_joint_joint_base_hpp__
@@ -29,6 +29,7 @@ namespace pinocchio
       void visit(PyClass & cl) const
       {
         cl
+        .def(bp::init<>(bp::arg("self")))
         // All are add_properties cause ReadOnly
         .add_property("id",&get_id)
         .add_property("idx_q",&get_idx_q)
@@ -47,6 +48,13 @@ namespace pinocchio
              bp::args("self","jdata","q"))
         .def("calc",&calc1,
              bp::args("self","jdata","q","v"))
+        .def("hasSameIndexes",
+             &JointModelDerived::template hasSameIndexes<JointModelDerived>,
+             bp::args("self","other"),
+             "Check if this has same indexes than other.")
+        
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
         ;
       }
 
@@ -66,9 +74,6 @@ namespace pinocchio
       static void calc1(const JointModelDerived & self, JointDataDerived & jdata,
                         const context::VectorXs & q, const context::VectorXs & v)
       { self.calc(jdata,q,v); }
-
-      static void expose()
-      {}
 
     };
 
@@ -95,6 +100,9 @@ namespace pinocchio
           .def("shortname",
                &JointDataDerived::shortname,
                bp::arg("self"))
+        
+          .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
         ;
       }
 

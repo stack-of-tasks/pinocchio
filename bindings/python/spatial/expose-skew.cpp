@@ -1,9 +1,7 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2020 Wandercraft
 //
-
-#include <boost/python.hpp>
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"

@@ -2,9 +2,6 @@ name: Build Pinocchio for Windows (v142) via Conda
 on:
   pull_request:
   push:
-    branches:
-      - master
-      - devel
 
 jobs:
   build:
@@ -33,6 +30,10 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
+
+    - name: Display the path
+      run: echo %cd%
+      shell: cmd
     
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
@@ -43,7 +44,6 @@ jobs:
         set Boost_ROOT=
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
-        set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
     
@@ -61,14 +61,31 @@ jobs:
           -DBUILD_WITH_URDF_SUPPORT=ON ^
           -DBUILD_PYTHON_INTERFACE=OFF ^
           -DBUILD_WITH_COLLISION_SUPPORT=ON ^
+          -DBUILD_TESTING=ON ^
           ..
 
         :: Build
         cmake --build . --config Release --target install
 
+#    - name: Start SSH session
+#      uses: luchihoratiu/debug-via-ssh@main
+#      with:
+#        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+#        SSH_PASS: ${{ secrets.SSH_PASS }}
+#
+    - name: Testing
+      shell: cmd /C CALL {0}
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      run: |
         :: Testing
+        pushd build
         set PATH=%PATH%;%CONDA_PREFIX%\Lib\site-packages\pinocchio
-        ctest --output-on-failure -C Release -V
+        set PATH=%PATH%;%CONDA_PREFIX%\Library\Lib
+        set PATH=%PATH%;%CONDA_PREFIX%\Library\bin
+        .\unittest\Release\test-cpp-urdf.exe
+        .\examples\Release\example-cpp-geometry-models.exe
+        ctest --output-on-failure -C Release -V --repeat until-pass:1
 
 #        :: Test Python import
 #        cd ..

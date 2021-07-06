@@ -407,12 +407,15 @@ namespace pinocchio
     
     ///
     /// \brief Adds a frame to the kinematic tree.
+    ///        The inertia stored within the frame will be happened to the inertia supported by the joint (frame.parent).
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
+    /// \param[in] append_inertia Append the inertia contained in the Frame to the inertia supported by the joint.
     ///
     /// \return Returns the index of the frame if it has been successfully added or if it already exists in the kinematic tree.
     ///
-    FrameIndex addFrame(const Frame & frame);
+    FrameIndex addFrame(const Frame & frame,
+                        const bool append_inertia = true);
 
     ///
     /// \brief Check the validity of the attributes of Model with respect to the specification of some

@@ -5,7 +5,7 @@
 	path = .travis
 	url = https://github.com/jrl-umi3218/jrl-travis
 [submodule "models/others"]
-	path = models/others
+	path = models/example-robot-data
 	url = https://github.com/Gepetto/example-robot-data.git
 [submodule "models/cassie"]
 	path = models/cassie

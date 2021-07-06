@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -9,7 +9,8 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
-#include <boost/foreach.hpp>
+#include "pinocchio/serialization/serializable.hpp"
+
 #include <map>
 #include <list>
 #include <utility>
@@ -40,6 +41,7 @@ namespace pinocchio
     typedef ::pinocchio::GeometryObject GeometryObject;
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(GeometryObject) GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
+    typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
     
     typedef pinocchio::GeomIndex GeomIndex;
   
@@ -106,6 +108,17 @@ namespace pinocchio
     /// \note Collision pairs between geometries having the same parent joint are not added.
     ///
     void addAllCollisionPairs();
+    
+    ///
+    /// \brief Set the collision pairs from a given input array.
+    ///        Each entry of the input matrix defines the activation of a given collision pair
+    ///        (map[i,j] == true means that the pair (i,j) is active).
+    ///
+    /// \param[in] collision_map Associative array.
+    /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array. 
+    ///
+    void setCollisionPairs(const MatrixXb & collision_map,
+                           const bool upper = true);
    
     ///
     /// \brief Remove if exists the CollisionPair from the vector collision_pairs.
@@ -137,7 +150,6 @@ namespace pinocchio
     /// \return The index of the CollisionPair in collisionPairs.
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
-    
 
     ///
     /// \brief Returns true if *this and other are equal.
@@ -167,9 +179,8 @@ namespace pinocchio
 
     /// \brief Vector of GeometryObjects used for collision computations
     GeometryObjectVector geometryObjects;
-    ///
+    
     /// \brief Vector of collision pairs.
-    ///
     CollisionPairVector collisionPairs;
     
   }; // struct GeometryModel
@@ -182,6 +193,7 @@ namespace pinocchio
 
   struct GeometryData
   : NumericalBase<GeometryData>
+  , serialization::Serializable<GeometryData>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -190,6 +202,13 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef std::vector<GeomIndex> GeomIndexList;
+    typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
+    
+#ifdef PINOCCHIO_WITH_HPP_FCL
+    typedef ::pinocchio::ComputeCollision ComputeCollision;
+    typedef ::pinocchio::ComputeDistance ComputeDistance;
+#endif
     
     ///
     /// \brief Vector gathering the SE3 placements of the geometry objects relative to the world.
@@ -206,19 +225,6 @@ namespace pinocchio
     std::vector<bool> activeCollisionPairs;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-    ///
-    /// \brief Collision objects (ie a fcl placed geometry).
-    ///
-    /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
-    /// \sa GeometryModel::geometryObjects and GeometryObjects
-    ///
-    PINOCCHIO_DEPRECATED std::vector<fcl::CollisionObject> collisionObjects;
-
-    ///
-    /// \brief Defines what information should be computed by distance computation.
-    ///
-    /// \deprecated use \ref distanceRequests instead
-    PINOCCHIO_DEPRECATED fcl::DistanceRequest distanceRequest;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -230,12 +236,6 @@ namespace pinocchio
     ///
     std::vector<fcl::DistanceResult> distanceResults;
     
-    ///
-    /// \brief Defines what information should be computed by collision test.
-    ///
-    /// \deprecated use \ref collisionRequests instead
-    PINOCCHIO_DEPRECATED fcl::CollisionRequest collisionRequest;
-
     ///
     /// \brief Defines what information should be computed by collision test.
     /// There is one request per pair of geometries.
@@ -250,7 +250,7 @@ namespace pinocchio
     /// \brief Radius of the bodies, i.e. distance of the further point of the geometry model
     /// attached to the body from the joint center.
     ///
-    std::vector<double> radius;
+    std::vector<Scalar> radius;
 
     ///
     /// \brief Index of the collision pair
@@ -259,7 +259,14 @@ namespace pinocchio
     /// the algo computeCollisions() sets it to the first colliding pair.
     ///
     PairIndex collisionPairIndex;
-#endif // PINOCCHIO_WITH_HPP_FCL   
+    
+    /// \brief Functor associated to the computation of collisions.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeCollision) collision_functors;
+    
+    /// \brief Functor associated to the computation of distances.
+    PINOCCHIO_ALIGNED_STD_VECTOR(ComputeDistance) distance_functors;
+    
+#endif // PINOCCHIO_WITH_HPP_FCL
 
     /// \brief Map over vector GeomModel::geometryObjects, indexed by joints.
     ///
@@ -270,11 +277,27 @@ namespace pinocchio
     /// \brief A list of associated collision GeometryObjects to a given joint Id
     ///
     /// Outer objects can be seen as geometry objects that may often be
-    /// obstacles to the Inner objects of given joint
+    /// obstacles to the Inner objects of a given joint
     std::map<JointIndex,GeomIndexList>  outerObjects;
 
-    GeometryData(const GeometryModel & geomModel);
+    ///
+    /// \brief Default constructor from a GeometryModel
+    ///
+    /// \param[in] geom_model GeometryModel associated to the new GeometryData
+    ///
+    explicit GeometryData(const GeometryModel & geom_model);
+   
+    ///
+    /// \brief Copy constructor
+    ///
+    /// \param[in] other GeometryData to copy
+    ///
     GeometryData(const GeometryData & other);
+    
+    /// \brief Empty constructor
+    GeometryData() {};
+    
+    /// \brief Destructor
     ~GeometryData();
 
     /// Fill both innerObjects and outerObjects maps, from vectors collisionObjects and 
@@ -291,30 +314,109 @@ namespace pinocchio
     ///
     /// Activate a collision pair, for which collisions and distances would now be computed.
     ///
-    /// A collision (resp distance) between to geometries of GeomModel::geometryObjects
+    /// The collision (resp distance) between two geometries of GeomModel::geometryObjects
     /// is computed *iff* the corresponding pair has been added in GeomModel::collisionPairs *AND*
     /// it is active, i.e. the corresponding boolean in GeomData::activePairs is true. The second
     /// condition can be used to temporarily remove a pair without touching the model, in a versatile
     /// manner.
     ///
-    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] pair_id the index of the pair in GeomModel::collisionPairs vector.
     ///
     /// \sa GeomData
     ///
-    void activateCollisionPair(const PairIndex pairId);
+    void activateCollisionPair(const PairIndex pair_id);
+    
+    ///
+    /// \brief Activate all collision pairs.
+    ///
+    /// \sa GeomData::deactivateAllCollisionPairs, GeomData::activateCollisionPair, GeomData::deactivateCollisionPair
+    ///
+    void activateAllCollisionPairs();
+    
+    ///
+    /// \brief Set the collision pair association from a given input array.
+    ///        Each entry of the input matrix defines the activation of a given collision pair.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] collision_map Associative array.
+    /// \param[in] upper Wheter the collision_map is an upper or lower triangular filled array.
+    ///
+    void setActiveCollisionPairs(const GeometryModel & geom_model,
+                                 const MatrixXb & collision_map,
+                                 const bool upper = true);
+    
+    ///
+    /// \brief Enable or disable collision for the given geometry given by its geometry id with all the other geometries registered in the list of collision pairs.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] geom_id Index of the geometry.
+    /// \param[in] enable_collision If true, the collision will be enable, otherwise disable.
+    ///
+    void setGeometryCollisionStatus(const GeometryModel & geom_model,
+                                    const GeomIndex geom_id,
+                                    bool enable_collision);
 
     ///
     /// Deactivate a collision pair.
     ///
-    /// Calls indeed GeomData::activateCollisionPair(pairId)
+    /// Calls indeed GeomData::activateCollisionPair(pair_id)
     ///
-    /// \param[in] pairId the index of the pair in GeomModel::collisionPairs vector.
+    /// \param[in] pair_id the index of the pair in GeomModel::collisionPairs vector.
     ///
     /// \sa GeomData::activateCollisionPair
     ///
-    void deactivateCollisionPair(const PairIndex pairId);
+    void deactivateCollisionPair(const PairIndex pair_id);
+    
+    ///
+    /// \brief Deactivate all collision pairs.
+    ///
+    /// \sa GeomData::activateAllCollisionPairs, GeomData::activateCollisionPair, GeomData::deactivateCollisionPair
+    ///
+    void deactivateAllCollisionPairs();
+    
+#ifdef PINOCCHIO_WITH_HPP_FCL
+    ///
+    /// \brief Set the security margin of all the collision request in a row, according to the values stored in the associative map.
+    ///
+    /// \param[in] geom_model Geometry model associated to the data.
+    /// \param[in] security_margin_map Associative map related the security margin of a given input collision pair (i,j).
+    /// \param[in] upper Wheter the security_margin_map is an upper or lower triangular filled array.
+    ///
+    void setSecurityMargins(const GeometryModel & geom_model,
+                            const MatrixXs & security_margin_map,
+                            const bool upper = true);
+#endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);
+    
+    ///
+    /// \brief Returns true if *this and other are equal.
+    ///
+    bool operator==(const GeometryData & other) const
+    {
+      return
+         oMg                  == other.oMg
+      && activeCollisionPairs == other.activeCollisionPairs
+#ifdef PINOCCHIO_WITH_HPP_FCL
+      && distanceRequests     == other.distanceRequests
+      && distanceResults      == other.distanceResults
+      && collisionRequests    == other.collisionRequests
+      && collisionResults     == other.collisionResults
+      && radius               == other.radius
+      && collisionPairIndex   == other.collisionPairIndex
+#endif
+      && innerObjects         == other.innerObjects
+      && outerObjects         == other.outerObjects
+      ;
+    }
+    
+    ///
+    /// \brief Returns true if *this and other are not equal.
+    ///
+    bool operator!=(const GeometryData & other) const
+    {
+      return !(*this == other);
+    }
     
   }; // struct GeometryData
 

@@ -12,6 +12,7 @@
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/spatial/cartesian-axis.hpp"
+#include "pinocchio/bindings/python/serialization/serialization.hpp"
 
 #include <eigenpy/eigenpy.hpp>
 
@@ -91,11 +92,17 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 
   exposeAlgorithms();
   exposeParsers();
-
-#ifdef PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
+  exposeSerialization();
+  
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
   exposeFCL();
-#endif // PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
-
+#endif // PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+  
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+  exposePool();
+  exposeParallelAlgorithms();
+#endif
+  
   exposeVersion();
   exposeDependencies();
   exposeConversions();

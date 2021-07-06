@@ -87,6 +87,18 @@ namespace pinocchio
     void append(const LieGroupGeneric & lg);
 
     ///
+    /// \brief Append a Lie group to the Cartesian product
+    ///
+    /// \param[in] lg Lie group to insert inside the Cartesian product
+    ///
+    template<typename LieGroupDerived>
+    void append (const LieGroupBase<LieGroupDerived>& lg)
+    {
+      LieGroupGeneric lgGeneric (lg);
+      append(lgGeneric);
+    }
+
+    ///
     /// \brief Cartesian product between *this and other.
     ///
     /// \param[in] other CartesianProductOperation to compose with this
@@ -110,6 +122,18 @@ namespace pinocchio
     inline CartesianProductOperationVariantTpl& operator*= (const LieGroupGeneric& lg)
     {
       append(lg);
+      return *this;
+    }
+
+    ///
+    /// \brief Append a Lie group to *this.
+    ///
+    /// \param[in] lg LieGroupGeneric to append to *this.
+    ///
+    template<typename LieGroupDerived>
+    inline CartesianProductOperationVariantTpl& operator*= (const LieGroupBase<LieGroupDerived>& lg)
+    {
+      append<LieGroupDerived>(lg);
       return *this;
     }
     

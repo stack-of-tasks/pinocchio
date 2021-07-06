@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -165,7 +165,7 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
-	.ADD_DATA_PROPERTY(ddq_dtau,"Partial derivative of the joint acceleration vector with respect to the joint torque.")
+	      .ADD_DATA_PROPERTY(ddq_dtau,"Partial derivative of the joint acceleration vector with respect to the joint torque.")
         .ADD_DATA_PROPERTY(dvc_dq,"Partial derivative of the constraint velocity vector with respect to the joint configuration.")
           
         .ADD_DATA_PROPERTY(dac_dq,"Partial derivative of the contact acceleration vector with respect to the joint configuration.")
@@ -214,11 +214,16 @@ namespace pinocchio
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
         
-        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
-                                                             details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
-        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
-                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3")
+        .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+        serialize<StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
+        
+        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
+        .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+        serialize<StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
+        
         StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
+        serialize<StdVectorPythonVisitor<int>::vector_type>();
       }
 
     };

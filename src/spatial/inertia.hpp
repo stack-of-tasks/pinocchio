@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -240,37 +240,73 @@ namespace pinocchio
                         Symmetric3::RandomPositive());
     }
     
-    static InertiaTpl FromSphere(const Scalar m, const Scalar radius)
+    ///
+    /// \brief Computes the Inertia of a sphere defined by its mass and its radius.
+    ///
+    /// \param[in] mass of the sphere.
+    /// \param[in] radius of the sphere.
+    ///
+    static InertiaTpl FromSphere(const Scalar mass, const Scalar radius)
     {
-      return FromEllipsoid(m,radius,radius,radius);
+      return FromEllipsoid(mass,radius,radius,radius);
+    }
+    
+    ///
+    /// \brief Computes the Inertia of an ellipsoid defined by its mass and main semi-axis dimensions (x,y,z).
+    ///
+    /// \param[in] mass of the ellipsoid.
+    /// \param[in] x semi-axis dimension along the local X axis.
+    /// \param[in] y semi-axis dimension along the local Y axis.
+    /// \param[in] z semi-axis dimension along the local Z axis.
+    ///
+    static InertiaTpl FromEllipsoid(const Scalar mass,
+                                    const Scalar x,
+                                    const Scalar y,
+                                    const Scalar z)
+    {
+      const Scalar a = mass * (y*y + z*z) / Scalar(5);
+      const Scalar b = mass * (x*x + z*z) / Scalar(5);
+      const Scalar c = mass * (y*y + x*x) / Scalar(5);
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                          Scalar(0), Scalar(0), c));
     }
 
-    static InertiaTpl FromEllipsoid(const Scalar m, const Scalar x,
-                                    const Scalar y, const Scalar z)
+    ///
+    /// \brief Computes the Inertia of a cylinder defined by its mass, radius and length along the Z axis.
+    ///
+    /// \param[in] mass of the cylinder.
+    /// \param[in] radius of the cylinder.
+    /// \param[in] length of the cylinder.
+    ///
+    static InertiaTpl FromCylinder(const Scalar mass,
+                                   const Scalar radius,
+                                   const Scalar length)
     {
-      Scalar a = m * (y*y + z*z) / Scalar(5);
-      Scalar b = m * (x*x + z*z) / Scalar(5);
-      Scalar c = m * (y*y + x*x) / Scalar(5);
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
-                                                       Scalar(0), Scalar(0), c));
+      const Scalar radius_square = radius * radius;
+      const Scalar a = mass * (radius_square / Scalar(4) + length*length / Scalar(12));
+      const Scalar c = mass * (radius_square / Scalar(2));
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), a,
+                                                          Scalar(0), Scalar(0), c));
     }
-
-    static InertiaTpl FromCylinder(const Scalar m, const Scalar r, const Scalar l)
+    
+    ///
+    /// \brief Computes the Inertia of a box defined by its mass and main dimensions (x,y,z).
+    ///
+    /// \param[in] mass of the box.
+    /// \param[in] x dimension along the local X axis.
+    /// \param[in] y dimension along the local Y axis.
+    /// \param[in] z dimension along the local Z axis.
+    ///
+    static InertiaTpl FromBox(const Scalar mass,
+                              const Scalar x,
+                              const Scalar y,
+                              const Scalar z)
     {
-      Scalar a = m * (r*r / Scalar(4) + l*l / Scalar(12));
-      Scalar c = m * (r*r / Scalar(2));
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), a,
-                                                       Scalar(0), Scalar(0), c));
-    }
-
-    static InertiaTpl FromBox(const Scalar m, const Scalar x,
-                              const Scalar y, const Scalar z)
-    {
-      Scalar a = m * (y*y + z*z) / Scalar(12);
-      Scalar b = m * (x*x + z*z) / Scalar(12);
-      Scalar c = m * (y*y + x*x) / Scalar(12);
-      return InertiaTpl(m, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
-                                                       Scalar(0), Scalar(0), c));
+      const Scalar a = mass * (y*y + z*z) / Scalar(12);
+      const Scalar b = mass * (x*x + z*z) / Scalar(12);
+      const Scalar c = mass * (y*y + x*x) / Scalar(12);
+      return InertiaTpl(mass, Vector3::Zero(), Symmetric3(a,         Scalar(0), b,
+                                                          Scalar(0), Scalar(0), c));
     }
 
     void setRandom()
@@ -303,7 +339,7 @@ namespace pinocchio
       Vector10 v;
 
       v[0] = mass();
-      v.template segment<3>(1) = mass() * lever();
+      v.template segment<3>(1).noalias() = mass() * lever();
       v.template segment<6>(4) = (inertia() - AlphaSkewSquare(mass(),lever())).data();
 
       return v;
@@ -366,8 +402,10 @@ namespace pinocchio
        *             I_a + I_b - (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
        */
 
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
       const Scalar & mab = mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/mab;
+      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
                         (mass()*lever()+Yb.mass()*Yb.lever())*mab_inv,
@@ -376,9 +414,11 @@ namespace pinocchio
 
     InertiaTpl& __pequ__(const InertiaTpl & Yb)
     {
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+      
       const InertiaTpl& Ya = *this;
-      const Scalar & mab = Ya.mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/mab;
+      const Scalar & mab = mass()+Yb.mass();
+      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
@@ -558,6 +598,15 @@ namespace pinocchio
                                            lever().template cast<NewScalar>(),
                                            inertia().template cast<NewScalar>());
     }
+    
+    // TODO: adjust code
+//    /// \brief Check whether *this is a valid inertia, resulting from a positive mass distribution
+//    bool isValid() const
+//    {
+//      return
+//         (m_mass >  Scalar(0) && m_inertia.isValid())
+//      || (m_mass == Scalar(0) && (m_inertia.data().array() == Scalar(0)).all());
+//    }
 
   protected:
     Scalar m_mass;

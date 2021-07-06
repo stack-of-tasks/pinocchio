@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_joint_configuration_hpp__
@@ -350,6 +350,7 @@ namespace pinocchio
    *
    * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
    *          to the tangent space at \f$ q \f$.
+   *          It performs the product with the Jacobian of integrate by exploiting at best the sparsity of the underlying operations.
    *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
    *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
    *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.
@@ -378,6 +379,7 @@ namespace pinocchio
    *
    * @details This function performs the parallel transportation of an input matrix whose columns are expressed in the tangent space of the integrated element \f$ q \oplus v \f$,
    *          to the tangent space at \f$ q \f$.
+   *          It performs the product with the Jacobian of integrate by exploiting at best the sparsity of the underlying operations.
    *          In other words, this functions transforms a tangent vector expressed at \f$ q \oplus v \f$ to a tangent vector expressed at \f$ q \f$, considering that the change of configuration between
    *          \f$ q \oplus v \f$ and \f$ q \f$ may alter the value of this tangent vector.
    *          A typical example of parallel transportation is the action operated by a rigid transformation \f$ M \in \text{SE}(3)\f$ on a spatial velocity \f$ v \in \text{se}(3)\f$.

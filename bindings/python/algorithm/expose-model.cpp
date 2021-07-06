@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/utils/list.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/algorithm/model.hpp"
 
 namespace pinocchio
@@ -45,11 +46,31 @@ namespace pinocchio
       
       return bp::make_tuple(reduced_model,reduced_geom_model);
     }
-  
+
+    template <typename Scalar, int Options,
+              template <typename, int> class JointCollectionTpl,
+              typename ConfigVectorType>
+    bp::tuple buildReducedModel(const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
+                                const std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > &list_of_geom_models,
+                                const std::vector<JointIndex> &list_of_joints_to_lock,
+                                const Eigen::MatrixBase<ConfigVectorType> &reference_configuration)
+  {
+      typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
+      std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > reduced_geom_models;
+      Model reduced_model;
+      buildReducedModel(model, list_of_geom_models, list_of_joints_to_lock,
+                        reference_configuration, reduced_model,
+                        reduced_geom_models);
+      return bp::make_tuple(reduced_model, reduced_geom_models);
+    }
+
     void exposeModelAlgo()
     {
       using namespace Eigen;
-      
+
+      typedef std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > GeometryModelVector;
+      StdVectorPythonVisitor<GeometryModel,GeometryModelVector::allocator_type>::expose("StdVec_GeometryModel");
+
       bp::def("appendModel",
               (Model (*)(const Model &, const Model &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,
               bp::args("modelA","modelB","frame_in_modelA","aMb"),
@@ -85,20 +106,40 @@ namespace pinocchio
               "\treference_configuration: reference configuration to compute the placement of the lock joints\n");
 
       bp::def("buildReducedModel",
-              (bp::tuple (*)(const Model &, const GeometryModel &, const std::vector<JointIndex> &, const Eigen::MatrixBase<VectorXd> &))
+              (bp::tuple (*)(const Model &,
+                             const GeometryModel &,
+                             const std::vector<JointIndex> &,
+                             const Eigen::MatrixBase<VectorXd> &))
               &buildReducedModel<double,0,JointCollectionDefaultTpl,VectorXd>,
               bp::args("model",
                        "geom_model",
                        "list_of_joints_to_lock",
                        "reference_configuration"),
-              "Build a reduced model and a rededuced geometry model  from a given input model,"
-              "a given input geometry model and a list of joint to lock.\n\n"
+              "Build a reduced model and a reduced geometry model from a given input model,"
+              "an input geometry model and a list of joints to lock.\n\n"
               "Parameters:\n"
-              "\tmodel: input kinematic modell to reduce\n"
+              "\tmodel: input kinematic model to reduce\n"
               "\tgeom_model: input geometry model to reduce\n"
               "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
-              "\treference_configuration: reference configuration to compute the placement of the lock joints\n");
-      
+              "\treference_configuration: reference configuration to compute the placement of the locked joints\n");
+
+      bp::def("buildReducedModel",
+              (bp::tuple(*)(const Model &,
+                            const std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > &,
+                            const std::vector<JointIndex> &,
+                            const Eigen::MatrixBase<VectorXd> &))
+              buildReducedModel<double, 0, JointCollectionDefaultTpl, VectorXd>,
+              bp::args("model", "list_of_geom_models", "list_of_joints_to_lock",
+                       "reference_configuration"),
+              "Build a reduced model and the related reduced geometry models from a given "
+              "input model,"
+              "a list of input geometry models and a list of joints to lock.\n\n"
+              "Parameters:\n"
+              "\tmodel: input kinematic model to reduce\n"
+              "\tlist_of_geom_models: input geometry models to reduce\n"
+              "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
+              "\treference_configuration: reference configuration to compute the "
+              "placement of the locked joints\n");
     }
     
   } // namespace python
