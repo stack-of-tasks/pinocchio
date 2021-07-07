@@ -489,10 +489,9 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
   q = pinocchio::randomConfiguration(model);
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
-  pinocchio::ProximalSettings prox_settings(1e-12,mu0,1);
 
   pinocchio::initContactDynamics(model,data,contact_models);
-  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data);
   pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
   pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
   ad_casadi.initLib();
@@ -504,6 +503,9 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
   ad_casadi.evalJacobian(q,v,tau);
   
   BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq));
+  std::cout << "ad_casadi.ddq_dq: " << ad_casadi.ddq_dq << std::endl;
+  std::cout << "data.ddq_dq: " << data.ddq_dq << std::endl;
+  std::cout << "error: " << (ad_casadi.ddq_dq - data.ddq_dq).norm() << std::endl;
   BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv));
   BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau));
   BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq));
@@ -546,10 +548,9 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   q = pinocchio::randomConfiguration(model);
   TangentVector v(TangentVector::Random(model.nv));
   TangentVector tau(TangentVector::Random(model.nv));
-  pinocchio::ProximalSettings prox_settings(1e-12,mu0,1);
-  
+
   pinocchio::initContactDynamics(model,data,contact_models);
-  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data);
   pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data); 
   pinocchio::casadi::AutoDiffContactDynamicsDerivatives<Scalar> ad_casadi(model,
                                                                           contact_models);

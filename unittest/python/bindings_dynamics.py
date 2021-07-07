@@ -145,13 +145,9 @@ class TestDynamicsBindings(TestCase):
         vnext5 = pin.impulseDynamics(self.model,data5,self.q,self.v,self.J)
         vnext6 = pin.impulseDynamics(self.model,data6,self.q,self.v,self.J,r_coeff)
         vnext7 = pin.impulseDynamics(self.model,data7,self.q,self.v,self.J,r_coeff,inv_damping)
-        with warnings.catch_warnings(record=True) as warning_list:
-            vnext7_deprecated = pin.impulseDynamics(self.model,data7_deprecated,self.q,self.v,self.J,r_coeff,True)
-            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
         self.assertTrue((vnext5==vnext6).all())
         self.assertTrue((vnext5==vnext7).all())
         self.assertTrue((vnext6==vnext7).all())
-        self.assertTrue((vnext7_deprecated==vnext7).all())
 
     def test_impulseDynamics_no_q(self):
         data4 = self.data
@@ -165,13 +161,10 @@ class TestDynamicsBindings(TestCase):
         vnext4 = pin.impulseDynamics(self.model,data4,self.v,self.J)
         vnext5 = pin.impulseDynamics(self.model,data5,self.v,self.J,r_coeff)
         vnext6 = pin.impulseDynamics(self.model,data6,self.v,self.J,r_coeff,inv_damping)
-        with warnings.catch_warnings(record=True) as warning_list:
-            vnext7_deprecated = pin.impulseDynamics(self.model,data7_deprecated,self.q,self.v,self.J,r_coeff,False)
-            self.assertTrue(any(item.category == pin.DeprecatedWarning for item in warning_list))
+        
         self.assertTrue((vnext4==vnext5).all())
         self.assertTrue((vnext4==vnext6).all())
         self.assertTrue((vnext5==vnext6).all())
-        self.assertTrue((vnext7_deprecated==vnext6).all())
 
 if __name__ == '__main__':
     unittest.main()

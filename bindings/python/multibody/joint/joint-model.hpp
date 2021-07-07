@@ -26,7 +26,7 @@ namespace pinocchio
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<typename JointModel::JointModelVariant>())
+        .def(bp::init<JointModel>())
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
         ;
