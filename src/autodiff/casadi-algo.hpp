@@ -84,12 +84,16 @@ namespace pinocchio
       void compileLib()
       {
         std::string compile_command = "clang -fPIC -shared -Ofast -DNDEBUG "
-          +filename+".c -o "+libname+".so";
+          + filename + ".c -o " + libname + ".so";
         
-        int flag = system(compile_command.c_str());
+#ifdef __APPLE__
+        compile_command += " -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk";
+#endif
+        
+        const int flag = system(compile_command.c_str());
         if(flag!=0)
         {
-          std::cerr<<"Compilation failed"<<std::endl;
+          std::cerr << "Compilation failed" << std::endl; //TODO: raised here
         }
       }
 
