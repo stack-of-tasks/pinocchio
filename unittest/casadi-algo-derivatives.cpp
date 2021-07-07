@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
 
   pinocchio::initContactDynamics(model,data,contact_models);
   pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
-  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0);
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
   pinocchio::casadi::AutoDiffContactDynamics<Scalar> ad_casadi(model, contact_models);
   ad_casadi.initLib();
   ad_casadi.loadLib();
@@ -550,7 +550,7 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   
   pinocchio::initContactDynamics(model,data,contact_models);
   pinocchio::contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
-  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data, mu0); 
+  pinocchio::computeContactDynamicsDerivatives(model, data, contact_models, contact_data); 
   pinocchio::casadi::AutoDiffContactDynamicsDerivatives<Scalar> ad_casadi(model,
                                                                           contact_models);
 

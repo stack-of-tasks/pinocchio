@@ -17,7 +17,7 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 # Conversion with str seems to be necessary when executing this file with ipython
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
-model_path = join(pinocchio_model_dir,"others/robots")
+model_path = join(pinocchio_model_dir,"example-robot-data/robots")
 mesh_dir = model_path
 urdf_filename = "talos_reduced.urdf"
 urdf_model_path = join(join(model_path,"talos_data/urdf"),urdf_filename)

@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -89,7 +90,7 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL)
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
@@ -127,6 +128,7 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL_WORLD_ALIGNED)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -162,7 +164,7 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL_WORLD_ALIGNED)
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
   initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,mu0);
+  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
