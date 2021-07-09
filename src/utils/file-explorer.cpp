@@ -25,8 +25,12 @@ namespace pinocchio
       while(true)
       {
         size_t offset = policyStr.find_first_of(delimiter, lastOffset);
-        if (offset < policyStr.size())
+        if (offset < policyStr.size()) {
           list_of_paths.push_back(policyStr.substr(lastOffset, offset - lastOffset));
+          // Support for devel spaces: We also need to look one package above:
+          // Work-around for https://github.com/stack-of-tasks/pinocchio/issues/1463
+          list_of_paths.push_back(policyStr.substr(lastOffset, offset - lastOffset) + "/..");
+        }
         if (offset == std::string::npos)
           break;
         else
