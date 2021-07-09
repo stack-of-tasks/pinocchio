@@ -3,8 +3,10 @@
 //
 
 #include <cstdlib>
+#include <boost/filesystem.hpp>
 #include "pinocchio/utils/file-explorer.hpp"
 
+namespace fs = boost::filesystem;
 namespace pinocchio
 {
 
@@ -20,15 +22,22 @@ namespace pinocchio
       // Add a separator at the end so that last path is also retrieved
       policyStr += std::string(":");
       size_t lastOffset = 0;
+      std::string path_string;
+      path_string.reserve(500);
+      fs::path path;
       
       while(true)
       {
         size_t offset = policyStr.find_first_of(delimiter, lastOffset);
         if (offset < policyStr.size()) {
-          list_of_paths.push_back(policyStr.substr(lastOffset, offset - lastOffset));
-          // Support for devel spaces: We also need to look one package above:
+          path_string = policyStr.substr(lastOffset, offset - lastOffset);
+          path = fs::path(path_string);
+          list_of_paths.push_back(path_string);
           // Work-around for https://github.com/stack-of-tasks/pinocchio/issues/1463
-          list_of_paths.push_back(policyStr.substr(lastOffset, offset - lastOffset) + "/..");
+          // To support ROS devel/isolated spaces, we also need to look one package above the package.xml:
+          if (fs::exists(path / "package.xml")) {
+            list_of_paths.push_back(fs::path(path / "..").string());
+          }
         }
         if (offset == std::string::npos)
           break;
