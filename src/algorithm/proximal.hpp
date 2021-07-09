@@ -25,7 +25,7 @@ namespace pinocchio
     /// \brief Default constructor.
     ProximalSettingsTpl()
     : accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
-    , mu(Eigen::NumTraits<Scalar>::dummy_precision())
+    , mu(0)
     , max_iter(1)
     , residual(-1.)
     , iter(0)
