@@ -57,9 +57,9 @@ namespace pinocchio
     // To support ROS devel/isolated spaces, we also need to look one package above the package.xml:
     fs::path path;
     std::vector<std::string> list_of_paths;
-    for (const auto& path_string : raw_list_of_paths) {
-      list_of_paths.push_back(path_string);
-      path = fs::path(path_string);
+    for (std::vector<std::string>::iterator it = raw_list_of_paths.begin(); it != raw_list_of_paths.end(); ++it) {
+      list_of_paths.push_back(*it);
+      path = fs::path(*it);
       if (fs::exists(path / "package.xml")) {
         list_of_paths.push_back(fs::path(path / "..").string());
       }
