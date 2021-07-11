@@ -23,7 +23,12 @@ namespace pinocchio
    */
   PINOCCHIO_DLLAPI std::vector<std::string>
   extractPathFromEnvVar(const std::string & env_var_name,
-                        const std::string & delimiter = ":");
+#ifdef _WIN32
+                        const std::string & delimiter = ";"
+#else
+                        const std::string & delimiter = ":"
+#endif
+                        );
 
 
   /**
@@ -31,18 +36,23 @@ namespace pinocchio
    *
    * @param[in]  env_var_name The name of the environment variable.
    * @param[out] list_of_paths List of path to fill with the paths extracted from the environment variable value.
-   * @param[in]  delimiter The delimiter between two consecutive paths.
+   * @param[in] delimiter The delimiter between two consecutive paths.
    */
   PINOCCHIO_DLLAPI void
   extractPathFromEnvVar(const std::string & env_var_name,
                         std::vector<std::string> & list_of_paths,
-                        const std::string & delimiter = ":");
+#ifdef _WIN32
+                        const std::string & delimiter = ";"
+#else
+                        const std::string & delimiter = ":"
+#endif
+                        );
 
 
   /**
-   * @brief      Parse the environment variable ROS_PACKAGE_PATH and extract paths
+   * @brief      Parse the environment variables ROS_PACKAGE_PATH / AMENT_PREFIX_PATH and extract paths
    *
-   * @return     The vector of paths extracted from the environment variable ROS_PACKAGE_PATH
+   * @return     The vector of paths extracted from the environment variables ROS_PACKAGE_PATH / AMENT_PREFIX_PATH
    */
   PINOCCHIO_DLLAPI std::vector<std::string> rosPaths();
 
