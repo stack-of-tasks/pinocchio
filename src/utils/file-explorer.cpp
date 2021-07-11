@@ -6,18 +6,13 @@
 #include <boost/filesystem.hpp>
 #include "pinocchio/utils/file-explorer.hpp"
 
-#ifdef _WIN32
-const char delimiter = ';';
-#else
-const char delimiter = ':';
-#endif
-
 namespace fs = boost::filesystem;
 namespace pinocchio
 {
 
   void extractPathFromEnvVar(const std::string & env_var_name,
-                             std::vector<std::string> & list_of_paths)
+                             std::vector<std::string> & list_of_paths,
+                             const std::string & delimiter)
   {
     const char * env_var_value = std::getenv(env_var_name.c_str());
     
@@ -40,10 +35,11 @@ namespace pinocchio
     }
   }
 
-  std::vector<std::string> extractPathFromEnvVar(const std::string & env_var_name)
+  std::vector<std::string> extractPathFromEnvVar(const std::string & env_var_name,
+                                                 const std::string & delimiter)
   {
     std::vector<std::string> list_of_paths;
-    extractPathFromEnvVar(env_var_name,list_of_paths);
+    extractPathFromEnvVar(env_var_name,list_of_paths,delimiter);
     return list_of_paths;
   }
 
