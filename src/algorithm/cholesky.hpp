@@ -150,11 +150,11 @@ namespace pinocchio
     ///
     /// \return A reference to the result of \f$ U^{-1}v \f$ stored in v.
     ///
-    /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().solveInPlace(v).
+    /// \remarks The result is similar to the code data.U.triangularView<Eigen::Upper> ().solveInPlace(v).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & Uiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-              const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -168,11 +168,11 @@ namespace pinocchio
     ///
     /// \return A reference to the result of \f$ U^{-\top}v \f$ stored in v.
     ///
-    /// \remark The result is similar to the code data.U.triangularView<Eigen::Upper> ().transpose().solveInPlace(v).
+    /// \remarks The result is similar to the code data.U.triangularView<Eigen::Upper> ().transpose().solveInPlace(v).
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & Utiv(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<Mat> & v);
     
     ///
@@ -188,7 +188,7 @@ namespace pinocchio
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                const DataTpl<Scalar,Options,JointCollectionTpl> & data ,
+                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<Mat> & v);
     
     ///

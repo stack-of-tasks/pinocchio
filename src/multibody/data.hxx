@@ -22,12 +22,15 @@ namespace pinocchio
   : joints(0)
   , a((std::size_t)model.njoints,Motion::Zero())
   , oa((std::size_t)model.njoints,Motion::Zero())
+  , oa_drift((std::size_t)model.njoints,Motion::Zero())
+  , oa_augmented((std::size_t)model.njoints,Motion::Zero())
   , a_gf((std::size_t)model.njoints,Motion::Zero())
   , oa_gf((std::size_t)model.njoints,Motion::Zero())
   , v((std::size_t)model.njoints,Motion::Zero())
   , ov((std::size_t)model.njoints,Motion::Zero())
   , f((std::size_t)model.njoints,Force::Zero())
   , of((std::size_t)model.njoints,Force::Zero())
+  , of_augmented((std::size_t)model.njoints,Force::Zero())
   , h((std::size_t)model.njoints,Force::Zero())
   , oh((std::size_t)model.njoints,Force::Zero())
   , oMi((std::size_t)model.njoints,SE3::Identity())
@@ -55,6 +58,7 @@ namespace pinocchio
   , doYcrb((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , ddq(VectorXs::Zero(model.nv))
   , Yaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oYaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , u(VectorXs::Zero(model.nv))
   , Ag(Matrix6x::Zero(6,model.nv))
   , dAg(Matrix6x::Zero(6,model.nv))
@@ -78,21 +82,25 @@ namespace pinocchio
   , dVdq(Matrix6x::Zero(6,model.nv))
   , dAdq(Matrix6x::Zero(6,model.nv))
   , dAdv(Matrix6x::Zero(6,model.nv))
-  , dtau_dq(MatrixXs::Zero(model.nv,model.nv))
-  , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
-  , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
-  , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
+  , dtau_dq(RowMatrixXs::Zero(model.nv,model.nv))
+  , dtau_dv(RowMatrixXs::Zero(model.nv,model.nv))
+  , ddq_dq(RowMatrixXs::Zero(model.nv,model.nv))
+  , ddq_dv(RowMatrixXs::Zero(model.nv,model.nv))
+  , ddq_dtau(RowMatrixXs::Zero(model.nv,model.nv))
   , iMf((std::size_t)model.njoints,SE3::Identity())
   , com((std::size_t)model.njoints,Vector3::Zero())
   , vcom((std::size_t)model.njoints,Vector3::Zero())
   , acom((std::size_t)model.njoints,Vector3::Zero())
   , mass((std::size_t)model.njoints,(Scalar)(-1))
   , Jcom(Matrix3x::Zero(3,model.nv))
-  , kinetic_energy((Scalar)-1)
-  , potential_energy((Scalar)-1)
+  , kinetic_energy(Scalar(0))
+  , potential_energy(Scalar(0))
+  , mechanical_energy(Scalar(0))
   , JMinvJt()
   , llt_JMinvJt()
   , lambda_c()
+  , lambda_c_prox()
+  , diff_lambda_c()
   , sDUiJt(MatrixXs::Zero(model.nv,model.nv))
   , torque_residual(VectorXs::Zero(model.nv))
   , dq_after(VectorXs::Zero(model.nv))
@@ -118,9 +126,7 @@ namespace pinocchio
     { Fcrb[i].resize(6,model.nv); }
     
     computeLastChild(model);
-
-    /* Init for Coriolis */
-
+    
     /* Init for Cholesky */
     computeParents_fromRow(model);
     computeSupports_fromRow(model);
@@ -145,8 +151,8 @@ namespace pinocchio
       lastChild[parent] = std::max<int>(lastChild[(Index)i],lastChild[parent]);
       
       nvSubtree[(Index)i]
-      = idx_v(model.joints[(Index)lastChild[(Index)i]]) + nv(model.joints[(Index)lastChild[(Index)i]])
-      - idx_v(model.joints[(Index)i]);
+      = model.joints[(Index)lastChild[(Index)i]].idx_v() + model.joints[(Index)lastChild[(Index)i]].nv()
+      - model.joints[(Index)i].idx_v();
     }
   }
 
@@ -159,14 +165,13 @@ namespace pinocchio
     for(Index joint=1;joint<(Index)(model.njoints);joint++)
     {
       const Index & parent = model.parents[joint];
-      const int nvj    = nv   (model.joints[joint]);
-      const int idx_vj = idx_v(model.joints[joint]);
+      const int nvj    = model.joints[joint].nv();
+      const int idx_vj = model.joints[joint].idx_v();
       
       assert(idx_vj >= 0 && idx_vj < model.nv);
-      
-      if(parent>0) parents_fromRow[(size_t)idx_vj] = idx_v(model.joints[parent])+nv(model.joints[parent])-1;
-      else         parents_fromRow[(size_t)idx_vj] = -1;
-      nvSubtree_fromRow[(size_t)idx_vj] = nvSubtree[joint];
+      if(parent>0) parents_fromRow[(Index)idx_vj] = model.joints[parent].idx_v()+model.joints[parent].nv()-1;
+      else         parents_fromRow[(Index)idx_vj] = -1;
+      nvSubtree_fromRow[(Index)idx_vj] = nvSubtree[joint];
       
       start_idx_v_fromRow[(size_t)idx_vj] = idx_vj;
       end_idx_v_fromRow[(size_t)idx_vj] = idx_vj+nvj-1;
@@ -218,12 +223,15 @@ namespace pinocchio
        data1.joints == data2.joints
     && data1.a == data2.a
     && data1.oa == data2.oa
+    && data1.oa_drift == data2.oa_drift
+    && data1.oa_augmented == data2.oa_augmented
     && data1.a_gf == data2.a_gf
     && data1.oa_gf == data2.oa_gf
     && data1.v == data2.v
     && data1.ov == data2.ov
     && data1.f == data2.f
     && data1.of == data2.of
+    && data1.of_augmented == data2.of_augmented
     && data1.h == data2.h
     && data1.oh == data2.oh
     && data1.oMi == data2.oMi
@@ -251,6 +259,8 @@ namespace pinocchio
     && data1.doYcrb == data2.doYcrb
     && data1.ddq == data2.ddq
     && data1.Yaba == data2.Yaba
+    && data1.oYaba == data2.oYaba
+    && data1.oYaba_contact == data2.oYaba_contact
     && data1.u == data2.u
     && data1.Ag == data2.Ag
     && data1.dAg == data2.dAg
@@ -277,6 +287,14 @@ namespace pinocchio
     && data1.dtau_dv == data2.dtau_dv
     && data1.ddq_dq == data2.ddq_dq
     && data1.ddq_dv == data2.ddq_dv
+    && data1.dvc_dq == data2.dvc_dq
+    && data1.dac_dq == data2.dac_dq
+    && data1.dac_dv == data2.dac_dv
+    && data1.dac_da == data2.dac_da
+    && data1.osim == data2.osim
+    && data1.dlambda_dq == data2.dlambda_dq
+    && data1.dlambda_dv == data2.dlambda_dv
+    && data1.dlambda_dtau == data2.dlambda_dtau
     && data1.iMf == data2.iMf
     && data1.com == data2.com
     && data1.vcom == data2.vcom
@@ -285,14 +303,20 @@ namespace pinocchio
     && data1.Jcom == data2.Jcom
     && data1.kinetic_energy == data2.kinetic_energy
     && data1.potential_energy == data2.potential_energy
+    && data1.mechanical_energy == data2.mechanical_energy
     && data1.JMinvJt == data2.JMinvJt
     && data1.lambda_c == data2.lambda_c
+    && data1.lambda_c_prox == data2.lambda_c_prox
+    && data1.diff_lambda_c == data2.diff_lambda_c
+    && data1.sDUiJt == data2.sDUiJt
     && data1.torque_residual == data2.torque_residual
     && data1.dq_after == data2.dq_after
     && data1.impulse_c == data2.impulse_c
     && data1.staticRegressor == data2.staticRegressor
     && data1.bodyRegressor == data2.bodyRegressor
     && data1.jointTorqueRegressor == data2.jointTorqueRegressor
+//    && data1.contact_chol == data2.contact_chol
+    && data1.primal_dual_contact_solution == data2.primal_dual_contact_solution
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean

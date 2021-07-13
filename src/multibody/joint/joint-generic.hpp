@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_generic_hpp__
-#define __pinocchio_joint_generic_hpp__
+#ifndef __pinocchio_multibody_joint_generic_hpp__
+#define __pinocchio_multibody_joint_generic_hpp__
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/multibody/joint/joint-composite.hpp"
@@ -33,7 +33,7 @@ namespace pinocchio
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
     
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
@@ -60,15 +60,26 @@ namespace pinocchio
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
+    
+    typedef ConfigVector_t ConfigVectorTypeConstRef;
+    typedef ConfigVector_t ConfigVectorTypeRef;
+    typedef TangentVector_t TangentVectorTypeConstRef;
+    typedef TangentVector_t TangentVectorTypeRef;
   };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointDataTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointModelTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef typename traits<JointDerived>::Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataTpl
@@ -91,7 +102,9 @@ namespace pinocchio
     JointDataVariant & toVariant() { return *static_cast<JointDataVariant*>(this); }
     const JointDataVariant & toVariant() const { return *static_cast<const JointDataVariant*>(this); }
 
-    Constraint_t      S() const  { return constraint_xd(*this); }
+    ConfigVector_t      joint_q() const  { return pinocchio::joint_q(*this); }
+    TangentVector_t      joint_v() const  { return pinocchio::joint_v(*this); }
+    Constraint_t      S() const  { return joint_motin_subspace_xd(*this); }
     Transformation_t  M() const  { return joint_transform(*this); }
     Motion_t          v() const  { return motion(*this); }
     Bias_t            c() const  { return bias(*this); }
@@ -100,6 +113,7 @@ namespace pinocchio
     U_t               U()     const { return u_inertia(*this); }
     D_t               Dinv()  const { return dinv_inertia(*this); }
     UD_t              UDinv() const { return udinv_inertia(*this); }
+    D_t               StU()   const { return stu_inertia(*this); }
 
     JointDataTpl()
     : JointDataVariant()
@@ -117,6 +131,8 @@ namespace pinocchio
     }
     
     // Define all the standard accessors
+    ConfigVector_t joint_q_accessor() const { return joint_q(); }
+    TangentVector_t joint_v_accessor() const { return joint_v(); }
     Constraint_t S_accessor() const { return S(); }
     Transformation_t M_accessor() const { return M(); }
     Motion_t v_accessor() const { return v(); }
@@ -124,6 +140,7 @@ namespace pinocchio
     U_t U_accessor() const { return U(); }
     D_t Dinv_accessor() const { return Dinv(); }
     UD_t UDinv_accessor() const { return UDinv(); }
+    D_t StU_accessor() const { return StU(); }
 
     static std::string classname() { return "JointData"; }
     std::string shortname() const { return ::pinocchio::shortname(*this); }
@@ -239,9 +256,17 @@ namespace pinocchio
               const Eigen::MatrixBase<TangentVector> & v) const
     { calc_first_order(*this,data,q,v); }
     
-    template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
-    { ::pinocchio::calc_aba(*this,data,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),update_I); }
+    template<typename VectorLike, typename Matrix6Like>
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
+    {
+      ::pinocchio::calc_aba(*this,data,
+                            armature.derived(),
+                            PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                            update_I);
+    }
     
     std::string shortname() const { return ::pinocchio::shortname(*this); }
     static std::string classname() { return "JointModel"; }
@@ -302,4 +327,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_generic_hpp__
+#endif // ifndef __pinocchio_multibody_joint_generic_hpp__

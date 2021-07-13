@@ -10,30 +10,32 @@ namespace pinocchio
   namespace python
   {
 
-    Eigen::MatrixXd bodyRegressor_proxy(const Motion & v, const Motion & a)
+    context::MatrixXs bodyRegressor_proxy(const context::Motion & v, const context::Motion & a)
     {
       return bodyRegressor(v,a);
     }
 
-    Eigen::MatrixXd jointBodyRegressor_proxy(const Model & model, Data & data, const JointIndex jointId)
+    context::MatrixXs jointBodyRegressor_proxy(const context::Model & model, context::Data & data, const JointIndex jointId)
     {
       return jointBodyRegressor(model,data,jointId);
     }
 
-    Eigen::MatrixXd frameBodyRegressor_proxy(const Model & model, Data & data, const FrameIndex frameId)
+    context::MatrixXs frameBodyRegressor_proxy(const context::Model & model, context::Data & data, const FrameIndex frameId)
     {
       return frameBodyRegressor(model,data,frameId);
     }
 
     void exposeRegressor()
     {
-      using namespace Eigen;
-
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
+        
       bp::def("computeStaticRegressor",
-              &computeStaticRegressor<double,0,JointCollectionDefaultTpl,VectorXd>,
+              &computeStaticRegressor<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
               bp::args("model","data","q"),
               "Compute the static regressor that links the inertia parameters of the system to its center of mass position,\n"
-              "store the result in Data and return it.\n\n"
+              "store the result in context::Data and return it.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
               "\tdata: data related to the model\n"
@@ -71,11 +73,11 @@ namespace pinocchio
               "\tframe_id: index of the frame\n");
 
       bp::def("computeJointTorqueRegressor",
-              &computeJointTorqueRegressor<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
+              &computeJointTorqueRegressor<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs>,
               bp::args("model","data","q","v","a"),
               "Compute the joint torque regressor that links the joint torque "
               "to the dynamic parameters of each link according to the current the robot motion,\n"
-              "store the result in Data and return it.\n\n"
+              "store the result in context::Data and return it.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
               "\tdata: data related to the model\n"

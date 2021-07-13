@@ -16,10 +16,11 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::SE3)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::SE3)
 
 namespace pinocchio
 {
@@ -50,10 +51,15 @@ namespace pinocchio
     : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
     {
       typedef typename SE3::Scalar Scalar;
+      enum { Options = SE3::Options };
       typedef typename SE3::Matrix3 Matrix3;
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix4 Matrix4;
       typedef typename SE3::Quaternion Quaternion;
+      
+      typedef MotionTpl<Scalar,Options> Motion;
+      typedef ForceTpl<Scalar,Options> Force;
+      typedef InertiaTpl<Scalar,Options> Inertia;
 
     public:
 
@@ -68,10 +74,10 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("quat"),bp::arg("translation")),
               "Initialize from a quaternion and a translation vector."))
         .def(bp::init<int>((bp::arg("self"),bp::arg("int")),"Init to identity."))
-        .def(bp::init<SE3>((bp::arg("self"),bp::arg("other")), "Copy constructor."))
         .def(bp::init<Matrix4>
              ((bp::arg("self"),bp::arg("array")),
               "Initialize from an homogeneous matrix."))
+        .def(bp::init<const SE3 &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
         .add_property("rotation",
                       bp::make_function((typename SE3::AngularRef (SE3::*)()) &SE3::rotation,bp::return_internal_reference<>()),
@@ -133,7 +139,8 @@ namespace pinocchio
              bp::args("self","inertia"), "Returns the result of *this onto a Force.")
         .def("actInv", (Inertia (SE3::*)(const Inertia &) const) &SE3::actInv,
              bp::args("self","inertia"), "Returns the result of the inverse of *this onto an Inertia.")
-        
+      
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              call<SE3>::isApprox,
              isApproxSE3_overload(bp::args("self","other","prec"),
@@ -143,6 +150,7 @@ namespace pinocchio
              &SE3::isIdentity,
              isIdentity_overload(bp::args("self","prec"),
                                  "Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
+#endif
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
         .def(bp::self * bp::self)
@@ -152,8 +160,10 @@ namespace pinocchio
         .def("__mul__",&__mul__<Vector3>)
         .add_property("np",&SE3::toHomogeneousMatrix)
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .def("Identity",&SE3::Identity,"Returns the identity transformation.")
         .staticmethod("Identity")
@@ -172,7 +182,9 @@ namespace pinocchio
         
         .def("__array__",&SE3::toHomogeneousMatrix)
         
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
       
@@ -182,6 +194,8 @@ namespace pinocchio
                         "SE3 transformation defined by a 3d vector and a rotation matrix.",
                         bp::init<>(bp::arg("self"),"Default constructor."))
         .def(SE3PythonVisitor<SE3>())
+        .def(CastVisitor<SE3>())
+        .def(ExposeConstructorByCastVisitor<SE3,::pinocchio::SE3>())
         .def(CopyableVisitor<SE3>())
         .def(PrintableVisitor<SE3>())
         ;

@@ -21,13 +21,17 @@
 
 namespace pinocchio
 {
-
+// Avoid deprecated warning of collisionObjects
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
 #ifdef PINOCCHIO_WITH_HPP_FCL
+  , distanceRequest(true)
   , distanceRequests(geom_model.collisionPairs.size(), hpp::fcl::DistanceRequest(true))
   , distanceResults(geom_model.collisionPairs.size())
+  , collisionRequest(::hpp::fcl::NO_REQUEST,1)
   , collisionRequests(geom_model.collisionPairs.size(), hpp::fcl::CollisionRequest(::hpp::fcl::NO_REQUEST,1))
   , collisionResults(geom_model.collisionPairs.size())
   , radius()
@@ -37,6 +41,11 @@ namespace pinocchio
   , outerObjects()
   {
 #ifdef PINOCCHIO_WITH_HPP_FCL
+    collisionObjects.reserve(geom_model.geometryObjects.size());
+    BOOST_FOREACH(const GeometryObject & geom_object, geom_model.geometryObjects)
+    {
+      collisionObjects.push_back(fcl::CollisionObject(geom_object.geometry));
+    }
     BOOST_FOREACH(hpp::fcl::CollisionRequest & creq, collisionRequests)
     {
       creq.enable_cached_gjk_guess = true;
@@ -68,8 +77,11 @@ namespace pinocchio
   : oMg (other.oMg)
   , activeCollisionPairs (other.activeCollisionPairs)
 #ifdef PINOCCHIO_WITH_HPP_FCL
+  , collisionObjects (other.collisionObjects)
+  , distanceRequest (other.distanceRequest)
   , distanceRequests (other.distanceRequests)
   , distanceResults (other.distanceResults)
+  , collisionRequest (other.collisionRequest)
   , collisionRequests (other.collisionRequests)
   , collisionResults (other.collisionResults)
   , radius (other.radius)
@@ -82,6 +94,7 @@ namespace pinocchio
   {}
 
   inline GeometryData::~GeometryData() {}
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
   GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object,
@@ -164,8 +177,8 @@ namespace pinocchio
     }
 #else
     os << "WARNING** Without fcl library, no collision checking or distance computations are possible. Only geometry placements can be computed." << std::endl;
-#endif
     os << "Number of geometry objects = " << geomData.oMg.size() << std::endl;
+#endif
 
     return os;
   }

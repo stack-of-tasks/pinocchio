@@ -65,6 +65,7 @@ namespace pinocchio
 
   template<typename Derived>
   struct JointModelBase
+  : NumericalBase<Derived>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -91,12 +92,16 @@ namespace pinocchio
       derived().calc(data,qs.derived(),vs.derived());
     }
     
-    template<typename Matrix6Type>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
-                  const Eigen::MatrixBase<Matrix6Type> & I,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I = false) const
     {
-      derived().calc_aba(data, PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I), update_I);
+      derived().calc_aba(data,
+                         armature.derived(),
+                         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I),
+                         update_I);
     }
 
     int nv()    const { return derived().nv_impl(); }
@@ -152,7 +157,7 @@ namespace pinocchio
     
     template <class OtherDerived>
     bool operator!=(const JointModelBase<OtherDerived> & other) const
-    { return !(derived() == other.derived()); }
+    { return !(internal::comparison_eq(derived(), other.derived())); }
     
     template <class OtherDerived>
     bool isEqual(const JointModelBase<OtherDerived> &) const
@@ -166,9 +171,9 @@ namespace pinocchio
     template <class OtherDerived>
     bool hasSameIndexes(const JointModelBase<OtherDerived> & other) const
     {
-      return other.id() == id()
-      && other.idx_q() == idx_q()
-      && other.idx_v() == idx_v();
+      return internal::comparison_eq(other.id(), id())
+	&& internal::comparison_eq(other.idx_q(), idx_q())
+	&& internal::comparison_eq(other.idx_v(), idx_v());
     }
 
     /* Acces to dedicated segment in robot config space.  */

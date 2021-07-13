@@ -44,6 +44,7 @@ jobs:
         set Boost_ROOT=
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
+        set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
     

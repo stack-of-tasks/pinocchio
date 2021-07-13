@@ -10,6 +10,7 @@
 
 #include <boost/variant.hpp> // to avoid C99 warnings
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -23,6 +24,15 @@ BOOST_AUTO_TEST_CASE(test_se3)
   
   SE3 M3 = M2 * M1;
   SE3 M1inv = M1.inverse();
+  
+  ::casadi::SX trans;
+  pinocchio::casadi::copy(M1.translation(),trans);
+  
+  const Eigen::DenseIndex col = 0;
+  for(Eigen::DenseIndex k = 0; k < 3; ++k)
+  {
+    BOOST_CHECK(casadi::SX::is_equal(trans(k,col),M1.translation()[k]));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(test_motion)

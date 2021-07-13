@@ -25,6 +25,7 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass& cl) const
       {
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         cl
         .def("saveToText",&Derived::saveToText,
              bp::arg("filename"),"Saves *this inside a text file.")
@@ -58,8 +59,10 @@ namespace pinocchio
         .def("loadFromBinary",(void (Derived::*)(serialization::StaticBuffer &))&Derived::loadFromBinary,
              bp::args("self","buffer"),"Loads *this from a static binary buffer.")
         ;
-        
         serialize<Derived>();
+#else
+        PINOCCHIO_UNUSED_VARIABLE(cl);
+#endif
       }
 
     };

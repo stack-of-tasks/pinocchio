@@ -10,7 +10,7 @@
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include "pinocchio/serialization/serializable.hpp"
-
+#include <boost/foreach.hpp>
 #include <map>
 #include <list>
 #include <utility>
@@ -18,8 +18,18 @@
 
 namespace pinocchio
 {
+
+  struct GeometryModel;
+  struct GeometryData;
+
+  template<>
+  struct traits<GeometryModel>
+  {
+    typedef double Scalar;
+  };
   
   struct GeometryModel
+  : NumericalBase<GeometryModel>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -169,14 +179,22 @@ namespace pinocchio
 
     /// \brief Vector of GeometryObjects used for collision computations
     GeometryObjectVector geometryObjects;
-    
+    ///
     /// \brief Vector of collision pairs.
+    ///
     CollisionPairVector collisionPairs;
     
   }; // struct GeometryModel
 
+  template<>
+  struct traits<GeometryData>
+  {
+    typedef double Scalar;
+  };
+
   struct GeometryData
   : serialization::Serializable<GeometryData>
+  , NumericalBase<GeometryData>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -208,6 +226,19 @@ namespace pinocchio
     std::vector<bool> activeCollisionPairs;
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+    ///
+    /// \brief Collision objects (ie a fcl placed geometry).
+    ///
+    /// The object contains a pointer on the collision geometries contained in geomModel.geometryObjects.
+    /// \sa GeometryModel::geometryObjects and GeometryObjects
+    ///
+    PINOCCHIO_DEPRECATED std::vector<fcl::CollisionObject> collisionObjects;
+
+    ///
+    /// \brief Defines what information should be computed by distance computation.
+    ///
+    /// \deprecated use \ref distanceRequests instead
+    PINOCCHIO_DEPRECATED fcl::DistanceRequest distanceRequest;
 
     ///
     /// \brief Defines what information should be computed by distance computation.
@@ -219,6 +250,12 @@ namespace pinocchio
     ///
     std::vector<fcl::DistanceResult> distanceResults;
     
+    ///
+    /// \brief Defines what information should be computed by collision test.
+    ///
+    /// \deprecated use \ref collisionRequests instead
+    PINOCCHIO_DEPRECATED fcl::CollisionRequest collisionRequest;
+
     ///
     /// \brief Defines what information should be computed by collision test.
     /// There is one request per pair of geometries.

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
@@ -28,8 +28,17 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     
     Model::JointIndex idx_larm1 = model.getJointId("larm1_joint");
     BOOST_CHECK(idx_larm1<(Model::JointIndex)model.njoints);
-    Model::IndexVector subtree = model.subtrees[idx_larm1];
+    Model::IndexVector & subtree = model.subtrees[idx_larm1];
     BOOST_CHECK(subtree.size()==6);
+    
+    for(size_t joint_id= 0; joint_id < model.joints.size(); ++joint_id)
+    {
+      const Model::IndexVector & children = model.children[joint_id];
+      for(size_t i = 0; i < children.size(); ++i)
+      {
+        BOOST_CHECK(model.parents[children[i]] == joint_id);
+      }
+    }
     
     for(size_t i=1; i<subtree.size();++i)
     {
@@ -118,6 +127,11 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     
     BOOST_CHECK(model.cast<double>() == model.cast<double>());
     BOOST_CHECK(model.cast<double>().cast<long double>() == model.cast<long double>());
+    
+    typedef ModelTpl<long double> Modelld;
+    
+    Modelld model2(model);
+    BOOST_CHECK(model2 == model.cast<long double>());
   }
 
   BOOST_AUTO_TEST_CASE(test_std_vector_of_Model)

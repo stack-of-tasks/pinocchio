@@ -195,7 +195,7 @@ namespace pinocchio
     PINOCCHIO_UNUSED_VARIABLE(model);
 
     assert(model.check(data) && "data is not consistent with model.");
-    return data.com[0] = data.liMi[1].act(data.Ycrb[1].lever());
+    return data.com[0] = data.liMi[1].act(data.oYcrb[1].lever());
   }
 
   /* --- JACOBIAN ---------------------------------------------------------- */
@@ -409,7 +409,8 @@ namespace pinocchio
                  typename Pass2::ArgsType(model,data,Jcom_subtree,computeSubtreeComs));
     }
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(data.mass[rootSubtreeId] > 0., "The mass of the subtree is not positive.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(data.mass[rootSubtreeId] > 0.),
+                                   "The mass of the subtree is not positive.");
     const Scalar mass_inv_subtree = Scalar(1)/data.mass[rootSubtreeId];
     typename Data::Vector3 & com_subtree = data.com[rootSubtreeId];
     if(!computeSubtreeComs)
@@ -485,22 +486,11 @@ namespace pinocchio
     PINOCCHIO_UNUSED_VARIABLE(model);
     assert(model.check(data) && "data is not consistent with model.");
 
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Data::SE3 SE3;
-
-    const SE3 & oM1 = data.liMi[1];
-
     // Extract the total mass of the system.
-    data.mass[0] = data.M(0,0);
+    data.mass[0] = data.oYcrb[0].mass();
+    data.com[0] = data.oYcrb[0].lever();
 
-    // As the 6 first rows of M*a are a wrench, we just need to multiply by the
-    // relative rotation between the first joint and the world
-    const typename SE3::Matrix3 oR1_over_m (oM1.rotation() / data.M(0,0));
-
-    // I don't know why, but the colwise multiplication is much more faster
-    // than the direct Eigen multiplication
-    for(long k=0; k<model.nv;++k)
-      data.Jcom.col(k).noalias() = oR1_over_m * data.M.template topRows<3>().col(k);
+    data.Jcom.noalias() = data.Ag.template middleRows<3>(Force::LINEAR) / data.mass[0];
 
     return data.Jcom;
   }

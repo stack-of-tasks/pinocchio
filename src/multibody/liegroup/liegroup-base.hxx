@@ -493,7 +493,7 @@ namespace pinocchio {
   template <class Config_t, class Tangent_t>
   typename LieGroupBase<Derived>::ConfigVector_t
   LieGroupBase<Derived>::integrate(const Eigen::MatrixBase<Config_t>  & q,
-                                            const Eigen::MatrixBase<Tangent_t> & v) const
+                                   const Eigen::MatrixBase<Tangent_t> & v) const
   {
     ConfigVector_t qout(nq());
     integrate(q.derived(), v.derived(), qout);
@@ -611,13 +611,8 @@ namespace pinocchio {
       const Scalar & u,
       const Eigen::MatrixBase<ConfigOut_t> & qout) const
   {
-    if     (u == 0) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q0;
-    else if(u == 1) PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout) = q1;
-    else 
-    {
-      TangentVector_t vdiff(u * difference(q0, q1));
-      integrate(q0.derived(), vdiff, PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout));
-    }
+    TangentVector_t vdiff(u * difference(q0, q1));
+    integrate(q0.derived(), vdiff, PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout));
   }
 
   template <class Derived>

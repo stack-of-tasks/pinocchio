@@ -2,11 +2,6 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#include "pinocchio/spatial/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/multibody/visitor.hpp"
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -27,6 +22,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 template<typename JointModel>
 void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
 {
+  std::cout << "shortname: " << jmodel.shortname() << std::endl;
   typedef typename pinocchio::JointModelBase<JointModel>::JointDataDerived JointData;
   typedef typename JointModel::ConfigVector_t ConfigVector_t;
   typedef typename pinocchio::LieGroup<JointModel>::type LieGroupType;
@@ -39,18 +35,22 @@ void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
   ConfigVector_t q = LieGroupType().randomConfiguration(ql,qu);
   pinocchio::Inertia::Matrix6 I(pinocchio::Inertia::Random().matrix());
   pinocchio::Inertia::Matrix6 I_check = I;
+  const Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
 
   jmodel.calc(jdata,q);
-  jmodel.calc_aba(jdata,I,true);
+  jmodel.calc_aba(jdata,armature,I,true);
 
+  std::cout << "armature: " << armature.transpose() << std::endl;
   Eigen::MatrixXd S = jdata.S.matrix();
   Eigen::MatrixXd U_check = I_check*S;
-  Eigen::MatrixXd D_check = S.transpose()*U_check;
-  Eigen::MatrixXd Dinv_check = D_check.inverse();
+  Eigen::MatrixXd StU_check = S.transpose()*U_check; StU_check.diagonal() += armature;
+  Eigen::MatrixXd Dinv_check = StU_check.inverse();
   Eigen::MatrixXd UDinv_check = U_check*Dinv_check;
-  Eigen::MatrixXd update_check = U_check*Dinv_check*U_check.transpose();
+  Eigen::MatrixXd update_check = UDinv_check*U_check.transpose();
   I_check -= update_check;
 
+  std::cout << "I_check:\n" << I_check << std::endl;
+  std::cout << "I:\n" << I << std::endl;
   BOOST_CHECK(jdata.U.isApprox(U_check));
   BOOST_CHECK(jdata.Dinv.isApprox(Dinv_check));
   BOOST_CHECK(jdata.UDinv.isApprox(UDinv_check));
@@ -60,7 +60,7 @@ void test_joint_methods(const pinocchio::JointModelBase<JointModel> & jmodel)
   // where the correct result is exacly zero and isApprox would fail.
   // Only for this single case, we use the infinity norm of the difference
   if(jmodel.shortname() == "JointModelFreeFlyer")
-    BOOST_CHECK((I-I_check).lpNorm<Eigen::Infinity>() < Eigen::NumTraits<double>::dummy_precision());
+    BOOST_CHECK((I-I_check).isZero());
   else
     BOOST_CHECK(I.isApprox(I_check));
 }
@@ -106,7 +106,7 @@ struct TestJointMethods{
 
 };
 
-BOOST_AUTO_TEST_CASE( test_joint_basic )
+BOOST_AUTO_TEST_CASE(test_joint_basic)
 {
   using namespace pinocchio;
 
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_joint_basic )
   boost::mpl::for_each<Variant::types>(TestJointMethods());
 }
 
-BOOST_AUTO_TEST_CASE ( test_aba_simple )
+BOOST_AUTO_TEST_CASE(test_aba_simple)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -133,13 +133,16 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
 
-  VectorXd q = VectorXd::Ones(model.nq);
-  q.segment<4>(3).normalize();
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
   
   tau = rnea(model, data_ref, q, v, a);
+  forwardKinematics(model, data_ref, q);
   aba(model, data, q, v, tau);
   
   for(size_t k = 1; k < (size_t)model.njoints; ++k)
@@ -149,10 +152,22 @@ BOOST_AUTO_TEST_CASE ( test_aba_simple )
   }
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+
+  // Test multiple calls
+  {
+    Data datas(model);
+    VectorXd a1 = aba(model,datas,q,v,tau);
+    VectorXd a2 = aba(model,datas,q,v,tau);
+    VectorXd a3 = aba(model,datas,q,v,tau);
+    
+    BOOST_CHECK(a1.isApprox(a2));
+    BOOST_CHECK(a1.isApprox(a3));
+    BOOST_CHECK(a2.isApprox(a3));
+  }
   
 }
 
-BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
+BOOST_AUTO_TEST_CASE(test_aba_with_fext)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -161,8 +176,10 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   
   pinocchio::Data data(model);
   
-  VectorXd q = VectorXd::Random(model.nq);
-  q.segment<4>(3).normalize();
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Random(model.nv);
   VectorXd a = VectorXd::Random(model.nv);
 
@@ -174,7 +191,6 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-
   VectorXd tau = data.M * a + data.nle;
   Data::Matrix6x J = Data::Matrix6x::Zero(6, model.nv);
   for(Model::Index i=1;i<(Model::Index)model.njoints;++i) {
@@ -185,9 +201,10 @@ BOOST_AUTO_TEST_CASE ( test_aba_with_fext )
   aba(model, data, q, v, tau, fext);
   
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
+  
 }
 
-BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
+BOOST_AUTO_TEST_CASE(test_aba_vs_rnea)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -197,7 +214,10 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   pinocchio::Data data(model);
   pinocchio::Data data_ref(model);
   
-  VectorXd q = VectorXd::Ones(model.nq);
+  model.lowerPositionLimit.head<7>().fill(-1.);
+  model.upperPositionLimit.head<7>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
   VectorXd v = VectorXd::Ones(model.nv);
   VectorXd tau = VectorXd::Zero(model.nv);
   VectorXd a = VectorXd::Ones(model.nv);
@@ -212,13 +232,11 @@ BOOST_AUTO_TEST_CASE ( test_aba_vs_rnea )
   
   VectorXd tau_ref = rnea(model, data_ref, q, v, a);
   BOOST_CHECK(tau_ref.isApprox(tau, 1e-12));
-  
-  
   BOOST_CHECK(data.ddq.isApprox(a, 1e-12));
   
 }
 
-BOOST_AUTO_TEST_CASE ( test_computeMinverse )
+BOOST_AUTO_TEST_CASE(test_computeMinverse)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -258,6 +276,46 @@ BOOST_AUTO_TEST_CASE ( test_computeMinverse )
   
 }
 
+BOOST_AUTO_TEST_CASE(test_computeMinverse_noupdate)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  buildModels::humanoidRandom(model);
+  model.gravity.setZero();
+  
+  pinocchio::Data data(model);
+  pinocchio::Data data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  crba(model, data_ref, q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>()
+  = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  MatrixXd Minv_ref(data_ref.M.inverse());
+
+  aba(model,data,q,v,tau);
+  computeMinverse(model, data, q);
+  BOOST_CHECK(data.Minv.topRows<6>().isApprox(Minv_ref.topRows<6>()));
+  
+  data.Minv.triangularView<Eigen::StrictlyLower>()
+  = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK(data.Minv.isApprox(Minv_ref));
+  
+  Data data_ref2(model);
+  computeMinverse(model,data_ref2,q);
+  data_ref2.Minv.triangularView<Eigen::StrictlyLower>()
+  = data_ref2.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  BOOST_CHECK(data.Minv.isApprox(data_ref2.Minv));
+  
+}
+
 BOOST_AUTO_TEST_CASE(test_multiple_calls)
 {
   using namespace Eigen;
@@ -281,6 +339,24 @@ BOOST_AUTO_TEST_CASE(test_multiple_calls)
   }
   
   BOOST_CHECK(data1.Minv.isApprox(data2.Minv));
+}
+
+BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
+{
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.armature = Eigen::VectorXd::Random(model.nv) + Eigen::VectorXd::Constant(model.nv,1.);
+  
+  pinocchio::Data data(model), data_ref(model);
+  
+  Eigen::VectorXd q = randomConfiguration(model);
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  computeMinverse(model,data,q);
+  data.Minv.triangularView<Eigen::StrictlyLower>() = data.Minv.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK((data.Minv*data_ref.M).isIdentity());
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

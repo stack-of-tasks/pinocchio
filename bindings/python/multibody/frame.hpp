@@ -2,13 +2,16 @@
 // Copyright (c) 2016-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_python_frame_hpp__
-#define __pinocchio_python_frame_hpp__
+#ifndef __pinocchio_python_multibody_frame_hpp__
+#define __pinocchio_python_multibody_frame_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 
 namespace pinocchio
 {
@@ -16,48 +19,60 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
+    template<typename Frame>
     struct FramePythonVisitor
-    : public bp::def_visitor< FramePythonVisitor >
+    : public boost::python::def_visitor< FramePythonVisitor<Frame> >
     {
+      typedef typename Frame::SE3 SE3;
+      typedef typename Frame::Inertia Inertia;
+      
       template<class PyClass>
-      void visit(PyClass& cl) const 
+      void visit(PyClass & cl) const
       {
         cl
-          .def(bp::init<>(bp::arg("self"),"Default constructor"))
-          .def(bp::init<const Frame &>(bp::args("self","other"),"Copy constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
+        .def(bp::init<const Frame &>(bp::args("self","other"),"Copy constructor"))
           .def(bp::init< const std::string&,const JointIndex, const FrameIndex, const SE3&, FrameType, bp::optional<const Inertia&> > ((bp::arg("name"),bp::arg("parent_joint"), bp::args("parent_frame"), bp::arg("placement"), bp::arg("type"), bp::arg("inertia")),
                 "Initialize from a given name, type, parent joint index, parent frame index and placement wrt parent joint and an spatial inertia object."))
+        .def(bp::init<const Frame &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
-          .def_readwrite("name", &Frame::name, "name  of the frame")
-          .def_readwrite("parent", &Frame::parent, "id of the parent joint")
-          .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame") 
-          .def_readwrite("placement",
-                         &Frame::placement,
-                         "placement in the parent joint local frame")
-          .def_readwrite("type", &Frame::type, "Type of the frame")
-          .def_readwrite("inertia", &Frame::inertia,"Inertia information attached to the frame.")
-        
-          .def(bp::self == bp::self)
-          .def(bp::self != bp::self)
-          ;
+        .def_readwrite("name", &Frame::name, "name of the frame")
+        .def_readwrite("parent", &Frame::parent, "id of the parent joint")
+        .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame")
+        .def_readwrite("placement",
+                       &Frame::placement,
+                       "placement in the parent joint local frame")
+        .def_readwrite("type", &Frame::type, "type of the frame")
+        .def_readwrite("inertia", &Frame::inertia,"Inertia information attached to the frame.")
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
+        .def(bp::self == bp::self)
+        .def(bp::self != bp::self)
+#endif
+        ;
       }
       
       static void expose()
       {
-        bp::enum_<FrameType>("FrameType")
-            .value("OP_FRAME",OP_FRAME)
-            .value("JOINT",JOINT)
-            .value("FIXED_JOINT",FIXED_JOINT)
-            .value("BODY",BODY)
-            .value("SENSOR",SENSOR)
-            .export_values()
-            ;
+        if(!register_symbolic_link_to_registered_type<FrameType>())
+        {
+          bp::enum_<FrameType>("FrameType")
+          .value("OP_FRAME",OP_FRAME)
+          .value("JOINT",JOINT)
+          .value("FIXED_JOINT",FIXED_JOINT)
+          .value("BODY",BODY)
+          .value("SENSOR",SENSOR)
+          .export_values()
+          ;
+        }
 
         bp::class_<Frame>("Frame",
                           "A Plucker coordinate frame related to a parent joint inside a kinematic tree.\n\n",
                           bp::no_init
                          )
         .def(FramePythonVisitor())
+        .def(CastVisitor<Frame>())
+        .def(ExposeConstructorByCastVisitor<Frame,::pinocchio::Frame>())
         .def(CopyableVisitor<Frame>())
         .def(PrintableVisitor<Frame>())
         .def_pickle(Pickle())
@@ -94,4 +109,4 @@ namespace pinocchio
   } // namespace python
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_python_frame_hpp__
+#endif // ifndef __pinocchio_python_multibody_frame_hpp__

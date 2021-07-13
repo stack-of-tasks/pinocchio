@@ -34,7 +34,7 @@ namespace pinocchio
    * \addtogroup pinocchio_spatial
    * @{
    */
-  
+
   template<typename Scalar, int Options=0> struct SE3Tpl;
 
   template<typename Derived> class MotionBase;
@@ -49,7 +49,7 @@ namespace pinocchio
   template<typename Vector6ArgType> class ForceRef;
   template<typename Scalar, int Options=0> class ForceTpl;
   
-  template<typename Scalar, int Options=0> class InertiaTpl;
+  template<typename Scalar, int Options=0> struct InertiaTpl;
   template<typename Scalar, int Options=0> class Symmetric3Tpl;
   
 

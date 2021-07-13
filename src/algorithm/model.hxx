@@ -317,6 +317,7 @@ namespace pinocchio
     reduced_model.joints                .reserve((size_t)njoints);
     reduced_model.jointPlacements       .reserve((size_t)njoints);
     reduced_model.parents               .reserve((size_t)njoints);
+    reduced_model.inertias              .reserve((size_t)njoints);
     
     reduced_model.names[0] = input_model.names[0];
     reduced_model.joints[0] = input_model.joints[0];

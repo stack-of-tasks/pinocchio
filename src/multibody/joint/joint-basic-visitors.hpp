@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016,2018 CNRS
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_basic_visitors_hpp__
-#define __pinocchio_joint_basic_visitors_hpp__
+#ifndef __pinocchio_multibody_joint_basic_visitors_hpp__
+#define __pinocchio_multibody_joint_basic_visitors_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 
@@ -66,14 +66,16 @@ namespace pinocchio
    * @tparam JointCollection    Collection of Joint types.
    * @tparam Matrix6Type        A matrix 6x6 like Eigen container.
    *
-   * @param[in]         jmodel  The corresponding JointModelVariant to the JointDataVariant we want to update
-   * @param[inout]      jdata   The JointDataVariant we want to update
-   * @param[inout]      I       Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix
+   * @param[in]         jmodel      The corresponding JointModelVariant to the JointDataVariant we want to update
+   * @param[in,out]     jdata        The JointDataVariant we want to update
+   * @param[in]         armature  Armature related to the current joint.
+   * @param[in,out]     I                 Inertia matrix of the subtree following the jmodel in the kinematic chain as dense matrix   *
    * @param[in]         update_I  If I should be updated or not
    */
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename Matrix6Type>
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename VectorLike, typename Matrix6Type>
   inline void calc_aba(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel,
                        JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata,
+                       const Eigen::MatrixBase<VectorLike> & armature,
                        const Eigen::MatrixBase<Matrix6Type> & I,
                        const bool update_I);
 
@@ -204,6 +206,29 @@ namespace pinocchio
   // Visitors on JointDatas
   //
   
+
+  /**
+   * @brief      Visit a JointDataVariant through JointConfigVisitor to get the joint configuration vector
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The current value of the joint configuration vector
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::ConfigVector_t
+  joint_q(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+
+
+  /**
+   * @brief      Visit a JointDataVariant through JointConfigVisitor to get the joint velocity vector
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The current value of the joint velocity vector
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline typename JointDataTpl<Scalar,Options,JointCollectionTpl>::TangentVector_t
+  joint_v(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
   /**
    * @brief      Visit a JointDataVariant through JointConstraintVisitor to get the joint constraint 
@@ -214,8 +239,8 @@ namespace pinocchio
    * @return     The constraint dense corresponding to the joint derived constraint
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  inline ConstraintTpl<Eigen::Dynamic,Scalar,Options>
-  constraint_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
+  inline JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options>
+  joint_motin_subspace_xd(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
 
   /**
    * @brief      Visit a JointDataTpl through JointTransformVisitor to get the joint internal transform  (transform
@@ -300,6 +325,18 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl, typename JointDataDerived>
   bool isEqual(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jmodel_generic,
                const JointDataBase<JointDataDerived> & jmodel);
+
+  /**
+   * @brief      Visit a JointDataTpl through JointStUInertiaVisitor to get St*I*S matrix of the inertia matrix
+   *             decomposition.
+   *
+   * @param[in]  jdata  The joint data to visit.
+   *
+   * @return     The St*I*S matrix
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options>
+  stu_inertia(const JointDataTpl<Scalar,Options,JointCollectionTpl> & jdata);
   
 } // namespace pinocchio
 
@@ -309,4 +346,4 @@ namespace pinocchio
 // #include "pinocchio/multibody/joint/joint-basic-visitors.hxx"
 
 
-#endif // ifndef __pinocchio_joint_basic_visitors_hpp__
+#endif // ifndef __pinocchio_multibody_joint_basic_visitors_hpp__

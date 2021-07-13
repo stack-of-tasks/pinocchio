@@ -9,6 +9,8 @@
 
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
+
 #include "pinocchio/multibody/geometry.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryModel)
@@ -100,13 +102,16 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
+        if(!register_symbolic_link_to_registered_type<GeometryModel>())
+        {
         bp::class_<GeometryModel>("GeometryModel",
                                   "Geometry model containing the collision or visual geometries associated to a model.",
                                   bp::no_init)
         .def(GeometryModelPythonVisitor())
         .def(PrintableVisitor<GeometryModel>())
         .def(CopyableVisitor<GeometryModel>())
-        ;
+          ;
+        }
       }
       
     protected:

@@ -247,15 +247,11 @@ BOOST_AUTO_TEST_CASE ( test_timings )
       cholesky::Uiv(model,data,Ui_v_unit_ref);
       Ui_v_unit_ref.array() *= data.Dinv.array();
       cholesky::Utiv(model,data,Ui_v_unit_ref);
-
-      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
+      BOOST_CHECK(Ui_v_unit.head(k+1).isApprox(Ui_v_unit_ref.head(k+1)));
       
       Ui_v_unit_ref = v_unit;
       cholesky::solve(model,data,Ui_v_unit_ref);
-      BOOST_CHECK(Ui_v_unit.isApprox(Ui_v_unit_ref));
-      
-//      std::cout << "Ui_v_unit : " << Ui_v_unit.transpose() << std::endl;
-//      std::cout << "Ui_v_unit_ref : " << Ui_v_unit_ref.transpose() << std::endl << std::endl;
+      BOOST_CHECK(Ui_v_unit.head(k+1).isApprox(Ui_v_unit_ref.head(k+1)));
     }
     
     MatrixXd Minv(model.nv,model.nv);

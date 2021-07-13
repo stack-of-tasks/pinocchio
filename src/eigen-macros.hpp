@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_eigen_macros_hpp__
@@ -45,6 +45,18 @@ Eigen::internal::scalar_product_traits<typename Eigen::internal::traits< D1 >::S
 /// \brief Tell if Pinocchio should use the Eigen Tensor Module or not
 #if defined(PINOCCHIO_WITH_CXX11_SUPPORT) && EIGEN_VERSION_AT_LEAST(3,2,90)
   #define PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
+#endif
+
+/// \brief Check memory allocation for Eigen
+
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+  #define PINOCCHIO_EIGEN_MALLOC(allowed) ::Eigen::internal::set_is_malloc_allowed(allowed)
+  #define PINOCCHIO_EIGEN_MALLOC_ALLOWED() PINOCCHIO_EIGEN_MALLOC(true)
+  #define PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED() PINOCCHIO_EIGEN_MALLOC(false)
+#else
+  #define PINOCCHIO_EIGEN_MALLOC(allowed)
+  #define PINOCCHIO_EIGEN_MALLOC_ALLOWED()
+  #define PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED()
 #endif
 
 #endif // ifndef __pinocchio_eigen_macros_hpp__

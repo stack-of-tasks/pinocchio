@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_cholesky_hxx__
@@ -441,18 +441,18 @@ namespace pinocchio
     {
       Mat & m_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,m);
       internal::solve<Mat,Mat::ColsAtCompileTime>::run(model,data,m_);
-      return m_.derived();
+      return m_;
     }
     
     namespace internal
     {
-      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
-      Mat & Miunit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                   const int col,
-                   const Eigen::MatrixBase<Mat> & v)
+      template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename VectorLike>
+      VectorLike & Miunit(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const int col,
+                          const Eigen::MatrixBase<VectorLike> & v)
       {
-        EIGEN_STATIC_ASSERT_VECTOR_ONLY(Mat);
+        EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
         
         PINOCCHIO_UNUSED_VARIABLE(model);
         assert(model.check(data) && "data is not consistent with model.");
@@ -463,26 +463,26 @@ namespace pinocchio
         
         const typename Data::MatrixXs & U = data.U;
         const std::vector<int> & nvt = data.nvSubtree_fromRow;
-        Mat & v_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,v);
+        VectorLike & v_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,v);
         
+        v_[col] = (typename VectorLike::Scalar)1;
         const int last_col = std::min<int>(col-1,model.nv-2); // You can start from nv-2 (no child in nv-1)
         v_.tail(model.nv - col - 1).setZero();
-        v_[col] = 1.;
         for( int k=last_col;k>=0;--k )
         {
-          int nvt_max = std::min<int>(col,nvt[(size_t)k]-1);
+          const int nvt_max = std::min<int>(col,nvt[(size_t)k]-1);
           v_[k] = -U.row(k).segment(k+1,nvt_max).dot(v_.segment(k+1,nvt_max));
         }
         
         v_.head(col+1).array() *= data.Dinv.head(col+1).array();
         
-        for( int k=0;k<model.nv-1;++k ) // You can stop one step before nv.
+        for(int k=0; k < col+1; ++k)
         {
-          int nvt_max = nvt[(size_t)k]-1;
+          const int nvt_max = nvt[(size_t)k]-1;
           v_.segment(k+1,nvt_max) -= U.row(k).segment(k+1,nvt_max).transpose() * v_[k];
         }
         
-        return v_.derived();
+        return v_;
       }
     }// namespace internal
     
@@ -498,10 +498,13 @@ namespace pinocchio
 
       Mat & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(Mat,Minv);
       
-      for(int k = 0; k < model.nv; ++k)
-        internal::Miunit(model,data,k,Minv_.col(k));
+      for(int col = 0; col < model.nv; ++col)
+        internal::Miunit(model,data,col,Minv_.col(col));
       
-      return Minv_.derived();
+      Minv_.template triangularView<Eigen::StrictlyLower>()
+      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+      
+      return Minv_;
     }
 
   } //   namespace cholesky

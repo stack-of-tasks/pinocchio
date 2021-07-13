@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2014-2019 CNRS INRIA
+// Copyright (c) 2014-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_symmetric3_hpp__
-#define __pinocchio_symmetric3_hpp__
+#ifndef __pinocchio_spatial_symmetric3__
+#define __pinocchio_spatial_symmetric3__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/matrix.hpp"
@@ -26,18 +26,29 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   public:    
-    Symmetric3Tpl(): m_data() {}
+    Symmetric3Tpl() {}
 
     template<typename Sc,int Opt>
     explicit Symmetric3Tpl(const Eigen::Matrix<Sc,3,3,Opt> & I)
     {
-      assert( (I-I.transpose()).isMuchSmallerThan(I) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero((I-I.transpose()))));
       m_data(0) = I(0,0);
       m_data(1) = I(1,0); m_data(2) = I(1,1);
       m_data(3) = I(2,0); m_data(4) = I(2,1); m_data(5) = I(2,2);
     }
     
     explicit Symmetric3Tpl(const Vector6 & I) : m_data(I) {}
+    
+    Symmetric3Tpl(const Symmetric3Tpl & other)
+    {
+      *this = other;
+    }
+    
+    template<typename S2, int O2>
+    explicit Symmetric3Tpl(const Symmetric3Tpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
+    }
     
     Symmetric3Tpl(const Scalar & a0, const Scalar & a1, const Scalar & a2,
 		  const Scalar & a3, const Scalar & a4, const Scalar & a5)
@@ -62,6 +73,15 @@ namespace pinocchio
     
     static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
     void setIdentity() { m_data << 1, 0, 1, 0, 0, 1; }
+    
+    template<typename Vector3Like>
+    void setDiagonal(const Eigen::MatrixBase<Vector3Like> & diag)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      m_data[0] = diag[0];
+      m_data[2] = diag[1];
+      m_data[5] = diag[2];
+    }
 
     /* Required by Inertia::operator== */
     bool operator==(const Symmetric3Tpl & other) const
@@ -379,17 +399,17 @@ namespace pinocchio
       return ((i!=2)&&(j!=2)) ? m_data[i+j] : m_data[i+j+1];
     }
 
-    Symmetric3Tpl operator-(const Matrix3 &S) const
+    Symmetric3Tpl operator-(const Matrix3 & S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
       return Symmetric3Tpl( m_data(0)-S(0,0),
 			    m_data(1)-S(1,0), m_data(2)-S(1,1),
 			    m_data(3)-S(2,0), m_data(4)-S(2,1), m_data(5)-S(2,2) );
     }
 
-    Symmetric3Tpl operator+(const Matrix3 &S) const
+    Symmetric3Tpl operator+(const Matrix3 & S) const
     {
-      assert( (S-S.transpose()).isMuchSmallerThan(S) );
+      assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
       return Symmetric3Tpl( m_data(0)+S(0,0),
 			    m_data(1)+S(1,0), m_data(2)+S(1,1),
 			    m_data(3)+S(2,0), m_data(4)+S(2,1), m_data(5)+S(2,2) );
@@ -415,7 +435,7 @@ namespace pinocchio
     Symmetric3Tpl rotate(const Eigen::MatrixBase<D> & R) const
     {
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-      assert(isUnitary(R.transpose()*R) && "R is not a Unitary matrix");
+      assert(check_expression_if_real<Scalar>(isUnitary(R.transpose()*R)) && "R is not a Unitary matrix");
 
       Symmetric3Tpl Sres;
       
@@ -471,5 +491,5 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_symmetric3_hpp__
+#endif // ifndef __pinocchio_spatial_symmetric3__
 

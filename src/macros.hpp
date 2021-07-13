@@ -93,6 +93,7 @@ namespace pinocchio
 // Handle explicitely the GCC boring warning: 'anonymous variadic macros were introduced in C++11'
 #include <exception>
 #include <stdexcept>
+#include <sstream>
 
 #if defined(__GNUC__)
   #pragma GCC system_header

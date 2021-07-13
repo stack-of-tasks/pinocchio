@@ -169,13 +169,13 @@ namespace pinocchio
           {
             if (joint.first == "joint")
             {
-              std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
-              const Scalar rotor_mass = (Scalar)joint.second.get<double>("<xmlattr>.mass");
-              const Scalar rotor_gr = (Scalar)joint.second.get<double>("<xmlattr>.gear_ratio");
+              const std::string joint_name = joint.second.get<std::string>("<xmlattr>.name");
+              const Scalar rotor_inertia = (Scalar)joint.second.get<double>("<xmlattr>.mass");
+              const Scalar rotor_gear_ratio = (Scalar)joint.second.get<double>("<xmlattr>.gear_ratio");
               if (verbose)
               {
                 std::cout << "(" << joint_name << " , " <<
-                rotor_mass << " , " << rotor_gr << ")" << std::endl;
+                rotor_inertia << " , " << rotor_gear_ratio << ")" << std::endl;
               }
               // Search in model the joint and its config id
               typename Model::JointIndex joint_id = model.getJointId(joint_name);
@@ -184,8 +184,10 @@ namespace pinocchio
               {
                 const JointModel & joint = model.joints[joint_id];
                 PINOCCHIO_CHECK_INPUT_ARGUMENT(joint.nv()==1);
-                model.rotorInertia(joint.idx_v()) = rotor_mass;
-                model.rotorGearRatio(joint.idx_v()) = rotor_gr;  // joint with 1 dof
+                
+                model.armature[joint.idx_v()] += rotor_inertia * rotor_gear_ratio * rotor_gear_ratio;
+                model.rotorInertia(joint.idx_v()) = rotor_inertia;
+                model.rotorGearRatio(joint.idx_v()) = rotor_gear_ratio;  // joint with 1 dof
               }
               else
               {
@@ -217,21 +219,22 @@ namespace pinocchio
                        const ConfigVectorType& fromXML,
                        ConfigVectorType& config)
       {
-        _algo (joint.derived(), joint_name, fromXML, config);
+        algo_impl(joint.derived(), joint_name, fromXML, config);
       }
 
-      private:
+    private:
       template<int axis>
-      static void _algo (const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
-                         const std::string& joint_name,
-                         const ConfigVectorType& fromXML,
-                         ConfigVectorType& config)
+      static void algo_impl(const JointModelRevoluteUnboundedTpl<Scalar,Options,axis> & joint,
+                            const std::string& joint_name,
+                            const ConfigVectorType& fromXML,
+                            ConfigVectorType& config)
       {
         typedef JointModelRevoluteUnboundedTpl<Scalar,Options,axis> JointModelRUB;
         PINOCCHIO_STATIC_ASSERT(JointModelRUB::NQ == 2, JOINT_MODEL_REVOLUTE_SHOULD_HAVE_2_PARAMETERS);
         if (fromXML.size() != 1)
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
-        else {
+        else
+        {
           SINCOS(fromXML[0],
                  &config[joint.idx_q()+1],
                  &config[joint.idx_q()+0]);
@@ -239,12 +242,12 @@ namespace pinocchio
       }
 
       template<typename JointModel>
-      static void _algo (const JointModel & joint,
-                         const std::string& joint_name,
-                         const ConfigVectorType& fromXML,
-                         ConfigVectorType& config)
+      static void algo_impl(const JointModel & joint,
+                            const std::string& joint_name,
+                            const ConfigVectorType & fromXML,
+                            ConfigVectorType & config)
       {
-        if (joint.nq() != fromXML.size())
+        if(joint.nq() != fromXML.size())
           std::cerr << "Could not read joint config (" << joint_name << " , " << fromXML.transpose() << ")" << std::endl;
         else
           config.segment(joint.idx_q(),joint.nq()) = fromXML;
@@ -320,8 +323,8 @@ namespace pinocchio
                 joint_config = Eigen::Map<Eigen::VectorXd>(config_vec.data(), (Eigen::DenseIndex)config_vec.size());
 
                 typedef LoadReferenceConfigurationStep<Scalar, Options, JointCollectionTpl> LoadReferenceConfigurationStep_t;
-                LoadReferenceConfigurationStep_t::run (joint,
-                    typename LoadReferenceConfigurationStep_t::ArgsType (joint_name, joint_config, ref_config));
+                LoadReferenceConfigurationStep_t::run(joint,
+                    typename LoadReferenceConfigurationStep_t::ArgsType(joint_name, joint_config, ref_config));
                 if (verbose)
                 {
                   std::cout << "(" << joint_name << " , " << joint_config.transpose() << ")" << std::endl;

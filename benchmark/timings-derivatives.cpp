@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -147,6 +147,7 @@ int main(int argc, const char ** argv)
       pinocchio::urdf::buildModel(filename,model);
   std::cout << "nq = " << model.nq << std::endl;
   std::cout << "nv = " << model.nv << std::endl;
+  std::cout << "--" << std::endl;
 
   Data data(model);
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
@@ -177,7 +178,7 @@ int main(int argc, const char ** argv)
   {
     forwardKinematics(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
-  std::cout << "FK= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "FK= \t\t\t\t"; timer.toc(std::cout,NBT);
 
   timer.tic();
   SMOOTH(NBT)
@@ -191,7 +192,7 @@ int main(int argc, const char ** argv)
   {
     rnea(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
-  std::cout << "RNEA= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "RNEA= \t\t\t\t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
@@ -207,14 +208,14 @@ int main(int argc, const char ** argv)
     rnea_fd(model,data,qs[_smooth],qdots[_smooth],qddots[_smooth],
             drnea_dq,drnea_dv,drnea_da);
   }
-  std::cout << "RNEA finite differences= \t\t"; timer.toc(std::cout,NBT/100);
+  std::cout << "RNEA finite differences= \t"; timer.toc(std::cout,NBT/100);
 
   timer.tic();
   SMOOTH(NBT)
   {
     aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
-  std::cout << "ABA= \t\t"; timer.toc(std::cout,NBT);
+  std::cout << "ABA= \t\t\t\t"; timer.toc(std::cout,NBT);
   
   timer.tic();
   SMOOTH(NBT)
@@ -222,8 +223,8 @@ int main(int argc, const char ** argv)
     computeABADerivatives(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],
                           daba_dq,daba_dv,daba_dtau);
   }
-  std::cout << "ABA derivatives= \t\t"; timer.toc(std::cout,NBT);
-  
+  std::cout << "ABA derivatives(q,v,tau)= \t"; timer.toc(std::cout,NBT);
+    
   timer.tic();
   SMOOTH(NBT)
   {
@@ -237,8 +238,8 @@ int main(int argc, const char ** argv)
   {
     computeMinverse(model,data,qs[_smooth]);
   }
-  std::cout << "M.inverse() from ABA = \t\t"; timer.toc(std::cout,NBT);
-  
+  std::cout << "M.inverse(q) = \t\t\t"; timer.toc(std::cout,NBT);
+    
   MatrixXd Minv(model.nv,model.nv); Minv.setZero();
   timer.tic();
   SMOOTH(NBT)

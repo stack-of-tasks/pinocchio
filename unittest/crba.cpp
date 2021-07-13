@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
 /*
@@ -134,10 +134,10 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
   Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
   
-  crba(model,data_ref,q);
+  pinocchio::deprecated::crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  crbaMinimal(model,data,q);
+  crba(model,data,q);
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   BOOST_CHECK(data.M.isApprox(data_ref.M));
@@ -147,6 +147,29 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
+}
+
+BOOST_AUTO_TEST_CASE(test_roto_inertia_effects)
+{
+  pinocchio::Model model, model_ref;
+  pinocchio::buildModels::humanoidRandom(model);
+  model_ref = model;
+  
+  BOOST_CHECK(model == model_ref);
+  
+  pinocchio::Data data(model), data_ref(model_ref);
+  
+  model.armature = Eigen::VectorXd::Random(model.nv) + Eigen::VectorXd::Constant(model.nv,1.);
+  
+  Eigen::VectorXd q = randomConfiguration(model);
+  crba(model_ref,data_ref,q);
+  data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
+  data_ref.M.diagonal() += model.armature;
+  
+  crba(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  
+  BOOST_CHECK(data.M.isApprox(data_ref.M));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

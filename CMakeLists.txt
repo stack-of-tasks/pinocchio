@@ -63,6 +63,7 @@ OPTION(BUILD_ADVANCED_TESTING "Build the advanced tests (multiprecision, etc.) o
 
 # --- OPTIONAL DEPENDENCIES -------------------------
 OPTION(BUILD_WITH_URDF_SUPPORT "Build the library with the URDF format support" ON)
+OPTION(BUILD_WITH_SDF_SUPPORT "Build the library with the SDF format support" OFF)
 OPTION(BUILD_WITH_COLLISION_SUPPORT "Build the library with the collision support (required HPP-FCL)" OFF)
 OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differentiation support (via CppAD)" OFF)
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
@@ -71,6 +72,7 @@ OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF
 cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENM "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
+OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
 
 IF(BUILD_WITH_COLLISION_SUPPORT)
   SET(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
@@ -83,9 +85,15 @@ IF(BUILD_WITH_CODEGEN_SUPPORT)
 ENDIF()
 
 IF(INITIALIZE_WITH_NAN)
-  MESSAGE (STATUS "Initialize with NaN all the Eigen entries.")
+  MESSAGE(STATUS "Initialize with NaN all the Eigen entries.")
   ADD_DEFINITIONS(-DEIGEN_INITIALIZE_MATRICES_BY_NAN)
 ENDIF(INITIALIZE_WITH_NAN)
+
+IF(CHECK_RUNTIME_MALLOC)
+  MESSAGE(STATUS "Check if some memory allocations are performed at runtime.")
+  ADD_DEFINITIONS(-DPINOCCHIO_EIGEN_CHECK_MALLOC)
+  ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
+ENDIF(CHECK_RUNTIME_MALLOC)
 
 MACRO(TAG_LIBRARY_VERSION target)
   SET_TARGET_PROPERTIES(${target} PROPERTIES SOVERSION ${PROJECT_VERSION})
@@ -115,6 +123,17 @@ IF(BUILD_WITH_URDF_SUPPORT)
     MESSAGE(STATUS "Since urdfdom >= 1.0.0, the default C++ standard is C++11. The project is then compiled with C++11 standard.")
   ENDIF(${urdfdom_VERSION} VERSION_GREATER "0.4.2")
 ENDIF(BUILD_WITH_URDF_SUPPORT)
+
+IF(BUILD_WITH_SDF_SUPPORT)
+  SET(CMAKE_CXX_STANDARD 11)
+  ADD_PROJECT_DEPENDENCY(SDFormat)
+  INCLUDE_DIRECTORIES(${SDFormat_INCLUDE_DIRS})
+  LINK_DIRECTORIES(${SDFormat_LIBRARY_DIRS})
+  ADD_DEFINITIONS(-DPINOCCHIO_WITH_SDF)
+  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDF")  
+ENDIF(BUILD_WITH_SDF_SUPPORT)
+
+
 
 IF(BUILD_WITH_AUTODIFF_SUPPORT)
   # Check first CppADCodeGen
@@ -187,6 +206,8 @@ ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
+LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
+
 # Path to boost headers
 INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
@@ -208,6 +229,15 @@ IF(NOT BUILD_WITH_URDF_SUPPORT)
     )
 ENDIF(NOT BUILD_WITH_URDF_SUPPORT)
 
+IF(NOT BUILD_WITH_SDF_SUPPORT)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf.hpp
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/src/parsers/sdf/geometry.hxx
+    )
+ENDIF(NOT BUILD_WITH_SDF_SUPPORT)
+
+
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
   LIST(REMOVE_ITEM HEADERS 
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
@@ -227,10 +257,12 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/pool")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/multibody/visitor")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/urdf")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/sdf")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/serialization")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/parallel")
+MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/algorithm/utils")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/container")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/codegen")
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff")

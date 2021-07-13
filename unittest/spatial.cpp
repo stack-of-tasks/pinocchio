@@ -89,6 +89,9 @@ BOOST_AUTO_TEST_CASE ( test_SE3 )
   SE3f amb_float = amb.cast<float>();
   BOOST_CHECK(amb_float.isApprox(amb.cast<float>()));
   
+  SE3f amb_float2(amb);
+  BOOST_CHECK(amb_float.isApprox(amb_float2));
+  
   // Test actInv
   const SE3 M = SE3::Random();
   const SE3 Minv = M.inverse();
@@ -258,6 +261,9 @@ BOOST_AUTO_TEST_CASE ( test_Motion )
     Motion a(Motion::Random());
     Motionf a_float = a.cast<float>();
     BOOST_CHECK(a_float.isApprox(a.cast<float>()));
+    
+    Motionf a_float2(a);
+    BOOST_CHECK(a_float.isApprox(a_float2));
   }
 }
 
@@ -430,6 +436,9 @@ BOOST_AUTO_TEST_CASE ( test_Force )
     Force a(Force::Random());
     Forcef a_float = a.cast<float>();
     BOOST_CHECK(a_float.isApprox(a.cast<float>()));
+    
+    Forcef a_float2(a);
+    BOOST_CHECK(a_float.isApprox(a_float2));
   }
   
   // Test scalar multiplication
@@ -694,8 +703,13 @@ BOOST_AUTO_TEST_CASE(cast_inertia)
   using namespace pinocchio;
   Inertia Y(Inertia::Random());
   
+  typedef InertiaTpl<long double> Inertiald;
+  
   BOOST_CHECK(Y.cast<double>() == Y);
   BOOST_CHECK(Y.cast<long double>().cast<double>() == Y);
+  
+  Inertiald Y2(Y);
+  BOOST_CHECK(Y2.isApprox(Y.cast<long double>()));  
 }
 
 BOOST_AUTO_TEST_CASE ( test_ActOnSet )
@@ -956,16 +970,21 @@ BOOST_AUTO_TEST_CASE(test_cartesian_axis)
   const double alpha = 3;
   Vector3d v2(alpha*v);
   
-  BOOST_CHECK(AxisX::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
-  BOOST_CHECK(AxisY::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
-  BOOST_CHECK(AxisZ::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
-  BOOST_CHECK(AxisX::alphaCross(alpha,v).isApprox(Vector3d::Unit(0).cross(v2)));
-  BOOST_CHECK(AxisY::alphaCross(alpha,v).isApprox(Vector3d::Unit(1).cross(v2)));
-  BOOST_CHECK(AxisZ::alphaCross(alpha,v).isApprox(Vector3d::Unit(2).cross(v2)));
+  BOOST_CHECK(XAxis::cross(v).isApprox(Vector3d::Unit(0).cross(v)));
+  BOOST_CHECK(YAxis::cross(v).isApprox(Vector3d::Unit(1).cross(v)));
+  BOOST_CHECK(ZAxis::cross(v).isApprox(Vector3d::Unit(2).cross(v)));
+  BOOST_CHECK(XAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(0).cross(v2)));
+  BOOST_CHECK(YAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(1).cross(v2)));
+  BOOST_CHECK(ZAxis::alphaCross(alpha,v).isApprox(Vector3d::Unit(2).cross(v2)));
   
   test_scalar_multiplication_cartesian_axis<0>::run();
   test_scalar_multiplication_cartesian_axis<1>::run();
   test_scalar_multiplication_cartesian_axis<2>::run();
+  
+  // test Vector value
+  BOOST_CHECK(XAxis::vector() == Vector3d::UnitX());
+  BOOST_CHECK(YAxis::vector() == Vector3d::UnitY());
+  BOOST_CHECK(ZAxis::vector() == Vector3d::UnitZ());
 }
 
 template<int axis>

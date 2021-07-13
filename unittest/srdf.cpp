@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2021 CNRS INRIA
+// Copyright (c) 2016-2018 CNRS
 //
 
 #include <iostream>

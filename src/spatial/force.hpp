@@ -3,8 +3,8 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_force_hpp__
-#define __pinocchio_force_hpp__
+#ifndef __pinocchio_spatial_force_hpp__
+#define __pinocchio_spatial_force_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -38,5 +38,5 @@ FORCE_TYPEDEF_GENERIC(Derived,PINOCCHIO_MACRO_EMPTY_ARG)
 #include "pinocchio/spatial/force-tpl.hpp"
 #include "pinocchio/spatial/force-ref.hpp"
 
-#endif // ifndef __pinocchio_force_hpp__
+#endif // ifndef __pinocchio_spatial_force_hpp__
 

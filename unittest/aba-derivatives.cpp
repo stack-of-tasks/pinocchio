@@ -2,8 +2,6 @@
 // Copyright (c) 2018-2020 CNRS INRIA
 //
 
-#include "pinocchio/multibody/model.hpp"
-#include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
@@ -31,7 +29,6 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   buildModels::humanoidRandom(model);
   
   Data data(model), data_ref(model);
-  
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   VectorXd q = randomConfiguration(model);
@@ -39,28 +36,56 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   VectorXd tau(VectorXd::Random(model.nv));
   VectorXd a(aba(model,data_ref,q,v,tau));
   
+  VectorXd tau_from_a(rnea(model,data_ref,q,v,a));
+  BOOST_CHECK(tau_from_a.isApprox(tau));
+  
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   Data::RowMatrixXs aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
   computeABADerivatives(model, data, q, v, tau, aba_partial_dq, aba_partial_dv, aba_partial_dtau);
   computeRNEADerivatives(model,data_ref,q,v,a);
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
     BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
-    BOOST_CHECK(data.v[k].isApprox(data_ref.v[k]));
-    BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k])); 
+    BOOST_CHECK(data.oh[k].isApprox(data_ref.oh[k]));
+    BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa[k] - model.gravity));
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa_gf[k]));
     BOOST_CHECK(data.of[k].isApprox(data_ref.of[k]));
     BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
   }
   
+  aba(model,data_ref,q,v,tau);
+  for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.oYaba[k].isApprox(data_ref.oMi[k].toDualActionMatrix()*data_ref.Yaba[k]*data_ref.oMi[k].inverse().toActionMatrix()));
+//    BOOST_CHECK(data.of[k].isApprox(data.oMi[k].act(data_ref.f[k])));
+  }
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  
+  aba(model,data_ref,q,v,tau);
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  BOOST_CHECK(data.u.isApprox(data_ref.u));
+  for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
+  {
+    BOOST_CHECK(data.oMi[k].isApprox(data_ref.oMi[k]));
+    BOOST_CHECK(data.ov[k].isApprox(data_ref.ov[k]));
+    //BOOST_CHECK(data.oYaba[k].isApprox(data_ref.oYaba[k]));
+//    BOOST_CHECK(data.of[k].isApprox(data_ref.of[k]));
+    BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa_gf[k]));
+    //BOOST_CHECK(data.joints[k].U().isApprox(data_ref.joints[k].U()));
+    //BOOST_CHECK(data.joints[k].StU().isApprox(data_ref.joints[k].StU()));
+    BOOST_CHECK(data.joints[k].Dinv().isApprox(data_ref.joints[k].Dinv()));
+    //BOOST_CHECK(data.joints[k].UDinv().isApprox(data_ref.joints[k].UDinv()));
+  }
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  
   computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   
-  aba(model,data_ref,q,v,tau);
-  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   
   computeMinverse(model,data_ref,q);
   data_ref.Minv.triangularView<Eigen::StrictlyLower>()
@@ -310,7 +335,6 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_vs_kinematics_derivatives)
   
   VectorXd tau = rnea(model,data_ref,q,v,a);
   
-  /// Check againt computeGeneralizedGravityDerivatives
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();

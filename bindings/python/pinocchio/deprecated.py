@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020 CNRS INRIA
+# Copyright (c) 2018-2021 CNRS INRIA
 #
 
 ## In this file, are reported some deprecated functions that are still maintained until the next important future releases ##
@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import warnings as _warnings
 
-from . import pinocchio_pywrap as pin
+from . import pinocchio_pywrap_default as pin
 from .deprecation import deprecated, DeprecatedWarning
 
 # This function is only deprecated when using a specific signature. Therefore, it needs special care

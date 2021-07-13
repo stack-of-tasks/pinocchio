@@ -18,26 +18,37 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_toRotationMatrix)
 {
   using namespace pinocchio;
-  const int max_tests = 1e5;
+  #ifndef NDEBUG
+    const int max_tests = 1e5;
+  #else
+    const int max_tests = 1e2;
+  #endif
   for(int k = 0; k < max_tests; ++k)
   {
     const double theta = std::rand();
     double cos_value, sin_value;
     
     pinocchio::SINCOS(theta,&sin_value,&cos_value);
-    Eigen::Vector3d axis(Eigen::Vector3d::Random().normalized());
+    const Eigen::Vector3d axis(Eigen::Vector3d::Random().normalized());
 
     Eigen::Matrix3d rot; toRotationMatrix(axis,cos_value,sin_value,rot);
-    Eigen::Matrix3d rot_ref = Eigen::AngleAxisd(theta,axis).toRotationMatrix();
+    Eigen::Matrix3d rot2; toRotationMatrix(axis,theta,rot2);
+    
+    const Eigen::Matrix3d rot_ref = Eigen::AngleAxisd(theta,axis).toRotationMatrix();
     
     BOOST_CHECK(rot.isApprox(rot_ref));
+    BOOST_CHECK(rot2.isApprox(rot_ref));
   }
 }
 
 BOOST_AUTO_TEST_CASE(test_orthogonal_projection)
 {
   using namespace pinocchio;
+#ifndef NDEBUG
   const int max_tests = 1e5;
+#else
+  const int max_tests = 1e2;
+#endif
   
   typedef Eigen::Vector4d Vector4;
   typedef Eigen::Quaterniond Quaternion;
@@ -65,5 +76,3 @@ BOOST_AUTO_TEST_CASE(test_orthogonal_projection)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-
-

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS, INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
 #include "pinocchio/spatial/se3.hpp"
@@ -63,8 +63,8 @@ BOOST_AUTO_TEST_CASE ( test_FD )
   Eigen::MatrixXd G_ref(J.transpose());
   cholesky::Uiv(model, data, G_ref);
   for(int k=0;k<model.nv;++k) G_ref.row(k) /= sqrt(data.D[k]);
-    Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
-    BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
+  Eigen::MatrixXd H_ref(G_ref.transpose() * G_ref);
+  BOOST_CHECK(H_ref.isApprox(JMinvJt,1e-12));
   
   VectorXd lambda_ref = -JMinvJt.inverse() * (J*Minv*(tau - data.nle) + gamma);
   BOOST_CHECK(data.lambda_c.isApprox(lambda_ref, 1e-12));

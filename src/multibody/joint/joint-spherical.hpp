@@ -1,14 +1,14 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_spherical_hpp__
-#define __pinocchio_joint_spherical_hpp__
+#ifndef __pinocchio_multibody_joint_spherical_hpp__
+#define __pinocchio_multibody_joint_spherical_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/math/sincos.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
@@ -97,13 +97,13 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionSphericalTpl & other) const
     {
-      return m_w == other.m_w;
+      return internal::comparison_eq(m_w, other.m_w);
     }
     
     template<typename MotionDerived>
     bool isEqual_impl(const MotionDense<MotionDerived> & other) const
     {
-      return other.angular() == m_w && other.linear().isZero(0);
+      return internal::comparison_eq(other.angular(), m_w) && other.linear().isZero(0);
     }
     
     template<typename S2, int O2, typename D2>
@@ -178,10 +178,10 @@ namespace pinocchio
     return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.angular());
   }
 
-  template<typename Scalar, int Options> struct ConstraintSphericalTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspaceSphericalTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintSphericalTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspaceSphericalTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -192,19 +192,23 @@ namespace pinocchio
     typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,3,Options> ReducedSquaredMatrix;
+    
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
-  }; // struct traits struct ConstraintSphericalTpl
+    
+    typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
+  }; // struct traits struct JointMotionSubspaceSphericalTpl
 
   template<typename _Scalar, int _Options>
-  struct ConstraintSphericalTpl
-  : public ConstraintBase< ConstraintSphericalTpl<_Scalar,_Options> >
+  struct JointMotionSubspaceSphericalTpl
+  : public JointMotionSubspaceBase< JointMotionSubspaceSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintSphericalTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceSphericalTpl)
     
-    ConstraintSphericalTpl() {}
+    JointMotionSubspaceSphericalTpl() {}
     
     enum { NV = 3 };
     
@@ -217,7 +221,7 @@ namespace pinocchio
       return JointMotion(w);
     }
     
-    struct TransposeConst
+    struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspaceSphericalTpl>
     {
       template<typename Derived>
       typename ForceDense<Derived>::ConstAngularType
@@ -258,9 +262,9 @@ namespace pinocchio
     Eigen::Matrix<S1,6,3,O1> se3ActionInverse(const SE3Tpl<S1,O1> & m) const
     {
       Eigen::Matrix<S1,6,3,O1> X_subspace;
-      AxisX::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(0));
-      AxisY::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(1));
-      AxisZ::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(2));
+      XAxis::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(0));
+      YAxis::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(1));
+      ZAxis::cross(m.translation(),X_subspace.template middleRows<3>(ANGULAR).col(2));
       
       X_subspace.template middleRows<3>(LINEAR).noalias()
       = m.rotation().transpose() * X_subspace.template middleRows<3>(ANGULAR);
@@ -282,9 +286,9 @@ namespace pinocchio
       return res;
     }
     
-    bool isEqual(const ConstraintSphericalTpl &) const { return true; }
+    bool isEqual(const JointMotionSubspaceSphericalTpl &) const { return true; }
 
-  }; // struct ConstraintSphericalTpl
+  }; // struct JointMotionSubspaceSphericalTpl
 
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain
@@ -298,7 +302,7 @@ namespace pinocchio
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>
   operator*(const InertiaTpl<S1,O1> & Y,
-            const ConstraintSphericalTpl<S2,O2> &)
+            const JointMotionSubspaceSphericalTpl<S2,O2> &)
   {
     typedef InertiaTpl<S1,O1> Inertia;
     typedef typename Inertia::Symmetric3 Symmetric3;
@@ -313,18 +317,18 @@ namespace pinocchio
   template<typename M6Like, typename S2, int O2>
   inline typename SizeDepType<3>::ColsReturn<M6Like>::ConstType
   operator*(const Eigen::MatrixBase<M6Like> & Y,
-            const ConstraintSphericalTpl<S2,O2> &)
+            const JointMotionSubspaceSphericalTpl<S2,O2> &)
   {
-    typedef ConstraintSphericalTpl<S2,O2> Constraint;
+    typedef JointMotionSubspaceSphericalTpl<S2,O2> Constraint;
     return Y.derived().template middleCols<3>(Constraint::ANGULAR);
   }
   
   template<typename S1, int O1>
-  struct SE3GroupAction< ConstraintSphericalTpl<S1,O1> >
+  struct SE3GroupAction< JointMotionSubspaceSphericalTpl<S1,O1> >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   
   template<typename S1, int O1, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintSphericalTpl<S1,O1>,MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspaceSphericalTpl<S1,O1>,MotionDerived >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointSphericalTpl;
@@ -340,7 +344,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataSphericalTpl<Scalar,Options> JointDataDerived;
     typedef JointModelSphericalTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintSphericalTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceSphericalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionSphericalTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;
@@ -349,29 +353,39 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options>
-  struct traits< JointDataSphericalTpl<Scalar,Options> >
-  { typedef JointSphericalTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataSphericalTpl<_Scalar,_Options> >
+  {
+    typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelSphericalTpl<Scalar,Options> >
-  { typedef JointSphericalTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelSphericalTpl<_Scalar,_Options> >
+  {
+    typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
-  struct JointDataSphericalTpl : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
+  struct JointDataSphericalTpl
+  : public JointDataBase< JointDataSphericalTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef JointSphericalTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -382,13 +396,17 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
-    JointDataSphericalTpl ()
-    : M(Transformation_t::Identity())
+    JointDataSphericalTpl()
+    : joint_q(Scalar(0),Scalar(0),Scalar(0),Scalar(1))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataSpherical"); }
@@ -434,6 +452,7 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::QuaternionBase<QuaternionDerived> & quat) const
     {
+      data.joint_q = quat.coeffs();
       data.M.rotation(quat.matrix());
     }
     
@@ -466,33 +485,25 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      
-      data.v.angular() = vs.template segment<NV>(idx_v());
+      data.joint_v = vs.template segment<NV>(idx_v());
+      data.v.angular() = data.joint_v;
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U = I.template block<6,3>(0,Inertia::ANGULAR);
+      data.StU = data.U.template middleRows<3>(Inertia::ANGULAR);
+      data.StU.diagonal() += armature;
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.U.template middleRows<3>(Inertia::ANGULAR).llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::ANGULAR),data.Dinv);
-      
-      data.UDinv.template middleRows<3>(Inertia::ANGULAR).setIdentity(); // can be put in data constructor
-      data.UDinv.template middleRows<3>(Inertia::LINEAR).noalias() = data.U.template block<3,3>(Inertia::LINEAR, 0) * data.Dinv;
-      
-      if (update_I)
-      {
-        Matrix6Like & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I);
-        I_.template block<3,3>(Inertia::LINEAR,Inertia::LINEAR)
-        -= data.UDinv.template middleRows<3>(Inertia::LINEAR) * I_.template block<3,3> (Inertia::ANGULAR, Inertia::LINEAR);
-        I_.template block<6,3>(0,Inertia::ANGULAR).setZero();
-        I_.template block<3,3>(Inertia::ANGULAR,Inertia::LINEAR).setZero();
-      }
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
+      data.UDinv.noalias() = data.U * data.Dinv;
+
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
     
     static std::string classname() { return std::string("JointModelSpherical"); }
@@ -533,4 +544,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_spherical_hpp__
+#endif // ifndef __pinocchio_multibody_joint_spherical_hpp__

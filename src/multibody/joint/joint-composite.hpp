@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_composite_hpp__
-#define __pinocchio_joint_composite_hpp__
+#ifndef __pinocchio_multibody_joint_composite_hpp__
+#define __pinocchio_multibody_joint_composite_hpp__
 
 #include "pinocchio/multibody/joint/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -33,7 +33,7 @@ namespace pinocchio
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
     typedef JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options> Motion_t;
     typedef MotionTpl<Scalar,Options> Bias_t;
@@ -42,20 +42,26 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> U_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointModelCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
-  struct traits< JointDataCompositeTpl<Scalar,Options,JointCollectionTpl> >
-  { typedef JointCompositeTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
+  struct traits< JointDataCompositeTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointCompositeTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
   template<typename _Scalar, int _Options, template<typename S, int O> class JointCollectionTpl>
   struct JointDataCompositeTpl
@@ -79,6 +85,8 @@ namespace pinocchio
     : joints()
     , iMlast(0)
     , pjMi(0)
+    , joint_q(ConfigVector_t::Zero(0))
+    , joint_v(TangentVector_t::Zero(0))
     , S(0)
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
@@ -88,8 +96,10 @@ namespace pinocchio
     {}
 
     
-    JointDataCompositeTpl(const JointDataVector & joint_data, const int /*nq*/, const int nv)
+    JointDataCompositeTpl(const JointDataVector & joint_data, const int nq, const int nv)
     : joints(joint_data), iMlast(joint_data.size()), pjMi(joint_data.size())
+    , joint_q(ConfigVector_t::Zero(nq))
+    , joint_v(TangentVector_t::Zero(nv))
     , S(Constraint_t::Zero(nv))
     , M(Transformation_t::Identity())
     , v(Motion_t::Zero())
@@ -108,6 +118,9 @@ namespace pinocchio
 
     /// \brief Transforms from previous joint to joint i
     PINOCCHIO_ALIGNED_STD_VECTOR(Transformation_t) pjMi;
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -118,7 +131,6 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
-    
     D_t StU;
 
     static std::string classname() { return std::string("JointDataComposite"); }
@@ -156,14 +168,13 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
-    typedef JointModel JointModelVariant;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef InertiaTpl<Scalar,Options> Inertia;
   
-    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModelVariant) JointModelVector;
     
     using Base::id;
     using Base::idx_q;
@@ -274,17 +285,16 @@ namespace pinocchio
               const Eigen::MatrixBase<ConfigVectorType> & qs,
               const Eigen::MatrixBase<TangentVectorType> & vs) const;
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U.noalias() = I * data.S.matrix();
       data.StU.noalias() = data.S.matrix().transpose() * data.U;
+      data.StU.diagonal() += armature;
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.StU.llt().solveInPlace(data.Dinv);
       internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       data.UDinv.noalias() = data.U * data.Dinv;
 
@@ -328,15 +338,15 @@ namespace pinocchio
     {
       std::cout << "JointModelCompositeTpl::isEqual" << std::endl;
       return Base::isEqual(other)
-      && nq() == other.nq()
-      && nv() == other.nv()
-      && m_idx_q == other.m_idx_q
-      && m_idx_v == other.m_idx_v
-      && m_nqs == other.m_nqs
-      && m_nvs == other.m_nvs
-      && joints == other.joints
-      && jointPlacements == other.jointPlacements
-      && njoints == other.njoints;
+	&& internal::comparison_eq(nq(), other.nq())
+	&& internal::comparison_eq(nv(), other.nv())
+	&& internal::comparison_eq(m_idx_q, other.m_idx_q)
+	&& internal::comparison_eq(m_idx_v, other.m_idx_v)
+	&& internal::comparison_eq(m_nqs, other.m_nqs)
+	&& internal::comparison_eq(m_nvs, other.m_nvs)
+	&& internal::comparison_eq(joints, other.joints)
+	&& internal::comparison_eq(jointPlacements, other.jointPlacements)
+	&& internal::comparison_eq(njoints, other.njoints);
     }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
@@ -505,4 +515,4 @@ namespace boost
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/joint/joint-composite.hxx"
 
-#endif // ifndef __pinocchio_joint_composite_hpp__
+#endif // ifndef __pinocchio_multibody_joint_composite_hpp__

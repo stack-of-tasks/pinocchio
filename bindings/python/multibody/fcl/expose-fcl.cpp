@@ -19,7 +19,7 @@ namespace pinocchio
     {
       namespace bp = boost::python;
       bp::import("hppfcl");
-      
+
       using namespace ::hpp::fcl;
       
       // Register implicit conversion SE3 <=> ::hpp::fcl::Transform3f
@@ -34,8 +34,7 @@ namespace pinocchio
       serialize<Cone>();
       serialize<Cylinder>();
       serialize<Plane>();
-      serialize<Halfspace>();
-      
+      serialize<Halfspace>();      
       serialize< BVHModel<OBB> >();
       serialize< BVHModel<RSS> >();
       serialize< BVHModel<OBBRSS> >();

@@ -85,14 +85,14 @@ void test_jmodel_nq_against_nq_ref(const JointModelMimic<JointModel> & jmodel,
 
 template<typename JointModel, typename ConstraintDerived>
 void test_nv_against_jmodel(const JointModelBase<JointModel> & jmodel,
-                            const ConstraintBase<ConstraintDerived> & constraint)
+                            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
 {
   BOOST_CHECK(constraint.nv() == jmodel.nv());
 }
 
 template<typename JointModel, typename ConstraintDerived>
 void test_nv_against_jmodel(const JointModelMimic<JointModel> & jmodel,
-                            const ConstraintBase<ConstraintDerived> & constraint)
+                            const JointMotionSubspaceBase<ConstraintDerived> & constraint)
 {
   BOOST_CHECK(constraint.nv() == jmodel.jmodel().nv());
 }
@@ -260,6 +260,13 @@ void test_constraint_operations(const JointModelBase<JointModel> & jmodel)
     Eigen::MatrixXd YS = Y_mat * constraint;
     Eigen::MatrixXd YS_ref = Y_mat * constraint_mat;
     BOOST_CHECK(YS.isApprox(YS_ref));
+  }
+  
+  // Test constrainst operations
+  {
+    Eigen::MatrixXd StS = constraint.transpose() * constraint;
+    Eigen::MatrixXd StS_ref = constraint_mat.transpose() * constraint_mat;
+    BOOST_CHECK(StS.isApprox(StS_ref));
   }
   
 }

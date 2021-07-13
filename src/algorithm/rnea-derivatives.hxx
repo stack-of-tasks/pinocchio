@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_rnea_derivatives_hxx__
-#define __pinocchio_rnea_derivatives_hxx__
+#ifndef __pinocchio_algorithm_rnea_derivatives_hxx__
+#define __pinocchio_algorithm_rnea_derivatives_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -33,8 +33,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       const Motion & minus_gravity = data.oa_gf[0];
       
       jmodel.calc(jdata.derived(),q.derived());
@@ -79,17 +79,19 @@ namespace pinocchio
                      const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) YS(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
 
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
       motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
       
@@ -99,9 +101,9 @@ namespace pinocchio
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
-      lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j);
+        gravity_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dAdq.col(j);
       
       jmodel.jointVelocitySelector(g).noalias() = J_cols.transpose()*data.of[i].toVector();
       if(parent>0)
@@ -109,15 +111,6 @@ namespace pinocchio
         data.oYcrb[parent] += data.oYcrb[i];
         data.of[parent] += data.of[i];
       }
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
@@ -216,8 +209,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
 
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
       Motion & ov = data.ov[i];
       Motion & oa = data.oa[i];
       Motion & oa_gf = data.oa_gf[i];
@@ -313,22 +306,23 @@ namespace pinocchio
                      const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Matrix6x Matrix6x;
       
-      const JointIndex & i = jmodel.id();
-      const JointIndex & parent = model.parents[i];
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
-      typename Data::RowMatrix6 & M6tmpR2 = data.M6tmpR2;
+      const JointIndex i = jmodel.id();
+      const JointIndex parent = model.parents[i];
 
-      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColsBlock;
       
+      Matrix6x & dYtJ = data.Fcrb[0];
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock dVdq_cols = jmodel.jointCols(data.dVdq);
       ColsBlock dAdq_cols = jmodel.jointCols(data.dAdq);
       ColsBlock dAdv_cols = jmodel.jointCols(data.dAdv);
       ColsBlock dFdq_cols = jmodel.jointCols(data.dFdq);
       ColsBlock dFdv_cols = jmodel.jointCols(data.dFdv);
-      ColsBlock dFda_cols = jmodel.jointCols(data.dFda);
-      
+      ColsBlock dFda_cols = jmodel.jointCols(data.dFda); // Also equals to Ag_cols
+      ColsBlock dYtJ_cols = jmodel.jointCols(dYtJ);
+
       MatrixType1 & rnea_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,rnea_partial_dq);
       MatrixType2 & rnea_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv);
       MatrixType3 & rnea_partial_da_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da);
@@ -336,17 +330,16 @@ namespace pinocchio
       // tau
       jmodel.jointVelocitySelector(data.tau).noalias() = J_cols.transpose()*data.of[i].toVector();
       
+      const Eigen::DenseIndex nv_subtree = data.nvSubtree[i];
+      const Eigen::DenseIndex nv = jmodel.nv();
+      const Eigen::DenseIndex idx_v = jmodel.idx_v();
+      const Eigen::DenseIndex idx_v_plus = idx_v + nv;
+      const Eigen::DenseIndex nv_subtree_plus = nv_subtree - nv;
+      
       // dtau/da similar to data.M
       motionSet::inertiaAction(data.oYcrb[i],J_cols,dFda_cols);
-      rnea_partial_da_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.dFda.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      
-      // dtau/dv
-      dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
-      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
-
-      rnea_partial_dv_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      rnea_partial_da_.block(idx_v,idx_v,nv,nv_subtree).noalias()
+      = J_cols.transpose()*data.dFda.middleCols(idx_v,nv_subtree);
       
       // dtau/dq
       if(parent>0)
@@ -356,29 +349,27 @@ namespace pinocchio
       }
       else
         motionSet::inertiaAction(data.oYcrb[i],dAdq_cols,dFdq_cols);
-
-      rnea_partial_dq_.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.dFdq.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      
+      dYtJ_cols.transpose().noalias() = J_cols.transpose() * data.doYcrb[i];
+      rnea_partial_dq_.block(idx_v_plus,idx_v,nv_subtree_plus,nv).noalias() =
+        data.dFda.middleCols(idx_v_plus,nv_subtree_plus).transpose() * dAdq_cols
+      + dYtJ.middleCols(idx_v_plus,nv_subtree_plus).transpose() * dVdq_cols;
+      
+      rnea_partial_dq_.block(idx_v,idx_v,nv,nv_subtree).noalias()
+      = J_cols.transpose()*data.dFdq.middleCols(idx_v,nv_subtree);
       
       motionSet::act<ADDTO>(J_cols,data.of[i],dFdq_cols);
       
-      if(parent > 0)
-      {
-        lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
-        M6tmpR2.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.doYcrb[i];
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        {
-          rnea_partial_dq_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = M6tmpR.topRows(jmodel.nv()) * data.dAdq.col(j)
-          + M6tmpR2.topRows(jmodel.nv()) * data.dVdq.col(j);
-        }
-        for(int j = data.parents_fromRow[(typename Model::Index)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(typename Model::Index)j])
-        {
-          rnea_partial_dv_.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias()
-          = M6tmpR.topRows(jmodel.nv()) * data.dAdv.col(j)
-          + M6tmpR2.topRows(jmodel.nv()) * data.J.col(j);
-        }
-      }
+      // dtau/dv
+      dFdv_cols.noalias() = data.doYcrb[i] * J_cols;
+      motionSet::inertiaAction<ADDTO>(data.oYcrb[i],dAdv_cols,dFdv_cols);
+      
+      rnea_partial_dv_.block(idx_v_plus,idx_v,nv_subtree_plus,nv).noalias() =
+        data.dFda.middleCols(idx_v_plus,nv_subtree_plus).transpose() * dAdv_cols
+      + dYtJ.middleCols(idx_v_plus,nv_subtree_plus).transpose() * J_cols;
+
+      rnea_partial_dv_.block(idx_v,idx_v,nv,nv_subtree).noalias()
+      = J_cols.transpose()*data.dFdv.middleCols(idx_v,nv_subtree);
       
       if(parent>0)
       {
@@ -386,25 +377,6 @@ namespace pinocchio
         data.doYcrb[parent] += data.doYcrb[i];
         data.of[parent] += data.of[i];
       }
-      
-      // Restore the status of dAdq_cols (remove gravity)
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
-                                     "The gravity must be a pure force vector, no angular part");
-      for(Eigen::DenseIndex k =0; k < jmodel.nv(); ++k)
-      {
-        MotionRef<typename ColsBlock::ColXpr> m_in(J_cols.col(k));
-        MotionRef<typename ColsBlock::ColXpr> m_out(dAdq_cols.col(k));
-        m_out.linear() += model.gravity.linear().cross(m_in.angular());
-      }
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
@@ -429,9 +401,12 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_dv.rows(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.cols(), model.nv);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(rnea_partial_da.rows(), model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                   "The gravity must be a pure force vector, no angular part");
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
     data.oa_gf[0] = -model.gravity;
@@ -452,6 +427,18 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
+    
+    // Restore the status of dAdq_cols (remove gravity)
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+    {
+      MotionRef<typename Data::Matrix6x::ColXpr> m_in(data.J.col(k));
+      MotionRef<typename Data::Matrix6x::ColXpr> m_out(data.dAdq.col(k));
+      m_out.linear() += model.gravity.linear().cross(m_in.angular());
+    }
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da).diagonal() += model.armature;
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
@@ -480,6 +467,7 @@ namespace pinocchio
     assert(model.check(data) && "data is not consistent with model.");
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
     data.oa_gf[0] = -model.gravity;
@@ -501,9 +489,21 @@ namespace pinocchio
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,rnea_partial_dv),
                                           PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,rnea_partial_da)));
     }
+    
+    // Restore the status of dAdq_cols (remove gravity)
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+    {
+      MotionRef<typename Data::Matrix6x::ColXpr> m_in(data.J.col(k));
+      MotionRef<typename Data::Matrix6x::ColXpr> m_out(data.dAdq.col(k));
+      m_out.linear() += model.gravity.linear().cross(m_in.angular());
+    }
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
+    data.M.diagonal() += model.armature;
   }
   
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_rnea_derivatives_hxx__
+#endif // ifndef __pinocchio_algorithm_rnea_derivatives_hxx__

@@ -1,12 +1,11 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #ifndef __pinocchio_multibody_model_hxx__
 #define __pinocchio_multibody_model_hxx__
 
-#include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/utils/string-generator.hpp"
 #include "pinocchio/multibody/liegroup/liegroup-algo.hpp"
 
@@ -77,12 +76,11 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_friction.size(),joint_model.nv(),"The joint friction vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_damping.size(),joint_model.nv(),"The joint damping vector is not of right size");
 
-    JointIndex idx = (JointIndex)(njoints++);
+    JointIndex joint_id = (JointIndex)(njoints++);
     
     joints         .push_back(JointModel(joint_model.derived()));
-//    JointModelDerived & jmodel = boost::get<JointModelDerived>(joints.back());
     JointModel & jmodel = joints.back();
-    jmodel.setIndexes(idx,nq,nv);
+    jmodel.setIndexes(joint_id,nq,nv);
     
     const int joint_nq = jmodel.nq();
     const int joint_idx_q = jmodel.idx_q();
@@ -92,10 +90,12 @@ namespace pinocchio
     assert(joint_idx_q >= 0);
     assert(joint_idx_v >= 0);
 
-    inertias       .push_back(Inertia::Zero());
-    parents        .push_back(parent);
-    jointPlacements.push_back(joint_placement);
-    names          .push_back(joint_name);
+    inertias        .push_back(Inertia::Zero());
+    parents         .push_back(parent);
+    children        .push_back(IndexVector());
+    children[parent].push_back(joint_id);
+    jointPlacements .push_back(joint_placement);
+    names           .push_back(joint_name);
     
     nq += joint_nq; nqs.push_back(joint_nq); idx_qs.push_back(joint_idx_q);
     nv += joint_nv; nvs.push_back(joint_nv); idx_vs.push_back(joint_idx_v);
@@ -111,6 +111,8 @@ namespace pinocchio
       upperPositionLimit.conservativeResize(nq);
       jmodel.jointConfigSelector(upperPositionLimit) = max_config;
       
+      armature.conservativeResize(nv);
+      jmodel.jointVelocitySelector(armature).setZero();
       rotorInertia.conservativeResize(nv);
       jmodel.jointVelocitySelector(rotorInertia).setZero();
       rotorGearRatio.conservativeResize(nv);
@@ -123,14 +125,14 @@ namespace pinocchio
     
     // Init and add joint index to its parent subtrees.
     subtrees.push_back(IndexVector(1));
-    subtrees[idx][0] = idx;
-    addJointIndexToParentSubtrees(idx);
+    subtrees[joint_id][0] = joint_id;
+    addJointIndexToParentSubtrees(joint_id);
     
     // Init and add joint index to the supports
     supports.push_back(supports[parent]);
-    supports[idx].push_back(idx);
+    supports[joint_id].push_back(joint_id);
     
-    return idx;
+    return joint_id;
   }
     
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -170,7 +172,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  inline FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addJointFrame(const JointIndex & joint_index,
                 int previous_frame_index)
@@ -187,6 +189,171 @@ namespace pinocchio
     
     // Add a the joint frame attached to itself to the frame vector - redundant information but useful.
     return addFrame(Frame(names[joint_index],joint_index,(FrameIndex)previous_frame_index,SE3::Identity(),JOINT));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  template<typename NewScalar>
+  typename CastType<NewScalar,ModelTpl<Scalar,Options,JointCollectionTpl> >::type
+  ModelTpl<Scalar,Options,JointCollectionTpl>::cast() const
+  {
+    typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
+    
+    ReturnType res;
+    res.nq = nq; res.nv = nv;
+    res.njoints = njoints;
+    res.nbodies = nbodies;
+    res.nframes = nframes;
+    res.parents = parents;
+    res.children = children;
+    res.names = names;
+    res.subtrees = subtrees;
+    res.supports = supports;
+    res.gravity = gravity.template cast<NewScalar>();
+    res.name = name;
+    
+    res.idx_qs = idx_qs;
+    res.nqs = nqs;
+    res.idx_vs = idx_vs;
+    res.nvs = nvs;
+    
+    // Eigen Vectors
+    res.armature = armature.template cast<NewScalar>();
+    res.friction = friction.template cast<NewScalar>();
+    res.damping = damping.template cast<NewScalar>();
+    res.rotorInertia = rotorInertia.template cast<NewScalar>();
+    res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
+    res.effortLimit = effortLimit.template cast<NewScalar>();
+    res.velocityLimit = velocityLimit.template cast<NewScalar>();
+    res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
+    res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
+
+    typename ConfigVectorMap::const_iterator it;
+    for (it = referenceConfigurations.begin();
+         it != referenceConfigurations.end(); it++)
+    {
+      res.referenceConfigurations.insert(std::make_pair(it->first, it->second.template cast<NewScalar>()));
+    }
+      
+    // reserve vectors
+    res.inertias.resize(inertias.size());
+    res.jointPlacements.resize(jointPlacements.size());
+    res.joints.resize(joints.size());
+    
+    // copy into vectors
+    for(size_t k = 0; k < joints.size(); ++k)
+    {
+      res.inertias[k] = inertias[k].template cast<NewScalar>();
+      res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
+      res.joints[k] = joints[k].template cast<NewScalar>();
+    }
+    
+    res.frames.resize(frames.size());
+    for(size_t k = 0; k < frames.size(); ++k)
+    {
+      res.frames[k] = frames[k].template cast<NewScalar>();
+    }
+    
+    return res;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  bool ModelTpl<Scalar,Options,JointCollectionTpl>::operator==(const ModelTpl & other) const
+  {
+    bool res =
+       other.nq == nq
+    && other.nv == nv
+    && other.njoints == njoints
+    && other.nbodies == nbodies
+    && other.nframes == nframes
+    && other.parents == parents
+    && other.children == children
+    && other.names == names
+    && other.subtrees == subtrees
+    && other.gravity == gravity
+    && other.name == name;
+    
+    res &=
+       other.idx_qs == idx_qs
+    && other.nqs == nqs
+    && other.idx_vs == idx_vs
+    && other.nvs == nvs;
+
+    if(other.referenceConfigurations.size() != referenceConfigurations.size())
+      return false;
+    
+    typename ConfigVectorMap::const_iterator it = referenceConfigurations.begin();
+    typename ConfigVectorMap::const_iterator it_other = other.referenceConfigurations.begin();
+    for(long k = 0; k < (long)referenceConfigurations.size(); ++k)
+    {
+      std::advance(it,k); std::advance(it_other,k);
+      
+      if(it->second.size() != it_other->second.size())
+        return false;
+      if(it->second != it_other->second)
+        return false;
+    }
+    if(other.armature.size() != armature.size())
+      return false;
+    res &= other.armature == armature;
+    if(!res) return res;
+
+    if(other.friction.size() != friction.size())
+      return false;
+    res &= other.friction == friction;
+    if(!res) return res;
+
+    if(other.damping.size() != damping.size())
+      return false;
+    res &= other.damping == damping;
+    if(!res) return res;
+
+    if(other.rotorInertia.size() != rotorInertia.size())
+      return false;
+    res &= other.rotorInertia == rotorInertia;
+    if(!res) return res;
+
+    if(other.rotorGearRatio.size() != rotorGearRatio.size())
+      return false;
+    res &= other.rotorGearRatio == rotorGearRatio;
+    if(!res) return res;
+
+    if(other.effortLimit.size() != effortLimit.size())
+      return false;
+    res &= other.effortLimit == effortLimit;
+    if(!res) return res;
+
+    if(other.velocityLimit.size() != velocityLimit.size())
+      return false;
+    res &= other.velocityLimit == velocityLimit;
+    if(!res) return res;
+
+    if(other.lowerPositionLimit.size() != lowerPositionLimit.size())
+      return false;
+    res &= other.lowerPositionLimit == lowerPositionLimit;
+    if(!res) return res;
+
+    if(other.upperPositionLimit.size() != upperPositionLimit.size())
+      return false;
+    res &= other.upperPositionLimit == upperPositionLimit;
+    if(!res) return res;
+
+    for(size_t k = 1; k < inertias.size(); ++k)
+    {
+      res &= other.inertias[k] == inertias[k];
+      if(!res) return res;
+    }
+
+    for(size_t k = 1; k < other.jointPlacements.size(); ++k)
+    {
+      res &= other.jointPlacements[k] == jointPlacements[k];
+      if(!res) return res;
+    }
+
+    res &=
+       other.joints == joints
+    && other.frames == frames;
+    
+    return res;
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -213,7 +380,8 @@ namespace pinocchio
       // type is FIXED_JOINT
       previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    assert((size_t)previousFrame < frames.size() && "Frame index out of bound");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)previousFrame < frames.size(),
+                                   "Frame index out of bound");
     return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
   }
   
@@ -239,7 +407,8 @@ namespace pinocchio
   {
     typedef std::vector<std::string>::iterator::difference_type it_diff_t;
     it_diff_t res = std::find(names.begin(),names.end(),name) - names.begin();
-    assert((res<INT_MAX) && "Id superior to int range. Should never happen.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((res<INT_MAX),
+                                   "Id superior to int range. Should never happen.");
     return ModelTpl::JointIndex(res);
   }
   
@@ -259,9 +428,9 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    assert(((it == frames.end()) ||
-            (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))
-        && "Several frames match the filter");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(((it == frames.end()) ||
+                                    (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end())),
+                                   "Several frames match the filter");
     return FrameIndex(it - frames.begin());
   }
   
@@ -287,8 +456,10 @@ namespace pinocchio
     
     // Check if the frame.name exists with the same type
     if(existFrame(frame.name,frame.type))
+    {
       return getFrameId(frame.name,frame.type);
-    
+    }
+    // else: we must add a new frames to the current stack
     frames.push_back(frame);
     if(append_inertia)
       inertias[frame.parent] += frame.placement.act(frame.inertia);

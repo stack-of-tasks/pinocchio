@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_python_utils_registration_hpp__
@@ -23,7 +23,7 @@ namespace pinocchio
       {
         const bp::type_info info = bp::type_id<T>();
         const bp::converter::registration* reg = bp::converter::registry::query(info);
-        bp::handle<> class_obj(reg->get_class_object());
+        bp::handle<> class_obj(bp::borrowed(reg->get_class_object()));
         bp::scope().attr(reg->get_class_object()->tp_name) = bp::object(class_obj);
         return true;
       }
@@ -35,4 +35,3 @@ namespace pinocchio
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_python_utils_registration_hpp__
-

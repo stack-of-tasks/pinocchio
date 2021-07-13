@@ -187,6 +187,9 @@ namespace pinocchio
     
     data.dhg = data.f[0];
     data.dhg.angular() += data.dhg.linear().cross(data.com[0]);
+
+    // Add the armature contribution
+    data.M.diagonal() += model.armature;
     
     // JCoM
     data.Jcom = data.Ag.template middleRows<3>(Force::LINEAR)/data.mass[0];
@@ -199,8 +202,7 @@ namespace pinocchio
     data.g.noalias() = -data.Ag.template middleRows<3>(Force::LINEAR).transpose() * model.gravity.linear();
     
     // Energy
-    computeKineticEnergy(model, data);
-    computePotentialEnergy(model, data);
+    computeMechanicalEnergy(model, data);
   }
 
 } // namespace pinocchio

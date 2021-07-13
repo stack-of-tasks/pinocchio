@@ -16,6 +16,7 @@
 #include <eigenpy/exception.hpp>
 
 #include "pinocchio/algorithm/check.hpp"
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -23,7 +24,7 @@
 #include "pinocchio/bindings/python/utils/pickle-map.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Model)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Model)
 
 namespace pinocchio
 {
@@ -31,10 +32,6 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
-  
     template<typename Model>
     struct PickleModel : bp::pickle_suite
     {
@@ -82,6 +79,8 @@ namespace pinocchio
       
       typedef typename Model::Index Index;
       typedef typename Model::JointIndex JointIndex;
+      typedef typename Model::JointModel JointModel;
+      typedef typename Model::JointModel::JointModelVariant JointModelVariant;
       typedef typename Model::FrameIndex FrameIndex;
       typedef typename Model::IndexVector IndexVector;
       
@@ -94,8 +93,12 @@ namespace pinocchio
       typedef typename Model::Data Data;
       
       typedef typename Model::VectorXs VectorXs;
+
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addFrame_overload,Model::addFrame,1,2)      
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
+      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
       
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addFrame_overload,Model::addFrame,1,2)
       
     public:
 
@@ -106,6 +109,7 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor. Constructs an empty model."))
+        .def(bp::init<const Model &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         // Class Members
         .add_property("nq", &Model::nq)
@@ -121,10 +125,13 @@ namespace pinocchio
         .add_property("idx_vs",&Model::idx_vs)
         .add_property("nvs",&Model::nvs)          
         .add_property("parents",&Model::parents)
+        .add_property("children",&Model::children)
         .add_property("names",&Model::names)
         .def_readwrite("name",&Model::name)
         .def_readwrite("referenceConfigurations", &Model::referenceConfigurations)
         
+        .def_readwrite("armature",&Model::armature,
+                       "Armature vector.")
         .def_readwrite("rotorInertia",&Model::rotorInertia,
                        "Vector of rotor inertia parameters.")
         .def_readwrite("rotorGearRatio",&Model::rotorGearRatio,
@@ -199,12 +206,13 @@ namespace pinocchio
         .def("createData",
              &ModelPythonVisitor::createData,bp::arg("self"),
              "Create a Data object for the given model.")
-        
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::args("self","data"),
              "Check consistency of data wrt model.")
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         ;
       }
 
@@ -281,15 +289,18 @@ namespace pinocchio
         typedef typename Model::ConfigVectorMap ConfigVectorMap;
         typedef bp::map_indexing_suite<ConfigVectorMap,false> map_indexing_suite;
         StdVectorPythonVisitor<Index>::expose("StdVec_Index");
-        serialize< std::vector<Index> >();
         StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
-        serialize< std::vector<IndexVector> >();
         StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
-        serialize< std::vector<std::string> >();
         StdVectorPythonVisitor<bool>::expose("StdVec_Bool");
-        serialize< std::vector<bool> >();
         StdVectorPythonVisitor<Scalar>::expose("StdVec_Double");
+
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+        serialize< std::vector<Index> >();
+	serialize< std::vector<IndexVector> >();
+	serialize< std::vector<std::string> >();
+	serialize< std::vector<bool> >();
         serialize< std::vector<Scalar> >();
+#endif
         bp::class_<typename Model::ConfigVectorMap>("StdMap_String_VectorXd")
           .def(map_indexing_suite())
           .def_pickle(PickleMap<typename Model::ConfigVectorMap>())
@@ -299,10 +310,14 @@ namespace pinocchio
                           "Articulated Rigid Body model",
                           bp::no_init)
         .def(ModelPythonVisitor())
-        .def(SerializableVisitor<Model>())
+        .def(CastVisitor<Model>())
+        .def(ExposeConstructorByCastVisitor<Model,::pinocchio::Model>())
         .def(PrintableVisitor<Model>())
         .def(CopyableVisitor<Model>())
-        .def_pickle(PickleModel<Model>())
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+	.def(SerializableVisitor<Model>())
+	.def_pickle(PickleModel<Model>())
+#endif
         ;
       }
     };

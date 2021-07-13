@@ -9,14 +9,17 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
+#include <boost/python/implicit.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Motion)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Motion)
 
 namespace pinocchio
 {
@@ -54,7 +57,7 @@ namespace pinocchio
       enum { Options = traits<Motion>::Options };
       
       typedef typename Motion::Scalar Scalar;
-      typedef ForceTpl<Scalar,traits<Motion>::Options> Force;
+      typedef ForceTpl<Scalar,Options> Force;
       typedef typename Motion::Vector6 Vector6;
       typedef typename Motion::Vector3 Vector3;
       
@@ -72,7 +75,7 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Motion vector (don't mix the order)."))
         .def(bp::init<Vector6>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
-        .def(bp::init<Motion>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
+        .def(bp::init<const Motion &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("linear",
                       bp::make_function(&MotionPythonVisitor::getLinear,
@@ -106,6 +109,9 @@ namespace pinocchio
         .def("setRandom",&MotionPythonVisitor::setRandom,bp::arg("self"),
              "Set the linear and angular components of *this to random values.")
         
+        .def("dot",(Scalar (Motion::*)(const ForceBase<Force> &) const) &Motion::dot,
+             bp::args("self","f"),"Dot product between *this and a Force f.")
+        
         .def("cross",(Motion (Motion::*)(const Motion &) const) &Motion::cross,
              bp::args("self","m"),"Action of *this onto another Motion m. Returns ¨*this x m.")
         .def("cross",(Force (Motion::*)(const Force &) const) &Motion::cross,
@@ -119,13 +125,16 @@ namespace pinocchio
         .def(bp::self ^ bp::self)
         .def(bp::self ^ Force())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .def(bp::self * Scalar())
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              call<Motion>::isApprox,
              isApproxMotion_overload(bp::args("self","other","prec"),
@@ -135,6 +144,7 @@ namespace pinocchio
              call<Motion>::isZero,
              isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Motion, within the precision given by prec."))
+#endif
         
         .def("Random",&Motion::Random,"Returns a random Motion.")
         .staticmethod("Random")
@@ -143,18 +153,29 @@ namespace pinocchio
         
         .def("__array__",bp::make_function((typename Motion::ToVectorReturnType (Motion::*)())&Motion::toVector,
                                             bp::return_internal_reference<>()))
-        
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
 
       static void expose()
       {
+        typedef pinocchio::MotionBase<Motion> MotionBase;
+        bp::objects::register_dynamic_id<MotionBase>();
+        bp::objects::register_conversion<Motion,MotionBase>(false);
+        
+        typedef pinocchio::MotionDense<Motion> MotionDense;
+        bp::objects::register_dynamic_id<MotionDense>();
+        bp::objects::register_conversion<Motion,MotionDense>(false);
+        
         bp::class_<Motion>("Motion",
                            "Motion vectors, in se3 == M^6.\n\n"
                            "Supported operations ...",
                            bp::no_init)
         .def(MotionPythonVisitor<Motion>())
+        .def(CastVisitor<Motion>())
+        .def(ExposeConstructorByCastVisitor<Motion,::pinocchio::Motion>())
         .def(CopyableVisitor<Motion>())
         .def(PrintableVisitor<Motion>())
         ;

@@ -183,8 +183,12 @@ namespace Eigen
     struct conj_retval;
 
     template <typename Scalar, bool IsComplex>
+#if EIGEN_VERSION_AT_LEAST(3,3,9)
+    struct conj_default_impl;
+#else
     struct conj_impl;
-
+#endif
+    
     template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
     struct conj_retval<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4> >
     {
@@ -192,7 +196,11 @@ namespace Eigen
     };
 
     template <class tag, class Arg1, class Arg2, class Arg3, class Arg4>
+#if EIGEN_VERSION_AT_LEAST(3,3,9)
+    struct conj_default_impl<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, true>
+#else
     struct conj_impl<boost::multiprecision::detail::expression<tag, Arg1, Arg2, Arg3, Arg4>, true>
+#endif
     {
 #if EIGEN_VERSION_AT_LEAST(3,2,90)
       EIGEN_DEVICE_FUNC

@@ -2,8 +2,8 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_jacobian_hxx__
-#define __pinocchio_jacobian_hxx__
+#ifndef __pinocchio_algorithm_jacobian_hxx__
+#define __pinocchio_algorithm_jacobian_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/algorithm/check.hpp"
@@ -236,13 +236,13 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
   inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex jointId,
-                               const ReferenceFrame rf,
+                               const JointIndex joint_id,
+                               const ReferenceFrame reference_frame,
                                const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
-    details::translateJointJacobian(model,data,jointId,rf,
+    details::translateJointJacobian(model,data,joint_id,reference_frame,
                                     data.J,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
   
@@ -402,4 +402,4 @@ namespace pinocchio
 
 /// @endcond
 
-#endif // ifndef __pinocchio_jacobian_hxx__
+#endif // ifndef __pinocchio_algorithm_jacobian_hxx__

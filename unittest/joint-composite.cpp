@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -87,8 +88,9 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   Inertia::Matrix6 I1 = I0;
   Inertia::Matrix6 I2 = I0;
 
-  jmodel.calc_aba(jdata,I1,true);
-  jmodel_composite.calc_aba(jdata_composite,I2,true);
+  const Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
+  jmodel.calc_aba(jdata,armature,I1,true);
+  jmodel_composite.calc_aba(jdata_composite,armature,I2,true);
 
   double prec = 1e-10; // higher tolerance to errors due to possible numerical imprecisions
   
@@ -112,7 +114,7 @@ void test_joint_methods(const JointModelBase<JointModel> & jmodel, JointModelCom
   jmodel_composite2.calc(jdata_composite2,q,v);
   
   Inertia::Matrix6 I3 = I0;
-  jmodel_composite2.calc_aba(jdata_composite2,I3,true);
+  jmodel_composite2.calc_aba(jdata_composite2,armature,I3,true);
   
   if(jmodel.shortname() == "JointModelFreeFlyer")
     BOOST_CHECK((I3-I2).lpNorm<Eigen::Infinity>() < prec);

@@ -20,16 +20,27 @@
 
 #include "pinocchio/serialization/serializable.hpp"
 
-#include <iostream>
 #include <map>
 #include <iterator>
 
 namespace pinocchio
 {
-  
+  template<typename NewScalar, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct CastType<NewScalar, ModelTpl<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<NewScalar,Options,JointCollectionTpl> type;
+  };
+
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< ModelTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef _Scalar Scalar;
+  };
+
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct ModelTpl
   : serialization::Serializable< ModelTpl<_Scalar,_Options,JointCollectionTpl> >
+  , NumericalBase< ModelTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -87,7 +98,7 @@ namespace pinocchio
     /// \brief Number of operational frames.
     int nframes;
 
-    /// \brief Spatial inertias of the body *i* expressed in the supporting joint frame *i*.
+    /// \brief Spatial inertias supported by the joint *i*.
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) inertias;
     
     /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
@@ -110,6 +121,9 @@ namespace pinocchio
     
     /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
     std::vector<JointIndex> parents;
+    
+    /// \brief Joint children of joint *i*, denoted *mu(i)* (i==parents[k] for k in mu(i)).
+    std::vector<IndexVector> children;
 
     /// \brief Name of joint *i*
     std::vector<std::string> names;
@@ -117,6 +131,10 @@ namespace pinocchio
     /// \brief Map of reference configurations, indexed by user given names.
     ConfigVectorMap referenceConfigurations;
 
+    /// \brief Vector of armature values expressed at the joint level
+    /// This vector may contain the contribution of rotor inertia effects for instance.
+    VectorXs armature;
+    
     /// \brief Vector of rotor inertia parameters
     TangentVectorType rotorInertia;
     
@@ -160,7 +178,7 @@ namespace pinocchio
     /// \brief Default 3D gravity vector (=(0,0,-9.81)).
     static const Vector3 gravity981;
 
-    /// \brief Model name;
+    /// \brief Model name.
     std::string name;
 
     /// \brief Default constructor. Builds an empty model with no joints.
@@ -178,6 +196,7 @@ namespace pinocchio
     , idx_vs(1,0)
     , nvs(1,0)
     , parents(1, 0)
+    , children(1)
     , names(1)
     , supports(1,IndexVector(1,0))
     , subtrees(1)
@@ -191,164 +210,27 @@ namespace pinocchio
     }
     ~ModelTpl() {} // std::cout << "Destroy model" << std::endl; }
     
-    /// \returns An expression of *this with the Scalar type casted to NewScalar.
-    template<typename NewScalar>
-    ModelTpl<NewScalar,Options,JointCollectionTpl> cast() const
+    ///
+    /// \brief Copy constructor by casting
+    ///
+    /// \param[in] other model to copy to *this
+    ///
+    template<typename S2, int O2>
+    explicit ModelTpl(const ModelTpl<S2,O2> & other)
     {
-      typedef ModelTpl<NewScalar,Options,JointCollectionTpl> ReturnType;
-      ReturnType res;
-      res.nq = nq; res.nv = nv;
-      res.njoints = njoints;
-      res.nbodies = nbodies;
-      res.nframes = nframes;
-      res.parents = parents;
-      res.names = names;
-      res.subtrees = subtrees;
-      res.gravity = gravity.template cast<NewScalar>();
-      res.name = name;
-      
-      res.idx_qs = idx_qs;
-      res.nqs = nqs;
-      res.idx_vs = idx_vs;
-      res.nvs = nvs;
-      
-      // Eigen Vectors
-      res.rotorInertia = rotorInertia.template cast<NewScalar>();
-      res.rotorGearRatio = rotorGearRatio.template cast<NewScalar>();
-      res.friction = friction.template cast<NewScalar>();
-      res.damping = damping.template cast<NewScalar>();
-      res.effortLimit = effortLimit.template cast<NewScalar>();
-      res.velocityLimit = velocityLimit.template cast<NewScalar>();
-      res.lowerPositionLimit = lowerPositionLimit.template cast<NewScalar>();
-      res.upperPositionLimit = upperPositionLimit.template cast<NewScalar>();
-
-      typename ConfigVectorMap::const_iterator it;
-      for (it = referenceConfigurations.begin();
-           it != referenceConfigurations.end(); it++ )
-      {
-        res.referenceConfigurations.insert(std::make_pair(it->first, it->second.template cast<NewScalar>()));
-      }
-        
-      // reserve vectors
-      res.inertias.resize(inertias.size());
-      res.jointPlacements.resize(jointPlacements.size());
-      res.joints.resize(joints.size());
-      res.frames.resize(frames.size());
-
-      /// copy into vectors
-      for(size_t k = 0; k < joints.size(); ++k)
-      {
-        res.inertias[k] = inertias[k].template cast<NewScalar>();
-        res.jointPlacements[k] = jointPlacements[k].template cast<NewScalar>();
-        res.joints[k] = joints[k].template cast<NewScalar>();
-      }
-      
-      for(size_t k = 0; k < frames.size(); ++k)
-      {
-        res.frames[k] = frames[k].template cast<NewScalar>();
-      }
-      
-      return res;
+      *this = other.template cast<Scalar>();
     }
+    
+    /// \returns A new copy of *this with the Scalar type casted to NewScalar.
+    template<typename NewScalar>
+    typename CastType<NewScalar,ModelTpl>::type cast() const;
     
     ///
     /// \brief Equality comparison operator.
     ///
     /// \returns true if *this is equal to other.
     ///
-    bool operator==(const ModelTpl & other) const
-    {
-      bool res =
-         other.nq == nq
-      && other.nv == nv
-      && other.njoints == njoints
-      && other.nbodies == nbodies
-      && other.nframes == nframes
-      && other.parents == parents
-      && other.names == names
-      && other.subtrees == subtrees
-      && other.gravity == gravity
-      && other.name == name;
-      
-      res &=
-         other.idx_qs == idx_qs
-      && other.nqs == nqs
-      && other.idx_vs == idx_vs
-      && other.nvs == nvs;
-
-      if(other.referenceConfigurations.size() != referenceConfigurations.size())
-        return false;
-      
-      typename ConfigVectorMap::const_iterator it = referenceConfigurations.begin();
-      typename ConfigVectorMap::const_iterator it_other = other.referenceConfigurations.begin();
-      for(long k = 0; k < (long)referenceConfigurations.size(); ++k)
-      {
-        std::advance(it,k); std::advance(it_other,k);
-        
-        if(it->second.size() != it_other->second.size())
-          return false;
-        if(it->second != it_other->second)
-          return false;
-      }
-
-      if(other.rotorInertia.size() != rotorInertia.size())
-        return false;
-      res &= other.rotorInertia == rotorInertia;
-      if(!res) return res;
-
-      if(other.friction.size() != friction.size())
-        return false;
-      res &= other.friction == friction;
-      if(!res) return res;
-
-      if(other.damping.size() != damping.size())
-        return false;
-      res &= other.damping == damping;
-      if(!res) return res;
-
-      if(other.rotorGearRatio.size() != rotorGearRatio.size())
-        return false;
-      res &= other.rotorGearRatio == rotorGearRatio;
-      if(!res) return res;
-
-      if(other.effortLimit.size() != effortLimit.size())
-        return false;
-      res &= other.effortLimit == effortLimit;
-      if(!res) return res;
-
-      if(other.velocityLimit.size() != velocityLimit.size())
-        return false;
-      res &= other.velocityLimit == velocityLimit;
-      if(!res) return res;
-
-      if(other.lowerPositionLimit.size() != lowerPositionLimit.size())
-        return false;
-      res &= other.lowerPositionLimit == lowerPositionLimit;
-      if(!res) return res;
-
-      if(other.upperPositionLimit.size() != upperPositionLimit.size())
-        return false;
-      res &= other.upperPositionLimit == upperPositionLimit;
-      if(!res) return res;
-
-      for(size_t k = 1; k < inertias.size(); ++k)
-      {
-        res &= other.inertias[k] == inertias[k];
-        if(!res) return res;
-      }
-
-      for(size_t k = 1; k < other.jointPlacements.size(); ++k)
-      {
-        res &= other.jointPlacements[k] == jointPlacements[k];
-        if(!res) return res;
-      }
-
-      res &=
-         other.joints == joints
-      && other.frames == frames;
-      
-      return res;
-    }
+    bool operator==(const ModelTpl & other) const;
     
     ///
     /// \returns true if *this is NOT equal to other.
@@ -359,8 +241,9 @@ namespace pinocchio
     ///
     /// \brief Add a joint to the kinematic tree with infinite bounds.
     ///
-    /// \remark This method also adds a Frame of same name to the vector of frames.
-    /// \remark The inertia supported by the joint is set to Zero.
+    /// \remarks This method does not add a Frame of same name to the vector of frames.
+    ///         Use Model::addJointFrame.
+    /// \remarks The inertia supported by the joint is set to Zero.
     ///
     /// \tparam JointModelDerived The type of the joint model.
     ///

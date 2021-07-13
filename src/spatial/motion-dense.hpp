@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_motion_dense_hpp__
-#define __pinocchio_motion_dense_hpp__
+#ifndef __pinocchio_spatial_motion_dense_hpp__
+#define __pinocchio_spatial_motion_dense_hpp__
 
 #include "pinocchio/spatial/skew.hpp"
 
@@ -70,6 +70,17 @@ namespace pinocchio
     // Arithmetic operators
     template<typename D2>
     Derived & operator=(const MotionDense<D2> & other)
+    {
+      return derived().set(other.derived());
+    }
+    
+    Derived & operator=(const MotionDense & other)
+    {
+      return derived().set(other.derived());
+    }
+    
+    template<typename D2>
+    Derived & set(const MotionDense<D2> & other)
     {
       linear() = other.linear();
       angular() = other.angular();
@@ -217,6 +228,10 @@ namespace pinocchio
     /// \returns a MotionRef on this.
     MotionRefType ref() { return derived().ref(); }
     
+  protected:
+    
+    MotionDense() {};
+    
   }; // class MotionDense
   
   /// Basic operations specialization
@@ -237,4 +252,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_motion_dense_hpp__
+#endif // ifndef __pinocchio_spatial_motion_dense_hpp__

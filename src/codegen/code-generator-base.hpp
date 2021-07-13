@@ -62,6 +62,8 @@ namespace pinocchio
       
       jac = RowMatrixXs(ad_Y.size(),ad_X.size());
     }
+
+    virtual ~CodeGenBase() {}
     
     /// \brief build the mapping Y = f(X)
     virtual void buildMap() = 0;

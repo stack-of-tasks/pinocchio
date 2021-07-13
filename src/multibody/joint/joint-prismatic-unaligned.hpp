@@ -1,15 +1,15 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_prismatic_unaligned_hpp__
-#define __pinocchio_joint_prismatic_unaligned_hpp__
+#ifndef __pinocchio_multibody_joint_prismatic_unaligned_hpp__
+#define __pinocchio_multibody_joint_prismatic_unaligned_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/math/matrix.hpp"
 
@@ -148,7 +148,8 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionPrismaticUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis && m_v == other.m_v;
+      return internal::comparison_eq(m_axis, other.m_axis) &&
+	internal::comparison_eq(m_v, other.m_v);
     }
     
     const Scalar & linearRate() const { return m_v; }
@@ -179,10 +180,10 @@ namespace pinocchio
     return m2.motionAction(m1);
   }
 
-  template<typename Scalar, int Options> struct ConstraintPrismaticUnalignedTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspacePrismaticUnalignedTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintPrismaticUnalignedTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspacePrismaticUnalignedTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -190,54 +191,58 @@ namespace pinocchio
       LINEAR = 0,
       ANGULAR = 3
     };
+    
     typedef MotionPrismaticUnalignedTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,1,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,1,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,1,1,Options> ReducedSquaredMatrix;
+    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
     
-    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-  }; // traits ConstraintPrismaticUnalignedTpl
+    typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
+  }; // traits JointMotionSubspacePrismaticUnalignedTpl
   
   template<typename Scalar, int Options>
-  struct SE3GroupAction< ConstraintPrismaticUnalignedTpl<Scalar,Options> >
+  struct SE3GroupAction< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
   
   template<typename Scalar, int Options, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintPrismaticUnalignedTpl<Scalar,Options>,MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options>,MotionDerived >
   { typedef Eigen::Matrix<Scalar,6,1,Options> ReturnType; };
 
   template<typename Scalar, int Options, typename ForceDerived>
-  struct ConstraintForceOp< ConstraintPrismaticUnalignedTpl<Scalar,Options>, ForceDerived>
+  struct ConstraintForceOp< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options>, ForceDerived>
   {
-    typedef typename traits< ConstraintPrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
+    typedef typename traits< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
     typedef Eigen::Matrix<typename PINOCCHIO_EIGEN_DOT_PRODUCT_RETURN_TYPE(Vector3,typename ForceDense<ForceDerived>::ConstAngularType),1,1,Options> ReturnType;
   };
   
   template<typename Scalar, int Options, typename ForceSet>
-  struct ConstraintForceSetOp< ConstraintPrismaticUnalignedTpl<Scalar,Options>, ForceSet>
+  struct ConstraintForceSetOp< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options>, ForceSet>
   {
-    typedef typename traits< ConstraintPrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
+    typedef typename traits< JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> >::Vector3 Vector3;
     typedef typename MatrixMatrixProduct<Eigen::Transpose<const Vector3>,
     typename Eigen::MatrixBase<const ForceSet>::template NRowsBlockXpr<3>::Type
     >::type ReturnType;
   };
 
   template<typename _Scalar, int _Options>
-  struct ConstraintPrismaticUnalignedTpl
-  : ConstraintBase< ConstraintPrismaticUnalignedTpl<_Scalar,_Options> >
+  struct JointMotionSubspacePrismaticUnalignedTpl
+  : JointMotionSubspaceBase< JointMotionSubspacePrismaticUnalignedTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintPrismaticUnalignedTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspacePrismaticUnalignedTpl)
     
     enum { NV = 1 };
     
-    typedef typename traits<ConstraintPrismaticUnalignedTpl>::Vector3 Vector3;
+    typedef typename traits<JointMotionSubspacePrismaticUnalignedTpl>::Vector3 Vector3;
 
-    ConstraintPrismaticUnalignedTpl() {}
+    JointMotionSubspacePrismaticUnalignedTpl() {}
     
     template<typename Vector3Like>
-    ConstraintPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
+    JointMotionSubspacePrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
     : m_axis(axis)
     { EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3); }
 
@@ -249,10 +254,10 @@ namespace pinocchio
     }
     
     template<typename S1, int O1>
-    typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType
+    typename SE3GroupAction<JointMotionSubspacePrismaticUnalignedTpl>::ReturnType
     se3Action(const SE3Tpl<S1,O1> & m) const
     {
-      typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
+      typename SE3GroupAction<JointMotionSubspacePrismaticUnalignedTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v.linear().noalias() = m.rotation()*m_axis;
       v.angular().setZero();
@@ -260,10 +265,10 @@ namespace pinocchio
     }
     
     template<typename S1, int O1>
-    typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType
+    typename SE3GroupAction<JointMotionSubspacePrismaticUnalignedTpl>::ReturnType
     se3ActionInverse(const SE3Tpl<S1,O1> & m) const
     {
-      typename SE3GroupAction<ConstraintPrismaticUnalignedTpl>::ReturnType res;
+      typename SE3GroupAction<JointMotionSubspacePrismaticUnalignedTpl>::ReturnType res;
       MotionRef<DenseBase> v(res);
       v.linear().noalias() = m.rotation().transpose()*m_axis;
       v.angular().setZero();
@@ -272,16 +277,16 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct TransposeConst
+    struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspacePrismaticUnalignedTpl>
     {
-      const ConstraintPrismaticUnalignedTpl & ref;
-      TransposeConst(const ConstraintPrismaticUnalignedTpl & ref) : ref(ref) {}
+      const JointMotionSubspacePrismaticUnalignedTpl & ref;
+      TransposeConst(const JointMotionSubspacePrismaticUnalignedTpl & ref) : ref(ref) {}
       
       template<typename ForceDerived>
-      typename ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType
+      typename ConstraintForceOp<JointMotionSubspacePrismaticUnalignedTpl,ForceDerived>::ReturnType
       operator* (const ForceDense<ForceDerived> & f) const
       {
-        typedef typename ConstraintForceOp<ConstraintPrismaticUnalignedTpl,ForceDerived>::ReturnType ReturnType;
+        typedef typename ConstraintForceOp<JointMotionSubspacePrismaticUnalignedTpl,ForceDerived>::ReturnType ReturnType;
         ReturnType res;
         res[0] = ref.axis().dot(f.linear());
         return res;
@@ -289,7 +294,7 @@ namespace pinocchio
       
       /* [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block) */
       template<typename ForceSet>
-      typename ConstraintForceSetOp<ConstraintPrismaticUnalignedTpl,ForceSet>::ReturnType
+      typename ConstraintForceSetOp<JointMotionSubspacePrismaticUnalignedTpl,ForceSet>::ReturnType
       operator*(const Eigen::MatrixBase<ForceSet> & F)
       {
         EIGEN_STATIC_ASSERT(ForceSet::RowsAtCompileTime==6,THIS_METHOD_IS_ONLY_FOR_MATRICES_OF_A_SPECIFIC_SIZE)
@@ -328,19 +333,19 @@ namespace pinocchio
     const Vector3 & axis() const { return m_axis; }
     Vector3 & axis() { return m_axis; }
     
-    bool isEqual(const ConstraintPrismaticUnalignedTpl & other) const
+    bool isEqual(const JointMotionSubspacePrismaticUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis;
+      return internal::comparison_eq(m_axis, other.m_axis);
     }
     
   protected:
     
     Vector3 m_axis;
     
-  }; // struct ConstraintPrismaticUnalignedTpl
+  }; // struct JointMotionSubspacePrismaticUnalignedTpl
   
   template<typename S1, int O1,typename S2, int O2>
-  struct MultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticUnalignedTpl<S2,O2> >
+  struct MultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticUnalignedTpl<S2,O2> >
   {
     typedef Eigen::Matrix<S2,6,1,O2> ReturnType;
   };
@@ -349,10 +354,10 @@ namespace pinocchio
   namespace impl
   {
     template<typename S1, int O1, typename S2, int O2>
-    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, ConstraintPrismaticUnalignedTpl<S2,O2> >
+    struct LhsMultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspacePrismaticUnalignedTpl<S2,O2> >
     {
       typedef InertiaTpl<S1,O1> Inertia;
-      typedef ConstraintPrismaticUnalignedTpl<S2,O2> Constraint;
+      typedef JointMotionSubspacePrismaticUnalignedTpl<S2,O2> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       
       static inline ReturnType run(const Inertia & Y,
@@ -372,12 +377,12 @@ namespace pinocchio
   } // namespace impl
   
   template<typename M6Like, typename Scalar, int Options>
-  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticUnalignedTpl<Scalar,Options> >
+  struct MultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> >
   {
     typedef typename SizeDepType<3>::ColsReturn<M6Like>::ConstType M6LikeCols;
     typedef typename Eigen::internal::remove_const<M6LikeCols>::type M6LikeColsNonConst;
     
-    typedef ConstraintPrismaticUnalignedTpl<Scalar,Options> Constraint;
+    typedef JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> Constraint;
     typedef typename Constraint::Vector3 Vector3;
     typedef const typename MatrixMatrixProduct<M6LikeColsNonConst,Vector3>::type ReturnType;
   };
@@ -386,9 +391,9 @@ namespace pinocchio
   namespace impl
   {
     template<typename M6Like, typename Scalar, int Options>
-    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, ConstraintPrismaticUnalignedTpl<Scalar,Options> >
+    struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> >
     {
-      typedef ConstraintPrismaticUnalignedTpl<Scalar,Options> Constraint;
+      typedef JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> Constraint;
       typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
                                    const Constraint & cru)
@@ -412,7 +417,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataPrismaticUnalignedTpl<Scalar,Options> JointDataDerived;
     typedef JointModelPrismaticUnalignedTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintPrismaticUnalignedTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspacePrismaticUnalignedTpl<Scalar,Options> Constraint_t;
     typedef TransformTranslationTpl<Scalar,Options> Transformation_t;
     typedef MotionPrismaticUnalignedTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;
@@ -422,15 +427,18 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
     
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
-    
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options>
-  struct traits< JointDataPrismaticUnalignedTpl<Scalar,Options> >
-  { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataPrismaticUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataPrismaticUnalignedTpl
@@ -441,6 +449,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Transformation_t M;
     Constraint_t S;
     Motion_t v;
@@ -450,22 +461,31 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
     JointDataPrismaticUnalignedTpl()
-    : M(Transformation_t::Vector3::Zero())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , S(Constraint_t::Vector3::Zero())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
     
     template<typename Vector3Like>
     JointDataPrismaticUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M()
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , S(axis)
-    , v(axis,(Scalar)NAN)
-    , U(), Dinv(), UDinv()
+    , v(axis,(Scalar)0)
+    , U(U_t::Zero())
+    , Dinv(D_t::Zero())
+    , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataPrismaticUnaligned"); }
@@ -473,9 +493,12 @@ namespace pinocchio
     
   }; // struct JointDataPrismaticUnalignedTpl
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelPrismaticUnalignedTpl<Scalar,Options> >
-  { typedef JointPrismaticUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelPrismaticUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointPrismaticUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelPrismaticUnalignedTpl);
   template<typename _Scalar, int _Options>
@@ -500,7 +523,7 @@ namespace pinocchio
                                     const Scalar & z)
     : axis(x,y,z)
     {
-      axis.normalize();
+      normalize(axis);
       assert(isUnitary(axis) && "Translation axis is not unitary");
     }
     
@@ -517,17 +540,15 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelPrismaticUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis;
+      return Base::isEqual(other) && internal::comparison_eq(axis, other.axis);
     }
     
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar Scalar;
-      const Scalar & q = qs[idx_q()];
-
-      data.M.translation().noalias() = axis * q;
+      data.joint_q[0] = qs[idx_q()];
+      data.M.translation().noalias() = axis * data.joint_q[0];
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -537,16 +558,18 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      typedef typename TangentVector::Scalar S2;
-      const S2 & v = vs[idx_v()];
-      data.v.linearRate() = v;
+      data.joint_v[0] = vs[idx_v()];
+      data.v.linearRate() = data.joint_v[0];
     }
     
-    template<typename Matrix6Like>
-    void calc_aba(JointDataDerived & data, const Eigen::MatrixBase<Matrix6Like> & I, const bool update_I) const
+    template<typename VectorLike, typename Matrix6Like>
+    void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
+                  const Eigen::MatrixBase<Matrix6Like> & I,
+                  const bool update_I) const
     {
       data.U.noalias() = I.template block<6,3> (0,Inertia::LINEAR) * axis;
-      data.Dinv[0] = Scalar(1)/axis.dot(data.U.template segment <3> (Inertia::LINEAR));
+      data.Dinv[0] = Scalar(1)/(axis.dot(data.U.template segment <3> (Inertia::LINEAR)) + armature[0]);
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
@@ -598,4 +621,4 @@ namespace boost
 }
 
 
-#endif // ifndef __pinocchio_joint_prismatic_unaligned_hpp__
+#endif // ifndef __pinocchio_multibody_joint_prismatic_unaligned_hpp__

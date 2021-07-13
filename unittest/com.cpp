@@ -213,10 +213,10 @@ BOOST_AUTO_TEST_CASE(test_subtree_com_jacobian)
   jacobianCenterOfMass(model,data_ref,q,true);
   
   centerOfMass(model, data, q, v);
-  Data::Matrix3x Jcom(3,model.nv); Jcom.setZero();
-  jacobianSubtreeCenterOfMass(model, data, 0, Jcom);
+  Data::Matrix3x Jcom1(3,model.nv); Jcom1.setZero();
+  jacobianSubtreeCenterOfMass(model, data, 0, Jcom1);
   
-  BOOST_CHECK(Jcom.isApprox(data_ref.Jcom));
+  BOOST_CHECK(Jcom1.isApprox(data_ref.Jcom));
 
   centerOfMass(model, data_ref, q, v, true);
   computeJointJacobians(model, data_ref, q);
@@ -226,6 +226,7 @@ BOOST_AUTO_TEST_CASE(test_subtree_com_jacobian)
   jacobianCenterOfMass(model,data_extracted,q);
   
   // Get subtree jacobian and check that it is consistent with the com velocity
+  Data::Matrix3x Jcom(3,model.nv); Jcom.setZero();
   for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; joint_id++)
   {
     SE3::Vector3 subtreeComVelocityInWorld_ref = data_ref.oMi[joint_id].rotation() * data_ref.vcom[joint_id];
@@ -268,6 +269,19 @@ BOOST_AUTO_TEST_CASE(test_subtree_com_jacobian)
     BOOST_CHECK(data.com[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.com[joint_id])));
     BOOST_CHECK(subtreeComVelocityInWorld.isApprox(subtreeComVelocityInWorld_ref));
   }
+  
+  // Other signatures
+  Data data_other_signature(model);
+  Data::Matrix3x Jcom2(3,model.nv); Jcom2.setZero();
+  jacobianSubtreeCenterOfMass(model, data_other_signature, q, 0, Jcom2);
+  
+  BOOST_CHECK(Jcom2.isApprox(Jcom1));
+  
+  jacobianCenterOfMass(model,data,q);
+  Data::Matrix3x Jcom3(3,model.nv); Jcom3.setZero();
+  getJacobianSubtreeCenterOfMass(model, data, 0, Jcom3);
+  
+  BOOST_CHECK(Jcom3.isApprox(Jcom1));
 }
 
 BOOST_AUTO_TEST_SUITE_END ()

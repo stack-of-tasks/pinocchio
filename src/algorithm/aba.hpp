@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2018 CNRS
+// Copyright (c) 2016-2020 CNRS
 //
 
-#ifndef __pinocchio_aba_hpp__
-#define __pinocchio_aba_hpp__
+#ifndef __pinocchio_algorithm_aba_hpp__
+#define __pinocchio_algorithm_aba_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -11,8 +11,10 @@
 
 namespace pinocchio
 {
+
   ///
   /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  /// This is the original implementation, considering all quantities to be expressed in the LOCAL coordinate systems of the joint frames.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -38,7 +40,8 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & tau);
 
   ///
-  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model.
+  /// \brief The Articulated-Body algorithm. It computes the forward dynamics, aka the joint accelerations given the current state and actuation of the model and the external forces.
+  /// This is the original implementation, considering all quantities to be expressed in the LOCAL coordinate systems of the joint frames.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -65,7 +68,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau,
       const container::aligned_vector<ForceDerived> & fext);
-  
+
   ///
   /// \brief Computes the inverse of the joint space inertia matrix using Articulated Body formulation.
   /// \remarks Only the upper triangular part of the matrix is filled.
@@ -93,4 +96,4 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba.hxx"
 
-#endif // ifndef __pinocchio_aba_hpp__
+#endif // ifndef __pinocchio_algorithm_aba_hpp__

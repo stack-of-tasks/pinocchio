@@ -11,7 +11,7 @@
 #include <boost/fusion/container/generation/make_list.hpp>
 
 #ifndef PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE
-#define PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE 5
+  #define PINOCCHIO_ALGO_CHECKER_LIST_MAX_LIST_SIZE 5
 #endif
 
 namespace pinocchio

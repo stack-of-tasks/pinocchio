@@ -1,14 +1,14 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_joint_translation_hpp__
-#define __pinocchio_joint_translation_hpp__
+#ifndef __pinocchio_multibody_joint_translation_hpp__
+#define __pinocchio_multibody_joint_translation_hpp__
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
-#include "pinocchio/multibody/constraint.hpp"
+#include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/skew.hpp"
 
@@ -82,7 +82,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionTranslationTpl & other) const
     {
-      return m_v == other.m_v;
+      return internal::comparison_eq(m_v, other.m_v);
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
@@ -244,7 +244,7 @@ namespace pinocchio
     
     bool isEqual(const TransformTranslationTpl & other) const
     {
-      return m_translation == other.m_translation;
+      return internal::comparison_eq(m_translation, other.m_translation);
     }
     
   protected:
@@ -252,10 +252,10 @@ namespace pinocchio
     LinearType m_translation;
   };
   
-  template<typename Scalar, int Options> struct ConstraintTranslationTpl;
+  template<typename Scalar, int Options> struct JointMotionSubspaceTranslationTpl;
   
   template<typename _Scalar, int _Options>
-  struct traits< ConstraintTranslationTpl<_Scalar,_Options> >
+  struct traits< JointMotionSubspaceTranslationTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
     
@@ -265,22 +265,25 @@ namespace pinocchio
     typedef MotionTranslationTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,3,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,3,Options> DenseBase;
+    typedef Eigen::Matrix<Scalar,3,3,Options> ReducedSquaredMatrix;
     
     typedef DenseBase MatrixReturnType;
     typedef const DenseBase ConstMatrixReturnType;
-  }; // traits ConstraintTranslationTpl
+    
+    typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
+  }; // traits JointMotionSubspaceTranslationTpl
   
   template<typename _Scalar, int _Options>
-  struct ConstraintTranslationTpl
-  : ConstraintBase< ConstraintTranslationTpl<_Scalar,_Options> >
+  struct JointMotionSubspaceTranslationTpl
+  : JointMotionSubspaceBase< JointMotionSubspaceTranslationTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(ConstraintTranslationTpl)
+    PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceTranslationTpl)
     
     enum { NV = 3 };
     
-    ConstraintTranslationTpl() {}
+    JointMotionSubspaceTranslationTpl() {}
     
 //    template<typename S1, int O1>
 //    Motion operator*(const MotionTranslationTpl<S1,O1> & vj) const
@@ -295,10 +298,10 @@ namespace pinocchio
     
     int nv_impl() const { return NV; }
     
-    struct ConstraintTranspose
+    struct ConstraintTranspose : JointMotionSubspaceTransposeBase<JointMotionSubspaceTranslationTpl>
     {
-      const ConstraintTranslationTpl & ref;
-      ConstraintTranspose(const ConstraintTranslationTpl & ref) : ref(ref) {}
+      const JointMotionSubspaceTranslationTpl & ref;
+      ConstraintTranspose(const JointMotionSubspaceTranslationTpl & ref) : ref(ref) {}
       
       template<typename Derived>
       typename ForceDense<Derived>::ConstLinearType
@@ -360,9 +363,9 @@ namespace pinocchio
       return res;
     }
     
-    bool isEqual(const ConstraintTranslationTpl &) const { return true; }
+    bool isEqual(const JointMotionSubspaceTranslationTpl &) const { return true; }
     
-  }; // struct ConstraintTranslationTpl
+  }; // struct JointMotionSubspaceTranslationTpl
   
   template<typename MotionDerived, typename S2, int O2>
   inline typename MotionDerived::MotionPlain
@@ -376,9 +379,9 @@ namespace pinocchio
   template<typename S1, int O1, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>
   operator*(const InertiaTpl<S1,O1> & Y,
-            const ConstraintTranslationTpl<S2,O2> &)
+            const JointMotionSubspaceTranslationTpl<S2,O2> &)
   {
-    typedef ConstraintTranslationTpl<S2,O2> Constraint;
+    typedef JointMotionSubspaceTranslationTpl<S2,O2> Constraint;
     Eigen::Matrix<S2,6,3,O2> M;
     alphaSkew(Y.mass(),Y.lever(),M.template middleRows<3>(Constraint::ANGULAR));
     M.template middleRows<3>(Constraint::LINEAR).setZero();
@@ -391,18 +394,18 @@ namespace pinocchio
   template<typename M6Like, typename S2, int O2>
   inline const typename SizeDepType<3>::ColsReturn<M6Like>::ConstType
   operator*(const Eigen::MatrixBase<M6Like> & Y,
-            const ConstraintTranslationTpl<S2,O2> &)
+            const JointMotionSubspaceTranslationTpl<S2,O2> &)
   {
-    typedef ConstraintTranslationTpl<S2,O2> Constraint;
+    typedef JointMotionSubspaceTranslationTpl<S2,O2> Constraint;
     return Y.derived().template middleCols<3>(Constraint::LINEAR);
   }
   
   template<typename S1, int O1>
-  struct SE3GroupAction< ConstraintTranslationTpl<S1,O1> >
+  struct SE3GroupAction< JointMotionSubspaceTranslationTpl<S1,O1> >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
   
   template<typename S1, int O1, typename MotionDerived>
-  struct MotionAlgebraAction< ConstraintTranslationTpl<S1,O1>,MotionDerived >
+  struct MotionAlgebraAction< JointMotionSubspaceTranslationTpl<S1,O1>,MotionDerived >
   { typedef Eigen::Matrix<S1,6,3,O1> ReturnType; };
 
   template<typename Scalar, int Options> struct JointTranslationTpl;
@@ -418,7 +421,7 @@ namespace pinocchio
     enum { Options = _Options };
     typedef JointDataTranslationTpl<Scalar,Options> JointDataDerived;
     typedef JointModelTranslationTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintTranslationTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTranslationTpl<Scalar,Options> Constraint_t;
     typedef TransformTranslationTpl<Scalar,Options> Transformation_t;
     typedef MotionTranslationTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;
@@ -427,20 +430,26 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
     typedef Eigen::Matrix<Scalar,NV,NV,Options> D_t;
     typedef Eigen::Matrix<Scalar,6,NV,Options> UD_t;
-    
-    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
 
     typedef Eigen::Matrix<Scalar,NQ,1,Options> ConfigVector_t;
     typedef Eigen::Matrix<Scalar,NV,1,Options> TangentVector_t;
+    
+    PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   }; // traits JointTranslationTpl
   
-  template<typename Scalar, int Options>
-  struct traits< JointDataTranslationTpl<Scalar,Options> >
-  { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataTranslationTpl<_Scalar,_Options> >
+  {
+    typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits< JointModelTranslationTpl<Scalar,Options> >
-  { typedef JointTranslationTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelTranslationTpl<_Scalar,_Options> >
+  {
+    typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
   template<typename _Scalar, int _Options>
   struct JointDataTranslationTpl
@@ -451,6 +460,9 @@ namespace pinocchio
     typedef JointTranslationTpl<_Scalar,_Options> JointDerived;
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
+    
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
 
     Constraint_t S;
     Transformation_t M;
@@ -461,13 +473,17 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
 
     JointDataTranslationTpl()
-    : M(Transformation_t::Vector3::Zero())
+    : joint_q(ConfigVector_t::Zero())
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Vector3::Zero())
     , v(Motion_t::Vector3::Zero())
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
 
     static std::string classname() { return std::string("JointDataTranslation"); }
@@ -496,7 +512,8 @@ namespace pinocchio
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      data.M.translation() = this->jointConfigSelector(qs);
+      data.joint_q = this->jointConfigSelector(qs);
+      data.M.translation() = data.joint_q;
     }
     
     template<typename ConfigVector, typename TangentVector>
@@ -506,32 +523,27 @@ namespace pinocchio
     {
       calc(data,qs.derived());
       
-      data.v.linear() = this->jointVelocitySelector(vs);
+      data.joint_v = this->jointVelocitySelector(vs);
+      data.v.linear() = data.joint_v;
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U = I.template middleCols<3>(Inertia::LINEAR);
       
-      // compute inverse
-//      data.Dinv.setIdentity();
-//      data.U.template middleRows<3>(Inertia::LINEAR).llt().solveInPlace(data.Dinv);
-      internal::PerformStYSInversion<Scalar>::run(data.U.template middleRows<3>(Inertia::LINEAR),data.Dinv);
+      data.StU = data.U.template middleRows<3>(Inertia::LINEAR);
+      data.StU.diagonal() += armature;
       
-      data.UDinv.template middleRows<3>(Inertia::LINEAR).setIdentity(); // can be put in data constructor
-      data.UDinv.template middleRows<3>(Inertia::ANGULAR).noalias() = data.U.template middleRows<3>(Inertia::ANGULAR) * data.Dinv;
+      internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
       
-      if (update_I)
-      {
-        Matrix6Like & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I);
-        I_.template block<3,3>(Inertia::ANGULAR,Inertia::ANGULAR)
-        -= data.UDinv.template middleRows<3>(Inertia::ANGULAR) * I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
-        I_.template middleCols<3>(Inertia::LINEAR).setZero();
-        I_.template block<3,3>(Inertia::LINEAR,Inertia::ANGULAR).setZero();
-      }
+      data.UDinv.noalias() = data.U * data.Dinv;
+      
+      if(update_I)
+        PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
     
     static std::string classname() { return std::string("JointModelTranslation"); }
@@ -572,4 +584,4 @@ namespace boost
   : public integral_constant<bool,true> {};
 }
 
-#endif // ifndef __pinocchio_joint_translation_hpp__
+#endif // ifndef __pinocchio_multibody_joint_translation_hpp__

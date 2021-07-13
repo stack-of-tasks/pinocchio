@@ -7,6 +7,7 @@
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/sincos.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -14,6 +15,7 @@
 
 namespace pinocchio
 {
+
   ///
   /// \brief Computes a rotation matrix from a vector and values of sin and cos
   ///        orientations values.
@@ -51,6 +53,21 @@ namespace pinocchio
   }
 
   ///
+  /// \brief Computes a rotation matrix from a vector and the angular value
+  ///        orientations values.
+  ///
+  /// \remarks This code is issue from Eigen::AxisAngle::toRotationMatrix
+  ///
+  template<typename Vector3, typename Scalar, typename Matrix3>
+  void toRotationMatrix(const Eigen::MatrixBase<Vector3> & axis,
+                        const Scalar & angle,
+                        const Eigen::MatrixBase<Matrix3> & res)
+  {
+    Scalar sa, ca; SINCOS(angle,&sa,&ca);
+    toRotationMatrix(axis,ca,sa,PINOCCHIO_EIGEN_CONST_CAST(Matrix3,res));
+  }
+
+  ///
   /// \brief Orthogonormalization procedure for a rotation matrix (closed enough to SO(3)).
   ///
   /// \param[in,out] rot A 3x3 matrix to orthonormalize
@@ -64,7 +81,7 @@ namespace pinocchio
     typedef typename Matrix3::Scalar Scalar;
     enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3)::Options };
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
-    Quaternion quat(rot); quat.normalize();
+    Quaternion quat(rot); normalize(quat.coeffs());
     rot_ = quat.toRotationMatrix();
   }
 

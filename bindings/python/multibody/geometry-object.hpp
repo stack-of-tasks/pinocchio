@@ -8,6 +8,8 @@
 #include <boost/python.hpp>
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
+#include "pinocchio/bindings/python/utils/registration.hpp"
+
 
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -94,18 +96,24 @@ namespace pinocchio
 
       static void expose()
       {
-        bp::class_<GeometryObject>("GeometryObject",
-                                   "A wrapper on a collision geometry including its parent joint, parent frame, placement in parent joint's frame.\n\n",
-                                   bp::no_init
-                                   )
-        .def(GeometryObjectPythonVisitor())
-        ;
+        if(!register_symbolic_link_to_registered_type<GeometryObject>())
+        {
+          bp::class_<GeometryObject>("GeometryObject",
+                                     "A wrapper on a collision geometry including its parent joint, parent frame, placement in parent joint's frame.\n\n",
+                                     bp::no_init
+                                     )
+          .def(GeometryObjectPythonVisitor())
+          ;
+        }
 
-        bp::enum_<GeometryType>("GeometryType")
-        .value("VISUAL",VISUAL)
-        .value("COLLISION",COLLISION)
-        .export_values()
-        ;
+        if(!register_symbolic_link_to_registered_type<GeometryType>())
+        {
+          bp::enum_<GeometryType>("GeometryType")
+          .value("VISUAL",VISUAL)
+          .value("COLLISION",COLLISION)
+          .export_values()
+          ;
+        }
       }
 
     };

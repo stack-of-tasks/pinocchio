@@ -32,7 +32,7 @@ namespace boost
           typedef CppAD::AD<Scalar> ADScalar;
           
           template <int N>
-          static inline ADScalar get(const mpl::int_<N>& n)
+          static inline ADScalar get(const mpl::int_<N> & n)
           {
             return ADScalar(constant_pi<Scalar>::get(n));
           }

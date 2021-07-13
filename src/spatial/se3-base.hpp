@@ -3,8 +3,8 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_se3_base_hpp__
-#define __pinocchio_se3_base_hpp__
+#ifndef __pinocchio_spatial_se3_base_hpp__
+#define __pinocchio_spatial_se3_base_hpp__
 
 namespace pinocchio
 {
@@ -27,12 +27,14 @@ namespace pinocchio
    * \ingroup pinocchio_spatial
    */
   template<class Derived>
-  struct SE3Base
+  struct SE3Base : NumericalBase<Derived>
   {
     PINOCCHIO_SE3_TYPEDEF_TPL(Derived);
     
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived& derived() const { return *static_cast<const Derived*>(this); }
+    
+    Derived & const_cast_derived() const { return *const_cast<Derived*>(&derived()); }
     
     ConstAngularRef rotation() const  { return derived().rotation_impl(); }
     ConstLinearRef translation() const  { return derived().translation_impl(); }
@@ -152,4 +154,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_se3_base_hpp__
+#endif // ifndef __pinocchio_spatial_se3_base_hpp__

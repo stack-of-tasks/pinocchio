@@ -12,25 +12,25 @@ namespace pinocchio
 
     BOOST_PYTHON_FUNCTION_OVERLOADS(isNormalized_overload,isNormalized,2,3)
 
-    static Eigen::VectorXd normalize_proxy(const Model & model,
-                                           const Eigen::VectorXd & config)
+    static context::VectorXs normalize_proxy(const context::Model & model,
+                                             const context::VectorXs & config)
     {
-      Eigen::VectorXd q(config);
+      context::VectorXs q(config);
       normalize(model,q);
       return q;
     }
     
-    static Eigen::VectorXd randomConfiguration_proxy(const Model & model)
+    static context::VectorXs randomConfiguration_proxy(const context::Model & model)
     {
       return randomConfiguration(model);
     }
 
-    bp::tuple dIntegrate_proxy(const Model & model,
-                               const Eigen::VectorXd & q,
-                               const Eigen::VectorXd & v)
+    bp::tuple dIntegrate_proxy(const context::Model & model,
+                               const context::VectorXs & q,
+                               const context::VectorXs & v)
     {
-      Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
-      Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      context::MatrixXs J0(context::MatrixXs::Zero(model.nv,model.nv));
+      context::MatrixXs J1(context::MatrixXs::Zero(model.nv,model.nv));
 
       dIntegrate(model,q,v,J0,ARG0);
       dIntegrate(model,q,v,J1,ARG1);
@@ -38,24 +38,24 @@ namespace pinocchio
       return bp::make_tuple(J0,J1);
     }
 
-    Eigen::MatrixXd dIntegrate_arg_proxy(const Model & model,
-                                         const Eigen::VectorXd & q,
-                                         const Eigen::VectorXd & v,
-                                         const ArgumentPosition arg)
+    context::MatrixXs dIntegrate_arg_proxy(const context::Model & model,
+                                           const context::VectorXs & q,
+                                           const context::VectorXs & v,
+                                           const ArgumentPosition arg)
     {
-      Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      context::MatrixXs J(context::MatrixXs::Zero(model.nv,model.nv));
       
       dIntegrate(model,q,v,J,arg, SETTO);
       
       return J;
     }
 
-    bp::tuple dDifference_proxy(const Model & model,
-                                const Eigen::VectorXd & q1,
-                                const Eigen::VectorXd & q2)
+    bp::tuple dDifference_proxy(const context::Model & model,
+                                const context::VectorXs & q1,
+                                const context::VectorXs & q2)
     {
-      Eigen::MatrixXd J0(Eigen::MatrixXd::Zero(model.nv,model.nv));
-      Eigen::MatrixXd J1(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      context::MatrixXs J0(context::MatrixXs::Zero(model.nv,model.nv));
+      context::MatrixXs J1(context::MatrixXs::Zero(model.nv,model.nv));
 
       dDifference(model,q1,q2,J0,ARG0);
       dDifference(model,q1,q2,J1,ARG1);
@@ -63,12 +63,12 @@ namespace pinocchio
       return bp::make_tuple(J0,J1);
     }
 
-    Eigen::MatrixXd dDifference_arg_proxy(const Model & model,
-                                          const Eigen::VectorXd & q1,
-                                          const Eigen::VectorXd & q2,
-                                          const ArgumentPosition arg)
+    context::MatrixXs dDifference_arg_proxy(const context::Model & model,
+                                            const context::VectorXs & q1,
+                                            const context::VectorXs & q2,
+                                            const ArgumentPosition arg)
     {
-      Eigen::MatrixXd J(Eigen::MatrixXd::Zero(model.nv,model.nv));
+      context::MatrixXs J(context::MatrixXs::Zero(model.nv,model.nv));
       
       dDifference(model,q1,q2,J,arg);
       
@@ -77,10 +77,12 @@ namespace pinocchio
   
     void exposeJointsAlgo()
     {
-      using namespace Eigen;
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
       
       bp::def("integrate",
-              &integrate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &integrate<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q","v"),
               "Integrate the joint configuration vector q with a tangent vector v during one unit time.\n"
               "This is the canonical integrator of a Configuration Space composed of Lie groups, such as most robots.\n\n"
@@ -111,7 +113,7 @@ namespace pinocchio
               "\targument_position: either pinocchio.ArgumentPosition.ARG0 or pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
 
       bp::def("interpolate",
-              &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &interpolate<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2","alpha"),
               "Interpolate between two given joint configuration vectors q1 and q2.\n\n"
               "Parameters:\n"
@@ -121,7 +123,7 @@ namespace pinocchio
               "\talpha: the interpolation coefficient in [0,1]\n");
       
       bp::def("difference",
-              &difference<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &difference<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
               "Difference between two joint configuration vectors, i.e. the tangent vector that must be integrated during one unit time"
               "to go from q1 to q2.\n\n"
@@ -131,7 +133,7 @@ namespace pinocchio
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
       
       bp::def("squaredDistance",
-              &squaredDistance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &squaredDistance<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
               "Squared distance vector between two joint configuration vectors.\n\n"
               "Parameters:\n"
@@ -140,7 +142,7 @@ namespace pinocchio
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
       
       bp::def("distance",
-              &distance<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &distance<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
               "Distance between two joint configuration vectors.\n\n"
               "Parameters:\n"
@@ -177,7 +179,7 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n");
       
       bp::def("randomConfiguration",
-              &randomConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &randomConfiguration<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","lower_bound","upper_bound"),
               "Generate a random configuration in the bounds given by the Joint lower and upper limits arguments.\n\n"
               "Parameters:\n"
@@ -186,7 +188,7 @@ namespace pinocchio
               "\tupper_bound: the upper bound on the joint configuration vectors (size model.nq)\n");
       
       bp::def("neutral",
-              &neutral<double,0,JointCollectionDefaultTpl>,
+              &neutral<Scalar,Options,JointCollectionDefaultTpl>,
               bp::arg("model"),
               "Returns the neutral configuration vector associated to the model.\n\n"
               "Parameters:\n"
@@ -200,8 +202,9 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tq: a joint configuration vector to normalize (size model.nq)\n");
       
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
       bp::def("isSameConfiguration",
-              &isSameConfiguration<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+              &isSameConfiguration<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2","prec"),
               "Return true if two configurations are equivalent within the given precision provided by prec.\n\n"
               "Parameters:\n"
@@ -211,7 +214,7 @@ namespace pinocchio
               "\tprec: requested accuracy for the comparison\n");
 
         bp::def("isNormalized",
-                &isNormalized<double,0,JointCollectionDefaultTpl,VectorXd>,
+                &isNormalized<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
                 isNormalized_overload(
                         bp::args("model","q","prec"),
                         "Check whether a configuration vector is normalized within the given precision provided by prec.\n\n"
@@ -219,8 +222,8 @@ namespace pinocchio
                         "\tmodel: model of the kinematic tree\n"
                         "\tq: a joint configuration vector (size model.nq)\n"
                         "\tprec: requested accuracy for the check\n"
-                )
-        );
+                ));
+#endif
     }
     
   } // namespace python

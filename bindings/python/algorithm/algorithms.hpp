@@ -23,7 +23,9 @@ namespace pinocchio
     void exposeFramesAlgo();
     void exposeEnergy();
     void exposeKinematics();
-    void exposeDynamics();
+    void exposeConstraintDynamics();
+    void exposeConstraintDynamicsDerivatives();
+    void exposeContactDynamics();
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();
@@ -31,13 +33,15 @@ namespace pinocchio
     void exposeRegressor();
     void exposeCholesky();
     void exposeModelAlgo();
+    void exposeImpulseDynamics();
     
     void exposeRNEADerivatives();
     void exposeABADerivatives();
     void exposeKinematicsDerivatives();
     void exposeFramesDerivatives();
     void exposeCentroidalDerivatives();
-
+    void exposeImpulseDynamicsDerivatives();
+    
     void exposeAlgorithms();
     
   } // namespace python

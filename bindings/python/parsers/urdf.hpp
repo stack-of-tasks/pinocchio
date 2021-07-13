@@ -9,11 +9,13 @@ namespace pinocchio
 {
   namespace python
   {
+    void exposeConsoleBridge();
     void exposeURDFModel();
     void exposeURDFGeometry();
   
     inline void exposeURDFParser()
     {
+      exposeConsoleBridge();
       exposeURDFModel();
       exposeURDFGeometry();
     }

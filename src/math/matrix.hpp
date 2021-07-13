@@ -7,8 +7,8 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/fwd.hpp"
+#include "pinocchio/utils/static-if.hpp"
 
-#include <Eigen/Core>
 #include <boost/type_traits.hpp>
 
 namespace pinocchio
@@ -191,6 +191,44 @@ namespace pinocchio
   {
     EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
     return internal::isNormalizedAlgo<VectorLike>::run(vec,prec);
+  }
+
+  namespace internal
+  {
+    template<typename VectorLike, bool value = is_floating_point<typename VectorLike::Scalar>::value>
+    struct normalizeAlgo
+    {
+      static void run(const Eigen::MatrixBase<VectorLike> & vec)
+      {
+        return vec.const_cast_derived().normalize();
+      }
+    };
+    
+    template<typename VectorLike>
+    struct normalizeAlgo<VectorLike,false>
+    {
+      static void run(const Eigen::MatrixBase<VectorLike> & vec)
+      {
+        using namespace internal;
+        typedef typename VectorLike::RealScalar RealScalar;
+        typedef typename VectorLike::Scalar Scalar;
+        const RealScalar z = vec.squaredNorm();
+        const Scalar sqrt_z = if_then_else(GT,z,Scalar(0),math::sqrt(z),Scalar(1));
+        vec.const_cast_derived() /= sqrt_z;
+      }
+    };
+  }
+
+  ///
+  /// \brief Normalize the input vector.
+  ///
+  /// \param[in] vec Input vector
+  ///
+  template<typename VectorLike>
+  inline void normalize(const Eigen::MatrixBase<VectorLike> & vec)
+  {
+    EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike);
+    internal::normalizeAlgo<VectorLike>::run(vec.const_cast_derived());
   }
   
   namespace internal

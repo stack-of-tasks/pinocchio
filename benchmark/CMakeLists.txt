@@ -84,3 +84,8 @@ ENDIF(URDFDOM_FOUND AND hpp-fcl_FOUND)
 # timings-jacobian
 #
 ADD_BENCH(timings-jacobian TRUE)
+
+# timings-constrained-dynamics
+#
+ADD_BENCH(timings-contact-dynamics TRUE)
+ADD_BENCH(timings-constrained-dynamics-derivatives TRUE)

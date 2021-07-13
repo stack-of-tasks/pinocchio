@@ -3,6 +3,8 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
+#include "pinocchio/bindings/python/utils/namespace.hpp"
+
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
 
@@ -11,45 +13,55 @@ namespace pinocchio
   namespace python
   {
     
-    const Data::RowMatrixXs &
-    computeMinverse_proxy(const Model & model, Data & data, const Eigen::VectorXd & q)
+    const context::Data::RowMatrixXs &
+    computeMinverse_proxy(const context::Model & model, context::Data & data, const context::VectorXs & q)
     {
       computeMinverse(model,data,q);
       make_symmetric(data.Minv);
       return data.Minv;
     }
-    
+      
     void exposeABA()
     {
-      using namespace Eigen;
-
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
+      
       bp::def("aba",
-              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd>,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",
-                       "Joint torque tau (size Model::nv)"),
-              "Compute ABA, store the result in Data::ddq and return it.",
+              &aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs>,
+              bp::args("model","data","q","v","tau"),
+              "Compute ABA, store the result in data.ddq and return it.\n"
+              "Parameters:\n"
+              "\t model: Model of the kinematic tree\n"
+              "\t data: Data related to the kinematic tree\n"
+              "\t q: joint configuration (size model.nq)\n"
+              "\t tau: joint velocity (size model.nv)\n"
+              "\t v: joint torque (size model.nv)",
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("aba",
-              &aba<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd,VectorXd,Force>,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",
-                       "Joint torque tau (size Model::nv)",
-                       "Vector of external forces expressed in the local frame of each joint (size Model::njoints)"),
-              "Compute ABA with external forces, store the result in Data::ddq and return it.",
+              &aba<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs,VectorXs,context::Force>,
+              bp::args("model","data","q","v","tau","fext"),
+              "Compute ABA with external forces, store the result in data.ddq and return it.\n"
+              "Parameters:\n"
+              "\t model: Model of the kinematic tree\n"
+              "\t data: Data related to the kinematic tree\n"
+              "\t q: joint configuration (size model.nq)\n"
+              "\t v: joint velocity (size model.nv)\n"
+              "\t tau: joint torque (size model.nv)\n"
+              "\t fext: vector of external forces expressed in the local frame of the joint (size model.njoints)",
               bp::return_value_policy<bp::return_by_value>());
       
       bp::def("computeMinverse",
               &computeMinverse_proxy,
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)"),
-              "Computes the inverse of the joint space inertia matrix using a variant of the Articulated Body algorithm.\n"
-              "The result is stored in data.Minv.",
-              bp::return_value_policy<bp::return_by_value>());
-      
+              bp::args("model","data","q"),
+              "Computes the inverse of the joint space inertia matrix using an extension of the Articulated Body algorithm.\n"
+              "The result is stored in data.Minv.\n"
+              "Parameters:\n"
+              "\t model: Model of the kinematic tree\n"
+              "\t data: Data related to the kinematic tree\n"
+              "\t q: joint configuration (size model.nq)",
+              bp::return_value_policy<bp::return_by_value>());      
     }
     
   } // namespace python

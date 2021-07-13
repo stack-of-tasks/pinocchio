@@ -32,7 +32,7 @@ namespace pinocchio
     inline bp::class_<JointModelRevoluteUnaligned>& expose_joint_model<JointModelRevoluteUnaligned> (bp::class_<JointModelRevoluteUnaligned> & cl)
     {
       return cl
-               .def(bp::init<double, double, double> (bp::args("self","x", "y", "z"),
+	               .def(bp::init<double, double, double> (bp::args("self","x", "y", "z"),
                                                       "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
                .def(bp::init<Eigen::Vector3d> (bp::args("self","axis"),
                                                "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
@@ -46,13 +46,13 @@ namespace pinocchio
     inline bp::class_<JointModelPrismaticUnaligned>& expose_joint_model<JointModelPrismaticUnaligned> (bp::class_<JointModelPrismaticUnaligned> & cl)
     {
       return cl
-               .def(bp::init<double, double, double> (bp::args("self","x", "y", "z"),
-                                                      "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
-               .def(bp::init<Eigen::Vector3d> (bp::args("self","axis"),
-                                               "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
-               .def_readwrite("axis",&JointModelPrismaticUnaligned::axis,
-                              "Translation axis of the JointModelPrismaticUnaligned.")
-               ;
+      .def(bp::init<double, double, double> (bp::args("self","x", "y", "z"),
+                                             "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
+      .def(bp::init<Eigen::Vector3d> (bp::args("self","axis"),
+                                      "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+      .def_readwrite("axis",&JointModelPrismaticUnaligned::axis,
+                     "Translation axis of the JointModelPrismaticUnaligned.")
+      ;
     }
 
     // specialization for JointModelComposite
@@ -143,8 +143,10 @@ namespace pinocchio
                                     )[bp::return_internal_reference<>()]
            )
       
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
       .def(bp::self == bp::self)
       .def(bp::self != bp::self)
+#endif
       
       ;
     }

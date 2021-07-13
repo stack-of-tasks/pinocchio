@@ -14,13 +14,15 @@
 #include <eigenpy/eigen-to-python.hpp>
 #include <eigenpy/exception.hpp>
 
+#include "pinocchio/bindings/python/fwd.hpp"
+#include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/std-aligned-vector.hpp"
 
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Data)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Data)
 
 namespace pinocchio
 {
@@ -66,29 +68,25 @@ namespace pinocchio
       }
     };
   
+    template<typename Data>
     struct DataPythonVisitor
-      : public boost::python::def_visitor< DataPythonVisitor >
+    : public boost::python::def_visitor< DataPythonVisitor<Data> >
     {
-      typedef Data::Matrix6x Matrix6x;
-      typedef Data::Matrix3x Matrix3x;
-      typedef Data::Vector3 Vector3;
+      typedef typename Data::Matrix6 Matrix6;
+      typedef typename Data::Matrix6x Matrix6x;
+      typedef typename Data::Matrix3x Matrix3x;
+      typedef typename Data::Vector3 Vector3;
 
     public:
 
-#define ADD_DATA_PROPERTY(NAME,DOC)         \
-      def_readwrite(#NAME,                  \
-      &Data::NAME,                          \
-      DOC)
+#define ADD_DATA_PROPERTY(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY(Data,NAME,DOC)
       
-#define ADD_DATA_PROPERTY_READONLY(NAME,DOC)      \
-      def_readonly(#NAME,                         \
-      &Data::NAME,                                \
-      DOC)
+#define ADD_DATA_PROPERTY_READONLY(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY_READONLY(Data,NAME,DOC)
       
-#define ADD_DATA_PROPERTY_READONLY_BYVALUE(NAME,DOC)                            \
-      add_property(#NAME,                                                       \
-      make_getter(&Data::NAME,bp::return_value_policy<bp::return_by_value>()),  \
-      DOC) 
+#define ADD_DATA_PROPERTY_READONLY_BYVALUE(NAME,DOC) \
+  PINOCCHIO_ADD_PROPERTY_READONLY_BYVALUE(Data,NAME,DOC)
 
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -97,21 +95,24 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
-        .def(bp::init<Model>(bp::arg("model"),"Constructs a data structure from a given model."))
+        .def(bp::init<context::Model>(bp::arg("model"),"Constructs a data structure from a given model."))
         
-        .ADD_DATA_PROPERTY(a,"Joint spatial acceleration")
+        .ADD_DATA_PROPERTY(joints,"Vector of JointData associated to each JointModel stored in the related model.")
+        .ADD_DATA_PROPERTY(a,"Vector of joint accelerations expressed in the local frame of the joint.")
         .ADD_DATA_PROPERTY(oa,
                            "Joint spatial acceleration expressed at the origin of the world frame.")
         .ADD_DATA_PROPERTY(a_gf,
                            "Joint spatial acceleration containing also the contribution of the gravity acceleration")
         .ADD_DATA_PROPERTY(oa_gf,"Joint spatial acceleration containing also the contribution of the gravity acceleration, but expressed at the origin of the world frame.")
         
-        .ADD_DATA_PROPERTY(v,"Joint spatial velocity expressed in the joint frame.")
-        .ADD_DATA_PROPERTY(ov,"Joint spatial velocity expressed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(v,"Vector of joint velocities expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(ov,"Vector of joint velocities expressed at the origin of the world.")
         
-        .ADD_DATA_PROPERTY(f,"Joint spatial force expresssed in the joint frame.")
-        .ADD_DATA_PROPERTY(of,"Joint spatial force expresssed at the origin of the world frame.")
+        .ADD_DATA_PROPERTY(f,"Vector of body forces expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(of,"Vector of body forces expressed at the origin of the world.")
+        .ADD_DATA_PROPERTY(of_augmented,"Vector of body forces expressed at the origin of the world, in the context of lagrangian formulation")
         .ADD_DATA_PROPERTY(h,"Vector of spatial momenta expressed in the local frame of the joint.")
+        .ADD_DATA_PROPERTY(oh,"Vector of spatial momenta expressed at the origin of the world.")
         .ADD_DATA_PROPERTY(oMi,"Body absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(oMf,"frames absolute placement (wrt world)")
         .ADD_DATA_PROPERTY(liMi,"Body relative placement (wrt parent)")
@@ -119,6 +120,9 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(nle,"Non Linear Effects (output of nle algorithm)")
         .ADD_DATA_PROPERTY(ddq,"Joint accelerations (output of ABA)")
         .ADD_DATA_PROPERTY(Ycrb,"Inertia of the sub-tree composit rigid body")
+        .ADD_DATA_PROPERTY(oYcrb,"Composite Rigid Body Inertia of the sub-tree expressed in the WORLD coordinate system.")
+        .ADD_DATA_PROPERTY(Yaba,"Articulated Body Inertia of the sub-tree")
+        .ADD_DATA_PROPERTY(oYaba,"Articulated Body Inertia of the sub-tree expressed in the WORLD coordinate system.")
         .ADD_DATA_PROPERTY(M,"The joint space inertia matrix")
         .ADD_DATA_PROPERTY(Minv,"The inverse of the joint space inertia matrix")
         .ADD_DATA_PROPERTY(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")
@@ -150,24 +154,46 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(acom,"CoM acceleration of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(mass,"Mass of the subtree starting at joint index i.")
         .ADD_DATA_PROPERTY(Jcom,"Jacobian of center of mass.")
+        
+        .ADD_DATA_PROPERTY(dAdq,"Variation of the spatial acceleration set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dAdv,"Variation of the spatial acceleration set with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dHdq,"Variation of the spatial momenta set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dFdq,"Variation of the force set with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dFdv,"Variation of the force set with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dFda,"Variation of the force set with respect to the joint acceleration.")
 
         .ADD_DATA_PROPERTY(dtau_dq,"Partial derivative of the joint torque vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(dtau_dv,"Partial derivative of the joint torque vector with respect to the joint velocity.")
         .ADD_DATA_PROPERTY(ddq_dq,"Partial derivative of the joint acceleration vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY(ddq_dv,"Partial derivative of the joint acceleration vector with respect to the joint velocity.")
-        
+	.ADD_DATA_PROPERTY(ddq_dtau,"Partial derivative of the joint acceleration vector with respect to the joint torque.")
+        .ADD_DATA_PROPERTY(dvc_dq,"Partial derivative of the constraint velocity vector with respect to the joint configuration.")
+          
+        .ADD_DATA_PROPERTY(dac_dq,"Partial derivative of the contact acceleration vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY(dac_dv,"Partial derivative of the contact acceleration vector vector with respect to the joint velocity.")
+        .ADD_DATA_PROPERTY(dac_da,"Partial derivative of the contact acceleration vector vector with respect to the joint acceleration.")
+
+        .ADD_DATA_PROPERTY(osim,"Operational space inertia matrix.")
+          
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dq,"Partial derivative of the contact force vector with respect to the joint configuration.")
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dv,"Partial derivative of the contact force vector with respect to the joint velocity.")
+	.ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dtau,"Partial derivative of the contact force vector with respect to the torque.")        
         .ADD_DATA_PROPERTY(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
         .ADD_DATA_PROPERTY(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
+        .ADD_DATA_PROPERTY(mechanical_energy,"Mechanical energy in [J] of the system computed by computeMechanicalEnergy")
         
         .ADD_DATA_PROPERTY(lambda_c,"Lagrange Multipliers linked to contact forces")
         .ADD_DATA_PROPERTY(impulse_c,"Lagrange Multipliers linked to contact impulses")
+        .ADD_DATA_PROPERTY(contact_chol,"Contact Cholesky decomposition.")
         
         .ADD_DATA_PROPERTY(dq_after,"Generalized velocity after the impact.")
         .ADD_DATA_PROPERTY(staticRegressor,"Static regressor.")
         .ADD_DATA_PROPERTY(jointTorqueRegressor,"Joint torque regressor.")
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         ;
       }
 
@@ -180,26 +206,37 @@ namespace pinocchio
                          bp::no_init)
         .def(DataPythonVisitor())
         .def(CopyableVisitor<Data>())
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def(SerializableVisitor<Data>())
-        .def_pickle(PickleData<Data>());
+        .def_pickle(PickleData<Data>())
+#endif
+        ;
         
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Vector3) StdVec_Vector3;
         typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6x) StdVec_Matrix6x;
+        typedef PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) StdVec_Matrix6;
         
-        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
-        serialize<StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
-        
-        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x")
-        .def(details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
-        serialize<StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
-        
-        StdVectorPythonVisitor<int>::expose("StdVec_Int");
+        StdAlignedVectorPythonVisitor<Vector3,false>::expose("StdVec_Vector3",
+                                                             details::overload_base_get_item_for_std_vector<StdVec_Vector3>());
+
+        StdAlignedVectorPythonVisitor<Matrix6x,false>::expose("StdVec_Matrix6x",
+                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6x>());
+        StdAlignedVectorPythonVisitor<Matrix6,false>::expose("StdVec_Matrix6",
+                                                              details::overload_base_get_item_for_std_vector<StdVec_Matrix6>());
+        StdVectorPythonVisitor<int,std::allocator<int>,true>::expose("StdVec_int");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
+        serialize<typename StdAlignedVectorPythonVisitor<Vector3,false>::vector_type>();
+        serialize<typename StdAlignedVectorPythonVisitor<Matrix6x,false>::vector_type>();
+#endif
         serialize<StdVectorPythonVisitor<int>::vector_type>();
       }
 
     };
     
   }} // namespace pinocchio::python
+
+#undef ADD_DATA_PROPERTY
+#undef ADD_DATA_PROPERTY_READONLY
+#undef ADD_DATA_PROPERTY_READONLY_BYVALUE
 
 #endif // ifndef __pinocchio_python_multibody_data_hpp__

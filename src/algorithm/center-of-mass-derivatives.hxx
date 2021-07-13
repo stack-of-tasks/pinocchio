@@ -36,6 +36,8 @@ namespace pinocchio
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Motion Motion;
       
+      typedef Eigen::Matrix<Scalar,6,JointModel::NV,Options,6,JointModel::NV==Eigen::Dynamic?6:JointModel::NV> Matrix6NV;
+      
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
 
@@ -46,8 +48,7 @@ namespace pinocchio
       Motion vpc = (parent>0) ? (data.v[i]-(Motion)jdata.v()) : Motion::Zero();
       vpc.linear() -= data.vcom[i]; // vpc = v_{parent+c} = [ v_parent+vc; w_parent ]
       
-        typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6>::Type vxS =
-      SizeDepType<JointModel::NV>::middleCols(data.M6tmp,0,jmodel.nv());
+      Matrix6NV vxS(6,jmodel.nv());
       vxS = vpc.cross(jdata.S());
       
       dvcom_dqi.noalias() = (data.mass[i]/data.mass[0])*data.oMi[i].rotation()

@@ -168,6 +168,35 @@ BOOST_AUTO_TEST_CASE (test_rnea_with_fext)
   
   BOOST_CHECK(tau_ref.isApprox(data_rnea_fext.tau));
 }
+
+BOOST_AUTO_TEST_CASE(test_rnea_with_armature)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  Model model;
+  buildModels::humanoidRandom(model);
+  model.armature = VectorXd::Random(model.nv) + VectorXd::Ones(model.nv);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  
+  Data data(model);
+  Data data_ref(model);
+  
+  VectorXd q = randomConfiguration(model);
+  VectorXd v(VectorXd::Random(model.nv));
+  VectorXd a(VectorXd::Random(model.nv));
+  
+  crba(model,data_ref,q);
+  data_ref.M.triangularView<StrictlyLower>() = data_ref.M.transpose().triangularView<StrictlyLower>();
+  const VectorXd nle = nonLinearEffects(model,data_ref,q,v);
+  
+  const VectorXd tau_ref = data_ref.M * a + nle;
+  
+  rnea(model,data,q,v,a);
+  BOOST_CHECK(tau_ref.isApprox(data.tau));
+}
   
 BOOST_AUTO_TEST_CASE(test_compute_gravity)
 {

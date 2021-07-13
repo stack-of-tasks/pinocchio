@@ -3,8 +3,8 @@
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_se3_tpl_hpp__
-#define __pinocchio_se3_tpl_hpp__
+#ifndef __pinocchio_spatial_se3_tpl_hpp__
+#define __pinocchio_spatial_se3_tpl_hpp__
 
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/spatial/se3-base.hpp"
@@ -44,9 +44,11 @@ namespace pinocchio
   }; // traits SE3Tpl
   
   template<typename _Scalar, int _Options>
-  struct SE3Tpl : public SE3Base< SE3Tpl<_Scalar,_Options> >
+  struct SE3Tpl
+  : public SE3Base< SE3Tpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
     PINOCCHIO_SE3_TYPEDEF_TPL(SE3Tpl);
     typedef SE3Base< SE3Tpl<_Scalar,_Options> > Base;
     typedef Eigen::Quaternion<Scalar,Options> Quaternion;
@@ -78,6 +80,17 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like,3,3)
     }
     
+    SE3Tpl(const SE3Tpl & other)
+    {
+      *this = other;
+    }
+    
+    template<typename S2, int O2>
+    explicit SE3Tpl(const SE3Tpl<S2,O2> & other)
+    {
+      *this = other.template cast<Scalar>();
+    }
+    
     template<typename Matrix4Like>
     explicit SE3Tpl(const Eigen::MatrixBase<Matrix4Like> & m)
     : rot(m.template block<3,3>(LINEAR,LINEAR))
@@ -86,7 +99,7 @@ namespace pinocchio
       EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix4Like,4,4);
     }
     
-    SE3Tpl(int)
+    explicit SE3Tpl(int)
     : rot(AngularType::Identity())
     , trans(LinearType::Zero())
     {}
@@ -357,5 +370,5 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_se3_tpl_hpp__
+#endif // ifndef __pinocchio_spatial_se3_tpl_hpp__
 

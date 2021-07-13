@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_multibody_model_serialization_hpp__
-#define __pinocchio_multibody_model_serialization_hpp__
+#ifndef __pinocchio_serialization_model_hpp__
+#define __pinocchio_serialization_model_hpp__
 
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/variant.hpp>
@@ -13,6 +13,7 @@
 #include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
 #include "pinocchio/serialization/spatial.hpp"
+#include "pinocchio/serialization/eigen.hpp"
 #include "pinocchio/serialization/joints.hpp"
 #include "pinocchio/serialization/frame.hpp"
 
@@ -35,6 +36,7 @@ namespace boost
       ar & make_nvp("nbodies",model.nbodies);
       ar & make_nvp("nframes",model.nframes);
       ar & make_nvp("parents",model.parents);
+      ar & make_nvp("children",model.children);
       ar & make_nvp("names",model.names);
       ar & make_nvp("supports",model.supports);
       ar & make_nvp("subtrees",model.subtrees);
@@ -42,6 +44,7 @@ namespace boost
       ar & make_nvp("name",model.name);
       
       ar & make_nvp("referenceConfigurations",model.referenceConfigurations);
+      ar & make_nvp("armature",model.armature);
       ar & make_nvp("rotorInertia",model.rotorInertia);
       ar & make_nvp("rotorGearRatio",model.rotorGearRatio);
       ar & make_nvp("friction",model.friction);
@@ -61,4 +64,4 @@ namespace boost
   } // namespace serialization
 } // namespace boost
 
-#endif // ifndef __pinocchio_multibody_model_serialization_hpp__
+#endif // ifndef __pinocchio_serialization_model_hpp__

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
 #ifndef __pinocchio_serialization_joints_data_hpp__
@@ -47,6 +47,9 @@ namespace boost
                      pinocchio::JointDataBase<Derived> & joint_data,
                      const unsigned int /*version*/)
       {
+        ar & make_nvp("joint_q",joint_data.joint_q());
+        ar & make_nvp("joint_v",joint_data.joint_v());
+        
         ar & make_nvp("S",joint_data.S());
         ar & make_nvp("M",joint_data.M());
         ar & make_nvp("v",joint_data.v());
@@ -55,6 +58,7 @@ namespace boost
         ar & make_nvp("U",joint_data.U());
         ar & make_nvp("Dinv",joint_data.Dinv());
         ar & make_nvp("UDinv",joint_data.UDinv());
+        ar & make_nvp("StU",joint_data.StU());
       }
     }
     

@@ -43,7 +43,6 @@ namespace pinocchio
       jmodel.calc(jdata.derived(),q.derived(),v.derived());
 
       data.liMi[i] = model.jointPlacements[i]*jdata.M();
-//      data.liMi[i].setIdentity();
 
       data.v[i] = jdata.v();
       if(parent>0)
@@ -88,6 +87,7 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
       
       jmodel.jointVelocitySelector(data.tau) = jdata.S().transpose()*data.f[i];
+      
       if(parent>0) data.f[parent] += data.liMi[i].act(data.f[i]);
     }
   };
@@ -115,17 +115,18 @@ namespace pinocchio
     typename Pass1::ArgsType arg1(model,data,q.derived(),v.derived(),a.derived());
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      Pass1::run(model.joints[i],data.joints[i],
-                 arg1);
+      Pass1::run(model.joints[i],data.joints[i],arg1);
     }
     
     typedef RneaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     typename Pass2::ArgsType arg2(model,data);
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
-      Pass2::run(model.joints[i],data.joints[i],
-                 arg2);
+      Pass2::run(model.joints[i],data.joints[i],arg2);
     }
+    
+    // Add rotorinertia contribution
+    data.tau.array() += model.armature.array() * a.array(); // Check if there is memory allocation
 
     return data.tau;
   }
@@ -165,7 +166,9 @@ namespace pinocchio
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
-
+    
+    // Add armature contribution
+    data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
     
     return data.tau;
   }
@@ -441,12 +444,12 @@ namespace pinocchio
       
       // computes S expressed at the world frame
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock Jcols = jmodel.jointCols(data.J);
-      Jcols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      J_cols = data.oMi[i].act(jdata.S()); // collection of S expressed at the world frame
 
       // computes vxS expressed at the world frame
-      ColsBlock dJcols = jmodel.jointCols(data.dJ);
-      motionSet::motionAction(data.ov[i],Jcols,dJcols);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      motionSet::motionAction(data.ov[i],J_cols,dJ_cols);
 
       // computes vxI
       typedef typename Data::Inertia Inertia;
@@ -472,28 +475,31 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
-      ColsBlock dJcols = jmodel.jointCols(data.dJ);
-      ColsBlock Jcols = jmodel.jointCols(data.J);
+      ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
+      ColsBlock J_cols = jmodel.jointCols(data.J);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
-      motionSet::inertiaAction(data.oYcrb[i],dJcols,jmodel.jointCols(data.dFdv));
-      jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
+      motionSet::inertiaAction(data.oYcrb[i],dJ_cols,jmodel.jointCols(data.dFdv));
+      jmodel.jointCols(data.dFdv).noalias() += data.vxI[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      lhsInertiaMult(data.oYcrb[i],Jcols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
 
-      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
+      Mat_tmp.noalias() = J_cols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
 
       if(parent>0)
       {
@@ -501,15 +507,6 @@ namespace pinocchio
         data.vxI[parent] += data.vxI[i];
       }
       
-    }
-    
-    template<typename Min, typename Mout>
-    static void lhsInertiaMult(const typename Data::Inertia & Y,
-                               const Eigen::MatrixBase<Min> & J,
-                               const Eigen::MatrixBase<Mout> & F)
-    {
-      Mout & F_ = PINOCCHIO_EIGEN_CONST_CAST(Mout,F);
-      motionSet::inertiaAction(Y,J.derived().transpose(),F_.transpose());
     }
   };
   
@@ -561,31 +558,31 @@ namespace pinocchio
                      Data & data)
     {
       typedef typename Model::JointIndex JointIndex;
-      typedef CoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> EquivalentPass;
+      typedef Eigen::Matrix<Scalar,JointModel::NV,6,Options,JointModel::NV==Eigen::Dynamic?6:JointModel::NV,6> MatrixNV6;
       
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
-      typename Data::RowMatrix6 & M6tmpR = data.M6tmpR;
+      
+      typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixNV6) Mat_tmp(jmodel.nv(),6);
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       ColsBlock J_cols = jmodel.jointCols(data.J);
-      typename Data::Matrix6x & dFdv = data.Fcrb[0];
-      ColsBlock dFdv_cols = jmodel.jointCols(dFdv);
+      ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
-      motionSet::inertiaAction(data.oYcrb[i],dJ_cols,dFdv_cols);
-      dFdv_cols.noalias() += data.vxI[i] * J_cols;
+      motionSet::inertiaAction(data.oYcrb[i],dJ_cols,jmodel.jointCols(data.dFdv));
+      jmodel.jointCols(data.dFdv).noalias() += data.vxI[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose() * dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
-      EquivalentPass::lhsInertiaMult(data.oYcrb[i],J_cols.transpose(),M6tmpR.topRows(jmodel.nv()));
+      motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
 
-      M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.vxI[i];
+      Mat_tmp.noalias() = J_cols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
       
       if(parent>0)
       {
@@ -602,8 +599,8 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef typename Model::JointIndex JointIndex;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    typedef typename Data::Inertia Inertia;
     
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {

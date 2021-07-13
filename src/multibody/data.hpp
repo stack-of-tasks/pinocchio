@@ -16,18 +16,25 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
+#include "pinocchio/algorithm/contact-cholesky.hpp"
 
 #include "pinocchio/serialization/serializable.hpp"
 
-#include <iostream>
 #include <Eigen/Cholesky>
 
 namespace pinocchio
 {
+
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< DataTpl<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef _Scalar Scalar;
+  };
  
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct DataTpl
   : serialization::Serializable< DataTpl<_Scalar,_Options,JointCollectionTpl> >
+  , NumericalBase< DataTpl<_Scalar,_Options,JointCollectionTpl> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -82,40 +89,54 @@ namespace pinocchio
     /// \brief The type of Tensor for Kinematics and Dynamics second order derivatives
     typedef Tensor<Scalar,3,Options> Tensor3x;
 
+    typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
+
     /// \brief Vector of pinocchio::JointData associated to the pinocchio::JointModel stored in model, 
     /// encapsulated in JointDataAccessor.
     JointDataVector joints;
     
-    /// \brief Vector of joint accelerations expressed at the centers of the joints frames.
+    /// \brief Vector of joint accelerations expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a;
     
     /// \brief Vector of joint accelerations expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa;
     
+    /// \brief Vector of joint accelerations expressed at the origin of the world.
+    ///        These accelerations are used in the context of augmented Lagrangian algorithms. 
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_drift;
+    
+    /// \brief Vector of joint accelerations expressed at the origin of the world.
+    ///        These accelerations are used in the context of augmented Lagrangian algorithms.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_augmented;
+    
     /// \brief Vector of joint accelerations due to the gravity field.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) a_gf;
     
-    /// \brief Vector of joint accelerations expressed at the origin of the world including gravity contribution.
+    /// \brief Vector of joint accelerations expressed at the origin of the world including the gravity contribution.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) oa_gf;
     
-    /// \brief Vector of joint velocities expressed at the centers of the joints.
+    /// \brief Vector of joint velocities expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) v;
     
-    /// \brief Vector of joint velocities expressed at the origin.
+    /// \brief Vector of joint velocities expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Motion) ov;
     
     /// \brief Vector of body forces expressed in the local frame of the joint. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) f;
     
-    /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
+    /// \brief Vector of body forces expressed at the origin of the world. For each body, the force represents the sum of
     ///        all external forces acting on the body.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) of;
+    
+    /// \brief Vector of body forces expressed in the world frame. For each body, the force represents the sum of
+    ///        all external forces acting on the body. These forces are used in the context of augmented Lagrangian algorithms.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Force) of_augmented;
     
     /// \brief Vector of spatial momenta expressed in the local frame of the joint.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) h;
     
-    /// \brief Vector of spatial momenta expressed in the world frame.
+    /// \brief Vector of spatial momenta expressed at the origin of the world.
     PINOCCHIO_ALIGNED_STD_VECTOR(Force) oh;
     
     /// \brief Vector of absolute joint placements (wrt the world).
@@ -156,7 +177,7 @@ namespace pinocchio
     /// \brief The Coriolis matrix (a square matrix of dim model.nv).
     MatrixXs C;
 
-    /// \brief Variation of the spatial momenta with respect to the joint configuration.
+    /// \brief Variation of the spatial momenta set with respect to the joint configuration.
     Matrix6x dHdq;
     
     /// \brief Variation of the forceset with respect to the joint configuration.
@@ -182,7 +203,7 @@ namespace pinocchio
     
     /// \brief Left variation of the inertia matrix
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Ivx;
-    
+
     /// \brief Rigid Body Inertia supported by the joint expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
     
@@ -192,20 +213,18 @@ namespace pinocchio
     /// \brief Time variation of Composite Rigid Body Inertia expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) doYcrb;
     
-    /// \brief Temporary for derivative algorithms
-    Matrix6 Itmp;
-    
-    /// \brief Temporary for derivative algorithms
-    Matrix6 M6tmp;
-    RowMatrix6 M6tmpR;
-    RowMatrix6 M6tmpR2;
-    
-    /// \brief The joint accelerations computed from ABA
+    /// \brief The joint accelerations computed by ABA
     TangentVectorType ddq;
     
     // ABA internal data
-    /// \brief Inertia matrix of the subtree expressed as dense matrix [ABA]
+    /// \brief Articulated Body Inertia matrix of the subtree expressed in the LOCAL coordinate frame of the joint
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Yaba;  // TODO: change with dense symmetric matrix6
+    
+    /// \brief Articulated Body Inertia matrix of the subtree expressed in the WORLD coordinate frame
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba;  // TODO: change with dense symmetric matrix6
+    
+    /// \brief Articulated Body Inertia matrix with contact apparent inertia, of a given the subtree and expressed in the WORLD coordinate frame
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba_contact;  // TODO: change with dense symmetric matrix6
     
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     TangentVectorType u;                  // Joint Inertia
@@ -290,16 +309,33 @@ namespace pinocchio
     Matrix6x dAdv;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint configuration.
-    MatrixXs dtau_dq;
+    RowMatrixXs dtau_dq;
     
     /// \brief Partial derivative of the joint torque vector with respect to the joint velocity.
-    MatrixXs dtau_dv;
+    RowMatrixXs dtau_dv;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint configuration.
-    MatrixXs ddq_dq;
+    RowMatrixXs ddq_dq;
     
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
-    MatrixXs ddq_dv;
+    RowMatrixXs ddq_dv;
+    
+    /// \brief Partial derivative of the joint acceleration vector with respect to the joint torques.
+    RowMatrixXs ddq_dtau;
+    
+    /// \brief Stack of partial derivative of the contact frame acceleration with respect to the joint parameters.
+    MatrixXs dvc_dq;
+    MatrixXs dac_dq;
+    MatrixXs dac_dv;
+    MatrixXs dac_da;
+
+    /// \brief Operational space inertia matrix;
+    MatrixXs osim;
+
+    /// \brief Partial derivatives of the contact lambdas wrt joint params;
+    MatrixXs dlambda_dq;
+    MatrixXs dlambda_dv;
+    MatrixXs dlambda_dtau;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;
@@ -320,11 +356,14 @@ namespace pinocchio
     /// \note This Jacobian maps the joint velocity vector to the velocity of the center of mass, expressed in the inertial frame. In other words, \f$ v_{\text{CoM}} = J_{\text{CoM}} \dot{q}\f$.
     Matrix3x Jcom;
 
-    /// \brief Kinetic energy of the model.
+    /// \brief Kinetic energy of the system.
     Scalar kinetic_energy;
     
-    /// \brief Potential energy of the model.
+    /// \brief Potential energy of the system.
     Scalar potential_energy;
+    
+    /// \brief Mechanical energy of the system.
+    Scalar mechanical_energy;
     
     // Temporary variables used in forward dynamics
     
@@ -336,6 +375,12 @@ namespace pinocchio
     
     /// \brief Lagrange Multipliers corresponding to the contact forces in pinocchio::forwardDynamics.
     VectorXs lambda_c;
+    
+    /// \brief Proximal Lagrange Multipliers used in the computation of the Forward Dynamics computations.
+    VectorXs lambda_c_prox;
+    
+    /// \brief Difference between two consecutive iterations of the proxy algorithm.
+    VectorXs diff_lambda_c;
     
     /// \brief Temporary corresponding to \f$ \sqrt{D} U^{-1} J^{\top} \f$.
     MatrixXs sDUiJt;
@@ -360,6 +405,15 @@ namespace pinocchio
     
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
+    
+    /// \brief Cholesky decomposition of the KKT contact matrix
+    ContactCholeskyDecomposition contact_chol;
+    
+    /// \brief RHS vector when solving the contact dynamics KKT problem
+    VectorXs primal_dual_contact_solution;
+    
+    /// \brief Primal RHS in contact dynamic equations
+    VectorXs primal_rhs_contact;
     
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.

@@ -36,8 +36,8 @@ namespace pinocchio
   
     void exposeSkew()
     {
-      typedef SE3::Matrix3 Matrix3;
-      typedef SE3::Vector3 Vector3;
+      typedef context::SE3::Matrix3 Matrix3;
+      typedef context::SE3::Vector3 Vector3;
       
       bp::def("skew",&skew<Vector3>,
               bp::arg("u"),

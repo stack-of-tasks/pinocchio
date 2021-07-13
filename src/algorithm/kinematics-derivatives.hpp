@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2019 CNRS INRIA
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_kinematics_derivatives_hpp__
@@ -50,7 +50,7 @@ namespace pinocchio
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint velociy w.r.t. \f$ q \f$.
-  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ v \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
   inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -78,8 +78,8 @@ namespace pinocchio
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -109,10 +109,10 @@ namespace pinocchio
   /// \param[in] jointId Index of the joint in model.
   /// \param[in] rf Reference frame in which the Jacobian is expressed.
   /// \param[out] v_partial_dq Partial derivative of the joint spatial velocity w.r.t. \f$ q \f$.
-  /// \param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ \dot{q} \f$.
+  /// \param[out] v_partial_dv Partial derivative of the joint spatial velociy w.r.t. \f$ v \f$.
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ q \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{q} \f$.
-  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \ddot{q} \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
   inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -124,6 +124,99 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
                                               const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
                                               const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
+
+  ///
+  /// \brief Computes the partial derivatives of the velocity of a point given by its placement information w.r.t. the joint frame.
+  ///        You must first call computForwardKinematicsDerivatives before calling this function.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam Matrix3xOut1 Matrix3x containing the partial derivatives of the spatial velocity with respect to the joint configuration vector.
+  /// \tparam Matrix3xOut2 Matrix3x containing the partial derivatives of the spatial velocity with respect to the joint velocity vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint in model.
+  /// \param[in] placement Relative placement of the point w.r.t. the joint frame.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed (either LOCAL or LOCAL_WORLD_ALIGNED).
+  /// \param[out] v_point_partial_dq Partial derivative of the point velocity w.r.t. \f$ q \f$.
+  /// \param[out] v_point_partial_dv Partial derivative of the point velociy w.r.t. \f$ v \f$.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
+  inline void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const Model::JointIndex joint_id,
+                                          const SE3Tpl<Scalar,Options> & placement,
+                                          const ReferenceFrame rf,
+                                          const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                          const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv);
+
+  ///
+  /// \brief Computes the partial derivatives of the classic acceleration of a point given by its placement information w.r.t. the joint frame.
+  ///        You must first call computForwardKinematicsDerivatives before calling this function.
+  ///        It is important to notice that a direct outcome (for free) of this algo is v_point_partial_dq.
+  ///        v_point_partial_dv is not computed it is equal to a_point_partial_da.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam Matrix3xOut1 Matrix3x containing the partial derivatives of the spatial velocity with respect to the joint configuration vector.
+  /// \tparam Matrix3xOut2 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint configuration vector.
+  /// \tparam Matrix3xOut3 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint velocity vector.
+  /// \tparam Matrix3xOut4 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint in model.
+  /// \param[in] placement Relative placement of the point w.r.t. the joint frame.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed (either LOCAL or LOCAL_WORLD_ALIGNED).
+  /// \param[out] v_point_partial_dq Partial derivative of the point velocity w.r.t. \f$ q \f$.
+  /// \param[out] a_point_partial_dq Partial derivative of the point classic acceleration w.r.t. \f$ q \f$.
+  /// \param[out] a_point_partial_dv Partial derivative of the point classic acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_point_partial_da Partial derivative of the point classic acceleration w.r.t. \f$ \dot{v} \f$.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
+  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                     const Model::JointIndex joint_id,
+                                                     const SE3Tpl<Scalar,Options> & placement,
+                                                     const ReferenceFrame rf,
+                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
+                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da);
+
+  ///
+  /// \brief Computes the partial derivaties of the classic acceleration of a point given by its placement information w.r.t. to the joint frame.
+  ///        You must first call computForwardKinematicsDerivatives before calling this function.
+  ///        It is important to notice that a direct outcome (for free) of this algo is v_point_partial_dq and v_point_partial_dv..
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam Matrix3xOut1 Matrix3x containing the partial derivatives of the spatial velocity with respect to the joint configuration vector.
+  /// \tparam Matrix3xOut2 Matrix3x containing the partial derivatives of the spatial velocity with respect to the joint velocity vector.
+  /// \tparam Matrix3xOut3 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint configuration vector.
+  /// \tparam Matrix3xOut4 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint velocity vector.
+  /// \tparam Matrix3xOut5 Matrix3x containing the partial derivatives of the spatial acceleration with respect to the joint acceleration vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id Index of the joint in model.
+  /// \param[in] placement Relative placement of the point w.r.t. the joint frame.
+  /// \param[in] rf Reference frame in which the Jacobian is expressed (either LOCAL or LOCAL_WORLD_ALIGNED).
+  /// \param[out] v_point_partial_dq Partial derivative of the point velocity w.r.t. \f$ q \f$.
+  /// \param[out] v_point_partial_dv Partial derivative of the point velociy w.r.t. \f$ v \f$.
+  /// \param[out] a_point_partial_dq Partial derivative of the point classic acceleration w.r.t. \f$ q \f$.
+  /// \param[out] a_point_partial_dv Partial derivative of the point classic acceleration w.r.t. \f$ v \f$.
+  /// \param[out] a_point_partial_da Partial derivative of the point classic acceleration w.r.t. \f$ \dot{v} \f$.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
+  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                     const Model::JointIndex joint_id,
+                                                     const SE3Tpl<Scalar,Options> & placement,
+                                                     const ReferenceFrame rf,
+                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
+                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
+                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
+                                                     const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da);
 
   ///
   /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the

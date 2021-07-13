@@ -35,7 +35,11 @@ namespace pinocchio
         {
           VecType & o = boost::python::extract<VecType&>(op)();
           boost::python::stl_input_iterator<typename VecType::value_type> begin(tup[0]), end;
-          o.insert(o.begin(),begin,end);
+          while(begin != end)
+          {
+             o.push_back(*begin);
+             ++begin;
+          }
         }
       }
     };

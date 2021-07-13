@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2020 INRIA
 //
 
-#ifndef __pinocchio_joint_revolute_unbounded_unaligned_hpp__
-#define __pinocchio_joint_revolute_unbounded_unaligned_hpp__
+#ifndef __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__
+#define __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/spatial/inertia.hpp"
@@ -32,7 +32,7 @@ namespace pinocchio
     
     typedef JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDataDerived;
     typedef JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> JointModelDerived;
-    typedef ConstraintRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceRevoluteUnalignedTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionRevoluteUnalignedTpl<Scalar,Options> Motion_t;
     typedef MotionZeroTpl<Scalar,Options> Bias_t;
@@ -46,13 +46,19 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE
   };
 
-  template<typename Scalar, int Options>
-  struct traits< JointDataRevoluteUnboundedUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointDataRevoluteUnboundedUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options>
-  struct traits <JointModelRevoluteUnboundedUnalignedTpl<Scalar,Options> >
-  { typedef JointRevoluteUnboundedUnalignedTpl<Scalar,Options> JointDerived; };
+  template<typename _Scalar, int _Options>
+  struct traits< JointModelRevoluteUnboundedUnalignedTpl<_Scalar,_Options> >
+  {
+    typedef JointRevoluteUnboundedUnalignedTpl<_Scalar,_Options> JointDerived;
+    typedef _Scalar Scalar;
+  };
 
   template<typename _Scalar, int _Options>
   struct JointDataRevoluteUnboundedUnalignedTpl
@@ -63,6 +69,9 @@ namespace pinocchio
     PINOCCHIO_JOINT_DATA_TYPEDEF_TEMPLATE(JointDerived);
     PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR
     
+    ConfigVector_t joint_q;
+    TangentVector_t joint_v;
+    
     Transformation_t M;
     Constraint_t S;
     Motion_t v;
@@ -72,24 +81,31 @@ namespace pinocchio
     U_t U;
     D_t Dinv;
     UD_t UDinv;
+    D_t StU;
     
     JointDataRevoluteUnboundedUnalignedTpl()
-    : M(Transformation_t::Identity())
+    : joint_q(Scalar(1),Scalar(0))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(Constraint_t::Vector3::Zero())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
     
     template<typename Vector3Like>
     JointDataRevoluteUnboundedUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : M(Transformation_t::Identity())
+    : joint_q(Scalar(1),Scalar(0))
+    , joint_v(TangentVector_t::Zero())
+    , M(Transformation_t::Identity())
     , S(axis)
-    , v(axis,(Scalar)NAN)
+    , v(axis,(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
+    , StU(D_t::Zero())
     {}
     
     static std::string classname() { return std::string("JointDataRevoluteUnboundedUnalignedTpl"); }
@@ -121,7 +137,7 @@ namespace pinocchio
                                             const Scalar & z)
     : axis(x,y,z)
     {
-      axis.normalize();
+      normalize(axis);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
     
@@ -138,19 +154,17 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelRevoluteUnboundedUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis;
+      return Base::isEqual(other) && internal::comparison_eq(axis, other.axis);
     }
     
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const
     {
-      typedef typename ConfigVector::Scalar OtherScalar;
-      typename ConfigVector::template ConstFixedSegmentReturnType<NQ>::Type
-      & q = qs.template segment<NQ>(idx_q());
+      data.joint_q = qs.template segment<NQ>(idx_q());
       
-      const OtherScalar & ca = q(0);
-      const OtherScalar & sa = q(1);
+      const Scalar & ca = data.joint_q(0);
+      const Scalar & sa = data.joint_q(1);
       
       toRotationMatrix(axis,ca,sa,data.M.rotation());
     }
@@ -161,16 +175,18 @@ namespace pinocchio
               const typename Eigen::MatrixBase<TangentVector> & vs) const
     {
       calc(data,qs.derived());
-      data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
+      data.joint_v[0] = vs[idx_v()];
+      data.v.angularRate() = data.joint_v[0];
     }
     
-    template<typename Matrix6Like>
+    template<typename VectorLike, typename Matrix6Like>
     void calc_aba(JointDataDerived & data,
+                  const Eigen::MatrixBase<VectorLike> & armature,
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
       data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * axis;
-      data.Dinv[0] = (Scalar)(1)/axis.dot(data.U.template segment<3>(Motion::ANGULAR));
+      data.Dinv[0] = Scalar(1)/(axis.dot(data.U.template segment<3>(Motion::ANGULAR)) + armature[0]);
       data.UDinv.noalias() = data.U * data.Dinv;
       
       if (update_I)
@@ -192,7 +208,7 @@ namespace pinocchio
 
     // data
     ///
-    /// \brief 3d main axis of the joint.
+    /// \brief axis of rotation of the joint.
     ///
     Vector3 axis;
   }; // struct JointModelRevoluteUnboundedUnalignedTpl
@@ -221,4 +237,4 @@ namespace boost
 }
 
 
-#endif // ifndef __pinocchio_joint_revolute_unbounded_unaligned_hpp__
+#endif // ifndef __pinocchio_multibody_joint_revolute_unbounded_unaligned_hpp__

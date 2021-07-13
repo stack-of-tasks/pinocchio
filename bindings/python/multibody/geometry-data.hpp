@@ -13,6 +13,7 @@
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
+#include "pinocchio/bindings/python/utils/registration.hpp"
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
@@ -31,6 +32,8 @@ namespace pinocchio
     {
       static void expose()
       {
+        if(!register_symbolic_link_to_registered_type<CollisionPair>())
+        {
         bp::class_<CollisionPair> ("CollisionPair",
                                    "Pair of ordered index defining a pair of collisions",
                                    bp::no_init)
@@ -46,9 +49,13 @@ namespace pinocchio
         .def(bp::self != bp::self)
         .def_readwrite("first",&CollisionPair::first)
         .def_readwrite("second",&CollisionPair::second);
-        
+
         StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         serialize< std::vector<CollisionPair> >();
+#endif
+        }
+        
       }
     }; // struct CollisionPairPythonVisitor
 
@@ -137,14 +144,17 @@ namespace pinocchio
       /* --- Expose --------------------------------------------------------- */
       static void expose()
       {
-        bp::class_<GeometryData>("GeometryData",
-                                 "Geometry data linked to a Geometry Model and a Data struct.",
-                                 bp::no_init)
-        .def(GeometryDataPythonVisitor())
-        .def(PrintableVisitor<GeometryData>())
-        .def(CopyableVisitor<GeometryData>())
-        .def(SerializableVisitor<GeometryData>())
-        ;
+        if(!register_symbolic_link_to_registered_type<GeometryData>())
+        {
+          bp::class_<GeometryData>("GeometryData",
+                                   "Geometry data linked to a Geometry Model and a Data struct.",
+                                   bp::no_init)
+          .def(GeometryDataPythonVisitor())
+          .def(PrintableVisitor<GeometryData>())
+          .def(CopyableVisitor<GeometryData>())
+          .def(SerializableVisitor<GeometryData>())
+          ;
+        }
      
       }
       

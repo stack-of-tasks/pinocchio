@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -38,8 +38,9 @@ namespace pinocchio
     typedef typename Vector3Like::Scalar Scalar;
     typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3LikePlain;
     typedef Eigen::Matrix<Scalar,3,3,Vector3LikePlain::Options> Matrix3;
+    const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
     
-    const Scalar t2 = v.squaredNorm();
+    const Scalar t2 = v.squaredNorm() + eps * eps;
     
     const Scalar t = math::sqrt(t2);
     Scalar ct,st; SINCOS(t,&st,&ct);
@@ -104,7 +105,7 @@ namespace pinocchio
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
   ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
-  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  ///   + \frac{1}{||r||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
   ///
   template<AssignmentOperatorType op, typename Vector3Like, typename Matrix3Like>
@@ -134,7 +135,7 @@ namespace pinocchio
                                             n2_inv * (1 - a));
 
     switch(op)
-      {
+    {
       case SETTO:
         Jout.diagonal().setConstant(a);
         Jout(0,1) = -b*r[2]; Jout(1,0) = -Jout(0,1);
@@ -159,7 +160,7 @@ namespace pinocchio
       default:
         assert(false && "Wrong Op requesed value");
         break;
-      }
+    }
   }
 
   ///
@@ -167,7 +168,7 @@ namespace pinocchio
   /// \f[
   ///     \frac{\sin{||r||}}{||r||}                       I_3
   ///   - \frac{1-\cos{||r||}}{||r||^2}                   \left[ r \right]_x
-  ///   + \frac{1}{||n||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
+  ///   + \frac{1}{||r||^2} (1-\frac{\sin{||r||}}{||r||}) r r^T
   /// \f]
   ///
   template<typename Vector3Like, typename Matrix3Like>
@@ -306,9 +307,10 @@ namespace pinocchio
     
     const typename MotionDerived::ConstAngularType & w = nu.angular();
     const typename MotionDerived::ConstLinearType & v = nu.linear();
+    const static Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
     
     Scalar alpha_wxv, alpha_v, alpha_w, diagonal_term;
-    const Scalar t2 = w.squaredNorm();
+    const Scalar t2 = w.squaredNorm() + eps*eps;
     const Scalar t = math::sqrt(t2);
     Scalar ct,st; SINCOS(t,&st,&ct);
     const Scalar inv_t2 = Scalar(1)/t2;
@@ -436,7 +438,7 @@ namespace pinocchio
                                                               -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
 
     switch(op)
-      {
+    {
       case SETTO:
       {
         Jexp3<SETTO>(w, Jout.template bottomRightCorner<3,3>());
@@ -502,6 +504,21 @@ namespace pinocchio
     Jexp6<SETTO>(nu, Jexp);
   }
 
+  /// \brief Derivative of exp6
+  /// Computed as the inverse of Jlog6
+  template<typename MotionDerived>
+  Eigen::Matrix<typename MotionDerived::Scalar,6,6,MotionDerived::Options>
+  Jexp6(const MotionDense<MotionDerived> & nu)
+  {
+    typedef typename MotionDerived::Scalar Scalar;
+    enum { Options = MotionDerived::Options };
+    typedef Eigen::Matrix<Scalar,6,6,Options> ReturnType;
+    
+    ReturnType res;
+    Jexp6(nu,res);
+    return res;
+  }
+
   /** \brief Derivative of log6
    *  \f[
    *  \left(\begin{array}{cc}
@@ -539,6 +556,21 @@ namespace pinocchio
              const Eigen::MatrixBase<Matrix6Like> & Jlog)
   {
     Jlog6_impl<Scalar>::run(M,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,Jlog));
+  }
+
+  ///
+  /// \copydoc Jlog6(const SE3Tpl<Scalar, Options> &, const Eigen::MatrixBase<Matrix6Like> &)
+  ///
+  /// \param[in] M The rigid transformation.
+  ///
+  template<typename Scalar, int Options>
+  Eigen::Matrix<Scalar,6,6,Options> Jlog6(const SE3Tpl<Scalar, Options> & M)
+  {
+    typedef Eigen::Matrix<Scalar,6,6,Options> ReturnType;
+    
+    ReturnType res;
+    Jlog6(M,res);
+    return res;
   }
   
   template<typename Scalar, int Options>

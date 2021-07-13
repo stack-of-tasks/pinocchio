@@ -93,7 +93,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
   
   q_interpolate = LieGroupType().interpolate(q1,q2,1.);
-  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2,1e1*prec), std::string("Error when interpolating " + jmodel.shortname()));
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {

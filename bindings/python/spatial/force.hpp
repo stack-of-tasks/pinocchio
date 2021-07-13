@@ -12,10 +12,12 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
+
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::Force)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::Force)
 
 namespace pinocchio
 {
@@ -50,7 +52,7 @@ namespace pinocchio
     struct ForcePythonVisitor
     : public boost::python::def_visitor< ForcePythonVisitor<Force> >
     {
-      enum { Options = traits<Motion>::Options };
+      enum { Options = traits<Force>::Options };
       
       typedef typename Force::Vector6 Vector6;
       typedef typename Force::Vector3 Vector3;
@@ -68,7 +70,7 @@ namespace pinocchio
              ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Wrench vector (don't mix the order)."))
         .def(bp::init<Vector6>((bp::args("self","array")),"Init from a vector 6 [force,torque]"))
-        .def(bp::init<Force>((bp::args("self","other")),"Copy constructor."))
+        .def(bp::init<const Force &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("linear",
                       bp::make_function(&ForcePythonVisitor::getLinear,
@@ -99,19 +101,25 @@ namespace pinocchio
         .def("setRandom",&ForcePythonVisitor::setRandom,bp::arg("self"),
              "Set the linear and angular components of *this to random values.")
         
+        .def("dot",(Scalar (Force::*)(const MotionDense<context::Motion> &) const) &Force::dot,
+             bp::args("self","m"),"Dot product between *this and a Motion m.")
+        
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
         .def(bp::self -= bp::self)
         .def(-bp::self)
-        
+
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
+#endif
         
         .def(bp::self * Scalar())
         .def(Scalar() * bp::self)
         .def(bp::self / Scalar())
         
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
         .def("isApprox",
              &call<Force>::isApprox,
              isApproxForce_overload(bp::args("self","other","prec"),
@@ -121,6 +129,7 @@ namespace pinocchio
              &call<Force>::isZero,
              isZero_overload(bp::args("self","prec"),
                              "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
+#endif
         
         .def("Random",&Force::Random,"Returns a random Force.")
         .staticmethod("Random")
@@ -129,18 +138,29 @@ namespace pinocchio
         
         .def("__array__",bp::make_function((typename Force::ToVectorReturnType (Force::*)())&Force::toVector,
                                            bp::return_internal_reference<>()))
-        
+#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
+#endif
         ;
       }
       
       static void expose()
       {
+        typedef pinocchio::ForceBase<Force> ForceBase;
+        bp::objects::register_dynamic_id<ForceBase>();
+        bp::objects::register_conversion<Force,ForceBase>(false);
+        
+        typedef pinocchio::ForceDense<Force> ForceDense;
+        bp::objects::register_dynamic_id<ForceBase>();
+        bp::objects::register_conversion<Force,ForceDense>(false);
+        
         bp::class_<Force>("Force",
                           "Force vectors, in se3* == F^6.\n\n"
                           "Supported operations ...",
                           bp::no_init)
         .def(ForcePythonVisitor<Force>())
+        .def(CastVisitor<Force>())
+        .def(ExposeConstructorByCastVisitor<Force,::pinocchio::Force>())
         .def(CopyableVisitor<Force>())
         .def(PrintableVisitor<Force>())
         ;

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/spatial/explog.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"

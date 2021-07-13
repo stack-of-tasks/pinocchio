@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2018 CNRS
+// Copyright (c) 2017-2020 CNRS INRIA
 //
 
 #ifndef __pinocchio_cartesian_axis_hpp__
@@ -14,6 +14,8 @@ namespace pinocchio
   struct CartesianAxis
   {
     enum { axis = _axis, dim = 3 };
+    
+    typedef Eigen::Matrix<double,3,1> Vector3;
 
     template<typename V3_in, typename V3_out>
     inline static void cross(const Eigen::MatrixBase<V3_in> & vin,
@@ -67,6 +69,19 @@ namespace pinocchio
       
       for(Eigen::DenseIndex i = 0; i < dim; ++i)
         v3_[i] = i == axis ? Scalar(1) : Scalar(0);
+    }
+    
+    template<typename Scalar>
+    static const Eigen::Matrix<Scalar,3,1> & vector()
+    {
+      typedef Eigen::Matrix<Scalar,3,1> Vector3;
+      static const Vector3 vec = Vector3::Unit(axis);
+      return vec;
+    }
+    
+    static const Vector3 & vector()
+    {
+      return vector<double>();
     }
     
   }; // struct CartesianAxis
@@ -140,9 +155,14 @@ namespace pinocchio
     vout_[0] = -s*vin[1]; vout_[1] = s*vin[0]; vout_[2] = 0.;
   }
  
-  typedef CartesianAxis<0> AxisX;
-  typedef CartesianAxis<1> AxisY;
-  typedef CartesianAxis<2> AxisZ;
+  typedef CartesianAxis<0> XAxis;
+  typedef XAxis AxisX;
+
+  typedef CartesianAxis<1> YAxis;
+  typedef YAxis AxisY;
+
+  typedef CartesianAxis<2> ZAxis;
+  typedef ZAxis AxisZ;
 
 }
 

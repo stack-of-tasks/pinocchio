@@ -10,6 +10,7 @@
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -24,6 +25,8 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   
   Eigen::VectorXd q1, q2;
+  Eigen::VectorXd armature = Eigen::VectorXd::Random(jdata.S().nv()) + Eigen::VectorXd::Ones(jdata.S().nv());
+
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
   
@@ -38,31 +41,30 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
 
 
   jmodel.calc(jdata.derived(), q1, v1);
-  jmodel.calc_aba(jdata.derived(), Ia, update_I);
+  jmodel.calc_aba(jdata.derived(), armature, Ia, update_I);
 
   pinocchio::JointModel jma(jmodel);
   BOOST_CHECK(jmodel == jma);
   BOOST_CHECK(jma == jmodel);
   BOOST_CHECK(jma.hasSameIndexes(jmodel));
   
-  pinocchio::JointData jda(jdata);
+  pinocchio::JointData jda(jdata.derived());
   BOOST_CHECK(jda == jdata);
   BOOST_CHECK(jdata == jda);
 
   jma.calc(jda, q1, v1);
-  jma.calc_aba(jda, Ia, update_I);
-  
+  jma.calc_aba(jda, armature, Ia, update_I);
   pinocchio::JointData jda_other(jdata);
   
   jma.calc(jda_other, q2, v2);
-  jma.calc_aba(jda_other, Ia2, update_I);
+  jma.calc_aba(jda_other, armature, Ia2, update_I);
   
   BOOST_CHECK(jda_other != jda);
   BOOST_CHECK(jda != jda_other);
   BOOST_CHECK(jda_other != jdata);
   BOOST_CHECK(jdata != jda_other);
 
-  const std::string error_prefix("JointModel on " + jma.shortname());
+  std::string error_prefix("JointModel on " + jma.shortname());
   BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));
   BOOST_CHECK_MESSAGE(jmodel.nv() == jma.nv() ,std::string(error_prefix + " - nv "));
 
@@ -70,7 +72,7 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   BOOST_CHECK_MESSAGE(jmodel.idx_v() == jma.idx_v() ,std::string(error_prefix + " - Idx_v "));
   BOOST_CHECK_MESSAGE(jmodel.id() == jma.id() ,std::string(error_prefix + " - JointId "));
 
-  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S().matrix()),std::string(error_prefix + " - ConstraintXd "));
+  BOOST_CHECK_MESSAGE(jda.S().matrix().isApprox(jdata.S().matrix()),std::string(error_prefix + " - JointMotionSubspaceXd "));
   BOOST_CHECK_MESSAGE( (jda.M()).isApprox((jdata.M())),std::string(error_prefix + " - Joint transforms ")); // ==  or isApprox ?
   BOOST_CHECK_MESSAGE( (jda.v()).isApprox( (pinocchio::Motion(jdata.v()))),std::string(error_prefix + " - Joint motions "));
   BOOST_CHECK_MESSAGE((jda.c()) == (jdata.c()),std::string(error_prefix + " - Joint bias "));
@@ -232,13 +234,19 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointModelTest;
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl> struct JointDataTest;
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct traits< JointDataTest<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointDataTest<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct traits< JointModelTest<Scalar,Options,JointCollectionTpl> >
-  { typedef JointTpl<Scalar,Options,JointCollectionTpl> JointDerived; };
+  template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
+  struct traits< JointModelTest<_Scalar,_Options,JointCollectionTpl> >
+  {
+    typedef JointTpl<_Scalar,_Options,JointCollectionTpl> JointDerived;
+    typedef _Scalar Scalar;
+  };
   
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
   struct traits< JointTest<_Scalar,_Options,JointCollectionTpl> >
@@ -252,7 +260,7 @@ namespace pinocchio
     
     typedef JointDataTpl<Scalar,Options,JointCollectionTpl> JointDataDerived;
     typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelDerived;
-    typedef ConstraintTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
+    typedef JointMotionSubspaceTpl<Eigen::Dynamic,Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
     typedef MotionTpl<Scalar,Options>  Motion_t;
     typedef MotionTpl<Scalar,Options>  Bias_t;
@@ -343,7 +351,7 @@ BOOST_AUTO_TEST_CASE(isEqual)
   BOOST_CHECK(jmodelx_copy == jmodelx.derived());
   
   JointModel jmodely(joint_revolutey);
-  // TODO: the comparison of two variants is not supported by some old version of BOOST
+  // TDDO: the comparison of two variants is not supported by some old version of BOOST
 //  BOOST_CHECK(jmodely.toVariant() != jmodelx.toVariant());
   BOOST_CHECK(jmodely != jmodelx);
 }
@@ -381,8 +389,10 @@ struct TestJointOperatorEqual
     JointData jdata = jmodel.createData();
     
     jmodel.calc(jdata,q,v);
+
+    Eigen::VectorXd armature = Eigen::VectorXd::Random(jmodel.nv()) + Eigen::VectorXd::Ones(jmodel.nv());
     Inertia::Matrix6 I = Inertia::Matrix6::Identity();
-    jmodel.calc_aba(jdata,I,false);
+    jmodel.calc_aba(jdata,armature,I,false);
     test(jdata);
   }
   

@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_joint_composite_hxx__
-#define __pinocchio_joint_composite_hxx__
+#ifndef __pinocchio_multibody_joint_composite_hxx__
+#define __pinocchio_multibody_joint_composite_hxx__
 
 #include "pinocchio/multibody/visitor.hpp"
 
@@ -63,6 +63,7 @@ namespace pinocchio
     
     typedef JointCompositeCalcZeroOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Algo;
 
+    data.joint_q = qs.segment(idx_q(),nq());
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
       Algo::run(joints[(size_t)i],
@@ -138,6 +139,8 @@ namespace pinocchio
     
     typedef JointCompositeCalcFirstOrderStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Algo;
 
+    jdata.joint_q = qs.segment(idx_q(),nq());
+    jdata.joint_v = vs.segment(idx_v(),nv());
     for (int i=(int)(joints.size()-1); i >= 0; --i)
     {
       Algo::run(joints[(size_t)i],
@@ -150,4 +153,4 @@ namespace pinocchio
 
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_joint_composite_hxx__
+#endif // ifndef __pinocchio_multibody_joint_composite_hxx__

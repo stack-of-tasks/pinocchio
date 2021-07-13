@@ -1,6 +1,7 @@
-from .. import pinocchio_pywrap as pin
+from .. import pinocchio_pywrap_default as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
+from numpy.linalg import norm
 
 from . import BaseVisualizer
 
@@ -79,6 +80,20 @@ class GepettoVisualizer(BaseVisualizer):
             return gui.addSphere(meshName, geom.radius, npToTuple(meshColor))
         elif isinstance(geom, hppfcl.Cone):
             return gui.addCone(meshName, geom.radius, 2. * geom.halfLength, npToTuple(meshColor))
+        elif isinstance(geom, hppfcl.Plane) or isinstance(geom, hppfcl.Halfspace):
+            res = gui.createGroup(meshName)
+            if not res:
+                return False
+            planeName = meshName + "/plane"
+            res = gui.addFloor(planeName)
+            if not res:
+                return False
+            normal = geom.n
+            rot = pin.Quaternion.FromTwoVectors(normal,pin.ZAxis)
+            alpha = geom.d / norm(normal,2)**2
+            trans = alpha * normal
+            plane_offset = pin.SE3(rot,trans)
+            gui.applyConfiguration(planeName,pin.SE3ToXYZQUATtuple(plane_offset))
         elif isinstance(geom, hppfcl.Convex):
             pts = [ npToTuple(geom.points(geom.polygons(f)[i])) for f in range(geom.num_polygons) for i in range(3) ]
             gui.addCurve(meshName, pts, npToTuple(meshColor))

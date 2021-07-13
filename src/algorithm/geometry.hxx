@@ -40,6 +40,12 @@ namespace pinocchio
       const Model::JointIndex joint_id = geom_model.geometryObjects[i].parentJoint;
       if (joint_id>0) geom_data.oMg[i] =  (data.oMi[joint_id] * geom_model.geometryObjects[i].placement);
       else            geom_data.oMg[i] =  geom_model.geometryObjects[i].placement;
+#ifdef PINOCCHIO_WITH_HPP_FCL  
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+      geom_data.collisionObjects[i].setTransform( toFclTransform3f(geom_data.oMg[i]) );
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+#endif // PINOCCHIO_WITH_HPP_FCL
     }
   }
 #ifdef PINOCCHIO_WITH_HPP_FCL  
@@ -122,7 +128,10 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision)
   {
+    assert(model.check(data) && "data is not consistent with model.");
+    
     updateGeometryPlacements(model, data, geom_model, geom_data, q);
+    
     return computeCollisions(geom_model,geom_data, stopAtFirstCollision);
   }
 
@@ -186,7 +195,6 @@ namespace pinocchio
         }
       }
     }
-    
     return min_index;
   }
   

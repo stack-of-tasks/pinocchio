@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 CNRS, INRIA
+// Copyright (c) 2018 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/utils/constant.hpp"

@@ -3,9 +3,9 @@
 #
 
 import numpy
-from .pinocchio_pywrap import *
+from .pinocchio_pywrap_default import *
 
-from .pinocchio_pywrap import __version__, __raw_version__
+from .pinocchio_pywrap_default import __version__, __raw_version__
 
 from . import utils
 from .explog import exp, log
@@ -13,9 +13,12 @@ from .explog import exp, log
 # Manually register submodules
 import sys, inspect
 
-submodules = inspect.getmembers(pinocchio_pywrap, inspect.ismodule)
+submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:
   sys.modules['pinocchio.' + module_info[0]] = module_info[1]
+
+sys.modules['pinocchio.rpy'] = rpy
+sys.modules['pinocchio.cholesky'] = cholesky
 
 if WITH_HPP_FCL:
   try:

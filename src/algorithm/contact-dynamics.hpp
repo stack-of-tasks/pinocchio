@@ -2,8 +2,8 @@
 // Copyright (c) 2016-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_contact_dynamics_hpp__
-#define __pinocchio_contact_dynamics_hpp__
+#ifndef __pinocchio_algorithm_contact_dynamics_hpp__
+#define __pinocchio_algorithm_contact_dynamics_hpp__
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -13,6 +13,8 @@ namespace pinocchio
 
   ///
   /// \brief Compute the forward dynamics with contact constraints. Internally, pinocchio::computeAllTerms is called.
+  /// \deprecated This function has been deprecated and will be removed in future releases of Pinocchio.
+  ///  Please use the class RigidConstraintModel to define new contacts, and initConstraintDynamics(model, data, contact_models) and constraintDynamics(model, data, q, v, tau, contact_models, contact_datas[,prox_settings]) instead.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\ %
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
@@ -42,6 +44,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename ConstraintMatrixType, typename DriftVectorType>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -54,6 +57,9 @@ namespace pinocchio
 
   ///
   /// \brief Compute the forward dynamics with contact constraints, assuming pinocchio::computeAllTerms has been called.
+  /// \deprecated This function has been deprecated and will be removed in future releases of Pinocchio.
+  ///  Please use the class RigidConstraintModel to define new contacts, and initConstraintDynamics(model, data, contact_models) and constraintDynamics(model, data, q, v, tau, contact_models, contact_datas[,prox_settings]) instead.
+  
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\ %
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
@@ -82,6 +88,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType,
   typename ConstraintMatrixType, typename DriftVectorType>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   forwardDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -165,6 +172,7 @@ namespace pinocchio
 
   ///
   /// \brief Computes the inverse of the KKT matrix for dynamics with contact constraints.
+  /// \deprecated forwardDynamics/impuseDynamics is deprecated, and this function signature needs forwardDynamics to be called before. Please use the inverse() function in ContactCholeskyDecomposition class instead.
   /// It computes the following matrix: <BR>
   ///       <CENTER> \f$ \left[\begin{matrix}\mathbf{M}^{-1}-\mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & \mathbf{M}^{-1}\mathbf{J}^{\top}_c\widehat{\mathbf{M}}^{-1} \\ \widehat{\mathbf{M}}^{-1}\mathbf{J}_c\mathbf{M}^{-1} & -\widehat{\mathbf{M}}^{-1}\end{matrix}\right] \f$ </CENTER> <BR>
   ///
@@ -180,6 +188,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConstraintMatrixType, typename KKTMatrixType>
+  PINOCCHIO_DEPRECATED
   inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const Eigen::MatrixBase<ConstraintMatrixType> & J,
@@ -187,6 +196,8 @@ namespace pinocchio
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.
+  /// \deprecated This function has been deprecated and will be removed in future releases of Pinocchio.
+  ///  Please use the class RigidConstraintModel to define new contacts, and initConstraintDynamics(model, data, contact_models) and impulseDynamics(model, data, q, v_before, contact_models, contact_datas[,r_coeff, mu]) instead.  
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\ %
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
@@ -209,6 +220,7 @@ namespace pinocchio
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -220,6 +232,8 @@ namespace pinocchio
 
   ///
   /// \brief Compute the impulse dynamics with contact constraints, assuming pinocchio::crba has been called.
+  /// \deprecated This function has been deprecated and will be removed in future releases of Pinocchio.
+  ///  Please use the class RigidConstraintModel to define new contacts, and initConstraintDynamics(model, data, contact_models) and impulseDynamics(model, data, q, v_before, contact_models, contact_datas[,r_coeff, mu]) instead.
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\ %
   ///           \text{s.t.} & & J (q) \dot{q}^{+} = - \epsilon J (q) \dot{q}^{-}  \end{eqnarray} \f$ </CENTER> <BR>
@@ -241,6 +255,7 @@ namespace pinocchio
   /// \return A reference to the generalized velocity after impact stored in data.dq_after. The Lagrange Multipliers linked to the contact impulsed are available throw data.impulse_c vector.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType, typename ConstraintMatrixType>
+  PINOCCHIO_DEPRECATED
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -252,8 +267,8 @@ namespace pinocchio
   ///
   /// \brief Compute the impulse dynamics with contact constraints.
   ///
-  /// \deprecated This function signature has been deprecated and will be removed in future releases of Pinocchio.
-  ///             Please change for the new signature of impulseDynamics(model,data[,q],v_before,J[,r_coeff[,inv_damping]]).
+  /// \deprecated This function has been deprecated and will be removed in future releases of Pinocchio.
+  ///  Please use the class RigidConstraintModel to define new contacts, and initConstraintDynamics(model, data, contact_models) and impulseDynamics(model, data, q, v_before, contact_models, contact_datas[,r_coeff, mu]) instead.
   ///
   /// \note It computes the following problem: <BR>
   ///       <CENTER> \f$ \begin{eqnarray} \underset{\dot{q}^{+}}{\min} & & \| \dot{q}^{+} - \dot{q}^{-} \|_{M(q)} \\ %
@@ -297,4 +312,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/contact-dynamics.hxx"
 
-#endif // ifndef __pinocchio_contact_dynamics_hpp__
+#endif // ifndef __pinocchio_algorithm_contact_dynamics_hpp__

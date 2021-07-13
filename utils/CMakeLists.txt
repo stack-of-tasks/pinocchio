@@ -39,3 +39,4 @@ IF(urdfdom_FOUND)
     TARGET_COMPILE_DEFINITIONS(pinocchio_read_model PRIVATE -DNOMINMAX)
   ENDIF(WIN32)
 ENDIF(urdfdom_FOUND)
+

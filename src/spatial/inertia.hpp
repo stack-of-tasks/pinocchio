@@ -17,42 +17,43 @@
 namespace pinocchio
 {
 
-  template< class Derived>
-  class InertiaBase
+  template<class Derived>
+  struct InertiaBase : NumericalBase<Derived>
   {
-  protected:
+    SPATIAL_TYPEDEF_TEMPLATE(Derived);
 
-    typedef Derived  Derived_t;
-    SPATIAL_TYPEDEF_TEMPLATE(Derived_t);
+    Derived & derived() { return *static_cast<Derived*>(this); }
+    const Derived & derived() const { return *static_cast<const Derived*>(this); }
+    
+    Derived & const_cast_derived() const { return *const_cast<Derived*>(&derived()); }
 
-  public:
-    Derived_t & derived() { return *static_cast<Derived_t*>(this); }
-    const Derived_t & derived() const { return *static_cast<const Derived_t*>(this); }
-
-    Scalar           mass()    const { return static_cast<const Derived_t*>(this)->mass(); }
-    Scalar &         mass() { return static_cast<const Derived_t*>(this)->mass(); }
-    const Vector3 &    lever()   const { return static_cast<const Derived_t*>(this)->lever(); }
-    Vector3 &          lever() { return static_cast<const Derived_t*>(this)->lever(); }
-    const Symmetric3 & inertia() const { return static_cast<const Derived_t*>(this)->inertia(); }
-    Symmetric3 &       inertia() { return static_cast<const Derived_t*>(this)->inertia(); }
+    Scalar           mass()    const { return static_cast<const Derived*>(this)->mass(); }
+    Scalar &         mass() { return static_cast<const Derived*>(this)->mass(); }
+    const Vector3 &    lever()   const { return static_cast<const Derived*>(this)->lever(); }
+    Vector3 &          lever() { return static_cast<const Derived*>(this)->lever(); }
+    const Symmetric3 & inertia() const { return static_cast<const Derived*>(this)->inertia(); }
+    Symmetric3 &       inertia() { return static_cast<const Derived*>(this)->inertia(); }
 
     Matrix6 matrix() const { return derived().matrix_impl(); }
     operator Matrix6 () const { return matrix(); }
 
-    Derived_t& operator= (const Derived_t& clone){return derived().__equl__(clone);}
-    bool operator==(const Derived_t & other) const {return derived().isEqual(other);}
-    bool operator!=(const Derived_t & other) const { return !(*this == other); }
+    Derived& operator= (const Derived& clone){return derived().__equl__(clone);}
+    bool operator==(const Derived & other) const {return derived().isEqual(other);}
+    bool operator!=(const Derived & other) const { return !(*this == other); }
     
-    Derived_t& operator+= (const Derived_t & Yb) { return derived().__pequ__(Yb); }
-    Derived_t operator+(const Derived_t & Yb) const { return derived().__plus__(Yb); }
+    Derived& operator+= (const Derived & Yb) { return derived().__pequ__(Yb); }
+    Derived operator+(const Derived & Yb) const { return derived().__plus__(Yb); }
     
     template<typename MotionDerived>
     ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
     operator*(const MotionDense<MotionDerived> & v) const
     { return derived().__mult__(v); }
 
-    Scalar vtiv(const Motion & v) const { return derived().vtiv_impl(v); }
-    Matrix6 variation(const Motion & v) const { return derived().variation_impl(v); }
+    template<typename MotionDerived>
+    Scalar vtiv(const MotionDense<MotionDerived> & v) const { return derived().vtiv_impl(v); }
+    
+    template<typename MotionDerived>
+    Matrix6 variation(const MotionDense<MotionDerived> & v) const { return derived().variation_impl(v); }
     
     /// \brief Time variation operator.
     ///        It computes the time derivative of an inertia I corresponding to the formula \f$ \dot{I} = v \times^{*} I \f$.
@@ -61,14 +62,15 @@ namespace pinocchio
     /// \param[in] I The spatial inertia in motion.
     /// \param[out] Iout The time derivative of the inertia I.
     ///
-    template<typename M6>
-    static void vxi(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    template<typename MotionDerived, typename M6>
+    static void vxi(const MotionDense<MotionDerived> & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
     {
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
       Derived::vxi_impl(v,I,Iout);
     }
     
-    Matrix6 vxi(const Motion & v) const
+    template<typename MotionDerived>
+    Matrix6 vxi(const MotionDense<MotionDerived> & v) const
     {
       Matrix6 Iout;
       vxi(v,derived(),Iout);
@@ -82,14 +84,15 @@ namespace pinocchio
     /// \param[in] I The spatial inertia in motion.
     /// \param[out] Iout The time derivative of the inertia I.
     ///
-    template<typename M6>
-    static void ivx(const Motion & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
+    template<typename MotionDerived, typename M6>
+    static void ivx(const MotionDense<MotionDerived> & v, const Derived & I, const Eigen::MatrixBase<M6> & Iout)
     {
       EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(M6, Matrix6);
       Derived::ivx_impl(v,I,Iout);
     }
     
-    Matrix6 ivx(const Motion & v) const
+    template<typename MotionDerived>
+    Matrix6 ivx(const MotionDense<MotionDerived> & v) const
     {
       Matrix6 Iout;
       ivx(v,derived(),Iout);
@@ -107,13 +110,17 @@ namespace pinocchio
     { return derived().isZero_impl(prec); }
 
     /// aI = aXb.act(bI)
-    Derived_t se3Action(const SE3 & M) const { return derived().se3Action_impl(M); }
+    template<typename S2, int O2>
+    Derived se3Action(const SE3Tpl<S2,O2> & M) const
+    { return derived().se3Action_impl(M); }
 
     /// bI = aXb.actInv(aI)
-    Derived_t se3ActionInverse(const SE3 & M) const { return derived().se3ActionInverse_impl(M); }
+    template<typename S2, int O2>
+    Derived se3ActionInverse(const SE3Tpl<S2,O2>  & M) const
+    { return derived().se3ActionInverse_impl(M); }
 
-    void disp(std::ostream & os) const { static_cast<const Derived_t*>(this)->disp_impl(os); }
-    friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived_t> & X)
+    void disp(std::ostream & os) const { static_cast<const Derived*>(this)->disp_impl(os); }
+    friend std::ostream & operator << (std::ostream & os,const InertiaBase<Derived> & X)
     { 
       X.disp(os);
       return os;
@@ -149,30 +156,26 @@ namespace pinocchio
   }; // traits InertiaTpl
 
   template<typename _Scalar, int _Options>
-  class InertiaTpl : public InertiaBase< InertiaTpl< _Scalar, _Options > >
+  struct InertiaTpl : public InertiaBase< InertiaTpl< _Scalar, _Options > >
   {
-  public:
-    friend class InertiaBase< InertiaTpl< _Scalar, _Options > >;
-    SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
-    enum { Options = _Options };
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
+    SPATIAL_TYPEDEF_TEMPLATE(InertiaTpl);
+    enum { Options = _Options };
+    
     typedef typename Symmetric3::AlphaSkewSquare AlphaSkewSquare;
+    typedef typename Eigen::Matrix<Scalar,10,1,Options> Vector10;
 
-    typedef typename Eigen::Matrix<_Scalar, 10, 1, _Options> Vector10;
-
-  public:
     // Constructors
-    InertiaTpl()
-    {}
+    InertiaTpl() {}
 
     InertiaTpl(const Scalar mass, const Vector3 & com, const Matrix3 & rotational_inertia)
     : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
-    InertiaTpl(const Matrix6 & I6)
+    explicit InertiaTpl(const Matrix6 & I6)
     {
-      assert((I6 - I6.transpose()).isMuchSmallerThan(I6));
+      assert(check_expression_if_real<Scalar>(isZero(I6 - I6.transpose())));
       mass() = I6(LINEAR, LINEAR);
       const Matrix3 & mc_cross = I6.template block <3,3>(ANGULAR,LINEAR);
       lever() = unSkew(mc_cross);
@@ -185,15 +188,17 @@ namespace pinocchio
       inertia() = S3;
     }
 
-    InertiaTpl(Scalar mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
+    InertiaTpl(const Scalar & mass, const Vector3 & com, const Symmetric3 & rotational_inertia)
     : m_mass(mass), m_com(com), m_inertia(rotational_inertia)
     {}
     
     InertiaTpl(const InertiaTpl & clone)  // Copy constructor
-    : m_mass(clone.mass()), m_com(clone.lever()), m_inertia(clone.inertia())
+    : m_mass(clone.mass())
+    , m_com(clone.lever())
+    , m_inertia(clone.inertia())
     {}
 
-    InertiaTpl& operator=(const InertiaTpl & clone)  // Copy assignment operator
+    InertiaTpl & operator=(const InertiaTpl & clone)  // Copy assignment operator
     {
       m_mass = clone.mass();
       m_com = clone.lever();
@@ -201,12 +206,11 @@ namespace pinocchio
       return *this;
     }
 
-    template<int O2>
-    InertiaTpl(const InertiaTpl<Scalar,O2> & clone)
-    : m_mass(clone.mass())
-    , m_com(clone.lever())
-    , m_inertia(clone.inertia().matrix())
-    {}
+    template<typename S2, int O2>
+    explicit InertiaTpl(const InertiaTpl<S2,O2> & clone)
+    {
+      *this = clone.template cast<Scalar>();
+    }
 
     // Initializers
     static InertiaTpl Zero() 
@@ -225,7 +229,7 @@ namespace pinocchio
                         Symmetric3::Identity());
     }
     
-    void setIdentity ()
+    void setIdentity()
     {
       mass() = Scalar(1); lever().setZero(); inertia().setIdentity();
     }
@@ -443,7 +447,8 @@ namespace pinocchio
 //      f.angular().noalias() = c.cross(f.linear()) + I*v.angular();
     }
     
-    Scalar vtiv_impl(const Motion & v) const
+    template<typename MotionDerived>
+    Scalar vtiv_impl(const MotionDense<MotionDerived> & v) const
     {
       const Vector3 cxw (lever().cross(v.angular()));
       Scalar res = mass() * (v.linear().squaredNorm() - Scalar(2)*v.linear().dot(cxw));
@@ -454,7 +459,8 @@ namespace pinocchio
       return res;
     }
     
-    Matrix6 variation(const Motion & v) const
+    template<typename MotionDerived>
+    Matrix6 variation(const MotionDense<MotionDerived> & v) const
     {
       Matrix6 res;
       const Motion mv(v*mass());
@@ -475,8 +481,8 @@ namespace pinocchio
       return res;
     }
     
-    template<typename M6>
-    static void vxi_impl(const Motion & v,
+    template<typename MotionDerived, typename M6>
+    static void vxi_impl(const MotionDense<MotionDerived> & v,
                          const InertiaTpl & I,
                          const Eigen::MatrixBase<M6> & Iout)
     {
@@ -510,8 +516,8 @@ namespace pinocchio
       
     }
     
-    template<typename M6>
-    static void ivx_impl(const Motion & v,
+    template<typename MotionDerived, typename M6>
+    static void ivx_impl(const MotionDense<MotionDerived> & v,
                          const InertiaTpl & I,
                          const Eigen::MatrixBase<M6> & Iout)
     {
@@ -549,7 +555,8 @@ namespace pinocchio
     Symmetric3 & inertia() { return m_inertia; }
 
     /// aI = aXb.act(bI)
-    InertiaTpl se3Action_impl(const SE3 & M) const
+    template<typename S2, int O2>
+    InertiaTpl se3Action_impl(const SE3Tpl<S2,O2> & M) const
     {
       /* The multiplication RIR' has a particular form that could be used, however it
        * does not seems to be more efficient, see http://stackoverflow.m_comom/questions/
@@ -560,14 +567,16 @@ namespace pinocchio
      }
 
     ///bI = aXb.actInv(aI)
-    InertiaTpl se3ActionInverse_impl(const SE3 & M) const
+    template<typename S2, int O2>
+    InertiaTpl se3ActionInverse_impl(const SE3Tpl<S2,O2> & M) const
     {
       return InertiaTpl(mass(),
                         M.rotation().transpose()*(lever()-M.translation()),
                         inertia().rotate(M.rotation().transpose()) );
     }
 
-    Force vxiv( const Motion& v ) const 
+    template<typename MotionDerived>
+    Force vxiv( const MotionDense<MotionDerived> & v) const
     {
       const Vector3 & mcxw = mass()*lever().cross(v.angular());
       const Vector3 & mv_mcxw = mass()*v.linear()-mcxw;
@@ -587,7 +596,7 @@ namespace pinocchio
     template<typename NewScalar>
     InertiaTpl<NewScalar,Options> cast() const
     {
-      return InertiaTpl<NewScalar,Options>(static_cast<NewScalar>(mass()),
+      return InertiaTpl<NewScalar,Options>(pinocchio::cast<NewScalar>(mass()),
                                            lever().template cast<NewScalar>(),
                                            inertia().template cast<NewScalar>());
     }
@@ -610,4 +619,4 @@ namespace pinocchio
     
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_inertia_hpp__
+#endif // ifndef __pinocchio_spatial_inertia_hpp__

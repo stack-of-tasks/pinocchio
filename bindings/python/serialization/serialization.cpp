@@ -32,24 +32,30 @@ namespace pinocchio
       bp::scope current_scope = getOrCreatePythonNamespace("serialization");
       
       typedef boost::asio::streambuf StreamBuffer;
-      bp::class_<StreamBuffer,boost::noncopyable>("StreamBuffer",
-                                                  "Stream buffer to save/load serialized objects in binary mode.",
-                                                  bp::init<>(bp::arg("self"),"Default constructor."))
-//      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
-      .def("size",&StreamBuffer::size,"Get the size of the input sequence.")
-      .def("max_size",&StreamBuffer::max_size,"Get the maximum size of the StreamBuffer.")
-      .def("prepare",prepare_proxy,"Reserve data.",bp::return_internal_reference<>())
-      ;
+      if(!eigenpy::register_symbolic_link_to_registered_type<StreamBuffer>())
+      {
+        bp::class_<StreamBuffer,boost::noncopyable>("StreamBuffer",
+                                                    "Stream buffer to save/load serialized objects in binary mode.",
+                                                    bp::init<>(bp::arg("self"),"Default constructor."))
+        //      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
+        .def("size",&StreamBuffer::size,"Get the size of the input sequence.")
+        .def("max_size",&StreamBuffer::max_size,"Get the maximum size of the StreamBuffer.")
+        .def("prepare",prepare_proxy,"Reserve data.",bp::return_internal_reference<>())
+        ;
+      }
       
       typedef pinocchio::serialization::StaticBuffer StaticBuffer;
-      bp::class_<StaticBuffer>("StaticBuffer",
-                               "Static buffer to save/load serialized objects in binary mode with pre-allocated memory.",
-                               bp::init<size_t>(bp::args("self","size"),"Default constructor from a given size capacity."))
-      .def("size",&StaticBuffer::size,bp::arg("self"),
-           "Get the size of the input sequence.")
-      .def("reserve",&StaticBuffer::resize,bp::arg("new_size"),
-           "Increase the capacity of the vector to a value that's greater or equal to new_size.")
-      ;
+      if(!eigenpy::register_symbolic_link_to_registered_type<StaticBuffer>())
+      {
+        bp::class_<StaticBuffer>("StaticBuffer",
+                                 "Static buffer to save/load serialized objects in binary mode with pre-allocated memory.",
+                                 bp::init<size_t>(bp::args("self","size"),"Default constructor from a given size capacity."))
+        .def("size",&StaticBuffer::size,bp::arg("self"),
+             "Get the size of the input sequence.")
+        .def("reserve",&StaticBuffer::resize,bp::arg("new_size"),
+             "Increase the capacity of the vector to a value that's greater or equal to new_size.")
+        ;
+      }
       
       bp::def("buffer_copy",buffer_copy,
               bp::args("dest","source"),

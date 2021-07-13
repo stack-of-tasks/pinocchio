@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -11,6 +11,10 @@
   
 #define PINOCCHIO_JOINT_DATA_TYPEDEF_GENERIC(Joint,TYPENAME)              \
   PINOCCHIO_JOINT_MODEL_TYPEDEF_GENERIC(Joint,TYPENAME); \
+  typedef TYPENAME traits<Joint>::ConfigVectorTypeConstRef ConfigVectorTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::ConfigVectorTypeRef ConfigVectorTypeRef;      \
+  typedef TYPENAME traits<Joint>::TangentVectorTypeConstRef TangentVectorTypeConstRef;      \
+  typedef TYPENAME traits<Joint>::TangentVectorTypeRef TangentVectorTypeRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeConstRef ConstraintTypeConstRef;      \
   typedef TYPENAME traits<Joint>::ConstraintTypeRef ConstraintTypeRef;      \
   typedef TYPENAME traits<Joint>::TansformTypeConstRef TansformTypeConstRef;      \
@@ -44,6 +48,10 @@
 #endif
   
 #define PINOCCHIO_JOINT_DATA_BASE_DEFAULT_ACCESSOR \
+  ConfigVectorTypeConstRef joint_q_accessor() const { return joint_q; } \
+  ConfigVectorTypeRef joint_q_accessor() { return joint_q; } \
+  TangentVectorTypeConstRef joint_v_accessor() const { return joint_v; } \
+  TangentVectorTypeRef joint_v_accessor() { return joint_v; } \
   ConstraintTypeConstRef S_accessor() const { return S; } \
   ConstraintTypeRef S_accessor() { return S; } \
   TansformTypeConstRef M_accessor() const { return M; } \
@@ -57,9 +65,15 @@
   DTypeConstRef Dinv_accessor() const { return Dinv; } \
   DTypeRef Dinv_accessor() { return Dinv; } \
   UDTypeConstRef UDinv_accessor() const { return UDinv; } \
-  UDTypeRef UDinv_accessor() { return UDinv; }
+  UDTypeRef UDinv_accessor() { return UDinv; } \
+  DTypeConstRef StU_accessor() const { return StU; } \
+  DTypeRef StU_accessor() { return StU; } \
   
 #define PINOCCHIO_JOINT_DATA_BASE_ACCESSOR_DEFAULT_RETURN_TYPE \
+  typedef const ConfigVector_t & ConfigVectorTypeConstRef; \
+  typedef ConfigVector_t & ConfigVectorTypeRef; \
+  typedef const TangentVector_t & TangentVectorTypeConstRef; \
+  typedef TangentVector_t & TangentVectorTypeRef; \
   typedef const Constraint_t & ConstraintTypeConstRef; \
   typedef Constraint_t & ConstraintTypeRef; \
   typedef const Transformation_t & TansformTypeConstRef; \
@@ -80,6 +94,7 @@ namespace pinocchio
 
   template<typename Derived>
   struct JointDataBase
+  : NumericalBase<Derived>
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
@@ -88,6 +103,12 @@ namespace pinocchio
 
     Derived & derived() { return *static_cast<Derived*>(this); }
     const Derived & derived() const { return *static_cast<const Derived*>(this); }
+    
+    ConfigVectorTypeConstRef joint_q() const     { return derived().joint_q_accessor(); }
+    ConfigVectorTypeRef joint_q()     { return derived().joint_q_accessor(); }
+    
+    TangentVectorTypeConstRef joint_v() const     { return derived().joint_v_accessor(); }
+    TangentVectorTypeRef joint_v()     { return derived().joint_v_accessor(); }
 
     ConstraintTypeConstRef S() const     { return derived().S_accessor(); }
     ConstraintTypeRef S()     { return derived().S_accessor(); }
@@ -104,6 +125,8 @@ namespace pinocchio
     DTypeRef Dinv()  { return derived().Dinv_accessor(); }
     UDTypeConstRef UDinv() const { return derived().UDinv_accessor(); }
     UDTypeRef UDinv() { return derived().UDinv_accessor(); }
+    DTypeConstRef StU() const  { return derived().StU_accessor(); }
+    DTypeRef StU()  { return derived().StU_accessor(); }
 
     std::string shortname() const { return derived().shortname(); }
     static std::string classname() { return Derived::classname(); }
@@ -127,15 +150,18 @@ namespace pinocchio
     }
     
     /// \brief Default operator== implementation
-    bool isEqual(const JointDataBase & other) const
+    bool isEqual(const JointDataBase<Derived> & other) const
     {
-      return S() == other.S()
-          && M() == other.M()
-          && v() == other.v()
-          && c() == other.c()
-          && U() == other.U()
-          && Dinv() == other.Dinv()
-          && UDinv() == other.UDinv()
+      return
+	internal::comparison_eq(joint_q(), other.joint_q())
+	&& internal::comparison_eq(joint_v(), other.joint_v())
+	&& internal::comparison_eq(S(), other.S())
+	&& internal::comparison_eq(M(), other.M())
+	&& internal::comparison_eq(v(), other.v())
+	&& internal::comparison_eq(c(), other.c())
+	&& internal::comparison_eq(U(), other.U())
+	&& internal::comparison_eq(Dinv(), other.Dinv())
+	&& internal::comparison_eq(UDinv(), other.UDinv())
       ;
     }
     
@@ -155,7 +181,7 @@ namespace pinocchio
     /// \brief Default operator!= implementation
     bool isNotEqual(const JointDataBase<Derived> & other) const
     {
-      return !(derived() == other.derived());
+      return !(internal::comparison_eq(derived(), other.derived()));
     }
     
   protected:

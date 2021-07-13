@@ -1,10 +1,11 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #include "pinocchio/spatial/explog.hpp"
 
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -170,8 +171,9 @@ BOOST_AUTO_TEST_CASE(Jlog3_fd)
   for (int i = 0; i < 3; ++i)
   {
     dR[i] = eps;
-    SE3::Matrix3 R_dR = R * exp3(dR);
-    Jfd.col(i) = (log3(R_dR) - log3(R)) / eps;
+    SE3::Matrix3 R_dR_plus = R * exp3(dR);
+    SE3::Matrix3 R_dR_minus = R * exp3(-dR);
+    Jfd.col(i) = (log3(R_dR_plus) - log3(R_dR_minus)) / (2*eps);
     dR[i] = 0;
   }
   BOOST_CHECK(Jfd.isApprox(Jlog, std::sqrt(eps)));
@@ -356,32 +358,37 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   }
 
   BOOST_CHECK(Jfd.isApprox(Jlog, sqrt(step)));
+  
+  SE3::Matrix6 Jlog2 = Jlog6(M);
+  BOOST_CHECK(Jlog2.isApprox(Jlog));
 }
 
-BOOST_AUTO_TEST_CASE(Jlog6_of_product_fd)
+BOOST_AUTO_TEST_CASE(Jexp6_fd)
 {
-  SE3 Ma(SE3::Random());
-  SE3 Mb(SE3::Random());
+  SE3 M(SE3::Random());
 
-  SE3::Matrix6 Jlog, Ja, Jb, Jfda, Jfdb;
-  Jlog6 (Ma.inverse() * Mb, Jlog);
-  Ja = - Jlog * (Ma.inverse() * Mb).toActionMatrixInverse();
-  Jb = Jlog;
-  Jfda.setZero();
-  Jfdb.setZero();
+  const Motion v = log6(M);
 
-  Motion dM; dM.setZero();
-  double step = 1e-8;
+  SE3::Matrix6 Jexp_fd, Jexp;
+
+  Jexp6(Motion::Zero(), Jexp);
+  BOOST_CHECK(Jexp.isIdentity());
+
+  Jexp6(v, Jexp);
+
+  Motion::Vector6 dv; dv.setZero();
+  const double eps = 1e-8;
   for (int i = 0; i < 6; ++i)
   {
-    dM.toVector()[i] = step;
-    Jfda.col(i) = (log6((Ma*exp6(dM)).inverse()*Mb).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
-    Jfdb.col(i) = (log6(Ma.inverse()*Mb*exp6(dM)).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
-    dM.toVector()[i] = 0;
+    dv[i] = eps;
+    SE3 M_next = exp6(v+Motion(dv));
+    Jexp_fd.col(i) = log6(M.actInv(M_next)).toVector() / eps;
+    dv[i] = 0;
   }
-
-  BOOST_CHECK(Jfda.isApprox(Ja, sqrt(step)));
-  BOOST_CHECK(Jfdb.isApprox(Jb, sqrt(step)));
+  BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
+  
+  SE3::Matrix6 Jexp2 = Jexp6(v);
+  BOOST_CHECK(Jexp2.isApprox(Jexp));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog6)

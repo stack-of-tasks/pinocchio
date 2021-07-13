@@ -1,9 +1,9 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2020 CNRS INRIA
 //
 
-#ifndef __pinocchio_jacobian_hpp__
-#define __pinocchio_jacobian_hpp__
+#ifndef __pinocchio_algorithm_jacobian_hpp__
+#define __pinocchio_algorithm_jacobian_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -51,24 +51,48 @@ namespace pinocchio
                         DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
   ///
-  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
+  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
   ///
-  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] jointId The id of the joint.
+  /// \param[in] joint_id The id of the joint.
+  /// \param[in] reference_frame Reference frame in which the result is expressed.
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
   inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex jointId,
-                               const ReferenceFrame rf,
+                               const JointIndex joint_id,
+                               const ReferenceFrame reference_frame,
                                const Eigen::MatrixBase<Matrix6Like> & J);
+  ///
+  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
+  /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] joint_id The index of the joint.
+  /// \param[in] reference_frame Reference frame in which the result is expressed.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options>
+  getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const JointIndex joint_id,
+                   const ReferenceFrame reference_frame)
+  {
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> ReturnType;
+    ReturnType res(ReturnType::Zero(6,model.nv));
+    
+    getJointJacobian(model,data,joint_id,reference_frame,res);
+    return res;
+  }
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed in the local frame of the joint and store the result in the input argument J.
@@ -80,7 +104,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] q The joint configuration vector (dim model.nq).
-  /// \param[in] jointId The id of the joint refering to model.joints[jointId].
+  /// \param[in] joint_id The id of the joint refering to model.joints[jointId].
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.setZero().
   ///
   /// \return The Jacobian of the specific joint frame expressed in the local frame of the joint (matrix 6 x model.nv).
@@ -94,7 +118,7 @@ namespace pinocchio
   inline void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                   const JointIndex jointId,
+                                   const JointIndex joint_id,
                                    const Eigen::MatrixBase<Matrix6Like> & J);
   
   ///
@@ -136,23 +160,23 @@ namespace pinocchio
                                      const Eigen::MatrixBase<TangentVectorType> & v);
   
   ///
-  /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD) or in the local frame (rf = LOCAL) of the joint.
+  /// \brief Computes the Jacobian time variation of a specific joint frame expressed either in the world frame (rf = WORLD), in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam Matrix6xLike Type of the matrix containing the joint Jacobian.
   ///
-  /// \param[in] localFrame Expressed the Jacobian in the local frame or world frame coordinates system.
-  /// \param[in] model The model structure of the rigid body system.
-  /// \param[in] data The data structure of the rigid body system.
-  /// \param[in] jointId The id of the joint.
+  /// \param[in]  model The model structure of the rigid body system.
+  /// \param[in]  data The data structure of the rigid body system.
+  /// \param[in]  joint_id The id of the joint.
+  /// \param[in]  reference_frame Reference frame in which the result is expressed.
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
   inline void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                             const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                            const JointIndex jointId,
-                                            const ReferenceFrame rf,
+                                            const JointIndex joint_id,
+                                            const ReferenceFrame reference_frame,
                                             const Eigen::MatrixBase<Matrix6Like> & dJ);
   
 } // namespace pinocchio 
@@ -163,4 +187,4 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/jacobian.hxx"
 
-#endif // ifndef __pinocchio_jacobian_hpp__
+#endif // ifndef __pinocchio_algorithm_jacobian_hpp__

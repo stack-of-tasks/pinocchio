@@ -305,7 +305,7 @@ namespace pinocchio
   ///
   /// \return The jacobian of the CoM expressed in the world frame (matrix 3 x model.nv).
   ///
-  /// \remark This extraction of inertial quantities is only valid for free-floating base systems.
+  /// \remarks This extraction of inertial quantities is only valid for free-floating base systems.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &

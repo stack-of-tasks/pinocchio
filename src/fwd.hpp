@@ -21,11 +21,31 @@ namespace pinocchio {}
 
 #include "pinocchio/utils/helpers.hpp"
 #include "pinocchio/utils/cast.hpp"
+#include "pinocchio/utils/check.hpp"
 
 #include "pinocchio/container/boost-container-limits.hpp"
 
-// Import Eigen and all the required modules
+#define PINOCCHIO_SCALAR_TYPE_DEFAULT double
+#ifndef PINOCCHIO_SCALAR_TYPE
+#define PINOCCHIO_SCALAR_TYPE PINOCCHIO_SCALAR_TYPE_DEFAULT
+#endif
+
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+  #ifndef EIGEN_RUNTIME_NO_MALLOC
+    #define EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+    #define EIGEN_RUNTIME_NO_MALLOC
+  #endif
+#endif
+  
 #include <Eigen/Core>
+
+#ifdef PINOCCHIO_EIGEN_CHECK_MALLOC
+  #ifdef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+    #undef EIGEN_RUNTIME_NO_MALLOC
+    #undef EIGEN_RUNTIME_NO_MALLOC_WAS_NOT_DEFINED
+  #endif
+#endif
+
 #include "pinocchio/eigen-macros.hpp"
 #ifdef PINOCCHIO_WITH_EIGEN_TENSOR_MODULE
   #include <unsupported/Eigen/CXX11/Tensor>
@@ -47,6 +67,12 @@ namespace pinocchio
   {
     template<typename T> struct traits {};
   }
+
+  template<class Derived>
+  struct NumericalBase
+  {
+    typedef typename traits<Derived>::Scalar Scalar;
+  };
   
   ///
   /// \brief Type of the cast of a class C templated by Scalar and Options, to a new NewScalar type.

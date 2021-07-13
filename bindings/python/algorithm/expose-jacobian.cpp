@@ -10,37 +10,37 @@ namespace pinocchio
   namespace python
   {
     
-    static Data::Matrix6x
-    compute_jacobian_proxy(const Model & model,
-                           Data & data,
-                           const Eigen::VectorXd & q,
-                           Model::JointIndex jointId)
+    static context::Data::Matrix6x
+    compute_jacobian_proxy(const context::Model & model,
+                           context::Data & data,
+                           const context::VectorXs & q,
+                           JointIndex jointId)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       computeJointJacobian(model,data,q,jointId,J);
       
       return J;
     }
     
-    static Data::Matrix6x
-    get_jacobian_proxy(const Model & model,
-                       Data & data,
-                       Model::JointIndex jointId,
+    static context::Data::Matrix6x
+    get_jacobian_proxy(const context::Model & model,
+                       context::Data & data,
+                       JointIndex jointId,
                        ReferenceFrame rf)
     {
-      Data::Matrix6x J(6,model.nv); J.setZero();
+      context::Data::Matrix6x J(6,model.nv); J.setZero();
       getJointJacobian(model,data,jointId,rf,J);
       
       return J;
     }
     
-    static Data::Matrix6x
-    get_jacobian_time_variation_proxy(const Model & model,
-                                      Data & data,
-                                      Model::JointIndex jointId,
+    static context::Data::Matrix6x
+    get_jacobian_time_variation_proxy(const context::Model & model,
+                                      context::Data & data,
+                                      JointIndex jointId,
                                       ReferenceFrame rf)
     {
-      Data::Matrix6x dJ(6,model.nv); dJ.setZero();
+      context::Data::Matrix6x dJ(6,model.nv); dJ.setZero();
       getJointJacobianTimeVariation(model,data,jointId,rf,dJ);
       
       return dJ;
@@ -48,10 +48,12 @@ namespace pinocchio
   
     void exposeJacobian()
     {
-      using namespace Eigen;
+      typedef context::Scalar Scalar;
+      typedef context::VectorXs VectorXs;
+      enum { Options = context::Options };
       
       bp::def("computeJointJacobians",
-              &computeJointJacobians<double,0,JointCollectionDefaultTpl,VectorXd>,
+              &computeJointJacobians<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
               bp::args("model","data","q"),
               "Computes the full model Jacobian, i.e. the stack of all the motion subspaces expressed in the coordinate world frame.\n"
               "The result is accessible through data.J. This function computes also the forward kinematics of the model.\n\n"
@@ -62,7 +64,7 @@ namespace pinocchio
               bp::return_value_policy<bp::return_by_value>());
 
       bp::def("computeJointJacobians",
-              &computeJointJacobians<double,0,JointCollectionDefaultTpl>,
+              &computeJointJacobians<Scalar,Options,JointCollectionDefaultTpl>,
               bp::args("model","data"),
               "Computes the full model Jacobian, i.e. the stack of all motion subspace expressed in the world frame.\n"
               "The result is accessible through data.J. This function assumes that forward kinematics (pinocchio.forwardKinematics) has been called first.\n\n"
@@ -71,7 +73,8 @@ namespace pinocchio
               "\tdata: data related to the model\n",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("computeJointJacobian",compute_jacobian_proxy,
+      bp::def("computeJointJacobian",
+              compute_jacobian_proxy,
               bp::args("model","data","q","joint_id"),
               "Computes the Jacobian of a specific joint frame expressed in the local frame of the joint according to the given input configuration.\n\n"
               "Parameters:\n"
@@ -80,7 +83,8 @@ namespace pinocchio
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tjoint_id: index of the joint\n");
 
-      bp::def("getJointJacobian",get_jacobian_proxy,
+      bp::def("getJointJacobian",
+              get_jacobian_proxy,
               bp::args("model","data","joint_id","reference_frame"),
               "Computes the jacobian of a given given joint according to the given entries in data.\n"
               "If reference_frame is set to LOCAL, it returns the Jacobian expressed in the local coordinate system of the joint.\n"
@@ -92,7 +96,8 @@ namespace pinocchio
               "\tjoint_id: index of the joint\n"
               "\treference_frame: reference frame in which the resulting derivatives are expressed\n");
       
-      bp::def("computeJointJacobiansTimeVariation",computeJointJacobiansTimeVariation<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
+      bp::def("computeJointJacobiansTimeVariation",
+              computeJointJacobiansTimeVariation<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","data","q","v"),
               "Computes the full model Jacobian variations with respect to time. It corresponds to dJ/dt which depends both on q and v. It also computes the joint Jacobian of the model (similar to computeJointJacobians)."
               "The result is accessible through data.dJ and data.J.\n\n"
@@ -103,7 +108,8 @@ namespace pinocchio
               "\tv: the joint velocity vector (size model.nv)\n",
               bp::return_value_policy<bp::return_by_value>());
       
-      bp::def("getJointJacobianTimeVariation",get_jacobian_time_variation_proxy,
+      bp::def("getJointJacobianTimeVariation",
+              get_jacobian_time_variation_proxy,
               bp::args("model","data","joint_id","reference_frame"),
               "Computes the Jacobian time variation of a specific joint expressed in the requested frame provided by the value of reference_frame."
               "You have to call computeJointJacobiansTimeVariation first. This function also computes the full model Jacobian contained in data.J.\n"

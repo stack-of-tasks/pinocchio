@@ -20,7 +20,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   ///
-  /// \remark This algorithm may be useful to call to update global joint placement
+  /// \remarks This algorithm may be useful to call to update global joint placement
   ///         after calling pinocchio::rnea, pinocchio::aba, etc for example.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

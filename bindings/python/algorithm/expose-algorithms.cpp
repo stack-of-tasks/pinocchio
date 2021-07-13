@@ -20,7 +20,10 @@ namespace pinocchio
       exposeFramesAlgo();
       exposeEnergy();
       exposeKinematics();
-      exposeDynamics();
+      
+      exposeConstraintDynamics();
+      exposeConstraintDynamicsDerivatives();
+      exposeContactDynamics();
       exposeCAT();
       exposeJacobian();
       exposeGeometryAlgo();
@@ -28,6 +31,7 @@ namespace pinocchio
       exposeRegressor();
       exposeCholesky();
       exposeModelAlgo();
+      exposeImpulseDynamics();
 
       // expose derivative version of the algorithms
       exposeRNEADerivatives();
@@ -35,6 +39,7 @@ namespace pinocchio
       exposeKinematicsDerivatives();
       exposeFramesDerivatives();
       exposeCentroidalDerivatives();
+      exposeImpulseDynamicsDerivatives();
     }
     
   } // namespace python

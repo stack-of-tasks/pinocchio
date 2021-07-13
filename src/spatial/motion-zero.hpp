@@ -1,10 +1,10 @@
 //
-// Copyright (c) 2015-2019 CNRS, INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 // Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
-#ifndef __pinocchio_motion_zero_hpp__
-#define __pinocchio_motion_zero_hpp__
+#ifndef __pinocchio_spatial_motion_zero_hpp__
+#define __pinocchio_spatial_motion_zero_hpp__
 
 namespace pinocchio
 {
@@ -142,4 +142,4 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_motion_zero_hpp__
+#endif // ifndef __pinocchio_spatial_motion_zero_hpp__

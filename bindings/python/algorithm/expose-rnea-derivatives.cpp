@@ -12,31 +12,34 @@ namespace pinocchio
   {
     
     namespace bp = boost::python;
-    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceAlignedVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(context::Force) ForceAlignedVector;
     
-    Data::MatrixXs computeGeneralizedGravityDerivatives(const Model & model, Data & data,
-                                                        const Eigen::VectorXd & q)
+    context::Data::MatrixXs computeGeneralizedGravityDerivatives(const context::Model & model,
+                                                                 context::Data & data,
+                                                                 const context::VectorXs & q)
     {
-      Data::MatrixXs res(model.nv,model.nv);
+      context::Data::MatrixXs res(model.nv,model.nv);
       res.setZero();
       pinocchio::computeGeneralizedGravityDerivatives(model,data,q,res);
       return res;
     }
     
-    Data::MatrixXs computeStaticTorqueDerivatives(const Model & model, Data & data,
-                                                  const Eigen::VectorXd & q,
-                                                  const ForceAlignedVector & fext)
+    context::Data::MatrixXs computeStaticTorqueDerivatives(const context::Model & model,
+                                                           context::Data & data,
+                                                           const context::VectorXs & q,
+                                                           const ForceAlignedVector & fext)
     {
-      Data::MatrixXs res(model.nv,model.nv);
+      context::Data::MatrixXs res(model.nv,model.nv);
       res.setZero();
       pinocchio::computeStaticTorqueDerivatives(model,data,q,fext,res);
       return res;
     }
     
-    bp::tuple computeRNEADerivatives(const Model & model, Data & data,
-                                     const Eigen::VectorXd & q,
-                                     const Eigen::VectorXd & v,
-                                     const Eigen::VectorXd & a)
+    bp::tuple computeRNEADerivatives(const context::Model & model,
+                                     context::Data & data,
+                                     const context::VectorXs & q,
+                                     const context::VectorXs & v,
+                                     const context::VectorXs & a)
     {
       pinocchio::computeRNEADerivatives(model,data,q,v,a);
       make_symmetric(data.M);
@@ -45,10 +48,11 @@ namespace pinocchio
                             make_ref(data.M));
     }
     
-    bp::tuple computeRNEADerivatives_fext(const Model & model, Data & data,
-                                          const Eigen::VectorXd & q,
-                                          const Eigen::VectorXd & v,
-                                          const Eigen::VectorXd & a,
+    bp::tuple computeRNEADerivatives_fext(const context::Model & model,
+                                          context::Data & data,
+                                          const context::VectorXs & q,
+                                          const context::VectorXs & v,
+                                          const context::VectorXs & a,
                                           const ForceAlignedVector & fext)
     {
       pinocchio::computeRNEADerivatives(model,data,q,v,a,fext);
@@ -60,8 +64,6 @@ namespace pinocchio
     
     void exposeRNEADerivatives()
     {
-      using namespace Eigen;
-      
       bp::def("computeGeneralizedGravityDerivatives",
               computeGeneralizedGravityDerivatives,
               bp::args("model","data","q"),
