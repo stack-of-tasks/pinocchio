@@ -20,7 +20,7 @@
 #include <Eigen/Geometry>
 #include <eigenpy/geometry.hpp>
 
-namespace bp = boost::python;
+namespace bp = ::boost::python;
 using namespace pinocchio::python;
 
 BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
