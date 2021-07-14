@@ -20,11 +20,11 @@
 #include <Eigen/Geometry>
 #include <eigenpy/geometry.hpp>
 
-namespace bp = ::boost::python;
-using namespace pinocchio::python;
 
 BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
 {
+  namespace bp = ::boost::python;
+  using namespace pinocchio::python;
   bp::docstring_options module_docstring_options(true,true,false);
   
   bp::scope().attr("__version__") = pinocchio::printVersion();
