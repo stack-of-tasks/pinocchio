@@ -177,11 +177,13 @@ class MeshcatVisualizer(BaseVisualizer):
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
 
+        is_mesh = False
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
             elif isMesh(geometry_object):
                 obj = self.loadMesh(geometry_object)
+                is_mesh = True
             elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
                 obj = loadBVH(geometry_object.geometry)
             else:
@@ -210,6 +212,10 @@ class MeshcatVisualizer(BaseVisualizer):
                 material.transparent = True
                 material.opacity = float(meshColor[3])
             self.viewer[viewer_name].set_object(obj, material)
+
+        if is_mesh: # Apply the scaling
+            scale = list(np.asarray(geometry_object.meshScale).flatten())
+            self.viewer[viewer_name].set_property("scale",scale)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
