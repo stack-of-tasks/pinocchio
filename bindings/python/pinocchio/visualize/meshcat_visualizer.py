@@ -14,6 +14,16 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+def isMesh(geometry_object):
+    """ Check whether the geometry object contains a Mesh supported by MeshCat """
+    if geometry_object.meshPath == "":
+        return False
+
+    _, file_extension = os.path.splitext(geometry_object.meshPath)
+    if file_extension.lower() in [".dae", ".obj", ".stl"]:
+        return True
+
+    return False
 
 def loadBVH(bvh):
     import meshcat.geometry as mg
@@ -135,17 +145,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
         return obj
 
-    def isMesh(self, geometry_object):
-        """ Check whether the geometry object contains a Mesh supported by MeshCat """
-        if geometry_object.meshPath == "":
-            return False
-
-        _, file_extension = os.path.splitext(geometry_object.meshPath)
-        if file_extension.lower() in [".dae", ".obj", ".stl"]:
-            return True
-
-        return False
-
     def loadMesh(self, geometry_object):
 
         import meshcat.geometry
@@ -181,7 +180,7 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
-            elif self.isMesh(geometry_object):
+            elif isMesh(geometry_object):
                 obj = self.loadMesh(geometry_object)
             elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
                 obj = loadBVH(geometry_object.geometry)
