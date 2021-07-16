@@ -263,17 +263,19 @@ class MeshcatVisualizer(BaseVisualizer):
 
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         for visual in self.visual_model.geometryObjects:
+            visual_name = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
             # Get mesh pose.
             M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-            # Manage scaling
-            if self.isMesh(visual):
+            # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
+            if isMesh(visual):
                 scale = np.asarray(visual.meshScale).flatten()
                 S = np.diag(np.concatenate((scale,[1.0])))
                 T = np.array(M.homogeneous).dot(S)
             else:
                 T = M.homogeneous
+            
             # Update viewer configuration.
-            self.viewer[self.getViewerNodeName(visual,pin.GeometryType.VISUAL)].set_transform(T)
+            self.viewer[visual_name].set_transform(T)
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not.
