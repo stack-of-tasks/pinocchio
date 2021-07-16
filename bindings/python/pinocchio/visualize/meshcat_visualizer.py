@@ -259,9 +259,12 @@ class MeshcatVisualizer(BaseVisualizer):
             # Get mesh pose.
             M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
             # Manage scaling
-            scale = np.asarray(visual.meshScale).flatten()
-            S = np.diag(np.concatenate((scale,[1.0])))
-            T = np.array(M.homogeneous).dot(S)
+            if self.isMesh(visual):
+                scale = np.asarray(visual.meshScale).flatten()
+                S = np.diag(np.concatenate((scale,[1.0])))
+                T = np.array(M.homogeneous).dot(S)
+            else:
+                T = M.homogeneous
             # Update viewer configuration.
             self.viewer[self.getViewerNodeName(visual,pin.GeometryType.VISUAL)].set_transform(T)
 
