@@ -360,7 +360,7 @@ namespace pinocchio
 
           FrameIndex frame_id;
           UrdfGeomVisitorBase::Frame frame = visitor.getBodyFrame (link_name, frame_id);
-          SE3 body_placement = frame.placement;
+          const SE3 & body_placement = frame.placement;
 
           std::size_t objectId = 0;
           for (typename VectorSharedT::const_iterator i = geometries_array.begin();i != geometries_array.end(); ++i)
@@ -391,7 +391,7 @@ namespace pinocchio
             std::string meshTexturePath;
             bool overrideMaterial = getVisualMaterial<GeometryType>((*i), meshTexturePath, meshColor, package_dirs);
 
-            SE3 geomPlacement = body_placement * convertFromUrdf((*i)->origin);
+            const SE3 geomPlacement = body_placement * convertFromUrdf((*i)->origin);
             std::ostringstream geometry_object_suffix;
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
