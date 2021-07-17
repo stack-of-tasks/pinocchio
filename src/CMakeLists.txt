@@ -3,6 +3,13 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
+# Collect library sources
+LIST(APPEND ${PROJECT_NAME}_SOURCES
+  algorithm/kinematics.cpp
+  multibody/model.cpp
+  multibody/data.cpp
+  )
+
 IF(BUILD_WITH_URDF_SUPPORT)
   LIST(APPEND ${PROJECT_NAME}_SOURCES
     parsers/urdf/model.cpp

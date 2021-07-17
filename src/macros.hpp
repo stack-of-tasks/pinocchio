@@ -152,4 +152,12 @@ namespace pinocchio
   #pragma GCC diagnostic pop
 #endif
 
+#ifndef PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+  #ifdef PINOCCHIO_WITH_CXX11_SUPPORT
+    #define PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION 1
+  #else
+    #define PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION 0
+  #endif
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_macros_hpp__
