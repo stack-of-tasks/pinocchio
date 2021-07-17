@@ -1077,6 +1077,11 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
           const RigidConstraintData & cdata_prev = contact_data_sim_prev[k];
           
           BOOST_CHECK(cdata.contact_placement_error.toVector().norm() <= cdata_prev.contact_placement_error.toVector().norm());
+	  std::cout << "cdata.contact_placement_error.toVector().norm(): "
+		    << cdata.contact_placement_error.toVector().norm()
+		    << std::endl<<" "
+		    << "cdata_prev.contact_placement_error.toVector().norm(): "
+		    <<cdata_prev.contact_placement_error.toVector().norm()<<std::endl;
         }
       }
       

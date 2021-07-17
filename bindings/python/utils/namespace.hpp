@@ -11,7 +11,7 @@ namespace pinocchio
 {
   namespace python
   {
-    namespace bp = boost::python;
+    namespace bp = ::boost::python;
     
     ///
     /// \brief Helper to create or simply return an existing namespace in Python

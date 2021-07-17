@@ -448,7 +448,7 @@ namespace pinocchio
   addFrame(const Frame & frame, const bool append_inertia)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent < (JointIndex)njoints,
-                                   "The index of the parent frame is not valid.");
+                                   "The index of the parent joint is not valid.");
     
 //    TODO: fix it
 //    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.inertia.isValid(),

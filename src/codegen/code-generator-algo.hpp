@@ -12,8 +12,8 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 
 namespace pinocchio
