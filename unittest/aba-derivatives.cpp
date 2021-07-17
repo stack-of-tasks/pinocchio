@@ -35,6 +35,8 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
   VectorXd a(aba(model,data_ref,q,v,tau));
+
+  const double prec = Eigen::NumTraits<double>::dummy_precision();
   
   VectorXd tau_from_a(rnea(model,data_ref,q,v,a));
   BOOST_CHECK(tau_from_a.isApprox(tau));
@@ -53,7 +55,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(data.oh[k].isApprox(data_ref.oh[k]));
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa[k] - model.gravity));
     BOOST_CHECK(data.oa_gf[k].isApprox(data_ref.oa_gf[k]));
-    BOOST_CHECK(data.of[k].isApprox(data_ref.of[k]));
+    BOOST_CHECK(data.of[k].isApprox(data_ref.of[k],1e1*prec));
     BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
   }
