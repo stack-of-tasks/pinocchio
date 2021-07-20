@@ -1041,6 +1041,12 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
   initConstraintDynamics(model,data,contact_models);
   constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
+
+  Eigen::VectorXd contact_placement_error_prev(contact_models.size() * 6);
+  Eigen::VectorXd contact_placement_error(contact_models.size() * 6);
+  contact_placement_error_prev.setZero();
+  contact_placement_error.setZero();
+  
   // Simulation loop
   {
     const int N = 200;
@@ -1068,18 +1074,22 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
       a = constraintDynamics(model,data_sim,q,v,tau,contact_models,contact_data_sim,prox_settings);
       v += a*dt;
       q = integrate(model,q,v*dt);
+
+
+      
       
       if(it > 1)
       {
         for(size_t k = 0; k < contact_models.size(); ++k)
         {
-          const RigidConstraintData & cdata = contact_data_sim[k];
-          const RigidConstraintData & cdata_prev = contact_data_sim_prev[k];
-          
-          BOOST_CHECK(cdata.contact_placement_error.toVector().norm() <= cdata_prev.contact_placement_error.toVector().norm());
+	  const RigidConstraintData & cdata = contact_data_sim[k];
+	  const RigidConstraintData & cdata_prev = contact_data_sim_prev[k];
+	  contact_placement_error.segment<6>(6*k) = cdata.contact_placement_error.toVector();
+	  contact_placement_error_prev.segment<6>(6*k) =
+	    cdata_prev.contact_placement_error.toVector();
         }
+	BOOST_CHECK(contact_placement_error.norm() <= contact_placement_error_prev.norm());
       }
-      
       contact_data_sim_prev = contact_data_sim;
     }
   }
