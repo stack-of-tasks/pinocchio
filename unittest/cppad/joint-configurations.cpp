@@ -6,7 +6,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
-#include "utils/model-generator.hpp"
+#include "../utils/model-generator.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
