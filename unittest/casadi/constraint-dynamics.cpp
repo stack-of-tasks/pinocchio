@@ -65,16 +65,16 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamics_casadi_algo)
   ad_casadi.loadLib();
     
   ad_casadi.evalFunction(q,v,tau);
-  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq,1e1*prec));
-  BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c,1e1*prec));
+  BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq,1e2*prec));
+  BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c,1e2*prec));
   ad_casadi.evalJacobian(q,v,tau);
   
-  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq,1e1*prec));
-  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv,1e1*prec));
-  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau,1e1*prec));
-  BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq,1e1*prec));
-  BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv,1e1*prec));
-  BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau,1e1*prec));
+  BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq,1e2*prec));
+  BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv,1e2*prec));
+  BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau,1e2*prec));
+  BOOST_CHECK(ad_casadi.dlambda_dq.isApprox(data.dlambda_dq,1e2*prec));
+  BOOST_CHECK(ad_casadi.dlambda_dv.isApprox(data.dlambda_dv,1e2*prec));
+  BOOST_CHECK(ad_casadi.dlambda_dtau.isApprox(data.dlambda_dtau,1e2*prec));
 
 }
 
