@@ -2,8 +2,14 @@
 // Copyright (c) 2020-2021 CNRS INRIA
 //
 
+#ifdef PINOCCHIO_WITH_SDF
+#ifdef PINOCCHIO_WITH_HPP_FCL
+
 #include "pinocchio/parsers/sdf.hpp"
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
+
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+#endif
 
 #include <boost/python.hpp>
 
