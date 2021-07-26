@@ -285,8 +285,16 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Compute the partial derivatives
-    translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
-    translateForceSet(data.dFdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(data.dHdq,com,dh_dq.const_cast_derived());
+    Matrix6xLike0 & dh_dq_ = dh_dq.const_cast_derived();
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+      dh_dq_.col(k).template segment<3>(Force::ANGULAR) += data.hg.linear().cross(data.dFda.col(k).template segment<3>(Force::LINEAR))/Ytot.mass();
+    
+    translateForceSet(data.dFdq,com,dhdot_dq.const_cast_derived());
+    Matrix6xLike1 & dhdot_dq_ = dhdot_dq.const_cast_derived();
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+      dhdot_dq_.col(k).template segment<3>(Force::ANGULAR) += data.dhg.linear().cross(data.dFda.col(k).template segment<3>(Force::LINEAR))/Ytot.mass();
+    
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
@@ -403,8 +411,16 @@ namespace pinocchio
     data.Ig.inertia() = Ytot.inertia();
     
     // Retrieve the partial derivatives from RNEA derivatives
-    translateForceSet(data.dHdq,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike0,dh_dq));
-    translateForceSet(Ftmp,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike1,dhdot_dq));
+    translateForceSet(data.dHdq,com,dh_dq.const_cast_derived());
+    Matrix6xLike0 & dh_dq_ = dh_dq.const_cast_derived();
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+      dh_dq_.col(k).template segment<3>(Force::ANGULAR) += data.hg.linear().cross(data.dFda.col(k).template segment<3>(Force::LINEAR))/Ytot.mass();
+    
+    translateForceSet(Ftmp,com,dhdot_dq.const_cast_derived());
+    Matrix6xLike1 & dhdot_dq_ = dhdot_dq.const_cast_derived();
+    for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+      dhdot_dq_.col(k).template segment<3>(Force::ANGULAR) += data.dhg.linear().cross(data.dFda.col(k).template segment<3>(Force::LINEAR))/Ytot.mass();
+    
     translateForceSet(data.dFdv,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike2,dhdot_dv));
     translateForceSet(data.dFda,com,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike3,dhdot_da));
   }
