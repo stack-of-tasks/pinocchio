@@ -64,11 +64,11 @@ namespace pinocchio
        *
        */
       PINOCCHIO_DLLAPI void parseTreeForGeom(UrdfGeomVisitorBase& visitor,
-                            const std::istream& xmlStream,
-                            const GeometryType type,
-                            GeometryModel & geomModel,
-                            const std::vector<std::string> & package_dirs,
-                            ::hpp::fcl::MeshLoaderPtr meshLoader);
+                                             const std::istream& xmlStream,
+                                             const GeometryType type,
+                                             GeometryModel & geomModel,
+                                             const std::vector<std::string> & package_dirs,
+                                             ::hpp::fcl::MeshLoaderPtr meshLoader);
       
       } // namespace details
       
