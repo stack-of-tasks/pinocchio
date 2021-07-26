@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018 INRIA
+// Copyright (c) 2018-2021 INRIA
 //
 
 #ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__
@@ -69,6 +69,7 @@ namespace pinocchio
   ///
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
+  /// \param[out] dh_dq The partial derivative of the centroidal momentum with respect to the configuration vector (dim 6 x model.nv).  ///
   /// \param[out] dhdot_dq The partial derivative of the centroidal dynamics with respect to the configuration vector (dim 6 x model.nv).
   /// \param[out] dhdot_dv The partial derivative of the centroidal dynamics with respect to the velocity vector (dim 6 x model.nv).
   /// \param[out] dhdot_da The partial derivative of the centroidal dynamics with respect to the acceleration vector (dim 6 x model.nv).
