@@ -20,7 +20,7 @@ namespace pinocchio
     ///
     template<typename VecType>
     struct PickleVector : boost::python::pickle_suite
-    { 
+    {
       static boost::python::tuple getinitargs(const VecType&)
       { return boost::python::make_tuple(); }
       
