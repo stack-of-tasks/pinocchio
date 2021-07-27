@@ -360,7 +360,7 @@ namespace pinocchio
           bool existFrame (
               const std::string& frame_name, const FrameType type) const
           {
-            return model.existFrame(frame_name, BODY);
+            return model.existFrame(frame_name, type);
           }
         
           template <typename TypeX, typename TypeY, typename TypeZ,
