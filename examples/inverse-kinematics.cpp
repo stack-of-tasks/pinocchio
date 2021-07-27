@@ -23,7 +23,7 @@ int main(int /* argc */, char ** /* argv */)
   J.setZero();
 
   bool success = false;
-  using Vector6d = Eigen::Matrix<double, 6, 1>;
+  typedef Eigen::Matrix<double, 6, 1> Vector6d;
   Vector6d err;
   Eigen::VectorXd v(model.nv);
   for (int i=0;;i++)
