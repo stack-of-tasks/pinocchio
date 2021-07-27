@@ -51,11 +51,15 @@ int main(int /* argc */, char ** /* argv */)
       std::cout << i << ": error = " << err.transpose() << std::endl;
   }
 
-  if(success)
+  if(success) 
+  {
     std::cout << "Convergence achieved!" << std::endl;
-  else
+  }
+  else 
+  {
     std::cout << "\nWarning: the iterative algorithm has not reached convergence to the desired precision" << std::endl;
-
+  }
+    
   std::cout << "\nresult: " << q.transpose() << std::endl;
   std::cout << "\nfinal error: " << err.transpose() << std::endl;
 }
