@@ -38,7 +38,7 @@ namespace pinocchio
      *
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    GeometryModel & buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                               const std::string & filename,
                               const GeometryType type,
@@ -68,7 +68,7 @@ namespace pinocchio
      *
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    GeometryModel & buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+    GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                               const std::string & filename,
                               const GeometryType type,
