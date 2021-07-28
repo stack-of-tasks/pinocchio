@@ -44,11 +44,9 @@ namespace pinocchio
       pinocchio::sdf::buildGeom(model,contact_models,filename,type,geometry_model);
       return geometry_model;
     }
-    
 
-    
     GeometryModel
-    buildGeomFromSdf(Model & model,
+    buildGeomFromSdf(const Model & model,
                      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                      const std::string & filename,
                      const GeometryType type,
