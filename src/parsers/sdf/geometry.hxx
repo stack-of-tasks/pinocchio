@@ -65,10 +65,12 @@ namespace pinocchio
         std::vector< ::sdf::ElementPtr> geometry_array;
         ::sdf::ElementPtr geomElement = link->GetElement("collision");
         while (geomElement)
-        {
-          //Inserting data in std::map
-          geometry_array.push_back(geomElement);
-          geomElement = link->GetNextElement("collision");
+        { 
+	  //Inserting data in std::map
+	  if (geomElement->Get<std::string>("name") != "__default__") {
+	    geometry_array.push_back(geomElement);
+	  }
+	    geomElement = link->GetNextElement("collision");
         }
         return geometry_array;
       }
@@ -82,7 +84,9 @@ namespace pinocchio
         while (geomElement)
         {
           //Inserting data in std::map
-          geometry_array.push_back(geomElement);
+	  if (geomElement->Get<std::string>("name") != "__default__") {
+	    geometry_array.push_back(geomElement);
+	  }
           geomElement = link->GetNextElement("visual");
         }
         return geometry_array;
