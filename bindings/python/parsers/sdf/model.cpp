@@ -27,9 +27,8 @@ namespace pinocchio
     }
 
     bp::tuple buildModelFromSdf(const std::string & filename,
-                                const bp::object & root_joint_object)
+				const JointModel & root_joint)
     {
-      JointModelVariant root_joint = bp::extract<JointModelVariant>(root_joint_object)();
       Model model;
       PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
       pinocchio::sdf::buildModel(filename, root_joint, model, contact_models);
@@ -43,13 +42,13 @@ namespace pinocchio
       bp::def("buildModelFromSdf",
               static_cast <bp::tuple (*) (const std::string &)> (pinocchio::python::buildModelFromSdf),
               bp::args("sdf_filename"),
-              "Parse the SDF file given in input and return a pinocchio Model."
+              "Parse the SDF file given in input and return a pinocchio Model and constraint models."
               );
 
       bp::def("buildModelFromSdf",
-              static_cast <bp::tuple (*) (const std::string &, const bp::object &)> (pinocchio::python::buildModelFromSdf),
+              static_cast <bp::tuple (*) (const std::string &, const JointModel &)> (pinocchio::python::buildModelFromSdf),
               bp::args("sdf_filename","root_joint"),
-              "Append to a given model a SDF structure given by its filename and the root joint."
+              "Parse the SDF file given in input and return a pinocchio Model and constraint models starting with the given root joint."
               );
 #endif
     }
