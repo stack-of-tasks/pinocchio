@@ -185,7 +185,7 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_SDF
 #ifdef PINOCCHIO_WITH_HPP_FCL
       bp::def("buildGeomFromSdf",
-              static_cast <GeometryModel (*) (Model &, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
+              static_cast <GeometryModel (*) (const Model &, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","contact_models","sdf_filename","geom_type","package_dir"  ),
               "Parse the SDF file given as input looking for the geometry of the given input model and\n"
               "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"

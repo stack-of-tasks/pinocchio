@@ -326,7 +326,7 @@ namespace pinocchio
     } // namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    GeometryModel& buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+    GeometryModel& buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & const_model,
                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                              const std::string & filename,
                              const GeometryType type,
@@ -335,6 +335,7 @@ namespace pinocchio
                              ::hpp::fcl::MeshLoaderPtr meshLoader)
       
     {
+      Model& model = const_cast<Model &>(const_model); //TODO: buildGeom should not need to parse model again.
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
       //if (verbose) visitor.log = &std::cout;
