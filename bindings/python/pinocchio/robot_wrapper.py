@@ -21,6 +21,7 @@ class RobotWrapper(object):
         model, collision_model, visual_model = buildModelsFromUrdf(filename, package_dirs, root_joint, verbose, meshLoader)
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
 
+    @staticmethod
     def BuildFromSDF(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
         robot = RobotWrapper()
         robot.initFromSDF(filename, package_dirs, root_joint, verbose, meshLoader)
