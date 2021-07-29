@@ -9,7 +9,7 @@ from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
 
 nle = pin.nonLinearEffects
 
-def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]):
+def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=None):
     """Parse the URDF file given in input and return a Pinocchio Model followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
         # load model, collision model, and visual model, in this order (default)
@@ -22,7 +22,8 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         
         model = buildModelsFromUrdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromUrdf(filename[, root_joint])
     """
-
+    if geometry_types is None:
+        geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
     if root_joint is None:
         model = pin.buildModelFromUrdf(filename)
     else:
@@ -56,7 +57,7 @@ def createDatas(*models):
     return tuple([None if model is None else model.createData() for model in models])
 
 
-def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]):
+def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=None):
     """Parse the SDF file given in input and return a Pinocchio Model and a list of Constraint Models, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
         # load model, constraint models, collision model, and visual model, in this order (default)
@@ -69,7 +70,8 @@ def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, verbose=Fal
         
         model, constraint_models = buildModelsFromSdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromSdf(filename[, root_joint])
     """
-
+    if geometry_types is None:
+        geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
     if root_joint is None:
         model, constraint_models = pin.buildModelFromSdf(filename)
     else:
