@@ -57,7 +57,7 @@ def createDatas(*models):
     return tuple([None if model is None else model.createData() for model in models])
 
 
-def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]):
+def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=None):
     """Parse the SDF file given in input and return a Pinocchio Model and a list of Constraint Models, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
         # load model, constraint models, collision model, and visual model, in this order (default)
