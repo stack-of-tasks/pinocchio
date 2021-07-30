@@ -275,6 +275,18 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
+    def captureImage(self):
+        """Capture an image from the Meshcat viewer and return an RGB array."""
+        try:
+            img = self.viewer.get_image()
+            img_arr = np.asarray(img)
+            return img_arr
+        except AttributeError:
+            import warnings
+            warnings.warn("meshcat.Visualizer does not have the get_image() method."
+                          " Check your version of meshcat.")
+
+
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not.
         WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
