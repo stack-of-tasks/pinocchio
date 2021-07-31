@@ -5,7 +5,7 @@
 from . import pinocchio_pywrap_default as pin
 from . import utils
 from .deprecation import deprecated
-from .shortcuts import buildModelsFromUrdf, createDatas
+from .shortcuts import buildModelsFromUrdf, createDatas, buildModelsFromSdf
 
 import numpy as np
 
@@ -21,6 +21,17 @@ class RobotWrapper(object):
         model, collision_model, visual_model = buildModelsFromUrdf(filename, package_dirs, root_joint, verbose, meshLoader)
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
 
+    @staticmethod
+    def BuildFromSDF(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
+        robot = RobotWrapper()
+        robot.initFromSDF(filename, package_dirs, root_joint, verbose, meshLoader)
+        return robot
+
+    def initFromSDF(self,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
+        model, constraint_models, collision_model, visual_model = buildModelsFromSdf(filename, package_dirs, root_joint, verbose, meshLoader)
+        RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
+        self.constraint_models = constraint_models
+        
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, verbose=False):
 
         self.model = model

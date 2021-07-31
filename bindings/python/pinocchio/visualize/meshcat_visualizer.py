@@ -273,7 +273,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 T = np.array(M.homogeneous).dot(S)
             else:
                 T = M.homogeneous
-            
+
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
