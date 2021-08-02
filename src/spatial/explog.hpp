@@ -46,11 +46,11 @@ namespace pinocchio
     Scalar ct,st; SINCOS(t,&st,&ct);
 
     const Scalar alpha_vxvx = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                     (1 - ct)/t2,
-                                                     Scalar(1)/Scalar(2) - t2/24);
+                                                     static_cast<Scalar>((1 - ct)/t2),
+                                                     static_cast<Scalar>(Scalar(1)/Scalar(2) - t2/24));
     const Scalar alpha_vx = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                   (st)/t,
-                                                   Scalar(1) - t2/6);
+                                                   static_cast<Scalar>((st)/t),
+                                                   static_cast<Scalar>(Scalar(1) - t2/6));
     Matrix3 res(alpha_vxvx * v * v.transpose());
     res.coeffRef(0,1) -= alpha_vx * v[2]; res.coeffRef(1,0) += alpha_vx * v[2];
     res.coeffRef(0,2) += alpha_vx * v[1]; res.coeffRef(2,0) -= alpha_vx * v[1];
@@ -58,7 +58,7 @@ namespace pinocchio
 
     ct = internal::if_then_else(internal::GT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                 ct,
-                                Scalar(1) - t2/2);
+                                static_cast<Scalar>(Scalar(1) - t2/2));
     res.diagonal().array() += ct;   
       
     return res;
@@ -125,14 +125,14 @@ namespace pinocchio
     Scalar cn,sn; SINCOS(n,&sn,&cn);
 
     const Scalar a = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(), 
-                                            Scalar(1) - n2/Scalar(6),
-                                            sn*n_inv);
+                                            static_cast<Scalar>(Scalar(1) - n2/Scalar(6)),
+                                            static_cast<Scalar>(sn*n_inv));
     const Scalar b = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                            - Scalar(1)/Scalar(2) - n2/Scalar(24),
-                                            - (1-cn)*n2_inv);
+                                            static_cast<Scalar>(- Scalar(1)/Scalar(2) - n2/Scalar(24)),
+                                            static_cast<Scalar>(- (1-cn)*n2_inv));
     const Scalar c = internal::if_then_else(internal::LT, n, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                            Scalar(1)/Scalar(6) - n2/Scalar(120),
-                                            n2_inv * (1 - a));
+                                            static_cast<Scalar>(Scalar(1)/Scalar(6) - n2/Scalar(120)),
+                                            static_cast<Scalar>(n2_inv * (1 - a)));
 
     switch(op)
     {
@@ -316,19 +316,19 @@ namespace pinocchio
     const Scalar inv_t2 = Scalar(1)/t2;
     
     alpha_wxv = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                       Scalar(1)/Scalar(2) - t2/24,
-                                       (Scalar(1) - ct)*inv_t2);
+                                       static_cast<Scalar>(Scalar(1)/Scalar(2) - t2/24),
+                                       static_cast<Scalar>((Scalar(1) - ct)*inv_t2));
     
     alpha_v = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                     Scalar(1) - t2/6,
-                                     (st)/t);
+                                     static_cast<Scalar>(Scalar(1) - t2/6),
+                                     static_cast<Scalar>((st)/t));
     
     alpha_w = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                     (Scalar(1)/Scalar(6) - t2/120),
-                                     (Scalar(1) - alpha_v)*inv_t2);
+                                     static_cast<Scalar>((Scalar(1)/Scalar(6) - t2/120)),
+                                     static_cast<Scalar>((Scalar(1) - alpha_v)*inv_t2));
     
     diagonal_term = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                           Scalar(1) - t2/2,
+                                           static_cast<Scalar>(Scalar(1) - t2/2),
                                            ct);
     
     // Linear
@@ -430,12 +430,12 @@ namespace pinocchio
     
     
     const Scalar beta = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                               Scalar(1)/Scalar(12) + t2/Scalar(720),
-                                               t2inv - st*tinv*inv_2_2ct);
+                                               static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)),
+                                               static_cast<Scalar>(t2inv - st*tinv*inv_2_2ct));
     
     const Scalar beta_dot_over_theta = internal::if_then_else(internal::LT, t, TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                              Scalar(1)/Scalar(360),
-                                                              -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct);
+                                                              static_cast<Scalar>(Scalar(1)/Scalar(360)),
+                                                              static_cast<Scalar>(-Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct));
 
     switch(op)
     {

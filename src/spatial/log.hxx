@@ -94,16 +94,18 @@ namespace pinocchio
       }
       
       const Scalar t = if_then_else(GE,theta_nominal,TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                    theta_nominal / sin(theta_nominal), // then
-                                    Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40) // else
+                                    static_cast<Scalar>(theta_nominal / sin(theta_nominal)), // then
+                                                        static_cast<Scalar>(Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40)) // else
                                     );
       
-      theta = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+      theta = if_then_else(GE,cos_value,static_cast<Scalar>(Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>()),
                            theta_nominal, theta_singular);
       
       for(int k = 0; k < 3; ++k)
-        angle_axis_[k] = if_then_else(GE,cos_value,Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                      t*antisymmetric_R[k], theta_singular*angle_axis_singular[k]);
+        angle_axis_[k] = if_then_else(GE,cos_value,
+                                      static_cast<Scalar>(Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>()),
+                                      static_cast<Scalar>(t*antisymmetric_R[k]),
+                                      static_cast<Scalar>(theta_singular*angle_axis_singular[k]));
 
     }
   };
@@ -125,13 +127,13 @@ namespace pinocchio
       const Scalar st_1mct = st/(Scalar(1)-ct);
       
       const Scalar alpha = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                        Scalar(1)/Scalar(12) + theta*theta / Scalar(720), // then
-                                        Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta) // else
+                                        static_cast<Scalar>(Scalar(1)/Scalar(12) + theta*theta / Scalar(720)), // then
+                                        static_cast<Scalar>(Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta)) // else
                                         );
       
       const Scalar diag_value = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                             Scalar(0.5) * (2 - theta*theta / Scalar(6)), // then
-                                             Scalar(0.5) * (theta * st_1mct) // else
+                                             static_cast<Scalar>(Scalar(0.5) * (2 - theta*theta / Scalar(6))), // then
+                                             static_cast<Scalar>(Scalar(0.5) * (theta * st_1mct)) // else
                                              );
         
       Matrix3Like & Jlog_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog);
@@ -168,13 +170,13 @@ namespace pinocchio
 
       Scalar st,ct; SINCOS(theta,&st,&ct);
       const Scalar alpha = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                        Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720), // then
-                                        theta*st/(Scalar(2)*(Scalar(1)-ct)) // else
+                                        static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
+                                        static_cast<Scalar>(theta*st/(Scalar(2)*(Scalar(1)-ct))) // else
                                         );
       
       const Scalar beta = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                       Scalar(1)/Scalar(12) + t2/Scalar(720), // then
-                                       Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct)) // else
+                                       static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
+                                       static_cast<Scalar>(Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
                                        );
       
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + (beta * w.dot(p)) * w;
@@ -223,13 +225,13 @@ namespace pinocchio
       const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
 
       const Scalar beta = if_then_else(LT,t,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                       Scalar(1)/Scalar(12) + t2/Scalar(720), // then
-                                       t2inv - st*tinv*inv_2_2ct // else
+                                       static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
+                                       static_cast<Scalar>(t2inv - st*tinv*inv_2_2ct) // else
                                        );
       
       const Scalar beta_dot_over_theta = if_then_else(LT,t,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                                      Scalar(1)/Scalar(360), // then
-                                                      -Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct // else
+                                                      static_cast<Scalar>(Scalar(1)/Scalar(360)), // then
+                                                      static_cast<Scalar>(-Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct) // else
                                                       );
 
       const Scalar wTp = w.dot(p);

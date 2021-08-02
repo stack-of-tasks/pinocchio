@@ -70,12 +70,12 @@ namespace pinocchio
                    Scalar(0), // then
                    if_then_else(internal::LT, tr, Scalar(-2),
                                 if_then_else(internal::GE, R (1, 0), Scalar(0),
-                                             PI_value, -PI_value), // then
-                                if_then_else(internal::GT, tr, Scalar(2) - 1e-2,
-                                             asin((R(1,0) - R(0,1)) / Scalar(2)), // then
+                                             PI_value, static_cast<Scalar>(-PI_value)), // then
+                                if_then_else(internal::GT, tr, static_cast<Scalar>(Scalar(2) - 1e-2), // TODO: change value
+                                             static_cast<Scalar>(asin((R(1,0) - R(0,1)) / Scalar(2))), // then
                                              if_then_else(internal::GE, R (1, 0), Scalar(0),
-                                                          acos(tr/Scalar(2)), // then
-                                                          -acos(tr/Scalar(2))
+                                                          static_cast<Scalar>(acos(tr/Scalar(2))), // then
+                                                          static_cast<Scalar>(-acos(tr/Scalar(2)))
                                                           )
                                              )
                                 )
@@ -287,16 +287,16 @@ namespace pinocchio
 //      const Scalar theta0 = atan2(q0(1), q0(0));
       const Scalar abs_theta = fabs(theta);
       out[0] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
-                            (Scalar(1)-u) * q0[0] + u * q1[0], // then
+                            static_cast<Scalar>((Scalar(1)-u) * q0[0] + u * q1[0]), // then
                             if_then_else(LT,abs_theta,PI_value_lower, // else
-                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[0] + (sin(   u *theta)/sinTheta) * q1[0], // then
+                                         static_cast<Scalar>((sin((Scalar(1)-u)*theta)/sinTheta) * q0[0] + (sin(   u *theta)/sinTheta) * q1[0]), // then
                                          q0(0) // cos(theta0) // else
                                          ));
       
       out[1] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
-                            (Scalar(1)-u) * q0[1] + u * q1[1], // then
+                            static_cast<Scalar>((Scalar(1)-u) * q0[1] + u * q1[1]), // then
                             if_then_else(LT,abs_theta,PI_value_lower, // else
-                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[1] + (sin(   u *theta)/sinTheta) * q1[1], // then
+                                         static_cast<Scalar>((sin((Scalar(1)-u)*theta)/sinTheta) * q0[1] + (sin(   u *theta)/sinTheta) * q1[1]), // then
                                          q0(1) // sin(theta0) // else
                                          ));
     }

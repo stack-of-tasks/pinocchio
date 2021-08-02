@@ -74,11 +74,11 @@ namespace pinocchio
         vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
         Scalar omega_abs = math::fabs(omega);
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14),
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14), // TODO: change hard coded value
                                                                              vcross.coeff(0),
                                                                              v.coeff(0));
         
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14),
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14), // TODO: change hard coded value
                                                                              vcross.coeff(1),
                                                                              v.coeff(1));
       }
@@ -144,9 +144,9 @@ namespace pinocchio
       const Scalar1 t2 = t*t;
       Scalar1 st,ct; SINCOS(tabs, &st, &ct);
       Scalar1 alpha;
-      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                     1 - t2/12 - t2*t2/720,
-                                     tabs*st/(2*(1-ct)));
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4), // TODO: change hard coded value
+                                     static_cast<Scalar>(1 - t2/12 - t2*t2/720),
+                                     static_cast<Scalar>(tabs*st/(2*(1-ct))));
 
       vout.template head<2>().noalias() = alpha * p;
       vout(0) += t/2 * p(1);
@@ -175,11 +175,11 @@ namespace pinocchio
       Scalar1 inv_2_1_ct = 0.5 / (1-ct);
         
       alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                     1 - t2/12,
-                                     t*st*inv_2_1_ct);
+                                     static_cast<Scalar>(1 - t2/12),
+                                     static_cast<Scalar>(t*st*inv_2_1_ct));
       alpha_dot = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                         - t / 6 - t2*t / 180,
-                                         (st-t) * inv_2_1_ct);
+                                         static_cast<Scalar>(- t / 6 - t2*t / 180),
+                                         static_cast<Scalar>((st-t) * inv_2_1_ct));
 
       typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
@@ -608,8 +608,8 @@ namespace pinocchio
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
         res_quat.coeffs().coeffRef(k) = if_then_else(internal::LT, dot_product, Scalar(0),
-                                                     -res_quat.coeffs().coeff(k),
-                                                      res_quat.coeffs().coeff(k));
+                                                     static_cast<Scalar>(-res_quat.coeffs().coeff(k)),
+                                                     res_quat.coeffs().coeff(k));
       }
     
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.
