@@ -53,6 +53,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeJoints();
   exposeExplog();
   exposeRpy();
+  exposeLinalg();
   exposeSkew();
   exposeLieGroups();
 

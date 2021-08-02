@@ -26,6 +26,7 @@ namespace pinocchio
     void exposeRpy();
     void exposeEigenTypes();
     void exposeConversions();
+    void exposeLinalg();
     
     // Expose multibody classes
     void exposeJoints();
