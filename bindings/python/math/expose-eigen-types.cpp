@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 INRIA
+// Copyright (c) 2020-2021 INRIA
 //
 
 #include <boost/python.hpp>
@@ -32,7 +32,7 @@ namespace pinocchio
   
     namespace internal
     {
-      template<typename Scalar, bool is_floating_point = boost::is_floating_point<Scalar>::value>
+      template<typename Scalar, bool is_numpy_native_type = ((int)::eigenpy::NumpyEquivalentType<Scalar>::type_code != NPY_USERDEF)>
       struct exposeTypeAlgo
       {
         static void run() {};
@@ -81,4 +81,3 @@ namespace pinocchio
     
   } // namespace python
 } // namespace pinocchio
-
