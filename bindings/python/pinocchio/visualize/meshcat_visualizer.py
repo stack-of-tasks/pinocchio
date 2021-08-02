@@ -283,7 +283,6 @@ class MeshcatVisualizer(BaseVisualizer):
             img_arr = np.asarray(img)
             return img_arr
         except AttributeError:
-            import warnings
             warnings.warn("meshcat.Visualizer does not have the get_image() method."
                           " Check your version of meshcat.")
 
