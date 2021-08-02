@@ -33,7 +33,10 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   eigenpy::enableEigenPy();
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
-  
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
+  StdContainerFromPythonList< std::vector<std::string> >::register_converter();
+#endif
+
   bp::scope().attr("ScalarType") = getScalarType();
 
   bp::scope().attr("XAxis")
@@ -88,15 +91,17 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeModel();
   exposeFrame();
   exposeData();
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeGeometry();
+#endif // defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
 
   exposeAlgorithms();
   exposeParsers();
   exposeSerialization();
   
-#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+#if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS) && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeFCL();
-#endif // PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS
+#endif // defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS) && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   exposePool();

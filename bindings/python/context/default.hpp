@@ -6,6 +6,8 @@
 #define __pinocchio_python_context_default_hpp__
 
 #define PINOCCHIO_PYTHON_SCALAR_TYPE PINOCCHIO_SCALAR_TYPE
+#define PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE
+
 #include "pinocchio/bindings/python/context/generic.hpp"
 #include <boost/python.hpp>
 

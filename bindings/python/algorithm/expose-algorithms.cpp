@@ -26,7 +26,9 @@ namespace pinocchio
       exposeConstrainedDynamics();
       exposeCAT();
       exposeJacobian();
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
       exposeGeometryAlgo();
+#endif // defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
       exposeKinematicRegressor();
       exposeRegressor();
       exposeCholesky();
