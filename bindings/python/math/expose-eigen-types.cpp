@@ -64,8 +64,6 @@ namespace pinocchio
         eigenpy::expose<context::AngleAxis>();
 #endif
       
-      StdContainerFromPythonList< std::vector<std::string> >::register_converter();
-
       typedef Eigen::Matrix<context::Scalar,6,6,context::Options> Matrix6s;
       typedef Eigen::Matrix<context::Scalar,6,1,context::Options> Vector6s;
       typedef Eigen::Matrix<context::Scalar,6,Eigen::Dynamic,context::Options> Matrix6xs;
