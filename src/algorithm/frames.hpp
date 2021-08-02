@@ -98,10 +98,10 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   inline MotionTpl<Scalar, Options>
   getFrameVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-		   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-		   const JointIndex joint_id,
-		   const SE3Tpl<Scalar,Options> & placement,
-		   const ReferenceFrame rf = LOCAL);
+                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                   const JointIndex joint_id,
+                   const SE3Tpl<Scalar,Options> & placement,
+                   const ReferenceFrame rf = LOCAL);
   
 
 
@@ -153,7 +153,7 @@ namespace pinocchio
   getFrameAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const JointIndex joint_id,
-		       const SE3Tpl<Scalar,Options> & placement,
+                       const SE3Tpl<Scalar,Options> & placement,
                        const ReferenceFrame rf = LOCAL);
 
 
@@ -205,7 +205,7 @@ namespace pinocchio
   getFrameClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const JointIndex joint_id,
-				const SE3Tpl<Scalar,Options> & placement,
+                                const SE3Tpl<Scalar,Options> & placement,
                                 const ReferenceFrame rf = LOCAL);
 
 
