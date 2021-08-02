@@ -20,13 +20,13 @@ namespace pinocchio
 // and complex types
 template <typename Backend,
           boost::multiprecision::expression_template_option ET>
-struct is_floating_point<boost::multiprecision::number<Backend, ET>>
+struct is_floating_point< boost::multiprecision::number<Backend, ET> >
     : boost::integral_constant<
           bool,
-          ((std::numeric_limits<
-                boost::multiprecision::number<Backend, ET>>::is_specialized and
+          ((!std::numeric_limits<
+                boost::multiprecision::number<Backend, ET> >::is_integer and
             std::numeric_limits<
-                boost::multiprecision::number<Backend, ET>>::has_infinity))>
+                boost::multiprecision::number<Backend, ET> >::has_infinity))>
 {
 };
 }  // namespace pinocchio
