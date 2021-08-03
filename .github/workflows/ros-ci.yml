@@ -16,7 +16,6 @@ jobs:
           - {ROS_DISTRO: noetic}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
-      UPSTREAM_WORKSPACE: dependencies.rosinstall  # to build example-robot-data from source as it's not released via the ROS buildfarm
       # The following is a work-around for ROS tooling in conjunction with jrl-cmakemodules:
       #  - catkin_make_isolated has issues with Industrial-CI right now
       #  - colcon cannot find example-robot-data's python bindings due to ROS1 workspace integration hooks
