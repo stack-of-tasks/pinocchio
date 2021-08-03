@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 INRIA
+// Copyright (c) 2020-2021 INRIA
 //
 
 #ifndef __pinocchio_python_utils_eigen_hpp__
@@ -14,17 +14,25 @@ namespace pinocchio
   {
   
     template<typename Matrix>
-    Eigen::Ref<Matrix> make_ref(Eigen::PlainObjectBase<Matrix> & mat)
+    Eigen::Ref<Matrix> make_ref(const Eigen::PlainObjectBase<Matrix> & mat)
     {
       typedef Eigen::Ref<Matrix> ReturnType;
-      return ReturnType(mat);
+      return ReturnType(mat.const_cast_derived());
     }
   
     template<typename Matrix>
-    void make_symmetric(Eigen::MatrixBase<Matrix> & mat)
+    void make_symmetric(const Eigen::MatrixBase<Matrix> & mat, const int mode = Eigen::Upper)
     {
-      mat.template triangularView<Eigen::StrictlyLower>() =
-      mat.transpose().template triangularView<Eigen::StrictlyLower>();
+      if(mode == Eigen::Upper)
+      {
+        mat.const_cast_derived().template triangularView<Eigen::StrictlyLower>() =
+        mat.transpose().template triangularView<Eigen::StrictlyLower>();
+      }
+      else if(mode == Eigen::Lower)
+      {
+        mat.const_cast_derived().template triangularView<Eigen::StrictlyUpper>() =
+        mat.transpose().template triangularView<Eigen::StrictlyUpper>();
+      }
     }
   
     template<typename Matrix>
