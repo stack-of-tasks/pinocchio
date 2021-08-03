@@ -10,6 +10,7 @@
 
 #include <boost/python.hpp>
 #include <eigenpy/user-type.hpp>
+#include <eigenpy/ufunc.hpp>
 #include <sstream>
 
 namespace pinocchio
@@ -93,6 +94,7 @@ namespace pinocchio
         ;
         
         eigenpy::registerNewType<BoostNumber>();
+        eigenpy::registerCommonUfunc<BoostNumber>();
         
         bp::implicitly_convertible<float,BoostNumber>();
         bp::implicitly_convertible<double,BoostNumber>();
