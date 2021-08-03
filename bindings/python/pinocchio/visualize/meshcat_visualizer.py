@@ -283,7 +283,7 @@ class MeshcatVisualizer(BaseVisualizer):
             return img_arr
         except AttributeError:
             warnings.warn("meshcat.Visualizer does not have the get_image() method."
-                          " You need meschat >= 0.2.0 to get this feature.")
+                          " You need meshcat >= 0.2.0 to get this feature.")
 
 
     def displayCollisions(self,visibility):
