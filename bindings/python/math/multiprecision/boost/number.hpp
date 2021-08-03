@@ -101,6 +101,13 @@ namespace pinocchio
         bp::implicitly_convertible<unsigned int,BoostNumber>();
         bp::implicitly_convertible<unsigned long int,BoostNumber>();
         bp::implicitly_convertible<bool,BoostNumber>();
+        
+        eigenpy::registerCast<BoostNumber,double>(false);
+        eigenpy::registerCast<double,BoostNumber>(true);
+        eigenpy::registerCast<BoostNumber,float>(false);
+        eigenpy::registerCast<float,BoostNumber>(true);
+        eigenpy::registerCast<BoostNumber,int64_t>(false);
+        eigenpy::registerCast<int64_t,BoostNumber>(true);
       }
       
     private:
