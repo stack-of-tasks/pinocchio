@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_contact_info_hpp__
@@ -8,6 +8,7 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/comparable.hpp"
 
@@ -127,6 +128,8 @@ namespace pinocchio
                                       "Rigid contact model for contact dynamic algorithms.",
                                       bp::no_init)
         .def(RigidContactModelPythonVisitor())
+        .def(CastVisitor<Model>())
+        .def(ExposeConstructorByCastVisitor<RigidContactModel,::pinocchio::RigidContactModel>())
         ;
         
         BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters>::expose();
