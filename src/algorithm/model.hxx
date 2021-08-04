@@ -553,6 +553,41 @@ namespace pinocchio
     }
   }
 
+  template <typename Scalar, int Options, template <typename, int> class JointCollectionTpl>
+  JointIndex findCommonAncestor(const ModelTpl<Scalar,Options, JointCollectionTpl> & model,
+                                JointIndex joint1_id,
+                                JointIndex joint2_id,
+                                size_t & index_ancestor_in_support1,
+                                size_t & index_ancestor_in_support2)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint1_id < (JointIndex)model.njoints,"joint1_id is not valid.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint2_id < (JointIndex)model.njoints,"joint2_id is not valid.");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef typename Model::IndexVector IndexVector;
+    
+    if(joint1_id == 0 || joint2_id == 0)
+    {
+      index_ancestor_in_support1 = index_ancestor_in_support2 = 0;
+      return 0;
+    }
+      
+    const IndexVector & support1 = model.supports[joint1_id];
+    const IndexVector & support2 = model.supports[joint2_id];
+    
+    index_ancestor_in_support1 = support1.size() - 1;
+    index_ancestor_in_support2 = support2.size() - 1;
+    while(joint1_id != joint2_id)
+    {
+      if(joint1_id > joint2_id)
+        joint1_id = support1[--index_ancestor_in_support1];
+      else
+        joint2_id = support2[--index_ancestor_in_support2];
+    }
+    
+    return joint1_id;
+  }
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_model_hxx__

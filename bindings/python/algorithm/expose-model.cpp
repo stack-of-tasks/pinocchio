@@ -54,7 +54,7 @@ namespace pinocchio
                                 const std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > &list_of_geom_models,
                                 const std::vector<JointIndex> &list_of_joints_to_lock,
                                 const Eigen::MatrixBase<ConfigVectorType> &reference_configuration)
-  {
+    {
       typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
       std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > reduced_geom_models;
       Model reduced_model;
@@ -62,6 +62,17 @@ namespace pinocchio
                         reference_configuration, reduced_model,
                         reduced_geom_models);
       return bp::make_tuple(reduced_model, reduced_geom_models);
+    }
+  
+    bp::tuple findCommonAncestor_proxy(const context::Model & model,
+                                       const JointIndex joint1_id,
+                                       const JointIndex joint2_id)
+    {
+      size_t index_ancestor_in_support1, index_ancestor_in_support2;
+      JointIndex ancestor_id = findCommonAncestor(model,joint1_id,joint2_id,
+                                                  index_ancestor_in_support1,
+                                                  index_ancestor_in_support2);
+      return bp::make_tuple(ancestor_id,index_ancestor_in_support1,index_ancestor_in_support2);
     }
 
     void exposeModelAlgo()
@@ -140,6 +151,17 @@ namespace pinocchio
               "\tlist_of_joints_to_lock: list of joint indexes to lock\n"
               "\treference_configuration: reference configuration to compute the "
               "placement of the locked joints\n");
+      
+      bp::def("findCommonAncestor",
+              findCommonAncestor_proxy,
+              bp::args("model","joint1_id","joint2_id"),
+              "Computes the common ancestor between two joints belonging to the same kinematic tree.\n\n"
+              "Parameters:\n"
+              "\tmodel: input model\n"
+              "\tjoint1_id: index of the first joint\n"
+              "\tjoint2_id: index of the second joint\n"
+              "Returns a tuple containing the index of the common joint ancestor, the position of this ancestor in model.supports[joint1_id] and model.supports[joint2_id].\n"
+              );
     }
     
   } // namespace python

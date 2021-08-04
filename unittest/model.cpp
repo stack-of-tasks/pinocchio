@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
@@ -559,5 +559,43 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
   BOOST_CHECK(reduced_geometry_models[2] == reduced_humanoid_geometry);
 }
 #endif // PINOCCHIO_WITH_HPP_FCL
+
+BOOST_AUTO_TEST_CASE(test_findCommonAncestor)
+{
+  Model model;
+  buildModels::humanoid(model);
+  
+  {
+    size_t id_ancestor1, id_ancestor2;
+    JointIndex ancestor = findCommonAncestor(model,0,0,id_ancestor1,id_ancestor2);
+    BOOST_CHECK(ancestor == 0);
+    BOOST_CHECK(id_ancestor1 == 0);
+    BOOST_CHECK(id_ancestor2 == 0);
+  }
+  
+  {
+    size_t id_ancestor1, id_ancestor2;
+    JointIndex ancestor = findCommonAncestor(model,0,(JointIndex)(model.njoints-1),id_ancestor1,id_ancestor2);
+    BOOST_CHECK(ancestor == 0);
+    BOOST_CHECK(id_ancestor1 == 0);
+    BOOST_CHECK(id_ancestor2 == 0);
+  }
+  
+  {
+    size_t id_ancestor1, id_ancestor2;
+    JointIndex ancestor = findCommonAncestor(model,(JointIndex)(model.njoints-1),0,id_ancestor1,id_ancestor2);
+    BOOST_CHECK(ancestor == 0);
+    BOOST_CHECK(id_ancestor1 == 0);
+    BOOST_CHECK(id_ancestor2 == 0);
+  }
+  
+  {
+    size_t id_ancestor1, id_ancestor2;
+    JointIndex ancestor = findCommonAncestor(model,(JointIndex)(model.njoints-1),1,id_ancestor1,id_ancestor2);
+    BOOST_CHECK(ancestor == 1);
+    BOOST_CHECK(model.supports[(JointIndex)(model.njoints-1)][id_ancestor1] == ancestor);
+    BOOST_CHECK(model.supports[1][id_ancestor2] == ancestor);
+  }
+}
 
 BOOST_AUTO_TEST_SUITE_END()

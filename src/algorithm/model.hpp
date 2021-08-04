@@ -170,6 +170,25 @@ namespace pinocchio
       ModelTpl<Scalar, Options, JointCollectionTpl> &reduced_model,
       std::vector<GeometryModel,GeometryModelAllocator> &list_of_reduced_geom_models);
 
+
+  /**
+   *
+   *  \brief Computes the common ancestor between two joints belonging to the same kinematic tree.
+   *
+   *  \param[in] model the input model.
+   *  \param[in] joint1_id index of the first joint.
+   *  \param[in] joint2_id index of the second joint.
+   *  \param[out] index_ancestor_in_support1 index of the ancestor within model.support[joint1_id].
+   *  \param[out] index_ancestor_in_support2 index of the ancestor within model.support[joint2_id].
+   *
+  */
+  template <typename Scalar, int Options, template <typename, int> class JointCollectionTpl>
+  JointIndex findCommonAncestor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                JointIndex joint1_id,
+                                JointIndex joint2_id,
+                                size_t & index_ancestor_in_support1,
+                                size_t & index_ancestor_in_support2);
+
 } // namespace pinocchio
 
 #include "pinocchio/algorithm/model.hxx"
