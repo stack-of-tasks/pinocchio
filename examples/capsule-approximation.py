@@ -150,5 +150,5 @@ if __name__ == "__main__":
     # Example for a whole URDF model
     # This path refers to Pinocchio source code but you can define your own directory here.
     pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
-    urdf_filename = pinocchio_model_dir + "models/others/robots/ur_description/urdf/ur5_gripper.urdf"
+    urdf_filename = pinocchio_model_dir + "models/example-robot-data/robots/ur_description/urdf/ur5_gripper.urdf"
     parse_urdf(urdf_filename, "ur5_gripper_with_capsules.urdf")
