@@ -152,7 +152,7 @@ class RVizVisualizer(BaseVisualizer):
             marker = Marker()
             marker.id = obj_id
             marker.header = header
-            marker.action = Marker.ADD # == Marker.MODIFY
+            marker.action = Marker.ADD # same as Marker.MODIFY
             marker.pose = SE3ToROSPose(data.oMg[obj_id])
             marker.color = ColorRGBA(*obj.meshColor)
 
