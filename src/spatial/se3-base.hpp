@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -65,6 +65,12 @@ namespace pinocchio
     }
     operator ActionMatrixType() const { return toActionMatrix(); }
     
+    template<typename Matrix6Like>
+    void toActionMatrix(const Eigen::MatrixBase<Matrix6Like> & action_matrix) const
+    {
+      derived().toActionMatrix_impl(action_matrix);
+    }
+    
     /**
      * @brief The action matrix \f$ {}^bX_a \f$ of \f$ {}^aM_b \f$.
      * \sa toActionMatrix()
@@ -74,12 +80,24 @@ namespace pinocchio
       return derived().toActionMatrixInverse_impl();
     }
     
+    template<typename Matrix6Like>
+    void toActionMatrixInverse(const Eigen::MatrixBase<Matrix6Like> & action_matrix_inverse) const
+    {
+      derived().toActionMatrixInverse_impl(action_matrix_inverse);
+    }
+    
     ActionMatrixType toDualActionMatrix() const
     { return derived().toDualActionMatrix_impl(); }
     
     void disp(std::ostream & os) const
     {
       static_cast<const Derived*>(this)->disp_impl(os);
+    }
+    
+    template<typename Matrix6Like>
+    void toDualActionMatrix(const Eigen::MatrixBase<Matrix6Like> & dual_action_matrix) const
+    {
+      derived().toDualActionMatrix_impl(dual_action_matrix);
     }
     
     typename SE3GroupAction<Derived>::ReturnType

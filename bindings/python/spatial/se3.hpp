@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -56,6 +56,7 @@ namespace pinocchio
       typedef typename SE3::Vector3 Vector3;
       typedef typename SE3::Matrix4 Matrix4;
       typedef typename SE3::Quaternion Quaternion;
+      typedef typename SE3::ActionMatrixType ActionMatrixType;
       
       typedef MotionTpl<Scalar,Options> Motion;
       typedef ForceTpl<Scalar,Options> Force;
@@ -90,19 +91,21 @@ namespace pinocchio
         
         .add_property("homogeneous",&SE3::toHomogeneousMatrix,
                       "Returns the equivalent homegeneous matrix (acting on SE3).")
-        .add_property("action",&SE3::toActionMatrix,
+        .add_property("action",(ActionMatrixType (SE3::*)()const)&SE3::toActionMatrix,
                       "Returns the related action matrix (acting on Motion).")
-        .def("toActionMatrix",&SE3::toActionMatrix,bp::arg("self"),
-             "Returns the related action matrix (acting on Motion).")
-        .add_property("actionInverse",&SE3::toActionMatrixInverse,
+        .def("toActionMatrix",(ActionMatrixType (SE3::*)()const)&SE3::toActionMatrix,
+             bp::arg("self"),"Returns the related action matrix (acting on Motion).")
+        .add_property("actionInverse",(ActionMatrixType (SE3::*)()const)&SE3::toActionMatrixInverse,
                       "Returns the inverse of the action matrix (acting on Motion).\n"
                       "This is equivalent to do m.inverse().action")
-        .def("toActionMatrixInverse",&SE3::toActionMatrixInverse,bp::arg("self"),
+        .def("toActionMatrixInverse",(ActionMatrixType (SE3::*)()const)&SE3::toActionMatrixInverse,
+             bp::arg("self"),
              "Returns the inverse of the action matrix (acting on Motion).\n"
              "This is equivalent to do m.inverse().toActionMatrix()")
-        .add_property("dualAction",&SE3::toDualActionMatrix,
+        .add_property("dualAction",(ActionMatrixType (SE3::*)()const)&SE3::toDualActionMatrix,
                       "Returns the related dual action matrix (acting on Force).")
-        .def("toDualActionMatrix",&SE3::toDualActionMatrix,bp::arg("self"),
+        .def("toDualActionMatrix",(ActionMatrixType (SE3::*)()const)&SE3::toDualActionMatrix,
+             bp::arg("self"),
              "Returns the related dual action matrix (acting on Force).")
         
         .def("setIdentity",&SE3PythonVisitor::setIdentity,bp::arg("self"),

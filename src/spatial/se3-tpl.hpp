@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -155,10 +155,12 @@ namespace pinocchio
     }
     
     /// Vb.toVector() = bXa.toMatrix() * Va.toVector()
-    ActionMatrixType toActionMatrix_impl() const
+    template<typename Matrix6Like>
+    void toActionMatrix_impl(const Eigen::MatrixBase<Matrix6Like> & action_matrix) const
     {
-      typedef Eigen::Block<ActionMatrixType,3,3> Block3;
-      ActionMatrixType M;
+      typedef Eigen::Block<Matrix6Like,3,3> Block3;
+      
+      Matrix6Like & M = action_matrix.const_cast_derived();
       M.template block<3,3>(ANGULAR,ANGULAR)
       = M.template block<3,3>(LINEAR,LINEAR) = rot;
       M.template block<3,3>(ANGULAR,LINEAR).setZero();
@@ -167,13 +169,21 @@ namespace pinocchio
       B.col(0) = trans.cross(rot.col(0));
       B.col(1) = trans.cross(rot.col(1));
       B.col(2) = trans.cross(rot.col(2));
-      return M;
     }
     
-    ActionMatrixType toActionMatrixInverse_impl() const
+    ActionMatrixType toActionMatrix_impl() const
     {
-      typedef Eigen::Block<ActionMatrixType,3,3> Block3;
-      ActionMatrixType M;
+      ActionMatrixType res;
+      toActionMatrix_impl(res);
+      return res;
+    }
+    
+    template<typename Matrix6Like>
+    void toActionMatrixInverse_impl(const Eigen::MatrixBase<Matrix6Like> & action_matrix_inverse) const
+    {
+      typedef Eigen::Block<Matrix6Like,3,3> Block3;
+      
+      Matrix6Like & M = action_matrix_inverse.const_cast_derived();
       M.template block<3,3>(ANGULAR,ANGULAR)
       = M.template block<3,3>(LINEAR,LINEAR) = rot.transpose();
       Block3 C = M.template block<3,3>(ANGULAR,LINEAR); // used as temporary
@@ -190,13 +200,21 @@ namespace pinocchio
 #undef PINOCCHIO_INTERNAL_COMPUTATION
       
       C.setZero();
-      return M;
     }
     
-    ActionMatrixType toDualActionMatrix_impl() const
+    ActionMatrixType toActionMatrixInverse_impl() const
     {
-      typedef Eigen::Block<ActionMatrixType,3,3> Block3;
-      ActionMatrixType M;
+      ActionMatrixType res;
+      toActionMatrixInverse_impl(res);
+      return res;
+    }
+   
+    template<typename Matrix6Like>
+    void toDualActionMatrix_impl(const Eigen::MatrixBase<Matrix6Like> & dual_action_matrix) const
+    {
+      typedef Eigen::Block<Matrix6Like,3,3> Block3;
+
+      Matrix6Like & M = dual_action_matrix.const_cast_derived();
       M.template block<3,3>(ANGULAR,ANGULAR)
       = M.template block<3,3>(LINEAR,LINEAR) = rot;
       M.template block<3,3>(LINEAR,ANGULAR).setZero();
@@ -205,7 +223,13 @@ namespace pinocchio
       B.col(0) = trans.cross(rot.col(0));
       B.col(1) = trans.cross(rot.col(1));
       B.col(2) = trans.cross(rot.col(2));
-      return M;
+    }
+    
+    ActionMatrixType toDualActionMatrix_impl() const
+    {
+      ActionMatrixType res;
+      toDualActionMatrix_impl(res);
+      return res;
     }
     
     void disp_impl(std::ostream & os) const
