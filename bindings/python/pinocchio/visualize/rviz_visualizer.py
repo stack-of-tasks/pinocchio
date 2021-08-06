@@ -98,11 +98,13 @@ class RVizVisualizer(BaseVisualizer):
         self.visuals_publisher = Publisher(rootNodeName+ "_visuals", MarkerArray, queue_size=1,  latch=True)
         self.visual_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "_visuals", True)
         self.visual_Display.subProp("Marker Topic").setValue(rootNodeName + "_visuals")
+        self.visual_ids = []
 
         # Collisions
         self.collisions_publisher = Publisher(rootNodeName + "_collisions", MarkerArray, queue_size=1,  latch=True)
         self.collision_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "/" + rootNodeName + "_collisions", True)
         self.collision_Display.subProp("Marker Topic").setValue(rootNodeName + "_collisions")
+        self.collision_ids = []
 
         # Group
         root_group = self.viewer.viz_manager.getRootDisplayGroup()
@@ -127,12 +129,13 @@ class RVizVisualizer(BaseVisualizer):
             pin.forwardKinematics(self.model,self.data,q)
 
         pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
-        self.plot(self.collisions_publisher, self.collision_model, self.collision_data)
+        self.collision_ids = self.plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
 
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
-        self.plot(self.visuals_publisher, self.visual_model, self.visual_data)
+        self.visual_ids = self.plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
 
-    def plot(self, publisher, model, data):
+    def plot(self, publisher, model, data, previous_ids=[]):
+        """ Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
         from rospy import get_rostime
         from std_msgs.msg import Header, ColorRGBA
         from geometry_msgs.msg import Point
@@ -189,7 +192,21 @@ class RVizVisualizer(BaseVisualizer):
                 marker.mesh_resource = 'file://' + obj.meshPath
                 marker_array.markers.append(marker)
 
+        # Remove unused markers
+        new_ids = [marker.id for marker in marker_array.markers]
+        for old_id in previous_ids:
+            if not old_id in new_ids:
+                marker_remove = Marker()
+                marker_remove.header = header
+                marker_remove.id = old_id
+                marker_remove.action = Marker.DELETE
+                marker_array.markers.append(marker_remove)
+
+        # Publish markers
         publisher.publish(marker_array)
+
+        # Return list of markers id
+        return new_ids
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not"""
