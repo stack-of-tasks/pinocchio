@@ -8,7 +8,7 @@ import warnings
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
-except:
+except ImportError:
     WITH_HPP_FCL_BINDINGS = False
 
 def create_capsule_markers(marker_ref, oMg, d, l):
@@ -134,7 +134,7 @@ class RVizVisualizer(BaseVisualizer):
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         self.visual_ids = self.plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
 
-    def plot(self, publisher, model, data, previous_ids=[]):
+    def plot(self, publisher, model, data, previous_ids=()):
         """ Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
         from rospy import get_rostime
         from std_msgs.msg import Header, ColorRGBA
