@@ -30,9 +30,9 @@ int main()
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
   
-  std::string romeo_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  std::string romeo_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > package_dirs;
-  std::string romeo_meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots");
+  std::string romeo_meshDir = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots");
   package_dirs.push_back(romeo_meshDir);
 
   pinocchio::Model model;

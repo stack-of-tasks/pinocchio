@@ -9,7 +9,7 @@ import sys
 from os.path import dirname, join, abspath
 
 # add path to the example-robot-data package
-path = join(dirname(dirname(abspath(__file__))), 'models', 'others', 'python')
+path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
 sys.path.append(path)
 from example_robot_data import loadTalos
 
