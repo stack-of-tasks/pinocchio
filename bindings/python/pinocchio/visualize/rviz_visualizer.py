@@ -11,6 +11,44 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+def create_capsule_markers(marker_ref, oMg, d, l):
+    """ Make capsule using two sphere and one cylinder"""
+    from copy import deepcopy
+    from visualization_msgs.msg import Marker
+    from geometry_msgs.msg import Point
+    displacment = pin.SE3.Identity()
+
+    displacment.translation[2] = l/2.
+    oMsphere_1 = oMg * displacment
+    displacment.translation[2] = -l/2.
+    oMsphere_2 = oMg * displacment
+
+    marker_cylinder = marker_ref
+    marker_cylinder.type = Marker.CYLINDER
+    marker_cylinder.scale = Point(d,d,l)
+    marker_cylinder.pose = SE3ToROSPose(oMg)
+
+    marker_sphere_1 = deepcopy(marker_ref)
+    marker_sphere_1.id += 10000 # How to ensure this id is not taken ?
+    marker_sphere_1.type = Marker.SPHERE
+    marker_sphere_1.scale = Point(d,d,d)
+    marker_sphere_1.pose = SE3ToROSPose(oMsphere_1)
+
+    marker_sphere_2 = deepcopy(marker_ref)
+    marker_sphere_2.id += 20000 # How to ensure this id is not taken ?
+    marker_sphere_2.type = Marker.SPHERE
+    marker_sphere_2.scale = Point(d,d,d)
+    marker_sphere_2.pose = SE3ToROSPose(oMsphere_2)
+
+    return [marker_cylinder, marker_sphere_1, marker_sphere_2]
+
+def SE3ToROSPose(oMg):
+    """Converts SE3 matrix to ROS geometry_msgs/Pose format"""
+    from geometry_msgs.msg import Pose, Point, Quaternion
+
+    xyz_quat = pin.SE3ToXYZQUATtuple(oMg)
+    return Pose(position=Point(*xyz_quat[:3]), orientation=Quaternion(*xyz_quat[3:]))
+
 class RVizVisualizer(BaseVisualizer):
     """A Pinocchio display using RViz"""
     class Viewer:
@@ -76,6 +114,7 @@ class RVizVisualizer(BaseVisualizer):
         self.display()
 
     def clean(self):
+        """ Delete all the objects from the whole scene """
         self.viewer.app.quit()
         self.viewer.app = None
         self.viewer.viz = None
@@ -96,7 +135,7 @@ class RVizVisualizer(BaseVisualizer):
     def plot(self, publisher, model, data):
         from rospy import get_rostime
         from std_msgs.msg import Header, ColorRGBA
-        from geometry_msgs.msg import Pose, Point, Quaternion
+        from geometry_msgs.msg import Point
         from visualization_msgs.msg import MarkerArray, Marker
 
         self.seq +=1
@@ -105,17 +144,19 @@ class RVizVisualizer(BaseVisualizer):
         marker_array = MarkerArray()
         for obj in model.geometryObjects:
             obj_id = model.getGeometryId(obj.name)
-            obj_pose = pin.SE3ToXYZQUATtuple(data.oMg[obj_id])
+
+            # Prepare marker
             marker = Marker()
             marker.id = obj_id
             marker.header = header
-            marker.action = Marker.ADD # Add/modify
-            marker.pose = Pose(position=Point(*obj_pose[:3]), orientation=Quaternion(*obj_pose[3:]))
+            marker.action = Marker.ADD # == Marker.MODIFY
+            marker.pose = SE3ToROSPose(data.oMg[obj_id])
             marker.color = ColorRGBA(*obj.meshColor)
 
             if obj.meshTexturePath != "":
                 warnings.warn("Textures are not supported in RVizVisualizer (for " + obj.name + ")", category=UserWarning, stacklevel=2)
 
+            # Create geometry
             geom = obj.geometry
             if WITH_HPP_FCL_BINDINGS and isinstance(geom, hppfcl.ShapeBase):
                 # append a primitive geometry
@@ -123,14 +164,20 @@ class RVizVisualizer(BaseVisualizer):
                     d, l = 2*geom.radius, 2*geom.halfLength
                     marker.type = Marker.CYLINDER
                     marker.scale = Point(d,d,l)
+                    marker_array.markers.append(marker)
                 elif isinstance(geom, hppfcl.Box):
                     size = npToTuple(2.*geom.halfSide)
                     marker.type = Marker.CUBE
                     marker.scale = Point(*size)
+                    marker_array.markers.append(marker)
                 elif isinstance(geom, hppfcl.Sphere):
                     d = 2*geom.radius
                     marker.type = Marker.SPHERE
                     marker.scale = Point(d, d, d)
+                    marker_array.markers.append(marker)
+                elif isinstance(geom, hppfcl.Capsule):
+                    d, l = 2*geom.radius, 2 * geom.halfLength
+                    marker_array.markers.extend(create_capsule_markers(marker, data.oMg[obj_id], d, l))
                 else:
                     msg = "Unsupported geometry type for %s (%s)" % (obj.name, type(geom))
                     warnings.warn(msg, category=UserWarning, stacklevel=2)
@@ -140,8 +187,7 @@ class RVizVisualizer(BaseVisualizer):
                 marker.type = Marker.MESH_RESOURCE # Custom mesh
                 marker.scale = Point(*npToTuple(obj.meshScale))
                 marker.mesh_resource = 'file://' + obj.meshPath
-
-            marker_array.markers.append(marker)
+                marker_array.markers.append(marker)
 
         publisher.publish(marker_array)
 
