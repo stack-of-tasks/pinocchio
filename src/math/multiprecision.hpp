@@ -106,7 +106,7 @@ namespace Eigen
     template <bool B>
     static int digits10_imp(const boost::mpl::bool_<B>&)
     {
-      return Real::default_precision();
+      return static_cast<int>(Real::default_precision());
     }
     static int digits10()
     {
