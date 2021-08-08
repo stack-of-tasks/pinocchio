@@ -28,7 +28,12 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
 
 <p align="center">
-conda install pinocchio -c conda-forge
+<strong> conda install pinocchio -c conda-forge </strong>
+</p>
+
+or via pip (currently only available on Linux):
+<p align="center">
+<strong> pip install pin </strong>
 </p>
 
 ## Pinocchio main features
