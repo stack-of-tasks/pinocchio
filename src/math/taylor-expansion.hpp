@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 INRIA
+// Copyright (c) 2018-2021 INRIA
 //
 
 #ifndef __pinocchio_math_taylor_expansion_hpp__
@@ -31,6 +31,11 @@ namespace pinocchio
     {
       static Scalar value = math::pow(std::numeric_limits<Scalar>::epsilon(),Scalar(1)/Scalar(degree+1));
       return value;
+    }
+    
+    static Scalar precision(const int degree)
+    {
+      return math::pow(std::numeric_limits<Scalar>::epsilon(),Scalar(1)/Scalar(degree+1));
     }
   }; // struct TaylorSeriesExpansion
 
