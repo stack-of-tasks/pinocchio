@@ -50,10 +50,10 @@ class Visual(object):
         l2 = c2.length
         r2 = c2.radius
 
-        a1 = M1.act(np.array([0, 0, -l1 / 2]).T)
-        b1 = M2.act(np.array([0, 0, -l2 / 2]).T)
-        a2 = M1.act(np.array([0, 0, +l1 / 2]).T)
-        b2 = M2.act(np.array([0, 0, +l2 / 2]).T)
+        a1 = M1.act(np.array([0, 0, -l1 / 2]))
+        b1 = M2.act(np.array([0, 0, -l2 / 2]))
+        a2 = M1.act(np.array([0, 0, +l1 / 2]))
+        b2 = M2.act(np.array([0, 0, +l2 / 2]))
         
         ab = pinv((np.hstack((a1 - a2, b2 - b1))).reshape(3, 2)) * (b2 - a2)
 
