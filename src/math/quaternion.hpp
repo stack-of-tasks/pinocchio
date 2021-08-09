@@ -41,7 +41,7 @@ namespace pinocchio
       static const Scalar PI_value = PI<Scalar>();
 
       theta = internal::if_then_else(internal::LT, innerprod, Scalar(0),
-                                     PI_value - theta,
+                                     static_cast<Scalar>(PI_value - theta),
                                      theta);
       return theta;
     }
@@ -209,7 +209,7 @@ namespace pinocchio
     void assignQuaternion(Eigen::QuaternionBase<D> & quat,
                           const Eigen::MatrixBase<Matrix3> & R)
     {
-      internal::quaternionbase_assign_impl<typename Matrix3::Scalar>::run(PINOCCHIO_EIGEN_CONST_CAST(D,quat),
+      internal::quaternionbase_assign_impl<typename Matrix3::Scalar>::run(quat.derived(),
                                                                           R.derived());
     }
 
@@ -262,14 +262,14 @@ namespace pinocchio
       using namespace pinocchio::internal;
       
       const Scalar scale0 = if_then_else(pinocchio::internal::GE,absD,one,
-                                         Scalar(1) - u, // then
-                                         sin( ( Scalar(1) - u ) * theta) / sinTheta // else
+                                         static_cast<Scalar>(Scalar(1) - u), // then
+                                         static_cast<Scalar>(sin( ( Scalar(1) - u ) * theta) / sinTheta) // else
                                          );
       
       const Scalar scale1_factor = if_then_else(pinocchio::internal::LT,d,Scalar(0),Scalar(-1),Scalar(1));
       const Scalar scale1 = if_then_else(pinocchio::internal::GE,absD,one,
                                          u, // then
-                                         sin( ( u * theta) ) / sinTheta // else
+                                         static_cast<Scalar>(sin( ( u * theta) ) / sinTheta) // else
                                          ) * scale1_factor;
 
       PINOCCHIO_EIGEN_CONST_CAST(QuaternionOut,res.derived()).coeffs() = scale0 * quat0.coeffs() + scale1 * quat1.coeffs();
