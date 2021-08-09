@@ -83,7 +83,7 @@ namespace pinocchio
     template<typename Matrix6Like>
     void toActionMatrixInverse(const Eigen::MatrixBase<Matrix6Like> & action_matrix_inverse) const
     {
-      derived().toActionMatrixInverse_impl(action_matrix_inverse);
+      derived().toActionMatrixInverse_impl(action_matrix_inverse.const_cast_derived());
     }
     
     ActionMatrixType toDualActionMatrix() const
