@@ -167,16 +167,17 @@ namespace pinocchio
       const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm();
       
       Scalar theta;
+      const Scalar tr = R.trace();
       const Vector3 w(log3(R,theta)); // t in [0,π]
       const Scalar & t2 = norm_antisymmetric_R_squared;
 
       Scalar st,ct; SINCOS(theta,&st,&ct);
-      const Scalar alpha = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+      const Scalar alpha = if_then_else(GE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
                                         static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
                                         static_cast<Scalar>(theta*st/(Scalar(2)*(Scalar(1)-ct))) // else
                                         );
       
-      const Scalar beta = if_then_else(LT,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+      const Scalar beta = if_then_else(GE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
                                        static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
                                        static_cast<Scalar>(Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
                                        );
