@@ -18,6 +18,7 @@ namespace pinocchio
     {
       typedef typename Matrix3::Scalar Scalar;
       
+
       static const long i1 = (i0+1) % 3;
       static const long i2 = (i0+2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
@@ -49,18 +50,19 @@ namespace pinocchio
 
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
+      static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
     
       const static Scalar PI_value = PI<Scalar>();
       Vector3Out & angle_axis_ = angle_axis.const_cast_derived();
     
       const Scalar tr = R.trace();
       const Scalar cos_value = (tr - Scalar(1))/Scalar(2);
-      const Scalar theta_nominal = if_then_else(LE,tr,Scalar(3),
+      const Scalar theta_nominal = if_then_else(LE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
                                                 if_then_else(GE,tr,Scalar(-1),
                                                              math::acos(cos_value), // then
                                                              PI_value // else
                                                              ),
-                                                Scalar(0) // else
+                                                math::sqrt(2*(1 - cos_value) + eps*eps) // else
                                                 );
       assert(check_expression_if_real<Scalar>(theta_nominal == theta_nominal) && "theta contains some NaN"); // theta != NaN
       
