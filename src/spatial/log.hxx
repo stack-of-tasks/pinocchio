@@ -58,9 +58,9 @@ namespace pinocchio
       const Scalar tr = R.trace();
       const Scalar cos_value = (tr - Scalar(1))/Scalar(2);
       const Scalar theta_nominal = if_then_else(LE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                                if_then_else(GE,tr,Scalar(-1),
+                                                if_then_else(GE,tr,Scalar(-1) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
                                                              math::acos(cos_value), // then
-                                                             PI_value // else
+                                                             PI_value + math::sqrt(2*(1 - cos_value) + eps*eps) // else
                                                              ),
                                                 math::sqrt(2*(1 - cos_value) + eps*eps) // else
                                                 );
