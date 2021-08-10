@@ -18,7 +18,7 @@ namespace pinocchio
     {
       typedef typename Matrix3::Scalar Scalar;
       static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-
+      
       static const long i1 = (i0+1) % 3;
       static const long i2 = (i0+2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
