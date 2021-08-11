@@ -28,15 +28,17 @@ class TestLogExpDerivatives(TestCase):
 
   def test_exp3(self):
     """Test the exp map and its derivative."""
-    exp_expr = self.cR0_i @ cpin.exp3(self.w)
-    exp_eval = casadi.Function("exp", [self.cR0, self.w],
-                                [casadi.substitute(exp_expr, self.dv0, np.zeros(3))])
+    dw = SX.sym("dw", 3)  # for forming the difference
+    exp_expr = self.cR0_i @ cpin.exp3(self.w + dw)
+    repl_dargs = lambda e: casadi.substitute(e, casadi.vertcat(self.dv0, dw), np.zeros(6))
 
-    diff_expr = cpin.log3(self.cR0.T @ exp_expr)
-    Jexp_expr = casadi.jacobian(diff_expr, casadi.vertcat(self.dv0, self.w))
-    Jexp_eval = casadi.Function("exp", [self.cR0, self.w],
-                                [casadi.substitute(Jexp_expr, self.dv0, np.zeros(3))])
+    exp_eval = casadi.Function("exp", [self.cR0, self.w], [repl_dargs(exp_expr)])
 
+    diff_expr = cpin.log3(exp_eval(self.cR0, self.w).T @ exp_expr)
+    Jexp_expr = casadi.jacobian(diff_expr, casadi.vertcat(self.dv0, dw))
+    Jexp_eval = casadi.Function("exp", [self.cR0, self.w], [repl_dargs(Jexp_expr)])
+
+    np.random.seed(3)
     R0 = np.eye(3)
     w1 = np.random.randn(3)
     w2 = np.array([np.pi, 0, 0])
@@ -48,12 +50,22 @@ class TestLogExpDerivatives(TestCase):
     self.assertApprox(exp_eval(R1, -w1).full(), R0)
     self.assertApprox(exp_eval(R0, w2).full(), R2)
 
-    J0 = pin.Jexp3(np.zeros(3))
+    w0 = np.zeros(3)
+    J0 = pin.Jexp3(w0)
     J1 = pin.Jexp3(w1)
     J2 = pin.Jexp3(w2)
-    # self.assertApprox(Jexp_eval(R0, np.zeros(3)).full(), np.hstack([R0 @ J0, J0]))
-    # self.assertApprox(Jexp_eval(R0, w2).full(), np.hstack([R0 @ J2, np.eye(3)]))
-    # self.assertApprox(Jexp_eval(R2, np.zeros(3)).full(), np.hstack([R2 @ J2, np.eye(3)]))
+    # print(J0)
+    # print(Jexp_eval(R0, np.zeros(3)))
+    # print(J1)
+    # print(Jexp_eval(R0, w1))
+    # print("R1:", R1)
+    # print(Jexp_eval(R1, w1))
+    # print(Jexp_eval(R2, w1))
+    self.assertApprox(Jexp_eval(R0, w0).full(), np.hstack([np.eye(3), J0]))
+    self.assertApprox(Jexp_eval(R1, w0).full(), np.hstack([np.eye(3), J0]))
+    self.assertApprox(Jexp_eval(R0, w1).full(), np.hstack([R1.T, J1]))
+    self.assertApprox(Jexp_eval(R1, w2).full(), np.hstack([R2.T, J2]))
+    self.assertApprox(Jexp_eval(R0, w2).full(), np.hstack([R2.T, J2]))
 
 
   def test_log3(self):
@@ -70,10 +82,10 @@ class TestLogExpDerivatives(TestCase):
     R1 = pin.exp3(vr)
     R2 = pin.exp3(np.array([np.pi, 0, 0]))
 
-    self.assertApprox(log_eval(R0, R0).full(), np.zeros(3))
-    self.assertApprox(log_eval(R0, R1).full(), vr)
-    self.assertApprox(log_eval(R1, R1).full(), np.zeros(3))
-    self.assertApprox(log_eval(R0, R2).full(), np.array([np.pi, 0, 0]))
+    self.assertApprox(log_eval(R0, R0).full().squeeze(), np.zeros(3))
+    self.assertApprox(log_eval(R0, R1).full().squeeze(), vr)
+    self.assertApprox(log_eval(R1, R1).full().squeeze(), np.zeros(3))
+    self.assertApprox(log_eval(R0, R2).full().squeeze(), np.array([np.pi, 0, 0]))
 
     jac_identity = np.hstack([-np.eye(3), np.eye(3)])
     self.assertApprox(Jlog_eval(R0, R0).full(), jac_identity)
