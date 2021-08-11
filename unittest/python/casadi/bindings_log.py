@@ -49,7 +49,6 @@ class TestLogExpDerivatives(TestCase):
     Jexp_expr = casadi.jacobian(diff_expr, casadi.vertcat(self.dv0, dw))
     Jexp_eval = casadi.Function("exp", [self.cR0, self.cv2], [repl_dargs(Jexp_expr)])
 
-    np.random.seed(3)
     w0 = np.zeros(3)
     w1 = np.random.randn(3)
     w2 = np.array([np.pi, 0, 0])
@@ -101,12 +100,12 @@ class TestLogExpDerivatives(TestCase):
     self.assertApprox(log_eval(R1, R1).full().squeeze(), np.zeros(3))
     self.assertApprox(log_eval(R0, R2).full().squeeze(), np.array([np.pi, 0, 0]))
 
-    jac_identity = np.hstack([-np.eye(3), np.eye(3)])
+    J0 = pin.Jlog3(R0)
+    jac_identity = np.hstack([-J0, J0])
     self.assertApprox(Jlog_eval(R0, R0).full(), jac_identity)
 
-    J_1 = pin.Jlog3(R1)
-    J_0 = -R1.T @ J_1
-    self.assertApprox(Jlog_eval(R0, R1).full(), np.hstack([J_0, J_1]))
+    J1 = pin.Jlog3(R1)
+    self.assertApprox(Jlog_eval(R0, R1).full(), np.hstack([-R1.T @ J1, J1]))
 
   def test_exp6(self):
     exp_expr = cpin.exp6(self.cw2 + self.cdw2)
@@ -141,6 +140,33 @@ class TestLogExpDerivatives(TestCase):
     J2 = pin.Jexp6(w2)
     self.assertApprox(Jexp_eval(w2).full(), J2)
 
+  def test_log6(self):
+    log_expr = cpin.log6(self.cM0_i.actInv(self.cM1_i))
+    
+    repl_dargs = lambda e: casadi.substitute(e, casadi.vertcat(self.cdw0, self.cdw1), np.zeros(12))
+    log_eval = casadi.Function("log6", [self.cM0, self.cM1], [repl_dargs(log_expr.np)])
+
+    Jlog_expr = casadi.jacobian(log_expr.np, casadi.vertcat(self.cdw0, self.cdw1))
+    Jlog_eval = casadi.Function("Jlog6", [self.cM0, self.cM1], [repl_dargs(Jlog_expr)])
+
+    w0 = np.zeros(6)
+    M0 = pin.exp6(np.zeros(6))
+    w1 = np.array([0, 0, 0, np.pi, 0., 0.])
+    M1 = pin.exp6(w1)
+    w2 = np.random.randn(6)
+    M2 = pin.exp6(w2)
+
+    self.assertApprox(log_eval(M0.np, M0.np).full(), w0)
+    self.assertApprox(log_eval(M1.np, M1.np).full(), w0)
+    self.assertApprox(log_eval(M0.np, M1.np).full(), w1)
+    self.assertApprox(log_eval(M0.np, M2.np).full(), w2)
+
+    J0 = pin.Jlog6(M0)
+    J1 = pin.Jlog6(M1)
+    J2 = pin.Jlog6(M2)
+    self.assertApprox(Jlog_eval(M0.np, M0.np).full(), np.hstack([-J0, J0]))
+    self.assertApprox(Jlog_eval(M0.np, M1.np).full(), np.hstack([-M1.dualAction.T@J1, J1]))
+    self.assertApprox(Jlog_eval(M0.np, M2.np).full(), np.hstack([-M2.dualAction.T@J2, J2]))
 
 if __name__ == '__main__':
   unittest.main()
