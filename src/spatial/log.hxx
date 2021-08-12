@@ -57,12 +57,12 @@ namespace pinocchio
     
       const Scalar tr = R.trace();
       const Scalar cos_value = (tr - Scalar(1))/Scalar(2);
-      const Scalar theta_nominal = if_then_else(LE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
-                                                if_then_else(GE,tr,Scalar(-1) + TaylorSeriesExpansion<Scalar>::template precision<2>(),
+      const Scalar theta_nominal = if_then_else(LE,tr,static_cast<Scalar>(Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>()),
+                                                if_then_else(GE,tr,static_cast<Scalar>(Scalar(-1) + TaylorSeriesExpansion<Scalar>::template precision<2>()),
                                                              math::acos(cos_value), // then
-                                                             PI_value + math::sqrt(2*(1 - cos_value) + eps*eps) // else
+                                                             static_cast<Scalar>(PI_value + math::sqrt(2*(1 - cos_value) + eps*eps)) // else
                                                              ),
-                                                math::sqrt(2*(1 - cos_value) + eps*eps) // else
+                                                static_cast<Scalar>(math::sqrt(2*(1 - cos_value) + eps*eps)) // else
                                                 );
       assert(check_expression_if_real<Scalar>(theta_nominal == theta_nominal) && "theta contains some NaN"); // theta != NaN
       
@@ -172,12 +172,12 @@ namespace pinocchio
       const Scalar & t2 = norm_antisymmetric_R_squared;
 
       Scalar st,ct; SINCOS(theta,&st,&ct);
-      const Scalar alpha = if_then_else(GE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
+      const Scalar alpha = if_then_else(GE,tr,static_cast<Scalar>(Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>()),
                                         static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
                                         static_cast<Scalar>(theta*st/(Scalar(2)*(Scalar(1)-ct))) // else
                                         );
       
-      const Scalar beta = if_then_else(GE,tr,Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>(),
+      const Scalar beta = if_then_else(GE,tr,static_cast<Scalar>(Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>()),
                                        static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
                                        static_cast<Scalar>(Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
                                        );
