@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -9,8 +9,6 @@ namespace pinocchio
 {
   namespace python
   {
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isNormalized_overload,isNormalized,2,3)
 
     static context::VectorXs normalize_proxy(const context::Model & model,
                                              const context::VectorXs & config)
@@ -203,6 +201,8 @@ namespace pinocchio
               "\tq: a joint configuration vector to normalize (size model.nq)\n");
       
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
+      
+      static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
       bp::def("isSameConfiguration",
               &isSameConfiguration<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2","prec"),
@@ -215,14 +215,12 @@ namespace pinocchio
 
         bp::def("isNormalized",
                 &isNormalized<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
-                isNormalized_overload(
-                        bp::args("model","q","prec"),
-                        "Check whether a configuration vector is normalized within the given precision provided by prec.\n\n"
-                        "Parameters:\n"
-                        "\tmodel: model of the kinematic tree\n"
-                        "\tq: a joint configuration vector (size model.nq)\n"
-                        "\tprec: requested accuracy for the check\n"
-                ));
+                (bp::arg("model"),bp::arg("q"),bp::arg("prec") = dummy_precision),
+                "Check whether a configuration vector is normalized within the given precision provided by prec.\n\n"
+                "Parameters:\n"
+                "\tmodel: model of the kinematic tree\n"
+                "\tq: a joint configuration vector (size model.nq)\n"
+                "\tprec: requested accuracy for the check\n");
 #endif
     }
     

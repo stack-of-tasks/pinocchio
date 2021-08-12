@@ -114,9 +114,9 @@ namespace pinocchio
              "Enable or disable collision for the given geometry given by its geometry id with all the other geometries registered in the list of collision pairs.")
         .def("setActiveCollisionPairs",
              &GeometryData::setActiveCollisionPairs,
-             setActiveCollisionPairs_overload(bp::args("self","geometry_model","collision_map","upper"),
-                                              "Set the collision pair association from a given input array.\n"
-                                              "Each entry of the input matrix defines the activation of a given collision pair."))
+             (bp::arg("self"),bp::arg("geometry_model"),bp::arg("collision_map"),bp::arg("upper")=true),
+             "Set the collision pair association from a given input array.\n"
+             "Each entry of the input matrix defines the activation of a given collision pair.")
         .def("deactivateCollisionPair",
              &GeometryData::deactivateCollisionPair,
              bp::args("self","pair_id"),
@@ -128,8 +128,8 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL
         .def("setSecurityMargins",
              &GeometryData::setSecurityMargins,
-             setSecurityMargins_overload(bp::args("self","geometry_model","security_margin_map","upper"),
-                                         "Set the security margin of all the collision request in a row, according to the values stored in the associative map."))
+             (bp::arg("self"),bp::arg("geometry_model"),bp::arg("security_margin_map"),bp::arg("upper")=true),
+             "Set the security margin of all the collision request in a row, according to the values stored in the associative map.")
 #endif // PINOCCHIO_WITH_HPP_FCL
         
         .def(bp::self == bp::self)
@@ -155,11 +155,6 @@ namespace pinocchio
         }
      
       }
-      
-    protected:
-      
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setActiveCollisionPairs_overload,GeometryData::setActiveCollisionPairs,2,3)
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setSecurityMargins_overload,GeometryData::setSecurityMargins,2,3)
 
     };
     

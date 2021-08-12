@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 CNRS INRIA
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -25,25 +25,20 @@ namespace pinocchio
                                                    context::Data & data,
                                                    const RigidContactModelVector & contact_models,
                                                    RigidContactDataVector & contact_datas,
-                                                   const context::Scalar & r_coeff =0.0,
-                                                   const context::Scalar & mu = 0.0)
+                                                   const context::Scalar & r_coeff = context::Scalar(0),
+                                                   const context::Scalar & mu = context::Scalar(0))
       {
         computeImpulseDynamicsDerivatives(model, data, contact_models,
                                           contact_datas, r_coeff, mu);
         return;
       }
     
-      BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamicsDerivatives_overloads,
-                                      impulseDynamicsDerivatives_proxy, 4, 6)
-    
-    
       void exposeImpulseDynamicsDerivatives()
       {
-        bp::def("computeImpulseDynamicsDerivatives",
-                impulseDynamicsDerivatives_proxy,
-                impulseDynamicsDerivatives_overloads(bp::args("model","data","contact_models","contact_datas","r_coeff","mu"),
-                                          "Computes the impulse dynamics derivatives with contact constraints according to a given list of Contact information.\n"
-                                          "impulseDynamics should have been called before."));
+        bp::def("computeImpulseDynamicsDerivatives",impulseDynamicsDerivatives_proxy,
+                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff") = 0,bp::arg("mu") = 0),
+                 "Computes the impulse dynamics derivatives with contact constraints according to a given list of Contact information.\n"
+                 "impulseDynamics should have been called before.");
       }
     }
 }

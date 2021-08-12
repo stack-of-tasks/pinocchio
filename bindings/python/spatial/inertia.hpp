@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -24,30 +24,10 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-      
-    template<typename T> struct call;
-      
-    template<typename Scalar, int Options>
-    struct call< InertiaTpl<Scalar,Options> >
-    {
-      typedef InertiaTpl<Scalar,Options> Inertia;
-      
-      static bool isApprox(const Inertia & self, const Inertia & other,
-                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        return self.isApprox(other,prec);
-      }
-      
-      static bool isZero(const Inertia & self,
-                         const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        return self.isZero(prec);
-      }
-    };
 
     template<typename Inertia>
     struct InertiaPythonVisitor
-      : public boost::python::def_visitor< InertiaPythonVisitor<Inertia> >
+    : public boost::python::def_visitor< InertiaPythonVisitor<Inertia> >
     {
       enum { Options = Inertia::Options };
       typedef typename Inertia::Scalar Scalar;
@@ -60,14 +40,13 @@ namespace pinocchio
       typedef MotionTpl<Scalar,Options> Motion;
       typedef ForceTpl<Scalar,Options> Force;
       
-      BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxInertia_overload,call<Inertia>::isApprox,2,3)
-      BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Inertia>::isZero,1,2)
-      
     public:
 
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
+        static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
+        
         cl
         .def("__init__",
              bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
@@ -132,15 +111,13 @@ namespace pinocchio
 #endif
        
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
-        .def("isApprox",
-             call<Inertia>::isApprox,
-             isApproxInertia_overload(bp::args("self","other","prec"),
-                                      "Returns true if *this is approximately equal to other, within the precision given by prec."))
+        .def("isApprox",&Inertia::isApprox,
+             (bp::arg("self"),bp::arg("other"),bp::arg("prec") = dummy_precision),
+              "Returns true if *this is approximately equal to other, within the precision given by prec.")
                                                                                                                          
-        .def("isZero",
-             call<Inertia>::isZero,
-             isZero_overload(bp::args("self","prec"),
-                             "Returns true if *this is approximately equal to the zero Inertia, within the precision given by prec."))
+        .def("isZero",&Inertia::isZero,
+             (bp::arg("self"),bp::arg("prec") = dummy_precision),
+             "Returns true if *this is approximately equal to the zero Inertia, within the precision given by prec.")
 #endif
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")

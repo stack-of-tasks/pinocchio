@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 CNRS INRIA
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -33,17 +33,13 @@ namespace pinocchio
         return impulseDynamics(model, data, q, v, contact_models, contact_datas, r_coeff, mu);
       }
     
-      BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 6, 8)
-    
-    
       void exposeImpulseDynamics()
       {
-        bp::def("impulseDynamics",
-                impulseDynamics_proxy,
-                impulseDynamics_overloads(bp::args("model","data","q","v","contact_models","contact_datas","r_coeff","mu"),
-                                          "Computes the impulse dynamics with contact constraints according to a given list of Contact information.\n"
-                                          "When using impulseDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
-                                          "This function returns the after-impulse velocity of the system. The impulses acting on the contacts are stored in the list data.contact_forces."));
+        bp::def("impulseDynamics",impulseDynamics_proxy,
+                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff") = 0,bp::arg("mu") = 0),
+                 "Computes the impulse dynamics with contact constraints according to a given list of Contact information.\n"
+                 "When using impulseDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
+                 "This function returns the after-impulse velocity of the system. The impulses acting on the contacts are stored in the list data.contact_forces.");
       }
     }
 }

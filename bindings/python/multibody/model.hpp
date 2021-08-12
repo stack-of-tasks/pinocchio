@@ -96,10 +96,6 @@ namespace pinocchio
       
       typedef typename Model::VectorXs VectorXs;
       
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(getFrameId_overload,Model::getFrameId,1,2)
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(existFrame_overload,Model::existFrame,1,2)
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addJointFrame_overload,Model::addJointFrame,1,2)
-      
     protected:
       
       struct addJointVisitor0
@@ -199,8 +195,7 @@ namespace pinocchio
           return m_model.addJoint(m_parent_id,jmodel,m_joint_placement,m_joint_name,m_max_effort,m_max_velocity,m_min_config,m_max_config,m_friction,m_damping);
         }
       }; // struct addJointVisitor1
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addFrame_overload,Model::addFrame,1,2)
-      
+
     public:
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -282,9 +277,9 @@ namespace pinocchio
              "This signature also takes as input effort, velocity limits as well as the bounds on the joint configuration.\n"
              "The user should also provide the friction and damping related to the joint.")
         .def("addJointFrame", &Model::addJointFrame,
-             addJointFrame_overload(bp::args("self","joint_id", "frame_id"),
-                                    "Add the joint provided by its joint_id as a frame to the frame tree.\n"
-                                    "The frame_id may be optionally provided."))
+             (bp::arg("self"),bp::arg("joint_id"),bp::arg("frame_id") = 0),
+              "Add the joint provided by its joint_id as a frame to the frame tree.\n"
+              "The frame_id may be optionally provided.")
         .def("appendBodyToJoint",&Model::appendBodyToJoint,
              bp::args("self","joint_id","body_inertia","body_placement"),
              "Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
@@ -295,14 +290,19 @@ namespace pinocchio
         .def("getJointId",&Model::getJointId, bp::args("self","name"), "Return the index of a joint given by its name")
         .def("existJointName", &Model::existJointName, bp::args("self","name"), "Check if a joint given by its name exists")
         
-        .def("getFrameId",&Model::getFrameId,getFrameId_overload(bp::args("self","name","type"),"Returns the index of the frame given by its name and its type. If the frame is not in the frames vector, it returns the current size of the frames vector."))
+        .def("getFrameId",&Model::getFrameId,
+             (bp::arg("self"),bp::arg("name"),bp::arg("type")=(FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )),
+             "Returns the index of the frame given by its name and its type."
+             "If the frame is not in the frames vector, it returns the current size of the frames vector.")
         
-        .def("existFrame",&Model::existFrame,existFrame_overload(bp::args("self","name","type"),"Returns true if the frame given by its name exists inside the Model with the given type."))
+        .def("existFrame",&Model::existFrame,
+             (bp::arg("self"),bp::arg("name"),bp::arg("type")=(FrameType) (JOINT | FIXED_JOINT | BODY | OP_FRAME | SENSOR )),
+             "Returns true if the frame given by its name exists inside the Model with the given type.")
         
         .def("addFrame",&Model::addFrame,
-             addFrame_overload((bp::arg("self"), bp::arg("frame"), bp::arg("append_inertia") = true),
-                               "Add a frame to the vector of frames. If append_inertia set to True, "
-                               "the inertia value contained in frame will be added to the inertia supported by the parent joint."))
+             (bp::arg("self"), bp::arg("frame"), bp::arg("append_inertia") = true),
+              "Add a frame to the vector of frames. If append_inertia set to True, "
+              "the inertia value contained in frame will be added to the inertia supported by the parent joint.")
         
         .def("createData",
              &ModelPythonVisitor::createData,bp::arg("self"),

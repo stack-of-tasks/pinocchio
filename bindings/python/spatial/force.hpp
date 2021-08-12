@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -45,9 +45,6 @@ namespace pinocchio
       }
     };
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxForce_overload,call<Force>::isApprox,2,3)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isZero_overload,call<Force>::isZero,1,2)
-
     template<typename Force>
     struct ForcePythonVisitor
     : public boost::python::def_visitor< ForcePythonVisitor<Force> >
@@ -64,6 +61,8 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
+        static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
+        
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<Vector3,Vector3>
@@ -120,15 +119,13 @@ namespace pinocchio
         .def(bp::self / Scalar())
         
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
-        .def("isApprox",
-             &call<Force>::isApprox,
-             isApproxForce_overload(bp::args("self","other","prec"),
-                                     "Returns true if *this is approximately equal to other, within the precision given by prec."))
+        .def("isApprox",&call<Force>::isApprox,
+             (bp::arg("self"),bp::arg("other"),bp::arg("prec") = dummy_precision),
+             "Returns true if *this is approximately equal to other, within the precision given by prec.")
                                                                                            
-        .def("isZero",
-             &call<Force>::isZero,
-             isZero_overload(bp::args("self","prec"),
-                             "Returns true if *this is approximately equal to the zero Force, within the precision given by prec."))
+        .def("isZero",&call<Force>::isZero,
+             (bp::arg("self"),bp::arg("prec") = dummy_precision),
+             "Returns true if *this is approximately equal to the zero Force, within the precision given by prec.")
 #endif
         
         .def("Random",&Force::Random,"Returns a random Force.")

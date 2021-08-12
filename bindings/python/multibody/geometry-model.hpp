@@ -71,12 +71,11 @@ namespace pinocchio
         .def("addAllCollisionPairs",&GeometryModel::addAllCollisionPairs,
              "Add all collision pairs.\n"
              "note : collision pairs between geometries having the same parent joint are not added.")
-        .def("setCollisionPairs",
-             &GeometryModel::setCollisionPairs,
-             setCollisionPairs_overload(bp::args("self","collision_map","upper"),
-                                        "Set the collision pairs from a given input array.\n"
-                                        "Each entry of the input matrix defines the activation of a given collision pair"
-                                        "(map[i,j] == True means that the pair (i,j) is active)."))
+        .def("setCollisionPairs",&GeometryModel::setCollisionPairs,
+             (bp::arg("self"),bp::arg("collision_map"),bp::arg("upper")=true),
+              "Set the collision pairs from a given input array.\n"
+              "Each entry of the input matrix defines the activation of a given collision pair"
+              "(map[i,j] == True means that the pair (i,j) is active).")
         .def("removeCollisionPair",&GeometryModel::removeCollisionPair,
              bp::args("self","collision_pair"),
              "Remove a collision pair.")
@@ -113,10 +112,6 @@ namespace pinocchio
           ;
         }
       }
-      
-    protected:
-      
-      BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setCollisionPairs_overload,GeometryModel::setCollisionPairs,1,2)
       
     };
     

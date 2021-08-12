@@ -13,10 +13,6 @@ namespace pinocchio
   namespace python
   {
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassUpdate_overload,jacobianCenterOfMass,3,4)
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(jacobianCenterOfMassNoUpdate_overload,jacobianCenterOfMass,2,3)
-
     static context::SE3::Vector3
     com_0_proxy(const context::Model & model,
                 context::Data & data,
@@ -107,17 +103,6 @@ namespace pinocchio
       return J;
     }
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_0_overload, com_0_proxy, 3, 4)
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_1_overload, com_1_proxy, 4, 5)
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_2_overload, com_2_proxy, 5, 6)
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_level_overload, com_level_proxy, 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_level_overload_deprecated_signature, com_level_proxy_deprecated_signature, 3, 4)
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(com_default_overload, com_default_proxy, 2, 3)
-
     void exposeCOM()
     {
       typedef context::Scalar Scalar;
@@ -141,120 +126,81 @@ namespace pinocchio
 
       bp::def("centerOfMass",
               com_0_proxy,
-              com_0_overload(bp::args("model","data",
-                                      "q",
-                                      "compute_subtree_coms"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("compute_subtree_coms") = true),
                   "Compute the center of mass, putting the result in context::Data and return it."
-                  "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees."
-              )[bp::return_value_policy<bp::return_by_value>()]
-      );
+                  "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("centerOfMass",
               com_1_proxy,
-              com_1_overload(
-                             bp::args("model","data",
-                                      "q","v",
-                                      "compute_subtree_coms"),
-                             "Computes the center of mass position and velocity by storing the result in context::Data. It returns the center of mass position expressed in the WORLD frame.\n"
-                             "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees."
-              )[bp::return_value_policy<bp::return_by_value>()]
-      );
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("v"),bp::arg("compute_subtree_coms") = true),
+              "Computes the center of mass position and velocity by storing the result in context::Data. It returns the center of mass position expressed in the WORLD frame.\n"
+              "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("centerOfMass",
               com_2_proxy,
-              com_2_overload(
-                             bp::args("model","data",
-                                      "q","v","a",
-                                      "compute_subtree_coms"),
-                             "Computes the center of mass position, velocity and acceleration by storing the result in context::Data. It returns the center of mass position expressed in the WORLD frame.\n"
-                             "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees."
-              )[bp::return_value_policy<bp::return_by_value>()]
-      );
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("v"),bp::arg("a"),bp::arg("compute_subtree_coms") = true),
+              "Computes the center of mass position, velocity and acceleration by storing the result in context::Data. It returns the center of mass position expressed in the WORLD frame.\n"
+              "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
       
       bp::def("centerOfMass",
               com_level_proxy_deprecated_signature,
-              com_level_overload_deprecated_signature(
-                                                      bp::args("context::Model","context::Data",
-                                                               "kinematic_level",
-                                                               "computeSubtreeComs If true, the algorithm computes also the center of mass of the subtrees"
-                                                               ),
-                                                      "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
-                                                      "If kinematic_level = 0, computes the CoM position, if kinematic_level = 1, also computes the CoM velocity and if kinematic_level = 2, it also computes the CoM acceleration."
-                                                      )[deprecated_function<>()]
-              );
+              (bp::arg("model"),bp::arg("data"),bp::arg("kinematic_level"),bp::arg("compute_subtree_coms") = true),
+               "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
+               "If kinematic_level = 0, computes the CoM position, if kinematic_level = 1, also computes the CoM velocity and if kinematic_level = 2, it also computes the CoM acceleration.",
+               deprecated_function<>());
       
       bp::def("centerOfMass",
               com_level_proxy,
-              com_level_overload(bp::args("model","data",
-                                          "kinematic_level",
-                                          "compute_subtree_coms"),
-                                 "Computes the center of mass position, velocity or acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
-                                 "If kinematic_level = POSITION, computes the CoM position, if kinematic_level = VELOCITY, also computes the CoM velocity and if kinematic_level = ACCELERATION, it also computes the CoM acceleration.\n"
-                                 "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees."
-                              )[bp::return_value_policy<bp::return_by_value>()]
-      );
+              (bp::arg("model"),bp::arg("data"),bp::arg("kinematic_level"),bp::arg("compute_subtree_coms") = true),
+               "Computes the center of mass position, velocity or acceleration of a given model according to the current kinematic values contained in data and the requested kinematic_level.\n"
+               "If kinematic_level = POSITION, computes the CoM position, if kinematic_level = VELOCITY, also computes the CoM velocity and if kinematic_level = ACCELERATION, it also computes the CoM acceleration.\n"
+               "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("centerOfMass",
               com_default_proxy,
-              com_default_overload(
-                  bp::args("model",
-                           "data",
-                           "compute_subtree_coms"),
-                                   "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data.\n"
-                                   "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees."
-              )[bp::return_value_policy<bp::return_by_value>()]
-      );
+                  (bp::arg("model"),bp::arg("data"),bp::arg("compute_subtree_coms") = true),
+              "Computes the center of mass position, velocity and acceleration of a given model according to the current kinematic values contained in data.\n"
+              "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("jacobianCenterOfMass",
               (const context::Data::Matrix3x & (*)(const context::Model &, context::Data &, const Eigen::MatrixBase<VectorXs> &, bool))&jacobianCenterOfMass<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,
-              jacobianCenterOfMassUpdate_overload(bp::args("model",
-                                                           "data",
-                                                           "q",
-                                                           "compute_subtree_coms"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("compute_subtree_coms") = true),
               "Computes the Jacobian of the center of mass, puts the result in context::Data and return it.\n"
-                                                  "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.")[
-              bp::return_value_policy<bp::return_by_value>()]);
+              "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("jacobianCenterOfMass",
               (const context::Data::Matrix3x & (*)(const context::Model &, context::Data &, bool))&jacobianCenterOfMass<Scalar,Options,JointCollectionDefaultTpl>,
-              jacobianCenterOfMassNoUpdate_overload(bp::args("model",
-                                                             "data",
-                                                             "compute_subtree_coms"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("compute_subtree_coms") = true),
               "Computes the Jacobian of the center of mass, puts the result in context::Data and return it.\n"
-                                                    "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.")[
-              bp::return_value_policy<bp::return_by_value>()]);
+              "If compute_subtree_coms is True, the algorithm also computes the center of mass of the subtrees.",
+              bp::return_value_policy<bp::return_by_value>());
 
       bp::def("jacobianSubtreeCenterOfMass",jacobian_subtree_com_kinematics_proxy,
-              bp::args("model",
-                       "data",
-                       "q",
-                       "subtree_root_joint_id"),
+              bp::args("model","data","q","subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) expressed in the WORLD frame, according to the given joint configuration.");
+      
       bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_kinematics_proxy,
-              bp::args("context::Model, the model of the kinematic tree",
-                       "context::Data, the data associated to the model where the results are stored",
-                       "Joint configuration q (size context::Model::nq)",
-                       "Subtree root ID, the index of the subtree root joint."),
+              bp::args("model","data","q","subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given joint configuration.",
               deprecated_function<>("This function is now deprecated. It has been renamed jacobianSubtreeCenterOfMass."));
       
       bp::def("jacobianSubtreeCenterOfMass",jacobian_subtree_com_proxy,
-              bp::args("model",
-                       "data",
-                       "subtree_root_joint_id"),
+              bp::args("model","data","subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) expressed in the WORLD frame, according to the given entries in data.");
 
       bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_proxy,
-              bp::args("context::Model, the model of the kinematic tree",
-                       "context::Data, the data associated to the model where the results are stored",
-                       "Subtree root ID, the index of the subtree root joint."),
+              bp::args("model","data","subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data.",
               deprecated_function<>("This function is now deprecated. It has been renamed jacobianSubtreeCenterOfMass."));
       
       bp::def("getJacobianSubtreeCenterOfMass",get_jacobian_subtree_com_proxy,
-              bp::args("model",
-                       "data",
-                       "subtree_root_joint_id"),
+              bp::args("model","data","subtree_root_joint_id"),
               "Get the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data. It assumes that jacobianCenterOfMass has been called first.");
 
     }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -9,10 +9,6 @@ namespace pinocchio
 {
   namespace python
   {
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getVelocity_overload, (getVelocity<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getAcceleration_overload, (getAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
-    BOOST_PYTHON_FUNCTION_OVERLOADS(getClassicalAcceleration_overload, (getClassicalAcceleration<context::Scalar,context::Options,JointCollectionDefaultTpl>), 3, 4)
 
     void exposeKinematics()
     {
@@ -31,24 +27,21 @@ namespace pinocchio
 
       bp::def("getVelocity",
               &getVelocity<Scalar,Options,JointCollectionDefaultTpl>,
-              getVelocity_overload(
-                bp::args("model","data","joint_id","reference_frame"),
-                "Returns the spatial velocity of the joint expressed in the coordinate system given by reference_frame.\n"
-                "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v"));
+              (bp::arg("model"),bp::arg("data"),bp::arg("joint_id"),bp::arg("reference_frame") = LOCAL),
+              "Returns the spatial velocity of the joint expressed in the coordinate system given by reference_frame.\n"
+              "forwardKinematics(model,data,q,v[,a]) should be called first to compute the joint spatial velocity stored in data.v");
 
       bp::def("getAcceleration",
               &getAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
-              getAcceleration_overload(
-                bp::args("model","data","joint_id","reference_frame"),
-                "Returns the spatial acceleration of the joint expressed in the coordinate system given by reference_frame.\n"
-                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+              (bp::arg("model"),bp::arg("data"),bp::arg("joint_id"),bp::arg("reference_frame") = LOCAL),
+              "Returns the spatial acceleration of the joint expressed in the coordinate system given by reference_frame.\n"
+              "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a .");
 
       bp::def("getClassicalAcceleration",
               &getClassicalAcceleration<Scalar,Options,JointCollectionDefaultTpl>,
-              getClassicalAcceleration_overload(
-                bp::args("model","data","joint_id","reference_frame"),
-                "Returns the \"classical\" acceleration of the joint expressed in the coordinate system given by reference_frame.\n"
-                "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a ."));
+              (bp::arg("model"),bp::arg("data"),bp::arg("joint_id"),bp::arg("reference_frame") = LOCAL),
+              "Returns the \"classical\" acceleration of the joint expressed in the coordinate system given by reference_frame.\n"
+              "forwardKinematics(model,data,q,v,a) should be called first to compute the joint spatial acceleration stored in data.a .");
 
       bp::def("forwardKinematics",
               &forwardKinematics<Scalar,Options,JointCollectionDefaultTpl,VectorXs>,

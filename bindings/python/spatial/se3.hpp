@@ -28,24 +28,6 @@ namespace pinocchio
   {
     namespace bp = boost::python;
 
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(isIdentity_overload,SE3::isIdentity,0,1)
-    
-    template<typename T> struct call;
-    
-    template<typename Scalar, int Options>
-    struct call< SE3Tpl<Scalar,Options> >
-    {
-      typedef SE3Tpl<Scalar,Options> SE3;
-      
-      static bool isApprox(const SE3 & self, const SE3 & other,
-                           const Scalar & prec = Eigen::NumTraits<Scalar>::dummy_precision())
-      {
-        return self.isApprox(other,prec);
-      }
-    };
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(isApproxSE3_overload,call<SE3>::isApprox,2,3)
-
     template<typename SE3>
     struct SE3PythonVisitor
     : public boost::python::def_visitor< SE3PythonVisitor<SE3> >
@@ -67,6 +49,8 @@ namespace pinocchio
       template<class PyClass>
       void visit(PyClass& cl) const 
       {
+        static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
+        
         cl
         .def(bp::init<Matrix3,Vector3>
              ((bp::arg("self"),bp::arg("rotation"),bp::arg("translation")),
@@ -144,15 +128,13 @@ namespace pinocchio
              bp::args("self","inertia"), "Returns the result of the inverse of *this onto an Inertia.")
       
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
-        .def("isApprox",
-             call<SE3>::isApprox,
-             isApproxSE3_overload(bp::args("self","other","prec"),
-                                  "Returns true if *this is approximately equal to other, within the precision given by prec."))
+        .def("isApprox", &SE3::isApprox,
+             (bp::arg("self"),bp::arg("other"),bp::arg("prec") = dummy_precision),
+             "Returns true if *this is approximately equal to other, within the precision given by prec.")
         
-        .def("isIdentity",
-             &SE3::isIdentity,
-             isIdentity_overload(bp::args("self","prec"),
-                                 "Returns true if *this is approximately equal to the identity placement, within the precision given by prec."))
+        .def("isIdentity", &SE3::isIdentity,
+             (bp::arg("self"),bp::arg("prec") = dummy_precision),
+             "Returns true if *this is approximately equal to the identity placement, within the precision given by prec.")
 #endif
         
         .def("__invert__",&SE3::inverse,"Returns the inverse of *this.")
