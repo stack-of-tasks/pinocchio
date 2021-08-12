@@ -3,8 +3,6 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/algorithm/contact-info.hpp"
-#include "pinocchio/bindings/python/algorithm/proximal.hpp"
 #include "pinocchio/algorithm/constrained-dynamics.hpp"
 
 namespace pinocchio
