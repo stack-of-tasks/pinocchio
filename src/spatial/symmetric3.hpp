@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2020 CNRS INRIA
+// Copyright (c) 2014-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_symmetric3__
@@ -351,12 +351,22 @@ namespace pinocchio
 
     Symmetric3Tpl operator+(const Symmetric3Tpl & s2) const
     {
-      return Symmetric3Tpl((m_data+s2.m_data).eval());
+      return Symmetric3Tpl(m_data+s2.m_data);
+    }
+    
+    Symmetric3Tpl operator-(const Symmetric3Tpl & s2) const
+    {
+      return Symmetric3Tpl(m_data-s2.m_data);
     }
 
     Symmetric3Tpl & operator+=(const Symmetric3Tpl & s2)
     {
       m_data += s2.m_data; return *this;
+    }
+    
+    Symmetric3Tpl & operator-=(const Symmetric3Tpl & s2)
+    {
+      m_data -= s2.m_data; return *this;
     }
 
     template<typename V3in, typename V3out>
@@ -394,25 +404,27 @@ namespace pinocchio
     //   return r;
     // }
 
-    const Scalar& operator()(const int &i,const int &j) const
+    const Scalar& operator()(const int i, const int j) const
     {
       return ((i!=2)&&(j!=2)) ? m_data[i+j] : m_data[i+j+1];
     }
 
-    Symmetric3Tpl operator-(const Matrix3 & S) const
+    template<typename Matrix3Like>
+    Symmetric3Tpl operator-(const Eigen::MatrixBase<Matrix3Like> & S) const
     {
       assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
-      return Symmetric3Tpl( m_data(0)-S(0,0),
-			    m_data(1)-S(1,0), m_data(2)-S(1,1),
-			    m_data(3)-S(2,0), m_data(4)-S(2,1), m_data(5)-S(2,2) );
+      return Symmetric3Tpl(m_data(0)-S(0,0),
+                           m_data(1)-S(1,0), m_data(2)-S(1,1),
+                           m_data(3)-S(2,0), m_data(4)-S(2,1), m_data(5)-S(2,2) );
     }
 
-    Symmetric3Tpl operator+(const Matrix3 & S) const
+    template<typename Matrix3Like>
+    Symmetric3Tpl operator+(const Eigen::MatrixBase<Matrix3Like> & S) const
     {
       assert(check_expression_if_real<Scalar>(pinocchio::isZero(S-S.transpose())));
-      return Symmetric3Tpl( m_data(0)+S(0,0),
-			    m_data(1)+S(1,0), m_data(2)+S(1,1),
-			    m_data(3)+S(2,0), m_data(4)+S(2,1), m_data(5)+S(2,2) );
+      return Symmetric3Tpl(m_data(0)+S(0,0),
+                           m_data(1)+S(1,0), m_data(2)+S(1,1),
+                           m_data(3)+S(2,0), m_data(4)+S(2,1), m_data(5)+S(2,2) );
     }
 
     /* --- Symmetric R*S*R' and R'*S*R products --- */
@@ -424,9 +436,9 @@ namespace pinocchio
     {
       Matrix32 L;
       L << 
-      m_data(0) - m_data(5),    m_data(1),
-      m_data(1),              m_data(2) - m_data(5),
-      2*m_data(3),            m_data(4) + m_data(4);
+      m_data(0) - m_data(5), m_data(1),
+      m_data(1)            , m_data(2) - m_data(5),
+      2*m_data(3)          , m_data(4) + m_data(4);
       return L;
     }
 
@@ -462,8 +474,8 @@ namespace pinocchio
 	
       // Sres + D + (Ev)x ( 9a)
       Sres.m_data(0) += m_data(5);
-      Sres.m_data(1) += r(2); Sres.m_data(2)+= m_data(5);
-      Sres.m_data(3) +=-r(1); Sres.m_data(4)+= r(0); Sres.m_data(5) += m_data(5);
+      Sres.m_data(1) += r(2);      Sres.m_data(2) += m_data(5);
+      Sres.m_data(3) -= r(1);      Sres.m_data(4) += r(0);      Sres.m_data(5) += m_data(5);
 
       return Sres;
     }

@@ -41,6 +41,8 @@ namespace pinocchio
     
     Derived& operator+= (const Derived & Yb) { return derived().__pequ__(Yb); }
     Derived operator+(const Derived & Yb) const { return derived().__plus__(Yb); }
+    Derived& operator-= (const Derived & Yb) { return derived().__mequ__(Yb); }
+    Derived operator-(const Derived & Yb) const { return derived().__minus__(Yb); }
     
     template<typename MotionDerived>
     ForceTpl<typename traits<MotionDerived>::Scalar,traits<MotionDerived>::Options>
@@ -405,24 +407,63 @@ namespace pinocchio
       const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
 
       const Scalar & mab = mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
+      const Scalar mab_inv = Scalar(1)/math::max(mab,eps);
       const Vector3 & AB = (lever()-Yb.lever()).eval();
       return InertiaTpl(mab,
                         (mass()*lever()+Yb.mass()*Yb.lever())*mab_inv,
                         inertia()+Yb.inertia() - (mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB));
     }
-
-    InertiaTpl& __pequ__(const InertiaTpl & Yb)
+    
+    InertiaTpl & __pequ__(const InertiaTpl & Yb)
     {
-      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+      static const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
       
       const InertiaTpl& Ya = *this;
       const Scalar & mab = mass()+Yb.mass();
-      const Scalar mab_inv = Scalar(1)/math::max((Scalar)(mass()+Yb.mass()),eps);
+      const Scalar mab_inv = Scalar(1)/math::max(mab,eps);
       const Vector3 & AB = (Ya.lever()-Yb.lever()).eval();
       lever() *= (mass()*mab_inv); lever() += (Yb.mass()*mab_inv)*Yb.lever(); //c *= mab_inv;
       inertia() += Yb.inertia(); inertia() -= (Ya.mass()*Yb.mass()*mab_inv)* typename Symmetric3::SkewSquare(AB);
       mass() = mab;
+      return *this;
+    }
+    
+    InertiaTpl __minus__(const InertiaTpl & Yb) const
+    {
+      /* Y_{a} = ( m_{a+b}+m_b,
+       *             (m_{a+b}*c_{a+b} - m_b*c_b ) / (m_a),
+       *             I_{a+b} - I_b + (m_a*m_b)/(m_a+m_b) * AB_x * AB_x )
+       */
+
+      const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+
+      const Scalar ma = mass()-Yb.mass();
+      assert(check_expression_if_real<Scalar>(ma >= Scalar(0)));
+      
+      const Scalar ma_inv = Scalar(1)/math::max(ma,eps);
+      const Vector3 c_a((mass()*lever()-Yb.mass()*Yb.lever())*ma_inv);
+      
+      const Vector3 AB = c_a-Yb.lever();
+      
+      return InertiaTpl(ma,c_a,
+                        inertia()-Yb.inertia() + (ma*Yb.mass()/mass())* typename Symmetric3::SkewSquare(AB));
+    }
+    
+    InertiaTpl & __mequ__(const InertiaTpl & Yb)
+    {
+      static const Scalar eps = ::Eigen::NumTraits<Scalar>::epsilon();
+      
+      const Scalar ma = mass()-Yb.mass();
+      assert(check_expression_if_real<Scalar>(ma >= Scalar(0)));
+      
+      const Scalar ma_inv = Scalar(1)/math::max(ma,eps);
+
+      lever() *= (mass()*ma_inv); lever().noalias() -= (Yb.mass()*ma_inv)*Yb.lever();
+      
+      const Vector3 AB = lever()-Yb.lever();
+      inertia() -= Yb.inertia(); inertia() += (ma*Yb.mass()/mass())* typename Symmetric3::SkewSquare(AB);
+      mass() = ma;
+      
       return *this;
     }
 

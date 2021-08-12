@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include <iostream>
@@ -553,11 +553,29 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
   I1 = Inertia::Random();
   Inertia I2 = Inertia::Random();
   BOOST_CHECK((I1.matrix()+I2.matrix()).isApprox((I1+I2).matrix()));
+  
+  // Test operator-
+  {
+    I1 = Inertia::Random();
+    Inertia I2 = Inertia::Random();
+    Inertia Isum = I1 + I2;
+    Inertia I1_other = Isum - I2;
+    BOOST_CHECK(I1_other.matrix().isApprox(I1.matrix()));
+  }
 
-  // operator +=
+  // Test operator +=
   Inertia I12 = I1;
   I12 += I2;
   BOOST_CHECK((I1.matrix()+I2.matrix()).isApprox(I12.matrix()));
+  
+  // Test operator -=
+  {
+    Inertia I2 = Inertia::Random();
+    Inertia Isum = I1 + I2;
+    
+    Inertia I1_other = Isum; I1_other -= I2;
+    BOOST_CHECK((I1_other.matrix()).isApprox(I1.matrix()));
+  }
   
   // Test operator vtiv
   double kinetic_ref = v.toVector().transpose() * aI.matrix() * v.toVector();
