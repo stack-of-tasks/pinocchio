@@ -33,6 +33,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   eigenpy::enableEigenPy();
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
+  
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   StdContainerFromPythonList< std::vector<std::string> >::register_converter();
 #endif
@@ -45,17 +46,6 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   = bp::object(bp::handle<>(eigenpy::EigenToPy<const context::Vector3s &>::convert(pinocchio::YAxis::vector<context::Scalar>())));
   bp::scope().attr("ZAxis")
   = bp::object(bp::handle<>(eigenpy::EigenToPy<const context::Vector3s &>::convert(pinocchio::ZAxis::vector<context::Scalar>())));
-
-  exposeSE3();
-  exposeForce();
-  exposeMotion();
-  exposeInertia();
-  exposeJoints();
-  exposeExplog();
-  exposeRpy();
-  exposeLinalg();
-  exposeSkew();
-  exposeLieGroups();
 
   if(!register_symbolic_link_to_registered_type<::pinocchio::ReferenceFrame>())
   {
@@ -76,7 +66,7 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
     .export_values()
     ;
   }
-    
+  
   if(!register_symbolic_link_to_registered_type<::pinocchio::ArgumentPosition>())
   {
     bp::enum_< ::pinocchio::ArgumentPosition>("ArgumentPosition")
@@ -89,8 +79,19 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
     ;
   }
 
-  exposeModel();
+  exposeSE3();
+  exposeForce();
+  exposeMotion();
+  exposeInertia();
+  exposeJoints();
+  exposeExplog();
+  exposeRpy();
+  exposeLinalg();
+  exposeSkew();
+  exposeLieGroups();
+  
   exposeFrame();
+  exposeModel();
   exposeData();
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeGeometry();
