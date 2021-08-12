@@ -10,7 +10,9 @@ convergence of the task error.
 
 ### Robots
 
-We are going to use again the UR5 robot model.
+We are going to use again the UR5 robot model, however this time mounted
+as a mobile robot. The source code of the mobile robot is
+[available here](mobilerobot_8py_source.html).
 The robot has 3+6 DOF and can
 move (2 translations + 1 rotation) freely on the plane. Two operation
 frames have been defined: at the front of the basis, and at the tip of
@@ -22,37 +24,34 @@ Example of how to use the robot is has below.
 import pinocchio as pin
 from pinocchio.utils import *
 from os.path import dirname, join, abspath
-from pinocchio.visualize import GepettoVisualizer
+from mobilerobot import MobileRobotWrapper
 import time
-#Starting gepetto server and give a time
+# Starting gepetto server and give a time
 import gepetto.corbaserver
+
 gepetto.corbaserver.start_server()
 time.sleep(5)
 
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 model_path = join(pinocchio_model_dir, "example-robot-data/robots/ur_description")
 mesh_dir = pinocchio_model_dir
-urdf_filename = "ur5_robot.urdf"
+urdf_filename = "ur5_gripper.urdf"
 urdf_model_path = join(join(model_path, "urdf"), urdf_filename)
-model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
-viz = GepettoVisualizer(model, collision_model, visual_model)
-viz.initViewer()
-viz.loadViewerModel("pinocchio")
-viz.displayCollisions(False)
+robot = MobileRobotWrapper(urdf_model_path, pinocchio_model_dir)
+robot.initDisplay(loadModel=True)
 
-NQ, NV = model.nq, model.nv
+NQ, NV = robot.model.nq, robot.model.nv
 
 # create valid random position
-q = pin.integrate(model, pin.neutral(model), np.random.rand(NV)*10)
-viz.display(q)
+q = pin.integrate(robot.model, pin.neutral(robot.model), np.random.rand(NV) * 10)
+robot.viz.display(q)
 
-IDX_TOOL = 7
-IDX_BASIS = 6
+IDX_TOOL = 24
+IDX_BASIS = 23
 
-data = model.createData()
-pin.updateFramePlacements(model, data)
-Mtool = data.oMf[IDX_TOOL]
-Mbasis = data.oMf[IDX_BASIS]
+pin.updateFramePlacements(robot.model, robot.data)
+Mtool = robot.data.oMf[IDX_TOOL]
+Mbasis = robot.data.oMf[IDX_BASIS]
 ```
 
 ## 3.1) Position the end effector
@@ -62,8 +61,8 @@ goal placement.
 
 ```py
 def place(name, M):
-    viz.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
-    viz.viewer.gui.refresh()
+    robot.viz.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
+    robot.viz.viewer.gui.refresh()
 
 def Rquat(x, y, z, w):
     q = pin.Quaternion(x, y, z, w)
@@ -71,7 +70,7 @@ def Rquat(x, y, z, w):
     return q.matrix()
 
 Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
-viz.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
+robot.viz.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
 place('world/framegoal', Mgoal)
 ```
 
@@ -79,9 +78,9 @@ The current placement of the tool at configuration `q` is available as
 follows:
 
 ```py
-pin.forwardKinematics(model, data, q)  # Compute joint placements
-pin.updateFramePlacements(model, data)      # Also compute operational frame placements
-Mtool = data.oMf[IDX_TOOL]  # Get placement from world frame o to frame f oMf
+pin.forwardKinematics(robot.model, robot.data, q)  # Compute joint placements
+pin.updateFramePlacements(robot.model, robot.data)      # Also compute operational frame placements
+Mtool = robot.data.oMf[IDX_TOOL]  # Get placement from world frame o to frame f oMf
 ```
 
 The desired velocity of the tool in tool frame is given by the log:
@@ -93,7 +92,7 @@ nu = pin.log(Mtool.inverse() * Mgoal).vector
 The tool Jacobian, also in tool frame, is available as follows:
 
 ```py
-J = pin.computeFrameJacobian(model, data, q, IDX_TOOL)
+J = pin.computeFrameJacobian(robot.model, robot.data, q, IDX_TOOL)
 ```
 
 Pseudoinverse operator is available in `numpy.linalg` toolbox.
@@ -110,7 +109,7 @@ used:
 
 ```py
 dt = 0.5
-q = pin.integrate(model, q, vq * dt)
+q = pin.integrate(robot.model, q, vq * dt)
 ```
 
 #### Question 1
@@ -130,7 +129,7 @@ corresponding jacobian, are:
 
 ```py
 error = Mbasis.translation[0]
-J = pin.computeFrameJacobian(model, data, q, IDX_BASIS)[0, :]
+J = pin.computeFrameJacobian(robot.model, robot.data, q, IDX_BASIS)[0, :]
 ```
 
 Implement a second loop to servo the basis on the line. It becomes
