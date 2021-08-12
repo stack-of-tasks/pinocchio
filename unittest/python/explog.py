@@ -26,6 +26,17 @@ class TestExpLog(TestCase):
         v = pin.log3(m)
         self.assertApprox(v, zero(3))
 
+    def test_log3_quat(self):
+        """Test log3 over the quaternions."""
+        from eigenpy import Quaternion
+        quat_v = np.array([0., 0., 0., 1.])
+        quat = Quaternion(quat_v)
+        v0 = pin.log3_quat(quat)
+        self.assertApprox(v0, zero(3))
+        
+        v1 = pin.log3_quat(quat_v)
+        self.assertApprox(v1, zero(3))
+
     def test_Jlog3(self):
         m = eye(3)
         J = pin.Jlog3(m)

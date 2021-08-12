@@ -116,6 +116,20 @@ namespace pinocchio
       return quaternion::log3(quat);
     }
 
+    template<typename Vector4Like>
+    Eigen::Matrix<typename Vector4Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options>
+    log3_proxy_quatvec(const Vector4Like & v)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector4Like,4);
+      typedef typename Vector4Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options> Quaternion_t;
+      typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
+
+      ConstQuaternionMap_t q(v.derived().data());
+      assert(quaternion::isNormalized(quat,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+      return quaternion::log3(q);
+    }
+
     template<typename Matrix4Like>
     MotionTpl<typename Matrix4Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
     log6_proxy(const Matrix4Like & homegenous_matrix)

@@ -49,6 +49,11 @@ namespace pinocchio
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               "quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
 
+      bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s>,
+              bp::args("quat"),
+              "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
+              "quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+
       bp::def("Jlog3",&Jlog3_proxy<context::Matrix3s>,
               bp::arg("R"),
               "Jacobian of log(R) which maps from the tangent of SO(3) at R to"
