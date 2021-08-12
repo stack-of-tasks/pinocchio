@@ -544,9 +544,9 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log6(  SE3(quat0.matrix(), q0.derived().template head<3>()).inverse()
-               * SE3(quat1.matrix(), q1.derived().template head<3>())).toVector();
+      const SE3 M0(quat0, q0.derived().template head<3>());
+      const SE3 M1(quat1, q1.derived().template head<3>());
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d) = log6(M0.actInv(M1)).toVector();
     }
 
     /// \cheatsheet \f$ \frac{\partial\ominus}{\partial q_1} {}^1X_0 = - \frac{\partial\ominus}{\partial q_0} \f$
