@@ -168,5 +168,18 @@ class TestLogExpDerivatives(TestCase):
     self.assertApprox(Jlog_eval(M0.np, M1.np).full(), np.hstack([-M1.dualAction.T@J1, J1]))
     self.assertApprox(Jlog_eval(M0.np, M2.np).full(), np.hstack([-M2.dualAction.T@J2, J2]))
 
+
+    q0 = np.array([0., 0., 0., 0., 1., 0., 0.])  # not OK | pi-rotation about y-axis
+    q1 = q0.copy()
+    q1[3:] /= np.linalg.norm(q1[3:])
+    q1[3:] = [0., 0., 1., 0.]
+
+    M3 = pin.XYZQUATToSE3(q0)
+    M4 = pin.XYZQUATToSE3(q1)
+
+    print(log_eval(M3.np, M4.np).full())
+    print(Jlog_eval(M3.np, M4.np).full())
+
+
 if __name__ == '__main__':
   unittest.main()
