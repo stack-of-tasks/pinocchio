@@ -21,6 +21,20 @@ namespace pinocchio
     }
     
     template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,4,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    exp3_proxy_quat(const Vector3Like & v)
+    {
+      typedef typename Vector3Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> Quaternion_t;
+      typedef Eigen::Map<Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Matrix<Scalar,4,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType res;
+      QuaternionMap_t quat_out(res.derived().data());
+      quaternion::exp3(v, quat_out);
+      return res;
+    }
+
+    template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     Jexp3_proxy(const Vector3Like & v)
     {

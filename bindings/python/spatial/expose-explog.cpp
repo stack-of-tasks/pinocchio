@@ -22,6 +22,11 @@ namespace pinocchio
               "Exp: so3 -> SO3. Return the integral of the input"
               " vector w during time 1. This is also known as the Rodrigues formula.");
       
+      bp::def("exp3_quat",&exp3_proxy_quat<context::Vector3s>,
+              bp::arg("w"),
+              "Exp: so3 -> S3. Returns the integral of the input vector w during time 1, represented "
+              "as a unit Quaternion.");
+
       bp::def("Jexp3",&Jexp3_proxy<context::Vector3s>,
               bp::arg("w"),
               "Jacobian of exp(v) which maps from the tangent of SO(3) at R = exp(v) to"
@@ -52,7 +57,7 @@ namespace pinocchio
       bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s>,
               bp::args("quat"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
-              "quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+              " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
 
       bp::def("Jlog3",&Jlog3_proxy<context::Matrix3s>,
               bp::arg("R"),

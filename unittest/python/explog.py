@@ -37,6 +37,9 @@ class TestExpLog(TestCase):
         v1 = pin.log3_quat(quat_v)
         self.assertApprox(v1, zero(3))
 
+    def test_exp3_quat(self):
+        self.assertApprox(pin.exp3_quat(zero(3)), np.array([0., 0., 0., 1.]))
+
     def test_Jlog3(self):
         m = eye(3)
         J = pin.Jlog3(m)
