@@ -17,10 +17,10 @@ namespace pinocchio
     ///
     /// \brief Exp: so3 -> SO3 (quaternion)
     ///
-    /// \returns the integral of the velocity vector as a queternion.
+    /// \returns the integral of the velocity vector as a quaternion.
     ///
     /// \param[in] v The angular velocity vector.
-    /// \param[out] qout The quanternion where the result is stored.
+    /// \param[out] qout The quaternion where the result is stored.
     ///
     template<typename Vector3Like, typename QuaternionLike>
     void exp3(const Eigen::MatrixBase<Vector3Like> & v,
@@ -58,7 +58,7 @@ namespace pinocchio
     ///
     /// \brief Exp: so3 -> SO3 (quaternion)
     ///
-    /// \returns the integral of the velocity vector as a queternion.
+    /// \returns the integral of the velocity vector as a quaternion.
     ///
     /// \param[in] v The angular velocity vector.
     ///
@@ -89,8 +89,10 @@ namespace pinocchio
       
       Vector3 res;
       const Scalar norm_squared = quat.vec().squaredNorm();
-      const Scalar norm = math::sqrt(norm_squared);
-      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
+
+      static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+      static const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<2>();
+      const Scalar norm = math::sqrt(norm_squared + eps * eps);
 
       const Scalar y_x = norm / quat.w();
       static const Scalar PI_value = PI<Scalar>();

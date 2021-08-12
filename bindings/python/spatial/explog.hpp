@@ -109,6 +109,13 @@ namespace pinocchio
       return log3(R,theta);
     }
     
+    template<typename QuaternionLike>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    log3_proxy(const QuaternionLike & quat)
+    {
+      return quaternion::log3(quat);
+    }
+
     template<typename Matrix4Like>
     MotionTpl<typename Matrix4Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
     log6_proxy(const Matrix4Like & homegenous_matrix)
