@@ -85,7 +85,11 @@ namespace pinocchio
              "Set all the components of *this to random values.")
         
         .def(bp::self + bp::self)
-        .def(bp::self * bp::other<Motion>() )
+        .def(bp::self += bp::self)
+        .def(bp::self - bp::self)
+        .def(bp::self -= bp::self)
+        .def(bp::self * bp::other<Motion>())
+        
         .add_property("np",&Inertia::matrix)
         .def("vxiv",
              &Inertia::template vxiv<Motion>,
