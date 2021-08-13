@@ -71,6 +71,11 @@ class TestExpLog(TestCase):
         v = pin.log6(m)
         self.assertApprox(v.vector, zero(6))
 
+    def test_log6_quat(self):
+        q0 = np.array([0., 0., 0., 0., 0., 0., 1.])
+        v = pin.log6_quat(q0)
+        self.assertApprox(v.vector, zero(6))
+
     def test_Jlog6(self):
         m = pin.SE3.Identity()
         J = pin.Jlog6(m)

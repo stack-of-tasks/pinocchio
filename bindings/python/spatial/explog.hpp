@@ -150,7 +150,22 @@ namespace pinocchio
     {
       return log6(homegenous_matrix);
     }
-    
+
+    template<typename Vector7Like>
+    MotionTpl<typename Vector7Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options>
+    log6_proxy_quatvec(const Vector7Like & q)
+    {
+      typedef typename Vector7Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options };
+      typedef Eigen::Quaternion<Scalar,Options> Quaternion;
+      typedef Eigen::Map<const Quaternion,Options> ConstQuaternionMap;
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+
+      const Vector3 v(q.derived().template head<3>());
+      ConstQuaternionMap quat(q.derived().template tail<4>().data());
+
+      return log6(quat, v);
+    }
   } // namespace python
 } //namespace pinocchio
 

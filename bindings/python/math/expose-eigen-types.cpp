@@ -68,11 +68,12 @@ namespace pinocchio
       typedef Eigen::Matrix<context::Scalar,6,1,context::Options> Vector6s;
       typedef Eigen::Matrix<context::Scalar,6,Eigen::Dynamic,context::Options> Matrix6xs;
       typedef Eigen::Matrix<context::Scalar,3,Eigen::Dynamic,context::Options> Matrix3xs;
-      
+
       internal::exposeType<context::Scalar>();
       eigenpy::enableEigenPySpecific<context::Matrix1s>();
       eigenpy::enableEigenPySpecific<Matrix6s>();
       eigenpy::enableEigenPySpecific<Vector6s>();
+      eigenpy::enableEigenPySpecific<context::Vector7s>();
       eigenpy::enableEigenPySpecific<Matrix6xs>();
       eigenpy::enableEigenPySpecific<Matrix3xs>();
     }

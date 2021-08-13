@@ -99,6 +99,11 @@ namespace pinocchio
               "Log: SE3 -> se3. Pseudo-inverse of Exp: so3 -> SO3. Log maps from SE3"
               " -> { v,w in se3, ||w|| < 2pi }.");
       
+      bp::def("log6_quat",&log6_proxy_quatvec<context::Vector7s>,
+              bp::arg("q"),
+              "Log: R^3 * S^3 -> se3. Pseudo-inverse of Exp: se3 -> R^3 * S^3,",
+              " the variant of the SE3 Exp using quaternions for the rotations.");
+
       bp::def("Jlog6",&Jlog6_proxy<context::Scalar,context::Options>,
               bp::arg("M"),
               "Jacobian of log(M) which maps from the tangent of SE(3) at M to"

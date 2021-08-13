@@ -384,6 +384,27 @@ namespace pinocchio
   ///
   /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
   ///
+  /// \param[in] quat The rotation quaternion.
+  /// \param[in] vec The translation vector.
+  ///
+  /// \return The twist associated to the rigid transformation during time 1.
+  ///
+  template<typename Vector3Like, typename QuaternionLike>
+  MotionTpl<typename Vector3Like::Scalar,Vector3Like::Options>
+  log6(const Eigen::QuaternionBase<QuaternionLike> & quat,
+       const Eigen::MatrixBase<Vector3Like> & vec)
+  {
+    typedef typename Vector3Like::Scalar Scalar;
+    typedef MotionTpl<Scalar,Vector3Like::Options> Motion;
+    Motion mout;
+    log6_impl<Scalar>::run(quat, vec, mout);
+    return mout;
+  }
+
+  /// \brief Log: SE3 -> se3.
+  ///
+  /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
+  ///
   /// \param[in] M The rigid transformation represented as an homogenous matrix.
   ///
   /// \return The twist associated to the rigid transformation during time 1.

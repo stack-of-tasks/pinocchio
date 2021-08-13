@@ -168,17 +168,22 @@ class TestLogExpDerivatives(TestCase):
     self.assertApprox(Jlog_eval(M0.np, M1.np).full(), np.hstack([-M1.dualAction.T@J1, J1]))
     self.assertApprox(Jlog_eval(M0.np, M2.np).full(), np.hstack([-M2.dualAction.T@J2, J2]))
 
+  def test_log6_quat(self):
+    cq0 = SX.sym("q0", 7)
+    cv0 = SX.sym("q0", 6)
 
-    q0 = np.array([0., 0., 0., 0., 1., 0., 0.])  # not OK | pi-rotation about y-axis
-    q1 = q0.copy()
-    q1[3:] /= np.linalg.norm(q1[3:])
-    q1[3:] = [0., 0., 1., 0.]
+    SE3 = cpin.liegroups.SE3()
+    cq0_i = SE3.integrate(cq0, cv0)
+    clog = cpin.log6_quat(cq0_i).vector
+    repl_dargs = lambda e: casadi.substitute(e, cv0, np.zeros(6))
+    clog_eval = casadi.Function("log", [cq0], [repl_dargs(clog)])
 
-    M3 = pin.XYZQUATToSE3(q0)
-    M4 = pin.XYZQUATToSE3(q1)
+    cJlog = casadi.jacobian(clog, cv0)
+    cJlog_eval = casadi.Function("Jlog", [cq0], [repl_dargs(cJlog)])
 
-    print(log_eval(M3.np, M4.np).full())
-    print(Jlog_eval(M3.np, M4.np).full())
+    q0 = np.array([0.,0.,0.,0.,0.,0.,1.])
+    print(clog_eval(q0))
+    print(cJlog_eval(q0))
 
 
 if __name__ == '__main__':
