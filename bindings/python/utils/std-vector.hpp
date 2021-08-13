@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_std_vector_hpp__
@@ -367,12 +367,13 @@ namespace pinocchio
     ///
     /// \sa StdAlignedVectorPythonVisitor
     ///
-    template<class T, class Allocator = std::allocator<T>, bool NoProxy = false, bool EnableFromPythonListConverter = true>
+    template<class vector_type, bool NoProxy = false, bool EnableFromPythonListConverter = true>
     struct StdVectorPythonVisitor
-    : public ::boost::python::vector_indexing_suite<typename std::vector<T,Allocator>, NoProxy, internal::contains_vector_derived_policies<typename std::vector<T,Allocator>,NoProxy> >
-    , public StdContainerFromPythonList< std::vector<T,Allocator>,NoProxy>
+    : public ::boost::python::vector_indexing_suite<vector_type, NoProxy, internal::contains_vector_derived_policies<vector_type,NoProxy> >
+    , public StdContainerFromPythonList<vector_type,NoProxy>
     {
-      typedef std::vector<T,Allocator> vector_type;
+      typedef typename vector_type::value_type value_type;
+      typedef typename vector_type::allocator_type allocator_type;
       typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
       
       static void expose(const std::string & class_name,
