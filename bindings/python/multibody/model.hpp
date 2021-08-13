@@ -399,6 +399,11 @@ namespace pinocchio
         StdVectorPythonVisitor< std::vector<std::string> >::expose("StdVec_StdString");
         StdVectorPythonVisitor<std::vector<bool>,true>::expose("StdVec_Bool");
         StdVectorPythonVisitor<std::vector<Scalar>,true>::expose("StdVec_Scalar");
+        
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
+        bp::scope().attr("StdVec_Double") = bp::scope().attr("StdVec_Scalar"); // alias
+#endif
+        
         serialize< std::vector<std::string> >();
         serialize< std::vector<bool> >();
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
