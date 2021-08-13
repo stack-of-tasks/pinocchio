@@ -392,13 +392,13 @@ namespace pinocchio
       {
         typedef typename Model::ConfigVectorMap ConfigVectorMap;
         typedef bp::map_indexing_suite<ConfigVectorMap,false> map_indexing_suite;
-        StdVectorPythonVisitor<Index,std::allocator<Index>,true>::expose("StdVec_Index");
+        StdVectorPythonVisitor<std::vector<Index>,true>::expose("StdVec_Index");
         serialize< std::vector<Index> >();
-        StdVectorPythonVisitor<IndexVector>::expose("StdVec_IndexVector");
+        StdVectorPythonVisitor< std::vector<IndexVector> >::expose("StdVec_IndexVector");
         serialize< std::vector<IndexVector> >();
-        StdVectorPythonVisitor<std::string>::expose("StdVec_StdString");
-        StdVectorPythonVisitor<bool,std::allocator<bool>,true>::expose("StdVec_Bool");
-        StdVectorPythonVisitor<Scalar,std::allocator<Scalar>,true>::expose("StdVec_Double");
+        StdVectorPythonVisitor< std::vector<std::string> >::expose("StdVec_StdString");
+        StdVectorPythonVisitor<std::vector<bool>,true>::expose("StdVec_Bool");
+        StdVectorPythonVisitor<std::vector<Scalar>,true>::expose("StdVec_Scalar");
         serialize< std::vector<std::string> >();
         serialize< std::vector<bool> >();
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION

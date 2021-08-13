@@ -80,7 +80,7 @@ namespace pinocchio
       using namespace Eigen;
 
       typedef std::vector<GeometryModel,Eigen::aligned_allocator<GeometryModel> > GeometryModelVector;
-      StdVectorPythonVisitor<GeometryModel,GeometryModelVector::allocator_type>::expose("StdVec_GeometryModel");
+      StdVectorPythonVisitor<GeometryModelVector>::expose("StdVec_GeometryModel");
 
       bp::def("appendModel",
               (Model (*)(const Model &, const Model &, const FrameIndex, const SE3 &))&appendModel<double,0,JointCollectionDefaultTpl>,

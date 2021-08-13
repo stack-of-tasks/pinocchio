@@ -50,7 +50,7 @@ namespace pinocchio
           .def_readwrite("first",&CollisionPair::first)
           .def_readwrite("second",&CollisionPair::second);
         
-          StdVectorPythonVisitor<CollisionPair>::expose("StdVec_CollisionPair");
+          StdVectorPythonVisitor< std::vector<CollisionPair> >::expose("StdVec_CollisionPair");
           serialize< std::vector<CollisionPair> >();
         }
         

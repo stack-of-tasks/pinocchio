@@ -7,6 +7,7 @@
 #include "pinocchio/bindings/python/algorithm/proximal.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-cholesky.hpp"
 
+#include "pinocchio/bindings/python/utils/eigen.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
 
@@ -40,7 +41,7 @@ namespace pinocchio
                                                                    const context::VectorXs & tau,
                                                                    const RigidContactModelVector & contact_models,
                                                                    RigidContactDataVector & contact_datas)
-    {
+      {
         return contactDynamics(model, data, q, v, tau, contact_models, contact_datas);
       }
     
@@ -64,16 +65,14 @@ namespace pinocchio
         RigidContactModelPythonVisitor<context::RigidContactModel>::expose();
         RigidContactDataPythonVisitor<context::RigidContactData>::expose();
         
-        typedef Eigen::aligned_allocator<context::RigidContactModel> RigidContactModelAllocator;
-        StdVectorPythonVisitor<context::RigidContactModel,RigidContactModelAllocator>::expose("StdVec_RigidContactModel");
+        StdVectorPythonVisitor<RigidContactModelVector>::expose("StdVec_RigidContactModel");
         
-        typedef Eigen::aligned_allocator<context::RigidContactData> RigidContactDataAllocator;
-        StdVectorPythonVisitor<context::RigidContactData,RigidContactDataAllocator>::expose("StdVec_RigidContactData");
+        StdVectorPythonVisitor<RigidContactDataVector>::expose("StdVec_RigidContactData");
         
         ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
         
         bp::def("initContactDynamics",
-                &initContactDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,RigidContactModelAllocator>,
+                &initContactDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,typename RigidContactModelVector::allocator_type>,
                 bp::args("model","data","contact_models"),
                 "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
                 "This allows to avoid online memory allocation when running these algorithms.");
