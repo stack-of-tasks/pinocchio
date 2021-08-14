@@ -94,29 +94,31 @@ namespace pinocchio
       static const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<2>();
       const Scalar norm = math::sqrt(norm_squared + eps * eps);
 
-      const Scalar y_x = norm / quat.w();
-      static const Scalar PI_value = PI<Scalar>();
       using ::pinocchio::internal::if_then_else;
       using ::pinocchio::internal::GE;
       using ::pinocchio::internal::LT;
-        
-      const Scalar theta_2 = if_then_else(GE, quat.w(), Scalar(0),
-                                          math::atan2(norm,quat.w()),
-                                          static_cast<Scalar>(PI_value - math::atan2(norm,quat.w())));
 
       const Scalar pos_neg = if_then_else(GE, quat.w(), Scalar(0),
                                           Scalar(+1),
                                           Scalar(-1));
+        
+      const Scalar theta_2 = math::atan2(norm,quat.w()*pos_neg);  // in [0,pi]
 
-      
+      const Scalar y_x = norm / quat.w() * pos_neg;  // nonnegative
+      const Scalar y_x_sq = norm_squared / (quat.w() * quat.w());
+
       theta = if_then_else(LT, norm_squared, ts_prec,
-                           static_cast<Scalar>((Scalar(1) - y_x * y_x / Scalar(3)) * y_x),
-                           static_cast<Scalar>(Scalar(2.)*theta_2));
+                           Scalar(2.)*(Scalar(1) - y_x_sq / Scalar(3)) * y_x,
+                           Scalar(2.)*theta_2);
+
+      const Scalar inv_sinc = theta / math::sin(theta_2);
+
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
-        res[k] = if_then_else(LT, norm_squared, ts_prec,
-                              static_cast<Scalar>((Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k]),
-                              static_cast<Scalar>(pos_neg*(theta / math::sin(theta_2)) * quat.vec()[k]));
+        // res[k] = if_then_else(LT, norm_squared, ts_prec,
+        //                       Scalar(2) * (Scalar(1) + y_x_sq / Scalar(6) - y_x_sq*y_x_sq / Scalar(9)) * pos_neg * quat.vec()[k],
+        //                       inv_sinc * pos_neg * quat.vec()[k]);
+        res[k] = inv_sinc * pos_neg * quat.vec()[k];
       }
       return res;
     }

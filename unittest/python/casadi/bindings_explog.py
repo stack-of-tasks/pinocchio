@@ -94,11 +94,14 @@ class TestLogExpDerivatives(TestCase):
     vr = np.random.randn(3)
     R1 = pin.exp3(vr)
     R2 = pin.exp3(np.array([np.pi, 0, 0]))
+    v3 = np.array([0, np.pi, 0])
+    R3 = pin.exp3(v3)
 
     self.assertApprox(log_eval(R0, R0).full().squeeze(), np.zeros(3))
     self.assertApprox(log_eval(R0, R1).full().squeeze(), vr)
     self.assertApprox(log_eval(R1, R1).full().squeeze(), np.zeros(3))
     self.assertApprox(log_eval(R0, R2).full().squeeze(), np.array([np.pi, 0, 0]))
+    self.assertApprox(log_eval(R0, R3).full().squeeze(), v3)
 
     J0 = pin.Jlog3(R0)
     jac_identity = np.hstack([-J0, J0])
@@ -107,6 +110,43 @@ class TestLogExpDerivatives(TestCase):
     J1 = pin.Jlog3(R1)
     self.assertApprox(Jlog_eval(R0, R1).full(), np.hstack([-R1.T @ J1, J1]))
 
+    J2 = pin.Jlog3(R2)
+    self.assertApprox(Jlog_eval(R0, R2).full(), np.hstack([-R2.T @ J2, J2]))
+
+  def test_log3_quat(self):
+    cquat = SX.sym("quat", 4)
+    cdv = SX.sym("dv", 3)
+    SO3 = cpin.liegroups.SO3()
+    repl_dargs = lambda e: casadi.substitute(e, cdv, np.zeros(3))
+
+    cquat_i = SO3.integrate(cquat, cdv)
+
+    clog = cpin.log3_quat(cquat_i)
+    cJlog = casadi.jacobian(clog, cdv)
+    clog_eval = casadi.Function("log", [cquat], [repl_dargs(clog)])
+    cJlog_eval = casadi.Function("Jlog", [cquat], [repl_dargs(cJlog)])
+    
+    q0 = np.array([0., 0., 0., 1.])
+    q1 = np.array([0., 1., 0., 0.])
+    q2 = np.array([0., 0., 1., 0.])
+    q3 = np.array([1., 0., 0., 0.])
+    
+    self.assertApprox(clog_eval(q0).full().squeeze(), np.zeros(3))
+    self.assertApprox(cJlog_eval(q0).full().squeeze(), np.eye(3))
+
+    clog_fun = casadi.dot(clog, clog)
+    cJlog_fun = casadi.jacobian(clog_fun, cdv)
+    clog_fun_eval = casadi.Function("normlog", [cquat], [repl_dargs(clog_fun)])
+    cJlog_fun_eval = casadi.Function("Jnormlog", [cquat], [repl_dargs(cJlog_fun)])
+    
+    self.assertApprox(clog_fun_eval(q0).full().squeeze(), np.zeros(1))
+    self.assertApprox(cJlog_fun_eval(q0).full(), np.zeros(3))
+
+    self.assertApprox(cJlog_fun_eval(q1).full(), 2*np.pi*np.array([0., 1., 0.]))
+    self.assertApprox(cJlog_fun_eval(q2).full(), 2*np.pi*np.array([0., 0., 1.]))
+    self.assertApprox(cJlog_fun_eval(q3).full(), 2*np.pi*np.array([1., 0., 0.]))
+    print("log3 quat done")
+    
   def test_exp6(self):
     exp_expr = cpin.exp6(self.cw2 + self.cdw2)
     repl_dargs = lambda e: casadi.substitute(e, self.cdw2, np.zeros(6))
@@ -171,19 +211,37 @@ class TestLogExpDerivatives(TestCase):
   def test_log6_quat(self):
     cq0 = SX.sym("q0", 7)
     cv0 = SX.sym("q0", 6)
-
+    repl_dargs = lambda e: casadi.substitute(e, cv0, np.zeros(6))
     SE3 = cpin.liegroups.SE3()
+
     cq0_i = SE3.integrate(cq0, cv0)
     clog = cpin.log6_quat(cq0_i).vector
-    repl_dargs = lambda e: casadi.substitute(e, cv0, np.zeros(6))
     clog_eval = casadi.Function("log", [cq0], [repl_dargs(clog)])
 
     cJlog = casadi.jacobian(clog, cv0)
     cJlog_eval = casadi.Function("Jlog", [cq0], [repl_dargs(cJlog)])
 
     q0 = np.array([0.,0.,0.,0.,0.,0.,1.])
-    print(clog_eval(q0))
-    print(cJlog_eval(q0))
+    q1 = np.array([0.,0.,0.,0.,0.,1.,0])
+    q1 = np.array([0.,0.,0.,0.,1.,0.,0])
+    self.assertApprox(clog_eval(q0).full().squeeze(), np.zeros(6))    
+    self.assertApprox(cJlog_eval(q0).full(), np.eye(6))
+
+    print("log6 with quats")
+    print(clog_eval(q1).full())
+    print(cJlog_eval(q1).full())
+
+    clog_fun = casadi.dot(clog, clog)
+    clog_fun = casadi.dot(clog, clog)
+    cJlog_fun = casadi.jacobian(clog_fun, cv0)
+    clog_fun_eval = casadi.Function("normlog", [cq0], [repl_dargs(clog_fun)])
+    cJlog_fun_eval = casadi.Function("Jnormlog", [cq0], [repl_dargs(cJlog_fun)])
+
+    print(clog_fun_eval(q0).full().squeeze())
+    print(cJlog_fun_eval(q0).full())
+
+    print(clog_fun_eval(q1).full().squeeze())
+    print(cJlog_fun_eval(q1).full())
 
 
 if __name__ == '__main__':
