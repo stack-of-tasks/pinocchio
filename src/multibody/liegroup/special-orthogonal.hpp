@@ -383,8 +383,7 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log3((quat0.matrix().transpose() * quat1.matrix()).eval());
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) = quaternion::log3(quat0.conjugate()*quat1);
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
