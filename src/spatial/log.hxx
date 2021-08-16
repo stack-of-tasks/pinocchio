@@ -193,7 +193,6 @@ namespace pinocchio
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like,vec,3,1);
 
-      typedef Eigen::QuaternionBase<QuaternionLike> Quaternion_t;
       typedef typename Vector3Like::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options };
       typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;

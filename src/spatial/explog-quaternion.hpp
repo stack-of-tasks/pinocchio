@@ -75,12 +75,11 @@ namespace pinocchio
     /// \returns the integral of the twist motion over unit time.
     ///
     /// \param[in] motion the spatial motion.
-    /// \param[out] q the output transform.
+    /// \param[out] q the output transform in \f$\mathbb{R}^3 x S^3\f$.
     template<typename MotionDerived, typename Config_t>
     void exp6(const MotionDense<MotionDerived>& motion,
               Eigen::MatrixBase<Config_t>& qout)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Config_t, 7);
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options };
       typedef typename Config_t::Scalar Scalar;
       typedef typename MotionDerived::Vector3 Vector3;
@@ -138,6 +137,20 @@ namespace pinocchio
       exp6(motion, qout);
       return qout;
     }
+    
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the spatial velocity over unit time.
+    ///
+    /// \param[in] vec6 the vector representing the spatial velocity.
+    /// \param[out] qout the output transform in R^3 x S^3.
+    template<typename Vector6Like, typename Config_t>
+    void exp6(const Eigen::MatrixBase<Vector6Like>& vec6,
+              Eigen::MatrixBase<Config_t>& qout)
+    {
+      MotionRef<const Vector6Like> nu(vec6.derived());
+      ::pinocchio::quaternion::exp6(nu, qout);
+    }
 
     /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
     ///
@@ -148,14 +161,12 @@ namespace pinocchio
     Eigen::Matrix<typename Vector6Like::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
     exp6(const Eigen::MatrixBase<Vector6Like>& vec6)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
       typedef typename Vector6Like::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options };
       typedef Eigen::Matrix<Scalar,7,1,Options> ReturnType;
 
       ReturnType qout;
-      MotionRef<const Vector6Like> nu(vec6.derived());
-      ::pinocchio::quaternion::exp6(nu, qout);
+      ::pinocchio::quaternion::exp6(vec6, qout);
       return qout;
     }
 

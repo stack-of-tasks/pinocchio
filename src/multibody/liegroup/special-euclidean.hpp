@@ -546,9 +546,6 @@ namespace pinocchio
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Tangent_t)::Options> Vector3; 
-      // PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-      //   = log6(  SE3(quat0.matrix(), q0.derived().template head<3>()).actInv(
-      //              SE3(quat1.matrix(), q1.derived().template head<3>()))).toVector();
       const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
       const Vector3 dv = quat0.conjugate() * dv_pre;
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).noalias() = log6(quat0.conjugate()*quat1, dv).toVector();
@@ -603,12 +600,19 @@ namespace pinocchio
       
       using internal::if_then_else;
 
-      SE3 M0 (quat.matrix(), q.derived().template head<3>());
-      MotionRef<const Velocity_t> mref_v(v.derived());
-      SE3 M1 (M0 * exp6(mref_v));
+      typedef typename ConfigOut_t::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigOut_t)::Options };
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
 
-      out.template head<3>() = M1.translation();
-      quaternion::assignQuaternion(res_quat,M1.rotation()); // required by CasADi
+      Eigen::Matrix<Scalar,7,1,Options> expv;
+      quaternion::exp6(v, expv);
+      
+      ConstQuaternionMap_t quat1(expv.template tail<4>().data());
+      res_quat = quat.conjugate()*quat1;
+
+      Vector3 t = q.derived().template head<3>();
+      out.template head<3>() = quat * (expv.template head<3>()) + t;
+
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {

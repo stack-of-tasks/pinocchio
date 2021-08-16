@@ -193,6 +193,7 @@ namespace pinocchio
     MotionTpl<typename Vector7Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options>
     log6_proxy_quatvec(const Vector7Like & q)
     {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector7Like, 7);
       typedef typename Vector7Like::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options };
       typedef Eigen::Quaternion<Scalar,Options> Quaternion;
