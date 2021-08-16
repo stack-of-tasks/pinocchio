@@ -222,8 +222,9 @@ class TestLogExpDerivatives(TestCase):
     cJlog_eval = casadi.Function("Jlog", [cq0], [repl_dargs(cJlog)])
 
     q0 = np.array([0.,0.,0.,0.,0.,0.,1.])
-    q1 = np.array([0.,0.,0.,0.,0.,1.,0])
-    q1 = np.array([0.,0.,0.,0.,1.,0.,0])
+    q1 = np.array([0.,0.,0.,0.,0.,1.,0.])
+    q2 = np.array([0.,0.,0.,0.,1.,0.,0.])
+    q3 = np.array([0.,0.,0.,1.,0.,0.,0.])
     self.assertApprox(clog_eval(q0).full().squeeze(), np.zeros(6))    
     self.assertApprox(cJlog_eval(q0).full(), np.eye(6))
 
@@ -243,6 +244,11 @@ class TestLogExpDerivatives(TestCase):
     print(clog_fun_eval(q1).full().squeeze())
     print(cJlog_fun_eval(q1).full())
 
+    print(clog_fun_eval(q2).full().squeeze())
+    print(cJlog_fun_eval(q2).full())
+
+    print(clog_fun_eval(q3).full().squeeze())
+    print(cJlog_fun_eval(q3).full())
 
 if __name__ == '__main__':
   unittest.main()
