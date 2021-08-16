@@ -382,8 +382,9 @@ namespace pinocchio
 
   /// \brief Log: SE3 -> se3.
   ///
-  /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$.
-  ///
+  /// Pseudo-inverse of exp from \f$ SE3 \to { v,\omega \in \mathfrak{se}(3), ||\omega|| < 2\pi } \f$, 
+  /// using the quaternion representation of the rotation.
+  /// 
   /// \param[in] quat The rotation quaternion.
   /// \param[in] vec The translation vector.
   ///
