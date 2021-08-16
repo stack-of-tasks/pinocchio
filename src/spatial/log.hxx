@@ -201,7 +201,8 @@ namespace pinocchio
       using namespace internal;
 
       Scalar theta;
-      Vector3 w(quaternion::log3(quat, theta));
+      Vector3 w(quaternion::log3(quat, theta));  // theta nonsingular by construction
+      const Scalar theta2 = w.squaredNorm();
 
       Scalar st,ct; SINCOS(theta,&st,&ct);
       const Scalar cot_th_2 = ( st / (Scalar(1) - ct) ); // cotan of half angle
@@ -209,15 +210,15 @@ namespace pinocchio
       // we use formula (9.26) from https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
       // for the linear part of the Log map.
       // A Taylor series expansion of cotan can be used up to order 4
-      const Scalar theta2 = w.squaredNorm();  // non singular
       const Scalar th_2_squared = theta2 / Scalar(4);  // (theta / 2) squared
       const Scalar gamma_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
-      const Scalar gamma = if_then_else(GE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                        static_cast<Scalar>((Scalar(1) - theta / Scalar(2) * cot_th_2) / theta2), // then
-                                        gamma_alt // else
+      const Scalar gamma = if_then_else(LE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                        static_cast<Scalar>(gamma_alt), // then
+                                        static_cast<Scalar>((Scalar(1) - theta * cot_th_2 * Scalar(0.5)) / theta2) // else
                                         );
 
-      mout.linear().noalias() = vec - Scalar(0.5) * w.cross(vec) + gamma * w.cross(w.cross(vec));
+      const Scalar alpha = Scalar(1) - gamma * theta2;
+      mout.linear().noalias() = vec * alpha - Scalar(0.5) * w.cross(vec) + gamma * (w.dot(vec)) * w;
       mout.angular() = w;
     }
   };

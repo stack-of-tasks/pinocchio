@@ -52,12 +52,24 @@ namespace pinocchio
       bp::def("log3_quat",&log3_proxy<context::Quaternion>,
               bp::args("quat"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
-              "quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+              " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
 
       bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s>,
               bp::args("quat"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
+
+      bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s,context::Matrix1s>,
+              bp::args("quat","theta"),
+              "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
+              " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.\n"
+              "It also returns the angle of rotation theta around the rotation axis.");
+
+      bp::def("log3_quat",&log3_proxy_quatvec_fix<context::Vector4s,context::Scalar>,
+              bp::args("quat","theta"),
+              "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
+              " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.\n"
+              "It also returns the angle of rotation theta around the rotation axis.");
 
       bp::def("Jlog3",&Jlog3_proxy<context::Matrix3s>,
               bp::arg("R"),
@@ -78,7 +90,13 @@ namespace pinocchio
               bp::arg("v"),
               "Exp: se3 -> SE3. Return the integral of the input"
               " spatial velocity during time 1.");
-      
+
+      bp::def("exp6_quat",&exp6_proxy_quatvec<context::Motion::Vector6>,
+              bp::arg("v"),
+              "Exp: se3 -> R3 * S3. Return the integral of the input 6D spatial velocity over unit time,"
+              " using quaternion to represent rotation as in the standard configuration layout"
+              " for the Lie group SE3.");
+
       bp::def("Jexp6",&Jexp6_proxy<context::Scalar,context::Options>,
               bp::arg("motion"),
               "Jacobian of exp(v) which maps from the tangent of SE(3) at exp(v) to"

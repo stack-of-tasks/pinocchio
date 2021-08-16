@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_explog_quaternion_hpp__
@@ -55,7 +55,6 @@ namespace pinocchio
       
     }
     
-    ///
     /// \brief Exp: so3 -> SO3 (quaternion)
     ///
     /// \returns the integral of the velocity vector as a quaternion.
@@ -71,7 +70,95 @@ namespace pinocchio
       return res;
     }
     
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
     ///
+    /// \returns the integral of the twist motion over unit time.
+    ///
+    /// \param[in] motion the spatial motion.
+    /// \param[out] q the output transform.
+    template<typename MotionDerived, typename Config_t>
+    void exp6(const MotionDense<MotionDerived>& motion,
+              Eigen::MatrixBase<Config_t>& qout)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Config_t, 7);
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options };
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename MotionDerived::Vector3 Vector3;
+      typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+      const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+
+      const typename MotionDerived::ConstAngularType & w = motion.angular();
+      const typename MotionDerived::ConstLinearType & v = motion.linear();
+
+      const Scalar t2 = w.squaredNorm() + eps * eps;
+      const Scalar t = math::sqrt(t2);
+
+      Scalar ct, st; SINCOS(t, &st, &ct);
+
+      const Scalar inv_t2 = Scalar(1) / t2;
+      const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<3>();  // Taylor expansion precision
+
+      using ::pinocchio::internal::LT;
+      using ::pinocchio::internal::if_then_else;
+
+      const Scalar alpha_wxv = if_then_else(LT, t, ts_prec,
+                                            Scalar(0.5) - t2/Scalar(24),  // then: use Taylor expansion
+                                            (Scalar(1) - ct)*inv_t2  // else
+                                            );
+
+      const Scalar alpha_w2 = if_then_else(LT, t, ts_prec,
+                                           Scalar(1)/Scalar(6) - t2/Scalar(120),
+                                           (t - st)*inv_t2 / t
+                                           );
+
+      // linear part
+      Eigen::Map<Vector3> trans_(qout.derived().template head<3>().data());
+      trans_.noalias() = v + alpha_wxv * w.cross(v) + alpha_w2*w.cross(w.cross(v));
+
+      // quaternion part
+      typedef Eigen::Map<Quaternion_t> QuaternionMap_t;
+      QuaternionMap_t quat_(qout.derived().template tail<4>().data());
+      exp3(w, quat_);
+    }
+
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the twist motion over unit time.
+    ///
+    /// \param[in] motion the spatial motion.
+    template<typename MotionDerived>
+    Eigen::Matrix<typename MotionDerived::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
+    exp6(const MotionDense<MotionDerived>& motion)
+    {
+      typedef typename MotionDerived::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
+      typedef Eigen::Matrix<Scalar,7,1,Options> ReturnType;
+
+      ReturnType qout;
+      exp6(motion, qout);
+      return qout;
+    }
+
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the spatial velocity over unit time.
+    ///
+    /// \param[in] vec6 the vector representing the spatial velocity.
+    template<typename Vector6Like>
+    Eigen::Matrix<typename Vector6Like::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+    exp6(const Eigen::MatrixBase<Vector6Like>& vec6)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+      typedef typename Vector6Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options };
+      typedef Eigen::Matrix<Scalar,7,1,Options> ReturnType;
+
+      ReturnType qout;
+      MotionRef<const Vector6Like> nu(vec6.derived());
+      ::pinocchio::quaternion::exp6(nu, qout);
+      return qout;
+    }
+
     /// \brief Same as \ref log3 but with a unit quaternion as input.
     ///
     /// \param[in] quat the unit quaternion.
