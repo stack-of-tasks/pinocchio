@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_liegroup_special_euclidean_operation_hpp__
@@ -539,14 +539,19 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      typedef typename Tangent_t::Scalar Scalar;
       ConstQuaternionMap_t quat0 (q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat0,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       ConstQuaternionMap_t quat1 (q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      const SE3 M0(quat0, q0.derived().template head<3>());
-      const SE3 M1(quat1, q1.derived().template head<3>());
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d) = log6(M0.actInv(M1)).toVector();
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Tangent_t)::Options> Vector3; 
+      // PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
+      //   = log6(  SE3(quat0.matrix(), q0.derived().template head<3>()).actInv(
+      //              SE3(quat1.matrix(), q1.derived().template head<3>()))).toVector();
+      const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
+      const Vector3 dv = quat0.conjugate() * dv_pre;
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).noalias() = log6(quat0.conjugate()*quat1, dv).toVector();
     }
 
     /// \cheatsheet \f$ \frac{\partial\ominus}{\partial q_1} {}^1X_0 = - \frac{\partial\ominus}{\partial q_0} \f$
