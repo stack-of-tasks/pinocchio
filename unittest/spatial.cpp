@@ -688,6 +688,14 @@ BOOST_AUTO_TEST_CASE ( test_Inertia )
     BOOST_CHECK(M3.isApprox(Ivariation));
   }
 
+  // Test inverse
+  {
+    Inertia I(Inertia::Random());
+    Inertia::Matrix6 I_inv = I.inverse();
+    
+    BOOST_CHECK(I_inv.isApprox(I.matrix().inverse()));
+  }
+
   // Test dynamic parameters
   {
     Inertia I(Inertia::Random());

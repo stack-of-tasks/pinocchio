@@ -36,6 +36,10 @@ namespace pinocchio
     void matrix(const Eigen::MatrixBase<Matrix6Like> & mat) const { derived().matrix_impl(mat); }
     Matrix6 matrix() const { return derived().matrix_impl(); }
     operator Matrix6 () const { return matrix(); }
+    
+    template<typename Matrix6Like>
+    void inverse(const Eigen::MatrixBase<Matrix6Like> & mat) const { derived().inverse_impl(mat); }
+    Matrix6 inverse() const { return derived().inverse_impl(); }
 
     Derived& operator= (const Derived& clone){return derived().__equl__(clone);}
     bool operator==(const Derived & other) const {return derived().isEqual(other);}
@@ -336,6 +340,42 @@ namespace pinocchio
       Matrix6 M;
       matrix_impl(M);
       return M;
+    }
+    
+    template<typename Matrix6Like>
+    void inverse_impl(const Eigen::MatrixBase<Matrix6Like> & M_) const
+    {
+      Matrix6Like & M = M_.const_cast_derived();
+      inertia().inverse(M.template block<3,3>(ANGULAR,ANGULAR));
+      
+      M.template block<3,3>(LINEAR, ANGULAR).noalias() = -M.template block<3,3>(ANGULAR,ANGULAR).colwise().cross(lever());
+      M.template block<3,3>(ANGULAR,LINEAR ) = M.template block<3,3>(LINEAR, ANGULAR).transpose();
+      
+      const Scalar &
+      cx = lever()[0],
+      cy = lever()[1],
+      cz = lever()[2];
+      
+      M.template block<3,3>(LINEAR, LINEAR ).col(0).noalias()
+      = cy * M.template block<3,3>(LINEAR, ANGULAR).col(2)
+      - cz * M.template block<3,3>(LINEAR, ANGULAR).col(1);
+      
+      M.template block<3,3>(LINEAR, LINEAR ).col(1).noalias()
+      = cz * M.template block<3,3>(LINEAR, ANGULAR).col(0)
+      - cx * M.template block<3,3>(LINEAR, ANGULAR).col(2);
+      
+      M.template block<3,3>(LINEAR, LINEAR ).col(2).noalias()
+      = cx * M.template block<3,3>(LINEAR, ANGULAR).col(1)
+      - cy * M.template block<3,3>(LINEAR, ANGULAR).col(0);
+      
+      const Scalar m_inv = Scalar(1)/mass();
+      M.template block<3,3>(LINEAR, LINEAR ).diagonal().array() += m_inv;
+    }
+    
+    Matrix6 inverse_impl() const
+    {
+      Matrix6 res; inverse_impl(res);
+      return res;
     }
 
     /** Returns the representation of the matrix as a vector of dynamic parameters.
