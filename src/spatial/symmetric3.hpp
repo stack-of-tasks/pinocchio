@@ -99,6 +99,35 @@ namespace pinocchio
     
     void fill(const Scalar value) { m_data.fill(value); }
     
+    template<typename Matrix3Like>
+    void inverse(const Eigen::MatrixBase<Matrix3Like> & res_) const
+    {
+      Matrix3Like & res = res_.const_cast_derived();
+      const Scalar &
+      a11 = m_data[0],
+      a21 = m_data[1],
+      a22 = m_data[2],
+      a31 = m_data[3],
+      a32 = m_data[4],
+      a33 = m_data[5];
+      
+      res(0,0) = a33*a22 - a32*a32;
+      res(1,0) = res(0,1) = -(a33*a21 - a32*a31);
+      res(2,0) = res(0,2) = a32*a21 - a22*a31;
+      res(1,1) = a33*a11 - a31*a31;
+      res(2,1) = res(1,2) = -(a32*a11 - a21*a31);
+      res(2,2) = a22*a11 - a21*a21;
+      
+      const Scalar det = a11*res(0,0) + a21*res(0,1) + a31*res(0,2);
+      res /= det;
+    }
+    
+    Matrix3 inverse() const
+    {
+      Matrix3 res; inverse(res);
+      return res;
+    }
+    
     struct SkewSquare
     {
       const Vector3 & v;
@@ -127,16 +156,6 @@ namespace pinocchio
       m_data[1]-=x*y; m_data[2]+=x*x+z*z;
       m_data[3]-=x*z; m_data[4]-=y*z; m_data[5]+=x*x+y*y;
       return *this;
-    }
-    
-    template<typename D>
-    friend Matrix3 operator- (const Symmetric3Tpl & S, const Eigen::MatrixBase <D> & M)
-    {
-      EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(D,3,3);
-      Matrix3 result (S.matrix());
-      result -= M;
-      
-      return result;
     }
 
     struct AlphaSkewSquare

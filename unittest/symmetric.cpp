@@ -255,6 +255,14 @@ BOOST_AUTO_TEST_CASE ( test_pinocchio_Sym3 )
     S3 += S3;
     BOOST_CHECK(!S1.isApprox(S3));
   }
+  
+  // Test inverse
+  {
+    Symmetric3 S1 = Symmetric3::RandomPositive();
+    Symmetric3::Matrix3 inv = S1.inverse();
+    
+    BOOST_CHECK(inv.isApprox(S1.matrix().inverse()));
+  }
 
     // Time test
     {
