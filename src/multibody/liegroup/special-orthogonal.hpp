@@ -565,7 +565,6 @@ namespace pinocchio
       QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       quaternion::slerp(u,quat0,quat1,quat_res);
-//      quat_res = quat0.slerp(u, quat1);
       assert(quaternion::isNormalized(quat_res,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
     }
 
