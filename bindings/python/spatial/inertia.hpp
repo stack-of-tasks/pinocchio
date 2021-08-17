@@ -88,7 +88,10 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self -= bp::self)
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def(bp::self * bp::other<Motion>())
         
         .add_property("np",(Matrix6 (Inertia::*)() const)&Inertia::matrix)

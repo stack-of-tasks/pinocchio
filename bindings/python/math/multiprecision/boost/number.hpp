@@ -41,8 +41,8 @@ namespace pinocchio
 //        .def(bp::init<unsigned long int>("Copy constructor.",bp::args("self","value")))
         .def(bp::init<std::string>("Constructor from a string.",bp::args("self","str_value")))
         
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wself-assign-overloaded"
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self +  bp::self)
         .def(bp::self += bp::self)
         .def(bp::self -  bp::self)
@@ -59,8 +59,8 @@ namespace pinocchio
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
         .def(bp::self_ns::pow(bp::self_ns::self,long()))
-#pragma GCC diagnostic pop
-      
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
         .def("str",&BoostNumber::str,bp::args("self","precision","scientific"))
 
         .def("default_precision",

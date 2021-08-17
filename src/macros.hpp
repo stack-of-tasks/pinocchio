@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_macros_hpp__
@@ -80,14 +80,20 @@ namespace pinocchio
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("GCC diagnostic push")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("GCC diagnostic pop")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS  _Pragma("GCC diagnostic ignored \"-Wvariadic-macros\"")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED  _Pragma("GCC diagnostic ignored \"-Wself-assign-overloaded\"")
 #elif defined (WIN32)
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH  _Pragma("warning(push)")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP   _Pragma("warning(pop)")
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  _Pragma("warning(disable : 4996)")
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
 #else
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 # define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS
+# define PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
 #endif // __GNUC__
 
 // Handle explicitely the GCC boring warning: 'anonymous variadic macros were introduced in C++11'
@@ -99,10 +105,8 @@ namespace pinocchio
   #pragma GCC system_header
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wvariadic-macros"
-#endif
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS
 
 /// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
 #if !defined(PINOCCHIO_NO_THROW)
@@ -149,8 +153,6 @@ namespace pinocchio
   _PINOCCHIO_EXPAND(_PINOCCHIO_EXPAND(_PINOCCHIO_GET_OVERRIDE_FOR_CHECK_ARGUMENT_SIZE(__VA_ARGS__,_PINOCCHIO_CHECK_ARGUMENT_SIZE_3, \
   _PINOCCHIO_CHECK_ARGUMENT_SIZE_2, _PINOCCHIO_CHECK_ARGUMENT_SIZE_1))(__VA_ARGS__))
 
-#if defined(__GNUC__) || defined(__clang__)
-  #pragma GCC diagnostic pop
-#endif
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 #endif // ifndef __pinocchio_macros_hpp__
