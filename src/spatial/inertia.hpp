@@ -32,6 +32,8 @@ namespace pinocchio
     const Symmetric3 & inertia() const { return static_cast<const Derived*>(this)->inertia(); }
     Symmetric3 &       inertia() { return static_cast<const Derived*>(this)->inertia(); }
 
+    template<typename Matrix6Like>
+    void matrix(const Eigen::MatrixBase<Matrix6Like> & mat) const { derived().matrix_impl(mat); }
     Matrix6 matrix() const { return derived().matrix_impl(); }
     operator Matrix6 () const { return matrix(); }
 
@@ -316,17 +318,23 @@ namespace pinocchio
       mass() = static_cast<Scalar>(std::rand())/static_cast<Scalar>(RAND_MAX);
       lever().setRandom(); inertia().setRandom();
     }
-
-    Matrix6 matrix_impl() const
+    
+    template<typename Matrix6Like>
+    void matrix_impl(const Eigen::MatrixBase<Matrix6Like> & M_) const
     {
-      Matrix6 M;
+      Matrix6Like & M = M_.const_cast_derived();
       
       M.template block<3,3>(LINEAR, LINEAR ).setZero();
       M.template block<3,3>(LINEAR, LINEAR ).diagonal().fill (mass());
       M.template block<3,3>(ANGULAR,LINEAR ) = alphaSkew(mass(),lever());
       M.template block<3,3>(LINEAR, ANGULAR) = -M.template block<3,3>(ANGULAR, LINEAR);
       M.template block<3,3>(ANGULAR,ANGULAR) = (inertia() - AlphaSkewSquare(mass(),lever())).matrix();
+    }
 
+    Matrix6 matrix_impl() const
+    {
+      Matrix6 M;
+      matrix_impl(M);
       return M;
     }
 
