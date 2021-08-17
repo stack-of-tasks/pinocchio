@@ -71,8 +71,8 @@ namespace pinocchio
                       &InertiaPythonVisitor::setInertia,
                       "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the rotational inertia around the center of mass.")
         
-        .def("matrix",&Inertia::matrix,bp::arg("self"))
-        .def("inverse",&Inertia::inverse,bp::arg("self"))
+        .def("matrix",(Matrix6 (Inertia::*)() const)&Inertia::matrix,bp::arg("self"))
+        .def("inverse",(Matrix6 (Inertia::*)() const)&Inertia::inverse,bp::arg("self"))
         .def("se3Action",&Inertia::template se3Action<Scalar,Options>,
              bp::args("self","M"),"Returns the result of the action of M on *this.")
         .def("se3ActionInverse",&Inertia::template se3ActionInverse<Scalar,Options>,
@@ -91,7 +91,7 @@ namespace pinocchio
         .def(bp::self -= bp::self)
         .def(bp::self * bp::other<Motion>())
         
-        .add_property("np",&Inertia::matrix)
+        .add_property("np",(Matrix6 (Inertia::*)() const)&Inertia::matrix)
         .def("vxiv",
              &Inertia::template vxiv<Motion>,
              bp::args("self","v"),
@@ -162,7 +162,7 @@ namespace pinocchio
              "Returns the Inertia of a box shape with a mass and of dimension the semi axis of length_{x,y,z}.")
         .staticmethod("FromBox")
         
-        .def("__array__",&Inertia::matrix)
+        .def("__array__",(Matrix6 (Inertia::*)() const)&Inertia::matrix)
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
 #endif
