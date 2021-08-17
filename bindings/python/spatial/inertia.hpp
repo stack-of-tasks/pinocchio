@@ -72,6 +72,7 @@ namespace pinocchio
                       "Rotational part of the Spatial Inertia, i.e. a symmetric matrix representing the rotational inertia around the center of mass.")
         
         .def("matrix",&Inertia::matrix,bp::arg("self"))
+        .def("inverse",&Inertia::inverse,bp::arg("self"))
         .def("se3Action",&Inertia::template se3Action<Scalar,Options>,
              bp::args("self","M"),"Returns the result of the action of M on *this.")
         .def("se3ActionInverse",&Inertia::template se3ActionInverse<Scalar,Options>,
