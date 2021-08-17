@@ -177,7 +177,7 @@ namespace pinocchio
     {
       assert(check_expression_if_real<Scalar>(isZero(I6 - I6.transpose())));
       mass() = I6(LINEAR, LINEAR);
-      const Matrix3 & mc_cross = I6.template block <3,3>(ANGULAR,LINEAR);
+      const typename Matrix6::template ConstFixedBlockXpr<3,3>::Type mc_cross = I6.template block <3,3>(ANGULAR,LINEAR);
       lever() = unSkew(mc_cross);
       lever() /= mass();
       
