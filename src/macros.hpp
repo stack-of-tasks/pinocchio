@@ -8,6 +8,10 @@
 // On Windows, __cplusplus is not necessarily set to the C++ version being used.
 // See https://docs.microsoft.com/fr-fr/cpp/build/reference/zc-cplusplus?view=vs-2019 for further information.
 
+#if (__cplusplus >= 202002L)
+  #define PINOCCHIO_WITH_CXX20_SUPPORT
+#endif
+
 #if (__cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703))
   #define PINOCCHIO_WITH_CXX17_SUPPORT
 #endif
