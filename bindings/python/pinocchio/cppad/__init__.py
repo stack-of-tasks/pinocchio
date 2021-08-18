@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2020-2021 INRIA
 #
-
+import pycppad
 from ..pinocchio_pywrap_cppad import *
 
 from ..pinocchio_pywrap_cppad import __version__, __raw_version__
