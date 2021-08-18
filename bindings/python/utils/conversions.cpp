@@ -41,15 +41,16 @@ namespace pinocchio
       static SE3 toSE3fromTupleOrList(const TupleOrList & v)
       {
         //bp::extract<SE3::Scalar> to_double;
-        SE3::Quaternion q(
-            (Scalar)bp::extract<Scalar>(v[6]),
-            (Scalar)bp::extract<Scalar>(v[3]),
-            (Scalar)bp::extract<Scalar>(v[4]),
-            (Scalar)bp::extract<Scalar>(v[5]));
-        SE3::Vector3 t(
-            (Scalar)bp::extract<Scalar>(v[0]),
-            (Scalar)bp::extract<Scalar>(v[1]),
-            (Scalar)bp::extract<Scalar>(v[2]));
+	const Scalar& v0 = bp::extract<Scalar>(v[0]);
+	const Scalar& v1 = bp::extract<Scalar>(v[1]);
+	const Scalar& v2 = bp::extract<Scalar>(v[2]);
+	const Scalar& v3 = bp::extract<Scalar>(v[3]);
+	const Scalar& v4 = bp::extract<Scalar>(v[4]);
+	const Scalar& v5 = bp::extract<Scalar>(v[5]);
+	const Scalar& v6 = bp::extract<Scalar>(v[6]);
+		
+	SE3::Quaternion q(v6, v3, v4, v5);
+        SE3::Vector3 t(v0,v1,v2);
         return SE3(q.matrix(), t);
       }
 
