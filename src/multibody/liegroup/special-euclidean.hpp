@@ -608,10 +608,11 @@ namespace pinocchio
       quaternion::exp6(v, expv);
       
       ConstQuaternionMap_t quat1(expv.template tail<4>().data());
-      res_quat = quat.conjugate()*quat1;
+      res_quat = quat*quat1;
 
       Vector3 t = q.derived().template head<3>();
-      out.template head<3>() = quat * (expv.template head<3>()) + t;
+      Vector3 t1 = expv.template head<3>();
+      out.template head<3>() = (quat * t1) + t;
 
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
