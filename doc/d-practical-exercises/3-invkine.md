@@ -43,8 +43,8 @@ robot.initDisplay(loadModel=True)
 NQ, NV = robot.model.nq, robot.model.nv
 
 # create valid random position
-q = pin.integrate(robot.model, pin.neutral(robot.model), np.random.rand(NV) * 10)
-robot.viz.display(q)
+q = pin.randomConfiguration(robot.model)
+robot.display(q)
 
 IDX_TOOL = 24
 IDX_BASIS = 23
@@ -61,8 +61,8 @@ goal placement.
 
 ```py
 def place(name, M):
-    robot.viz.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
-    robot.viz.viewer.gui.refresh()
+    robot.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
+    robot.viewer.gui.refresh()
 
 def Rquat(x, y, z, w):
     q = pin.Quaternion(x, y, z, w)
@@ -70,7 +70,8 @@ def Rquat(x, y, z, w):
     return q.matrix()
 
 Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
-robot.viz.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
+robot.
+viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
 place('world/framegoal', Mgoal)
 ```
 
