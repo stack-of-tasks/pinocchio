@@ -18,9 +18,9 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
 model_path = join(pinocchio_model_dir,"example-robot-data/robots")
-mesh_dir = model_path
+mesh_dir = pinocchio_model_dir
 urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/urdf"),urdf_filename)
+urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
 srdf_filename = "talos.srdf"
 srdf_full_path = join(join(model_path,"talos_data/srdf"),srdf_filename)
 
@@ -64,7 +64,7 @@ contact_datas = []
 
 for frame_id in frame_ids:
     frame = model.frames[frame_id]
-    contact_model = pin.RigidContactModel(pin.ContactType.CONTACT_6D,frame.parent,frame.placement)
+    contact_model = pin.RigidContactModel(pin.ContactType.CONTACT_6D,model,frame.parent,frame.placement)
 
     contact_models.append(contact_model)
     contact_datas.append(contact_model.createData())
