@@ -8,9 +8,11 @@
 #include <eigenpy/memory.hpp>
 
 #include "pinocchio/algorithm/contact-info.hpp"
+
 #include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/macros.hpp"
 #include "pinocchio/bindings/python/utils/comparable.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactModel)
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactData)
@@ -64,33 +66,36 @@ namespace pinocchio
       typedef typename RigidContactModel::ContactData ContactData;
       typedef typename RigidContactModel::BaumgarteCorrectorParameters BaumgarteCorrectorParameters;
 
+      typedef ModelTpl<Scalar,RigidContactModel::Options,JointCollectionDefaultTpl> Model;
+      
     public:
       
       template<class PyClass>
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>(bp::arg("self"),
-                        "Default constructor."))
-        .def(bp::init<ContactType,JointIndex,SE3,JointIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,Model,JointIndex,SE3,JointIndex,SE3,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
+               bp::arg("model"),
                bp::arg("joint1_id"),
                bp::arg("joint1_placement"),
                bp::arg("joint2_id"),
                bp::arg("joint2_placement"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, joint index and placement for the two joints implied in the constraint."))
-        .def(bp::init<ContactType,JointIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,Model,JointIndex,SE3,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
+               bp::arg("model"),
                bp::arg("joint1_id"),
                bp::arg("joint1_placement"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, joint index and placement only for the first joint implied in the constraint."))
-        .def(bp::init<ContactType,JointIndex,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,Model,JointIndex,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
+               bp::arg("model"),
                bp::arg("joint1_id"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType and joint index. The base joint is taken as 0 in the constraint."))        
@@ -112,7 +117,11 @@ namespace pinocchio
         .PINOCCHIO_ADD_PROPERTY(Self,desired_contact_acceleration,"Desired contact spatial acceleration.")
         .PINOCCHIO_ADD_PROPERTY(Self,corrector,"Corrector parameters.")
         
-        .def("size", &RigidContactModel::size, "Size of the contact")
+        .PINOCCHIO_ADD_PROPERTY(Self,colwise_joint1_sparsity,"Sparsity pattern associated to joint 1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,colwise_joint2_sparsity,"Sparsity pattern associated to joint 2.")
+        .PINOCCHIO_ADD_PROPERTY(Self,colwise_span_indexes,"Indexes of the columns spanned by the constraints.")
+
+        .def("size", &RigidContactModel::size, "Size of the constraint")
         
         .def("createData",
              &RigidContactModelPythonVisitor::createData,
@@ -190,6 +199,10 @@ namespace pinocchio
         .PINOCCHIO_ADD_PROPERTY(Self,contact_acceleration_deviation,
                                 "Contact deviation from the reference acceleration (a.k.a the error).")
         
+        .PINOCCHIO_ADD_PROPERTY(Self,extended_motion_propagators_joint1,"Extended force/motion propagators for joint 1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,lambdas_joint1,"Extended force/motion propagators for joint 1.")
+        .PINOCCHIO_ADD_PROPERTY(Self,extended_motion_propagators_joint2,"Extended force/motion propagators for joint 2.")
+        
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
@@ -201,6 +214,9 @@ namespace pinocchio
                                      bp::no_init)
         .def(RigidContactDataPythonVisitor())
         ;
+        
+        typedef typename RigidContactData::VectorOfMatrix6 VectorOfMatrix6;
+        StdVectorPythonVisitor<VectorOfMatrix6,true>::expose("StdVec_Matrix6_");
         
       }
     };
