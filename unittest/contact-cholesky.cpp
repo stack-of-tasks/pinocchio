@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #include <iostream>
@@ -272,10 +272,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),WORLD);
+  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
 
@@ -340,7 +340,6 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // test Operational Space Inertia Matrix
-  
   MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
   MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
   MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
@@ -492,10 +491,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),WORLD);
+  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
 //  RigidContactModel ci_RA(CONTACT_3D,model.getJointId(RA),LOCAL);
@@ -693,10 +692,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL);
+  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -767,10 +766,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
   
@@ -843,16 +842,16 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,0,model.getJointId(RF),WORLD);
+  RigidContactModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,0,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_6D,model,0,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
-  RigidContactModel ci_RA(CONTACT_6D,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RA(CONTACT_6D,model,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RA);
   contact_datas.push_back(RigidContactData(ci_RA));
-  RigidContactModel ci_LA(CONTACT_6D,0,model.getJointId(LA),LOCAL);
+  RigidContactModel ci_LA(CONTACT_6D,model,0,model.getJointId(LA),LOCAL);
   contact_models.push_back(ci_LA);
   contact_datas.push_back(RigidContactData(ci_LA));
   
@@ -1021,16 +1020,16 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,0,model.getJointId(RF),WORLD);
+  RigidContactModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,0,model.getJointId(LF),WORLD);
+  RigidContactModel ci_LF(CONTACT_3D,model,0,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidContactData(ci_LF));
-  RigidContactModel ci_RA(CONTACT_3D,0,model.getJointId(RA),LOCAL);
+  RigidContactModel ci_RA(CONTACT_3D,model,0,model.getJointId(RA),LOCAL);
   contact_models.push_back(ci_RA);
   contact_datas.push_back(RigidContactData(ci_RA));
-  RigidContactModel ci_LA(CONTACT_3D,0,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_LA(CONTACT_3D,model,0,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_LA);
   contact_datas.push_back(RigidContactData(ci_LA));
   
@@ -1113,9 +1112,9 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel loop_RF_LF_local(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidContactModel loop_RF_LF_world(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),WORLD);
-  RigidContactModel loop_RA_LA_lwa(CONTACT_6D,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  RigidContactModel loop_RF_LF_local(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidContactModel loop_RF_LF_world(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
+  RigidContactModel loop_RA_LA_lwa(CONTACT_6D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
   loop_RF_LF_local.joint2_placement.setRandom();
@@ -1227,9 +1226,9 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel loop_RF_LF_local(CONTACT_3D,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidContactModel loop_RF_LF_world(CONTACT_3D,model.getJointId(RF),model.getJointId(LF),WORLD);
-  RigidContactModel loop_RA_LA_lwa(CONTACT_3D,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  RigidContactModel loop_RF_LF_local(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidContactModel loop_RF_LF_world(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
+  RigidContactModel loop_RA_LA_lwa(CONTACT_3D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
   loop_RF_LF_local.joint2_placement.setRandom();
