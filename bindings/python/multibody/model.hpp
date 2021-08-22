@@ -396,7 +396,7 @@ namespace pinocchio
         serialize< std::vector<Index> >();
         StdVectorPythonVisitor< std::vector<IndexVector> >::expose("StdVec_IndexVector");
         serialize< std::vector<IndexVector> >();
-        StdVectorPythonVisitor< std::vector<std::string> >::expose("StdVec_StdString");
+        StdVectorPythonVisitor< std::vector<std::string>,true >::expose("StdVec_StdString");
         StdVectorPythonVisitor<std::vector<bool>,true>::expose("StdVec_Bool");
         StdVectorPythonVisitor<std::vector<Scalar>,true>::expose("StdVec_Scalar");
         
