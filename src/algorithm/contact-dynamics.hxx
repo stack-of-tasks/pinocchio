@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA CNRS
+// Copyright (c) 2019-2021 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_dynamics_hxx__
@@ -11,6 +11,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hxx"
+#include "pinocchio/algorithm/model.hpp"
 
 #include <limits>
 
