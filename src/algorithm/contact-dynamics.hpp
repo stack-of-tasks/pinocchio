@@ -54,7 +54,8 @@ namespace pinocchio
   /// \param[in] q The joint configuration (size model.nq).
   /// \param[in] v The joint velocity (size model.nv).
   /// \param[in] tau The joint torque vector (size model.nv).
-  /// \param[in] contact_models Vector of contact information related to the problem.
+  /// \param[in] contact_models Vector of contact models.
+  /// \param[in] contact_datas Vector of contact data.
   /// \param[in] settings Proximal settings (mu, accuracy and maximal number of iterations).
   ///
   /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
@@ -94,10 +95,8 @@ namespace pinocchio
   /// \param[in] q The joint configuration (size model.nq).
   /// \param[in] v The joint velocity (size model.nv).
   /// \param[in] tau The joint torque vector (size model.nv).
-  /// \param[in] contact_models Vector of contact information related to the problem.
-  /// \param[in] mu Damping factor for cholesky decomposition. Set to zero if constraints are full rank.
-  ///
-  /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
+  /// \param[in] contact_models Vector of contact models.
+  /// \param[in] contact_datas Vector of contact data.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
