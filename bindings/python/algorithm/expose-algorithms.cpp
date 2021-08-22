@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -21,6 +21,7 @@ namespace pinocchio
       exposeEnergy();
       exposeKinematics();
       
+      exposeContactJacobian();
       exposeContactDynamics();
       exposeContactDynamicsDerivatives();
       exposeConstrainedDynamics();
