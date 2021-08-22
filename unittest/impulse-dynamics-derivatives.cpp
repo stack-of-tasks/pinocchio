@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 CNRS INRIA
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
 #include "pinocchio/algorithm/jacobian.hpp"
@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,RF_id,LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -167,8 +167,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,RF_id,LOCAL);
+  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
+  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
@@ -266,8 +266,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,LF_id,LOCAL_WORLD_ALIGNED);
-  RigidContactModel ci_RF(CONTACT_3D,RF_id,LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
+  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));

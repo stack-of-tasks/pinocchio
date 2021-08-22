@@ -476,11 +476,11 @@ BOOST_AUTO_TEST_CASE(test_contactDynamics_casadi_algo)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_data;
 
-  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,model,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidContactData(ci_RF));
 
-  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,model,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_LF.joint1_placement.setRandom();
   contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidContactData(ci_LF));
   const double mu0 = 0.;
@@ -535,11 +535,11 @@ BOOST_AUTO_TEST_CASE(test_contactDynamicsDerivatives_casadi_algo)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_data;
 
-  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidContactModel ci_RF(pinocchio::CONTACT_3D,model,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidContactData(ci_RF));
 
-  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidContactModel ci_LF(pinocchio::CONTACT_6D,model,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_LF.joint1_placement.setRandom();
   contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidContactData(ci_LF));
   const double mu0 = 0.;
