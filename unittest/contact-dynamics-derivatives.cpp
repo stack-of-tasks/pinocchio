@@ -509,6 +509,8 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   }
   
   BOOST_CHECK(ddq_dq_fd.isApprox(ddq_dq,sqrt(eps)));
+  std::cout << "ddq_dq_fd:\n" << ddq_dq_fd - ddq_dq << std::endl;
+  std::cout << "ddq_dq:\n" << ddq_dq << std::endl;
   BOOST_CHECK(dacc_corrector_RF_dq.isApprox(dacc_corrector_RF_dq_fd,sqrt(eps)));
   BOOST_CHECK(dacc_corrector_LF_dq.isApprox(dacc_corrector_LF_dq_fd,sqrt(eps)));
   // std::cout << "dacc_corrector_RF_dq:\n" << dacc_corrector_RF_dq << std::endl;
@@ -530,6 +532,23 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   BOOST_CHECK(ddq_dv_fd.isApprox(ddq_dv,sqrt(eps)));
   BOOST_CHECK(dacc_corrector_RF_dv.isApprox(dacc_corrector_RF_dv_fd,sqrt(eps)));
   BOOST_CHECK(dacc_corrector_LF_dv.isApprox(dacc_corrector_LF_dv_fd,sqrt(eps)));
+  
+  Data::Matrix6x dacc_corrector_RF_dtau_fd(6,model.nv);
+  Data::Matrix3x dacc_corrector_LF_dtau_fd(3,model.nv);
+  for(Eigen::DenseIndex k = 0; k < model.nv; ++k)
+  {
+    Eigen::VectorXd tau_plus(tau);
+    tau_plus[k] += eps;
+    
+    Eigen::VectorXd ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_datas_fd,prox_settings);
+    dacc_corrector_RF_dtau_fd.col(k) = (contact_datas_fd[0].contact_acceleration_error - contact_datas[0].contact_acceleration_error).toVector() / eps;
+    dacc_corrector_LF_dtau_fd.col(k) = (contact_datas_fd[1].contact_acceleration_error.linear() - contact_datas[1].contact_acceleration_error.linear()) / eps;
+    
+    ddq_dtau_fd.col(k) = (ddq_plus - ddq0)/eps;
+  }
+  BOOST_CHECK(ddq_dtau_fd.isApprox(ddq_dtau,sqrt(eps)));
+  BOOST_CHECK(dacc_corrector_RF_dtau_fd.isZero(sqrt(eps)));
+  BOOST_CHECK(dacc_corrector_LF_dtau_fd.isZero(sqrt(eps)));
 }
 
 BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
