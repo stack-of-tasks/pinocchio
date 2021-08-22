@@ -347,6 +347,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   BOOST_CHECK(iosim.isApprox(JMinvJt));
   BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
   
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
+  
   ContactCholeskyDecomposition contact_chol_decomposition_mu;
   contact_chol_decomposition_mu.allocate(model, contact_models);
   contact_chol_decomposition_mu.compute(model,data,contact_models,contact_datas,0.);
@@ -671,6 +678,21 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   
   MatrixXd mat3 = contact_chol_decomposition.matrix();
   BOOST_CHECK(mat3.isApprox(H));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<9>(0).rightCols(model.nv).transpose();
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
@@ -745,6 +767,21 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   
   MatrixXd H_inv_ref = H_recomposed.inverse();
   BOOST_CHECK(H_inv.isApprox(H_inv_ref));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
@@ -819,6 +856,21 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   
   MatrixXd H_inv_ref = H_recomposed.inverse();
   BOOST_CHECK(H_inv.isApprox(H_inv_ref));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
@@ -997,6 +1049,23 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   BOOST_CHECK(ei_inv2.isApprox(H_inv_ref*ei));
   BOOST_CHECK(ei_inv.isApprox(H_inv*ei));
   BOOST_CHECK(ei_inv2.isApprox(H_inv*ei));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt
+  = H.middleRows<24>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<24>(0).rightCols(model.nv).transpose()
+  + mu * Eigen::MatrixXd::Identity(24,24);
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
@@ -1089,6 +1158,21 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt = H.middleRows<15>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<15>(0).rightCols(model.nv).transpose();
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
@@ -1203,6 +1287,23 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   MatrixXd H_inv_ref = H_recomposed.inverse();
   
   BOOST_CHECK(H_inv_ref.isApprox(H_inv));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt =
+  H.middleRows<18>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<18>(0).rightCols(model.nv).transpose()
+  + mu * Eigen::MatrixXd::Identity(18,18);
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
@@ -1326,6 +1427,23 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   MatrixXd H_inv_ref = H_recomposed.inverse();
   
   BOOST_CHECK(H_inv_ref.isApprox(H_inv));
+  
+  // test Operational Space Inertia Matrix
+  MatrixXd JMinvJt
+  = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<9>(0).rightCols(model.nv).transpose()
+  + mu * Eigen::MatrixXd::Identity(9,9);
+  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  
+  BOOST_CHECK(iosim.isApprox(JMinvJt));
+  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  
+  // test Mass matrix cholesky
+  data_ref.Minv = data_ref.M.inverse();
+  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
+  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+  
+  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
