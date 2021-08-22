@@ -1,18 +1,12 @@
 //
-// Copyright (c) 2019-2020 INRIA CNRS
+// Copyright (c) 2019-2021 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_info_hpp__
 #define __pinocchio_algorithm_contact_info_hpp__
 
-#include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
-#include "pinocchio/spatial/se3.hpp"
-#include "pinocchio/spatial/motion.hpp"
-#include "pinocchio/spatial/force.hpp"
-
-#include <string>
-#include <limits>
 
 namespace pinocchio
 {
@@ -107,8 +101,9 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
-    typedef pinocchio::JointIndex JointIndex;
     typedef BaumgarteCorrectorParametersTpl<Scalar> BaumgarteCorrectorParameters;
+    typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
+    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
     
     /// \brief Name of the contact
     std::string name;
@@ -143,30 +138,44 @@ namespace pinocchio
     /// \brief Corrector parameters
     BaumgarteCorrectorParameters corrector;
     
-    /// \brief Default constructor.
+    /// \brief Sparsity pattern associated to joint 1.
+    BooleanVector colwise_joint1_sparsity;
+    
+    /// \brief Sparsity pattern associated to joint 2.
+    BooleanVector colwise_joint2_sparsity;
+    
+    /// \brief Indexes of the columns spanned by the constraints.
+    IndexVector colwise_span_indexes;
+    
+    /// \brief Dimensions of the models
+    int nv;
+    
+    /// \brief Depth of the kinematic tree for joint1 and joint2
+    size_t depth_joint1, depth_joint2;
+    
+    ///
+    /// \brief Default constructor
+    ///
     RigidContactModelTpl()
-    : type(CONTACT_UNDEFINED)
-    , joint1_id(std::numeric_limits<FrameIndex>::max())
-    , joint2_id(std::numeric_limits<FrameIndex>::max())
-    , joint1_placement(SE3::Identity())
-    , joint2_placement(SE3::Identity())
-    , reference_frame(LOCAL)
-    , desired_contact_placement(SE3::Identity())
-    , desired_contact_velocity(Motion::Zero())
-    , desired_contact_acceleration(Motion::Zero())
+    : nv(-1)
+    , depth_joint1(0)
+    , depth_joint2(0)
     {}
         
     ///
     /// \brief Contructor with from a given type, joint indexes and placements.
     ///
     /// \param[in] type Type of the contact.
+    /// \param[in] model Model associated to the constraint.
     /// \param[in] joint1_id Index of the joint 1 in the model tree.
     /// \param[in] joint2_id Index of the joint 2 in the model tree.
     /// \param[in] joint1_placement Placement of the constraint w.r.t the frame of joint1.
     /// \param[in] joint2_placement Placement of the constraint w.r.t the frame of joint2.
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
+    template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidContactModelTpl(const ContactType type,
+                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const SE3 & joint1_placement,
                          const JointIndex joint2_id,
@@ -181,7 +190,11 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
-    {}
+    , colwise_joint1_sparsity(model.nv)
+    , colwise_joint2_sparsity(model.nv)
+    {
+      init(model);
+    }
     
     ///
     /// \brief Contructor with from a given type, joint1_id and placement.
@@ -191,7 +204,9 @@ namespace pinocchio
     /// \param[in] joint1_placement Placement of the constraint w.r.t the frame of joint1.
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
+    template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidContactModelTpl(const ContactType type,
+                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const SE3 & joint1_placement,
                          const ReferenceFrame & reference_frame = LOCAL)
@@ -204,7 +219,11 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
-    {}
+    , colwise_joint1_sparsity(model.nv)
+    , colwise_joint2_sparsity(model.nv)
+    {
+      init(model);
+    }
     
     ///
     /// \brief Contructor with from a given type and the joint ids.
@@ -213,7 +232,9 @@ namespace pinocchio
     /// \param[in] joint1_id Index of the joint 1 in the model tree.
     /// \param[in] joint2_id Index of the joint 2 in the model tree.
     ///
+    template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidContactModelTpl(const ContactType type,
+                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const JointIndex joint2_id,
                          const ReferenceFrame & reference_frame = LOCAL)
@@ -226,7 +247,11 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
-    {}
+    , colwise_joint1_sparsity(model.nv)
+    , colwise_joint2_sparsity(model.nv)
+    {
+      init(model);
+    }
     
     ///
     /// \brief Contructor with from a given type and .
@@ -236,7 +261,9 @@ namespace pinocchio
     ///
     /// \remarks The second joint id (joint2_id) is set to be 0 (corresponding to the index of the universe).
     ///
+    template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidContactModelTpl(const ContactType type,
+                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
@@ -248,7 +275,11 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
-    {}
+    , colwise_joint1_sparsity(model.nv)
+    , colwise_joint2_sparsity(model.nv)
+    {
+      init(model);
+    }
     
     ///
     /// \brief Comparison operator
@@ -268,7 +299,14 @@ namespace pinocchio
       && joint1_placement == other.joint1_placement
       && joint2_placement == other.joint2_placement
       && reference_frame == other.reference_frame
-      && corrector == other.corrector;
+      && corrector == other.corrector
+      && colwise_joint1_sparsity == other.colwise_joint1_sparsity
+      && colwise_joint2_sparsity == other.colwise_joint2_sparsity
+      && colwise_span_indexes == other.colwise_span_indexes
+      && nv == other.nv
+      && depth_joint1 == other.depth_joint1
+      && depth_joint2 == other.depth_joint2
+      ;
     }
     
     ///
@@ -313,10 +351,101 @@ namespace pinocchio
       res.desired_contact_placement = desired_contact_placement.template cast<NewScalar>();
       res.desired_contact_velocity = desired_contact_velocity.template cast<NewScalar>();
       res.desired_contact_acceleration = desired_contact_acceleration.template cast<NewScalar>();
+      res.colwise_joint1_sparsity = colwise_joint1_sparsity;
+      res.colwise_joint2_sparsity = colwise_joint2_sparsity;
+      res.colwise_span_indexes = colwise_span_indexes;
+      res.nv = nv;
+      res.depth_joint1 = depth_joint1;
+      res.depth_joint2 = depth_joint2;
+      
       return res;
     }
     
+  protected:
+    
+    template<int OtherOptions, template<typename,int> class JointCollectionTpl>
+    void init(const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model)
+    {
+      nv = model.nv;
+      depth_joint1 = static_cast<size_t>(model.supports[joint1_id].size());
+      depth_joint2 = static_cast<size_t>(model.supports[joint2_id].size());
+      
+      typedef ModelTpl<Scalar,OtherOptions,JointCollectionTpl> Model;
+      static const bool default_sparsity_value = false;
+      colwise_joint1_sparsity.fill(default_sparsity_value);
+      colwise_joint2_sparsity.fill(default_sparsity_value);
+      
+      JointIndex current1_id = 0;
+      if(joint1_id > 0)
+        current1_id = joint1_id;
+
+      JointIndex current2_id = 0;
+      if(joint2_id > 0)
+        current2_id = joint2_id;
+      
+      while(current1_id != current2_id)
+      {
+        if(current1_id > current2_id)
+        {
+          const typename Model::JointModel & joint1 = model.joints[current1_id];
+          Eigen::DenseIndex current1_col_id = joint1.idx_v();
+          for(int k = 0; k < joint1.nv(); ++k,++current1_col_id)
+          {
+            colwise_joint1_sparsity[current1_col_id] = true;
+          }
+          current1_id = model.parents[current1_id];
+        }
+        else
+        {
+          const typename Model::JointModel & joint2 = model.joints[current2_id];
+          Eigen::DenseIndex current2_col_id = joint2.idx_v();
+          for(int k = 0; k < joint2.nv(); ++k,++current2_col_id)
+          {
+            colwise_joint2_sparsity[current2_col_id] = true;
+          }
+          current2_id = model.parents[current2_id];
+        }
+      }
+      assert(current1_id == current2_id && "current1_id should be equal to current2_id");
+      
+      if(type == CONTACT_3D && reference_frame != WORLD)
+      {
+        JointIndex current_id = current1_id;
+        while(current_id > 0)
+        {
+          const typename Model::JointModel & joint = model.joints[current_id];
+          Eigen::DenseIndex current_row_id = joint.idx_v();
+          for(int k = 0; k < joint.nv(); ++k,++current_row_id)
+          {
+            colwise_joint1_sparsity[current_row_id] = true;
+            colwise_joint2_sparsity[current_row_id] = true;
+          }
+          current_id = model.parents[current_id];
+        }
+      }
+      
+      Eigen::DenseIndex size = 0;
+      colwise_span_indexes.resize(model.nv);
+      for(Eigen::DenseIndex col_id = 0; col_id < model.nv; ++col_id)
+      {
+        if(colwise_joint1_sparsity[col_id] || colwise_joint2_sparsity[col_id])
+          colwise_span_indexes[size++] = col_id;
+      }
+      colwise_span_indexes.conservativeResize(size);
+    }
+    
   };
+
+  template<typename Scalar, int Options, class Allocator>
+  size_t getTotalConstraintSize(const std::vector< RigidContactModelTpl<Scalar,Options>, Allocator> & contact_models)
+  {
+    typedef std::vector< RigidContactModelTpl<Scalar,Options>, Allocator> VectorType;
+    size_t total_size = 0;
+    for(typename VectorType::const_iterator it = contact_models.begin(); it != contact_models.end(); ++it)
+      total_size += it->size();
+    
+    return total_size;
+  }
 
   ///
   /// \brief Contact model structure containg all the info describing the rigid contact model
@@ -336,6 +465,8 @@ namespace pinocchio
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
+    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
+    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Matrix6) VectorOfMatrix6;
     
     // data
     
@@ -381,7 +512,11 @@ namespace pinocchio
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
     
-    RigidContactDataTpl(const ContactModel & /*contact_model*/)
+    VectorOfMatrix6 extended_motion_propagators_joint1;
+    VectorOfMatrix6 lambdas_joint1;
+    VectorOfMatrix6 extended_motion_propagators_joint2;
+    
+    RigidContactDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
     , contact_placement_error(Motion::Zero())
     , contact1_velocity(Motion::Zero())
@@ -393,6 +528,9 @@ namespace pinocchio
     , contact1_acceleration_drift(Motion::Zero())
     , contact2_acceleration_drift(Motion::Zero())
     , contact_acceleration_deviation(Motion::Zero())
+    , extended_motion_propagators_joint1(contact_model.depth_joint1,Matrix6::Zero())
+    , lambdas_joint1(contact_model.depth_joint1,Matrix6::Zero())
+    , extended_motion_propagators_joint2(contact_model.depth_joint2,Matrix6::Zero())
     {}
     
     bool operator==(const RigidContactDataTpl & other) const
@@ -412,6 +550,9 @@ namespace pinocchio
       && contact1_acceleration_drift == other.contact1_acceleration_drift
       && contact2_acceleration_drift == other.contact2_acceleration_drift
       && contact_acceleration_deviation == other.contact_acceleration_deviation
+      && extended_motion_propagators_joint1 == other.extended_motion_propagators_joint1
+      && lambdas_joint1 == other.lambdas_joint1
+      && extended_motion_propagators_joint2 == other.extended_motion_propagators_joint2
       ;
     }
     
