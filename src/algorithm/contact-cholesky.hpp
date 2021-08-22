@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hpp__
@@ -331,7 +331,7 @@ namespace pinocchio
         is_same &= (joint1_indexes == other.joint1_indexes);
         is_same &= (joint2_indexes == other.joint2_indexes);
         is_same &= (colwise_sparsity_patterns == other.colwise_sparsity_patterns);
-	is_same &= (colwise_loop_sparsity_patterns == other.colwise_loop_sparsity_patterns);
+        is_same &= (colwise_loop_sparsity_patterns == other.colwise_loop_sparsity_patterns);
 //        is_same &= (rowise_sparsity_pattern == other.rowise_sparsity_pattern);
         
         return is_same;
@@ -371,8 +371,6 @@ namespace pinocchio
         return joint2_indexes[constraint_id];
       }
 
-      
-      
     protected:
       
       IndexVector parents_fromRow;
