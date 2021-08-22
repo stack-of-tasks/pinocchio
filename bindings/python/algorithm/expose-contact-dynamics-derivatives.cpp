@@ -41,10 +41,10 @@ namespace pinocchio
                 computeContactDynamicsDerivatives_proxy,bp::args("model","data",
                                                                      "contact_models",
                                                                      "contact_datas"),
-                                                            "Computes the derivatives of the forward dynamics with kinematic constraints (given in the list of Contact information).\n"
-                                                            "Assumes that contactDynamics has been called first. See contactDynamics for more details.\n"
-                                          "This function returns derivatives of joint acceleration (ddq) and contact forces (lambda_c) of the system.\n"
-		"The output is a tuple with ddq_dq, ddq_dv, ddq_da, dlambda_dq, dlambda_dv, dlambda_da");
+                "Computes the derivatives of the forward dynamics with kinematic constraints (given in the list of Contact information).\n"
+                "Assumes that contactDynamics has been called first. See contactDynamics for more details.\n"
+                "This function returns derivatives of joint acceleration (ddq) and contact forces (lambda_c) of the system.\n"
+                "The output is a tuple with ddq_dq, ddq_dv, ddq_da, dlambda_dq, dlambda_dv, dlambda_da");
       }
     }
 }
