@@ -14,6 +14,16 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+def isMesh(geometry_object):
+    """ Check whether the geometry object contains a Mesh supported by MeshCat """
+    if geometry_object.meshPath == "":
+        return False
+
+    _, file_extension = os.path.splitext(geometry_object.meshPath)
+    if file_extension.lower() in [".dae", ".obj", ".stl"]:
+        return True
+
+    return False
 
 def loadBVH(bvh):
     import meshcat.geometry as mg
@@ -166,13 +176,19 @@ class MeshcatVisualizer(BaseVisualizer):
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
 
+        is_mesh = False
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
+            elif isMesh(geometry_object):
+                obj = self.loadMesh(geometry_object)
+                is_mesh = True
             elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
                 obj = loadBVH(geometry_object.geometry)
             else:
-                obj = self.loadMesh(geometry_object)
+                msg = "The geometry object named " + geometry_object.name + " is not supported by Pinocchio/MeshCat for vizualization."
+                warnings.warn(msg, category=UserWarning, stacklevel=2)
+                return
             if obj is None:
                 return
         except Exception as e:
@@ -195,6 +211,10 @@ class MeshcatVisualizer(BaseVisualizer):
                 material.transparent = True
                 material.opacity = float(meshColor[3])
             self.viewer[viewer_name].set_object(obj, material)
+
+        if is_mesh: # Apply the scaling
+            scale = list(np.asarray(geometry_object.meshScale).flatten())
+            self.viewer[viewer_name].set_property("scale",scale)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
@@ -242,14 +262,19 @@ class MeshcatVisualizer(BaseVisualizer):
 
         pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
         for visual in self.visual_model.geometryObjects:
+            visual_name = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
             # Get mesh pose.
             M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
-            # Manage scaling
-            scale = np.asarray(visual.meshScale).flatten()
-            S = np.diag(np.concatenate((scale,[1.0])))
-            T = np.array(M.homogeneous).dot(S)
+            # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
+            if isMesh(visual):
+                scale = np.asarray(visual.meshScale).flatten()
+                S = np.diag(np.concatenate((scale,[1.0])))
+                T = np.array(M.homogeneous).dot(S)
+            else:
+                T = M.homogeneous
+
             # Update viewer configuration.
-            self.viewer[self.getViewerNodeName(visual,pin.GeometryType.VISUAL)].set_transform(T)
+            self.viewer[visual_name].set_transform(T)
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not.

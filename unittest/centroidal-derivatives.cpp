@@ -108,8 +108,7 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
   const pinocchio::Force dhg = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q,v,a);
   const pinocchio::Force hg = data_fd.hg;
   BOOST_CHECK(data.hg.isApprox(data_ref.hg));
-  const pinocchio::Force::Vector3 com = data_fd.com[0];
-  
+
   // Check dhdot_dq and dh_dq with finite differences
   Eigen::VectorXd q_plus(model.nq,1);
   Eigen::VectorXd v_eps(model.nv,1); v_eps.setZero();
@@ -124,7 +123,6 @@ BOOST_AUTO_TEST_CASE(test_centroidal_derivatives)
     const pinocchio::Force & dhg_plus
     = pinocchio::computeCentroidalMomentumTimeVariation(model,data_fd,q_plus,v,a);
     const pinocchio::Force hg_plus = data_fd.hg;
-    
     dhdot_dq_fd.col(k) = (dhg_plus - dhg).toVector()/eps;
     dh_dq_fd.col(k) = (hg_plus - hg).toVector()/eps;
     v_eps[k] = 0.;
