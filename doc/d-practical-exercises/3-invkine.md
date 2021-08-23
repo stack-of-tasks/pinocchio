@@ -49,7 +49,7 @@ robot.display(q)
 IDX_TOOL = 24
 IDX_BASIS = 23
 
-pin.updateFramePlacements(robot.model, robot.data)
+pin.framesForwardKinematics(robot.model, robot.data, q)
 Mtool = robot.data.oMf[IDX_TOOL]
 Mbasis = robot.data.oMf[IDX_BASIS]
 ```
@@ -70,8 +70,7 @@ def Rquat(x, y, z, w):
     return q.matrix()
 
 Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
-robot.
-viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
+robot.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
 place('world/framegoal', Mgoal)
 ```
 
