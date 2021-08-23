@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_crba_hpp__
@@ -11,7 +11,7 @@
   
 namespace pinocchio
 {
-  namespace deprecated
+  namespace minimal
   {
     ///
     /// \brief Computes the upper triangular part of the joint space inertia matrix M by

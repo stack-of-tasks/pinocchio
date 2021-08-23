@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(test_minimal_crba)
   Eigen::VectorXd q = randomConfiguration(model,model.lowerPositionLimit,model.upperPositionLimit);
   Eigen::VectorXd v(Eigen::VectorXd::Random(model.nv));
   
-  pinocchio::deprecated::crba(model,data_ref,q);
+  pinocchio::minimal::crba(model,data_ref,q);
   data_ref.M.triangularView<Eigen::StrictlyLower>() = data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   crba(model,data,q);

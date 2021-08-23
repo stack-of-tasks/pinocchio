@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_crba_hxx__
@@ -18,88 +18,6 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
   : public fusion::JointUnaryVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    typedef boost::fusion::vector<const Model &,
-                                  Data &,
-                                  const ConfigVectorType &
-                                  > ArgsType;
-
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data,
-                     const Eigen::MatrixBase<ConfigVectorType> & q)
-    {
-      typedef typename Model::JointIndex JointIndex;
-      
-      const JointIndex & i = jmodel.id();
-      jmodel.calc(jdata.derived(),q.derived());
-      
-      data.liMi[i] = model.jointPlacements[i]*jdata.M();
-      data.Ycrb[i] = model.inertias[i];
-    }
-
-  };
-
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct CrbaBackwardStep
-  : public fusion::JointUnaryVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
-    typedef boost::fusion::vector<const Model &,
-				                          Data &>  ArgsType;
-    
-    template<typename JointModel>
-    static void algo(const JointModelBase<JointModel> & jmodel,
-                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
-                     const Model & model,
-                     Data & data)
-    {
-      /*
-       * F[1:6,i] = Y*S
-       * M[i,SUBTREE] = S'*F[1:6,SUBTREE]
-       * if li>0 
-       *   Yli += liXi Yi
-       *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
-       */
-      
-      typedef typename Model::JointIndex JointIndex;
-      typedef typename Data::Matrix6x::ColsBlockXpr Block;
-      const JointIndex & i = jmodel.id();
-
-      /* F[1:6,i] = Y*S */
-      //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
-      jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
-
-      /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
-      data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]) 
-      = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-      
-      const JointIndex & parent = model.parents[i];
-      if(parent>0)
-      {
-        /*   Yli += liXi Yi */
-        data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
-        
-        /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
-        Block jF
-        = data.Fcrb[parent].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-        Block iF
-        = data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
-        forceSet::se3Action(data.liMi[i], iF, jF);
-      }
-    }
-  };
-  
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  struct CrbaForwardStepMinimal
-  : public fusion::JointUnaryVisitorBase< CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -135,8 +53,8 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  struct CrbaBackwardStepMinimal
-  : public fusion::JointUnaryVisitorBase< CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> >
+  struct CrbaBackwardStep
+  : public fusion::JointUnaryVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -167,8 +85,90 @@ namespace pinocchio
     }
   };
 
-  namespace deprecated
+  namespace minimal
   {
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+    struct CrbaForwardStep
+    : public fusion::JointUnaryVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+  
+      typedef boost::fusion::vector<const Model &,
+                                    Data &,
+                                    const ConfigVectorType &
+                                    > ArgsType;
+
+      template<typename JointModel>
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                       const Model & model,
+                       Data & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q)
+      {
+        typedef typename Model::JointIndex JointIndex;
+  
+        const JointIndex & i = jmodel.id();
+        jmodel.calc(jdata.derived(),q.derived());
+  
+        data.liMi[i] = model.jointPlacements[i]*jdata.M();
+        data.Ycrb[i] = model.inertias[i];
+      }
+
+    };
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    struct CrbaBackwardStep
+    : public fusion::JointUnaryVisitorBase< CrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+  
+      typedef boost::fusion::vector<const Model &,
+                                    Data &>  ArgsType;
+  
+      template<typename JointModel>
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                       const Model & model,
+                       Data & data)
+      {
+        /*
+         * F[1:6,i] = Y*S
+         * M[i,SUBTREE] = S'*F[1:6,SUBTREE]
+         * if li>0
+         *   Yli += liXi Yi
+         *   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE]
+         */
+  
+        typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Matrix6x::ColsBlockXpr Block;
+        const JointIndex & i = jmodel.id();
+
+        /* F[1:6,i] = Y*S */
+        //data.Fcrb[i].block<6,JointModel::NV>(0,jmodel.idx_v()) = data.Ycrb[i] * jdata.S();
+        jmodel.jointCols(data.Fcrb[i]) = data.Ycrb[i] * jdata.S();
+
+        /* M[i,SUBTREE] = S'*F[1:6,SUBTREE] */
+        data.M.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i])
+        = jdata.S().transpose()*data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+  
+        const JointIndex & parent = model.parents[i];
+        if(parent>0)
+        {
+          /*   Yli += liXi Yi */
+          data.Ycrb[parent] += data.liMi[i].act(data.Ycrb[i]);
+  
+          /*   F[1:6,SUBTREE] = liXi F[1:6,SUBTREE] */
+          Block jF
+          = data.Fcrb[parent].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+          Block iF
+          = data.Fcrb[i].middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+          forceSet::se3Action(data.liMi[i], iF, jF);
+        }
+      }
+    };
+  
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
     inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
     crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -180,14 +180,14 @@ namespace pinocchio
       
       typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
       
-      typedef CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+      typedef minimal::CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
       for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
       {
         Pass1::run(model.joints[i],data.joints[i],
                    typename Pass1::ArgsType(model,data,q.derived()));
       }
       
-      typedef CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+      typedef minimal::CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
       for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
       {
         Pass2::run(model.joints[i],data.joints[i],
@@ -199,7 +199,7 @@ namespace pinocchio
       
       return data.M;
     }
-  }
+  } // namespace minimal
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
@@ -213,14 +213,14 @@ namespace pinocchio
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
     data.oYcrb[0].setZero();
-    typedef CrbaForwardStepMinimal<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
+    typedef CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived()));
     }
     
-    typedef CrbaBackwardStepMinimal<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef CrbaBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
     {
       Pass2::run(model.joints[i],

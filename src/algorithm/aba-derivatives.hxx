@@ -262,6 +262,9 @@ namespace pinocchio
       
       typename Data::RowMatrixXs & rnea_partial_dq = data.dtau_dq;
       typename Data::RowMatrixXs & rnea_partial_dv = data.dtau_dv;
+      
+//      typename Data::MatrixXs & rnea_partial_dq = data.dtau_dq;
+//      typename Data::MatrixXs & rnea_partial_dv = data.dtau_dv;
 
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       
@@ -599,118 +602,120 @@ namespace pinocchio
       }
     };
   
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-    typename MatrixType1, typename MatrixType2, typename MatrixType3>
-    inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                      const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                      const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
-    {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
-                                     "The gravity must be a pure force vector, no angular part");
-      assert(model.check(data) && "data is not consistent with model.");
-      
-      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-      
-      MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
-      Minv_.template triangularView<Eigen::Upper>().setZero();
-      
-      data.Fcrb[0].setZero();
-      typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
-      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
-      {
-        Pass2::run(model.joints[i],data.joints[i],
-                   typename Pass2::ArgsType(model,data,Minv_));
-      }
-      
-      typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
-      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-      {
-        Pass3::run(model.joints[i],data.joints[i],
-                   typename Pass3::ArgsType(model,data,Minv_));
-      }
-      
-      typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
-      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
-      {
-        Pass4::run(model.joints[i],
-                   typename Pass4::ArgsType(model,data));
-      }
-      
-      Minv_.template triangularView<Eigen::StrictlyLower>()
-      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
-      
-      PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
-      PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
-    }
+  } // namespace optimized
   
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
-    typename MatrixType1, typename MatrixType2, typename MatrixType3>
-    inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                                      const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                      const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                      const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
+  computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                        const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                        const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                   "The gravity must be a pure force vector, no angular part");
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+
+    MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    Minv_.template triangularView<Eigen::Upper>().setZero();
+
+    data.Fcrb[0].setZero();
+    typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
-                                     "The gravity must be a pure force vector, no angular part");
-      assert(model.check(data) && "data is not consistent with model.");
-      
-      typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
-      
-      MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
-      Minv_.template triangularView<Eigen::Upper>().setZero();
-      
-      /// First, compute Minv and a, the joint acceleration vector
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,Minv_));
+    }
+
+    typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data,Minv_));
+    }
+
+    typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+    {
+      Pass4::run(model.joints[i],
+                 typename Pass4::ArgsType(model,data));
+    }
+
+    Minv_.template triangularView<Eigen::StrictlyLower>()
+    = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dv.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.cols() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dtau.rows() == model.nv);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(isZero(model.gravity.angular()),
+                                   "The gravity must be a pure force vector, no angular part");
+    assert(model.check(data) && "data is not consistent with model.");
+
+    typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
+
+    MatrixType3 & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,aba_partial_dtau);
+    Minv_.template triangularView<Eigen::Upper>().setZero();
+
+    /// First, compute Minv and a, the joint acceleration vector
 //      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
 //        data.of[i] -= data.oMi[i].act(fext[i]);
-      
-      data.Fcrb[0].setZero();
-      typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
-      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
-      {
-        Pass2::run(model.joints[i],data.joints[i],
-                   typename Pass2::ArgsType(model,data,Minv_));
-      }
-      
-      typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
-      for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
-      {
-        Pass3::run(model.joints[i],data.joints[i],
-                   typename Pass3::ArgsType(model,data,Minv_));
-        data.of[i] -= data.oMi[i].act(fext[i]);
-      }
-      
-      typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
-      for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
-      {
-        Pass4::run(model.joints[i],
-                   typename Pass4::ArgsType(model,data));
-      }
-      
-      Minv_.template triangularView<Eigen::StrictlyLower>()
-      = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
-      
-      PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
-      PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
+
+    data.Fcrb[0].setZero();
+    typedef optimized::ComputeABADerivativesBackwardStep1<Scalar,Options,JointCollectionTpl,MatrixType3> Pass2;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,Minv_));
     }
+
+    typedef optimized::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType3> Pass3;
+    for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data,Minv_));
+      data.of[i] -= data.oMi[i].act(fext[i]);
+    }
+
+    typedef ComputeABADerivativesBackwardStep2<Scalar,Options,JointCollectionTpl> Pass4;
+    for(JointIndex i=(JointIndex)(model.njoints-1);i>0;--i)
+    {
+      Pass4::run(model.joints[i],
+                 typename Pass4::ArgsType(model,data));
+    }
+
+    Minv_.template triangularView<Eigen::StrictlyLower>()
+    = Minv_.transpose().template triangularView<Eigen::StrictlyLower>();
+
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
+    PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
-  
+
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_aba_derivatives_hxx__

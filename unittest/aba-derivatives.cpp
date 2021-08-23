@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(aba(model,data_ref,q,v,tau));
+  VectorXd a(minimal::aba(model,data_ref,q,v,tau));
   
   VectorXd tau_from_a(rnea(model,data_ref,q,v,a));
   BOOST_CHECK(tau_from_a.isApprox(tau));
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
     BOOST_CHECK(data.doYcrb[k].isApprox(data_ref.doYcrb[k]));
   }
   
-  aba(model,data_ref,q,v,tau);
+  minimal::aba(model,data_ref,q,v,tau);
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
   {
     BOOST_CHECK(data.oYaba[k].isApprox(data_ref.oMi[k].toDualActionMatrix()*data_ref.Yaba[k]*data_ref.oMi[k].inverse().toActionMatrix()));
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   }
   BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
   
-  optimized::aba(model,data_ref,q,v,tau);
+  aba(model,data_ref,q,v,tau);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
   BOOST_CHECK(data.u.isApprox(data_ref.u));
   for(Model::JointIndex k = 1; k < (Model::JointIndex)model.njoints; ++k)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   MatrixXd aba_partial_dtau_fd(model.nv,model.nv); aba_partial_dtau_fd.setZero();
   
   Data data_fd(model);
-  VectorXd a0 = aba(model,data_fd,q,v,tau);
+  VectorXd a0 = minimal::aba(model,data_fd,q,v,tau);
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
   VectorXd a_plus(model.nv);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    a_plus = aba(model,data_fd,q_plus,v,tau);
+    a_plus = minimal::aba(model,data_fd,q_plus,v,tau);
 
     aba_partial_dq_fd.col(k) = (a_plus - a0)/alpha;
     v_eps[k] -= alpha;
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = aba(model,data_fd,q,v_plus,tau);
+    a_plus = minimal::aba(model,data_fd,q,v_plus,tau);
     
     aba_partial_dv_fd.col(k) = (a_plus - a0)/alpha;
     v_plus[k] -= alpha;
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives)
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    a_plus = aba(model,data_fd,q,v,tau_plus);
+    a_plus = minimal::aba(model,data_fd,q,v,tau_plus);
     
     aba_partial_dtau_fd.col(k) = (a_plus - a0)/alpha;
     tau_plus[k] -= alpha;
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(test_aba_minimal_argument)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(aba(model,data_ref,q,v,tau));
+  VectorXd a(minimal::aba(model,data_ref,q,v,tau));
   
   MatrixXd aba_partial_dq(model.nv,model.nv); aba_partial_dq.setZero();
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   VectorXd q = randomConfiguration(model);
   VectorXd v(VectorXd::Random(model.nv));
   VectorXd tau(VectorXd::Random(model.nv));
-  VectorXd a(aba(model,data_ref,q,v,tau));
+  VectorXd a(minimal::aba(model,data_ref,q,v,tau));
   
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
   ForceVector fext((size_t)model.njoints);
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   computeABADerivatives(model, data, q, v, tau, fext,
                         aba_partial_dq, aba_partial_dv, aba_partial_dtau);
   
-  aba(model,data_ref,q,v,tau,fext);
+  minimal::aba(model,data_ref,q,v,tau,fext);
 //  updateGlobalPlacements(model, data_ref);
 //  for(size_t k =1; k < (size_t)model.njoints; ++k)
 //  {
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   MatrixXd aba_partial_dtau_fd(model.nv,model.nv); aba_partial_dtau_fd.setZero();
   
   Data data_fd(model);
-  const VectorXd a0 = aba(model,data_fd,q,v,tau,fext);
+  const VectorXd a0 = minimal::aba(model,data_fd,q,v,tau,fext);
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
   VectorXd a_plus(model.nv);
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    a_plus = aba(model,data_fd,q_plus,v,tau,fext);
+    a_plus = minimal::aba(model,data_fd,q_plus,v,tau,fext);
 
     aba_partial_dq_fd.col(k) = (a_plus - a0)/alpha;
     v_eps[k] -= alpha;
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = aba(model,data_fd,q,v_plus,tau,fext);
+    a_plus = minimal::aba(model,data_fd,q,v_plus,tau,fext);
 
     aba_partial_dv_fd.col(k) = (a_plus - a0)/alpha;
     v_plus[k] -= alpha;
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(test_aba_derivatives_fext)
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    a_plus = aba(model,data_fd,q,v,tau_plus,fext);
+    a_plus = minimal::aba(model,data_fd,q,v,tau_plus,fext);
 
     aba_partial_dtau_fd.col(k) = (a_plus - a0)/alpha;
     tau_plus[k] -= alpha;
@@ -373,8 +373,8 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives)
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
-  optimized::aba(model,data,q,v,tau);
-  optimized::computeABADerivatives(model,data,
+  aba(model,data,q,v,tau);
+  computeABADerivatives(model,data,
                                    aba_partial_dq,aba_partial_dv,aba_partial_dtau);
   
   MatrixXd aba_partial_dq_ref(model.nv,model.nv); aba_partial_dq_ref.setZero();
@@ -393,10 +393,10 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives)
   
   // Test multiple calls
   const int num_calls = 20;
-  optimized::aba(model,data,q,v,tau);
+  aba(model,data,q,v,tau);
   for(int it = 0; it < num_calls; ++it)
   {
-    optimized::computeABADerivatives(model,data,
+    computeABADerivatives(model,data,
                                      aba_partial_dq,aba_partial_dv,aba_partial_dtau);
     
     BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
@@ -454,8 +454,8 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
   MatrixXd aba_partial_dv(model.nv,model.nv); aba_partial_dv.setZero();
   MatrixXd aba_partial_dtau(model.nv,model.nv); aba_partial_dtau.setZero();
   
-  optimized::aba(model,data,q,v,tau,fext);
-  optimized::computeABADerivatives(model,data,fext,
+  aba(model,data,q,v,tau,fext);
+  computeABADerivatives(model,data,fext,
                                    aba_partial_dq,aba_partial_dv,aba_partial_dtau);
   
   MatrixXd aba_partial_dq_ref(model.nv,model.nv); aba_partial_dq_ref.setZero();
@@ -474,10 +474,10 @@ BOOST_AUTO_TEST_CASE(test_optimized_aba_derivatives_fext)
   
   // Test multiple calls
   const int num_calls = 20;
-  optimized::aba(model,data,q,v,tau,fext);
+  aba(model,data,q,v,tau,fext);
   for(int it = 0; it < num_calls; ++it)
   {
-    optimized::computeABADerivatives(model,data,fext,
+    computeABADerivatives(model,data,fext,
                                      aba_partial_dq,aba_partial_dv,aba_partial_dtau);
     
     BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));

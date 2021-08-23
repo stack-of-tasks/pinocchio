@@ -83,14 +83,14 @@ void aba_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
   VectorXd a_plus(model.nv);
   const double alpha = 1e-8;
   
-  VectorXd a0 = aba(model,data_fd,q,v,tau);
+  VectorXd a0 = minimal::aba(model,data_fd,q,v,tau);
   
   // dABA/dq
   for(int k = 0; k < model.nv; ++k)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    a_plus = aba(model,data_fd,q_plus,v,tau);
+    a_plus = minimal::aba(model,data_fd,q_plus,v,tau);
     
     daba_dq.col(k) = (a_plus - a0)/alpha;
     v_eps[k] -= alpha;
@@ -101,7 +101,7 @@ void aba_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    a_plus = aba(model,data_fd,q,v_plus,tau);
+    a_plus = minimal::aba(model,data_fd,q,v_plus,tau);
     
     daba_dv.col(k) = (a_plus - a0)/alpha;
     v_plus[k] -= alpha;
@@ -165,8 +165,8 @@ int main(int argc, const char ** argv)
     taus[i] = Eigen::VectorXd::Random(model.nv);
   }
   
-  PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv,model.nv));
-  PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv,model.nv));
+  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(MatrixXd) drnea_dq(MatrixXd::Zero(model.nv,model.nv));
+  PINOCCHIO_EIGEN_PLAIN_COLUMN_MAJOR_TYPE(MatrixXd) drnea_dv(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd drnea_da(MatrixXd::Zero(model.nv,model.nv));
  
   MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));
@@ -213,7 +213,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+    minimal::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
   }
   std::cout << "ABA= \t\t\t\t"; timer.toc(std::cout,NBT);
   
@@ -229,9 +229,9 @@ int main(int argc, const char ** argv)
     double total = 0;
     SMOOTH(NBT)
     {
-      optimized::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+      aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
       timer.tic();
-      optimized::computeABADerivatives(model,data,
+      computeABADerivatives(model,data,
                                        daba_dq,daba_dv,daba_dtau);
       total += timer.toc(timer.DEFAULT_UNIT);
     }
@@ -258,9 +258,9 @@ int main(int argc, const char ** argv)
     double total = 0;
     SMOOTH(NBT)
     {
-      optimized::aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
+      aba(model,data,qs[_smooth],qdots[_smooth],taus[_smooth]);
       timer.tic();
-      optimized::computeMinverse(model,data);
+      computeMinverse(model,data);
       total += timer.toc(timer.DEFAULT_UNIT);
     }
     std::cout << "M.inverse() from ABA = \t\t" << (total/NBT)
