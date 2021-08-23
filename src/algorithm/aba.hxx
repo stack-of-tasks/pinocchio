@@ -392,7 +392,7 @@ namespace pinocchio
       if (parent > 0)
       {
         Force & pa = data.f[i];
-        pa.toVector() += Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        pa.toVector().noalias() += Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -427,7 +427,7 @@ namespace pinocchio
       data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
       
       data.a[i] = data.a_gf[i];
-      data.a[i].linear() += data.oMi[i].rotation().transpose() * model.gravity.linear();
+      data.a[i].linear().noalias() += data.oMi[i].rotation().transpose() * model.gravity.linear();
       data.f[i] = model.inertias[i] * data.a_gf[i] + data.v[i].cross(data.h[i]);
     }
     
