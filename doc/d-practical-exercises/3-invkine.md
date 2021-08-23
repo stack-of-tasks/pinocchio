@@ -21,28 +21,35 @@ the tool. They are displayed when the robot moves.
 Example of how to use the robot is has below.
 
 ```py
-from os.path import join
-import pinocchio as se3
-from mobilerobot import MobileRobotWrapper
+import pinocchio as pin
 from pinocchio.utils import *
+from os.path import dirname, join, abspath
+from mobilerobot import MobileRobotWrapper
+import time
+# Starting gepetto server and give a time
+import gepetto.corbaserver
 
-PKG = '/opt/openrobots/share'
-URDF = join(PKG, 'ur5_description/urdf/ur5_gripper.urdf')
+gepetto.corbaserver.start_server()
+time.sleep(5)
 
-robot = MobileRobotWrapper(URDF, [PKG])
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
+model_path = join(pinocchio_model_dir, "example-robot-data/robots/ur_description")
+mesh_dir = pinocchio_model_dir
+urdf_filename = "ur5_gripper.urdf"
+urdf_model_path = join(join(model_path, "urdf"), urdf_filename)
+robot = MobileRobotWrapper(urdf_model_path, pinocchio_model_dir)
 robot.initDisplay(loadModel=True)
-
-# robot.viewer.gui.addFloor('world/floor')
 
 NQ, NV = robot.model.nq, robot.model.nv
 
-q = rand(NQ)
+# create valid random position
+q = pin.randomConfiguration(robot.model)
 robot.display(q)
 
 IDX_TOOL = 24
 IDX_BASIS = 23
 
-se3.framesKinematics(robot.model, robot.data)
+pin.framesForwardKinematics(robot.model, robot.data, q)
 Mtool = robot.data.oMf[IDX_TOOL]
 Mbasis = robot.data.oMf[IDX_BASIS]
 ```
@@ -54,15 +61,15 @@ goal placement.
 
 ```py
 def place(name, M):
-    robot.viewer.gui.applyConfiguration(name, se3ToXYZQUAT(M))
+    robot.viewer.gui.applyConfiguration(name, pin.SE3ToXYZQUAT(M).tolist())
     robot.viewer.gui.refresh()
 
 def Rquat(x, y, z, w):
-    q = se3.Quaternion(x, y, z, w)
+    q = pin.Quaternion(x, y, z, w)
     q.normalize()
     return q.matrix()
 
-Mgoal = se3.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
+Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
 robot.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
 place('world/framegoal', Mgoal)
 ```
@@ -71,28 +78,29 @@ The current placement of the tool at configuration `q` is available as
 follows:
 
 ```py
-IDX_TOOL = 24
-se3.forwardKinematics(robot.model, robot.data, q)  # Compute joint placements
-se3.framesKinematics(robot.model, robot.data)      # Also compute operational frame placements
+pin.forwardKinematics(robot.model, robot.data, q)  # Compute joint placements
+pin.updateFramePlacements(robot.model, robot.data)      # Also compute operational frame placements
 Mtool = robot.data.oMf[IDX_TOOL]  # Get placement from world frame o to frame f oMf
 ```
 
 The desired velocity of the tool in tool frame is given by the log:
 
 ```py
-nu = se3.log(Mtool.inverse() * Mgoal).vector
+nu = pin.log(Mtool.inverse() * Mgoal).vector
 ```
 
 The tool Jacobian, also in tool frame, is available as follows:
 
 ```py
-J = se3.frameJacobian(robot.model, robot.data, IDX_TOOL, q)
+J = pin.computeFrameJacobian(robot.model, robot.data, q, IDX_TOOL)
 ```
 
 Pseudoinverse operator is available in `numpy.linalg` toolbox.
 
 ```py
 from numpy.linalg import pinv
+
+vq = pinv(J).dot(nu)
 ```
 
 The integration of joint velocity `vq` in configuration `q` can be done
@@ -100,7 +108,8 @@ directly (`q += vq * dt`). More generically, the se3 method integrate can be
 used:
 
 ```py
-q = se3.integrate(robot.model, q, vq * dt)
+dt = 0.5
+q = pin.integrate(robot.model, q, vq * dt)
 ```
 
 #### Question 1
@@ -120,7 +129,7 @@ corresponding jacobian, are:
 
 ```py
 error = Mbasis.translation[0]
-J = se3.frameJacobian(robot.model, robot.data, IDX_BASIS, q)[0, :]
+J = pin.computeFrameJacobian(robot.model, robot.data, q, IDX_BASIS)[0, :]
 ```
 
 Implement a second loop to servo the basis on the line. It becomes
