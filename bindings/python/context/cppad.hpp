@@ -21,7 +21,9 @@ namespace pinocchio
 {
   namespace python
   {
-    inline void exposeSpecificTypeFeatures() { };
+    inline void exposeSpecificTypeFeatures() {
+      boost::python::import("pycppad");
+    };
 
     inline boost::python::object getScalarType()
     {
