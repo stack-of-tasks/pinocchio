@@ -319,7 +319,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not."""
-        if self.collision_model is None:
+        if self.visual_model is None:
             self.display_visuals = False
         else:
             self.display_visuals = visibility
