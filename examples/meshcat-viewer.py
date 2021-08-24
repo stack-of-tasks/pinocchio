@@ -42,6 +42,8 @@ viz.loadViewerModel()
 # Display a robot configuration.
 q0 = pin.neutral(model)
 viz.display(q0)
+viz.displayCollisions(True)
+viz.displayVisuals(False)
 
 # Display another robot.
 viz2 = MeshcatVisualizer(model, collision_model, visual_model)
