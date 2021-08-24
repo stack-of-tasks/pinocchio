@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2018 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -20,6 +20,20 @@ namespace pinocchio
       return exp3(v);
     }
     
+    template<typename Vector3Like>
+    Eigen::Matrix<typename Vector3Like::Scalar,4,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
+    exp3_proxy_quat(const Vector3Like & v)
+    {
+      typedef typename Vector3Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> Quaternion_t;
+      typedef Eigen::Map<Quaternion_t> QuaternionMap_t;
+      typedef Eigen::Matrix<Scalar,4,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options> ReturnType;
+      ReturnType res;
+      QuaternionMap_t quat_out(res.derived().data());
+      quaternion::exp3(v, quat_out);
+      return res;
+    }
+
     template<typename Vector3Like>
     Eigen::Matrix<typename Vector3Like::Scalar,3,3,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options>
     Jexp3_proxy(const Vector3Like & v)
@@ -58,6 +72,14 @@ namespace pinocchio
     exp6_proxy(const Vector6Like & vec6)
     {
       return exp6(vec6);
+    }
+
+    template<typename Vector6Like>
+    Eigen::Matrix<typename Vector6Like::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+    exp6_proxy_quatvec(const Vector6Like& vec6)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector6Like,6);
+      return quaternion::exp6(vec6);  // use quaternion-exp6 overload
     }
     
     template<typename Scalar, int Options>
@@ -109,13 +131,80 @@ namespace pinocchio
       return log3(R,theta);
     }
     
+    template<typename QuaternionLike>
+    Eigen::Matrix<typename QuaternionLike::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options>
+    log3_proxy(const QuaternionLike & quat)
+    {
+      return quaternion::log3(quat);
+    }
+
+    template<typename Vector4Like>
+    Eigen::Matrix<typename Vector4Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options>
+    log3_proxy_quatvec(const Vector4Like & v)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector4Like,4);
+      typedef typename Vector4Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options> Quaternion_t;
+      typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
+
+      ConstQuaternionMap_t q(v.derived().data());
+      assert(quaternion::isNormalized(quat,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+      return quaternion::log3(q);
+    }
+
+    template<typename Vector4Like, typename Matrix1Like>
+    Eigen::Matrix<typename Vector4Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options>
+    log3_proxy_quatvec(const Vector4Like & v, Eigen::Ref<Matrix1Like> theta)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector4Like,4);
+      typedef typename Vector4Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options> Quaternion_t;
+      typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
+
+      ConstQuaternionMap_t q(v.derived().data());
+      assert(quaternion::isNormalized(quat,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+      
+      return quaternion::log3(q, theta.coeffRef(0, 0));
+    }
+
+    template<typename Vector4Like, typename _Scalar>
+    Eigen::Matrix<typename Vector4Like::Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options>
+    log3_proxy_quatvec_fix(const Vector4Like & v, _Scalar & theta)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector4Like,4);
+      typedef typename Vector4Like::Scalar Scalar;
+      typedef Eigen::Quaternion<Scalar, PINOCCHIO_EIGEN_PLAIN_TYPE(Vector4Like)::Options> Quaternion_t;
+      typedef Eigen::Map<const Quaternion_t> ConstQuaternionMap_t;
+
+      ConstQuaternionMap_t q(v.derived().data());
+      assert(quaternion::isNormalized(quat,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
+      
+      return quaternion::log3(q, theta);
+    }
+    
     template<typename Matrix4Like>
     MotionTpl<typename Matrix4Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix4Like)::Options>
     log6_proxy(const Matrix4Like & homegenous_matrix)
     {
       return log6(homegenous_matrix);
     }
-    
+
+    template<typename Vector7Like>
+    MotionTpl<typename Vector7Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options>
+    log6_proxy_quatvec(const Vector7Like & q)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector7Like, 7);
+      typedef typename Vector7Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector7Like)::Options };
+      typedef Eigen::Quaternion<Scalar,Options> Quaternion;
+      typedef Eigen::Map<const Quaternion,Options> ConstQuaternionMap;
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+
+      const Vector3 v(q.derived().template head<3>());
+      ConstQuaternionMap quat(q.derived().template tail<4>().data());
+
+      return log6(quat, v);
+    }
   } // namespace python
 } //namespace pinocchio
 

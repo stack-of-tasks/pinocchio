@@ -18,7 +18,7 @@ namespace pinocchio
     {
       typedef typename Matrix3::Scalar Scalar;
       static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-
+      
       static const long i1 = (i0+1) % 3;
       static const long i2 = (i0+2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
@@ -97,7 +97,7 @@ namespace pinocchio
       
       const Scalar t = if_then_else(GE,theta_nominal,TaylorSeriesExpansion<Scalar>::template precision<2>(),
                                     static_cast<Scalar>(theta_nominal / sin(theta_nominal)), // then
-                                                        static_cast<Scalar>(Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40)) // else
+                                    static_cast<Scalar>(Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40)) // else
                                     );
       
       theta = if_then_else(GE,cos_value,static_cast<Scalar>(Scalar(-1.) + TaylorSeriesExpansion<Scalar>::template precision<2>()),
@@ -183,6 +183,41 @@ namespace pinocchio
                                        );
       
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + (beta * w.dot(p)) * w;
+      mout.angular() = w;
+    }
+
+    template<typename Vector3Like, typename QuaternionLike, typename MotionDerived>
+    static void run(const Eigen::QuaternionBase<QuaternionLike> & quat,
+                    const Eigen::MatrixBase<Vector3Like> & vec,
+                    MotionDense<MotionDerived> & mout)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like,vec,3,1);
+
+      typedef typename Vector3Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options };
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+
+      using namespace internal;
+
+      Scalar theta;
+      Vector3 w(quaternion::log3(quat, theta));  // theta nonsingular by construction
+      const Scalar theta2 = w.squaredNorm();
+
+      Scalar st,ct; SINCOS(theta,&st,&ct);
+      const Scalar cot_th_2 = ( st / (Scalar(1) - ct) ); // cotan of half angle
+
+      // we use formula (9.26) from https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
+      // for the linear part of the Log map.
+      // A Taylor series expansion of cotan can be used up to order 4
+      const Scalar th_2_squared = theta2 / Scalar(4);  // (theta / 2) squared
+      const Scalar gamma_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
+      const Scalar gamma = if_then_else(LE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                        static_cast<Scalar>(gamma_alt), // then
+                                        static_cast<Scalar>((Scalar(1) - theta * cot_th_2 * Scalar(0.5)) / theta2) // else
+                                        );
+
+      const Scalar alpha = Scalar(1) - gamma * theta2;
+      mout.linear().noalias() = vec * alpha - Scalar(0.5) * w.cross(vec) + gamma * (w.dot(vec)) * w;
       mout.angular() = w;
     }
   };

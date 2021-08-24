@@ -309,7 +309,7 @@ namespace pinocchio {
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigL_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigR_t  , ConfigVector_t);
     EIGEN_STATIC_ASSERT_SAME_VECTOR_SIZE(ConfigOut_t, ConfigVector_t);
-    Derived().interpolate_impl(q0, q1, u, PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout));
+    derived().interpolate_impl(q0, q1, u, PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout));
   }
 
   template <class Derived>

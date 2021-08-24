@@ -37,6 +37,12 @@ BOOST_AUTO_TEST_CASE(exp)
   
   BOOST_CHECK(R.isApprox(M.rotation()));
   
+  Eigen::Matrix<double,7,1> q0;
+  q0 << 0., 0., 0., 0., 0., 0., 1.;
+  Eigen::Matrix<double,7,1> q = quaternion::exp6(v);
+  Eigen::Quaterniond quat0(q.tail<4>());
+  BOOST_CHECK(R.isApprox(quat0.matrix()));
+
   // check the NAN case
   #ifdef NDEBUG
     Motion::Vector6 vec6_nan(Motion::Vector6::Constant(NAN));

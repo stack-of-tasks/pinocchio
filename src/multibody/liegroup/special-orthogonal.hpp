@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
@@ -383,8 +383,7 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log3((quat0.matrix().transpose() * quat1.matrix()).eval());
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) = quaternion::log3(quat0.conjugate()*quat1);
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -566,7 +565,6 @@ namespace pinocchio
       QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
       quaternion::slerp(u,quat0,quat1,quat_res);
-//      quat_res = quat0.slerp(u, quat1);
       assert(quaternion::isNormalized(quat_res,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
     }
 
