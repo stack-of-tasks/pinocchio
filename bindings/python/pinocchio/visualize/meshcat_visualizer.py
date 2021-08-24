@@ -242,8 +242,8 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def reload(self, new_geometry_object, geometry_type = None):
         """ Reload a geometry_object given by its name and its type"""
-        if geometry_type == pin.GeometryType.VISUAL: 
-            geom_model = self.visual_model 
+        if geometry_type == pin.GeometryType.VISUAL:
+            geom_model = self.visual_model
         else:
             geom_model = self.collision_model
         
