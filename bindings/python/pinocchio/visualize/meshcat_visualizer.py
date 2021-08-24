@@ -96,7 +96,7 @@ class MeshcatVisualizer(BaseVisualizer):
         if geometry_type is pin.GeometryType.VISUAL:
             return self.viewerVisualGroupName + '/' + geometry_object.name
         elif geometry_type is pin.GeometryType.COLLISION:
-            return None # TODO: collision meshes
+            return self.viewerCollisionGroupName + '/' + geometry_object.name
 
     def initViewer(self, viewer=None, open=False, loadModel=False):
         """Start a new MeshCat server and client.
@@ -226,26 +226,33 @@ class MeshcatVisualizer(BaseVisualizer):
         # Set viewer to use to gepetto-gui.
         self.viewerRootNodeName = rootNodeName
 
-        # Load robot meshes in MeshCat
-
         # Collisions
-        # self.viewerCollisionGroupName = self.viewerRootNodeName + "/" + "collisions"
-        self.viewerCollisionGroupName = None # TODO: collision meshes
+        self.viewerCollisionGroupName = self.viewerRootNodeName + "/" + "collisions"
+
+        for collision in self.collision_model.geometryObjects:
+            self.loadViewerGeometryObject(collision,pin.GeometryType.COLLISION,color)
+        self.displayCollisions(False)
 
         # Visuals
         self.viewerVisualGroupName = self.viewerRootNodeName + "/" + "visuals"
 
         for visual in self.visual_model.geometryObjects:
             self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color)
+        self.displayVisuals(True)
 
     def reload(self, new_geometry_object, geometry_type = None):
         """ Reload a geometry_object given by its name and its type"""
-        geom_id = self.visual_model.getGeometryId(new_geometry_object.name)
-        self.visual_model.geometryObjects[geom_id] = new_geometry_object
+        if geometry_type == pin.GeometryType.VISUAL:
+            geom_model = self.visual_model
+        else:
+            geom_model = self.collision_model
+        
+        geom_id = geom_model.getGeometryId(new_geometry_object.name)
+        geom_model.geometryObjects[geom_id] = new_geometry_object
 
-        visual = self.visual_model.geometryObjects[geom_id]
-        self.delete(new_geometry_object, pin.GeometryType.VISUAL)
-        self.loadViewerGeometryObject(visual,pin.GeometryType.VISUAL,color = None)
+        self.delete(new_geometry_object, geometry_type)
+        visual = geom_model.geometryObjects[geom_id]
+        self.loadViewerGeometryObject(visual,geometry_type)
 
     def clean(self):
         self.viewer.delete()
@@ -259,11 +266,25 @@ class MeshcatVisualizer(BaseVisualizer):
         if q is not None:
             pin.forwardKinematics(self.model,self.data,q)
 
-        pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
-        for visual in self.visual_model.geometryObjects:
-            visual_name = self.getViewerNodeName(visual,pin.GeometryType.VISUAL)
+        if self.display_collisions:
+            self.updatePlacements(pin.GeometryType.COLLISION)
+
+        if self.display_visuals:
+            self.updatePlacements(pin.GeometryType.VISUAL)
+
+    def updatePlacements(self, geometry_type):
+        if geometry_type == pin.GeometryType.VISUAL:
+            geom_model = self.visual_model
+            geom_data = self.visual_data
+        else:
+            geom_model = self.collision_model
+            geom_data = self.collision_data
+        
+        pin.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
+        for visual in geom_model.geometryObjects:
+            visual_name = self.getViewerNodeName(visual,geometry_type)
             # Get mesh pose.
-            M = self.visual_data.oMg[self.visual_model.getGeometryId(visual.name)]
+            M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
             # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
             if isMesh(visual):
                 scale = np.asarray(visual.meshScale).flatten()
@@ -285,17 +306,26 @@ class MeshcatVisualizer(BaseVisualizer):
             warnings.warn("meshcat.Visualizer does not have the get_image() method."
                           " You need meshcat >= 0.2.0 to get this feature.")
 
-
     def displayCollisions(self,visibility):
-        """Set whether to display collision objects or not.
-        WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
-        # TODO
-        warnings.warn("Plotting collision meshes is not available for MeshcatVisualizer", category=UserWarning, stacklevel=2)
+        """Set whether to display collision objects or not."""
+        if self.collision_model is None:
+            self.display_collisions = False
+        else:
+            self.display_collisions = visibility
+        self.viewer[self.viewerCollisionGroupName].set_property("visible", visibility)
+
+        if visibility:
+            self.updatePlacements(pin.GeometryType.COLLISION)
 
     def displayVisuals(self,visibility):
-        """Set whether to display visual objects or not
-        WARNING: Visual meshes are always plotted for MeshcatVisualizer"""
-        # TODO
-        warnings.warn("Visual meshes are always plotted for MeshcatVisualizer", category=UserWarning, stacklevel=2)
+        """Set whether to display visual objects or not."""
+        if self.visual_model is None:
+            self.display_visuals = False
+        else:
+            self.display_visuals = visibility
+        self.viewer[self.viewerVisualGroupName].set_property("visible", visibility)
+
+        if visibility:
+            self.updatePlacements(pin.GeometryType.VISUAL)
 
 __all__ = ['MeshcatVisualizer']
