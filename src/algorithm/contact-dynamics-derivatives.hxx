@@ -458,7 +458,7 @@ namespace pinocchio
             getPointClassicAccelerationDerivatives(model, data,
                                                    cmodel.joint2_id,
                                                    M_tmp,
-						   cmodel.reference_frame,
+                                                   cmodel.reference_frame,
                                                    j2_dvc_dq,
                                                    j2_dac_dq,
                                                    j2_dac_dv,
@@ -592,24 +592,24 @@ namespace pinocchio
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 
 	    switch(cmodel.reference_frame) {
-	    case LOCAL: {
-	      a_tmp.linear().noalias() = a_tmp.angular().cross(J_col.angular());
-	    if(joint2_indexes[col_id]) {
-	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_tmp.linear();
-	    }
-	    else {
-	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_tmp.linear();
-	    }
-	      break;
-	    }
-	    case LOCAL_WORLD_ALIGNED: {
-	      // Do nothing
-	      break;
-	    }
-	    default: {
-	      assert(false && "must never happen");
-	      break;
-	    }
+        case LOCAL: {
+          a_tmp.linear().noalias() = a_tmp.angular().cross(J_col.angular());
+          if(joint2_indexes[col_id]) {
+            contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_tmp.linear();
+          }
+          else {
+            contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_tmp.linear();
+          }
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED: {
+          // Do nothing
+          break;
+        }
+        default: {
+          assert(false && "must never happen");
+          break;
+        }
 	    }
 
 	    of_tmp2.linear().noalias() = of_tmp.linear().cross(J_col.angular());
