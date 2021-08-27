@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_contact_dynamics_derivatives_hpp__
 
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/algorithm/proximal.hpp"
 
 namespace pinocchio
 {
