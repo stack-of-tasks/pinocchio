@@ -336,6 +336,7 @@ namespace pinocchio
     MatrixXs dlambda_dq;
     MatrixXs dlambda_dv;
     MatrixXs dlambda_dtau;
+    MatrixXs dlambda_dx_prox, drhs_prox;
     
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;

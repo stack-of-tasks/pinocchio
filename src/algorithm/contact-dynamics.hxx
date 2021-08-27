@@ -33,6 +33,8 @@ namespace pinocchio
     
     // TODO: should be moved elsewhere
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dlambda_dx_prox.resize(data.contact_chol.constraintDim(), model.nv);
+    data.drhs_prox.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dtau.resize(data.contact_chol.constraintDim(), model.nv);
     data.dvc_dq.resize(data.contact_chol.constraintDim(), model.nv);

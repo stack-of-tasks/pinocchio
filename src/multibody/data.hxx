@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -295,6 +295,8 @@ namespace pinocchio
     && data1.dlambda_dq == data2.dlambda_dq
     && data1.dlambda_dv == data2.dlambda_dv
     && data1.dlambda_dtau == data2.dlambda_dtau
+    && data1.dlambda_dx_prox == data2.dlambda_dx_prox
+    && data1.drhs_prox == data2.drhs_prox
     && data1.iMf == data2.iMf
     && data1.com == data2.com
     && data1.vcom == data2.vcom
