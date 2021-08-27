@@ -546,10 +546,10 @@ namespace pinocchio
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
 	      if(joint2_indexes[col_id]) {
-          data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_tmp2.toVector();
+          data.dtau_dq(j,col_id) -= data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	      else {
-          data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_tmp2.toVector();
+          data.dtau_dq(j,col_id) += data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	    }  
 	  }
@@ -618,10 +618,10 @@ namespace pinocchio
 	      //Temporary assignment
 	      of_tmp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());
 	      if(joint2_indexes[col_id]) {
-          data.dtau_dq(j,col_id) += of_tmp2.angular().transpose() * of_tmp2.linear();
+          data.dtau_dq(j,col_id) += of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	      else {
-          data.dtau_dq(j,col_id) -= of_tmp2.angular().transpose() * of_tmp2.linear();
+          data.dtau_dq(j,col_id) -= of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	    }
 	  }
