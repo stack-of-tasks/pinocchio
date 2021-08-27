@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 CNRS INRIA
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_dynamics_derivatives_hxx__
@@ -202,6 +202,7 @@ namespace pinocchio
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                                                 std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
@@ -708,17 +709,67 @@ namespace pinocchio
     typename Data::MatrixXs & JMinv = data.dlambda_dv;
 
     JMinv.noalias() = data.dac_da * data.Minv;
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * JMinv; //OUTPUT
-
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
+    MatrixType6 & lambda_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau);
+    typename Data::MatrixXs & dlambda_dx_prox = data.dlambda_dx_prox;
+    typename Data::MatrixXs & drhs_prox = data.drhs_prox;
+    
+    {
+      lambda_partial_dtau_.noalias() = -data.osim * JMinv; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dtau_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= JMinv;
+        lambda_partial_dtau_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dtau_.swap(dlambda_dx_prox);
+      }
+    }
+
     ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
 
-    data.dac_dq.noalias() -= JMinv * data.dtau_dq;
-    data.dac_dv.noalias() -= JMinv * data.dtau_dv;
-
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
+    MatrixType4 & lambda_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq);
+    drhs_prox.noalias() = -JMinv * data.dtau_dq;
+    drhs_prox += data.dac_dq;
+    {
+      lambda_partial_dq_.noalias() = -data.osim * data.drhs_prox; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dq_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= drhs_prox;
+        lambda_partial_dq_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dq_.swap(dlambda_dx_prox);
+      }
+    }
+    
+    MatrixType5 & lambda_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv);
+    drhs_prox.noalias() = -JMinv * data.dtau_dv;
+    drhs_prox += data.dac_dv;
+    {
+      lambda_partial_dv_.noalias() = -data.osim * data.drhs_prox; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dv_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= drhs_prox;
+        lambda_partial_dv_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dv_.swap(dlambda_dx_prox);
+      }
+    }
 
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)

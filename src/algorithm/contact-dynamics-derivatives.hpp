@@ -15,6 +15,7 @@ namespace pinocchio
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
                                                 std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
@@ -26,9 +27,10 @@ namespace pinocchio
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                                 const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data)
+                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const ProximalSettingsTpl<Scalar> & settings)
   {
-    computeContactDynamicsDerivatives(model, data, contact_models, contact_data,
+    computeContactDynamicsDerivatives(model, data, contact_models, contact_data, settings,
                                       data.ddq_dq, data.ddq_dv, data.ddq_dtau,
                                       data.dlambda_dq, data.dlambda_dv, data.dlambda_dtau);
   };

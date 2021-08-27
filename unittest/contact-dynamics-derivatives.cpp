@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives_no_contact)
   contactDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_data,prox_settings);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data);
+  computeContactDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data,prox_settings);
 
   // Reference values
   computeABADerivatives(model, data_ref, q, v, tau);
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model,data,contact_models,contact_data);
+  computeContactDynamicsDerivatives(model,data,contact_models,contact_data,prox_settings);
 
   // Reference values
   crba(model, data_ref, q);
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   ac_partial_dq << aLF_partial_dq,
     aRF_partial_dq.topRows<3>();
 
-  MatrixXd dac_dq = ac_partial_dq - Jc * data_ref.Minv*data_ref.dtau_dq;
+  MatrixXd dac_dq = ac_partial_dq; // - Jc * data_ref.Minv*data_ref.dtau_dq;
 
   BOOST_CHECK(data.dac_dq.isApprox(dac_dq,1e-8));
   BOOST_CHECK(Kinv.bottomLeftCorner(constraint_dim, model.nv).isApprox(osim*Jc*data_ref.Minv));
@@ -321,7 +321,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   Eigen::MatrixXd ddq_dq(model.nv,model.nv), ddq_dv(model.nv,model.nv), ddq_dtau(model.nv,model.nv);
   Eigen::MatrixXd dlambda_dq(constraint_dim,model.nv), dlambda_dv(constraint_dim,model.nv), dlambda_dtau(constraint_dim,model.nv);
   
-  computeContactDynamicsDerivatives(model,data,contact_models,contact_datas,
+  computeContactDynamicsDerivatives(model,data,contact_models,contact_datas,prox_settings,
                                     ddq_dq,ddq_dv,ddq_dtau,
                                     dlambda_dq,dlambda_dv,dlambda_dtau);
   computeForwardKinematicsDerivatives(model,data,q,v,0*v);
@@ -509,8 +509,8 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   }
   
   BOOST_CHECK(ddq_dq_fd.isApprox(ddq_dq,sqrt(eps)));
-  std::cout << "ddq_dq_fd:\n" << ddq_dq_fd - ddq_dq << std::endl;
-  std::cout << "ddq_dq:\n" << ddq_dq << std::endl;
+//  std::cout << "ddq_dq_fd:\n" << ddq_dq_fd - ddq_dq << std::endl;
+//  std::cout << "ddq_dq:\n" << ddq_dq << std::endl;
   BOOST_CHECK(dacc_corrector_RF_dq.isApprox(dacc_corrector_RF_dq_fd,sqrt(eps)));
   BOOST_CHECK(dacc_corrector_LF_dq.isApprox(dacc_corrector_LF_dq_fd,sqrt(eps)));
   // std::cout << "dacc_corrector_RF_dq:\n" << dacc_corrector_RF_dq << std::endl;
@@ -591,7 +591,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -655,6 +655,117 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
+BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd_prox)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  Data data(model), data_fd(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  const std::string RF = "rleg6_joint";
+    const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+
+  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
+
+  const double mu0 = 1e-4;
+  ProximalSettings prox_settings(1e-12,mu0,20);
+
+  initContactDynamics(model,data,contact_models);
+  VectorXd a_res = contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  BOOST_CHECK(prox_settings.iter > 1 && prox_settings.iter <= prox_settings.max_iter);
+  const Data::TangentVectorType a = data.ddq;
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+
+  ProximalSettings prox_settings_fd(1e-12,0,1);
+  //Data_fd
+  initContactDynamics(model,data_fd,contact_models);
+
+  MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
+  MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
+  MatrixXd ddq_partial_dtau_fd(model.nv,model.nv); ddq_partial_dtau_fd.setZero();
+
+  MatrixXd lambda_partial_dtau_fd(constraint_dim,model.nv); lambda_partial_dtau_fd.setZero();
+  MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
+  MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
+
+  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings_fd);
+  BOOST_CHECK(a_res.isApprox(ddq0));
+  const VectorXd lambda0 = data_fd.lambda_c;
+  
+  computeContactDynamicsDerivatives(model, data_fd, contact_models, contact_data, prox_settings_fd);
+  
+  BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));
+
+  VectorXd v_eps(VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd ddq_plus(model.nv);
+
+  VectorXd lambda_plus(constraint_dim);
+
+  const double alpha = 1e-8;
+  forwardKinematics(model,data,q,v,a);
+
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings_fd);
+    ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    v_eps[k] = 0.;
+  }
+
+  BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
+  BOOST_CHECK(lambda_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
+
+  VectorXd v_plus(v);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] += alpha;
+    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings_fd);
+    ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    v_plus[k] -= alpha;
+  }
+
+  BOOST_CHECK(ddq_partial_dv_fd.isApprox(data.ddq_dv,sqrt(alpha)));
+  BOOST_CHECK(lambda_partial_dv_fd.isApprox(data.dlambda_dv,sqrt(alpha)));
+
+  VectorXd tau_plus(tau);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += alpha;
+    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings_fd);
+    ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    tau_plus[k] -= alpha;
+  }
+
+  BOOST_CHECK(lambda_partial_dtau_fd.isApprox(data.dlambda_dtau,sqrt(alpha)));
+  BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
+}
 
 BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_fd)
 {
@@ -706,7 +817,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -821,7 +932,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -935,7 +1046,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1048,7 +1159,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1163,7 +1274,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1277,7 +1388,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1383,7 +1494,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1485,7 +1596,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1601,7 +1712,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
 
   //Data_fd
   initContactDynamics(model,data_fd,contact_models);
@@ -1764,20 +1875,20 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
 
   initContactDynamics(model,data_dirty,contact_models);
   contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, prox_settings);
 
   // Reuse the same data with new configurations
   q = randomConfiguration(model);
   v = VectorXd::Random(model.nv);
   tau = VectorXd::Random(model.nv);
   contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, prox_settings);
 
   //Test with fresh data
   Data data_fresh(model);
   initContactDynamics(model,data_fresh,contact_models);
   contactDynamics(model,data_fresh,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_fresh, contact_models, contact_data);
+  computeContactDynamicsDerivatives(model, data_fresh, contact_models, contact_data, prox_settings);
   const double alpha = 1e-12;
 
   BOOST_CHECK(data_dirty.ddq_dq.isApprox(data_fresh.ddq_dq,sqrt(alpha)));
