@@ -42,9 +42,14 @@ BOOST_AUTO_TEST_CASE(frame_basic)
     BOOST_CHECK(frame_copy == frame);
   }
   
+  Frame frame1("toto",0,0,SE3::Random(),OP_FRAME);
   std::ostringstream os;
-  os << Frame("toto",0,0,SE3::Random(),OP_FRAME) << std::endl;
+  os << frame1 << std::endl;
   BOOST_CHECK(!os.str().empty());
+  
+  // Check other signature
+  Frame frame2("toto",0,frame1.placement,OP_FRAME);
+  BOOST_CHECK(frame1 == frame2);
 }
 
 BOOST_AUTO_TEST_CASE(cast)

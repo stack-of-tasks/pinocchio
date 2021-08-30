@@ -60,6 +60,28 @@ namespace pinocchio
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
+    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
+    /// \param[in] type The type of the frame, see the enum FrameType.
+    /// \param[in] inertia Inertia info attached to the frame.
+    ///
+    FrameTpl(const std::string & name,
+             const JointIndex parent,
+             const SE3 & frame_placement,
+             const FrameType type,
+             const Inertia & inertia = Inertia::Zero())
+    : name(name)
+    , parent(parent)
+    , previousFrame(0)
+    , placement(frame_placement)
+    , type(type)
+    , inertia(inertia)
+    {}
+    
+    ///
+    /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
+    ///
+    /// \param[in] name Name of the frame.
+    /// \param[in] parent Index of the parent joint in the kinematic tree.
     /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
     /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType.
@@ -67,13 +89,13 @@ namespace pinocchio
     ///
     FrameTpl(const std::string & name,
              const JointIndex parent,
-             const FrameIndex previousFrame,
+             const FrameIndex previous_frame,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
     : name(name)
     , parent(parent)
-    , previousFrame(previousFrame)
+    , previousFrame(previous_frame)
     , placement(frame_placement)
     , type(type)
     , inertia(inertia)
