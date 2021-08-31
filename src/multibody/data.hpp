@@ -402,9 +402,18 @@ namespace pinocchio
 
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
+
+#if defined(_MSC_VER)
+    // Eigen tensor warning: Eigen\CXX11\src/Tensor/Tensor.h(76,1): warning C4554: '&': check operator precedence for possible error
+#pragma warning(disable:4554)
+#endif
     
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
+
+#if defined(_MSC_VER)    
+#pragma warning(default:4554)   // C4554 enabled after tensor definition
+#endif
     
     /// \brief Cholesky decomposition of the KKT contact matrix
     ContactCholeskyDecomposition contact_chol;
