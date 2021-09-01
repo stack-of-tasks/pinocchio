@@ -80,6 +80,21 @@ ADD_PINOCCHIO_UNIT_TEST(rpy)
 ADD_PINOCCHIO_UNIT_TEST(rotation)
 ADD_PINOCCHIO_UNIT_TEST(vector)
 
+#Derivatives algo
+ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(frames-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-3d)
+ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-6d)
+ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives)
+
+
+
 # Pinocchio features
 ADD_PINOCCHIO_UNIT_TEST(spatial)
 ADD_PINOCCHIO_UNIT_TEST(symmetric)
@@ -175,19 +190,6 @@ ADD_PINOCCHIO_UNIT_TEST(classic-acceleration)
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
 ADD_PINOCCHIO_UNIT_TEST(serialization)
 ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT_BINARY_DIR}/serialization-data\\\\\"")
-
-# Derivatives algo
-ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(frames-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-3d)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-6d)
-ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives)
 
 ADD_SUBDIRECTORY(algorithm)
 
