@@ -310,7 +310,7 @@ ADD_SUBDIRECTORY(bindings)
 ADD_SUBDIRECTORY(utils)
 
 # --- UNIT TESTS ---------------------------------------------------------------
-#ADD_SUBDIRECTORY(unittest)
+ADD_SUBDIRECTORY(unittest)
 
 # --- CHECK EXAMPLES -----------------------------------------------------------
 ADD_SUBDIRECTORY(examples)
