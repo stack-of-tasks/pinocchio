@@ -5,7 +5,7 @@
 MACRO(ADD_CASADI_UNIT_TEST name)
   ADD_PINOCCHIO_UNIT_TEST(${name} PACKAGES casadi)
   SET_PROPERTY(TARGET test-cpp-casadi-${name} PROPERTY CXX_STANDARD 11)
-  SET_TEST_PROPERTIES(test-cpp-casadi-${name} PROPERTIES TIMEOUT 3000)
+  SET_TESTS_PROPERTIES(test-cpp-casadi-${name} PROPERTIES TIMEOUT 3000)
   TARGET_LINK_LIBRARIES(test-cpp-casadi-${name} PUBLIC casadi)
   ADD_DEPENDENCIES(test-casadi test-cpp-casadi-${name})
 ENDMACRO()
