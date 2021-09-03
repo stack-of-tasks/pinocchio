@@ -6,11 +6,24 @@
 #define __pinocchio_python_utils_namespace_hpp__
 
 #include <boost/python.hpp>
+#include <string>
 
 namespace pinocchio
 {
   namespace python
   {
+  
+    ///
+    /// \returns the name of the current Python scope.
+    ///
+    inline std::string getCurrentScopeName()
+    {
+      namespace bp = boost::python;
+      bp::scope current_scope;
+      
+      return std::string(bp::extract<const char*>(current_scope.attr("__name__")));
+    }
+    
 
     ///
     /// \brief Helper to create or simply return an existing namespace in Python
@@ -23,11 +36,11 @@ namespace pinocchio
     {
       namespace bp = boost::python;
       
-      bp::scope current_scope;
-      std::string current_scope_name(bp::extract<const char*>(current_scope.attr("__name__")));
-      std::string complete_submodule_name = current_scope_name + "." + submodule_name;
+      const std::string complete_submodule_name = getCurrentScopeName() + "." + submodule_name;
+      std::cout << "complete_submodule_name: " << complete_submodule_name << std::endl;
 
       bp::object submodule(bp::borrowed(PyImport_AddModule(complete_submodule_name.c_str())));
+      bp::scope current_scope;
       current_scope.attr(submodule_name.c_str()) = submodule;
       
       return submodule;
