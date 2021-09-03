@@ -14,7 +14,7 @@ namespace pinocchio
   ///
   /// \brief Generate a random string composed of alphanumeric symbols of a given length.
   ///
-  /// \input len The length of the output string.
+  /// \param[in] len The length of the output string.
   ///
   /// \returns a random string composed of alphanumeric symbols.
   ///
