@@ -284,7 +284,7 @@ namespace pinocchio
              bp::args("self","joint_id","body_inertia","body_placement"),
              "Appends a body to the joint given by its index. The body is defined by its inertia, its relative placement regarding to the joint and its name.")
         
-        .def("addBodyFrame", &Model::addBodyFrame, bp::args("self","body_name", "parentJoint", "body_placement", "previous_frame(parent frame)"), "add a body to the frame tree")
+        .def("addBodyFrame", &Model::addBodyFrame, bp::args("self","body_name", "parentJoint", "body_placement", "previous_frame"), "add a body to the frame tree")
         .def("getBodyId",&Model::getBodyId, bp::args("self","name"), "Return the index of a frame of type BODY given by its name")
         .def("existBodyName", &Model::existBodyName, bp::args("self","name"), "Check if a frame of type BODY exists, given its name")
         .def("getJointId",&Model::getJointId, bp::args("self","name"), "Return the index of a joint given by its name")
