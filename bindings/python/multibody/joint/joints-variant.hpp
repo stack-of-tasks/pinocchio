@@ -7,6 +7,7 @@
 
 #include <boost/python.hpp>
 
+#include "pinocchio/utils/string.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-datas.hpp"
@@ -38,9 +39,12 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
+        std::string classname = T::classname();
+        replace(classname,"<","_");
+        replace(classname,">","");
         expose_joint_data<T>(
-            bp::class_<T>(T::classname().c_str(),
-                          T::classname().c_str(),
+            bp::class_<T>(classname.c_str(),
+                          classname.c_str(),
                           bp::init<>())
             .def(JointDataBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
@@ -54,9 +58,12 @@ namespace pinocchio
       template<class T>
       void operator()(T)
       {
+        std::string classname = T::classname();
+        replace(classname,"<","_");
+        replace(classname,">","");
         expose_joint_model<T>(
-            bp::class_<T>(T::classname().c_str(),
-                          T::classname().c_str(),
+            bp::class_<T>(classname.c_str(),
+                          classname.c_str(),
                           bp::no_init)
             .def(JointModelBasePythonVisitor<T>())
             .def(PrintableVisitor<T>())
