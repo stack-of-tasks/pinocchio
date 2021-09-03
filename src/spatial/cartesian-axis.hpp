@@ -72,14 +72,13 @@ namespace pinocchio
     }
     
     template<typename Scalar>
-    static const Eigen::Matrix<Scalar,3,1> & vector()
+    static Eigen::Matrix<Scalar,3,1> vector()
     {
       typedef Eigen::Matrix<Scalar,3,1> Vector3;
-      static const Vector3 vec = Vector3::Unit(axis);
-      return vec;
+      return Vector3::Unit(axis);
     }
     
-    static const Vector3 & vector()
+    static Vector3 vector()
     {
       return vector<double>();
     }
