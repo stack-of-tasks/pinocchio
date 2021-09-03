@@ -16,9 +16,12 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
+#include "pinocchio/utils/string.hpp"
+
 #include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
+#include "pinocchio/bindings/python/utils/namespace.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::SE3)
 
@@ -173,8 +176,16 @@ namespace pinocchio
         ;
       }
       
+      static std::string scopeName()
+      {
+        static std::string scope_name;
+        return scope_name;
+      }
+      
       static void expose()
       {
+        scopeName() = getCurrentScopeName();
+        
         bp::class_<SE3>("SE3",
                         "SE3 transformation defined by a 3d vector and a rotation matrix.",
                         bp::init<>(bp::arg("self"),"Default constructor."))
@@ -182,7 +193,8 @@ namespace pinocchio
         .def(CastVisitor<SE3>())
         .def(ExposeConstructorByCastVisitor<SE3,::pinocchio::SE3>())
         .def(CopyableVisitor<SE3>())
-        .def(PrintableVisitor<SE3>())
+        .def(bp::self_ns::str(bp::self_ns::self))
+        .def("__repr__",&repr)
         ;
         
       }
@@ -202,6 +214,27 @@ namespace pinocchio
       template<typename Spatial>
       static Spatial __mul__(const SE3 & self, const Spatial & other)
       { return self.act(other); }
+      
+      static std::string repr(const SE3 & self)
+      {
+//        bp::object py_rotation(bp::handle<>(eigenpy::EigenToPy<Matrix3,Scalar>::convert(self.rotation())));
+//        std::string rotation_repr = bp::extract<std::string>(py_rotation.attr("__repr__")());
+//
+//        bp::object py_translation(bp::handle<>(eigenpy::EigenToPy<Vector3,Scalar>::convert(self.translation())));
+//        std::string translation_repr = bp::extract<std::string>(py_translation.attr("__repr__")());
+        
+        bp::object py_homogeneous(bp::handle<>(eigenpy::EigenToPy<Matrix4,Scalar>::convert(self.toHomogeneousMatrix())));
+        std::string homegeneous_repr = bp::extract<std::string>(py_homogeneous.attr("__repr__")());
+        replace(homegeneous_repr,"\n","");
+        replace(homegeneous_repr,"       ","");
+        
+        std::stringstream ss_repr;
+        ss_repr << "SE3(";
+        ss_repr << homegeneous_repr;
+        ss_repr << ")";
+        
+        return ss_repr.str();
+      }
     };
     
   } // namespace python

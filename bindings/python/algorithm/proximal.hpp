@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_proximal_hpp__
@@ -7,6 +7,8 @@
 
 #include <boost/python.hpp>
 #include "pinocchio/algorithm/proximal.hpp"
+
+#include <sstream>
 
 namespace pinocchio
 {
@@ -41,6 +43,7 @@ namespace pinocchio
                       "Final residual when the algorithm has converged or reached the maximal number of allowed iterations.")
         .add_property("iter",&ProximalSettings::iter,
                       "Final number of iteration of the algorithm when it has converged or reached the maximal number of allowed iterations.")
+        .def("__repr__",&repr)
         ;
       }
       
@@ -52,6 +55,21 @@ namespace pinocchio
         .def(ProximalSettingsPythonVisitor<ProximalSettings>())
         ;
         
+      }
+      
+    private:
+      
+      static std::string repr(const ProximalSettings & self)
+      {
+        std::stringstream ss_repr;
+        
+        ss_repr << "ProximalSettings(";
+        ss_repr << self.accuracy << ", ";
+        ss_repr << self.mu << ", ";
+        ss_repr << self.max_iter;
+        ss_repr << ")";
+        
+        return ss_repr.str();
       }
     };
     
