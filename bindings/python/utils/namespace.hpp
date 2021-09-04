@@ -37,7 +37,6 @@ namespace pinocchio
       namespace bp = boost::python;
       
       const std::string complete_submodule_name = getCurrentScopeName() + "." + submodule_name;
-      std::cout << "complete_submodule_name: " << complete_submodule_name << std::endl;
 
       bp::object submodule(bp::borrowed(PyImport_AddModule(complete_submodule_name.c_str())));
       bp::scope current_scope;
