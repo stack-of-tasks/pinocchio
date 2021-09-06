@@ -49,14 +49,14 @@ back_placement = pinocchio.SE3(np.identity(3),
 #Add contact model for contact with ground
 
 for joint_id in foot_joint_ids:
-    contact_model_lf1 = pinocchio.RigidContactModel(pinocchio.ContactType.CONTACT_3D,
+    contact_model_lf1 = pinocchio.RigidConstraintModel(pinocchio.ContactType.CONTACT_3D,
                                                     joint_id,
                                                     front_placement,
                                                     0,
                                                     data.oMi[joint_id] * front_placement,
                                                     pinocchio.ReferenceFrame.LOCAL)
     
-    contact_model_lf2 = pinocchio.RigidContactModel(pinocchio.ContactType.CONTACT_3D,
+    contact_model_lf2 = pinocchio.RigidConstraintModel(pinocchio.ContactType.CONTACT_3D,
                                                     joint_id,
                                                     back_placement,
                                                     0,
@@ -66,7 +66,7 @@ for joint_id in foot_joint_ids:
     constraint_models.extend([contact_model_lf1, contact_model_lf2])
 
 
-contact_model_pelvis = pinocchio.RigidContactModel(pinocchio.ContactType.CONTACT_3D,
+contact_model_pelvis = pinocchio.RigidConstraintModel(pinocchio.ContactType.CONTACT_3D,
                                                    1,
                                                    pinocchio.SE3.Identity(),
                                                    0,

@@ -95,7 +95,7 @@ constraint1_joint1_placement.translation = pin.XAxis * length_link_B
 constraint1_joint2_placement = pin.SE3.Identity()
 constraint1_joint2_placement.translation = - pin.XAxis * length_link_A/2.  
 
-constraint_model = pin.RigidContactModel(pin.ContactType.CONTACT_3D,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
+constraint_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_3D,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
 constraint_data = constraint_model.createData()
 constraint_dim = constraint_model.size() 
 

@@ -285,10 +285,10 @@ namespace pinocchio
                 }
 
                 ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
-                                                    parentJointId,
-                                                    jointPlacement,
-                                                    existingParentJointId,
-                                                    cMj1.inverse() * cMj);
+                                                       parentJointId,
+                                                       jointPlacement,
+                                                       existingParentJointId,
+                                                       cMj1.inverse() * cMj);
                 rcm.name = jointName;
                 contact_models.push_back(rcm);
                 
@@ -312,10 +312,10 @@ namespace pinocchio
               std::cout<<jointName<<" corresponds to pending link"<<childName<<std::endl;
               existingParentJointId = -1;
               ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
-                                                  parentJointId,
-                                                  jointPlacement,
-                                                  existingParentJointId,
-                                                  cMj);
+                                                     parentJointId,
+                                                     jointPlacement,
+                                                     existingParentJointId,
+                                                     cMj);
               rcm.name = jointName;
               childToBeAdded.push_back(childName);
               contact_models.push_back(rcm);

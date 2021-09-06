@@ -14,8 +14,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
@@ -27,8 +27,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4, typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
@@ -49,8 +49,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const ProximalSettingsTpl<Scalar> & settings)
   {
     computeContactDynamicsDerivatives(model, data, contact_models, contact_data, settings,
@@ -61,8 +61,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data)
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data)
   {
     ProximalSettingsTpl<Scalar> settings;
     computeContactDynamicsDerivatives(model, data, contact_models, contact_data, settings);

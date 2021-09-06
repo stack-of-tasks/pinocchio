@@ -156,7 +156,7 @@ namespace pinocchio
     ///
     /// \brief Default constructor
     ///
-    RigidContactModelTpl()
+    RigidConstraintModelTpl()
     : nv(-1)
     , depth_joint1(0)
     , depth_joint2(0)
@@ -289,7 +289,7 @@ namespace pinocchio
     /// \returns true if the two *this is equal to other (type, joint1_id and placement attributs must be the same).
     ///
     template<int OtherOptions>
-    bool operator==(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
+    bool operator==(const RigidConstraintModelTpl<Scalar,OtherOptions> & other) const
     {
       return
          name == other.name
@@ -338,7 +338,7 @@ namespace pinocchio
 
     /// \returns An expression of *this with the Scalar type casted to NewScalar.
     template<typename NewScalar>
-    RigidContactModelTpl<NewScalar,Options> cast() const
+    RigidConstraintModelTpl<NewScalar,Options> cast() const
     {
       typedef RigidConstraintModelTpl<NewScalar,Options> ReturnType;
       ReturnType res;
@@ -437,9 +437,9 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, class Allocator>
-  size_t getTotalConstraintSize(const std::vector< RigidContactModelTpl<Scalar,Options>, Allocator> & contact_models)
+  size_t getTotalConstraintSize(const std::vector< RigidConstraintModelTpl<Scalar,Options>, Allocator> & contact_models)
   {
-    typedef std::vector< RigidContactModelTpl<Scalar,Options>, Allocator> VectorType;
+    typedef std::vector< RigidConstraintModelTpl<Scalar,Options>, Allocator> VectorType;
     size_t total_size = 0;
     for(typename VectorType::const_iterator it = contact_models.begin(); it != contact_models.end(); ++it)
       total_size += it->size();

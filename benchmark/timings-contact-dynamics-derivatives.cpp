@@ -59,34 +59,34 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
-  RigidContactData cd_RF_6D(ci_RF_6D);
-  //RigidContactModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
+  RigidConstraintData cd_RF_6D(ci_RF_6D);
+  //RigidConstraintModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
-  RigidContactData cd_LF_6D(ci_LF_6D);
-  // RigidContactModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintData cd_LF_6D(ci_LF_6D);
+  // RigidConstraintModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
   
-  //RigidContactModel ci_RA_3D(CONTACT_3D,model.getJointId(RA),WORLD);
-  //RigidContactModel ci_LA_3D(CONTACT_3D,model.getJointId(LA),WORLD);
+  //RigidConstraintModel ci_RA_3D(CONTACT_3D,model.getJointId(RA),WORLD);
+  //RigidConstraintModel ci_LA_3D(CONTACT_3D,model.getJointId(LA),WORLD);
   
   // Define contact infos structure
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
 
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
   contact_models_6D.push_back(ci_RF_6D);
   contact_data_6D.push_back(cd_RF_6D);
   
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
   contact_models_6D6D.push_back(ci_RF_6D);
   contact_models_6D6D.push_back(ci_LF_6D);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
   contact_data_6D6D.push_back(cd_RF_6D);
   contact_data_6D6D.push_back(cd_LF_6D);
 

@@ -14,13 +14,13 @@ namespace pinocchio
 {
     namespace python
     {
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
 
       bp::tuple computeContactDynamicsDerivatives_proxy(const context::Model & model,
                                                         context::Data & data,
-                                                        const RigidContactModelVector & contact_models,
-                                                        RigidContactDataVector & contact_datas,
+                                                        const RigidConstraintModelVector & contact_models,
+                                                        RigidConstraintDataVector & contact_datas,
                                                         const context::ProximalSettings & settings = context::ProximalSettings())
       {
         pinocchio::computeContactDynamicsDerivatives(model, data,
@@ -40,7 +40,7 @@ namespace pinocchio
       {
         using namespace Eigen;
 
-        typedef Eigen::aligned_allocator<context::RigidContactModel> RigidContactModelAllocator;
+        typedef Eigen::aligned_allocator<context::RigidConstraintModel> RigidConstraintModelAllocator;
         
         bp::def("computeContactDynamicsDerivatives",
                 computeContactDynamicsDerivatives_proxy,

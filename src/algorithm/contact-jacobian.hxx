@@ -14,8 +14,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6or3Like>
   void getConstraintJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                             const RigidContactModelTpl<Scalar,Options> & constraint_model,
-                             RigidContactDataTpl<Scalar,Options> & constraint_data,
+                             const RigidConstraintModelTpl<Scalar,Options> & constraint_model,
+                             RigidConstraintDataTpl<Scalar,Options> & constraint_data,
                              const Eigen::MatrixBase<Matrix6or3Like> & J_)
   {
     assert(model.check(data) && "data is not consistent with model.");
@@ -29,7 +29,7 @@ namespace pinocchio
     
     Matrix6or3Like & J = J_.const_cast_derived();
     
-    typedef RigidContactModelTpl<Scalar,Options> ConstraintModel;
+    typedef RigidConstraintModelTpl<Scalar,Options> ConstraintModel;
     const typename ConstraintModel::BooleanVector & colwise_joint1_sparsity = constraint_model.colwise_joint1_sparsity;
     const typename ConstraintModel::BooleanVector & colwise_joint2_sparsity = constraint_model.colwise_joint2_sparsity;
     const typename ConstraintModel::IndexVector & colwise_span_indexes = constraint_model.colwise_span_indexes;
@@ -144,12 +144,12 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename DynamicMatrixLike, class ConstraintModelAllocator, class ConstraintDataAllocator>
   void getConstraintsJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const std::vector<RigidContactModelTpl<Scalar,Options>,ConstraintModelAllocator> & constraint_models,
-                              std::vector<RigidContactDataTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_datas,
+                              const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & constraint_models,
+                              std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_datas,
                               const Eigen::MatrixBase<DynamicMatrixLike> & J_)
   {
-    typedef RigidContactModelTpl<Scalar,Options> ContraintModel;
-    typedef RigidContactDataTpl<Scalar,Options> ContraintData;
+    typedef RigidConstraintModelTpl<Scalar,Options> ContraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> ContraintData;
     
     const Eigen::DenseIndex constraint_size = getTotalConstraintSize(constraint_models);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(J_.rows(), constraint_size);

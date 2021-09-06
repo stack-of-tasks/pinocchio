@@ -22,8 +22,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
   void getConstraintJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                             const RigidContactModelTpl<Scalar,Options> & constraint_model,
-                             RigidContactDataTpl<Scalar,Options> & constraint_data,
+                             const RigidConstraintModelTpl<Scalar,Options> & constraint_model,
+                             RigidConstraintDataTpl<Scalar,Options> & constraint_data,
                              const Eigen::MatrixBase<Matrix6Like> & J);
 
   
@@ -40,8 +40,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename DynamicMatrixLike, class ConstraintModelAllocator, class ConstraintDataAllocator>
   void getConstraintsJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const std::vector<RigidContactModelTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_model,
-                              std::vector<RigidContactDataTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_data,
+                              const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_model,
+                              std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & constraint_data,
                               const Eigen::MatrixBase<DynamicMatrixLike> & J);
 
 } // namespace pinocchio

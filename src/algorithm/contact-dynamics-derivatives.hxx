@@ -200,8 +200,8 @@ namespace pinocchio
            typename MatrixType5, typename MatrixType6>
   inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
@@ -248,8 +248,8 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef typename Data::SE3 SE3;
@@ -273,8 +273,8 @@ namespace pinocchio
     // Add the contribution of the external forces.
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
 
       // TODO: Temporary variable
       const SE3 & oMc1 = cdata.oMc1;
@@ -368,8 +368,8 @@ namespace pinocchio
     const Eigen::DenseIndex constraint_dim = data.contact_chol.constraintDim();
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
       typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
       typedef typename ContactCholeskyDecomposition::BooleanVector BooleanVector;
@@ -778,7 +778,7 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
 
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const typename Model::JointIndex joint2_id = cmodel.joint2_id;
@@ -871,8 +871,8 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       

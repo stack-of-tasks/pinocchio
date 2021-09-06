@@ -56,25 +56,25 @@ BOOST_AUTO_TEST_CASE(contact_models)
   
   // Check complete constructor
   const SE3 M(SE3::Random());
-  RigidContactModel cmodel2(CONTACT_3D,model,0,M);
+  RigidConstraintModel cmodel2(CONTACT_3D,model,0,M);
   BOOST_CHECK(cmodel2.type == CONTACT_3D);
   BOOST_CHECK(cmodel2.joint1_id == 0);
   BOOST_CHECK(cmodel2.joint1_placement.isApprox(M));
   BOOST_CHECK(cmodel2.size() == 3);
   
   // Check contructor with two arguments
-  RigidContactModel cmodel2prime(CONTACT_3D,model,0);
+  RigidConstraintModel cmodel2prime(CONTACT_3D,model,0);
   BOOST_CHECK(cmodel2prime.type == CONTACT_3D);
   BOOST_CHECK(cmodel2prime.joint1_id == 0);
   BOOST_CHECK(cmodel2prime.joint1_placement.isIdentity());
   BOOST_CHECK(cmodel2prime.size() == 3);
   
   // Check default copy constructor
-  RigidContactModel cmodel3(cmodel2);
+  RigidConstraintModel cmodel3(cmodel2);
   BOOST_CHECK(cmodel3 == cmodel2);
   
   // Check complete constructor 6D
-  RigidContactModel cmodel4(CONTACT_6D,model,0);
+  RigidConstraintModel cmodel4(CONTACT_6D,model,0);
   BOOST_CHECK(cmodel4.type == CONTACT_6D);
   BOOST_CHECK(cmodel4.joint1_id == 0);
   BOOST_CHECK(cmodel4.joint1_placement.isIdentity());
@@ -98,15 +98,15 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
   
   // 6D - LOCAL
   {
-    RigidContactModel cm_RF_LOCAL(CONTACT_6D,model,model.getJointId(RF),SE3::Random(),LOCAL);
-    RigidContactData cd_RF_LOCAL(cm_RF_LOCAL);
-    RigidContactModel cm_LF_LOCAL(CONTACT_6D,model,model.getJointId(LF),SE3::Random(),LOCAL);
-    RigidContactData cd_LF_LOCAL(cm_LF_LOCAL);
-    RigidContactModel clm_RF_LF_LOCAL(CONTACT_6D,model,
+    RigidConstraintModel cm_RF_LOCAL(CONTACT_6D,model,model.getJointId(RF),SE3::Random(),LOCAL);
+    RigidConstraintData cd_RF_LOCAL(cm_RF_LOCAL);
+    RigidConstraintModel cm_LF_LOCAL(CONTACT_6D,model,model.getJointId(LF),SE3::Random(),LOCAL);
+    RigidConstraintData cd_LF_LOCAL(cm_LF_LOCAL);
+    RigidConstraintModel clm_RF_LF_LOCAL(CONTACT_6D,model,
                                       cm_RF_LOCAL.joint1_id,cm_RF_LOCAL.joint1_placement,
                                       cm_LF_LOCAL.joint1_id,cm_LF_LOCAL.joint1_placement,
                                       LOCAL);
-    RigidContactData cld_RF_LF_LOCAL(clm_RF_LF_LOCAL);
+    RigidConstraintData cld_RF_LF_LOCAL(clm_RF_LF_LOCAL);
     
     Data::Matrix6x J_RF_LOCAL(6,model.nv); J_RF_LOCAL.setZero();
     getFrameJacobian(model,data,cm_RF_LOCAL.joint1_id,cm_RF_LOCAL.joint1_placement,cm_RF_LOCAL.reference_frame,J_RF_LOCAL);
@@ -147,15 +147,15 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
   
   // 6D - LOCAL_WORLD_ALIGNED
   {
-    RigidContactModel cm_RF_LWA(CONTACT_6D,model,model.getJointId(RF),SE3::Random(),LOCAL_WORLD_ALIGNED);
-    RigidContactData cd_RF_LWA(cm_RF_LWA);
-    RigidContactModel cm_LF_LWA(CONTACT_6D,model,model.getJointId(LF),SE3::Random(),LOCAL_WORLD_ALIGNED);
-    RigidContactData cd_LF_LWA(cm_LF_LWA);
-    RigidContactModel clm_RF_LF_LWA(CONTACT_6D,model,
+    RigidConstraintModel cm_RF_LWA(CONTACT_6D,model,model.getJointId(RF),SE3::Random(),LOCAL_WORLD_ALIGNED);
+    RigidConstraintData cd_RF_LWA(cm_RF_LWA);
+    RigidConstraintModel cm_LF_LWA(CONTACT_6D,model,model.getJointId(LF),SE3::Random(),LOCAL_WORLD_ALIGNED);
+    RigidConstraintData cd_LF_LWA(cm_LF_LWA);
+    RigidConstraintModel clm_RF_LF_LWA(CONTACT_6D,model,
                                     cm_RF_LWA.joint1_id,cm_RF_LWA.joint1_placement,
                                     cm_LF_LWA.joint1_id,cm_LF_LWA.joint1_placement,
                                     LOCAL_WORLD_ALIGNED);
-    RigidContactData cld_RF_LF_LWA(clm_RF_LF_LWA);
+    RigidConstraintData cld_RF_LF_LWA(clm_RF_LF_LWA);
     
     Data::Matrix6x J_RF_LOCAL(6,model.nv); J_RF_LOCAL.setZero();
     getFrameJacobian(model,data,cm_RF_LWA.joint1_id,cm_RF_LWA.joint1_placement,LOCAL,J_RF_LOCAL);
@@ -203,15 +203,15 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
   
   // 3D - LOCAL
   {
-    RigidContactModel cm_RF_LOCAL(CONTACT_3D,model,model.getJointId(RF),SE3::Random(),LOCAL);
-    RigidContactData cd_RF_LOCAL(cm_RF_LOCAL);
-    RigidContactModel cm_LF_LOCAL(CONTACT_3D,model,model.getJointId(LF),SE3::Random(),LOCAL);
-    RigidContactData cd_LF_LOCAL(cm_LF_LOCAL);
-    RigidContactModel clm_RF_LF_LOCAL(CONTACT_3D,model,
+    RigidConstraintModel cm_RF_LOCAL(CONTACT_3D,model,model.getJointId(RF),SE3::Random(),LOCAL);
+    RigidConstraintData cd_RF_LOCAL(cm_RF_LOCAL);
+    RigidConstraintModel cm_LF_LOCAL(CONTACT_3D,model,model.getJointId(LF),SE3::Random(),LOCAL);
+    RigidConstraintData cd_LF_LOCAL(cm_LF_LOCAL);
+    RigidConstraintModel clm_RF_LF_LOCAL(CONTACT_3D,model,
                                       cm_RF_LOCAL.joint1_id,cm_RF_LOCAL.joint1_placement,
                                       cm_LF_LOCAL.joint1_id,cm_LF_LOCAL.joint1_placement,
                                       LOCAL);
-    RigidContactData cld_RF_LF_LOCAL(clm_RF_LF_LOCAL);
+    RigidConstraintData cld_RF_LF_LOCAL(clm_RF_LF_LOCAL);
     
     Data::Matrix6x J_RF_LOCAL(6,model.nv); J_RF_LOCAL.setZero();
     getFrameJacobian(model,data,cm_RF_LOCAL.joint1_id,cm_RF_LOCAL.joint1_placement,cm_RF_LOCAL.reference_frame,J_RF_LOCAL);
@@ -252,15 +252,15 @@ BOOST_AUTO_TEST_CASE(contact_models_sparsity_and_jacobians)
   
   // 3D - LOCAL_WORLD_ALIGNED
   {
-    RigidContactModel cm_RF_LWA(CONTACT_3D,model,model.getJointId(RF),SE3::Random(),LOCAL_WORLD_ALIGNED);
-    RigidContactData cd_RF_LWA(cm_RF_LWA);
-    RigidContactModel cm_LF_LWA(CONTACT_3D,model,model.getJointId(LF),SE3::Random(),LOCAL_WORLD_ALIGNED);
-    RigidContactData cd_LF_LWA(cm_LF_LWA);
-    RigidContactModel clm_RF_LF_LWA(CONTACT_3D,model,
+    RigidConstraintModel cm_RF_LWA(CONTACT_3D,model,model.getJointId(RF),SE3::Random(),LOCAL_WORLD_ALIGNED);
+    RigidConstraintData cd_RF_LWA(cm_RF_LWA);
+    RigidConstraintModel cm_LF_LWA(CONTACT_3D,model,model.getJointId(LF),SE3::Random(),LOCAL_WORLD_ALIGNED);
+    RigidConstraintData cd_LF_LWA(cm_LF_LWA);
+    RigidConstraintModel clm_RF_LF_LWA(CONTACT_3D,model,
                                     cm_RF_LWA.joint1_id,cm_RF_LWA.joint1_placement,
                                     cm_LF_LWA.joint1_id,cm_LF_LWA.joint1_placement,
                                     LOCAL_WORLD_ALIGNED);
-    RigidContactData cld_RF_LF_LWA(clm_RF_LF_LWA);
+    RigidConstraintData cld_RF_LF_LWA(clm_RF_LF_LWA);
     
     Data::Matrix6x J_RF_LOCAL(6,model.nv); J_RF_LOCAL.setZero();
     getFrameJacobian(model,data,cm_RF_LWA.joint1_id,cm_RF_LWA.joint1_placement,LOCAL,J_RF_LOCAL);
