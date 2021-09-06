@@ -27,16 +27,6 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 using namespace Eigen;
 using namespace pinocchio;
 
-PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
-createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) & contact_models)
-{
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_datas;
-  for(size_t k = 0; k < contact_models.size(); ++k)
-    contact_datas.push_back(pinocchio::RigidConstraintData(contact_models[k]));
-  
-  return contact_datas;
-}
-
 
 BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives_no_contact)
 {
@@ -259,6 +249,8 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
 
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas,   contact_datas_fd;
+  
   
   RigidConstraintModel ci_RF(CONTACT_6D,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
@@ -266,19 +258,22 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   ci_RF.corrector.Kp = 10.;
   ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
   contact_models.push_back(ci_RF);
-  
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  contact_datas_fd.push_back(RigidConstraintData(ci_RF));
+    
   RigidConstraintModel ci_LF(CONTACT_3D,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
   ci_LF.joint2_placement.setRandom();
   ci_LF.corrector.Kp = 10.;
   ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
   contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  contact_datas_fd.push_back(RigidConstraintData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas = createData(contact_models);
   initConstraintDynamics(model,data,contact_models);
   const Eigen::VectorXd ddq0 = constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
@@ -325,7 +320,6 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
     BOOST_CHECK(dv_LF_dv_L.topRows<3>().isApprox(data.contact_chol.matrix().topRightCorner(9,model.nv).bottomRows<3>()));
   }
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_fd = createData(contact_models);
   initConstraintDynamics(model,data_fd,contact_models);
   
   Data::Matrix6x dacc_corrector_RF_dq_fd(6,model.nv);
