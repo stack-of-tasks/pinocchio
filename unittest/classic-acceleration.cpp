@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(test_classic_acceleration)
     
     const SE3::Vector3 classic_acc_ref = (pos_plus + pos_minus - 2.*pos) / eps2;
     
-    BOOST_CHECK(classic_acc.isApprox(classic_acc_ref,math::sqrt(eps)));
+    BOOST_CHECK(classic_acc.isApprox(classic_acc_ref,math::sqrt(eps)*1e1));
   }
 }
 

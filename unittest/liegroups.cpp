@@ -242,6 +242,8 @@ struct LieGroup_Jdifference{
   template <typename Scalar, int Options>
   void specificTests(const SpecialEuclideanOperationTpl<3,Scalar,Options>) const
   {
+
+    const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
     typedef SE3Tpl<Scalar> SE3;
     typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LG_t;
     typedef typename LG_t::ConfigVector_t ConfigVector_t;
@@ -275,8 +277,7 @@ struct LieGroup_Jdifference{
                           
     SE3 M_u = SE3::Interpolate(M0,M1,u);
     SE3 M_interp(quat_interp,q_interp.template head<3>());
-                          
-    BOOST_CHECK(M_u.isApprox(M_interp));
+    BOOST_CHECK(M_u.isApprox(M_interp, prec*1e1));
   }
 
   template <typename Scalar, int Options>
