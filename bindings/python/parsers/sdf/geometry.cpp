@@ -170,12 +170,13 @@ namespace pinocchio
       pinocchio::sdf::buildGeom(model,contact_models,filename,type,geometry_model,package_dir,meshLoader);
       return geometry_model;
     }
-
-#endif
+    
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+#endif // #ifdef PINOCCHIO_WITH_SDF
 
     void exposeSDFGeometry()
     {
-#ifdef PINOCCHIO_WITH_SDFORMAT
+#ifdef PINOCCHIO_WITH_SDF
       bp::def("buildGeomFromSdf",
               static_cast <GeometryModel (*) (const Model &, PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)&, const std::string &, const GeometryType, const std::string &)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","contact_models","sdf_filename","geom_type","package_dir"  ),

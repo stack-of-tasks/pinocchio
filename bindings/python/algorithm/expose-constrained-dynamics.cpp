@@ -64,16 +64,14 @@ namespace pinocchio
         RigidConstraintModelPythonVisitor<context::RigidConstraintModel>::expose();
         RigidConstraintDataPythonVisitor<context::RigidConstraintData>::expose();
         
-        typedef Eigen::aligned_allocator<context::RigidConstraintModel> RigidConstraintModelAllocator;
-        StdVectorPythonVisitor<context::RigidConstraintModel,RigidConstraintModelAllocator>::expose("StdVec_RigidConstraintModel");
+        StdVectorPythonVisitor<RigidConstraintModelVector>::expose("StdVec_RigidConstraintModel");
         
-        typedef Eigen::aligned_allocator<context::RigidConstraintData> RigidConstraintDataAllocator;
-        StdVectorPythonVisitor<context::RigidConstraintData,RigidConstraintDataAllocator>::expose("StdVec_RigidConstraintData");
+        StdVectorPythonVisitor<RigidConstraintDataVector>::expose("StdVec_RigidConstraintData");
         
         ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
         
         bp::def("initConstraintDynamics",
-                &initConstraintDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,RigidConstraintModelAllocator>,
+                &initConstraintDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,typename RigidConstraintModelVector::allocator_type>,
                 bp::args("model","data","contact_models"),
                 "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
                 "This allows to avoid online memory allocation when running these algorithms.");
