@@ -69,12 +69,58 @@ namespace pinocchio
         return Inertia(mass,com,R*I*R.transpose());
       }      
 
+      template<typename Scalar, int Options>
+      struct ContactDetailsTpl
+      {
+      public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
+        typedef SE3Tpl<Scalar,Options> SE3;
+        typedef pinocchio::JointIndex JointIndex;
+
+        /// \brief Name of the contact.
+        std::string name;
+        
+        /// \brief Type of the contact.
+        ContactType type;
+        
+        /// \brief Index of the first joint in the model tree
+        JointIndex joint1_id;
+        
+        /// \brief Index of the second joint in the model tree
+        JointIndex joint2_id;
+        
+        /// \brief Relative placement with respect to the frame of joint1.
+        SE3 joint1_placement;
+        
+        /// \brief Relative placement with respect to the frame of joint2.
+        SE3 joint2_placement;
+        
+        /// \brief Reference frame where the constraint is expressed (LOCAL_WORLD_ALIGNED or LOCAL)
+        ReferenceFrame reference_frame;
+        
+        
+        ContactDetailsTpl(const ContactType type,
+                          const JointIndex joint1_id,
+                          const SE3 & joint1_placement,
+                          const JointIndex joint2_id,
+                          const SE3 & joint2_placement,
+                          const ReferenceFrame & reference_frame = LOCAL)
+          : type(type)
+          , joint1_id(joint1_id)
+          , joint2_id(joint2_id)
+          , joint1_placement(joint1_placement)
+          , joint2_placement(joint2_placement)
+          , reference_frame(reference_frame)
+        {}
+      };
       
       struct SdfGraph
       {
       public:
         typedef std::map<std::string, ::sdf::ElementPtr> ElementMap_t;
         typedef std::map<std::string, std::vector<std::string> > StringVectorMap_t;
+        typedef ContactDetailsTpl<double, 0> ContactDetails;
         
         ElementMap_t mapOfLinks, mapOfJoints;
         StringVectorMap_t childrenOfLinks;
@@ -83,12 +129,10 @@ namespace pinocchio
 
         typedef ::pinocchio::urdf::details::UrdfVisitorBase UrdfVisitorBase;
         UrdfVisitorBase& urdfVisitor;
-        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models;
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails) contact_details;
 
-        SdfGraph(::pinocchio::urdf::details::UrdfVisitorBase& urdfVisitor,
-                 PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models)
-          : urdfVisitor(urdfVisitor),
-            contact_models(contact_models)
+        SdfGraph(::pinocchio::urdf::details::UrdfVisitorBase& urdfVisitor)
+          : urdfVisitor(urdfVisitor)
         {}
 
         void parseGraph(const std::string & filename)
@@ -143,14 +187,14 @@ namespace pinocchio
           }
         }
 
-        static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+        static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)& contact_details,
                                const std::string& jointName)
         {
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
-                cm = std::begin(contact_models);
-              cm != std::end(contact_models); ++cm)
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)::const_iterator
+                cm = std::begin(contact_details);
+              cm != std::end(contact_details); ++cm)
             {
-              if(cm->name == "jointName")
+              if(cm->name == jointName)
                 return true;
             }
           return false;
@@ -169,15 +213,15 @@ namespace pinocchio
         }
 
         
-        static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+        static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)& contact_details,
                                            const std::string& jointName)
         {
           std::size_t i = 0;
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
-                cm = std::begin(contact_models);
-              cm != std::end(contact_models); ++cm)
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)::const_iterator
+                cm = std::begin(contact_details);
+              cm != std::end(contact_details); ++cm)
           {
-            if(cm->name == "jointName")
+            if(cm->name == jointName)
               return i;
             i++;
             }
@@ -185,13 +229,13 @@ namespace pinocchio
         }
 
 
-        int getConstraintIdFromChild(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+        int getConstraintIdFromChild(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)& contact_details,
                                      const std::string& childName)
         {
           std::size_t i = 0;
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
-                cm = std::begin(contact_models);
-              cm != std::end(contact_models); ++cm)
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)::const_iterator
+                cm = std::begin(contact_details);
+              cm != std::end(contact_details); ++cm)
           {
             const std::string childFromMap =
               mapOfJoints.find(cm->name)->second->GetElement("child")->Get<std::string>();
@@ -262,19 +306,18 @@ namespace pinocchio
                     << jointElement->template Get<std::string>("type")<<std::endl;
 
           
-          //TODO: Check left-knee-shin-joint axis
-          //if (urdfVisitor.existFrame(childName, BODY)) {
+
           if (jointElement->template Get<std::string>("type") == "ball") {
             JointIndex existingParentJointId;
             if (urdfVisitor.existFrame(childName, BODY))
             {
-              if (! existConstraint(contact_models, jointName))
+              if (! existConstraint(contact_details, jointName))
               {
-                std::cout<<childName<<" already exists"<<std::endl;
+                joint_info<<childName<<" already exists"<<std::endl;
                 existingParentJointId = urdfVisitor.getParentId(childName);
                 const ::sdf::ElementPtr prevJointElement =
                   mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
-                std::cout<<"connected by joint "
+                joint_info<<"connected by joint "
                          <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
                 SE3 cMj1(SE3::Identity());
                 if (prevJointElement->HasElement("pose"))
@@ -284,21 +327,21 @@ namespace pinocchio
                   cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
                 }
 
-                ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
-                                                       parentJointId,
-                                                       jointPlacement,
-                                                       existingParentJointId,
-                                                       cMj1.inverse() * cMj);
+                ContactDetails rcm (::pinocchio::CONTACT_3D,
+                                    parentJointId,
+                                    jointPlacement,
+                                    existingParentJointId,
+                                    cMj1.inverse() * cMj);
                 rcm.name = jointName;
-                contact_models.push_back(rcm);
+                contact_details.push_back(rcm);
                 
               }
               else
               {
-                const int i = getConstraintId(contact_models, jointName);
+                const int i = getConstraintId(contact_details, jointName);
                 if(i != -1) {
-                  contact_models[i].joint2_id = parentJointId;
-                  contact_models[i].joint2_placement = jointPlacement;
+                  contact_details[i].joint2_id = parentJointId;
+                  contact_details[i].joint2_placement = jointPlacement;
                 }
                 else
                 {
@@ -308,17 +351,17 @@ namespace pinocchio
             }
             else
             {
-              std::cout<<childName<<" not yet added to model"<<std::endl;
-              std::cout<<jointName<<" corresponds to pending link"<<childName<<std::endl;
+              joint_info<<childName<<" not yet added to model"<<std::endl;
+              joint_info<<jointName<<" corresponds to pending link"<<childName<<std::endl;
               existingParentJointId = -1;
-              ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
+              ContactDetails rcm (::pinocchio::CONTACT_3D,
                                                      parentJointId,
                                                      jointPlacement,
                                                      existingParentJointId,
                                                      cMj);
               rcm.name = jointName;
               childToBeAdded.push_back(childName);
-              contact_models.push_back(rcm);
+              contact_details.push_back(rcm);
             }
           }
           else {            
@@ -426,10 +469,10 @@ namespace pinocchio
 
 
             if (existChildName(childToBeAdded, childName)) {
-              int constraintId = getConstraintIdFromChild(contact_models, childName);
+              int constraintId = getConstraintIdFromChild(contact_details, childName);
               if (constraintId != -1)
               {
-                contact_models[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
+                contact_details[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
               }
               else {
                 throw std::invalid_argument("Something wrong here");
@@ -464,14 +507,25 @@ namespace pinocchio
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
                                                            JointCollectionTpl> visitor (model, root_joint);
 
-      ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
-      
+      typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
+
+      SdfGraph graph (visitor);      
       if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
       //Use the SDF graph to create the model
       details::parseRootTree(graph);
+
+      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
+            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
+      {
+        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint2_id,
+                                 cm->joint1_placement, cm->joint2_placement, cm->reference_frame);
+        rcm.name = cm->name;
+        contact_models.push_back(rcm);
+      }
+
       return model;
     }
     
@@ -483,8 +537,10 @@ namespace pinocchio
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const bool verbose)
     {
+      typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
+      
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
-      ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
+      SdfGraph graph (visitor);
       
       if (verbose) visitor.log = &std::cout;
 
@@ -492,6 +548,17 @@ namespace pinocchio
       graph.parseGraph(filename);
       //Use the SDF graph to create the model
       details::parseRootTree(graph);
+
+      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
+            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
+      {
+        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint2_id,
+                                 cm->joint1_placement, cm->joint2_placement, cm->reference_frame);
+        rcm.name = cm->name;
+        contact_models.push_back(rcm);
+      }
+
+      
       return model;
     }
   }
