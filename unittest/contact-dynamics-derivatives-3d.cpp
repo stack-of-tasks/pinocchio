@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidConstraintModel ci_closure (CONTACT_3D, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_3D,model, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL);
   
   contact_models.push_back(ci_closure);
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidConstraintModel ci_closure (CONTACT_3D, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_3D,model, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
   
   contact_models.push_back(ci_closure);
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE ( test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 

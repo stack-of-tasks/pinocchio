@@ -27,6 +27,17 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 using namespace Eigen;
 using namespace pinocchio;
 
+PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
+createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) & contact_models)
+{
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_datas;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    contact_datas.push_back(pinocchio::RigidConstraintData(contact_models[k]));
+  
+  return contact_datas;
+}
+
+
 BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives_no_contact)
 {
   using namespace Eigen;
@@ -110,9 +121,9 @@ BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
-  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
@@ -249,14 +260,14 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   
-  RigidConstraintModel ci_RF(CONTACT_6D,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   ci_RF.joint2_placement.setRandom();
   ci_RF.corrector.Kp = 10.;
   ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
   contact_models.push_back(ci_RF);
   
-  RigidConstraintModel ci_LF(CONTACT_3D,LF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
   ci_LF.joint2_placement.setRandom();
   ci_LF.corrector.Kp = 10.;

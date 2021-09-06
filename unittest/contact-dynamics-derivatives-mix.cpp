@@ -85,15 +85,6 @@ pinocchio::Motion getContactAcceleration(const Model & model,
   return computeAcceleration(model,data,cmodel.joint1_id,cmodel.reference_frame,cmodel.type,cmodel.joint1_placement);
 }
 
-PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
-createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) & contact_models)
-{
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_datas;
-  for(size_t k = 0; k < contact_models.size(); ++k)
-    contact_datas.push_back(pinocchio::RigidConstraintData(contact_models[k]));
-  
-  return contact_datas;
-}
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
 {
@@ -124,17 +115,17 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
   ci_LF.joint1_placement.setRandom();
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
-  RigidConstraintModel ci_RF(CONTACT_6D,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
   
-  RigidConstraintModel ci_LH(CONTACT_3D,LH_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LH(CONTACT_3D,model,LH_id,LOCAL_WORLD_ALIGNED);
   ci_LH.joint1_placement.setRandom();
   contact_models.push_back(ci_LH); contact_data.push_back(RigidConstraintData(ci_LH));
-  RigidConstraintModel ci_RH(CONTACT_3D,RH_id,LOCAL);
+  RigidConstraintModel ci_RH(CONTACT_3D,model,RH_id,LOCAL);
   ci_RH.joint1_placement.setRandom();
   contact_models.push_back(ci_RH); contact_data.push_back(RigidConstraintData(ci_RH));
 
@@ -296,8 +287,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
-  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));

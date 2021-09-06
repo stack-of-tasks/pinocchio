@@ -84,10 +84,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   
@@ -213,10 +213,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   
@@ -343,10 +343,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   
@@ -473,10 +473,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
   // Contact models and data
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_3D,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   
