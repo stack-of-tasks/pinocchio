@@ -39,7 +39,6 @@ namespace pinocchio
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
@@ -105,7 +104,6 @@ namespace pinocchio
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
@@ -113,10 +111,8 @@ namespace pinocchio
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr())
     {
       const std::vector<std::string> dirs(1,packagePath);
-      return buildGeom(model,contact_models,filename,type,geomModel,dirs,meshLoader);
+      return buildGeom(model,filename,type,geomModel,dirs,meshLoader);
     };
-
-    
 
     ///
     /// \brief Build the model from a SDF file with a particular joint as root of the model tree inside
