@@ -2,7 +2,7 @@
 // Copyright (c) 2021 CNRS INRIA
 //
 
-#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
+#ifdef PINOCCHIO_WITH_SDFORMAT
   #include "pinocchio/parsers/sdf.hpp"
 #endif
 #include "pinocchio/bindings/python/parsers/sdf.hpp"
@@ -17,7 +17,7 @@ namespace pinocchio
 
     namespace bp = boost::python;
 
-#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
+#ifdef PINOCCHIO_WITH_SDFORMAT
     bp::tuple buildModelFromSdf(const std::string & filename)
     {
       Model model;
@@ -38,7 +38,7 @@ namespace pinocchio
     
     void exposeSDFModel()
     {
-#ifdef PINOCCHIO_PINOCCHIO_WITH_SDFORMAT
+#ifdef PINOCCHIO_WITH_SDFORMAT
       bp::def("buildModelFromSdf",
               static_cast <bp::tuple (*) (const std::string &)> (pinocchio::python::buildModelFromSdf),
               bp::args("sdf_filename"),

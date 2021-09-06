@@ -467,7 +467,6 @@ namespace pinocchio
               
             }
 
-
             if (existChildName(childToBeAdded, childName)) {
               int constraintId = getConstraintIdFromChild(contact_details, childName);
               if (constraintId != -1)
@@ -509,7 +508,7 @@ namespace pinocchio
 
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
 
-      SdfGraph graph (visitor);      
+      SdfGraph graph (visitor);
       if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
@@ -520,8 +519,8 @@ namespace pinocchio
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint2_id,
-                                 cm->joint1_placement, cm->joint2_placement, cm->reference_frame);
+        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
+                                 cm->joint2_id, cm->joint2_placement, cm->reference_frame);
         rcm.name = cm->name;
         contact_models.push_back(rcm);
       }
@@ -552,12 +551,11 @@ namespace pinocchio
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint2_id,
-                                 cm->joint1_placement, cm->joint2_placement, cm->reference_frame);
+        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
+                                 cm->joint2_id, cm->joint2_placement, cm->reference_frame);
         rcm.name = cm->name;
         contact_models.push_back(rcm);
       }
-
       
       return model;
     }
