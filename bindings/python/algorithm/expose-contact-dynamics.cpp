@@ -3,8 +3,6 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/algorithm/contact-info.hpp"
-#include "pinocchio/bindings/python/algorithm/proximal.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 
 namespace pinocchio
@@ -23,8 +21,6 @@ namespace pinocchio
     {
       return forwardDynamics(model, data, q, v, tau, J, gamma, inv_damping);
     }
-    
-    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics_proxy, 7, 8)
 
     static const context::VectorXs forwardDynamics_proxy_no_q(const context::Model & model,
                                                               context::Data & data,
@@ -36,8 +32,6 @@ namespace pinocchio
       return forwardDynamics(model, data, tau, J, gamma, inv_damping);
     }
     
-    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads_no_q, forwardDynamics_proxy_no_q, 5, 6)
-
     static const context::VectorXs impulseDynamics_proxy(const context::Model & model,
                                                          context::Data & data,
                                                          const context::VectorXs & q,
@@ -49,8 +43,6 @@ namespace pinocchio
       return impulseDynamics(model, data, q, v_before, J, r_coeff, inv_damping);
     }
 
-    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
-    
     static const context::VectorXs impulseDynamics_proxy_no_q(const context::Model & model,
                                                               context::Data & data,
                                                               const context::VectorXs & v_before,
@@ -60,8 +52,6 @@ namespace pinocchio
     {
       return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
     }
-
-    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads_no_q, impulseDynamics_proxy_no_q, 4, 6)
 
     static context::MatrixXs computeKKTContactDynamicMatrixInverse_proxy(const context::Model & model,
                                                                          context::Data & data,
@@ -74,9 +64,6 @@ namespace pinocchio
       return KKTMatrix_inv;
     }
   
-    BOOST_PYTHON_FUNCTION_OVERLOADS(computeKKTContactDynamicMatrixInverse_overload,
-                                    computeKKTContactDynamicMatrixInverse_proxy, 4, 5)
-
     static const context::MatrixXs getKKTContactDynamicMatrixInverse_proxy(const context::Model & model,
                                                                            context::Data & data,
                                                                            const context::MatrixXs & J)
@@ -92,40 +79,32 @@ namespace pinocchio
       
       bp::def("forwardDynamics",
               &forwardDynamics_proxy,
-              forwardDynamics_overloads(
-              bp::args("model","data","q","v","tau","constraint_jacobian","constraint_drift","damping"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("v"),bp::arg("tau"),bp::arg("constraint_jacobian"),bp::arg("constraint_drift"),bp::arg("damping")=0),
               "Solves the constrained dynamics problem with contacts, puts the result in context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
-              "Note: internally, pinocchio.computeAllTerms is called."
-              ));
+              "Note: internally, pinocchio.computeAllTerms is called.");
 
       bp::def("forwardDynamics",
               &forwardDynamics_proxy_no_q,
-              forwardDynamics_overloads_no_q(
-              bp::args("model","data","tau","constraint_jacobian","constraint_drift","damping"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("tau"),bp::arg("constraint_jacobian"),bp::arg("constraint_drift"),bp::arg("damping")=0),
               "Solves the forward dynamics problem with contacts, puts the result in context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
-              "Note: this function assumes that pinocchio.computeAllTerms has been called first."
-              ));
+              "Note: this function assumes that pinocchio.computeAllTerms has been called first.");
 
       bp::def("impulseDynamics",
               &impulseDynamics_proxy,
-              impulseDynamics_overloads(
-              bp::args("model","data","q","v_before","constraint_jacobian","restitution_coefficient","damping"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("v_before"),bp::arg("constraint_jacobian"),bp::arg("restitution_coefficient") = 0, bp::arg("damping") = 0),
               "Solves the impact dynamics problem with contacts, store the result in context::Data::dq_after and return it. The contact impulses are stored in data.impulse_c.\n"
-              "Note: internally, pinocchio.crba is called."
-              ));
+              "Note: internally, pinocchio.crba is called.");
       
       bp::def("impulseDynamics",
               &impulseDynamics_proxy_no_q,
-              impulseDynamics_overloads_no_q(
-              bp::args("model","data","v_before","constraint_jacobian","restitution_coefficient","damping"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("v_before"),bp::arg("constraint_jacobian"),bp::arg("restitution_coefficient") = 0,bp::arg("damping")=0),
               "Solves the impact dynamics problem with contacts, store the result in context::Data::dq_after and return it. The contact impulses are stored in data.impulse_c.\n"
-              "Note: this function assumes that pinocchio.crba has been called first."
-              ));
+              "Note: this function assumes that pinocchio.crba has been called first.");
 
       bp::def("computeKKTContactDynamicMatrixInverse",
               computeKKTContactDynamicMatrixInverse_proxy,
-              computeKKTContactDynamicMatrixInverse_overload(bp::args("model","data","q","constraint_jacobian","damping"),
-              "Computes the inverse of the constraint matrix [[M J^T], [J 0]]."));
+              (bp::arg("model"),bp::arg("data"),bp::arg("q"),bp::arg("constraint_jacobian"),bp::arg("damping")=0),
+              "Computes the inverse of the constraint matrix [[M J^T], [J 0]].");
       
       bp::def("getKKTContactDynamicMatrixInverse",
               getKKTContactDynamicMatrixInverse_proxy,
