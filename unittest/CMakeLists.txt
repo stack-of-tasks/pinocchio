@@ -89,9 +89,6 @@ ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-mix)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-3d)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-6d)
 ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics-derivatives)
 
 
