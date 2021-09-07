@@ -632,18 +632,18 @@ namespace pinocchio
     typedef typename Base::VectorXs VectorXs;
 
     typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
-    typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
-    typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
+    typedef Eigen::aligned_allocator<ContactModel> ConstraintModelAllocator;
+    typedef typename std::vector<ContactModel, ConstraintModelAllocator> ContactModelVector;
     typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
-    typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
-    typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+    typedef Eigen::aligned_allocator<ContactData> ConstraintDataAllocator;
+    typedef typename std::vector<ContactData, ConstraintDataAllocator> ContactDataVector;
 
     typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
-    typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
-    typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
+    typedef Eigen::aligned_allocator<ADContactModel> ADConstraintModelAllocator;
+    typedef typename std::vector<ADContactModel, ADConstraintModelAllocator> ADContactModelVector;
     typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADContactData;
-    typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
-    typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+    typedef Eigen::aligned_allocator<ADContactData> ADConstraintDataAllocator;
+    typedef typename std::vector<ADContactData, ADConstraintDataAllocator> ADContactDataVector;
 
     typedef typename Base::ADData ADData;
     typedef typename ADData::MatrixXs ADMatrixXs;
@@ -800,18 +800,18 @@ namespace pinocchio
     typedef typename Base::VectorXs VectorXs;
 
     typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
-    typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
-    typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
+    typedef Eigen::aligned_allocator<ContactModel> ConstraintModelAllocator;
+    typedef typename std::vector<ContactModel, ConstraintModelAllocator> ContactModelVector;
     typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
-    typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
-    typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+    typedef Eigen::aligned_allocator<ContactData> ConstraintDataAllocator;
+    typedef typename std::vector<ContactData, ConstraintDataAllocator> ContactDataVector;
 
     typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
-    typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
-    typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
+    typedef Eigen::aligned_allocator<ADContactModel> ADConstraintModelAllocator;
+    typedef typename std::vector<ADContactModel, ADConstraintModelAllocator> ADContactModelVector;
     typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADContactData;
-    typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
-    typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+    typedef Eigen::aligned_allocator<ADContactData> ADConstraintDataAllocator;
+    typedef typename std::vector<ADContactData, ADConstraintDataAllocator> ADContactDataVector;
 
     typedef typename Base::ADData ADData;
     typedef typename ADData::MatrixXs ADMatrixXs;

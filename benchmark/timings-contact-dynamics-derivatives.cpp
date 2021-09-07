@@ -121,38 +121,38 @@ int main(int argc, const char ** argv)
 
   
   double total_time = 0;  
-  initContactDynamics(model,data,contact_models_empty);
+  initConstraintDynamics(model,data,contact_models_empty);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
     timer.tic();
-    computeContactDynamicsDerivatives(model, data,
+    computeConstraintDynamicsDerivatives(model, data,
                                       contact_models_empty, contact_data_empty);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "constraintDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;  
-  initContactDynamics(model,data,contact_models_6D);
+  initConstraintDynamics(model,data,contact_models_6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,contact_models_6D,contact_data_6D);
+    computeConstraintDynamicsDerivatives(model,data,contact_models_6D,contact_data_6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "constraintDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;
-  initContactDynamics(model,data,contact_models_6D6D);
+  initConstraintDynamics(model,data,contact_models_6D6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data, contact_models_6D6D, contact_data_6D6D);
+    computeConstraintDynamicsDerivatives(model,data, contact_models_6D6D, contact_data_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
+  std::cout << "constraintDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
   return 0;
 }
 

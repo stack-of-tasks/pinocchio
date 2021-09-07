@@ -147,10 +147,10 @@ t = 0
 mu_sim = 1e-10
 constraint_model.corrector.Kp = 10
 constraint_model.corrector.Kd = 2. * np.sqrt(constraint_model.corrector.Kp)
-pin.initContactDynamics(model,data,[constraint_model])
+pin.initConstraintDynamics(model,data,[constraint_model])
 import time
 while t <= T_sim:
-    a = pin.contactDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],mu_sim)
+    a = pin.constraintDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],mu_sim)
     v += a*dt
     q = pin.integrate(model,q,v*dt)
     viz.display(q)

@@ -407,6 +407,7 @@ namespace pinocchio
       typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
       
+<<<<<<< HEAD
       typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
       typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
       typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
@@ -420,6 +421,21 @@ namespace pinocchio
       typedef typename pinocchio::RigidContactDataTpl<ADScalar, Base::Options> ADContactData;
       typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
       typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+=======
+      typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
+      typedef Eigen::aligned_allocator<ContactModel> ConstraintModelAllocator;
+      typedef typename std::vector<ContactModel, ConstraintModelAllocator> ContactModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
+      typedef Eigen::aligned_allocator<ContactData> ConstraintDataAllocator;
+      typedef typename std::vector<ContactData, ConstraintDataAllocator> ContactDataVector;
+      
+      typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
+      typedef Eigen::aligned_allocator<ADContactModel> ADConstraintModelAllocator;
+      typedef typename std::vector<ADContactModel, ADConstraintModelAllocator> ADContactModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<ADScalar, Base::Options> ADContactData;
+      typedef Eigen::aligned_allocator<ADContactData> ADConstraintDataAllocator;
+      typedef typename std::vector<ADContactData, ADConstraintDataAllocator> ADContactDataVector;
+>>>>>>> [merge] contact->constraint
 
       static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
       {
@@ -616,6 +632,7 @@ namespace pinocchio
       typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
       
+<<<<<<< HEAD
       typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
       typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
       typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
@@ -629,6 +646,21 @@ namespace pinocchio
       typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
       typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
       typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+=======
+      typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
+      typedef Eigen::aligned_allocator<ContactModel> ConstraintModelAllocator;
+      typedef typename std::vector<ContactModel, ConstraintModelAllocator> ContactModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
+      typedef Eigen::aligned_allocator<ContactData> ConstraintDataAllocator;
+      typedef typename std::vector<ContactData, ConstraintDataAllocator> ContactDataVector;
+      
+      typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
+      typedef Eigen::aligned_allocator<ADContactModel> ADConstraintModelAllocator;
+      typedef typename std::vector<ADContactModel, ADConstraintModelAllocator> ADContactModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADContactData;
+      typedef Eigen::aligned_allocator<ADContactData> ADConstraintDataAllocator;
+      typedef typename std::vector<ADContactData, ADConstraintDataAllocator> ADContactDataVector;
+>>>>>>> [merge] contact->constraint
 
       static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
       {
