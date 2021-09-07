@@ -54,22 +54,23 @@ namespace pinocchio
   /// \param[in] q The joint configuration (size model.nq).
   /// \param[in] v The joint velocity (size model.nv).
   /// \param[in] tau The joint torque vector (size model.nv).
-  /// \param[in] contact_models Vector of contact information related to the problem.
+  /// \param[in] contact_models Vector of contact models.
+  /// \param[in] contact_datas Vector of contact data.
   /// \param[in] settings Proximal settings (mu, accuracy and maximal number of iterations).
   ///
   /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
                   ProximalSettingsTpl<Scalar> & settings);
 
   ///
@@ -94,25 +95,37 @@ namespace pinocchio
   /// \param[in] q The joint configuration (size model.nq).
   /// \param[in] v The joint velocity (size model.nv).
   /// \param[in] tau The joint torque vector (size model.nv).
-  /// \param[in] contact_models Vector of contact information related to the problem.
-  /// \param[in] mu Damping factor for cholesky decomposition. Set to zero if constraints are full rank.
-  ///
-  /// \note A hint: a typical value for mu is 1e-12 when two contact constraints are redundant.
+  /// \param[in] contact_models Vector of contact models.
+  /// \param[in] contact_datas Vector of contact data.
   ///
   /// \return A reference to the joint acceleration stored in data.ddq. The Lagrange Multipliers linked to the contact forces are available throw data.lambda_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas)
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas)
   {
     ProximalSettingsTpl<Scalar> settings;
     return constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,settings);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  contactABA(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+             const Eigen::MatrixBase<ConfigVectorType> & q,
+             const Eigen::MatrixBase<TangentVectorType1> & v,
+             const Eigen::MatrixBase<TangentVectorType2> & tau,
+             const std::vector<RigidConstraintModelTpl<Scalar,Options>,ModelAllocator> & contact_models,
+             std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data)
+  {
+    ProximalSettingsTpl<Scalar> settings = ProximalSettingsTpl<Scalar>();
+    return contactABA(model,data,q.derived(),v.derived(),tau.derived(),contact_models,contact_data,settings);
   }
 
 } // namespace pinocchio

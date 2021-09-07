@@ -205,11 +205,11 @@ namespace pinocchio
       ///
       /// \remarks The mass matrix and the Jacobians of the dynamical system should have been computed first. This can be achieved by simply calling pinocchio::crba.
       ///
-      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                    DataTpl<S1,O1,JointCollectionTpl> & data,
-                   const std::vector<RigidConstraintModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
-                   std::vector<RigidConstraintDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
+                   const std::vector<RigidConstraintModelTpl<S1,O1>,ConstraintModelAllocator> & contact_models,
+                   std::vector<RigidConstraintDataTpl<S1,O1>,ConstraintDataAllocator> & contact_datas,
                    const S1 mu = S1(0.));
       
       /// \brief Size of the decomposition

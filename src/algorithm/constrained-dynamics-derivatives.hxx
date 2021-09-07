@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020 CNRS INRIA
+// Copyright (c) 2020-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_constraint_dynamics_derivatives_hxx__
@@ -196,12 +196,13 @@ namespace pinocchio
     }
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
            typename MatrixType5, typename MatrixType6>
   inline void computeConstraintDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_data,
+                                                const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
@@ -258,9 +259,9 @@ namespace pinocchio
     data.oa_gf[0] = -model.gravity;
 
     //TODO: Temp variable
-    Force of_temp, of_temp2;
-    Motion a_temp;
-    SE3 se3_temp;
+    Force of_tmp, of_tmp2;
+    Motion a_tmp;
+    SE3 M_tmp;
     
     typedef ComputeConstraintDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
@@ -283,72 +284,73 @@ namespace pinocchio
 
       switch(cmodel.reference_frame) 
       {
-      case LOCAL: {
-        switch(cmodel.type) {
-        case CONTACT_6D: {
-          if(cmodel.joint1_id > 0) {
-            of1 -= oMc1.act(cdata.contact_force);
-          }
-          if(cmodel.joint2_id > 0) {
-            of_temp = oMc1.act(cdata.contact_force);
-            of2 += of_temp;
+        case LOCAL: {
+          switch(cmodel.type) {
+            case CONTACT_6D: {
+              if(cmodel.joint1_id > 0) {
+                of1 -= oMc1.act(cdata.contact_force);
+              }
+              if(cmodel.joint2_id > 0) {
+                of_tmp = oMc1.act(cdata.contact_force);
+                of2 += of_tmp;
+              }
+              break;
+            }
+            case CONTACT_3D: {
+              of_tmp.linear().noalias() = oMc1.rotation()*cdata.contact_force.linear();
+              
+              if(cmodel.joint1_id > 0) {
+                of1.linear().noalias() -= of_tmp.linear();
+                of1.angular().noalias() -= oMc1.translation().cross(of_tmp.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2.linear() += of_tmp.linear();
+                of2.angular().noalias() += oMc2.translation().cross(of_tmp.linear());
+                break;
+              }
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
           }
           break;
         }
-        case CONTACT_3D: {
-          of_temp.linear().noalias() = oMc1.rotation()*cdata.contact_force.linear();
-          
-          if(cmodel.joint1_id > 0) {
-            of1.linear().noalias() -= of_temp.linear();
-            of1.angular().noalias() -= oMc1.translation().cross(of_temp.linear());
+        case LOCAL_WORLD_ALIGNED:
+        {
+          switch(cmodel.type) {
+            case CONTACT_6D: {
+              if(cmodel.joint1_id > 0) {
+                of1 -= cdata.contact_force;
+                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2 += cdata.contact_force;
+                of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              break;
+            }
+            case CONTACT_3D: {
+              if(cmodel.joint1_id > 0) {
+                of1.linear() -= cdata.contact_force.linear();
+                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2.linear() += cdata.contact_force.linear();
+                of2.angular().noalias() += oMc2.translation().cross(cdata.contact_force.linear());
+              }
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
           }
-          if(cmodel.joint2_id > 0) {
-            of2.linear() += of_temp.linear();
-            of2.angular().noalias() += oMc2.translation().cross(of_temp.linear());
-          }
-	  break;
-	}
-	default: {
-	  assert(false && "must never happen");
-	  break;
-	}
+          break;
         }
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED: {
-        switch(cmodel.type) {
-	case CONTACT_6D: {
-	  if(cmodel.joint1_id > 0) {
-	    of1 -= cdata.contact_force;
-	    of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
-	  }
-	  if(cmodel.joint2_id > 0) {
-	    of2 += cdata.contact_force;
-	    of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
-	  }
-	  break;
-	}
-	case CONTACT_3D: {
-	  if(cmodel.joint1_id > 0) {
-	    of1.linear() -= cdata.contact_force.linear();
-	    of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
-	  }
-	  if(cmodel.joint2_id > 0) {
-	    of2.linear() += cdata.contact_force.linear();
-	    of2.angular().noalias() += oMc2.translation().cross(cdata.contact_force.linear());
-	  }
-	  break;
-	}
-	default: {
-	  assert(false && "must never happen");
-	  break;
-	}
-	}
-        break;
-      }
-      default:
-        assert(false && "Should never happen");
-        break;
+        default:
+          assert(false && "Should never happen");
+          break;
       }
     }
 
@@ -402,10 +404,10 @@ namespace pinocchio
             //TODO: Memory assignment here
             typename Data::Matrix6x j2_dvc_dq(6,model.nv), j2_dac_dq(6,model.nv), j2_dac_dv(6,model.nv), j2_dac_da(6,model.nv);
             j2_dvc_dq.setZero(); j2_dac_dq.setZero(); j2_dac_dv.setZero(); j2_dac_da.setZero();
-	    se3_temp = cmodel.joint2_placement * cdata.c1Mc2.inverse();
+            M_tmp = cmodel.joint2_placement * cdata.c1Mc2.inverse();
             getFrameAccelerationDerivatives(model, data,
                                             cmodel.joint2_id,
-                                            se3_temp,
+                                            M_tmp,
                                             cmodel.reference_frame,
                                             j2_dvc_dq,
                                             j2_dac_dq,
@@ -451,12 +453,12 @@ namespace pinocchio
             typename Data::Matrix3x j2_dvc_dq(3,model.nv), j2_dac_dq(3,model.nv), j2_dac_dv(3,model.nv), j2_dac_da(3,model.nv);
 	    
             j2_dvc_dq.setZero(); j2_dac_dq.setZero(); j2_dac_dv.setZero(); j2_dac_da.setZero();
-	    se3_temp.translation() = cmodel.joint2_placement.translation();
-	    se3_temp.rotation() = cmodel.joint2_placement.rotation() * cdata.c1Mc2.inverse().rotation();
+            M_tmp.translation() = cmodel.joint2_placement.translation();
+            M_tmp.rotation() = cmodel.joint2_placement.rotation() * cdata.c1Mc2.rotation().transpose();
             getPointClassicAccelerationDerivatives(model, data,
                                                    cmodel.joint2_id,
-                                                   se3_temp,
-						   cmodel.reference_frame,
+                                                   M_tmp,
+                                                   cmodel.reference_frame,
                                                    j2_dvc_dq,
                                                    j2_dac_dq,
                                                    j2_dac_dv,
@@ -499,19 +501,19 @@ namespace pinocchio
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
 
 	  switch(cmodel.reference_frame) {
-	  case LOCAL: {
-	    of_temp = cdata.oMc1.act(cdata.contact_force);
-	    break;
-	  }
-	  case LOCAL_WORLD_ALIGNED: {
-	    of_temp = cdata.contact_force;
-	    of_temp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
-	    break;
-	  }
-	  default: {
-	    assert(false && "must never happen");
-	    break;
-	  }
+      case LOCAL: {
+        of_tmp = cdata.oMc1.act(cdata.contact_force);
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED: {
+        of_tmp = cdata.contact_force;
+        of_tmp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
+        break;
+      }
+      default: {
+        assert(false && "must never happen");
+        break;
+      }
 	  }
 
 	  // d./dq
@@ -519,36 +521,36 @@ namespace pinocchio
 	  {
 	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
-	    motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_temp.toVector());
+	    motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_tmp.toVector());
 
 	    switch(cmodel.reference_frame) {
-	    case LOCAL: {
-	      if(joint2_indexes[col_id]) {
-		contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_temp).toVector();
-	      }
-	      else {
-		contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_temp).toVector();
-	      }
-	      break;
-	    }
-	    case LOCAL_WORLD_ALIGNED: {
-	      // Do nothing
-	      break;
-	    }
-	    default: {
-	      assert(false && "must never happen");
-	      break;
-	    }
-	    }
-	    
-	    motionSet::act(data.J.col(col_id), of_temp, of_temp2.toVector());
+        case LOCAL: {
+          if(joint2_indexes[col_id]) {
+            contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_tmp).toVector();
+          }
+          else {
+            contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_tmp).toVector();
+          }
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED: {
+          // Do nothing
+          break;
+        }
+        default: {
+          assert(false && "must never happen");
+          break;
+        }
+      }
+
+	    motionSet::act(data.J.col(col_id), of_tmp, of_tmp2.toVector());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
 	      if(joint2_indexes[col_id]) {
-		data.dtau_dq(j,col_id) -= data.J.col(j).transpose() * of_temp2.toVector();
+          data.dtau_dq(j,col_id) -= data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	      else {
-		data.dtau_dq(j,col_id) += data.J.col(j).transpose() * of_temp2.toVector();
+          data.dtau_dq(j,col_id) += data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	    }  
 	  }
@@ -564,23 +566,23 @@ namespace pinocchio
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
 
 	  switch(cmodel.reference_frame) {
-	  case LOCAL: {
-	    of_temp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
-	    const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data,
-								    cmodel.joint2_id,
-								    cmodel.joint2_placement,
-								    cmodel.reference_frame);
-	    a_temp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
-	    break;
-	  }
-	  case LOCAL_WORLD_ALIGNED: {
-	    of_temp.linear() = cdata.contact_force.linear();
-	    break;
-	  }
-	  default: {
-	    assert(false && "must never happen");
-	    break;
-	  }
+      case LOCAL: {
+        of_tmp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
+        const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data,
+                                                                cmodel.joint2_id,
+                                                                cmodel.joint2_placement,
+                                                                cmodel.reference_frame);
+        a_tmp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
+        break;
+      }
+      case LOCAL_WORLD_ALIGNED: {
+        of_tmp.linear() = cdata.contact_force.linear();
+        break;
+      }
+      default: {
+        assert(false && "must never happen");
+        break;
+      }
 	  }
 
 	  // d./dq
@@ -590,37 +592,37 @@ namespace pinocchio
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 
 	    switch(cmodel.reference_frame) {
-	    case LOCAL: {
-	      a_temp.linear().noalias() = a_temp.angular().cross(J_col.angular());
-	    if(joint2_indexes[col_id]) {
-	      contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_temp.linear();
-	    }
-	    else {
-	      contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_temp.linear();
-	    }
-	      break;
-	    }
-	    case LOCAL_WORLD_ALIGNED: {
-	      // Do nothing
-	      break;
-	    }
-	    default: {
-	      assert(false && "must never happen");
-	      break;
-	    }
+        case LOCAL: {
+          a_tmp.linear().noalias() = a_tmp.angular().cross(J_col.angular());
+          if(joint2_indexes[col_id]) {
+            contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_tmp.linear();
+          }
+          else {
+            contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_tmp.linear();
+          }
+          break;
+        }
+        case LOCAL_WORLD_ALIGNED: {
+          // Do nothing
+          break;
+        }
+        default: {
+          assert(false && "must never happen");
+          break;
+        }
 	    }
 
-	    of_temp2.linear().noalias() = of_temp.linear().cross(J_col.angular());
+	    of_tmp2.linear().noalias() = of_tmp.linear().cross(J_col.angular());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
 	    {
 	      const MotionRef<typename Data::Matrix6x::ColXpr> J2_col(data.J.col(j));      
 	      //Temporary assignment
-	      of_temp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());		
+	      of_tmp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());
 	      if(joint2_indexes[col_id]) {
-		data.dtau_dq(j,col_id) += of_temp2.angular().transpose() * of_temp2.linear();
+          data.dtau_dq(j,col_id) += of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	      else {
-		data.dtau_dq(j,col_id) -= of_temp2.angular().transpose() * of_temp2.linear();
+          data.dtau_dq(j,col_id) -= of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	    }
 	  }
@@ -707,17 +709,67 @@ namespace pinocchio
     typename Data::MatrixXs & JMinv = data.dlambda_dv;
 
     JMinv.noalias() = data.dac_da * data.Minv;
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau).noalias() = -data.osim * JMinv; //OUTPUT
-
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
+    MatrixType6 & lambda_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau);
+    typename Data::MatrixXs & dlambda_dx_prox = data.dlambda_dx_prox;
+    typename Data::MatrixXs & drhs_prox = data.drhs_prox;
+    
+    {
+      lambda_partial_dtau_.noalias() = -data.osim * JMinv; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dtau_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= JMinv;
+        lambda_partial_dtau_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dtau_.swap(dlambda_dx_prox);
+      }
+    }
+
     ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
     ddq_partial_dtau_ += data.Minv; //OUTPUT
 
-    data.dac_dq.noalias() -= JMinv * data.dtau_dq;
-    data.dac_dv.noalias() -= JMinv * data.dtau_dv;
-
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq).noalias() = -data.osim * data.dac_dq; //OUTPUT
-    PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv).noalias() = -data.osim * data.dac_dv; //OUTPUT
+    MatrixType4 & lambda_partial_dq_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType4,lambda_partial_dq);
+    drhs_prox.noalias() = -JMinv * data.dtau_dq;
+    drhs_prox += data.dac_dq;
+    {
+      lambda_partial_dq_.noalias() = -data.osim * data.drhs_prox; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dq_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= drhs_prox;
+        lambda_partial_dq_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dq_.swap(dlambda_dx_prox);
+      }
+    }
+    
+    MatrixType5 & lambda_partial_dv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType5,lambda_partial_dv);
+    drhs_prox.noalias() = -JMinv * data.dtau_dv;
+    drhs_prox += data.dac_dv;
+    {
+      lambda_partial_dv_.noalias() = -data.osim * data.drhs_prox; //OUTPUT
+      for(int it = 1; it < settings.iter; ++it)
+      {
+        lambda_partial_dv_.swap(dlambda_dx_prox);
+        dlambda_dx_prox *= settings.mu;
+        dlambda_dx_prox -= drhs_prox;
+        lambda_partial_dv_.noalias() = data.osim * dlambda_dx_prox;
+      }
+      
+      if(settings.iter % 2 == 0)
+      {
+        lambda_partial_dv_.swap(dlambda_dx_prox);
+      }
+    }
 
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
@@ -835,7 +887,7 @@ namespace pinocchio
           {
             typedef typename Rows6Block::ColXpr ColType;
             typedef typename Rows6Block::ColXpr ColTypeOut;
-	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
             ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
             fout.linear().noalias() += J_col.angular().cross(of.linear());
             fout.angular().noalias() += J_col.angular().cross(of.angular());
@@ -848,8 +900,8 @@ namespace pinocchio
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             typedef typename Data::Matrix6x::ColXpr ColType;
-	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
-	    contact_dfc_dq.col(j).noalias() += J_col.angular().cross(of.linear());
+            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            contact_dfc_dq.col(j).noalias() += J_col.angular().cross(of.linear());
           }
           break;
         }

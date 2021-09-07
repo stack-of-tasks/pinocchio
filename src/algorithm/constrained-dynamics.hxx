@@ -32,6 +32,8 @@ namespace pinocchio
     
     // TODO: should be moved elsewhere
     data.dlambda_dq.resize(data.contact_chol.constraintDim(), model.nv);
+    data.dlambda_dx_prox.resize(data.contact_chol.constraintDim(), model.nv);
+    data.drhs_prox.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dv.resize(data.contact_chol.constraintDim(), model.nv);
     data.dlambda_dtau.resize(data.contact_chol.constraintDim(), model.nv);
     data.dvc_dq.resize(data.contact_chol.constraintDim(), model.nv);
@@ -157,15 +159,15 @@ namespace pinocchio
     }
   };
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v,
                   const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
                   ProximalSettingsTpl<Scalar> & settings)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
@@ -173,7 +175,7 @@ namespace pinocchio
     typedef typename Data::Motion Motion;
     
     typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
-    typedef std::vector<RigidConstraintModel,ContactModelAllocator> VectorRigidConstraintModel;
+    typedef std::vector<RigidConstraintModel,ConstraintModelAllocator> VectorRigidConstraintModel;
     typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     assert(model.check(data) && "data is not consistent with model.");
@@ -388,9 +390,9 @@ namespace pinocchio
     
     // Solve the system
 //    Scalar primal_infeasibility = Scalar(0);
-    int it = 1;
+    int it = 0;
     data.lambda_c_prox.setZero();
-    for(; it <= settings.max_iter; ++it)
+    for(; it < settings.max_iter; ++it)
     {
       primal_dual_contact_solution.head(contact_chol.constraintDim()) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
       primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
@@ -440,7 +442,416 @@ namespace pinocchio
     
     return a;
   }
- 
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  struct ContactABAForwardStep1
+  : public fusion::JointUnaryVisitorBase< ContactABAForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const ConfigVectorType &,
+                                  const TangentVectorType &
+                                  > ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      
+      const JointIndex & i = jmodel.id();
+      jmodel.calc(jdata.derived(),q.derived(),v.derived());
+      
+      const JointIndex & parent = model.parents[i];
+      data.liMi[i] = model.jointPlacements[i] * jdata.M();
+      if(parent > 0)
+        data.oMi[i] = data.oMi[parent] * data.liMi[i];
+      else
+        data.oMi[i] = data.liMi[i];
+      
+      jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
+      
+      data.ov[i] = data.oMi[i].act(jdata.v());
+      if(parent > 0)
+        data.ov[i] += data.ov[parent];
+
+      data.oa[i] = data.oMi[i].act(jdata.c());
+      if(parent > 0)
+      {
+        data.oa[i] += (data.ov[parent] ^ data.ov[i]);
+      }
+      
+      data.oa_drift[i] = data.oa[i];
+      if(parent > 0)
+      {
+        data.oa_drift[i] += data.oa_drift[parent];
+      }
+      
+      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      data.oYaba[i] = data.oYcrb[i].matrix();
+      data.of[i] = data.oYcrb[i].vxiv(data.ov[i]) - data.oYcrb[i] * model.gravity; // -f_ext
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
+  struct ContactABABackwardStep1
+  : public fusion::JointUnaryVisitorBase< ContactABABackwardStep1<Scalar,Options,JointCollectionTpl,TangentVectorType> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &,
+                                  const TangentVectorType &> ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const JointModelBase<JointModel> & jmodel,
+                     JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data,
+                     const Eigen::MatrixBase<TangentVectorType> & tau)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Inertia Inertia;
+      typedef typename Data::Force Force;
+      typedef typename Data::Matrix6x Matrix6x;
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent  = model.parents[i];
+      typename Inertia::Matrix6 & Ia = data.oYaba[i];
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      Force & fi_augmented = data.of_augmented[i];
+      const Force & fi = data.of[i];
+      
+      fi_augmented += fi;
+      jmodel.jointVelocitySelector(data.u).noalias()
+      = jmodel.jointVelocitySelector(tau)
+      - Jcols.transpose()*fi_augmented.toVector();
+      
+      jdata.U().noalias() = Ia * Jcols;
+      jdata.StU().noalias() = Jcols.transpose() * jdata.U();
+      
+      // Account for the rotor inertia contribution
+      jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
+      
+      internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+      jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
+      
+      if(parent > 0)
+      {
+        Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
+        
+        fi_augmented.toVector().noalias() += Ia * data.oa[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        data.oYaba[parent] += Ia;
+        data.of_augmented[parent] += fi_augmented;
+      }
+    }
+    
+  };
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename TangentVectorType>
+  struct ContactABABackwardStepAugmented
+  : public fusion::JointUnaryVisitorBase< ContactABABackwardStepAugmented<Scalar,Options,JointCollectionTpl,TangentVectorType> >
+    {
+      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      
+      typedef boost::fusion::vector<const Model &,
+                                    Data &,
+                                    const TangentVectorType &> ArgsType;
+      
+      template<typename JointModel>
+      static void algo(const JointModelBase<JointModel> & jmodel,
+                       JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                       const Model & model,
+                       Data & data,
+                       const Eigen::MatrixBase<TangentVectorType> & tau)
+      {
+        typedef typename Model::JointIndex JointIndex;
+        typedef typename Data::Inertia Inertia;
+        typedef typename Data::Force Force;
+        typedef typename Data::Matrix6x Matrix6x;
+        
+        const JointIndex & i = jmodel.id();
+        const JointIndex & parent  = model.parents[i];
+        typename Inertia::Matrix6 & Ia = data.oYaba[i];
+        
+        typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+        ColBlock Jcols = jmodel.jointCols(data.J);
+        
+        Force & fi_augmented = data.of_augmented[i];
+        const Force & fi = data.of[i];
+        
+        fi_augmented += fi;
+        jmodel.jointVelocitySelector(data.u).noalias()
+        = jmodel.jointVelocitySelector(tau)
+        - Jcols.transpose()*fi_augmented.toVector();
+        
+        if(parent > 0)
+        {
+          fi_augmented.toVector().noalias() += Ia * data.oa[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+          data.of_augmented[parent] += fi_augmented;
+        }
+      }
+      
+    };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  struct ContactABAForwardStep2
+  : public fusion::JointUnaryVisitorBase< ContactABAForwardStep2<Scalar,Options,JointCollectionTpl> >
+  {
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef boost::fusion::vector<const Model &,
+                                  Data &> ArgsType;
+    
+    template<typename JointModel>
+    static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
+                     pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
+                     const Model & model,
+                     Data & data)
+    {
+      typedef typename Model::JointIndex JointIndex;
+      typedef typename Data::Matrix6x Matrix6x;
+      
+      typedef typename SizeDepType<JointModel::NV>::template ColsReturn<Matrix6x>::Type ColBlock;
+      ColBlock Jcols = jmodel.jointCols(data.J);
+      
+      const JointIndex & i = jmodel.id();
+      const JointIndex & parent = model.parents[i];
+      
+      data.oa_augmented[i] = data.oa[i];
+      if(parent > 0)
+        data.oa_augmented[i] += data.oa_augmented[parent]; // does not take into account the gravity field
+      jmodel.jointVelocitySelector(data.ddq).noalias() =
+      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.oa_augmented[i].toVector();
+      data.oa_augmented[i].toVector() += Jcols * jmodel.jointVelocitySelector(data.ddq);
+    }
+    
+  };
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ModelAllocator, class DataAllocator>
+  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  contactABA(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+             const Eigen::MatrixBase<ConfigVectorType> & q,
+             const Eigen::MatrixBase<TangentVectorType1> & v,
+             const Eigen::MatrixBase<TangentVectorType2> & tau,
+             const std::vector<RigidConstraintModelTpl<Scalar,Options>,ModelAllocator> & contact_models,
+             std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
+             ProximalSettingsTpl<Scalar> & settings)
+  {
+    assert(model.check(data) && "data is not consistent with model.");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq,
+                                   "The joint configuration vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv,
+                                   "The joint velocity vector is not of right size");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(tau.size(), model.nv,
+                                   "The joint torque vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
+                                   "mu has to be positive");
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(contact_models.size(), contact_data.size(),
+                                   "contact models and data size are not the same");
+    
+    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
+    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+    
+    typedef typename Data::Motion Motion;
+    
+    typedef typename Model::JointIndex JointIndex;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+    typedef typename Data::Force Force;
+    
+    typedef ContactABAForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1> Pass1;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass1::run(model.joints[i],data.joints[i],
+                 typename Pass1::ArgsType(model,data,q.derived(),v.derived()));
+      data.of_augmented[i].setZero();
+    }
+    
+    for(size_t k = 0; k < contact_models.size(); ++k)
+    {
+      const RigidConstraintModel & cmodel = contact_models[k];
+      RigidConstraintData & cdata = contact_data[k];
+      
+      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+
+      // Compute relative placement between the joint and the contact frame
+      SE3 & oMc = cdata.oMc1;
+      oMc = data.oMi[joint1_id] * cmodel.joint1_placement; // contact placement
+      
+      typedef typename Data::Inertia Inertia;
+      typedef typename Inertia::Symmetric3 Symmetric3;
+      
+      // Add contact inertia to the joint articulated inertia
+      Symmetric3 S(Symmetric3::Zero());
+      if(cmodel.type == CONTACT_6D)
+        S.setDiagonal(Symmetric3::Vector3::Constant(settings.mu));
+      
+      const Inertia contact_inertia(settings.mu,oMc.translation(),S);
+      data.oYaba[joint1_id] += contact_inertia.matrix();
+      
+      typename Data::Motion & joint_velocity = data.ov[joint1_id];
+      Motion & contact1_velocity = cdata.contact1_velocity;
+      contact1_velocity = oMc.actInv(joint_velocity);
+      
+      typename Data::Motion & joint_spatial_acceleration_drift = data.oa_drift[joint1_id];
+      Motion & contact_acceleration_drift = cdata.contact1_acceleration_drift;
+      contact_acceleration_drift
+      = cmodel.desired_contact_acceleration - oMc.actInv(joint_spatial_acceleration_drift);
+      
+      // Handle the classic acceleration term
+      if(cmodel.type == CONTACT_3D)
+        contact_acceleration_drift.linear() -= contact1_velocity.angular().cross(contact1_velocity.linear());
+      
+      // Init contact force
+//      cdata.contact_force.setZero();
+      
+      // Add the contribution of the constraints to the force vector
+      data.of_augmented[joint1_id] = oMc.act(cdata.contact_force);
+      if(cmodel.type == CONTACT_3D)
+      {
+        data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+                                                                    Force::Vector3::Zero()));
+      }
+      else
+      {
+        data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+      }
+    }
+
+    typedef ContactABABackwardStep1<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2;
+    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    {
+      Pass2::run(model.joints[i],data.joints[i],
+                 typename Pass2::ArgsType(model,data,
+                                          tau.derived()));
+    }
+
+    typedef ContactABAForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+    {
+      Pass3::run(model.joints[i],data.joints[i],
+                 typename Pass3::ArgsType(model,data));
+      data.of_augmented[i].setZero();
+    }
+    
+    settings.iter = 0;
+    bool optimal_solution_found = false;
+    if(contact_models.size() == 0)
+    {
+      return data.ddq;
+    }
+
+    Scalar primal_infeasibility = Scalar(0);
+    int it = 0;
+    for(int it = 0; it < settings.max_iter; ++it)
+    {
+      // Compute contact acceleration errors and max contact errors, aka primal_infeasibility
+      primal_infeasibility = Scalar(0);
+      for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
+      {
+        const RigidConstraintModel & cmodel = contact_models[contact_id];
+        RigidConstraintData & cdata = contact_data[contact_id];
+        
+        const typename Model::JointIndex & joint1_id = cmodel.joint1_id;
+        
+        const SE3 & oMc = cdata.oMc1;
+        const Motion & contact1_velocity = cdata.contact1_velocity;
+
+        // Compute contact acceleration error (drift)
+        const typename Data::Motion & joint_spatial_acceleration = data.oa_augmented[joint1_id];
+        cdata.contact_acceleration_deviation = oMc.actInv(joint_spatial_acceleration) - cmodel.desired_contact_acceleration;
+        if(cmodel.type == CONTACT_3D)
+          cdata.contact_acceleration_deviation.linear() += contact1_velocity.angular().cross(contact1_velocity.linear());
+
+        using std::max;
+        if(cmodel.type == CONTACT_3D)
+        {
+          primal_infeasibility
+          = max<Scalar>(primal_infeasibility,
+                        cdata.contact_acceleration_deviation.linear().template lpNorm<Eigen::Infinity>());
+        }
+        else
+        {
+          primal_infeasibility
+          = max<Scalar>(primal_infeasibility,
+                        cdata.contact_acceleration_deviation.toVector().template lpNorm<Eigen::Infinity>());
+        }
+      }
+      
+      if(primal_infeasibility < settings.accuracy)
+      {
+        optimal_solution_found = true;
+        break;
+      }
+      
+      // Update contact forces
+      for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
+      {
+        const RigidConstraintModel & cmodel = contact_models[contact_id];
+        RigidConstraintData & cdata = contact_data[contact_id];
+        
+        const typename Model::JointIndex & joint1_id = cmodel.joint1_id;
+        
+        const SE3 & oMc = cdata.oMc1;
+        
+        // Update contact force value
+        if(cmodel.type == CONTACT_3D)
+          cdata.contact_force.linear().noalias() += settings.mu * cdata.contact_acceleration_deviation.linear();
+        else
+          cdata.contact_force.toVector().noalias() += settings.mu * cdata.contact_acceleration_deviation.toVector();
+
+        // Add the contribution of the constraints to the force vector
+        const Motion & contact_acceleration_drift = cdata.contact1_acceleration_drift;
+        data.of_augmented[joint1_id] = oMc.act(cdata.contact_force);
+        if(cmodel.type == CONTACT_3D)
+        {
+          data.of_augmented[joint1_id] -= settings.mu * oMc.act(Force(contact_acceleration_drift.linear(),
+                                                                     Force::Vector3::Zero()));
+        }
+        else
+        {
+          data.of_augmented[joint1_id] -= oMc.act(Force(settings.mu * contact_acceleration_drift.toVector()));
+        }
+      }
+      
+      typedef ContactABABackwardStepAugmented<Scalar,Options,JointCollectionTpl,TangentVectorType2> Pass2Augmented;
+      for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+      {
+        Pass2Augmented::run(model.joints[i],data.joints[i],
+                            typename Pass2::ArgsType(model,data,tau.derived()));
+      }
+
+      typedef ContactABAForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+      for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
+      {
+        Pass3::run(model.joints[i],data.joints[i],
+                   typename Pass3::ArgsType(model,data));
+        data.of_augmented[i].setZero();
+      }
+    }
+      
+    settings.iter = it;
+    settings.residual = primal_infeasibility;
+
+    return data.ddq;
+  }
+  
 } // namespace pinocchio
 
 #endif // ifndef __pinocchio_algorithm_constraint_dynamics_hxx__

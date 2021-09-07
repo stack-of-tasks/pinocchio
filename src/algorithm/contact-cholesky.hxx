@@ -261,12 +261,12 @@ namespace pinocchio
     }
     
     template<typename Scalar, int Options>
-    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
             DataTpl<S1,O1,JointCollectionTpl> & data,
-            const std::vector<RigidConstraintModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
-            std::vector<RigidConstraintDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
+            const std::vector<RigidConstraintModelTpl<S1,O1>,ConstraintModelAllocator> & contact_models,
+            std::vector<RigidConstraintDataTpl<S1,O1>,ConstraintDataAllocator> & contact_datas,
             const S1 mu)
     {
       typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
