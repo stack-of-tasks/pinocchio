@@ -15,11 +15,11 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         # load model, collision model, and visual model, in this order (default)
         model, collision_model, visual_model = buildModelsFromUrdf(filename[, ...], geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL])
         model, collision_model, visual_model = buildModelsFromUrdf(filename[, ...]) # same as above
-        
+
         model, collision_model = buildModelsFromUrdf(filename[, ...], geometry_types=[pin.GeometryType.COLLISION]) # only load the model and the collision model
         model, collision_model = buildModelsFromUrdf(filename[, ...], geometry_types=pin.GeometryType.COLLISION)   # same as above
         model, visual_model    = buildModelsFromUrdf(filename[, ...], geometry_types=pin.GeometryType.VISUAL)      # only load the model and the visual model
-        
+
         model = buildModelsFromUrdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromUrdf(filename[, root_joint])
     """
 
@@ -54,3 +54,5 @@ def createDatas(*models):
     If one of the models is None, the corresponding data object in the result is also None.
     """
     return tuple([None if model is None else model.createData() for model in models])
+
+__all__ = ["buildModelsFromUrdf", "createDatas"]
