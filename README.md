@@ -10,20 +10,7 @@
   <a href="https://badge.fury.io/py/pin"><img src="https://badge.fury.io/py/pin.svg" alt="PyPI version" height="20"></a>
   <br>
   <!--<a href="https://gitlab.laas.fr/stack-of-tasks/pinocchio"><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></a>-->
-  <table>
-  <tr>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml"><img alt="ROS" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml/badge.svg" /></a></td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml"><img alt="linux" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml/badge.svg" /></a></td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg" /></a></td>
-  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg" /></a></td>
-  </tr>
-  <tr>
-  <td><a href="https://build.ros.org/job/Mdev__pinocchio__ubuntu_bionic_amd64/"><img alt="Melodic devel" src="https://build.ros.org/buildStatus/icon?job=Mdev__pinocchio__ubuntu_bionic_amd64&subject=Melodic-devel" /></a></td>
-  <td><a href="https://build.ros.org/job/Ndev__pinocchio__ubuntu_focal_amd64/"><img alt="Noetic devel" src="https://build.ros.org/buildStatus/icon?job=Ndev__pinocchio__ubuntu_focal_amd64&subject=Noetic-devel" /></a></td>
-  <td><a href="https://build.ros.org/job/Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary/"><img alt="Melodic binary" src="https://build.ros.org/buildStatus/icon?job=Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary&subject=Melodic-binary" /></a></td>
-  <td><a href="https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary/"><img alt="Noetic binary" src="https://build.ros.org/buildStatus/icon?job=Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary&subject=Noetic-binary" /></a></td>
-  </tr>
-  </table>
+
 </p>
 
 <!--Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
@@ -77,6 +64,26 @@ or via pip (currently only available on Linux):
 **Pinocchio** is multi-thread friendly.
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+
+## Pinocchio continuous integrations
+
+**Pinocchio** is constantly tested for several platforms and distributions, as reported below:
+<p align="center">
+  <table class="center">
+   <!-- <tr> <td> Continuous Integration </td></tr>-->
+  <tr><td> CI on ROS </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml"><img alt="ROS" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on Linux via APT </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml"><img alt="linux" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on OSX via Conda </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on Windows via Conda </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg?branch=devel" /></a></td>
+  </tr><tr><td> CI on Linux via Robotpkg </td>
+    <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
+   </tr>
+  </table>
+</p>
 
 ## Performances
 
