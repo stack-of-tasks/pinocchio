@@ -568,8 +568,7 @@ namespace pinocchio
       Matrix3 R0(quat0.matrix()), R1 (quat1.matrix());
       assert(isUnitary(R0)); assert(isUnitary(R1));
       
-      const SE3 M (  SE3(R0, q0.template head<3>()).inverse()
-                   * SE3(R1, q1.template head<3>()));
+      const SE3 M (SE3(R0, q0.template head<3>()).actInv(SE3(R1, q1.template head<3>())));
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
@@ -578,7 +577,7 @@ namespace pinocchio
         const Vector3 p1_p0 = R1.transpose()*(q1.template head<3>() - q0.template head<3>());
 
         JacobianOut_t & J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-        J0.template bottomRightCorner<3,3> ().noalias() = J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+        J0.template bottomRightCorner<3,3> () = J0.template topLeftCorner <3,3> () = - M.rotation().transpose();
         J0.template topRightCorner<3,3> ().noalias() = skew(p1_p0) * M.rotation().transpose(); // = R1.T * skew(q1_t - q0_t) * R0;
         J0.template bottomLeftCorner<3,3> ().setZero();
         J0.applyOnTheLeft(J1);
