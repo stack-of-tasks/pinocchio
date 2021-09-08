@@ -1,4 +1,4 @@
-name: Test Pinocchio on Linux
+name: CI - Linux via APT
 
 on: [push,pull_request]
 
