@@ -71,6 +71,7 @@ OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code ge
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
 cmake_dependent_option(BUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT "Build the Python interface with Boost.Multiprecision MPFR support" ON BUILD_PYTHON_INTERFACE OFF)
+OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python library" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
@@ -162,18 +163,18 @@ IF(BUILD_PYTHON_INTERFACE)
   FINDPYTHON(REQUIRED)
   SEARCH_FOR_BOOST_PYTHON(REQUIRED)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.6.5 REQUIRED)
-  
+
   # Check wether this a PyPy Python
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
     OUTPUT_VARIABLE _python_implementation_value
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET)
-  
+
   MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
   IF(_python_implementation_value MATCHES "PyPy")
     SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
   ENDIF()
-  
+
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -211,10 +212,10 @@ INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-FILE(GLOB_RECURSE HEADERS 
-     ${PROJECT_SOURCE_DIR}/src/*.hpp 
-     ${PROJECT_SOURCE_DIR}/src/*.hxx 
-     ) 
+FILE(GLOB_RECURSE HEADERS
+     ${PROJECT_SOURCE_DIR}/src/*.hpp
+     ${PROJECT_SOURCE_DIR}/src/*.hxx
+     )
 
 IF(NOT BUILD_WITH_URDF_SUPPORT)
   LIST(REMOVE_ITEM HEADERS
@@ -236,7 +237,7 @@ ENDIF(NOT BUILD_WITH_SDF_SUPPORT)
 
 
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS 
+  LIST(REMOVE_ITEM HEADERS
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
     )
 ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
