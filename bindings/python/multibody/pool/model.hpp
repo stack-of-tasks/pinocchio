@@ -79,7 +79,7 @@ namespace pinocchio
         .def(CopyableVisitor<ModelPool>())
         ;
         
-        StdVectorPythonVisitor<Data,typename DataVector::allocator_type>::expose("StdVec_Data");
+        StdVectorPythonVisitor<DataVector>::expose("StdVec_Data");
       }
     };
   }

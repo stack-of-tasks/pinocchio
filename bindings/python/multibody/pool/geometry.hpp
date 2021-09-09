@@ -77,7 +77,7 @@ namespace pinocchio
         .def(CopyableVisitor<GeometryPool>())
         ;
         
-        StdVectorPythonVisitor<GeometryData,typename GeometryDataVector::allocator_type>::expose("StdVec_GeometryData");
+        StdVectorPythonVisitor<GeometryDataVector>::expose("StdVec_GeometryData");
       }
     };
   }
