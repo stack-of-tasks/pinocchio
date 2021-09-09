@@ -8,8 +8,6 @@
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/multibody/pool/model.hpp"
 
-#include "pinocchio/utils/openmp.hpp"
-
 namespace pinocchio
 {
   template<typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
@@ -151,7 +149,6 @@ namespace pinocchio
     
   };
 
-  typedef GeometryPoolTpl<double,0,JointCollectionDefaultTpl> GeometryPool;
 }
 
 #endif // ifndef __pinocchio_multibody_pool_geometry_hpp__

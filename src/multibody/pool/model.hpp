@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <omp.h>
 
+#include "pinocchio/multibody/pool/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
@@ -153,7 +154,6 @@ namespace pinocchio
     
   };
 
-  typedef ModelPoolTpl<double,0,JointCollectionDefaultTpl> ModelPool;
 }
 
 #endif // ifndef __pinocchio_multibody_pool_model_hpp__
