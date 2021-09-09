@@ -10,6 +10,10 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
 
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+  #include "pinocchio/multibody/pool/fwd.hpp"
+#endif
+
 #include <eigenpy/eigen-typedef.hpp>
 
 namespace pinocchio {
@@ -104,6 +108,16 @@ typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholesk
 
 typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
 typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+
+// Pool
+#ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
+typedef ModelPoolTpl<Scalar> ModelPool;
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
+typedef GeometryPoolTpl<Scalar> GeometryPool;
+#endif
+
+#endif
 
 }}}
 

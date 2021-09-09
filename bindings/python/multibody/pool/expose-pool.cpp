@@ -13,8 +13,8 @@ namespace pinocchio
     
     void exposePool()
     {
-      ModelPoolPythonVisitor<ModelPool>::expose();
-      GeometryPoolPythonVisitor<GeometryPool>::expose();
+      ModelPoolPythonVisitor<context::ModelPool>::expose();
+      GeometryPoolPythonVisitor<context::GeometryPool>::expose();
     }
     
   } // namespace python
