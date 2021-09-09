@@ -1,4 +1,4 @@
-name: Build Pinocchio for Windows (v142) via Conda
+name: CI - Windows (v142) via Conda
 on:
   pull_request:
   push:

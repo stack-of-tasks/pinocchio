@@ -4,11 +4,13 @@
 
 <p align="center">
   <a href="https://opensource.org/licenses/BSD-2-Clause"><img src="https://img.shields.io/badge/License-BSD%202--Clause-green.svg" alt="License"/></a>
-  <a href="https://travis-ci.org/stack-of-tasks/pinocchio"><img src="https://travis-ci.org/stack-of-tasks/pinocchio.svg?branch=master" alt="Build Status"/></a>
   <a href="http://projects.laas.fr/gepetto/doc/stack-of-tasks/pinocchio/master/coverage/"><img src="https://gepgitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/coverage.svg?job=doc-coverage" alt="Coverage Report"/></a>
   <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/dn/conda-forge/pinocchio.svg" alt="Conda Downloads"/></a>
   <a href="https://anaconda.org/conda-forge/pinocchio"><img src="https://img.shields.io/conda/vn/conda-forge/pinocchio.svg" alt="Conda Version"/></a>
-  <a href="https://conda.anaconda.org/conda-forge"><img src="https://anaconda.org/conda-forge/pinocchio/badges/installer/conda.svg" alt="Anaconda-Server Badge"/></a>
+  <a href="https://badge.fury.io/py/pin"><img src="https://badge.fury.io/py/pin.svg" alt="PyPI version" height="20"></a>
+  <br>
+  <!--<a href="https://gitlab.laas.fr/stack-of-tasks/pinocchio"><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></a>-->
+
 </p>
 
 <!--Pinocchio: a C++ library for efficient Rigid Multi-body Dynamics computations
@@ -21,7 +23,7 @@ Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Bod
 **Pinocchio** is first tailored for robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, vision, etc.).
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping, [directly accessible](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio) through [Conda](https://docs.conda.io/en/latest/).
 
-**Pinocchio** is now at the heart of various robotics softwares as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning. 
+**Pinocchio** is now at the heart of various robotics softwares as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning.
 
 If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
 
@@ -58,10 +60,30 @@ or via pip (currently only available on Linux):
    - header only,
    - C++ 98/03/11/14/17/20 compliant.
 
-**Pinocchio** is extensible.  
-**Pinocchio** is multi-thread friendly.  
-**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).  
+**Pinocchio** is extensible.
+**Pinocchio** is multi-thread friendly.
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+
+## Pinocchio continuous integrations
+
+**Pinocchio** is constantly tested for several platforms and distributions, as reported below:
+<p align="center">
+  <table class="center">
+   <!-- <tr> <td> Continuous Integration </td></tr>-->
+  <tr><td> CI on ROS </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml"><img alt="ROS" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/ros-ci.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on Linux via APT </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml"><img alt="linux" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/linux.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on OSX via Conda </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml"><img alt="mac" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/macos-linux-conda.yml/badge.svg?branch=devel" /></a></td>
+    </tr><tr><td> CI on Windows via Conda </td>
+  <td><a href="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml"><img alt="windows" src="https://github.com/stack-of-tasks/pinocchio/actions/workflows/windows-conda-clang.yml/badge.svg?branch=devel" /></a></td>
+  </tr><tr><td> CI on Linux via Robotpkg </td>
+    <td><img src="https://gitlab.laas.fr/stack-of-tasks/pinocchio/badges/master/pipeline.svg" alt="Pipeline Status"></td>
+   </tr>
+  </table>
+</p>
 
 ## Performances
 
