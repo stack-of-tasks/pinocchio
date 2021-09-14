@@ -1,4 +1,13 @@
 import cpp2pybind11, sys, gc
+import pinocchio
+
+a = pinocchio.SE3.Random()
+b = pinocchio.SE3.Random()
+assert cpp2pybind11.multiply_se3_1(a, b) == a * b
+assert cpp2pybind11.multiply_se3(a,b) == a * b
+assert cpp2pybind11.no_wrapper.multiply_se3(a, b) == a * b
+assert cpp2pybind11.multiply_se3(a) == a
+#assert cpp2pybind11.no_wrapper.multiply_se3(a) == a
 
 def print_ref_count(v,what=""):
     # - 2 because one for variable v and one for variable inside getrefcount
@@ -26,6 +35,9 @@ addr3 = cpp2pybind11.testModel3(m, 2)
 print_ref_count(m, "m")
 assert addr2 == addr3
 
+mm = cpp2pybind11.return_same_model_broken(m)
+assert cpp2pybind11.get_ptr(m) != cpp2pybind11.get_ptr(mm)
+
 mm = cpp2pybind11.return_same_model(m)
 # Not sure why but the ref count of m and mm sticks to one
 print_ref_count(m, "m")
@@ -34,7 +46,7 @@ print_ref_count(m, "m")
 print_ref_count(mm, "mm")
 assert cpp2pybind11.get_ptr(m) == cpp2pybind11.get_ptr(mm)
 
-if True:
+if False:
     print("deleting m")
     del m
     print("deleted m")

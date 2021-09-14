@@ -260,4 +260,18 @@ IF(BUILD_PYTHON_INTERFACE)
       FILES "${CMAKE_CURRENT_BINARY_DIR}/pinocchiopy.pc"
       DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
       PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+
+  IF(DOXYGEN_FOUND AND DOXYGEN_VERSION VERSION_GREATER 1.8.17)
+    SET(DOXYGEN_GENERATE_HTML YES)
+    SET(DOXYGEN_GENERATE_LATEX NO)
+    SET(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
+    message("DOXYGEN_GENERATE_HTML: ${DOXYGEN_GENERATE_HTML}")
+    cmake_policy(PUSH)
+    cmake_policy(SET CMP0054 NEW)
+    doxygen_add_docs(doc_pybind11
+      pybind11.hpp pybind11-all.hpp
+      USE_STAMP_FILE
+      COMMENT "Generating documentation of the PyBind11 helpers.")
+    cmake_policy(POP)
+  ENDIF()
 ENDIF(BUILD_PYTHON_INTERFACE)
