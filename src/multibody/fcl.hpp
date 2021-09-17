@@ -226,7 +226,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
-                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Ones(),
                  const std::string & meshTexturePath = "")
   : name(name)
   , parentFrame(std::numeric_limits<FrameIndex>::max())
