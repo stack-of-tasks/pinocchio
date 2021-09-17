@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_object_hpp__
@@ -46,11 +46,14 @@ namespace pinocchio
               bp::args("self","otherGeometryObject"),
               "Copy constructor"
               ))
-        .def_readwrite("meshScale",&GeometryObject::meshScale,
+        .add_property("meshScale",
+                      bp::make_getter(&GeometryObject::meshScale,
+                                      bp::return_internal_reference<>()),
+                      bp::make_setter(&GeometryObject::meshScale),
                        "Scaling parameter of the mesh.")
         .add_property("meshColor",
                       bp::make_getter(&GeometryObject::meshColor,
-                                      bp::return_value_policy<bp::return_by_value>()),
+                                      bp::return_internal_reference<>()),
                       bp::make_setter(&GeometryObject::meshColor),
                       "Color rgba of the mesh.")
         .def_readwrite("geometry", &GeometryObject::geometry,
