@@ -285,7 +285,7 @@ namespace pinocchio
             cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
           }
 
-          if (parentJointName != "root_joint") {
+          if (parentJointName != "root_joint" && parentJointName != "universe" ) {
             const ::sdf::ElementPtr parentJointElement = mapOfJoints.find(parentJointName)->second;
           
             if (parentJointElement->HasElement("pose"))
