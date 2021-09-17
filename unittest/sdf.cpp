@@ -18,14 +18,14 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( build_model )
 {
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/sdf/cassie_v2.sdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
   const std::string dir = PINOCCHIO_MODEL_DIR;
   
   pinocchio::Model model;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModel(filename, model, contact_models);
   pinocchio::GeometryModel geomModel;
-  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
 
   BOOST_CHECK(model.nq == 22);
 }
@@ -33,14 +33,14 @@ BOOST_AUTO_TEST_CASE ( build_model )
 BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 {
 
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/sdf/cassie_v2.sdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
   const std::string dir = PINOCCHIO_MODEL_DIR;
   
   pinocchio::Model model;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model, contact_models);
   pinocchio::GeometryModel geomModel;
-  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
 
   BOOST_CHECK(model.nq == 29);
 }
