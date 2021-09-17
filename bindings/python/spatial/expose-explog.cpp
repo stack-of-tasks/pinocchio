@@ -49,23 +49,23 @@ namespace pinocchio
               " -> { v in so3, ||v|| < 2pi }.\n"
               "It also returns the angle of rotation theta around the rotation axis.");
       
-      bp::def("log3_quat",&log3_proxy<context::Quaternion>,
+      bp::def("log3",&log3_proxy<context::Quaternion>,
               bp::args("quat"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
 
-      bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s>,
+      bp::def("log3",&log3_proxy_quatvec<context::Vector4s>,
               bp::args("quat"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.");
 
-      bp::def("log3_quat",&log3_proxy_quatvec<context::Vector4s,context::Matrix1s>,
+      bp::def("log3",&log3_proxy_quatvec<context::Vector4s,context::Matrix1s>,
               bp::args("quat","theta"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.\n"
               "It also returns the angle of rotation theta around the rotation axis.");
 
-      bp::def("log3_quat",&log3_proxy_quatvec_fix<context::Vector4s,context::Scalar>,
+      bp::def("log3",&log3_proxy_quatvec_fix<context::Vector4s,context::Scalar>,
               bp::args("quat","theta"),
               "Log: S^3 -> so3 is the pseudo-inverse of Exp: so3 -> S^3, the exponential map from so3 to the unit"
               " quaternions. It maps from S^3 -> { v in so3, ||v|| < 2pi }.\n"

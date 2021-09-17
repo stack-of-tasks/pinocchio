@@ -565,16 +565,18 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      Matrix3 R0(quat0.matrix()), R1 (quat1.matrix());
-      assert(isUnitary(R0)); assert(isUnitary(R1));
-      
-      const SE3 M (SE3(R0, q0.template head<3>()).actInv(SE3(R1, q1.template head<3>())));
+      const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
+      const Vector3 trans = quat0.conjugate() * dv_pre;
+
+      const Quaternion_t quat_diff = quat0.conjugate() * quat1;
+
+      const SE3 M(quat_diff, trans);
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog6 (M, J1);
 
-        const Vector3 p1_p0 = R1.transpose()*(q1.template head<3>() - q0.template head<3>());
+        const Vector3 p1_p0 = quat1.conjugate()*dv_pre;
 
         JacobianOut_t & J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
         J0.template bottomRightCorner<3,3> () = J0.template topLeftCorner <3,3> () = - M.rotation().transpose();
