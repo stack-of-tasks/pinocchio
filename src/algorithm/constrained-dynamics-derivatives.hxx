@@ -306,8 +306,8 @@ namespace pinocchio
               if(cmodel.joint2_id > 0) {
                 of2.linear() += of_tmp.linear();
                 of2.angular().noalias() += oMc2.translation().cross(of_tmp.linear());
-                break;
               }
+              break;
             }
             default: {
               assert(false && "must never happen");
