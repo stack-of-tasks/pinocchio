@@ -7,6 +7,7 @@ from . import BaseVisualizer
 import os
 import warnings
 import numpy as np
+from distutils.version import LooseVersion
 
 try:
     import hppfcl
@@ -25,21 +26,34 @@ def isMesh(geometry_object):
 
     return False
 
-def loadBVH(bvh):
+def loadMesh(mesh):
     import meshcat.geometry as mg
 
-    num_vertices = bvh.num_vertices
-    num_tris = bvh.num_tris
-    vertices = np.empty((num_vertices,3))
-    faces = np.empty((num_tris,3),dtype=int)
+    if isinstance(mesh,hppfcl.BVHModelBase):
+        num_vertices = mesh.num_vertices
+        num_tris = mesh.num_tris
 
+        call_triangles = mesh.tri_indices
+        call_vertices = mesh.vertices
+
+    elif isinstance(mesh,hppfcl.Convex):
+        num_vertices = mesh.num_points
+        num_tris = mesh.num_polygons
+
+        call_triangles = mesh.polygons
+        call_vertices = mesh.points
+
+    faces = np.empty((num_tris,3),dtype=int)
     for k in range(num_tris):
-        tri = bvh.tri_indices(k)
+        tri = call_triangles(k)
         faces[k] = [tri[i] for i in range(3)]
 
-    for k in range(num_vertices):
-        vert = bvh.vertices(k)
-        vertices[k] = vert
+    if LooseVersion(hppfcl.__version__) >= LooseVersion("1.7.7"):
+        vertices = call_vertices()
+    else:
+        vertices = np.empty((num_vertices,3))
+        for k in range(num_vertices):
+            vertices[k] = call_vertices(k)
 
     vertices = vertices.astype(np.float32)
     if num_tris > 0:
@@ -138,6 +152,8 @@ class MeshcatVisualizer(BaseVisualizer):
             obj = meshcat.geometry.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
             obj = meshcat.geometry.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.ConvexBase):
+            obj = loadMesh(geom)
         else:
             msg = "Unsupported geometry type for %s (%s)" % (geometry_object.name, type(geom) )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
@@ -184,7 +200,7 @@ class MeshcatVisualizer(BaseVisualizer):
                 obj = self.loadMesh(geometry_object)
                 is_mesh = True
             elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
-                obj = loadBVH(geometry_object.geometry)
+                obj = loadMesh(geometry_object.geometry)
             else:
                 msg = "The geometry object named " + geometry_object.name + " is not supported by Pinocchio/MeshCat for vizualization."
                 warnings.warn(msg, category=UserWarning, stacklevel=2)
