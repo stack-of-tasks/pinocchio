@@ -43,6 +43,17 @@ viz.loadViewerModel()
 q0 = pin.neutral(model)
 viz.display(q0)
 
+mesh = visual_model.geometryObjects[0].geometry
+mesh.buildConvexRepresentation(True)
+convex = mesh.convex
+
+if convex is not None:
+    placement = pin.SE3.Identity()
+    placement.translation[0] = 2.
+    geometry = pin.GeometryObject("convex",0,convex,placement)
+    geometry.meshColor = np.ones((4))
+    visual_model.addGeometryObject(geometry)
+
 # Display another robot.
 viz2 = MeshcatVisualizer(model, collision_model, visual_model)
 viz2.initViewer(viz.viewer)
