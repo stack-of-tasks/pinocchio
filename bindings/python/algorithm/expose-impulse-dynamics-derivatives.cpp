@@ -3,8 +3,9 @@
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
-#include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/algorithm/impulse-dynamics-derivatives.hpp"
+
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 namespace bp = boost::python;
 

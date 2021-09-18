@@ -4,7 +4,9 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
+
 #include "pinocchio/bindings/python/utils/eigen.hpp"
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 namespace bp = boost::python;
 
