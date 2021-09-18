@@ -30,7 +30,6 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   // Enable warnings
   bp::import("warnings");
   
-  eigenpy::enableEigenPy();
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
   
