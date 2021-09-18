@@ -6,10 +6,11 @@
 
 from . import pinocchio_pywrap_default as pin
 from . import WITH_HPP_FCL, WITH_HPP_FCL_BINDINGS
+from typing import Tuple
 
 nle = pin.nonLinearEffects
 
-def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]):
+def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None, geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]) -> Tuple[pin.Model,pin.GeometryModel,pin.GeometryModel]:
     """Parse the URDF file given in input and return a Pinocchio Model followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
         # load model, collision model, and visual model, in this order (default)
