@@ -401,9 +401,13 @@ namespace pinocchio
           bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
           cl
           .def(StdVectorPythonVisitor())
+//          .def(bp::init<std::size_t, bp::optional<value_type> >((bp::arg("self"),bp::arg("size"),bp::arg("value") = value_type())))
+//          .def(bp::init<std::size_t>((bp::arg("self"),bp::arg("size"))))
           .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
                "Returns the std::vector as a Python list.")
           .def(visitor)
+          .def("reserve",&vector_type::reserve,(bp::arg("self"),bp::arg("new_cap")),
+               "Increase the capacity of the vector to a value that's greater or equal to new_cap.")
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(PickleVector<vector_type>())
 #endif
