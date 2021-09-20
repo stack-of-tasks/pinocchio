@@ -25,7 +25,9 @@ class TestLiegroupBindings(TestCase):
 
         for lg in [ pin.liegroups.R3(),
                     pin.liegroups.SO3(),
+                    pin.liegroups.SO2(),
                     pin.liegroups.SE3(),
+                    pin.liegroups.SE2(),
                     pin.liegroups.R3() * pin.liegroups.SO3(),
                     ]:
             q = lg.random()
@@ -61,7 +63,9 @@ class TestLiegroupBindings(TestCase):
     def test_dDifference(self):
         for lg in [ pin.liegroups.R3(),
                     pin.liegroups.SO3(),
+                    pin.liegroups.SO2(),
                     pin.liegroups.SE3(),
+                    pin.liegroups.SE2(),
                     pin.liegroups.R3() * pin.liegroups.SO3(),
                     ]:
             q0 = lg.random()
@@ -83,7 +87,9 @@ class TestLiegroupBindings(TestCase):
     def test_dIntegrateTransport(self):
         for lg in [ pin.liegroups.R3(),
                     pin.liegroups.SO3(),
+                    pin.liegroups.SO2(),
                     pin.liegroups.SE3(),
+                    pin.liegroups.SE2(),
                     pin.liegroups.R3() * pin.liegroups.SO3(),
                     ]:
             q = lg.random()

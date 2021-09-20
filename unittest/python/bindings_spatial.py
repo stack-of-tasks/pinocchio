@@ -37,5 +37,21 @@ class TestSpatial(PinocchioTestCase):
 
         self.assertApprox(Mss,Mss_ref)
 
+    def test_Jlog6(self):
+        for _ in range(10):
+            M0: pin.SE3 = pin.SE3.Random()
+            M1 = M0.copy()
+            dM = M0.actInv(M1)
+            J = pin.Jlog6(dM)
+            R = dM.rotation
+            logR = pin.log3(R)
+            Jrot = pin.Jlog3(R)
+            print(R,':\nlog: {}'.format(logR))
+            print(Jrot)
+
+            self.assertApprox(dM, pin.SE3.Identity())
+            self.assertApprox(Jrot, np.eye(3))
+            self.assertApprox(J, np.eye(6))
+
 if __name__ == '__main__':
     unittest.main()
