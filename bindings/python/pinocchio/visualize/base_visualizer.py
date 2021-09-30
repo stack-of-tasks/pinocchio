@@ -27,12 +27,12 @@ class BaseVisualizer(object):
         else:
             self.data = data
 
-        if collision_data is None:
+        if collision_data is None and self.collision_model is not None:
             self.collision_data = self.collision_model.createData()
         else:
             self.collision_data = collision_data
 
-        if visual_data is None:
+        if visual_data is None and self.visual_model is not None:
             self.visual_data = self.visual_model.createData()
         else:
             self.visual_data = visual_data
