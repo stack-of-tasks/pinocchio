@@ -93,6 +93,12 @@ namespace pinocchio
         .def_readonly("collisionResults",
                       &GeometryData::collisionResults,
                       "Vector of collision results.")
+        .def_readonly("collision_functors",
+                      &GeometryData::collision_functors,
+                      "Vector of collision functors.")
+        .def_readonly("distance_functors",
+                      &GeometryData::distance_functors,
+                      "Vector of distance functors.")
         .def_readonly("radius",
                       &GeometryData::radius,
                       "Vector of radius of bodies, i.e. the distance between the further point of the geometry object from the joint center.\n"
