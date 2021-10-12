@@ -47,9 +47,6 @@ namespace bp = boost::python;
 namespace py = pybind11;
 
 template <typename T>
-void _print(T const&) {}
-
-template <typename T>
 inline py::object to(T& t) {
   // Create PyObject using boost Python
   bp::object obj = bp::api::object(t);
