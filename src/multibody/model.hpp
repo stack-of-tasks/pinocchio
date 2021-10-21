@@ -203,6 +203,7 @@ namespace pinocchio
       res.nframes = nframes;
       res.parents = parents;
       res.names = names;
+      res.supports = supports;      
       res.subtrees = subtrees;
       res.gravity = gravity.template cast<NewScalar>();
       res.name = name;
