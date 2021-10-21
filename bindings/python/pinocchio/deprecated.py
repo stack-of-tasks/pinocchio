@@ -104,7 +104,7 @@ def se3ToXYZQUAT(M):
 def XYZQUATToSe3(x):
     return pin.XYZQUATToSE3(x)
 
-def buildGeomFromUrdf(model, filename, *args):
+def buildGeomFromUrdf(model, filename, *args, **kwargs):
 
   arg3 = args[0]
   if isinstance(arg3,(str,list,pin.StdVec_StdString)):
@@ -116,14 +116,14 @@ def buildGeomFromUrdf(model, filename, *args):
       message = ("This function signature is now deprecated and will be removed in future releases of Pinocchio. "
                  "Please change for the new signature buildGeomFromUrdf(model,filename,type,package_dirs,mesh_loader).")
       _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir,mesh_loader)
+      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir,mesh_loader, **kwargs)
     else:
       message = ("This function signature is now deprecated and will be removed in future releases of Pinocchio. "
                  "Please change for the new signature buildGeomFromUrdf(model,filename,type,package_dirs).")
       _warnings.warn(message, category=DeprecatedWarning, stacklevel=2)
-      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir)
+      return pin.buildGeomFromUrdf(model,filename,geom_type,package_dir, **kwargs)
   else:
-    return pin.buildGeomFromUrdf(model, filename, *args)
+    return pin.buildGeomFromUrdf(model, filename, *args, **kwargs)
 
 buildGeomFromUrdf.__doc__ = (
   pin.buildGeomFromUrdf.__doc__
