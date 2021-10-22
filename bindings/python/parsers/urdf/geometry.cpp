@@ -16,6 +16,7 @@ namespace pinocchio
     namespace bp = boost::python;
   
 #ifdef PINOCCHIO_WITH_URDFDOM
+    typedef ::hpp::fcl::MeshLoaderPtr MeshLoaderPtr;
 
     void
     buildGeomFromUrdf_existing(const Model & model,
@@ -25,7 +26,7 @@ namespace pinocchio
                                bp::object py_pkg_dirs,
                                bp::object py_mesh_loader)
     {
-      ::hpp::fcl::MeshLoaderPtr mesh_loader = ::hpp::fcl::MeshLoaderPtr();
+      MeshLoaderPtr mesh_loader = MeshLoaderPtr();
       if (!py_mesh_loader.is_none()) {
 #ifdef PINOCCHIO_WITH_HPP_FCL
         mesh_loader = bp::extract<::hpp::fcl::MeshLoaderPtr>(py_mesh_loader);
@@ -54,57 +55,51 @@ namespace pinocchio
       pinocchio::urdf::buildGeom(model,stream,type,geometry_model,pkg_dirs,mesh_loader);
     }
 
-    bp::object
-    buildGeomFromUrdf_new(const Model & model,
-                          const std::istream & stream,
-                          const GeometryType type,
-                          bp::object py_pkg_dirs,
-                          bp::object mesh_loader)
-    {
-      GeometryModel* geometry_model = new GeometryModel;
-      buildGeomFromUrdf_existing(model, stream, type, *geometry_model, py_pkg_dirs, mesh_loader);
-      bp::manage_new_object::apply<GeometryModel*>::type converter;
-      return bp::object(bp::handle<>(converter(geometry_model)));
-    }
-
     // This function is complex in order to keep backward compatibility.
-    bp::object
+    GeometryModel*
     buildGeomFromUrdfStream(const Model & model,
                             const std::istream & stream,
                             const GeometryType type,
-                            bp::object geom_model,
+                            bp::object py_geom_model,
                             bp::object package_dirs,
                             bp::object mesh_loader)
     {
-      if (geom_model.is_none()) {
-        return buildGeomFromUrdf_new(model, stream, type, package_dirs, mesh_loader);
-      } else {
-        bp::extract<GeometryModel&> geom_model_extract(geom_model);
-        if (geom_model_extract.check()) {
-          buildGeomFromUrdf_existing(model, stream, type, geom_model_extract(), package_dirs, mesh_loader);
-          return geom_model;
-        }
-        // When backward compat is removed, what comes after this comment can be
-        // replaced by
-        // throw std::invalid_argument("Argument geometry_model should be a GeometryModel or None");
-        PyErr_WarnEx(PyExc_UserWarning,
-          "You passed package dir(s) via argument geometry_model and provided package_dirs.",1);
+      GeometryModel* geom_model;
+      if (py_geom_model.is_none())
+        geom_model = new GeometryModel;
+      else {
+        bp::extract<GeometryModel*> geom_model_extract(py_geom_model);
+        if (geom_model_extract.check())
+          geom_model = geom_model_extract();
+        else {
+          // When backward compat is removed, the code in this `else` section
+          // can be removed and the argument py_geom_model changed into a GeometryModel*
+          PyErr_WarnEx(PyExc_UserWarning,
+              "You passed package dir(s) via argument geometry_model and provided package_dirs.",1);
 
-        // At this stage, geom_model contains the package dir(s). mesh_loader can
-        // be passed either by package_dirs or mesh_loader
-        if (!package_dirs.is_none() && !mesh_loader.is_none())
-          throw std::invalid_argument("package_dirs and mesh_loader cannot be both provided since you passed the package dirs via argument geometry_model.");
-        try {
-          // If geom_model is not a valid package_dir(s), then rethrow with clearer message
-          return buildGeomFromUrdf_new(model, stream, type, geom_model, (mesh_loader.is_none() ? package_dirs : mesh_loader));
-        } catch (std::invalid_argument const& e) {
-          std::cout << "Caught: " << e.what() << std::endl;
-          throw std::invalid_argument("Argument geometry_model should be a GeometryModel");
+          // At this stage, py_geom_model contains the package dir(s). mesh_loader can
+          // be passed either by package_dirs or mesh_loader
+          bp::object new_pkg_dirs = py_geom_model;
+          if (!package_dirs.is_none() && !mesh_loader.is_none())
+            throw std::invalid_argument("package_dirs and mesh_loader cannot be both provided since you passed the package dirs via argument geometry_model.");
+          if (mesh_loader.is_none())
+            mesh_loader = package_dirs;
+          try {
+            // If geom_model is not a valid package_dir(s), then rethrow with clearer message
+            geom_model = new GeometryModel;
+            buildGeomFromUrdf_existing(model, stream, type, *geom_model, new_pkg_dirs, mesh_loader);
+            return geom_model;
+          } catch (std::invalid_argument const& e) {
+            std::cout << "Caught: " << e.what() << std::endl;
+            throw std::invalid_argument("Argument geometry_model should be a GeometryModel");
+          }
         }
       }
+      buildGeomFromUrdf_existing(model, stream, type, *geom_model, package_dirs, mesh_loader);
+      return geom_model;
     }
 
-    bp::object
+    GeometryModel*
     buildGeomFromUrdfFile(const Model & model,
                           const std::string & filename,
                           const GeometryType type,
@@ -120,7 +115,7 @@ namespace pinocchio
       return buildGeomFromUrdfStream(model, stream, type, geom_model, package_dirs, mesh_loader);
     }
 
-    bp::object
+    GeometryModel*
     buildGeomFromUrdfString(const Model & model,
                             const std::string & xmlString,
                             const GeometryType type,
@@ -132,53 +127,62 @@ namespace pinocchio
       return buildGeomFromUrdfStream(model, stream, type, geom_model, package_dirs, mesh_loader);
     }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
+# define MESH_LOADER_DOC "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries).\n"
+#else // #ifdef PINOCCHIO_WITH_HPP_FCL
+# define MESH_LOADER_DOC "\tmesh_loader: unused because the Pinocchio is built without hpp-fcl\n"
+#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
+    template <std::size_t owner_arg = 1>
+    struct return_value_policy : bp::return_internal_reference<owner_arg>
+    {
+     public:
+      template <class ArgumentPackage>
+      static PyObject* postcall(ArgumentPackage const& args_, PyObject* result)
+      {
+        PyObject* patient = bp::detail::get_prev<owner_arg>::execute(args_, result);
+        if (patient != Py_None)
+          return bp::return_internal_reference<owner_arg>::postcall(args_, result);
+        return result;
+      }
+    };
+
+
+    template<typename F>
+    void defBuildUrdf(const char* name, F f, const char* urdf_arg, const char* urdf_doc)
+    {
+      std::ostringstream doc;
+      doc << "Parse the URDF file given as input looking for the geometry of the given input model and\n"
+             "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in a GeometryModel object.\n"
+             "Parameters:\n"
+             "\tmodel: model of the robot\n"
+             "\n" << urdf_arg << ": " << urdf_doc << "\n"
+             "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
+             "\tgeometry_model: if provided, this geometry model will be used to store the parsed information instead of creating a new one\n"
+             "\tpackage_dirs: either a single path or a vector of paths pointing to folders containing the model of the robot\n"
+             MESH_LOADER_DOC
+             "\n"
+             "Retuns:\n"
+             "\ta new GeometryModel if `geometry_model` is None else `geometry_model` (that has been updated).\n";
+
+      bp::def(name, f,
+          (bp::arg("model"),
+           bp::arg(urdf_arg),
+           bp::arg("geom_type"),
+           bp::arg("geometry_model") = static_cast<GeometryModel*>(NULL),
+           bp::arg("package_dirs") = bp::object(),
+           bp::arg("mesh_loader") = bp::object()),
+          doc.str().c_str(), return_value_policy<4>());
+    }
+
 #endif
-  
+
     void exposeURDFGeometry()
     {
-
 #ifdef PINOCCHIO_WITH_URDFDOM
-
-      bp::def("buildGeomFromUrdf", buildGeomFromUrdfFile,
-              (bp::arg("model"), bp::arg("urdf_filename"), bp::arg("geom_type"),
-              bp::arg("geom_model") = bp::object(),
-              bp::arg("package_dirs") = bp::object(),
-              bp::arg("mesh_loader") = bp::object()),
-              "Parse the URDF file given as input looking for the geometry of the given input model and\n"
-              "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in the geom_model given as input.\n"
-              "Parameters:\n"
-              "\tmodel: model of the robot\n"
-              "\turdf_filename: path to the URDF file containing the model of the robot\n"
-              "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
-              "\tgeom_model: if provided, this geometry model will be used to store the parsed information instead of creating a new one\n"
-              "\tpackage_dirs: either a single path or a vector of paths pointing to folders containing the model of the robot\n"
-#ifdef PINOCCHIO_WITH_HPP_FCL
-              "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries).\n"
-#else // #ifdef PINOCCHIO_WITH_HPP_FCL
-              "\tmesh_loader: unused because the Pinocchio is built without hpp-fcl\n"
-#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
-              );
-
-      bp::def("buildGeomFromUrdfString", buildGeomFromUrdfString,
-              (bp::arg("model"), bp::arg("urdf_string"), bp::arg("geom_type"),
-              bp::arg("geom_model") = bp::object(),
-              bp::arg("package_dirs") = bp::object(),
-              bp::arg("mesh_loader") = bp::object()),
-              "Parse the URDF file given as input looking for the geometry of the given input model and\n"
-              "and store either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL) in the geom_model given as input.\n"
-              "Parameters:\n"
-              "\tmodel: model of the robot\n"
-              "\turdf_string: a string containing the URDF model of the robot\n"
-              "\tgeom_type: type of geometry to extract from the URDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
-              "\tgeom_model: if provided, this geometry model will be used to store the parsed information instead of creating a new one\n"
-              "\tpackage_dirs: either a single path or a vector of paths pointing to folders containing the model of the robot\n"
-#ifdef PINOCCHIO_WITH_HPP_FCL
-              "\tmesh_loader: an hpp-fcl mesh loader (to load only once the related geometries).\n"
-#else // #ifdef PINOCCHIO_WITH_HPP_FCL
-              "\tmesh_loader: unused because the Pinocchio is built without hpp-fcl\n"
-#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
-              );
-
+      defBuildUrdf("buildGeomFromUrdf", buildGeomFromUrdfFile, "urdf_filename",
+              "path to the URDF file containing the model of the robot");
+      defBuildUrdf("buildGeomFromUrdfString", buildGeomFromUrdfString, "urdf_string",
+              "a string containing the URDF model of the robot");
 #endif // #ifdef PINOCCHIO_WITH_URDFDOM
     }
   }
