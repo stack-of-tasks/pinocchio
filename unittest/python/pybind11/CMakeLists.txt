@@ -19,5 +19,7 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
     if(WIN32)
       target_compile_definitions(cpp2pybind11 PRIVATE -DNOMINMAX)
     endif(WIN32)
+
+    add_python_unit_test("test-py-test_cpp2pybind11" "unittest/python/pybind11/test_cpp2pybind11.py" "bindings/python" "unittest/python/pybind11")
   endif()
 endif()
