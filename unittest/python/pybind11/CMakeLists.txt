@@ -11,8 +11,12 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
     pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp)
     target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap)
 
+   IF(BUILD_WITH_OPENMP_SUPPORT AND NOT LINK_PYTHON_INTERFACE_TO_OPENMP)
+      TARGET_LINK_LIBRARIES(cpp2pybind11 PRIVATE OpenMP::OpenMP_CXX)
+    ENDIF()
+
     if(CMAKE_CXX_STANDARD LESS 14)
-      message(STATUS "CXX_STANDARD for cpp2pybind11 set changed from ${CMAKE_CXX_STANDARD} to 14")
+      message(STATUS "CXX_STANDARD for cpp2pybind11 changed from ${CMAKE_CXX_STANDARD} to 14")
       set_target_properties(cpp2pybind11 PROPERTIES CXX_STANDARD 14)
     endif()
 
