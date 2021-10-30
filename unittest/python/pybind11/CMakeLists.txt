@@ -8,8 +8,9 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
     FetchContent_Populate(pybind11)
     add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
 
-    pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp)
-    target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap)
+    #pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp) # BUG: might not work out of the box on OSX with conda: https://github.com/pybind/pybind11/issues/3081
+    add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
+    target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap pybind11::module)
 
    IF(BUILD_WITH_OPENMP_SUPPORT AND NOT LINK_PYTHON_INTERFACE_TO_OPENMP)
       TARGET_LINK_LIBRARIES(cpp2pybind11 PRIVATE OpenMP::OpenMP_CXX)
