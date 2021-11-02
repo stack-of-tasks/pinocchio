@@ -196,8 +196,6 @@ py::object default_arg(T t) {
     static pybind11::handle cast(native_type src,                          \
                                  pybind11::return_value_policy /*policy*/, \
                                  pybind11::handle /*parent*/) {            \
-      typename boost::python::manage_new_object::apply<native_type*>::type \
-          converter;                                                       \
       return boost::python::api::object(src).ptr();                        \
     }                                                                      \
   };                                                                       \
