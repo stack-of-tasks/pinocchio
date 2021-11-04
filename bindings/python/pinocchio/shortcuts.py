@@ -15,11 +15,11 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
         # load model, collision model, and visual model, in this order (default)
         model, collision_model, visual_model = buildModelsFromUrdf(filename[, ...], geometry_types=[pin.GeometryType.COLLISION,pin.GeometryType.VISUAL])
         model, collision_model, visual_model = buildModelsFromUrdf(filename[, ...]) # same as above
-        
+
         model, collision_model = buildModelsFromUrdf(filename[, ...], geometry_types=[pin.GeometryType.COLLISION]) # only load the model and the collision model
         model, collision_model = buildModelsFromUrdf(filename[, ...], geometry_types=pin.GeometryType.COLLISION)   # same as above
         model, visual_model    = buildModelsFromUrdf(filename[, ...], geometry_types=pin.GeometryType.VISUAL)      # only load the model and the visual model
-        
+
         model = buildModelsFromUrdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromUrdf(filename[, root_joint])
     """
 
@@ -42,9 +42,9 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
 
     for geometry_type in geometry_types:
         if meshLoader is None or (not WITH_HPP_FCL and not WITH_HPP_FCL_BINDINGS):
-            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs)
+            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs = package_dirs)
         else:
-            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs, meshLoader)
+            geom_model = pin.buildGeomFromUrdf(model, filename, geometry_type, package_dirs = package_dirs, mesh_loader = meshLoader)
         lst.append(geom_model)
 
     return tuple(lst)
