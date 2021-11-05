@@ -103,7 +103,7 @@ class RVizVisualizer(BaseVisualizer):
 
         # Collisions
         self.collisions_publisher = Publisher(rootNodeName + "_collisions", MarkerArray, queue_size=1,  latch=True)
-        self.collision_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "/" + rootNodeName + "_collisions", True)
+        self.collision_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "_collisions", True)
         self.collision_Display.subProp("Marker Topic").setValue(rootNodeName + "_collisions")
         self.collision_ids = []
 
