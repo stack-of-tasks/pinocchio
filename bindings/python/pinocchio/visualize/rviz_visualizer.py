@@ -56,7 +56,7 @@ class RVizVisualizer(BaseVisualizer):
         viz = None
         viz_manager = None
 
-    def initViewer(self, viewer=None, windowName="python-pinocchio", initNode=True, loadModel=False):
+    def initViewer(self, viewer=None, windowName="python-pinocchio", loadModel=False, initRosNode=True):
         """Init RVizViewer by starting a ros node (or not) and creating an RViz window."""
         from rospy import init_node, WARN
         from rosgraph import is_master_online
@@ -70,7 +70,7 @@ class RVizVisualizer(BaseVisualizer):
                           category=UserWarning, stacklevel=2)
             return None
 
-        if(initNode):
+        if(initRosNode):
             init_node('pinocchio_viewer', anonymous=True, log_level=WARN)
 
         if viewer == None:
