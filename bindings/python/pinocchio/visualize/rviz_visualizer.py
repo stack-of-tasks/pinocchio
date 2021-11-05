@@ -56,8 +56,8 @@ class RVizVisualizer(BaseVisualizer):
         viz = None
         viz_manager = None
 
-    def initViewer(self, viewer=None, windowName="python-pinocchio", loadModel=False):
-        """Init RVizViewer by starting a ros node and creating an RViz window."""
+    def initViewer(self, viewer=None, windowName="python-pinocchio", initNode=True, loadModel=False):
+        """Init RVizViewer by starting a ros node (or not) and creating an RViz window."""
         from rospy import init_node, WARN
         from rosgraph import is_master_online
         from rviz import bindings as rviz
@@ -70,7 +70,8 @@ class RVizVisualizer(BaseVisualizer):
                           category=UserWarning, stacklevel=2)
             return None
 
-        init_node('pinocchio_viewer', anonymous=True, log_level=WARN)
+        if(initNode):
+            init_node('pinocchio_viewer', anonymous=True, log_level=WARN)
 
         if viewer == None:
             self.viewer = RVizVisualizer.Viewer()
@@ -128,11 +129,13 @@ class RVizVisualizer(BaseVisualizer):
         if q is not None:
             pin.forwardKinematics(self.model,self.data,q)
 
-        pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
-        self.collision_ids = self.plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
+        if self.collision_model != None:
+            pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
+            self.collision_ids = self.plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
 
-        pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
-        self.visual_ids = self.plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
+        if self.visual_model != None:
+            pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
+            self.visual_ids = self.plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
 
     def plot(self, publisher, model, data, previous_ids=()):
         """ Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
