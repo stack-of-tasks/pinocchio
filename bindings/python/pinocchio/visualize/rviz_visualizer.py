@@ -118,11 +118,13 @@ class RVizVisualizer(BaseVisualizer):
 
     def clean(self):
         """Delete all the objects from the whole scene """
-        self._clean(self.collisions_publisher)
-        self.collision_ids = []
+        if(hasattr(self, 'collisions_publisher')):
+            self._clean(self.collisions_publisher)
+            self.collision_ids = []
 
-        self._clean(self.visuals_publisher)
-        self.visual_ids = []
+        if(hasattr(self, 'visuals_publisher')):
+            self._clean(self.visuals_publisher)
+            self.visual_ids = []
 
     def display(self, q = None):
         """Display the robot at configuration q in the viz by placing all the bodies."""
@@ -130,11 +132,11 @@ class RVizVisualizer(BaseVisualizer):
         if q is not None:
             pin.forwardKinematics(self.model,self.data,q)
 
-        if self.collision_model != None:
+        if self.collision_model != None and hasattr(self, 'collisions_publisher'):
             pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
             self.collision_ids = self._plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
 
-        if self.visual_model != None:
+        if self.visual_model != None and hasattr(self, 'visuals_publisher'):
             pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
             self.visual_ids = self._plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
 
