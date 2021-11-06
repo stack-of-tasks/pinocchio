@@ -56,8 +56,8 @@ class RVizVisualizer(BaseVisualizer):
         viz = None
         viz_manager = None
 
-    def initViewer(self, viewer=None, windowName="python-pinocchio", loadModel=False):
-        """Init RVizViewer by starting a ros node and creating an RViz window."""
+    def initViewer(self, viewer=None, windowName="python-pinocchio", loadModel=False, initRosNode=True):
+        """Init RVizViewer by starting a ros node (or not) and creating an RViz window."""
         from rospy import init_node, WARN
         from rosgraph import is_master_online
         from rviz import bindings as rviz
@@ -70,7 +70,8 @@ class RVizVisualizer(BaseVisualizer):
                           category=UserWarning, stacklevel=2)
             return None
 
-        init_node('pinocchio_viewer', anonymous=True, log_level=WARN)
+        if initRosNode:
+            init_node('pinocchio_viewer', anonymous=True, log_level=WARN)
 
         if viewer == None:
             self.viewer = RVizVisualizer.Viewer()
@@ -102,7 +103,7 @@ class RVizVisualizer(BaseVisualizer):
 
         # Collisions
         self.collisions_publisher = Publisher(rootNodeName + "_collisions", MarkerArray, queue_size=1,  latch=True)
-        self.collision_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "/" + rootNodeName + "_collisions", True)
+        self.collision_Display = self.viewer.viz_manager.createDisplay("rviz/MarkerArray", rootNodeName + "_collisions", True)
         self.collision_Display.subProp("Marker Topic").setValue(rootNodeName + "_collisions")
         self.collision_ids = []
 
@@ -116,11 +117,14 @@ class RVizVisualizer(BaseVisualizer):
         self.display()
 
     def clean(self):
-        """ Delete all the objects from the whole scene """
-        self.viewer.app.quit()
-        self.viewer.app = None
-        self.viewer.viz = None
-        self.viewer.viz_manager = None
+        """Delete all the objects from the whole scene """
+        if hasattr(self, 'collisions_publisher'):
+            self._clean(self.collisions_publisher)
+            self.collision_ids = []
+
+        if hasattr(self, 'visuals_publisher'):
+            self._clean(self.visuals_publisher)
+            self.visual_ids = []
 
     def display(self, q = None):
         """Display the robot at configuration q in the viz by placing all the bodies."""
@@ -128,14 +132,16 @@ class RVizVisualizer(BaseVisualizer):
         if q is not None:
             pin.forwardKinematics(self.model,self.data,q)
 
-        pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
-        self.collision_ids = self.plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
+        if self.collision_model is not None and hasattr(self, 'collisions_publisher'):
+            pin.updateGeometryPlacements(self.model, self.data, self.collision_model, self.collision_data)
+            self.collision_ids = self._plot(self.collisions_publisher, self.collision_model, self.collision_data, self.collision_ids)
 
-        pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
-        self.visual_ids = self.plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
+        if self.visual_model is not None and hasattr(self, 'visuals_publisher'):
+            pin.updateGeometryPlacements(self.model, self.data, self.visual_model, self.visual_data)
+            self.visual_ids = self._plot(self.visuals_publisher, self.visual_model, self.visual_data, self.visual_ids)
 
-    def plot(self, publisher, model, data, previous_ids=()):
-        """ Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
+    def _plot(self, publisher, model, data, previous_ids=()):
+        """Create markers for each object of the model and publish it as MarkerArray (also delete unused previously created markers)"""
         from rospy import get_rostime
         from std_msgs.msg import Header, ColorRGBA
         from geometry_msgs.msg import Point
@@ -207,6 +213,26 @@ class RVizVisualizer(BaseVisualizer):
 
         # Return list of markers id
         return new_ids
+
+    def _clean(self, publisher):
+        """Delete all the markers from a topic (use one marker with action DELETEALL)"""
+        from rospy import get_rostime
+        from std_msgs.msg import Header
+        from visualization_msgs.msg import MarkerArray, Marker
+
+        # Increment seq number
+        self.seq +=1
+
+        # Prepare a clean_all marker
+        marker = Marker()
+        marker.header = Header(frame_id='map', seq=self.seq, stamp=get_rostime())
+        marker.action = Marker.DELETEALL
+
+        # Add the marker to a MarkerArray
+        marker_array = MarkerArray(markers = [marker])
+
+        # Publish marker
+        publisher.publish(marker_array)
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not"""
