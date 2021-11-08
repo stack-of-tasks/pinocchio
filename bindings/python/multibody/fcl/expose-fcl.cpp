@@ -8,6 +8,7 @@
 
 #define HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
   #include <hpp/fcl/serialization/BVH_model.h>
+  #include <hpp/fcl/serialization/hfield.h>
   #include <hpp/fcl/serialization/geometric_shapes.h>
 #undef HPP_FCL_SKIP_EIGEN_BOOST_SERIALIZATION
 
@@ -39,6 +40,9 @@ namespace pinocchio
       serialize< BVHModel<OBB> >();
       serialize< BVHModel<RSS> >();
       serialize< BVHModel<OBBRSS> >();
+      
+      serialize< HeightField<OBBRSS> >();
+      serialize< HeightField<AABB> >();
     }
     
   } // namespace python
