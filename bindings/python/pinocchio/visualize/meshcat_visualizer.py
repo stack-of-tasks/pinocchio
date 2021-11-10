@@ -29,33 +29,115 @@ def isMesh(geometry_object):
 def loadMesh(mesh):
     import meshcat.geometry as mg
 
-    if isinstance(mesh,hppfcl.BVHModelBase):
-        num_vertices = mesh.num_vertices
-        num_tris = mesh.num_tris
+    if isinstance(mesh,hppfcl.HeightFieldOBBRSS):
+        heights = mesh.getHeights()
+        x_grid = mesh.getXGrid()    
+        y_grid = mesh.getYGrid()   
+        min_height = mesh.getMinHeight()
 
-        call_triangles = mesh.tri_indices
-        call_vertices = mesh.vertices
+        X, Y = np.meshgrid(x_grid,y_grid) 
 
-    elif isinstance(mesh,hppfcl.Convex):
-        num_vertices = mesh.num_points
-        num_tris = mesh.num_polygons
+        nx = len(x_grid)-1
+        ny = len(y_grid)-1
 
-        call_triangles = mesh.polygons
-        call_vertices = mesh.points
+        num_cells = (nx) * (ny) * 2 + (nx+ny)*4 + 2
 
-    faces = np.empty((num_tris,3),dtype=int)
-    for k in range(num_tris):
-        tri = call_triangles(k)
-        faces[k] = [tri[i] for i in range(3)]
+        num_vertices = X.size 
+        num_tris = num_cells 
 
-    if LooseVersion(hppfcl.__version__) >= LooseVersion("1.7.7"):
-        vertices = call_vertices()
-    else:
-        vertices = np.empty((num_vertices,3))
-        for k in range(num_vertices):
-            vertices[k] = call_vertices(k)
+        faces = np.empty((num_tris,3),dtype=int)
+        vertices = np.vstack((np.stack((X.reshape(num_vertices),Y.reshape(num_vertices),heights.reshape(num_vertices)),axis=1),
+                              np.stack((X.reshape(num_vertices),Y.reshape(num_vertices),np.full(num_vertices,min_height)),axis=1))) 
 
-    vertices = vertices.astype(np.float32)
+        face_id = 0
+        for y_id in range(ny):
+            for x_id in range(nx):
+                p0 = x_id + y_id * (nx+1)
+                p1 = p0 + 1
+                p2 = p1 + nx + 1
+                p3 = p2 - 1
+
+                faces[face_id] = np.array([p0,p3,p1])
+                face_id += 1
+                faces[face_id] = np.array([p3,p2,p1])
+                face_id += 1
+
+                if y_id == 0:
+                    p0_low = p0 + num_vertices
+                    p1_low = p1 + num_vertices
+
+                    faces[face_id] = np.array([p0,p1_low,p0_low])
+                    face_id += 1
+                    faces[face_id] = np.array([p0,p1,p1_low])
+                    face_id += 1
+
+                if y_id == ny-1:
+                    p2_low = p2 + num_vertices
+                    p3_low = p3 + num_vertices
+
+                    faces[face_id] = np.array([p3,p3_low,p2_low])
+                    face_id += 1
+                    faces[face_id] = np.array([p3,p2_low,p2])
+                    face_id += 1
+
+                if x_id == 0:
+                    p0_low = p0 + num_vertices
+                    p3_low = p3 + num_vertices
+
+                    faces[face_id] = np.array([p0,p3_low,p3])
+                    face_id += 1
+                    faces[face_id] = np.array([p0,p0_low,p3_low])
+                    face_id += 1
+
+                if x_id == nx-1:
+                    p1_low = p1 + num_vertices
+                    p2_low = p2 + num_vertices
+
+                    faces[face_id] = np.array([p1,p2_low,p2])
+                    face_id += 1
+                    faces[face_id] = np.array([p1,p1_low,p2_low])
+                    face_id += 1
+
+        # Last face  
+        p0 = num_vertices
+        p1 = p0 + nx
+        p2 = 2*num_vertices-1
+        p3 = p2 - nx
+
+        faces[face_id] = np.array([p0,p1,p2])
+        face_id += 1
+        faces[face_id] = np.array([p0,p2,p3])
+        face_id += 1
+
+    elif isinstance(mesh,(hppfcl.Convex,hppfcl.BVHModelBase)):
+        if isinstance(mesh,hppfcl.BVHModelBase):
+            num_vertices = mesh.num_vertices
+            num_tris = mesh.num_tris
+
+            call_triangles = mesh.tri_indices
+            call_vertices = mesh.vertices
+
+        elif isinstance(mesh,hppfcl.Convex):
+            num_vertices = mesh.num_points
+            num_tris = mesh.num_polygons
+
+            call_triangles = mesh.polygons
+            call_vertices = mesh.points
+
+        faces = np.empty((num_tris,3),dtype=int)
+        for k in range(num_tris):
+            tri = call_triangles(k)
+            faces[k] = [tri[i] for i in range(3)]
+
+        if LooseVersion(hppfcl.__version__) >= LooseVersion("1.7.7"):
+            vertices = call_vertices()
+        else:
+            vertices = np.empty((num_vertices,3))
+            for k in range(num_vertices):
+                vertices[k] = call_vertices(k)
+
+        vertices = vertices.astype(np.float32)
+
     if num_tris > 0:
         mesh = mg.TriangularMeshGeometry(vertices, faces)
     else:
@@ -199,7 +281,7 @@ class MeshcatVisualizer(BaseVisualizer):
             elif isMesh(geometry_object):
                 obj = self.loadMesh(geometry_object)
                 is_mesh = True
-            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.BVHModelBase):
+            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS)):
                 obj = loadMesh(geometry_object.geometry)
             else:
                 msg = "The geometry object named " + geometry_object.name + " is not supported by Pinocchio/MeshCat for vizualization."
