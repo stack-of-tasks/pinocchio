@@ -69,40 +69,40 @@ namespace pinocchio
         .def(bp::init<GeometryModel>(bp::args("self","geometry_model"),
                                      "Default constructor from a given GeometryModel"))
         
-        .def_readonly("oMg",
-                      &GeometryData::oMg,
-                      "Vector of collision objects placement relative to the world frame.\n"
-                      "note: These quantities have to be updated by calling updateGeometryPlacements.")
-        .def_readonly("activeCollisionPairs",
-                      &GeometryData::activeCollisionPairs,
-                      "Vector of active CollisionPairs")
+        .def_readwrite("oMg",
+                       &GeometryData::oMg,
+                       "Vector of collision objects placement relative to the world frame.\n"
+                       "note: These quantities have to be updated by calling updateGeometryPlacements.")
+        .def_readwrite("activeCollisionPairs",
+                       &GeometryData::activeCollisionPairs,
+                       "Vector of active CollisionPairs")
         
 #ifdef PINOCCHIO_WITH_HPP_FCL
-        .def_readonly("distanceRequests",
-                      &GeometryData::distanceRequests,
-                      "Defines which information should be computed by FCL for distance computations")
-        .def_readonly("distanceResults",
-                      &GeometryData::distanceResults,
-                      "Vector of distance results.")
-        .def_readonly("collisionRequests",
-                      &GeometryData::collisionRequests,
-                      "Defines which information should be computed by FCL for collision computations.\n\n"
-                      "Note: it is possible to define a security_margin and a break_distance for a collision request.\n"
-                      "Most likely, for robotics application, these thresholds will be different for each collision pairs\n"
-                      "(e.g. the two hands can have a large security margin while the two hips cannot.)")
-        .def_readonly("collisionResults",
-                      &GeometryData::collisionResults,
-                      "Vector of collision results.")
-        .def_readonly("collision_functors",
-                      &GeometryData::collision_functors,
-                      "Vector of collision functors.")
-        .def_readonly("distance_functors",
-                      &GeometryData::distance_functors,
-                      "Vector of distance functors.")
-        .def_readonly("radius",
-                      &GeometryData::radius,
-                      "Vector of radius of bodies, i.e. the distance between the further point of the geometry object from the joint center.\n"
-                      "note: This radius information might be usuful in continuous collision checking")
+        .def_readwrite("distanceRequests",
+                       &GeometryData::distanceRequests,
+                       "Defines which information should be computed by FCL for distance computations")
+        .def_readwrite("distanceResults",
+                       &GeometryData::distanceResults,
+                       "Vector of distance results.")
+        .def_readwrite("collisionRequests",
+                       &GeometryData::collisionRequests,
+                       "Defines which information should be computed by FCL for collision computations.\n\n"
+                       "Note: it is possible to define a security_margin and a break_distance for a collision request.\n"
+                       "Most likely, for robotics application, these thresholds will be different for each collision pairs\n"
+                       "(e.g. the two hands can have a large security margin while the two hips cannot.)")
+        .def_readwrite("collisionResults",
+                       &GeometryData::collisionResults,
+                       "Vector of collision results.")
+        .def_readwrite("collision_functors",
+                       &GeometryData::collision_functors,
+                       "Vector of collision functors.")
+        .def_readwrite("distance_functors",
+                       &GeometryData::distance_functors,
+                       "Vector of distance functors.")
+        .def_readwrite("radius",
+                       &GeometryData::radius,
+                       "Vector of radius of bodies, i.e. the distance between the further point of the geometry object from the joint center.\n"
+                       "note: This radius information might be usuful in continuous collision checking")
 #endif // PINOCCHIO_WITH_HPP_FCL
         
         .def("fillInnerOuterObjectMaps",
