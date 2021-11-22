@@ -8,6 +8,8 @@
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/crba.hpp"
+#include "pinocchio/parsers/sdf.hpp"
+#include "pinocchio/parsers/srdf.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
@@ -1897,5 +1899,115 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
   BOOST_CHECK(data_dirty.dlambda_dv.isApprox(data_fresh.dlambda_dv,sqrt(alpha)));
   BOOST_CHECK(data_dirty.dlambda_dtau.isApprox(data_fresh.dlambda_dtau,sqrt(alpha)));
 }
+
+
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/srdf/cassie_v2.srdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+  
+  pinocchio::Model model;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) constraint_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_datas;
+  
+  pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model, constraint_models);
+  pinocchio::srdf::loadReferenceConfigurations(model,srdf_filename,false);
+
+  Eigen::VectorXd q = model.referenceConfigurations["standing"];
+  //VectorXd q = randomConfiguration(model);
+  //VectorXd v = VectorXd::Random(model.nv);
+  VectorXd v = VectorXd::Zero(model.nv);
+  VectorXd tau = VectorXd::Zero(model.nv);
+
+  const double mu0 = 1e-5;
+  //const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,10000);
+
+  Data data(model), data_fd(model);
+  
+  initConstraintDynamics(model,data,constraint_models);
+  for(int k=0;k<constraint_models.size();++k) {
+    constraint_datas.push_back(RigidConstraintData(constraint_models[k]));
+  }
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < constraint_models.size(); ++k)
+    constraint_dim += constraint_models[k].size();
+
+  initConstraintDynamics(model,data,constraint_models);
+  constraintDynamics(model,data,q,v,tau,constraint_models,constraint_datas,prox_settings);
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  computeConstraintDynamicsDerivatives(model, data, constraint_models, constraint_datas, prox_settings);
+
+  initConstraintDynamics(model,data_fd,constraint_models);
+  MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
+  MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
+  MatrixXd ddq_partial_dtau_fd(model.nv,model.nv); ddq_partial_dtau_fd.setZero();
+
+  MatrixXd lambda_partial_dtau_fd(constraint_dim,model.nv); lambda_partial_dtau_fd.setZero();
+  MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
+  MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
+
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,constraint_models,constraint_datas,prox_settings);
+  std::cerr<<"ddq0: "<<ddq0.transpose()<<std::endl;
+  const VectorXd lambda0 = data_fd.lambda_c;
+  VectorXd v_eps(VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd ddq_plus(model.nv);
+
+  VectorXd lambda_plus(constraint_dim);
+  const double alpha = 1e-8;
+  forwardKinematics(model,data,q,v);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,
+                                  constraint_models,constraint_datas,prox_settings);
+    std::cerr<<"ddq_plus: "<<ddq_plus.transpose()<<std::endl;
+    ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    v_eps[k] = 0.;
+  }
+
+  std::cerr<<"ddq_dq_fd:"<<std::endl<<ddq_partial_dq_fd<<std::endl;
+  std::cerr<<"ddq_dq anal:"<<std::endl<<data.ddq_dq<<std::endl;
+
+  std::cerr<<"ddq_dq anal-ddq_dq_fd:"<<std::endl<<data.ddq_dq-ddq_partial_dq_fd<<std::endl;
+  BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
+
+  
+  BOOST_CHECK(lambda_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
+
+  VectorXd v_plus(v);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_plus[k] += alpha;
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,constraint_models,constraint_datas,prox_settings);
+    ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    v_plus[k] -= alpha;
+  }
+
+  BOOST_CHECK(ddq_partial_dv_fd.isApprox(data.ddq_dv,sqrt(alpha)));
+  BOOST_CHECK(lambda_partial_dv_fd.isApprox(data.dlambda_dv,sqrt(alpha)));
+
+  VectorXd tau_plus(tau);
+  for(int k = 0; k < model.nv; ++k)
+  {
+    tau_plus[k] += alpha;
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,constraint_models,constraint_datas,prox_settings);
+    ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
+    lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
+    tau_plus[k] -= alpha;
+  }
+
+  BOOST_CHECK(lambda_partial_dtau_fd.isApprox(data.dlambda_dtau,sqrt(alpha)));
+  BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
+
+}
+  
+
 
 BOOST_AUTO_TEST_SUITE_END ()
