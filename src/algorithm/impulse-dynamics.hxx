@@ -21,14 +21,14 @@ namespace pinocchio
                   const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
                   std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
                   const Scalar r_coeff,
-                  const Scalar mu)
+                  const ProximalSettingsTpl<Scalar> & settings)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq,
                                    "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv,
                                    "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
                                    "mu has to be positive");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) &&(r_coeff <= Scalar(1))),
                                    "r_coeff has to be in [0,1]");
@@ -60,7 +60,7 @@ namespace pinocchio
     }
 
     data.M.diagonal() += model.armature;
-    contact_chol.compute(model,data,contact_models,contact_datas,mu);
+    contact_chol.compute(model,data,contact_models,contact_datas,settings.mu);
     
     //Centroidal computations
     typedef typename Data::Force Force;

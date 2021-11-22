@@ -47,8 +47,8 @@ namespace pinocchio
                   const Eigen::MatrixBase<TangentVectorType1> & v_before,
                   const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
                   std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
-                  const Scalar r_coeff = Scalar(0.),
-                  const Scalar mu = Scalar(0.));
+                  const Scalar r_coeff,
+                  const ProximalSettingsTpl<Scalar>& settings);
 
 } // namespace pinocchio
 
