@@ -22,10 +22,10 @@ namespace pinocchio
                                                            const context::VectorXs & v,
                                                            const RigidConstraintModelVector & contact_models,
                                                            RigidConstraintDataVector & contact_datas,
-                                                           const context::Scalar & r_coeff =Scalar(0.0),
-                                                           const context::Scalar & mu = Scalar(0.0))
+                                                           const context::Scalar r_coeff,
+                                                           const context::ProximalSettings & prox_settings)
       {
-        return impulseDynamics(model, data, q, v, contact_models, contact_datas, r_coeff, mu);
+        return impulseDynamics(model, data, q, v, contact_models, contact_datas, r_coeff, prox_settings);
       }
     
       void exposeImpulseDynamics()

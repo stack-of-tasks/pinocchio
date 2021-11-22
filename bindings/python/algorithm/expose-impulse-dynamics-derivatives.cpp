@@ -21,18 +21,18 @@ namespace pinocchio
                                                    context::Data & data,
                                                    const RigidConstraintModelVector & contact_models,
                                                    RigidConstraintDataVector & contact_datas,
-                                                   const context::Scalar & r_coeff = context::Scalar(0),
-                                                   const context::Scalar & mu = context::Scalar(0))
+                                                   const context::Scalar & r_coeff,
+                                                   const context::ProximalSettings & prox_settings)
       {
         computeImpulseDynamicsDerivatives(model, data, contact_models,
-                                          contact_datas, r_coeff, mu);
+                                          contact_datas, r_coeff, prox_settings);
         return;
       }
     
       void exposeImpulseDynamicsDerivatives()
       {
         bp::def("computeImpulseDynamicsDerivatives",impulseDynamicsDerivatives_proxy,
-                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff") = 0,bp::arg("mu") = 0),
+                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff"),bp::arg("prox_settings")),
                  "Computes the impulse dynamics derivatives with contact constraints according to a given list of Contact information.\n"
                  "impulseDynamics should have been called before.");
       }
