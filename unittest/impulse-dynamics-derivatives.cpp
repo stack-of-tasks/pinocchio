@@ -43,13 +43,15 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives_no_contact)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) empty_contact_data;
 
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
+  
   const double r_coeff = 0.5;
   
   initConstraintDynamics(model,data,empty_contact_models);
-  impulseDynamics(model,data,q,v,empty_contact_models,empty_contact_data,r_coeff, mu0);
+  impulseDynamics(model,data,q,v,empty_contact_models,empty_contact_data,r_coeff, prox_settings);
 
   const Eigen::VectorXd dv = data.dq_after-v;
-  computeImpulseDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data,r_coeff,mu0);
+  computeImpulseDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data,r_coeff,prox_settings);
 
   Motion gravity_bk = model.gravity;
   model.gravity.setZero();
@@ -80,8 +82,10 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
-  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  
+  
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id, LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id, LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
@@ -91,11 +95,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
-  computeImpulseDynamicsDerivatives(model,data,contact_models,contact_data,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,prox_settings);
+  computeImpulseDynamicsDerivatives(model,data,contact_models,contact_data,r_coeff,prox_settings);
   
   typedef PINOCCHIO_ALIGNED_STD_VECTOR(Force) ForceVector;
 
@@ -167,8 +172,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
-  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,SE3::Random(),LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,SE3::Random(),LOCAL);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
@@ -177,12 +182,15 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
 
+  
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
 
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
-  computeImpulseDynamicsDerivatives(model, data, contact_models, contact_data, r_coeff, mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,prox_settings);
+  computeImpulseDynamicsDerivatives(model, data, contact_models,
+                                    contact_data, r_coeff, prox_settings);
 
   //Data_fd
   initConstraintDynamics(model,data_fd,contact_models);
@@ -194,7 +202,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   MatrixXd impulse_partial_dv_fd(constraint_dim,model.nv); impulse_partial_dv_fd.setZero();
 
   const VectorXd dqafter0 = impulseDynamics(model,data_fd,q,v,contact_models,
-                                            contact_data,r_coeff,mu0);
+                                            contact_data,r_coeff,prox_settings);
   const VectorXd impulse0 = data_fd.impulse_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -212,7 +220,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    dqafter_plus = impulseDynamics(model,data_fd,q_plus,v,contact_models,contact_data,r_coeff,mu0);
+    dqafter_plus = impulseDynamics(model,data_fd,q_plus,v,contact_models,contact_data,r_coeff,prox_settings);
     
     const Eigen::MatrixXd Jc_plus = data_fd.contact_chol.matrix().topRightCorner(constraint_dim,model.nv);
     const Eigen::VectorXd vel_jump_plus = Jc_plus*(dqafter0 + r_coeff*v);
@@ -222,7 +230,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
     dvc_dq_fd.col(k) = (vel_jump_plus - vel_jump)/alpha;
     v_eps[k] = 0.;
   }
-  
+
   BOOST_CHECK(Jc.isApprox(data.dac_da,sqrt(alpha)));
   BOOST_CHECK(dqafter_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
   BOOST_CHECK(impulse_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
@@ -231,7 +239,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    dqafter_plus = impulseDynamics(model,data_fd,q,v_plus,contact_models,contact_data,r_coeff,mu0);
+    dqafter_plus = impulseDynamics(model,data_fd,q,v_plus,contact_models,contact_data,r_coeff,prox_settings);
 
     dqafter_partial_dv_fd.col(k) = (dqafter_plus - dqafter0)/alpha;
     impulse_partial_dv_fd.col(k) = (data_fd.impulse_c - impulse0)/alpha;
@@ -266,8 +274,8 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
-  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,SE3::Random(),LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,SE3::Random(),LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
   contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
@@ -277,11 +285,12 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
     constraint_dim += contact_models[k].size();
 
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
 
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
-  computeImpulseDynamicsDerivatives(model, data, contact_models, contact_data, r_coeff, mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,prox_settings);
+  computeImpulseDynamicsDerivatives(model, data, contact_models, contact_data, r_coeff, prox_settings);
 
   //Data_fd
   initConstraintDynamics(model,data_fd,contact_models);
@@ -293,7 +302,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   MatrixXd impulse_partial_dv_fd(constraint_dim,model.nv); impulse_partial_dv_fd.setZero();
 
   const VectorXd dqafter0 = impulseDynamics(model,data_fd,q,v,contact_models,
-                                        contact_data,r_coeff,mu0);
+                                        contact_data,r_coeff,prox_settings);
   const VectorXd impulse0 = data_fd.impulse_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -305,7 +314,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    dqafter_plus = impulseDynamics(model,data_fd,q_plus,v,contact_models,contact_data,r_coeff,mu0);
+    dqafter_plus = impulseDynamics(model,data_fd,q_plus,v,contact_models,contact_data,r_coeff,prox_settings);
     dqafter_partial_dq_fd.col(k) = (dqafter_plus - dqafter0)/alpha;
     impulse_partial_dq_fd.col(k) = (data_fd.impulse_c - impulse0)/alpha;
     v_eps[k] = 0.;
@@ -318,7 +327,7 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    dqafter_plus = impulseDynamics(model,data_fd,q,v_plus,contact_models,contact_data,r_coeff,mu0);
+    dqafter_plus = impulseDynamics(model,data_fd,q,v_plus,contact_models,contact_data,r_coeff,prox_settings);
     dqafter_partial_dv_fd.col(k) = (dqafter_plus - dqafter0)/alpha;
     impulse_partial_dv_fd.col(k) = (data_fd.impulse_c - impulse0)/alpha;
     v_plus[k] -= alpha;

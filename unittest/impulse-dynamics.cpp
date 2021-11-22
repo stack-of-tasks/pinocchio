@@ -44,13 +44,14 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_empty)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   computeAllTerms(model,data_ref,q,v);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
   data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -96,6 +97,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -130,7 +132,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -225,6 +227,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -259,7 +262,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -355,6 +358,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -389,7 +393,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -485,6 +489,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv), Jtmp(6,model.nv);
   J_ref.setZero(); Jtmp.setZero();
@@ -521,7 +526,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
   initConstraintDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
