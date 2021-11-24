@@ -274,13 +274,13 @@ namespace pinocchio
             const ::sdf::ElementPtr sdf_material = (*i)->GetElement("material");
             if (sdf_material)
             {
-              const ignition::math::Vector4d ign_meshColor =
-                sdf_material->Get<ignition::math::Vector4d>("ambient");
+              const ignition::math::Color ign_meshColor =
+                sdf_material->Get<ignition::math::Color>("ambient");
               
-              meshColor << ign_meshColor.X(),
-                ign_meshColor.Y(),
-                ign_meshColor.Z(),
-                ign_meshColor.W();
+              meshColor << ign_meshColor.R(),
+                ign_meshColor.G(),
+                ign_meshColor.B(),
+                ign_meshColor.A();
               overrideMaterial = true;
             }
 
