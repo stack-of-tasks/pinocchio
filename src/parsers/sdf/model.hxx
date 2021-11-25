@@ -308,63 +308,64 @@ namespace pinocchio
           
 
           if (jointElement->template Get<std::string>("type") == "ball") {
-            JointIndex existingParentJointId;
-            if (urdfVisitor.existFrame(childName, BODY))
-            {
-              if (! existConstraint(contact_details, jointName))
+          JointIndex existingParentJointId;
+          if (urdfVisitor.existFrame(childName, BODY))
+          {// Find the child link in list of frames.
+            if (! existConstraint(contact_details, jointName))
+            { // Joint doesn't exist in constraint list. So new one must be created.
+              joint_info<<childName<<" already exists"<<std::endl;
+              // Get the previous parent joint of this child link from existing list.
+              existingParentJointId = urdfVisitor.getParentId(childName);
+              const ::sdf::ElementPtr prevJointElement =
+                mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
+              joint_info<<"connected by joint "
+                        <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
+              SE3 cMj1(SE3::Identity());
+              if (prevJointElement->HasElement("pose"))
               {
-                joint_info<<childName<<" already exists"<<std::endl;
-                existingParentJointId = urdfVisitor.getParentId(childName);
-                const ::sdf::ElementPtr prevJointElement =
-                  mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
-                joint_info<<"connected by joint "
-                         <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
-                SE3 cMj1(SE3::Identity());
-                if (prevJointElement->HasElement("pose"))
-                {
-                  const ignition::math::Pose3d prevcMj_ig =
-                    prevJointElement->template Get<ignition::math::Pose3d>("pose");
-                  cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
-                }
+                const ignition::math::Pose3d prevcMj_ig =
+                  prevJointElement->template Get<ignition::math::Pose3d>("pose");
+                cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
+              }
 
-                ContactDetails rcm (::pinocchio::CONTACT_3D,
-                                    parentJointId,
-                                    jointPlacement,
-                                    existingParentJointId,
-                                    cMj1.inverse() * cMj);
-                rcm.name = jointName;
-                contact_details.push_back(rcm);
+              ContactDetails rcm (::pinocchio::CONTACT_3D,
+                                  parentJointId,
+                                  jointPlacement,
+                                  existingParentJointId,
+                                  cMj1.inverse() * cMj);
+              rcm.name = jointName;
+              contact_details.push_back(rcm);
                 
+            }
+            else
+            { // Joint exists already in the constraint lists, set joint2 id and placement
+              const int i = getConstraintId(contact_details, jointName);
+              if(i != -1) {
+                contact_details[i].joint2_id = parentJointId;
+                contact_details[i].joint2_placement = jointPlacement;
               }
               else
               {
-                const int i = getConstraintId(contact_details, jointName);
-                if(i != -1) {
-                  contact_details[i].joint2_id = parentJointId;
-                  contact_details[i].joint2_placement = jointPlacement;
-                }
-                else
-                {
-                  throw std::invalid_argument("Unknown error with sdf parsing");
-                }
+                throw std::invalid_argument("Unknown error with sdf parsing");
               }
             }
-            else
-            {
-              joint_info<<childName<<" not yet added to model"<<std::endl;
-              joint_info<<jointName<<" corresponds to pending link"<<childName<<std::endl;
-              existingParentJointId = -1;
-              ContactDetails rcm (::pinocchio::CONTACT_3D,
-                                                     parentJointId,
-                                                     jointPlacement,
-                                                     existingParentJointId,
-                                                     cMj);
-              rcm.name = jointName;
-              childToBeAdded.push_back(childName);
-              contact_details.push_back(rcm);
-            }
           }
-          else {            
+          else
+          { // Child link is new, and not yet added to model. Add it to constraints.
+            joint_info<<childName<<" not yet added to model"<<std::endl;
+            joint_info<<jointName<<" corresponds to pending link"<<childName<<std::endl;
+            existingParentJointId = -1;
+            ContactDetails rcm (::pinocchio::CONTACT_3D,
+                                parentJointId,
+                                jointPlacement,
+                                existingParentJointId,
+                                cMj);
+            rcm.name = jointName;
+            childToBeAdded.push_back(childName);
+            contact_details.push_back(rcm);
+          }
+          }
+          else { // The joint is not ball joint. Add to kinematic loop.
             //childElement is the link. 
             const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
             const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
