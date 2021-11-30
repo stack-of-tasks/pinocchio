@@ -65,10 +65,11 @@ namespace pinocchio
         I << ixx,ixy,ixz,
              ixy,iyy,iyz,
              ixz,iyz,izz;
-        
+
         return Inertia(mass,com,R*I*R.transpose());
       }      
 
+      
       template<typename Scalar, int Options>
       struct ContactDetailsTpl
       {
@@ -127,11 +128,11 @@ namespace pinocchio
         std::string modelName;
         std::vector<std::string> childToBeAdded;
 
-        typedef ::pinocchio::urdf::details::UrdfVisitorBase UrdfVisitorBase;
-        UrdfVisitorBase& urdfVisitor;
+        typedef pinocchio::urdf::details::UrdfVisitor<double, 0, ::pinocchio::JointCollectionDefaultTpl > UrdfVisitor;
+        UrdfVisitor& urdfVisitor;
         PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails) contact_details;
 
-        SdfGraph(::pinocchio::urdf::details::UrdfVisitorBase& urdfVisitor)
+        SdfGraph(UrdfVisitor& urdfVisitor)
           : urdfVisitor(urdfVisitor)
         {}
 
@@ -242,7 +243,7 @@ namespace pinocchio
             if(childFromMap == childName)
               return i;
             i++;
-            }
+          }
           return -1;
         }
         
@@ -255,12 +256,12 @@ namespace pinocchio
         ///
         void recursiveFillModel(const ::sdf::ElementPtr jointElement)
         {
-          typedef UrdfVisitorBase::Scalar Scalar;
-          typedef UrdfVisitorBase::SE3 SE3;
-          typedef UrdfVisitorBase::Vector Vector;
-          typedef UrdfVisitorBase::Vector3 Vector3;
+          typedef UrdfVisitor::Scalar Scalar;
+          typedef UrdfVisitor::SE3 SE3;
+          typedef UrdfVisitor::Vector Vector;
+          typedef UrdfVisitor::Vector3 Vector3;
           const std::string& jointName = jointElement->template Get<std::string>("name");
-
+          bool is_constraint = false;
           std::ostringstream joint_info;
           const std::string parentName = jointElement->GetElement("parent")->Get<std::string>();
           const std::string childName =
@@ -280,7 +281,7 @@ namespace pinocchio
 
           if (jointElement->HasElement("pose"))
           {
-            const ignition::math::Pose3d cMj_ig =
+             const ignition::math::Pose3d cMj_ig =
               jointElement->template Get<ignition::math::Pose3d>("pose");
             cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
           }
@@ -305,196 +306,161 @@ namespace pinocchio
                     << " link to child " << childName << " link" << " with joint type "
                     << jointElement->template Get<std::string>("type")<<std::endl;
 
+          FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
+          Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
+          Vector spring_stiffness(1), spring_reference(1);
+          Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
+          ignition::math::Vector3d axis_ignition;
+          Vector3 axis;
+          const Scalar infty = std::numeric_limits<Scalar>::infinity();
           
+          if (jointElement->HasElement("axis")) {
+            const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
+            
+            axis_ignition =
+              axisElem->Get<ignition::math::Vector3d>("xyz");
+            axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
+            
+            if (axisElem->HasElement("limit")) {
+              const ::sdf::ElementPtr limitElem = axisElem->GetElement("limit");
+              if (limitElem->HasElement("upper")) {
+                max_config[0] = limitElem->Get<double>("upper");
+              }
+              if (limitElem->HasElement("lower")) {
+                min_config[0] = limitElem->Get<double>("lower");
+              }
+              if (limitElem->HasElement("effort")) {
+                max_effort[0] = limitElem->Get<double>("effort");
+              }
+              if (limitElem->HasElement("velocity")) {
+                max_velocity[0] = limitElem->Get<double>("velocity");
+              }
+            }
+            if (axisElem->HasElement("dynamics")) {
+              const ::sdf::ElementPtr dynamicsElem = axisElem->GetElement("dynamics");
+              if (dynamicsElem->HasElement("spring_reference")) {
+                spring_reference[0] = dynamicsElem->Get<double>("spring_reference");
+              }
+              if (dynamicsElem->HasElement("spring_stiffness")) {
+                spring_stiffness[0] = dynamicsElem->Get<double>("spring_stiffness");
+              }
+              if (dynamicsElem->HasElement("damping")) {
+                damping[0] = dynamicsElem->Get<double>("damping");
+              }
+            }
+          }
 
-          if (jointElement->template Get<std::string>("type") == "ball") {
-          JointIndex existingParentJointId;
+          const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
+          const Inertia Y_c = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
+          Inertia Y = Inertia::Zero();
+          JointIndex existingJointId = -1;
           if (urdfVisitor.existFrame(childName, BODY))
-          {// Find the child link in list of frames.
-            if (! existConstraint(contact_details, jointName))
-            { // Joint doesn't exist in constraint list. So new one must be created.
-              joint_info<<childName<<" already exists"<<std::endl;
-              // Get the previous parent joint of this child link from existing list.
-              existingParentJointId = urdfVisitor.getParentId(childName);
-              const ::sdf::ElementPtr prevJointElement =
-                mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
-              joint_info<<"connected by joint "
-                        <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
-              SE3 cMj1(SE3::Identity());
-              if (prevJointElement->HasElement("pose"))
-              {
-                const ignition::math::Pose3d prevcMj_ig =
-                  prevJointElement->template Get<ignition::math::Pose3d>("pose");
-                cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
-              }
+          { // Child link exists, thus loop constraint should be active.
+            //No Inertial Information is needed, as it would have already been added.
+            joint_info<<"Adding a child frame "<<childName<<" another time."<<std::endl;
+            is_constraint = true;
 
-              ContactDetails rcm (::pinocchio::CONTACT_3D,
-                                  parentJointId,
-                                  jointPlacement,
-                                  existingParentJointId,
-                                  cMj1.inverse() * cMj);
-              rcm.name = jointName;
-              contact_details.push_back(rcm);
-                
-            }
-            else
-            { // Joint exists already in the constraint lists, set joint2 id and placement
-              const int i = getConstraintId(contact_details, jointName);
-              if(i != -1) {
-                contact_details[i].joint2_id = parentJointId;
-                contact_details[i].joint2_placement = jointPlacement;
-              }
-              else
-              {
-                throw std::invalid_argument("Unknown error with sdf parsing");
-              }
-            }
+            // Find existing joint before adding new one.
+            existingJointId = urdfVisitor.getParentId(childName);
+            Y = Y_c.se3ActionInverse(cMj);
+            Y.mass() *= 0.5;
+            Y.inertia() *= 0.5;
+
+            //TODO: ADD CONSTRAINT DEFINITION HERE
+          }
+          else {
+            //childElement is the link that is new and should be added.
+            Y = Y_c.se3ActionInverse(cMj);
+          }
+            
+          if (jointElement->template Get<std::string>("type") == "universal") {
+          }
+          else if (jointElement->template Get<std::string>("type") == "revolute") {
+            joint_info << "joint REVOLUTE with axis"<< axis.transpose();
+            urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
+                                        parentFrameId, jointPlacement, jointName,
+                                        Y, cMj.inverse(), childName,
+                                        max_effort, max_velocity, min_config, max_config,
+                                        friction,damping);
+          }
+          else if (jointElement->template Get<std::string>("type") == "gearbox")
+          {
+            joint_info << "joint GEARBOX with axis";
+            urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
+                                             Y, childName);
+          }
+          else if (jointElement->template Get<std::string>("type") == "ball")
+          {
+            max_effort   = Vector::Constant(3, infty);
+            max_velocity = Vector::Constant(3, infty);
+            min_config   = Vector::Constant(4,-infty);
+            max_config   = Vector::Constant(4, infty);
+            min_config.setConstant(-1.01);
+            max_config.setConstant( 1.01);
+            friction = Vector::Constant(3, 0.);
+            damping = Vector::Constant(3, 0.);
+              
+            joint_info << "joint BALL";
+            //std::cerr<<"TODO: Fix BALL JOINT"<<std::endl;
+            urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
+                                        parentFrameId, jointPlacement, jointName,
+                                        Y, cMj.inverse(), childName,
+                                        max_effort, max_velocity, min_config, max_config,
+                                        friction,damping);
           }
           else
-          { // Child link is new, and not yet added to model. Add it to constraints.
-            joint_info<<childName<<" not yet added to model"<<std::endl;
-            joint_info<<jointName<<" corresponds to pending link"<<childName<<std::endl;
-            existingParentJointId = -1;
-            ContactDetails rcm (::pinocchio::CONTACT_3D,
-                                parentJointId,
-                                jointPlacement,
-                                existingParentJointId,
-                                cMj);
-            rcm.name = jointName;
-            childToBeAdded.push_back(childName);
-            contact_details.push_back(rcm);
+          {
+            joint_info<<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<<std::endl;
           }
-          }
-          else { // The joint is not ball joint. Add to kinematic loop.
-            //childElement is the link. 
-            const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
-            const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
-                        
-            FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
-            Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
-            Vector spring_stiffness(1), spring_reference(1);
-            Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
-            ignition::math::Vector3d axis_ignition;
-            Vector3 axis;
-            
-            const Scalar infty = std::numeric_limits<Scalar>::infinity();
-            
-            if (jointElement->HasElement("axis"))
-            {
-              const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
-              
-              axis_ignition =
-                axisElem->Get<ignition::math::Vector3d>("xyz");
-              axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
-              
-              if (axisElem->HasElement("limit"))
-              {
-                const ::sdf::ElementPtr limitElem = axisElem->GetElement("limit");
-                if (limitElem->HasElement("upper"))
-                {
-                  max_config[0] = limitElem->Get<double>("upper");
-                }
-                if (limitElem->HasElement("lower"))
-                {
-                  min_config[0] = limitElem->Get<double>("lower");
-                }
-                if (limitElem->HasElement("effort"))
-                {
-                  max_effort[0] = limitElem->Get<double>("effort");
-                }
-                if (limitElem->HasElement("velocity"))
-                {
-                  max_velocity[0] = limitElem->Get<double>("velocity");
-                }
-              }
-              if (axisElem->HasElement("dynamics"))
-              {
-                const ::sdf::ElementPtr dynamicsElem = axisElem->GetElement("dynamics");
-                if (dynamicsElem->HasElement("spring_reference"))
-                {
-                  spring_reference[0] = dynamicsElem->Get<double>("spring_reference");
-                }
-                if (dynamicsElem->HasElement("spring_stiffness"))
-                {
-                  spring_stiffness[0] = dynamicsElem->Get<double>("spring_stiffness");
-                }
-                if (dynamicsElem->HasElement("damping"))
-                {
-                  damping[0] = dynamicsElem->Get<double>("damping");
-                }
-              }
-            }
-            
-            if (jointElement->template Get<std::string>("type") == "universal")
-            {
-            }
-            else if (jointElement->template Get<std::string>("type") == "revolute")
-            {
-              joint_info << "joint REVOLUTE with axis"<< axis.transpose();
-              urdfVisitor.addJointAndBody(UrdfVisitorBase::REVOLUTE, axis,
-                                          parentFrameId, jointPlacement, jointName,
-                                          Y, cMj.inverse(), childName,
-                                          max_effort, max_velocity, min_config, max_config,
-                                          friction,damping);
-            }
-            else if (jointElement->template Get<std::string>("type") == "gearbox")
-            {
-              joint_info << "joint GEARBOX with axis";
-              urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
-                                               Y, childName);
-            }
-            else if (jointElement->template Get<std::string>("type") == "ball")
-            {
-              max_effort   = Vector::Constant(3, infty);
-              max_velocity = Vector::Constant(3, infty);
-              min_config   = Vector::Constant(4,-infty);
-              max_config   = Vector::Constant(4, infty);
-              min_config.setConstant(-1.01);
-              max_config.setConstant( 1.01);
-              friction = Vector::Constant(3, 0.);
-              damping = Vector::Constant(3, 0.);
-              
-              joint_info << "joint BALL";
-              //std::cerr<<"TODO: Fix BALL JOINT"<<std::endl;
-              urdfVisitor.addJointAndBody(UrdfVisitorBase::SPHERICAL, axis,
-                                          parentFrameId, jointPlacement, jointName,
-                                          Y, cMj.inverse(), childName,
-                                          max_effort, max_velocity, min_config, max_config,
-                                          friction,damping);
-            }
-            else
-            {
-              std::cerr<<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<<std::endl;
-              
-            }
 
-            if (existChildName(childToBeAdded, childName)) {
-              int constraintId = getConstraintIdFromChild(contact_details, childName);
-              if (constraintId != -1)
-              {
-                contact_details[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
-              }
-              else {
-                throw std::invalid_argument("Something wrong here");
-              }
-            }
-            
+          if (not is_constraint) {
+            // Add a recursion to the remaining children of the link just added.
             const std::vector<std::string>& childrenOfLink =
               childrenOfLinks.find(childName)->second;
             
             for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);
-                childOfChild != std::end(childrenOfLink); ++childOfChild)
-            {
+                childOfChild != std::end(childrenOfLink); ++childOfChild) {
               const ::sdf::ElementPtr childOfChildElement =
                 mapOfJoints.find(*childOfChild)->second;
               recursiveFillModel(childOfChildElement);
             }
           }
+          else { // If it is a constraint, add the constraint and half the previous inertia.
+            // Since Y_p is already present, halve it.
+            //TODO: For multiple joints connected to the same link, halving might be a problem.
+            //TODO: Handle inertias after full model is parsed.
+
+            
+            Inertia & Y_p = urdfVisitor.model.inertias[existingJointId];
+            Y_p.mass() *= 0.5;
+            Y_p.inertia() *= 0.5;
+
+            //Get cMj of previous joint.
+            const ::sdf::ElementPtr prevJointElement =
+              mapOfJoints.find(urdfVisitor.getJointName(existingJointId))->second;
+            SE3 cMj1(SE3::Identity());
+            if (prevJointElement->HasElement("pose"))
+            {
+              const ignition::math::Pose3d prevcMj_ig =
+                prevJointElement->template Get<ignition::math::Pose3d>("pose");
+              cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
+            }
+
+            //Get joint Id that was just added:
+            JointIndex currentJointId = urdfVisitor.getJointId(jointName);           
+            ContactDetails rcm (::pinocchio::CONTACT_6D,
+                                currentJointId,
+                                cMj.inverse(),
+                                existingJointId,
+                                cMj1.inverse());
+            rcm.name = childName+"_"+std::to_string(currentJointId)+"_"+std::to_string(existingJointId);
+            contact_details.push_back(rcm);
+          }
         }
-      };
-      
-      void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
-      }
+      }; //Struct sdfGraph
+
+        void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
+    } //namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
@@ -564,3 +530,53 @@ namespace pinocchio
 }
 
 #endif // ifndef __pinocchio_parsers_sdf_hpp__
+
+//START COMMENT HERE
+/*
+          if (urdfVisitor.existFrame(childName, BODY))
+          {// Find the child link in list of frames.
+            if (! existConstraint(contact_details, jointName))
+            { // Joint doesn't exist in constraint list. So new one must be created.
+              joint_info<<childName<<" already exists"<<std::endl;
+              // Get the previous parent joint of this child link from existing list.
+              JointIndex existingParentJointId;
+              existingParentJointId = urdfVisitor.getParentId(childName);
+              const ::sdf::ElementPtr prevJointElement =
+                mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
+              joint_info<<"connected by joint "
+                        <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
+              SE3 cMj1(SE3::Identity());
+              if (prevJointElement->HasElement("pose"))
+              {
+                const ignition::math::Pose3d prevcMj_ig =
+                  prevJointElement->template Get<ignition::math::Pose3d>("pose");
+                cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
+              }
+
+              ContactDetails rcm (::pinocchio::CONTACT_3D,
+                                  parentJointId,
+                                  jointPlacement,
+                                  existingParentJointId,
+                                  cMj1.inverse() * cMj);
+              rcm.name = jointName;
+              contact_details.push_back(rcm);
+                
+            }
+            else
+            { // Joint exists already in the constraint lists, set joint2 id and placement
+              throw std::invalid_argument("Unknown error with sdf parsing");
+            }
+          }
+
+
+          if (existChildName(childToBeAdded, childName)) {
+            int constraintId = getConstraintIdFromChild(contact_details, childName);
+              if (constraintId != -1)
+              {
+                contact_details[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
+              }
+              else {
+                throw std::invalid_argument("Something wrong here");
+              }
+            }
+*/
