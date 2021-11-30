@@ -398,6 +398,11 @@ namespace pinocchio
       m_data -= s2.m_data; return *this;
     }
 
+    Symmetric3Tpl & operator*=(const Scalar s)
+    {
+      m_data *= s; return *this;
+    }
+
     template<typename V3in, typename V3out>
     static void rhsMult(const Symmetric3Tpl & S3,
                         const Eigen::MatrixBase<V3in> & vin,
