@@ -45,4 +45,27 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   BOOST_CHECK(model.nq == 29);
 }
 
+BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.sdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+
+  pinocchio::Model model;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model, contact_models);
+  pinocchio::GeometryModel geomModel;
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, dir);
+
+  const std::string filename_urdf = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const std::string dir_urdf = PINOCCHIO_MODEL_DIR;
+  pinocchio::Model model_urdf;
+  pinocchio::urdf::buildModel(filename_urdf, model_urdf);
+
+  //Compare models
+  BOOST_CHECK(model_urdf==model);
+  
+  
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
