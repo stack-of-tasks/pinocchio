@@ -1,0 +1,993 @@
+<sdf version='1.7'>
+  <model name='simple_humanoid'>
+    <link name='WAIST_LINK0'>
+      <inertial>
+        <pose>0 0 0.0375 0 -0 0</pose>
+        <mass>27</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+      <collision name='WAIST_LINK0_fixed_joint_lump__test_collision'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <length>1</length>
+            <radius>1</radius>
+          </cylinder>
+        </geometry>
+      </collision>
+      <collision name='WAIST_LINK0_fixed_joint_lump__box_collision_1'>
+        <pose>0 0 0 0 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>1 1 1</scale>
+            <uri>model://simple_humanoid_description/box.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+    <joint name='LLEG_HIP_R' type='revolute'>
+      <pose relative_to='WAIST_LINK0'>0 0.09 0 0 -0 0</pose>
+      <parent>WAIST_LINK0</parent>
+      <child>LLEG_LINK1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK1'>
+      <pose relative_to='LLEG_HIP_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0.1 0 0 -0 0</pose>
+        <mass>2.5</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LLEG_HIP_P' type='revolute'>
+      <pose relative_to='LLEG_LINK1'>0 0 0 0 -0 0</pose>
+      <parent>LLEG_LINK1</parent>
+      <child>LLEG_LINK2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK2'>
+      <pose relative_to='LLEG_HIP_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.15 0 -0 0</pose>
+        <mass>2</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LLEG_HIP_Y' type='revolute'>
+      <pose relative_to='LLEG_LINK2'>0 0 -0.3535 0 -0 0</pose>
+      <parent>LLEG_LINK2</parent>
+      <child>LLEG_LINK3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK3'>
+      <pose relative_to='LLEG_HIP_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0.04 0 0 -0 0</pose>
+        <mass>5.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LLEG_KNEE' type='revolute'>
+      <pose relative_to='LLEG_LINK3'>0 0 0 0 -0 0</pose>
+      <parent>LLEG_LINK3</parent>
+      <child>LLEG_LINK4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK4'>
+      <pose relative_to='LLEG_KNEE'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.3 0 -0 0</pose>
+        <mass>7</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LLEG_ANKLE_P' type='revolute'>
+      <pose relative_to='LLEG_LINK4'>0 0 -0.3 0 -0 0</pose>
+      <parent>LLEG_LINK4</parent>
+      <child>LLEG_LINK5</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK5'>
+      <pose relative_to='LLEG_ANKLE_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.15 0 0 0 -0 0</pose>
+        <mass>2.5</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LLEG_ANKLE_R' type='revolute'>
+      <pose relative_to='LLEG_LINK5'>0 0 0 0 -0 0</pose>
+      <parent>LLEG_LINK5</parent>
+      <child>LLEG_LINK6</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LLEG_LINK6'>
+      <pose relative_to='LLEG_ANKLE_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.28 0 -0.2 0 -0 0</pose>
+        <mass>1.9</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_HIP_R' type='revolute'>
+      <pose relative_to='WAIST_LINK0'>0 -0.09 0 0 -0 0</pose>
+      <parent>WAIST_LINK0</parent>
+      <child>RLEG_LINK1</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK1'>
+      <pose relative_to='RLEG_HIP_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 -0.1 0 0 -0 0</pose>
+        <mass>2.5</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_HIP_P' type='revolute'>
+      <pose relative_to='RLEG_LINK1'>0 0 0 0 -0 0</pose>
+      <parent>RLEG_LINK1</parent>
+      <child>RLEG_LINK2</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK2'>
+      <pose relative_to='RLEG_HIP_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.15 0 -0 0</pose>
+        <mass>2</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_HIP_Y' type='revolute'>
+      <pose relative_to='RLEG_LINK2'>0 0 -0.3535 0 -0 0</pose>
+      <parent>RLEG_LINK2</parent>
+      <child>RLEG_LINK3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK3'>
+      <pose relative_to='RLEG_HIP_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 -0.04 0 0 -0 0</pose>
+        <mass>5.1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_KNEE' type='revolute'>
+      <pose relative_to='RLEG_LINK3'>0 0 0 0 -0 0</pose>
+      <parent>RLEG_LINK3</parent>
+      <child>RLEG_LINK4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK4'>
+      <pose relative_to='RLEG_KNEE'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.3 0 -0 0</pose>
+        <mass>7</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_ANKLE_P' type='revolute'>
+      <pose relative_to='RLEG_LINK4'>0 0 -0.3 0 -0 0</pose>
+      <parent>RLEG_LINK4</parent>
+      <child>RLEG_LINK5</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK5'>
+      <pose relative_to='RLEG_ANKLE_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.15 0 0 0 -0 0</pose>
+        <mass>2.5</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RLEG_ANKLE_R' type='revolute'>
+      <pose relative_to='RLEG_LINK5'>0 0 0 0 -0 0</pose>
+      <parent>RLEG_LINK5</parent>
+      <child>RLEG_LINK6</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RLEG_LINK6'>
+      <pose relative_to='RLEG_ANKLE_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.28 0 -0.2 0 -0 0</pose>
+        <mass>1.9</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='WAIST_P' type='revolute'>
+      <pose relative_to='WAIST_LINK0'>0 0 0 0 -0 0</pose>
+      <parent>WAIST_LINK0</parent>
+      <child>WAIST_LINK1</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='WAIST_LINK1'>
+      <pose relative_to='WAIST_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.1 0 -0 0</pose>
+        <mass>6</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='WAIST_R' type='revolute'>
+      <pose relative_to='WAIST_LINK1'>0 0 0 0 -0 0</pose>
+      <parent>WAIST_LINK1</parent>
+      <child>WAIST_LINK2</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='WAIST_LINK2'>
+      <pose relative_to='WAIST_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.11 0 0.25 0 -0 0</pose>
+        <mass>30</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='CHEST' type='revolute'>
+      <pose relative_to='WAIST_LINK2'>0 0 0.35 0 -0 0</pose>
+      <parent>WAIST_LINK2</parent>
+      <child>WAIST_LINK3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='WAIST_LINK3'>
+      <pose relative_to='CHEST'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>13</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_SHOULDER_P' type='revolute'>
+      <pose relative_to='WAIST_LINK3'>0 0.21 0 0 -0 0</pose>
+      <parent>WAIST_LINK3</parent>
+      <child>LARM_LINK1</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK1'>
+      <pose relative_to='LARM_SHOULDER_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.1 0 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_SHOULDER_R' type='revolute'>
+      <pose relative_to='LARM_LINK1'>0 0 0 0 -0 0</pose>
+      <parent>LARM_LINK1</parent>
+      <child>LARM_LINK2</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK2'>
+      <pose relative_to='LARM_SHOULDER_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.1 0 -0 0</pose>
+        <mass>0.6</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_SHOULDER_Y' type='revolute'>
+      <pose relative_to='LARM_LINK2'>0 0 -0.263 0 -0 0</pose>
+      <parent>LARM_LINK2</parent>
+      <child>LARM_LINK3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK3'>
+      <pose relative_to='LARM_SHOULDER_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_ELBOW' type='revolute'>
+      <pose relative_to='LARM_LINK3'>0 0 0 0 -0 0</pose>
+      <parent>LARM_LINK3</parent>
+      <child>LARM_LINK4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK4'>
+      <pose relative_to='LARM_ELBOW'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.3 0 -0 0</pose>
+        <mass>0.6</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_WRIST_Y' type='revolute'>
+      <pose relative_to='LARM_LINK4'>0 0 -0.247 0 -0 0</pose>
+      <parent>LARM_LINK4</parent>
+      <child>LARM_LINK5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK5'>
+      <pose relative_to='LARM_WRIST_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0.1 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_WRIST_P' type='revolute'>
+      <pose relative_to='LARM_LINK5'>0 0 0 0 -0 0</pose>
+      <parent>LARM_LINK5</parent>
+      <child>LARM_LINK6</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK6'>
+      <pose relative_to='LARM_WRIST_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.1 0 0 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='LARM_WRIST_R' type='revolute'>
+      <pose relative_to='LARM_LINK6'>0 0 0 0 -0 0</pose>
+      <parent>LARM_LINK6</parent>
+      <child>LARM_LINK7</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='LARM_LINK7'>
+      <pose relative_to='LARM_WRIST_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.1 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_SHOULDER_P' type='revolute'>
+      <pose relative_to='WAIST_LINK3'>0 -0.21 0 0 -0 0</pose>
+      <parent>WAIST_LINK3</parent>
+      <child>RARM_LINK1</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK1'>
+      <pose relative_to='RARM_SHOULDER_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0.1 0 0 0 -0 0</pose>
+        <mass>3</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_SHOULDER_R' type='revolute'>
+      <pose relative_to='RARM_LINK1'>0 0 0 0 -0 0</pose>
+      <parent>RARM_LINK1</parent>
+      <child>RARM_LINK2</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK2'>
+      <pose relative_to='RARM_SHOULDER_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.1 0 -0 0</pose>
+        <mass>0.6</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_SHOULDER_Y' type='revolute'>
+      <pose relative_to='RARM_LINK2'>0 0 -0.263 0 -0 0</pose>
+      <parent>RARM_LINK2</parent>
+      <child>RARM_LINK3</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK3'>
+      <pose relative_to='RARM_SHOULDER_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0 0 -0 0</pose>
+        <mass>1</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_ELBOW' type='revolute'>
+      <pose relative_to='RARM_LINK3'>0 0 0 0 -0 0</pose>
+      <parent>RARM_LINK3</parent>
+      <child>RARM_LINK4</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK4'>
+      <pose relative_to='RARM_ELBOW'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.3 0 -0 0</pose>
+        <mass>0.6</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_WRIST_Y' type='revolute'>
+      <pose relative_to='RARM_LINK4'>0 0 -0.247 0 -0 0</pose>
+      <parent>RARM_LINK4</parent>
+      <child>RARM_LINK5</child>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK5'>
+      <pose relative_to='RARM_WRIST_Y'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 0.1 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_WRIST_P' type='revolute'>
+      <pose relative_to='RARM_LINK5'>0 0 0 0 -0 0</pose>
+      <parent>RARM_LINK5</parent>
+      <child>RARM_LINK6</child>
+      <axis>
+        <xyz>0 1 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK6'>
+      <pose relative_to='RARM_WRIST_P'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>-0.1 0 0 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+    <joint name='RARM_WRIST_R' type='revolute'>
+      <pose relative_to='RARM_LINK6'>0 0 0 0 -0 0</pose>
+      <parent>RARM_LINK6</parent>
+      <child>RARM_LINK7</child>
+      <axis>
+        <xyz>1 0 0</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+          <effort>30</effort>
+          <velocity>0</velocity>
+        </limit>
+        <dynamics>
+          <spring_reference>0</spring_reference>
+          <spring_stiffness>0</spring_stiffness>
+        </dynamics>
+      </axis>
+    </joint>
+    <link name='RARM_LINK7'>
+      <pose relative_to='RARM_WRIST_R'>0 0 0 0 -0 0</pose>
+      <inertial>
+        <pose>0 0 -0.1 0 -0 0</pose>
+        <mass>0.4</mass>
+        <inertia>
+          <ixx>1</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1</iyy>
+          <iyz>0</iyz>
+          <izz>1</izz>
+        </inertia>
+      </inertial>
+    </link>
+  </model>
+</sdf>
