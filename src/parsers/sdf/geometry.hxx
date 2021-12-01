@@ -323,6 +323,7 @@ namespace pinocchio
 
       PINOCCHIO_DLLAPI void parseTreeForGeom(const SdfGraph& graph,
                                              GeometryModel & geomModel,
+                                             const std::string& rootLinkName,
                                              const GeometryType type,
                                              const std::vector<std::string> & package_dirs,
                                              ::hpp::fcl::MeshLoaderPtr meshLoader);
@@ -331,6 +332,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel& buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & const_model,
                              const std::string & filename,
+                             const std::string & rootLinkName,
                              const GeometryType type,
                              GeometryModel & geomModel,
                              const std::vector<std::string> & package_dirs,
@@ -346,7 +348,7 @@ namespace pinocchio
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
       
-      details::parseTreeForGeom (graph, geomModel, type,
+      details::parseTreeForGeom (graph, geomModel, rootLinkName, type,
                                  package_dirs, meshLoader);
       return geomModel;
     }

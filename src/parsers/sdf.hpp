@@ -40,6 +40,7 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const std::string & filename,
+                              const std::string & rootLinkName,
                               const GeometryType type,
                               GeometryModel & geomModel,
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
@@ -105,13 +106,14 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const std::string & filename,
+                              const std::string & rootLinkName,
                               const GeometryType type,
                               GeometryModel & geomModel,
                               const std::string & packagePath,
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr())
     {
       const std::vector<std::string> dirs(1,packagePath);
-      return buildGeom(model,filename,type,geomModel,dirs,meshLoader);
+      return buildGeom(model,filename,rootLinkName,type,geomModel,dirs,meshLoader);
     };
 
     ///
@@ -130,6 +132,7 @@ namespace pinocchio
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+               const std::string rootLinkName,
                const bool verbose = false);
 
 
@@ -146,6 +149,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+               const std::string rootLinkName,
                const bool verbose = false);
 
   } // namespace sdf
