@@ -159,6 +159,7 @@ namespace pinocchio
           const ::sdf::ElementPtr modelElement = rootElement->GetElement("model");
           
           modelName = modelElement->template Get<std::string>("name");
+          urdfVisitor.setName(modelName);
           
           // parse model links
           ::sdf::ElementPtr linkElement = modelElement->GetElement("link");
