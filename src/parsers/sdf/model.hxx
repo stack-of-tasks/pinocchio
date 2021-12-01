@@ -159,7 +159,7 @@ namespace pinocchio
           const ::sdf::ElementPtr modelElement = rootElement->GetElement("model");
           
           modelName = modelElement->template Get<std::string>("name");
-
+          
           // parse model links
           ::sdf::ElementPtr linkElement = modelElement->GetElement("link");
           while (linkElement)
@@ -170,9 +170,7 @@ namespace pinocchio
             childrenOfLinks.insert(std::make_pair(linkName, std::vector<std::string>()));
             linkElement = linkElement->GetNextElement("link");
           }
-          
-          childrenOfLinks.insert(std::make_pair("world", std::vector<std::string>()));
-          
+
           // parse model joints
           ::sdf::ElementPtr jointElement = modelElement->GetElement("joint");
           while (jointElement)
@@ -183,6 +181,7 @@ namespace pinocchio
             //Inserting data in std::map
             mapOfJoints.insert(std::make_pair(jointName, jointElement));
             //Create data of children of links
+            
             childrenOfLinks.find(parentLinkName)->second.push_back(jointName);
             jointElement = jointElement->GetNextElement("joint");
           }
@@ -357,12 +356,11 @@ namespace pinocchio
           if (urdfVisitor.existFrame(childName, BODY))
           { // Child link exists, thus loop constraint should be active.
             //No Inertial Information is needed, as it would have already been added.
-            joint_info<<"Adding a child frame "<<childName<<" another time."<<std::endl;
             is_constraint = true;
 
             // Find existing joint before adding new one.
             existingJointId = urdfVisitor.getParentId(childName);
-            Y = Y_c.se3ActionInverse(cMj);
+            Y = Y_c.se3Action(cMj);
             Y.mass() *= 0.5;
             Y.inertia() *= 0.5;
 
@@ -370,7 +368,7 @@ namespace pinocchio
           }
           else {
             //childElement is the link that is new and should be added.
-            Y = Y_c.se3ActionInverse(cMj);
+            Y = Y_c.se3Action(cMj);
           }
             
           if (jointElement->template Get<std::string>("type") == "universal") {
@@ -401,7 +399,7 @@ namespace pinocchio
             damping = Vector::Constant(3, 0.);
               
             joint_info << "joint BALL";
-            //std::cerr<<"TODO: Fix BALL JOINT"<<std::endl;
+            //joint_info<<"TODO: Fix BALL JOINT"<<std::endl;
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
                                         parentFrameId, jointPlacement, jointName,
                                         Y, cMj.inverse(), childName,
@@ -459,7 +457,7 @@ namespace pinocchio
         }
       }; //Struct sdfGraph
 
-        void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph);
+      void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph, const std::string& rootLinkName);
     } //namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -468,6 +466,7 @@ namespace pinocchio
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+               const std::string rootLinkName,
                const bool verbose)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
@@ -481,8 +480,7 @@ namespace pinocchio
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
       //Use the SDF graph to create the model
-      details::parseRootTree(graph);
-
+      details::parseRootTree(graph, rootLinkName);
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
@@ -501,6 +499,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+               const std::string rootLinkName,
                const bool verbose)
     {
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
@@ -513,7 +512,7 @@ namespace pinocchio
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
       //Use the SDF graph to create the model
-      details::parseRootTree(graph);
+      details::parseRootTree(graph, rootLinkName);
 
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
@@ -530,53 +529,3 @@ namespace pinocchio
 }
 
 #endif // ifndef __pinocchio_parsers_sdf_hpp__
-
-//START COMMENT HERE
-/*
-          if (urdfVisitor.existFrame(childName, BODY))
-          {// Find the child link in list of frames.
-            if (! existConstraint(contact_details, jointName))
-            { // Joint doesn't exist in constraint list. So new one must be created.
-              joint_info<<childName<<" already exists"<<std::endl;
-              // Get the previous parent joint of this child link from existing list.
-              JointIndex existingParentJointId;
-              existingParentJointId = urdfVisitor.getParentId(childName);
-              const ::sdf::ElementPtr prevJointElement =
-                mapOfJoints.find(urdfVisitor.getJointName(existingParentJointId))->second;
-              joint_info<<"connected by joint "
-                        <<urdfVisitor.getJointName(existingParentJointId)<<std::endl;
-              SE3 cMj1(SE3::Identity());
-              if (prevJointElement->HasElement("pose"))
-              {
-                const ignition::math::Pose3d prevcMj_ig =
-                  prevJointElement->template Get<ignition::math::Pose3d>("pose");
-                cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
-              }
-
-              ContactDetails rcm (::pinocchio::CONTACT_3D,
-                                  parentJointId,
-                                  jointPlacement,
-                                  existingParentJointId,
-                                  cMj1.inverse() * cMj);
-              rcm.name = jointName;
-              contact_details.push_back(rcm);
-                
-            }
-            else
-            { // Joint exists already in the constraint lists, set joint2 id and placement
-              throw std::invalid_argument("Unknown error with sdf parsing");
-            }
-          }
-
-
-          if (existChildName(childToBeAdded, childName)) {
-            int constraintId = getConstraintIdFromChild(contact_details, childName);
-              if (constraintId != -1)
-              {
-                contact_details[constraintId].joint2_id = urdfVisitor.getJointId(jointName);
-              }
-              else {
-                throw std::invalid_argument("Something wrong here");
-              }
-            }
-*/
