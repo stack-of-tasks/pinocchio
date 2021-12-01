@@ -22,13 +22,13 @@ class RobotWrapper(object):
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
 
     @staticmethod
-    def BuildFromSDF(filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
+    def BuildFromSDF(filename, package_dirs=None, root_joint=None, root_link_name='universe', verbose=False, meshLoader=None):
         robot = RobotWrapper()
-        robot.initFromSDF(filename, package_dirs, root_joint, verbose, meshLoader)
+        robot.initFromSDF(filename, package_dirs, root_joint, root_link_name, verbose, meshLoader)
         return robot
 
-    def initFromSDF(self,filename, package_dirs=None, root_joint=None, verbose=False, meshLoader=None):
-        model, constraint_models, collision_model, visual_model = buildModelsFromSdf(filename, package_dirs, root_joint, verbose, meshLoader)
+    def initFromSDF(self,filename, package_dirs=None, root_joint=None, root_link_name='universe', verbose=False, meshLoader=None):
+        model, constraint_models, collision_model, visual_model = buildModelsFromSdf(filename, package_dirs, root_joint, root_link_name, verbose, meshLoader)
         RobotWrapper.__init__(self,model=model,collision_model=collision_model,visual_model=visual_model)
         self.constraint_models = constraint_models
         
