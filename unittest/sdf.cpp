@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
 
   for(size_t k = 1; k < model_sdf.inertias.size(); ++k)
   {
-    BOOST_CHECK(model_urdf.inertias[k] == model_sdf.inertias[k]);
+    BOOST_CHECK(model_urdf.inertias[k].isApprox(model_sdf.inertias[k]));
   }
 
   for(size_t k = 1; k < model_urdf.jointPlacements.size(); ++k)
@@ -133,7 +133,12 @@ BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
   }
 
   BOOST_CHECK(model_urdf.joints == model_sdf.joints);
-  BOOST_CHECK(model_urdf.frames == model_sdf.frames);
+
+  BOOST_CHECK(model_urdf.frames.size() == model_sdf.frames.size());
+  for(size_t k = 1; k < model_urdf.frames.size(); ++k)
+  {
+    BOOST_CHECK(model_urdf.frames[k] == model_sdf.frames[k]);
+  }
 }
 
 
