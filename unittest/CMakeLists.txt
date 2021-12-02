@@ -89,7 +89,7 @@ ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-correction)
 
-IF(NOT WIN32 AND NOT MSVC)
+IF(NOT (WIN32 AND MSVC))
   ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-sparse-constraint)
   ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-no-contact)
 ENDIF()
