@@ -281,7 +281,7 @@ namespace pinocchio
 
           if (jointElement->HasElement("pose"))
           {
-             const ignition::math::Pose3d cMj_ig =
+            const ignition::math::Pose3d cMj_ig =
               jointElement->template Get<ignition::math::Pose3d>("pose");
             cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
           }
@@ -300,8 +300,7 @@ namespace pinocchio
           
           const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
           const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-          const SE3 jointPlacement = pMjp.inverse() * oMp.inverse() * oMc * cMj;
-          
+          const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
           joint_info << "Joint " << jointName << " connects parent " << parentName
                     << " link to child " << childName << " link" << " with joint type "
                     << jointElement->template Get<std::string>("type")<<std::endl;
@@ -351,8 +350,7 @@ namespace pinocchio
           }
 
           const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
-          const Inertia Y_c = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
-          Inertia Y = Inertia::Zero();
+          Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
           JointIndex existingJointId = -1;
           if (urdfVisitor.existFrame(childName, BODY))
           { // Child link exists, thus loop constraint should be active.
@@ -361,24 +359,18 @@ namespace pinocchio
 
             // Find existing joint before adding new one.
             existingJointId = urdfVisitor.getParentId(childName);
-            Y = Y_c.se3Action(cMj);
             Y.mass() *= 0.5;
             Y.inertia() *= 0.5;
 
             //TODO: ADD CONSTRAINT DEFINITION HERE
           }
-          else {
-            //childElement is the link that is new and should be added.
-            Y = Y_c.se3Action(cMj);
-          }
-            
           if (jointElement->template Get<std::string>("type") == "universal") {
           }
           else if (jointElement->template Get<std::string>("type") == "revolute") {
             joint_info << "joint REVOLUTE with axis"<< axis.transpose();
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, cMj.inverse(), childName,
+                                        Y, childName,
                                         max_effort, max_velocity, min_config, max_config,
                                         friction,damping);
           }
@@ -403,7 +395,7 @@ namespace pinocchio
             //joint_info<<"TODO: Fix BALL JOINT"<<std::endl;
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, cMj.inverse(), childName,
+                                        Y, childName,
                                         max_effort, max_velocity, min_config, max_config,
                                         friction,damping);
           }
