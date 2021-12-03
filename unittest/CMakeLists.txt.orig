@@ -87,13 +87,7 @@ ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics-derivatives)
-ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-correction)
-
-IF(NOT (WIN32 AND MSVC))
-  ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-sparse-constraint)
-  ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-no-contact)
-ENDIF()
-
+ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-mix)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-3d)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics-derivatives-6d)
@@ -114,6 +108,7 @@ ADD_PINOCCHIO_UNIT_TEST(com)
 ADD_PINOCCHIO_UNIT_TEST(joint-jacobian)
 ADD_PINOCCHIO_UNIT_TEST(cholesky)
 ADD_PINOCCHIO_UNIT_TEST(constrained-dynamics)
+ADD_PINOCCHIO_UNIT_TEST(contact-models)
 ADD_PINOCCHIO_UNIT_TEST(contact-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(closed-loop-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
@@ -214,6 +209,18 @@ IF(BUILD_WITH_AUTODIFF_SUPPORT)
 ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
 
 IF(BUILD_WITH_CASADI_SUPPORT)
+<<<<<<< HEAD
   ADD_SUBDIRECTORY(casadi)
+=======
+  ADD_CUSTOM_TARGET(test-casadi)
+  SET_TARGET_PROPERTIES(test-casadi PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD True)
+
+  ADD_CASADI_UNIT_TEST(casadi-basic)
+  ADD_CASADI_UNIT_TEST(casadi-spatial)
+  ADD_CASADI_UNIT_TEST(casadi-joints)
+  ADD_CASADI_UNIT_TEST(casadi-explog)
+  ADD_CASADI_UNIT_TEST(casadi-algo)
+  ADD_CASADI_UNIT_TEST(casadi-algo-derivatives)
+>>>>>>> 7a24300d4bfe2216e5dd8ee552a09934eab077c1
 ENDIF(BUILD_WITH_CASADI_SUPPORT)
 

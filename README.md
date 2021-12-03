@@ -28,7 +28,12 @@ If you want to learn more on **Pinocchio** internal behaviors and main features,
 If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
 
 <p align="center">
-conda install pinocchio -c conda-forge
+<strong> conda install pinocchio -c conda-forge </strong>
+</p>
+
+or via pip (currently only available on Linux):
+<p align="center">
+<strong> pip install pin </strong>
 </p>
 
 ## Introducing Pinocchio 3
@@ -134,9 +139,10 @@ Additionnal materials were presented during the [Memmo](https://www.memmo-projec
 
 **Pinocchio** provides support for many open-source and free visualizers:
 
-- [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph](https://github.com/openscenegraph/OpenSceneGraph) with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
-- [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
-- [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
+-   [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph](https://github.com/openscenegraph/OpenSceneGraph) with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
+-   [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
+-   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
+-   [RViz](https://github.com/ros-visualization/rviz): supporting visualization in Python and which can interact with other ROS packages.
 
 Many external viewers can also be integrated. See example [here](./bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
 
@@ -179,22 +185,23 @@ You have a question or an issue? You may either directly open a [new issue](http
 
 The following people have been involved in the development of **Pinocchio** and are warmly thanked for their contributions:
 
-- [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
-- [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
-- [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
-- [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
-- [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
-- [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes and Python bindings
-- [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
-- [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
-- [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
-- [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
-- [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
-- [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
-- [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
-- [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
-- [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
-- [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
+-   [Justin Carpentier](https://jcarpent.github.io) (Inria): main developer and manager of the project
+-   [Nicolas Mansard](http://projects.laas.fr/gepetto/index.php/Members/NicolasMansard) (LAAS-CNRS): initial project instructor
+-   [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
+-   [Joseph Mirabel](http://jmirabel.github.io/) (LAAS-CNRS): Lie groups support
+-   [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
+-   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes and Python bindings
+-   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and FCL support
+-   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
+-   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
+-   [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
+-   [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
+-   [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
+-   [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
+-   [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
+-   [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
+-   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
+-   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): RViz viewer support
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 

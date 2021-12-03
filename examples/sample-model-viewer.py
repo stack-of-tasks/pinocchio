@@ -1,5 +1,5 @@
 import pinocchio as pin
-from pinocchio.visualize import MeshcatVisualizer, GepettoVisualizer
+from pinocchio.visualize import MeshcatVisualizer, GepettoVisualizer, RVizVisualizer
 from sys import argv
 from numpy import pi
 
@@ -18,6 +18,8 @@ if len(argv)>1:
         VISUALIZER = GepettoVisualizer
     elif opt == '-m':
         VISUALIZER = MeshcatVisualizer
+    elif opt == '-r':
+        VISUALIZER = RVizVisualizer
     else:
         raise ValueError("Unrecognized option: " + opt)
 
@@ -42,3 +44,5 @@ if VISUALIZER:
     q[29] = pi/2
 
     viz.display(q)
+
+    input("Press enter to exit...")

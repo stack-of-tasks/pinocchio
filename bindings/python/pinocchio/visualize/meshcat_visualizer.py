@@ -1,5 +1,4 @@
 from .. import pinocchio_pywrap_default as pin
-from ..shortcuts import buildModelsFromUrdf, createDatas
 from ..utils import npToTuple
 
 from . import BaseVisualizer
@@ -172,7 +171,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-
         import meshcat.geometry
 
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
@@ -277,20 +275,27 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
+    def captureImage(self):
+        """Capture an image from the Meshcat viewer and return an RGB array."""
+        try:
+            img = self.viewer.get_image()
+            img_arr = np.asarray(img)
+            return img_arr
+        except AttributeError:
+            warnings.warn("meshcat.Visualizer does not have the get_image() method."
+                          " You need meshcat >= 0.2.0 to get this feature.")
+
+
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not.
         WARNING: Plotting collision meshes is not yet available for MeshcatVisualizer."""
         # TODO
-        import warnings
         warnings.warn("Plotting collision meshes is not available for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not
         WARNING: Visual meshes are always plotted for MeshcatVisualizer"""
         # TODO
-        import warnings
         warnings.warn("Visual meshes are always plotted for MeshcatVisualizer", category=UserWarning, stacklevel=2)
-        pass
 
 __all__ = ['MeshcatVisualizer']

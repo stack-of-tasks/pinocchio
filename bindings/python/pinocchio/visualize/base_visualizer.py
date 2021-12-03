@@ -75,14 +75,24 @@ class BaseVisualizer(object):
         """Set whether to display visual objects or not."""
         pass
 
-    def play(self, q_trajectory, dt):
-        """Play a trajectory with given time step."""
+    def captureImage(self):
+        """Captures an image from the viewer and returns an RGB array."""
+        pass
+
+    def play(self, q_trajectory, dt, capture=False):
+        """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
+        imgs = []
         for k in range(q_trajectory.shape[1]):
             t0 = time.time()
             self.display(q_trajectory[:, k])
+            if capture:
+                img_arr = self.captureImage()
+                imgs.append(img_arr)
             t1 = time.time()
             elapsed_time = t1 - t0
             if elapsed_time < dt:
                 time.sleep(dt - elapsed_time)
+        if capture:
+            return imgs
 
 __all__ = ['BaseVisualizer']

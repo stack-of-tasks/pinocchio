@@ -24,6 +24,7 @@ namespace pinocchio
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const typename Model::JointIndex &,
+                                  const SE3Tpl<Scalar> &,
                                   const ReferenceFrame &,
                                   const Scalar &,
                                   Matrix3xOut1 &,
@@ -35,6 +36,7 @@ namespace pinocchio
                      const Model & model,
                      Data & data,
                      const typename Model::JointIndex & joint_id,
+                     const SE3Tpl<Scalar> & placement,
                      const ReferenceFrame & rf,
                      const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix3xOut1> & v_partial_dq,
@@ -47,7 +49,7 @@ namespace pinocchio
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
       
-      const SE3 & oMlast = data.oMi[joint_id];
+      const SE3 oMlast = data.oMi[joint_id] * placement;
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
@@ -111,6 +113,7 @@ namespace pinocchio
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const typename Model::JointIndex &,
+                                  const SE3Tpl<Scalar> &,
                                   const ReferenceFrame &,
                                   const Scalar &,
                                   Matrix6xOut1 &,
@@ -122,6 +125,7 @@ namespace pinocchio
                      const Model & model,
                      Data & data,
                      const typename Model::JointIndex & joint_id,
+                     const SE3Tpl<Scalar> & placement,
                      const ReferenceFrame & rf,
                      const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -135,7 +139,7 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
       Motion vtmp; // Temporary variables
       
-      const SE3 & oMlast = data.oMi[joint_id];
+      const SE3 oMlast = data.oMi[joint_id] * placement;
       const Motion & v_last = data.ov[joint_id];
       const Motion & dv_last = data.oa[joint_id];
 
@@ -305,6 +309,7 @@ namespace pinocchio
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
+                                                cmodel.joint1_placement,
                                                 cmodel.reference_frame,
                                                 r_coeff,
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
@@ -324,6 +329,7 @@ namespace pinocchio
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
+                                                cmodel.joint1_placement,
                                                 cmodel.reference_frame,
                                                 r_coeff,
                                                 contact_dvc_dq,

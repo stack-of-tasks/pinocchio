@@ -1,4 +1,4 @@
-name: pinocchio
+name: pinocchio-linux
 channels:
   - conda-forge
   - nodefaults
@@ -10,3 +10,4 @@ dependencies:
   - eigenpy
   - urdfdom
   - python
+  - pycppad  #[not win]

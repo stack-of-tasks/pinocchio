@@ -1,9 +1,6 @@
 [submodule "cmake"]
 	path = cmake
 	url = https://github.com/jrl-umi3218/jrl-cmakemodules
-[submodule ".travis"]
-	path = .travis
-	url = https://github.com/jrl-umi3218/jrl-travis
-[submodule "models/others"]
+[submodule "models/example-robot-data"]
 	path = models/example-robot-data
 	url = https://github.com/Gepetto/example-robot-data.git
