@@ -428,11 +428,11 @@ namespace pinocchio
           ///
           static inline CartesianAxis extractCartesianAxis (const Vector3 & axis)
           {
-            if( axis == Vector3(1., 0., 0.))
+            if( axis == Vector3::UnitX())
               return AXIS_X;
-            else if( axis == Vector3(0., 1., 0.))
+            else if( axis == Vector3::UnitY())
               return AXIS_Y;
-            else if( axis == Vector3(0., 0., 1.))
+            else if( axis == Vector3::UnitZ())
               return AXIS_Z;
             else
               return AXIS_UNALIGNED;
