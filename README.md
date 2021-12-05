@@ -194,6 +194,13 @@ The following people have been involved in the development of **Pinocchio** and 
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
+## Projects using Pinocchio
+
+ * [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
+ * [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
+ * [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
+ * [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
+
 ## Acknowledgments
 
 The development of **Pinocchio** is actively supported by the [Gepetto team](http://projects.laas.fr/gepetto/) [@LAAS-CNRS](http://www.laas.fr) and the [Willow team](https://www.di.ens.fr/willow/) [@INRIA](http://www.inria.fr).
