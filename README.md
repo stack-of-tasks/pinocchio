@@ -201,7 +201,7 @@ If you have taken part to the development of **Pinocchio**, feel free to add you
  * [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
  * [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
  * [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
- * [TriFingerSimulation](open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
+ * [TriFingerSimulation](https://open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
  * [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics. 
 
 ## Acknowledgments
