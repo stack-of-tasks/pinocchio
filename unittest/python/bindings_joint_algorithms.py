@@ -62,8 +62,8 @@ class TestJointsAlgo(TestCase):
         v = self.v
 
         J0, J1 = pin.dIntegrate(model,q,v)
-        res_0 = pin.dIntegrate(model,q,v,pin.ARG0)
-        res_1 = pin.dIntegrate(model,q,v,pin.ARG1)
+        res_0 = pin.dIntegrate(model,q,v,pin.ArgumentPosition.ARG0)
+        res_1 = pin.dIntegrate(model,q,v,pin.ArgumentPosition.ARG1)
 
         self.assertApprox(J0,res_0)
         self.assertApprox(J1,res_1)

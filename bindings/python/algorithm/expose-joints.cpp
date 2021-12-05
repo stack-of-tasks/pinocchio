@@ -50,6 +50,18 @@ namespace pinocchio
       return J;
     }
 
+    Eigen::MatrixXd dIntegrateTransport_proxy(const Model & model,
+                                              const Eigen::VectorXd & q,
+                                              const Eigen::VectorXd & v,
+                                              const Eigen::MatrixXd & Jin,
+                                              const ArgumentPosition arg)
+    {
+      int ncols = Jin.cols();
+      Eigen::MatrixXd Jout(Eigen::MatrixXd::Zero(model.nv,ncols));
+      dIntegrateTransport(model, q, v, Jin, Jout, arg);
+      return Jout;
+    }
+
     bp::tuple dDifference_proxy(const Model & model,
                                 const Eigen::VectorXd & q1,
                                 const Eigen::VectorXd & q2)
@@ -109,6 +121,18 @@ namespace pinocchio
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tv: the joint velocity vector (size model.nv)\n"
               "\targument_position: either pinocchio.ArgumentPosition.ARG0 or pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
+
+      bp::def("dIntegrateTransport",
+              &dIntegrateTransport_proxy,
+              bp::args("model","q","v","Jin","argument_position"),
+              "Takes a matrix expressed at q (+) v and uses parallel transport to express it in the tangent space at q."
+              "\tThis operation does the product of the matrix by the Jacobian of the integration operation, but more efficiently."
+              "Parameters:\n"
+              "\tmodel: model of the kinematic tree\n"
+              "\tq: the joint configuration vector (size model.nq)\n"
+              "\tv: the joint velocity vector (size model.nv)\n"
+              "\tJin: the input matrix (row size model.nv)"
+              "\targument_position: either pinocchio.ArgumentPosition.ARG0 (q) or pinocchio.ArgumentPosition.ARG1 (v), depending on the desired Jacobian value.\n");
 
       bp::def("interpolate",
               &interpolate<double,0,JointCollectionDefaultTpl,VectorXd,VectorXd>,
