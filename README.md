@@ -194,7 +194,7 @@ The following people have been involved in the development of **Pinocchio** and 
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
-## Projects using Pinocchio
+## Open-source projects relying on Pinocchio
 
  * [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
  * [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
