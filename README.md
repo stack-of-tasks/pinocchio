@@ -121,8 +121,7 @@ Additional examples introducing **Pinocchio** are also available in the [documen
 ## Tutorials
 
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
-The content of the tutorials is described [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_1-directgeom.html).
-Additionnal materials were presented during the [Memmo](https://www.memmo-project.eu/) summer school and available [here](https://memory-of-motion.github.io/summer-school/materials).
+Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
 
 ## Visualization
 
@@ -168,7 +167,7 @@ The algorithms for the analytical derivatives of rigid-body dynamics algorithms 
 
 ## Questions and Issues
 
-You have a question or an issue? You may either directly open a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@laas.fr>.
+You have a question or an issue? You may either directly open a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@inria.fr>.
 
 ## Credits
 
