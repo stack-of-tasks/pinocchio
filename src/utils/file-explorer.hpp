@@ -30,6 +30,15 @@ namespace pinocchio
 #endif
                         );
 
+  /**
+   * @brief      For a given vector of paths, add a suffix inplace to each path and return the vector inplace.
+   *
+   * @param[in,out]  list_of_paths The vector of path names.
+   * @param[in] suffix Suffix to be added to each element of the path names.
+   */
+  PINOCCHIO_DLLAPI void
+  appendSuffixToPaths(std::vector<std::string> & list_of_paths,
+                      const std::string & suffix);
 
   /**
    * @brief      Parse an environment variable if exists and extract paths according to the delimiter.
