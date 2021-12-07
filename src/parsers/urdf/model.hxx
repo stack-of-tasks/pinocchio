@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -198,7 +198,7 @@ namespace pinocchio
 
             switch (type) {
               case Base::FLOATING:
-                joint_id = model.addJoint(frame.parent,
+                joint_id = model.addJoint(frame.parentJoint,
                                           typename JointCollection::JointModelFreeFlyer(),
                                           frame.placement * placement,
                                           joint_name,
@@ -237,7 +237,7 @@ namespace pinocchio
                       friction, damping);
                 break;
               case Base::PLANAR:
-                joint_id = model.addJoint(frame.parent,
+                joint_id = model.addJoint(frame.parentJoint,
                     typename JointCollection::JointModelPlanar(),
                     frame.placement * placement,
                     joint_name,
@@ -246,7 +246,7 @@ namespace pinocchio
                     );
                 break;
               case Base::SPHERICAL:
-                joint_id = model.addJoint(frame.parent,
+                joint_id = model.addJoint(frame.parentJoint,
                     typename JointCollection::JointModelSpherical(),
                     frame.placement * placement,
                     joint_name,
@@ -269,13 +269,14 @@ namespace pinocchio
               const Inertia & Y,
               const std::string & body_name)
           {
-            const Frame & frame = model.frames[parent_frame_id];
+            const Frame & parent_frame = model.frames[parent_frame_id];
+            const JointIndex parent_frame_parent = parent_frame.parentJoint;
 
-            FrameIndex fid = model.addFrame(Frame(joint_name, frame.parent, parent_frame_id,
-                  frame.placement * joint_placement, FIXED_JOINT)
-                );
+            const SE3 placement = parent_frame.placement * joint_placement;
+            FrameIndex fid = model.addFrame(Frame(joint_name, parent_frame.parentJoint, parent_frame_id,
+                                                  placement, FIXED_JOINT, Y));
 
-            appendBodyToJoint((FrameIndex)fid, Y, SE3::Identity(), body_name);
+            model.addBodyFrame(body_name, parent_frame_parent, placement, (int)fid);
           }
 
           void appendBodyToJoint(
@@ -286,13 +287,13 @@ namespace pinocchio
           {
             const Frame & frame = model.frames[fid];
             const SE3 & p = frame.placement * placement;
-            assert(frame.parent >= 0);
+            assert(frame.parentJoint >= 0);
             if(!Y.isZero(Scalar(0)))
             {
-              model.appendBodyToJoint(frame.parent, Y, p);
+              model.appendBodyToJoint(frame.parentJoint, Y, p);
             }
 
-            model.addBodyFrame(body_name, frame.parent, p, (int)fid);
+            model.addBodyFrame(body_name, frame.parentJoint, p, (int)fid);
             // Reference to model.frames[fid] can has changed because the vector
             // may have been reallocated.
             assert (model.frames[fid].parent >= 0);
@@ -350,7 +351,7 @@ namespace pinocchio
             if (model.existFrame(frame_name, BODY)) {
               FrameIndex fid = model.getFrameId (frame_name, BODY);
               assert(model.frames[fid].type == BODY);
-              return model.frames[fid].parent;
+              return model.frames[fid].parentJoint;
             } else
               throw std::invalid_argument("Model does not have any body named "
                   + frame_name);
@@ -359,7 +360,7 @@ namespace pinocchio
           bool existFrame (
               const std::string& frame_name, const FrameType type) const
           {
-            return model.existFrame(frame_name, BODY);
+            return model.existFrame(frame_name, type);
           }
         
           template <typename TypeX, typename TypeY, typename TypeZ,
@@ -380,28 +381,28 @@ namespace pinocchio
             switch (axisType)
             {
               case AXIS_X:
-                return model.addJoint(frame.parent, TypeX(),
+                return model.addJoint(frame.parentJoint, TypeX(),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
                 break;
 
               case AXIS_Y:
-                return model.addJoint(frame.parent, TypeY(),
+                return model.addJoint(frame.parentJoint, TypeY(),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
                 break;
 
               case AXIS_Z:
-                return model.addJoint(frame.parent, TypeZ(),
+                return model.addJoint(frame.parentJoint, TypeZ(),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
                 break;
 
               case AXIS_UNALIGNED:
-                return model.addJoint(frame.parent, TypeUnaligned (axis.normalized()),
+                return model.addJoint(frame.parentJoint, TypeUnaligned (axis.normalized()),
                     frame.placement * placement, joint_name,
                     max_effort,max_velocity,min_config,max_config,
                     friction, damping);
@@ -427,11 +428,11 @@ namespace pinocchio
           ///
           static inline CartesianAxis extractCartesianAxis (const Vector3 & axis)
           {
-            if( axis == Vector3(1., 0., 0.))
+            if( axis.isApprox(Vector3::UnitX()))
               return AXIS_X;
-            else if( axis == Vector3(0., 1., 0.))
+            else if( axis.isApprox(Vector3::UnitY()))
               return AXIS_Y;
-            else if( axis == Vector3(0., 0., 1.))
+            else if( axis.isApprox(Vector3::UnitZ()))
               return AXIS_Z;
             else
               return AXIS_UNALIGNED;
@@ -465,7 +466,7 @@ namespace pinocchio
                             std::invalid_argument,
                             "root_joint already exists as a joint in the kinematic tree.");
             
-            JointIndex idx = model.addJoint(frame.parent, root_joint,
+            JointIndex idx = model.addJoint(frame.parentJoint, root_joint,
                 SE3::Identity(), "root_joint"
                 //TODO ,max_effort,max_velocity,min_config,max_config
                 );
