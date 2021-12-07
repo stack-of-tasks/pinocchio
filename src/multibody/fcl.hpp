@@ -175,8 +175,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] name  Name of the geometry object.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
   /// \param[in] parent_frame  Index of the parent frame.
-  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
@@ -186,8 +186,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
                  const FrameIndex parent_frame,
-                 const CollisionGeometryPtr & collision_geometry,
                  const SE3 & placement,
+                 const CollisionGeometryPtr & collision_geometry,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
@@ -213,8 +213,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \param[in] name  Name of the geometry object.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
@@ -223,8 +223,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
-                 const CollisionGeometryPtr & collision_geometry,
                  const SE3 & placement,
+                 const CollisionGeometryPtr & collision_geometry,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
