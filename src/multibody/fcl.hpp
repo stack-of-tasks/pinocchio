@@ -137,15 +137,10 @@ struct GeometryObject : public ModelItem<GeometryObject>
   
   typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
 
-  /// \brief Index of the parent frame
-  ///
-  /// Parent frame may be unset (to the std::numeric_limits<FrameIndex>::max() value) as it is mostly used as a documentation of the tree, or in third-party libraries.
-  /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
-  /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
-  FrameIndex parentFrame;
-
-  /// \brief Index of the parent joint
-  JointIndex parentJoint;
+  using Base::name;
+  using Base::parentFrame;
+  using Base::parentJoint;
+  using Base::placement;
 
   /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
   CollisionGeometryPtr geometry;
