@@ -54,6 +54,8 @@ namespace pinocchio
     ///
     FrameTpl()
     : Base()
+    , parent(Base::parentJoint)
+    , previousFrame(Base::parentFrame)      
     , type()
     , inertia(Inertia::Zero())
     {} // needed by std::vector
@@ -73,6 +75,8 @@ namespace pinocchio
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
       : Base(name, parentJoint, 0, frame_placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)        
       , type(type)
       , inertia(inertia)
     {}
@@ -94,6 +98,8 @@ namespace pinocchio
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
       : Base(name, parent_joint, parent_frame, frame_placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
       , type(type)
       , inertia(inertia)
     {}
@@ -151,6 +157,13 @@ namespace pinocchio
     }
     
     // data
+    /// \brief Index of the parent joint.
+    /// \deprecated use \ref parentJoint instead
+    PINOCCHIO_DEPRECATED JointIndex& parent;
+    
+    /// \brief Index of the previous frame.
+    /// \deprecated use \ref parentFrame instead
+    PINOCCHIO_DEPRECATED FrameIndex& previousFrame;
 
     using Base::name;
     using Base::parentFrame;
