@@ -45,6 +45,22 @@ namespace pinocchio
     , placement()
     {}
 
+
+    ///
+    /// \brief Builds a kinematic element defined by its name, its joint parent id, its parent frame id and its placement.
+    ///
+    /// \param[in] name Name of the frame.
+    /// \param[in] parent_joint Index of the parent joint in the kinematic tree.
+    /// \param[in] parent_frame Index of the parent frame in the kinematic tree.
+    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
+    ///
+    ModelItem(const std::string & name,
+              const JointIndex parent_joint,
+              const FrameIndex parent_frame,
+              const SE3 & frame_placement)
+      : Base(name, parent_joint, parent_frame, frame_placement)
+    {}
+    
     
   };
 } //namespace pinocchio
