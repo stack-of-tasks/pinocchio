@@ -47,14 +47,13 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef pinocchio::JointIndex JointIndex;
     
     ///
     /// \brief Default constructor of a frame.
     ///
     FrameTpl()
-    : name()
-    , parent()
-    , placement()
+    : Base()
     , type()
     , inertia(Inertia::Zero())
     {} // needed by std::vector
@@ -69,16 +68,13 @@ namespace pinocchio
     /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
-             const JointIndex parent,
+             const JointIndex parentJoint,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-    : name(name)
-    , parent(parent)
-    , previousFrame(0)
-    , placement(frame_placement)
-    , type(type)
-    , inertia(inertia)
+      : Base(name, parentJoint, 0, frame_placement)
+      , type(type)
+      , inertia(inertia)
     {}
     
     ///
@@ -97,16 +93,13 @@ namespace pinocchio
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-    : name(name)
-    , parent(parent)
-    , previousFrame(previous_frame)
-    , placement(frame_placement)
-    , type(type)
-    , inertia(inertia)
+      : Base(name, parent_joint, previous_frame, frame_placement)
+      , type(type)
+      , inertia(inertia)
     {}
     
     ///
-    /// \brief Copy constructor by casting
+    /// \brief Copy constructor by casting
     ///
     /// \param[in] other Frame to copy
     ///
@@ -158,18 +151,11 @@ namespace pinocchio
     }
     
     // data
-    
-    /// \brief Name of the frame.
-    std::string name;
-    
-    /// \brief Index of the parent joint.
-    JointIndex parent;
-    
-    /// \brief Index of the previous frame.
-    FrameIndex previousFrame;
-    
-    /// \brief Placement of the frame wrt the parent joint.
-    SE3 placement;
+
+    using Base::name;
+    using Base::parentFrame;
+    using Base::parentJoint;
+    using Base::placement;
 
     /// \brief Type of the frame.
     FrameType type;
