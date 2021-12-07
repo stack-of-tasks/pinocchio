@@ -88,7 +88,7 @@ namespace pinocchio
     /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
-             const JointIndex parent,
+             const JointIndex parent_joint,
              const FrameIndex previous_frame,
              const SE3 & frame_placement,
              const FrameType type,
@@ -120,8 +120,8 @@ namespace pinocchio
     bool operator ==(const FrameTpl<S2,O2> & other) const
     {
       return name == other.name
-      && parent == other.parent
-      && previousFrame == other.previousFrame
+      && parentJoint == other.parentJoint
+      && parentFrame == other.parentFrame
       && placement == other.placement
       && type == other.type
       && inertia == other.inertia;
@@ -142,8 +142,8 @@ namespace pinocchio
     {
       typedef FrameTpl<NewScalar,Options> ReturnType;
       ReturnType res(name,
-                     parent,
-                     previousFrame,
+                     parentJoint,
+                     parentFrame,
                      placement.template cast<NewScalar>(),
                      type,
                      inertia.template cast<NewScalar>());
