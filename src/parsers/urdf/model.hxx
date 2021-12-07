@@ -296,10 +296,10 @@ namespace pinocchio
             model.addBodyFrame(body_name, frame.parentJoint, p, (int)fid);
             // Reference to model.frames[fid] can has changed because the vector
             // may have been reallocated.
-            assert (model.frames[fid].parent >= 0);
+            assert (model.frames[fid].parentJoint >= 0);
             {
-              assert (   !hasNaN(model.inertias[model.frames[fid].parent].lever())
-                  && !hasNaN(model.inertias[model.frames[fid].parent].inertia().data()));
+              assert (   !hasNaN(model.inertias[model.frames[fid].parentJoint].lever())
+                  && !hasNaN(model.inertias[model.frames[fid].parentJoint].inertia().data()));
             }
           }
 
