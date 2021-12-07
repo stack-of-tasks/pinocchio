@@ -2,8 +2,8 @@
 // Copyright (c) 2021 INRIA
 //
 
-#ifndef __pinocchio_multibody_tree_hpp__
-#define __pinocchio_multibody_tree_hpp__
+#ifndef __pinocchio_multibody_model_item_hpp__
+#define __pinocchio_multibody_model_item_hpp__
 
 #include "pinocchio/multibody/fwd.hpp"
 
@@ -68,4 +68,4 @@ namespace pinocchio
   };
 } //namespace pinocchio
 
-#endif // ifndef __pinocchio_multibody_tree_hpp__
+#endif // ifndef __pinocchio_multibody_model_item_hpp__
