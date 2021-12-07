@@ -82,18 +82,18 @@ namespace pinocchio
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
-    /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
+    /// \param[in] parentFrame Index of the parent frame in the kinematic tree.
     /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType.
     /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
              const JointIndex parent_joint,
-             const FrameIndex previous_frame,
+             const FrameIndex parent_frame,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-      : Base(name, parent_joint, previous_frame, frame_placement)
+      : Base(name, parent_joint, parent_frame, frame_placement)
       , type(type)
       , inertia(inertia)
     {}
@@ -174,8 +174,8 @@ namespace pinocchio
     os
     << "Frame name: "
     << f.name
-    << " paired to (parent joint/ previous frame)"
-    << "(" << f.parent << "/" << f.previousFrame << ")"
+    << " paired to (parent joint/ parent frame)"
+    << "(" << f.parentJoint << "/" << f.parentFrame << ")"
     << std::endl
     << "with relative placement wrt parent joint:\n"
     << f.placement

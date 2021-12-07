@@ -104,9 +104,9 @@ namespace pinocchio
     typedef typename Model::Frame Frame;
 
     const Frame & frame = model.frames[frame_id];
-    data.oMf[frame_id] = data.oMi[frame.parent] * frame.placement;
+    data.oMf[frame_id] = data.oMi[frame.parentJoint] * frame.placement;
     
-    internal::computeJointKinematicRegressorGeneric(model,data,frame.parent,rf,data.oMf[frame_id],
+    internal::computeJointKinematicRegressorGeneric(model,data,frame.parentJoint,rf,data.oMf[frame_id],
                                                     kinematic_regressor.const_cast_derived());
   }
   
@@ -265,7 +265,7 @@ namespace pinocchio
     typedef typename Model::SE3 SE3;
 
     const Frame & frame = model.frames[frameId];
-    const JointIndex & parent = frame.parent;
+    const JointIndex & parent = frame.parentJoint;
     const SE3 & placement = frame.placement;
 
     bodyRegressor(placement.actInv(data.v[parent]), placement.actInv(data.a_gf[parent]), data.bodyRegressor);

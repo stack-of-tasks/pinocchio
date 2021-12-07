@@ -129,7 +129,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     const typename Model::Frame & frame = model.frames[frame_id];
 
-    return getFrameVelocity(model, data, frame.parent, frame.placement, rf);
+    return getFrameVelocity(model, data, frame.parentJoint, frame.placement, rf);
   }
 
   
@@ -180,7 +180,7 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     const typename Model::Frame & frame = model.frames[frame_id];
-    return getFrameAcceleration(model, data, frame.parent, frame.placement, rf);
+    return getFrameAcceleration(model, data, frame.parentJoint, frame.placement, rf);
     
   }
   
@@ -234,7 +234,7 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     const typename Model::Frame & frame = model.frames[frame_id];
-    return getFrameClassicalAcceleration(model, data, frame.parent, frame.placement, rf);
+    return getFrameClassicalAcceleration(model, data, frame.parentJoint, frame.placement, rf);
   }
 
   
@@ -338,9 +338,9 @@ namespace pinocchio
     typedef typename Model::Frame Frame;
     
     const Frame & frame = model.frames[frame_id];
-    data.oMf[frame_id] = data.oMi[frame.parent] * frame.placement;
+    data.oMf[frame_id] = data.oMi[frame.parentJoint] * frame.placement;
     
-    getFrameJacobian(model,data,frame.parent,frame.placement,reference_frame,
+    getFrameJacobian(model,data,frame.parentJoint,frame.placement,reference_frame,
                      PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
 

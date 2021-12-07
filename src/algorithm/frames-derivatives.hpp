@@ -70,8 +70,8 @@ namespace pinocchio
     
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[frame.parent] * frame.placement; // for backward compatibility
-    getFrameVelocityDerivatives(model,data,frame.parent,frame.placement,rf,
+    oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
+    getFrameVelocityDerivatives(model,data,frame.parentJoint,frame.placement,rf,
                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dv));
   }
@@ -149,8 +149,8 @@ namespace pinocchio
     
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[frame.parent] * frame.placement; // for backward compatibility
-    getFrameAccelerationDerivatives(model,data,frame.parent,frame.placement,rf,
+    oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
+    getFrameAccelerationDerivatives(model,data,frame.parentJoint,frame.placement,rf,
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,a_partial_dq),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dv),
@@ -246,8 +246,8 @@ namespace pinocchio
     
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
-    oMframe = data.oMi[frame.parent] * frame.placement; // for backward compatibility
-    getFrameAccelerationDerivatives(model,data,frame.parent,frame.placement,rf,
+    oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
+    getFrameAccelerationDerivatives(model,data,frame.parentJoint,frame.placement,rf,
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
