@@ -193,12 +193,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
-  : Base(name, )
-  , parentFrame(parent_frame)
-  , parentJoint(parent_joint)
+  : Base(name, parent_joint, parent_frame, placement)
   , geometry(collision_geometry)
   , fcl(geometry)
-  , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
@@ -233,12 +230,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
-  : name(name)
-  , parentFrame(std::numeric_limits<FrameIndex>::max())
-  , parentJoint(parent_joint)
+  : Base(name, parent_joint,std::numeric_limits<FrameIndex>::max(), placement)
   , geometry(collision_geometry)
   , fcl(geometry)
-  , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
