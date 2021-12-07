@@ -58,7 +58,10 @@ namespace pinocchio
               const JointIndex parent_joint,
               const FrameIndex parent_frame,
               const SE3 & frame_placement)
-      : Base(name, parent_joint, parent_frame, frame_placement)
+      : name(name)
+      , parentJoint(parent_joint)
+      , parentFrame(parent_frame)
+      , placement(frame_placement)
     {}
     
     
