@@ -8,6 +8,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/tree.hpp"
 
 #include <string>
 
@@ -29,18 +30,21 @@ namespace pinocchio
   struct traits< FrameTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
+    enum { Options = _Options };
   };
   
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
   template<typename _Scalar, int _Options>
-  struct FrameTpl : NumericalBase< FrameTpl<_Scalar,_Options> >
+  struct FrameTpl : ModelItem< FrameTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef pinocchio::JointIndex JointIndex;
-    enum { Options = _Options };
-    typedef _Scalar Scalar;
+    typedef FrameTpl<_Scalar, _Options> ModelItemDerived;
+    typedef typename traits<ModelItemDerived>::Scalar Scalar;
+    enum { Options = traits<ModelItemDerived>::Options };
+    typedef ModelItem<ModelItemDerived> Base;
+    
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef InertiaTpl<Scalar,Options> Inertia;
     
