@@ -47,17 +47,35 @@ namespace pinocchio
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef pinocchio::JointIndex JointIndex;
     
     ///
     /// \brief Default constructor of a frame.
     ///
     FrameTpl()
-    : name()
-    , parent()
-    , placement()
+    : Base()
     , type()
     , inertia(Inertia::Zero())
     {} // needed by std::vector
+    
+    ///
+    /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
+    ///
+    /// \param[in] name Name of the frame.
+    /// \param[in] parent Index of the parent joint in the kinematic tree.
+    /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
+    /// \param[in] type The type of the frame, see the enum FrameType.
+    /// \param[in] inertia Inertia info attached to the frame.
+    ///
+    FrameTpl(const std::string & name,
+             const JointIndex parentJoint,
+             const SE3 & frame_placement,
+             const FrameType type,
+             const Inertia & inertia = Inertia::Zero())
+      : Base(name, parentJoint, 0, frame_placement)
+      , type(type)
+      , inertia(inertia)
+    {}
     
     ///
     /// \brief Builds a frame defined by its name, its joint parent id, its placement and its type.
@@ -71,20 +89,17 @@ namespace pinocchio
     ///
     FrameTpl(const std::string & name,
              const JointIndex parent,
-             const FrameIndex previousFrame,
+             const FrameIndex previous_frame,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-    : name(name)
-    , parent(parent)
-    , previousFrame(previousFrame)
-    , placement(frame_placement)
-    , type(type)
-    , inertia(inertia)
+      : Base(name, parent_joint, previous_frame, frame_placement)
+      , type(type)
+      , inertia(inertia)
     {}
     
     ///
-    /// \brief Copy constructor by casting
+    /// \brief Copy constructor by casting
     ///
     /// \param[in] other Frame to copy
     ///
@@ -102,7 +117,7 @@ namespace pinocchio
     /// \param[in] other The frame to which the current frame is compared.
     ///
     template<typename S2, int O2>
-    bool operator == (const FrameTpl<S2,O2> & other) const
+    bool operator ==(const FrameTpl<S2,O2> & other) const
     {
       return name == other.name
       && parent == other.parent
@@ -136,18 +151,11 @@ namespace pinocchio
     }
     
     // data
-    
-    /// \brief Name of the frame.
-    std::string name;
-    
-    /// \brief Index of the parent joint.
-    JointIndex parent;
-    
-    /// \brief Index of the previous frame.
-    FrameIndex previousFrame;
-    
-    /// \brief Placement of the frame wrt the parent joint.
-    SE3 placement;
+
+    using Base::name;
+    using Base::parentFrame;
+    using Base::parentJoint;
+    using Base::placement;
 
     /// \brief Type of the frame.
     FrameType type;
