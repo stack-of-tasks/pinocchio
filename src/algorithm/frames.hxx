@@ -28,7 +28,7 @@ namespace pinocchio
     for(FrameIndex i=1; i < (FrameIndex) model.nframes; ++i)
     {
       const Frame & frame = model.frames[i];
-      const JointIndex & parent = frame.parent;
+      const JointIndex & parent = frame.parentJoint;
       data.oMf[i] = data.oMi[parent]*frame.placement;
     }
   }
@@ -43,7 +43,7 @@ namespace pinocchio
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     const typename Model::Frame & frame = model.frames[frame_id];
-    const typename Model::JointIndex & parent = frame.parent;
+    const typename Model::JointIndex & parent = frame.parentJoint;
     
     data.oMf[frame_id] = data.oMi[parent]*frame.placement;
     
@@ -179,7 +179,7 @@ namespace pinocchio
     typedef typename Model::IndexVector IndexVector;
 
     const Frame & frame = model.frames[frameId];
-    const JointIndex & joint_id = frame.parent;
+    const JointIndex & joint_id = frame.parentJoint;
     
     const IndexVector & joint_support = model.supports[joint_id];
     
@@ -250,7 +250,7 @@ namespace pinocchio
     typedef typename Model::Frame Frame;
     
     const Frame & frame = model.frames[frame_id];
-    const JointIndex & joint_id = frame.parent;
+    const JointIndex & joint_id = frame.parentJoint;
     
     typename Data::SE3 & oMframe = data.oMf[frame_id];
     oMframe = data.oMi[joint_id] * frame.placement;

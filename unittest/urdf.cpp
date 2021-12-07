@@ -126,10 +126,10 @@ BOOST_AUTO_TEST_CASE ( check_tree_from_XML )
     joint1_id    = model.getFrameId("joint_1"),
     joint2_id    = model.getFrameId("joint_2");
 
-  BOOST_CHECK_EQUAL(base_link_id, model.frames[joint1_id].previousFrame);
-  BOOST_CHECK_EQUAL(joint1_id   , model.frames[link1_id ].previousFrame);
-  BOOST_CHECK_EQUAL(link1_id    , model.frames[joint2_id].previousFrame);
-  BOOST_CHECK_EQUAL(joint2_id   , model.frames[link2_id ].previousFrame);
+  BOOST_CHECK_EQUAL(base_link_id, model.frames[joint1_id].parentFrame);
+  BOOST_CHECK_EQUAL(joint1_id   , model.frames[link1_id ].parentFrame);
+  BOOST_CHECK_EQUAL(link1_id    , model.frames[joint2_id].parentFrame);
+  BOOST_CHECK_EQUAL(joint2_id   , model.frames[link2_id ].parentFrame);
 }
 
 BOOST_AUTO_TEST_CASE ( build_model_from_UDRFTree )

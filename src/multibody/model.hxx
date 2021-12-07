@@ -374,16 +374,16 @@ namespace pinocchio
   addBodyFrame(const std::string & body_name,
                const JointIndex  & parentJoint,
                const SE3         & body_placement,
-               int           previousFrame)
+               int           parentFrame)
   {
-    if(previousFrame < 0) {
+    if(parentFrame < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
       // type is FIXED_JOINT
-      previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
+      parentFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)previousFrame < frames.size(),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)parentFrame < frames.size(),
                                    "Frame index out of bound");
-    return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
+    return addFrame(Frame(body_name, parentJoint, (FrameIndex)parentFrame, body_placement, BODY));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>

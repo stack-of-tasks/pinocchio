@@ -169,9 +169,9 @@ BOOST_AUTO_TEST_CASE(test_kinematic_regressor_frame)
     Data::Matrix6x kinematic_regressor_LWA_ref(Data::Matrix6x::Zero(6,6*(model.njoints-1)));
     Data::Matrix6x kinematic_regressor_W_ref(Data::Matrix6x::Zero(6,6*(model.njoints-1)));
     
-    computeJointKinematicRegressor(model, data_ref, frame.parent, LOCAL, frame.placement, kinematic_regressor_L_ref);
-    computeJointKinematicRegressor(model, data_ref, frame.parent, LOCAL_WORLD_ALIGNED, frame.placement, kinematic_regressor_LWA_ref);
-    computeJointKinematicRegressor(model, data_ref, frame.parent, WORLD, frame.placement, kinematic_regressor_W_ref);
+    computeJointKinematicRegressor(model, data_ref, frame.parentJoint, LOCAL, frame.placement, kinematic_regressor_L_ref);
+    computeJointKinematicRegressor(model, data_ref, frame.parentJoint, LOCAL_WORLD_ALIGNED, frame.placement, kinematic_regressor_LWA_ref);
+    computeJointKinematicRegressor(model, data_ref, frame.parentJoint, WORLD, frame.placement, kinematic_regressor_W_ref);
     
     BOOST_CHECK(kinematic_regressor_L.isApprox(kinematic_regressor_L_ref));
     BOOST_CHECK(kinematic_regressor_LWA.isApprox(kinematic_regressor_LWA_ref));

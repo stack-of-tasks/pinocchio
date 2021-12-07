@@ -22,8 +22,8 @@ namespace boost
                    const unsigned int version)
     {
       ar & make_nvp("name",f.name);
-      ar & make_nvp("parent",f.parent);
-      ar & make_nvp("previousFrame",f.previousFrame);
+      ar & make_nvp("parent",f.parentJoint);
+      ar & make_nvp("parentFrame",f.parentFrame);
       ar & make_nvp("placement",f.placement);
       ar & make_nvp("type",f.type);
       
