@@ -8,7 +8,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/multibody/tree.hpp"
+#include "pinocchio/multibody/model-item.hpp"
 
 #include <string>
 

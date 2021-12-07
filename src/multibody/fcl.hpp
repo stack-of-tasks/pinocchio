@@ -7,7 +7,7 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
-#include "pinocchio/multibody/tree.hpp"
+#include "pinocchio/multibody/model-item.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
