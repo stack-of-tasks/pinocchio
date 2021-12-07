@@ -111,8 +111,29 @@ namespace pinocchio
     ///
     template<typename S2, int O2>
     explicit FrameTpl(const FrameTpl<S2,O2> & other)
+      : Base(other.name, other.parentJoint, other.parentFrame, other.placement.template cast<Scalar>())
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
+      , type(other.type)
+      , inertia(other.inertia.template cast<Scalar>())      
+    {}
+
+
+    ///
+    /// \brief Copy assignment operator. It needs to be user-define because references cannot be re-assigned during copy
+    ///
+    /// \param[in] other Frame to copy
+    ///
+
+    FrameTpl<Scalar,Options>& operator=(const FrameTpl<Scalar, Options>& other)
     {
-      *this = other.template cast<Scalar>();
+      name = other.name;
+      parentJoint = other.parentJoint;
+      parentFrame = other.parentFrame;
+      placement = other.placement;
+      type = other.type;
+      inertia = other.inertia;
+      return *this;
     }
     
     ///
