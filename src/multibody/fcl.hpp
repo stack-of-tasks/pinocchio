@@ -7,6 +7,7 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/tree.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -126,17 +127,21 @@ template<>
 struct traits<GeometryObject>
 {
   typedef double Scalar;
+  enum { Options = 0};
 };
 
-struct GeometryObject : NumericalBase<GeometryObject>
+struct GeometryObject : public ModelItem<GeometryObject>
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  typedef GeometryObject ModelItemDerived;
+  typedef ModelItem<ModelItemDerived> Base;
+  typedef typename traits<ModelItemDerived>::Scalar Scalar;
+  enum { Options = traits<ModelItemDerived>::Options };
+
+  typedef SE3Tpl<Scalar,Options> SE3;
   
-  typedef double Scalar;
   typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
-  
-  /// \brief Name of the geometry object
-  std::string name;
 
   /// \brief Index of the parent frame
   ///
@@ -154,9 +159,6 @@ struct GeometryObject : NumericalBase<GeometryObject>
   /// \brief The former pointer to the FCL CollisionGeometry.
   /// \deprecated It is now deprecated and has been renamed GeometryObject::geometry
   PINOCCHIO_DEPRECATED CollisionGeometryPtr & fcl;
-
-  /// \brief Position of geometry object in parent joint frame
-  SE3 placement;
 
   /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
   std::string meshPath;
