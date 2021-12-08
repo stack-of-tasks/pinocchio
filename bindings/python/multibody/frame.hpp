@@ -8,6 +8,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
@@ -41,6 +42,14 @@ namespace pinocchio
         .def_readwrite("name", &Frame::name, "name of the frame")
         .def_readwrite("parentJoint", &Frame::parentJoint, "id of the parent joint")
         .def_readwrite("parentFrame", &Frame::parentFrame, "id of the parent frame")
+        .add_property("parent",
+                      bp::make_getter(&Frame::parentJoint,
+                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentJoint")),
+                      bp::make_setter(&Frame::parentJoint, deprecated_member<>("Deprecated. Use parentJoint")), "See parent joint")
+        .add_property("previousFrame",
+                      bp::make_getter(&Frame::parentFrame,
+                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentFrame")),
+                      bp::make_setter(&Frame::parentFrame, deprecated_member<>("Deprecated. Use parentFrame")), "See parent frame")          
         .def_readwrite("placement",
                        &Frame::placement,
                        "placement in the parent joint local frame")
