@@ -190,6 +190,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
 -   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): RViz viewer support
+-   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
