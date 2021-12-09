@@ -20,7 +20,7 @@ geometries = [
 ]
 for i, geom in enumerate(geometries):
     placement = pin.SE3(np.eye(3), np.array([i, 0, 0]))
-    geom_obj = pin.GeometryObject("obj{}".format(i), 0, 0, geom, placement)
+    geom_obj = pin.GeometryObject("obj{}".format(i), 0, 0, placement,geom)
     color = np.random.uniform(0, 1, 4)
     color[3] = 1
     geom_obj.meshColor = color
