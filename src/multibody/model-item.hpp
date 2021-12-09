@@ -19,9 +19,9 @@ namespace pinocchio
     enum { Options = traits<Derived>::Options };
     typedef SE3Tpl<Scalar,Options> SE3;
 
-    /// \brief Name of the geometry object
+    /// \brief Name of the kinematic element
     std::string name;
-    
+
     /// \brief Index of the parent frame
     ///
     /// Parent frame may be unset (to the std::numeric_limits<FrameIndex>::max() value) as it is mostly used as a documentation of the tree, or in third-party libraries.
@@ -32,7 +32,7 @@ namespace pinocchio
     /// \brief Index of the parent joint
     JointIndex parentJoint;
     
-    /// \brief Position of geometry object in parent joint frame
+    /// \brief Position of kinematic element in parent joint frame
     SE3 placement;
 
     ///
