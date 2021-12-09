@@ -15,7 +15,7 @@ body_mass = 1.
 body_radius = 0.1
 
 shape0 = fcl.Sphere(body_radius)
-geom0_obj = pin.GeometryObject("base", 0, shape0, pin.SE3.Identity())
+geom0_obj = pin.GeometryObject("base", 0, pin.SE3.Identity(), shape0)
 geom0_obj.meshColor = np.array([1.,0.1,0.1,1.])
 geom_model.addGeometryObject(geom0_obj)
 
@@ -30,7 +30,7 @@ for k in range(N):
 
     geom1_name = "ball_" + str(k+1)
     shape1 = fcl.Sphere(body_radius)
-    geom1_obj = pin.GeometryObject(geom1_name, joint_id, shape1, body_placement)
+    geom1_obj = pin.GeometryObject(geom1_name, joint_id, body_placement, shape1)
     geom1_obj.meshColor = np.ones((4))
     geom_model.addGeometryObject(geom1_obj)
 
@@ -39,7 +39,7 @@ for k in range(N):
     shape2_placement = body_placement.copy()
     shape2_placement.translation[2] /= 2.
 
-    geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2, shape2_placement)
+    geom2_obj = pin.GeometryObject(geom2_name, joint_id, shape2_placement, shape2)
     geom2_obj.meshColor = np.array([0.,0.,0.,1.])
     geom_model.addGeometryObject(geom2_obj)
 
