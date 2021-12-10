@@ -332,9 +332,9 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel& buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & const_model,
                              const std::string & filename,
-                             const std::string & rootLinkName,
                              const GeometryType type,
                              GeometryModel & geomModel,
+                             const std::string & rootLinkName,
                              const std::vector<std::string> & package_dirs,
                              ::hpp::fcl::MeshLoaderPtr meshLoader)
       

@@ -29,6 +29,7 @@ namespace pinocchio
      *                           obtained from calling pinocchio::rosPaths()
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   rootLinkName Name of the root link
      * @param[in]   meshLoader   object used to load meshes: hpp::fcl::MeshLoader [default] or hpp::fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
@@ -40,9 +41,9 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const std::string & filename,
-                              const std::string & rootLinkName,
                               const GeometryType type,
                               GeometryModel & geomModel,
+                              const std::string & rootLinkName,
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr());
 
@@ -95,6 +96,7 @@ namespace pinocchio
      *                           typically obtained from calling pinocchio::rosPaths().
      *
      * @param[in]   type         The type of objects that must be loaded (must be VISUAL or COLLISION)
+     * @param[in]   rootLinkName Name of the root link
      * @param[in]   meshLoader   object used to load meshes: hpp::fcl::MeshLoader [default] or hpp::fcl::CachedMeshLoader.
      * @param[out]  geomModel    Reference where to put the parsed information.
      *
@@ -106,14 +108,14 @@ namespace pinocchio
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               const std::string & filename,
-                              const std::string & rootLinkName,
                               const GeometryType type,
                               GeometryModel & geomModel,
                               const std::string & packagePath,
+                              const std::string & rootLinkName,
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr())
     {
       const std::vector<std::string> dirs(1,packagePath);
-      return buildGeom(model,filename,rootLinkName,type,geomModel,dirs,meshLoader);
+      return buildGeom(model,filename,type,geomModel,rootLinkName,dirs,meshLoader);
     };
 
     ///
