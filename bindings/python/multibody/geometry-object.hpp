@@ -9,6 +9,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 #include "pinocchio/bindings/python/utils/registration.hpp"
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 
 
 #include "pinocchio/multibody/geometry.hpp"
@@ -43,6 +44,19 @@ namespace pinocchio
                         "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
               "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
               ))
+        .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+             bp::args("self","name","parent_frame","parent_joint","collision_geometry",
+                      "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+             "Deprecated. Full constructor of a GeometryObject.")[deprecated_function<>()] )
+        .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+              bp::args("self","name","parent_joint","collision_geometry",
+                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+              "Deprecated. Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
+              )[deprecated_function<>()] )
         .def(bp::init<const GeometryObject&>
              (
               bp::args("self","otherGeometryObject"),
