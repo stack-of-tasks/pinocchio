@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE ( build_model )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModel(filename, model, contact_models,rootLinkName);
   pinocchio::GeometryModel geomModel;
-  pinocchio::sdf::buildGeom(model, filename,rootLinkName, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel,rootLinkName, dir);
 
   BOOST_CHECK(model.nq == 38);
 }
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model, contact_models,rootLinkName);
   pinocchio::GeometryModel geomModel;
-  pinocchio::sdf::buildGeom(model, filename,rootLinkName, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel,rootLinkName, dir);
 
   BOOST_CHECK(model.nq == 45);
 }
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model_sdf, contact_models, rootLinkName);
   pinocchio::GeometryModel geomModel;
-  pinocchio::sdf::buildGeom(model_sdf, filename, rootLinkName, pinocchio::COLLISION, geomModel, dir);
+  pinocchio::sdf::buildGeom(model_sdf, filename, pinocchio::COLLISION, geomModel, rootLinkName, dir);
 
   const std::string filename_urdf = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
   const std::string dir_urdf = PINOCCHIO_MODEL_DIR;
