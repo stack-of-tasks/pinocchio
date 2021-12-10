@@ -110,8 +110,8 @@ namespace pinocchio
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::string & packagePath,
                               const std::string & rootLinkName,
+                              const std::string & packagePath,
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr())
     {
       const std::vector<std::string> dirs(1,packagePath);

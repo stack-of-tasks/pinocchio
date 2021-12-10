@@ -305,14 +305,17 @@ namespace pinocchio
                     << " link to child " << childName << " link" << " with joint type "
                     << jointElement->template Get<std::string>("type")<<std::endl;
 
+          const Scalar infty = std::numeric_limits<Scalar>::infinity();
           FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
-          Vector max_effort(1), max_velocity(1), min_config(1), max_config(1);
+          Vector max_effort(Vector::Constant(1, infty)),
+            max_velocity(Vector::Constant(1, infty)),
+            min_config(Vector::Constant(1, - infty)),
+            max_config(Vector::Constant(1, infty));
           Vector spring_stiffness(1), spring_reference(1);
           Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
           ignition::math::Vector3d axis_ignition;
           Vector3 axis;
-          const Scalar infty = std::numeric_limits<Scalar>::infinity();
-          
+
           if (jointElement->HasElement("axis")) {
             const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
             
@@ -370,16 +373,26 @@ namespace pinocchio
             joint_info << "joint REVOLUTE with axis"<< axis.transpose();
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, childName,
-                                        max_effort, max_velocity, min_config, max_config,
-                                        friction,damping);
+                                        Y, childName, max_effort, max_velocity,
+                                        min_config, max_config, friction, damping);
           }
           else if (jointElement->template Get<std::string>("type") == "gearbox")
           {
             joint_info << "joint GEARBOX with axis";
-            urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement, jointName,
-                                             Y, childName);
+            urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
+                                        parentFrameId, jointPlacement, jointName,
+                                        Y, childName, max_effort, max_velocity,
+                                        min_config, max_config, friction,damping);
+            
           }
+          else if (jointElement->template Get<std::string>("type") == "prismatic")
+          {
+            joint_info << "joint prismatic with axis";
+            urdfVisitor.addJointAndBody(UrdfVisitor::PRISMATIC, axis,
+                                        parentFrameId, jointPlacement, jointName,
+                                        Y, childName, max_effort, max_velocity,
+                                        min_config, max_config, friction,damping);
+          }          
           else if (jointElement->template Get<std::string>("type") == "ball")
           {
             max_effort   = Vector::Constant(3, infty);
@@ -392,12 +405,10 @@ namespace pinocchio
             damping = Vector::Constant(3, 0.);
               
             joint_info << "joint BALL";
-            //joint_info<<"TODO: Fix BALL JOINT"<<std::endl;
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
-                                        parentFrameId, jointPlacement, jointName,
-                                        Y, childName,
+                                        parentFrameId, jointPlacement, jointName, Y, childName,
                                         max_effort, max_velocity, min_config, max_config,
-                                        friction,damping);
+                                        friction, damping);
           }
           else
           {
