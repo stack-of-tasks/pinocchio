@@ -125,6 +125,7 @@ namespace pinocchio
         
         ElementMap_t mapOfLinks, mapOfJoints;
         StringVectorMap_t childrenOfLinks;
+        StringVectorMap_t parentOfLinks;
         std::string modelName;
         std::vector<std::string> childToBeAdded;
 
@@ -169,6 +170,7 @@ namespace pinocchio
             //Inserting data in std::map
             mapOfLinks.insert(std::make_pair(linkName, linkElement));
             childrenOfLinks.insert(std::make_pair(linkName, std::vector<std::string>()));
+            parentOfLinks.insert(std::make_pair(linkName, std::vector<std::string>()));
             linkElement = linkElement->GetNextElement("link");
           }
 
@@ -179,11 +181,13 @@ namespace pinocchio
             const std::string jointName = jointElement->template Get<std::string>("name");
             std::string parentLinkName =
               jointElement->GetElement("parent")->template Get<std::string>();
+            std::string childLinkName =
+              jointElement->GetElement("child")->template Get<std::string>();
             //Inserting data in std::map
             mapOfJoints.insert(std::make_pair(jointName, jointElement));
             //Create data of children of links
-            
             childrenOfLinks.find(parentLinkName)->second.push_back(jointName);
+            parentOfLinks.find(childLinkName)->second.push_back(jointName);
             jointElement = jointElement->GetNextElement("joint");
           }
         }
@@ -462,6 +466,17 @@ namespace pinocchio
       }; //Struct sdfGraph
 
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph, const std::string& rootLinkName);
+
+      /**
+      * @brief Find the parent of all elements, the root link, and return it.
+      *
+      * @param[in] filename     SDF rootLinkName
+      *
+      */
+      const std::string PINOCCHIO_DLLAPI findRootLink(const SdfGraph& graph);
+
+
+      
     } //namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -470,7 +485,7 @@ namespace pinocchio
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
-               const std::string rootLinkName,
+               const std::string& rootLinkName,
                const bool verbose)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
@@ -483,17 +498,23 @@ namespace pinocchio
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
+      
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
+      
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
+
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
+
         RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
                                  cm->joint2_id, cm->joint2_placement, cm->reference_frame);
-        rcm.name = cm->name;
+
         contact_models.push_back(rcm);
       }
-
       return model;
     }
     
@@ -503,7 +524,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
-               const std::string rootLinkName,
+               const std::string& rootLinkName,
                const bool verbose)
     {
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
@@ -515,6 +536,11 @@ namespace pinocchio
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
+
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
+      
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
 
