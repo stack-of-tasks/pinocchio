@@ -22,6 +22,27 @@ namespace pinocchio
   {
     namespace details
     {
+
+      const std::string findRootLink(const SdfGraph& graph)
+      {
+        std::string trial_link = graph.mapOfLinks.begin()->first;
+        bool search_for_parent = true;
+        while(search_for_parent) {
+          const std::vector<std::string>& parents_of_links =
+            graph.parentOfLinks.find(trial_link)->second;
+          if (parents_of_links.size() ==0) {
+            search_for_parent = false;
+            std::cerr<<"Link "<<trial_link<<" is the root link"<<std::endl;
+            return trial_link;
+          }
+          else {
+            ::sdf::ElementPtr joint_element = graph.mapOfJoints.find(parents_of_links[0])->second;
+            trial_link =
+              joint_element->GetElement("parent")->template Get<std::string>();
+          }
+        }
+      }
+      
       void parseRootTree(SdfGraph& graph,
                          const std::string& rootLinkName)
       {

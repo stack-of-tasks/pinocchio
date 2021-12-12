@@ -347,6 +347,10 @@ namespace pinocchio
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
+
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
       
       details::parseTreeForGeom (graph, geomModel, rootLinkName, type,
                                  package_dirs, meshLoader);
