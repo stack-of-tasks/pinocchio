@@ -17,6 +17,21 @@ namespace pinocchio
     namespace bp = boost::python;
 
 #ifdef PINOCCHIO_WITH_SDFORMAT
+
+    GeometryModel
+    buildGeomFromSdf(const Model & model,
+		     const std::string & filename,
+		     const GeometryType type)
+    {
+      GeometryModel geometry_model;
+      const std::string& rootLinkName = "";
+      const std::string& packageDir = "";
+      pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName, packageDir);
+      return geometry_model;
+    }
+
+
+
     GeometryModel
     buildGeomFromSdf(const Model & model,
 		     const std::string & filename,
@@ -24,7 +39,8 @@ namespace pinocchio
                      const std::string & rootLinkName)
     {
       GeometryModel geometry_model;
-      pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName);
+      const std::string& packageDir = "";
+      pinocchio::sdf::buildGeom(model,filename,type,geometry_model,rootLinkName, packageDir);
       return geometry_model;
     }
 
@@ -168,12 +184,23 @@ namespace pinocchio
       return geometry_model;
     }
     
-#endif // #ifdef PINOCCHIO_WITH_HPP_FCL
-#endif // #ifdef PINOCCHIO_WITH_SDF
+#endif // #ifdef PINOCCHIO_WITH_SDFORMAT
 
     void exposeSDFGeometry()
     {
-#ifdef PINOCCHIO_WITH_SDF
+#ifdef PINOCCHIO_WITH_SDFORMAT
+
+      bp::def("buildGeomFromSdf",
+              static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType)> (pinocchio::python::buildGeomFromSdf),
+              bp::args("model","sdf_filename","geom_type"),
+              "Parse the SDF file given as input looking for the geometry of the given input model and\n"
+              "return a GeometryModel containing either the collision geometries (GeometryType.COLLISION) or the visual geometries (GeometryType.VISUAL).\n"
+              "Parameters:\n"
+              "\tmodel: model of the robot\n"
+              "\tsdf_filename: path to the SDF file containing the model of the robot\n"
+              "\tgeom_type: type of geometry to extract from the SDF file (either the VISUAL for display or the COLLISION for collision detection).\n"
+              );
+      
       bp::def("buildGeomFromSdf",
               static_cast <GeometryModel (*) (const Model &, const std::string &, const GeometryType, const std::string &, const std::string &)> (pinocchio::python::buildGeomFromSdf),
               bp::args("model","sdf_filename","geom_type","root_link_name","package_dir"),
