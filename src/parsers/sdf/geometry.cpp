@@ -51,14 +51,13 @@ namespace pinocchio
           const ::sdf::ElementPtr childJointElement =
             graph.mapOfJoints.find(*childOfChild)->second;
 
-          if (childJointElement->template Get<std::string>("type") != "ball") {
-            const std::string childLinkName =
-              childJointElement->GetElement("child")->template Get<std::string>();
-            const ::sdf::ElementPtr childLinkElement =
-              graph.mapOfLinks.find(childLinkName)->second;
-            recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
-                                       geomModel, package_dirs,type);
-          }
+          const std::string childLinkName =
+            childJointElement->GetElement("child")->template Get<std::string>();
+          const ::sdf::ElementPtr childLinkElement =
+            graph.mapOfLinks.find(childLinkName)->second;
+          recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
+                                     geomModel, package_dirs,type);
+          
         }
       }
       
