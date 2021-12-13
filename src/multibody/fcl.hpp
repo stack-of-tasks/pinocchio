@@ -7,6 +7,7 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/model-item.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
@@ -40,7 +41,6 @@
   #include "pinocchio/spatial/fcl-pinocchio-conversions.hpp"
 #endif
 
-#include <iostream>
 #include <map>
 #include <vector>
 #include <utility>
@@ -58,7 +58,7 @@ namespace pinocchio
 
     typedef std::pair<GeomIndex, GeomIndex> Base;
    
-    /// \brief Empty constructor
+    /// \brief Empty constructor
     CollisionPair();
     
     ///
@@ -115,24 +115,31 @@ enum GeometryType
   COLLISION
 };
 
-struct GeometryObject
+struct GeometryObject; //fwd
+
+template<>
+struct traits<GeometryObject>
+{
+  typedef double Scalar;
+  enum { Options = 0};
+};
+
+struct GeometryObject : public ModelItem<GeometryObject>
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  typedef ModelItem<GeometryObject> Base;
+  typedef typename traits<GeometryObject>::Scalar Scalar;
+  enum { Options = traits<GeometryObject>::Options };
+
+  typedef SE3Tpl<Scalar,Options> SE3;
   
   typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
-  
-  /// \brief Name of the geometry object
-  std::string name;
 
-  /// \brief Index of the parent frame
-  ///
-  /// Parent frame may be unset (to the std::numeric_limits<FrameIndex>::max() value) as it is mostly used as a documentation of the tree, or in third-party libraries.
-  /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
-  /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
-  FrameIndex parentFrame;
-
-  /// \brief Index of the parent joint
-  JointIndex parentJoint;
+  using Base::name;
+  using Base::parentFrame;
+  using Base::parentJoint;
+  using Base::placement;
 
   /// \brief The FCL CollisionGeometry (might be a Mesh, a Geometry Primitive, etc.)
   CollisionGeometryPtr geometry;
@@ -140,9 +147,6 @@ struct GeometryObject
   /// \brief The former pointer to the FCL CollisionGeometry.
   /// \deprecated It is now deprecated and has been renamed GeometryObject::geometry
   PINOCCHIO_DEPRECATED CollisionGeometryPtr & fcl;
-
-  /// \brief Position of geometry object in parent joint frame
-  SE3 placement;
 
   /// \brief Absolute path to the mesh file (if the fcl pointee is also a Mesh)
   std::string meshPath;
@@ -168,10 +172,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \brief Full constructor.
   ///
   /// \param[in] name  Name of the geometry object.
-  /// \param[in] parent_frame  Index of the parent frame.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision_geometry The FCL collision geometry object.
+  /// \param[in] parent_frame  Index of the parent frame.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
@@ -179,21 +183,18 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
   ///
   GeometryObject(const std::string & name,
-                 const FrameIndex parent_frame,
                  const JointIndex parent_joint,
-                 const CollisionGeometryPtr & collision_geometry,
+                 const FrameIndex parent_frame,
                  const SE3 & placement,
+                 const CollisionGeometryPtr & collision_geometry,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
-  : name(name)
-  , parentFrame(parent_frame)
-  , parentJoint(parent_joint)
+  : Base(name, parent_joint, parent_frame, placement)
   , geometry(collision_geometry)
   , fcl(geometry)
-  , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
@@ -201,6 +202,44 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
+
+  ///
+  /// \brief Full constructor.
+  ///
+  /// \param[in] name  Name of the geometry object.
+  /// \param[in] parent_frame  Index of the parent frame.
+  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
+  /// \param[in] collision_geometry The FCL collision geometry object.
+  /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
+  /// \param[in] meshScale Scale of the mesh [if applicable].
+  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
+  /// \param[in] meshColor Color of the mesh [if applicable].
+  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  ///
+  /// \deprecated This constructor is now deprecated, and its argument order has been changed.
+  ///
+  PINOCCHIO_DEPRECATED GeometryObject(const std::string & name,
+                                      const FrameIndex parent_frame,
+                                      const JointIndex parent_joint,
+                                      const CollisionGeometryPtr & collision_geometry,
+                                      const SE3 & placement,
+                                      const std::string & meshPath = "",
+                                      const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
+                                      const bool overrideMaterial = false,
+                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                                      const std::string & meshTexturePath = "")
+  : Base(name, parent_joint, parent_frame, placement)
+  , geometry(collision_geometry)
+  , fcl(geometry)
+  , meshPath(meshPath)
+  , meshScale(meshScale)
+  , overrideMaterial(overrideMaterial)
+  , meshColor(meshColor)
+  , meshTexturePath(meshTexturePath)
+  , disableCollision(false)
+  {}
+
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
@@ -211,8 +250,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \param[in] name  Name of the geometry object.
   /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
-  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] collision_geometry The FCL collision geometry object.
   /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
   /// \param[in] meshScale Scale of the mesh [if applicable].
   /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
@@ -221,19 +260,16 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   GeometryObject(const std::string & name,
                  const JointIndex parent_joint,
-                 const CollisionGeometryPtr & collision_geometry,
                  const SE3 & placement,
+                 const CollisionGeometryPtr & collision_geometry,
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
                  const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
                  const std::string & meshTexturePath = "")
-  : name(name)
-  , parentFrame(std::numeric_limits<FrameIndex>::max())
-  , parentJoint(parent_joint)
+  : Base(name, parent_joint,std::numeric_limits<FrameIndex>::max(), placement)
   , geometry(collision_geometry)
   , fcl(geometry)
-  , placement(placement)
   , meshPath(meshPath)
   , meshScale(meshScale)
   , overrideMaterial(overrideMaterial)
@@ -241,6 +277,44 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   , meshTexturePath(meshTexturePath)
   , disableCollision(false)
   {}
+
+
+  ///
+  /// \brief Reduced constructor.
+  /// \remarks Compared to the other constructor, this one assumes that there is no parentFrame associated to the geometry.
+  ///
+  /// \param[in] name  Name of the geometry object.
+  /// \param[in] parent_joint  Index of the parent joint (that supports the geometry).
+  /// \param[in] collision_geometry The FCL collision geometry object.
+  /// \param[in] placement Placement of the geometry with respect to the joint frame.
+  /// \param[in] meshPath Path of the mesh (may be needed extarnally to load the mesh inside a viewer for instance) [if applicable].
+  /// \param[in] meshScale Scale of the mesh [if applicable].
+  /// \param[in] overrideMaterial If true, this option allows to overrite the material [if applicable].
+  /// \param[in] meshColor Color of the mesh [if applicable].
+  /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
+  ///
+  /// \deprecated This constructor is now deprecated, and its argument order has been changed.
+  ///
+  PINOCCHIO_DEPRECATED GeometryObject(const std::string & name,
+                                      const JointIndex parent_joint,
+                                      const CollisionGeometryPtr & collision_geometry,
+                                      const SE3 & placement,
+                                      const std::string & meshPath = "",
+                                      const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
+                                      const bool overrideMaterial = false,
+                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                                      const std::string & meshTexturePath = "")
+  : Base(name, parent_joint,std::numeric_limits<FrameIndex>::max(), placement)
+  , geometry(collision_geometry)
+  , fcl(geometry)
+  , meshPath(meshPath)
+  , meshScale(meshScale)
+  , overrideMaterial(overrideMaterial)
+  , meshColor(meshColor)
+  , meshTexturePath(meshTexturePath)
+  , disableCollision(false)
+  {}
+
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH

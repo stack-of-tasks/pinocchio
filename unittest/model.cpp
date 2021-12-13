@@ -274,20 +274,20 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     // Check the frames
     for (FrameIndex fid = 1; fid < humanoid.frames.size(); ++fid) {
       const Frame& frame  = humanoid.frames[fid],
-                   parent = humanoid.frames[frame.previousFrame];
+                   parent = humanoid.frames[frame.parentFrame];
       BOOST_CHECK(model.existFrame (frame.name, frame.type));
       const Frame& nframe  = model.frames[model.getFrameId(frame.name, frame.type)],
-                   nparent = model.frames[nframe.previousFrame];
+                   nparent = model.frames[nframe.parentFrame];
       BOOST_CHECK_EQUAL(parent.name, nparent.name);
       BOOST_CHECK_EQUAL(frame.placement, nframe.placement);
     }
     for (FrameIndex fid = 1; fid < manipulator.frames.size(); ++fid) {
       const Frame& frame  = manipulator.frames[fid],
-                   parent = manipulator.frames[frame.previousFrame];
+                   parent = manipulator.frames[frame.parentFrame];
       BOOST_CHECK(model.existFrame (frame.name, frame.type));
       const Frame& nframe  = model.frames[model.getFrameId(frame.name, frame.type)],
-                   nparent = model.frames[nframe.previousFrame];
-      if (frame.previousFrame > 0) {
+                   nparent = model.frames[nframe.parentFrame];
+      if (frame.parentFrame > 0) {
         BOOST_CHECK_EQUAL(parent.name, nparent.name);
         BOOST_CHECK_EQUAL(frame.placement, nframe.placement);
       }

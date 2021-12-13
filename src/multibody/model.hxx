@@ -373,16 +373,16 @@ namespace pinocchio
   addBodyFrame(const std::string & body_name,
                const JointIndex  & parentJoint,
                const SE3         & body_placement,
-               int           previousFrame)
+               int           parentFrame)
   {
-    if(previousFrame < 0) {
+    if(parentFrame < 0) {
       // FIXED_JOINT is required because the parent can be the universe and its
       // type is FIXED_JOINT
-      previousFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
+      parentFrame = (int)getFrameId(names[parentJoint], (FrameType)(JOINT | FIXED_JOINT));
     }
-    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)previousFrame < frames.size(),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((size_t)parentFrame < frames.size(),
                                    "Frame index out of bound");
-    return addFrame(Frame(body_name, parentJoint, (FrameIndex)previousFrame, body_placement, BODY));
+    return addFrame(Frame(body_name, parentJoint, (FrameIndex)parentFrame, body_placement, BODY));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
@@ -447,7 +447,7 @@ namespace pinocchio
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addFrame(const Frame & frame, const bool append_inertia)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parent < (JointIndex)njoints,
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(frame.parentJoint < (JointIndex)njoints,
                                    "The index of the parent joint is not valid.");
     
 //    TODO: fix it
@@ -462,7 +462,7 @@ namespace pinocchio
     // else: we must add a new frames to the current stack
     frames.push_back(frame);
     if(append_inertia)
-      inertias[frame.parent] += frame.placement.act(frame.inertia);
+      inertias[frame.parentJoint] += frame.placement.act(frame.inertia);
     nframes++;
     return FrameIndex(nframes - 1);
   }

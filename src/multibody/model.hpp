@@ -325,7 +325,7 @@ namespace pinocchio
     /// \param[in] body_name Name of the body.
     /// \param[in] parentJoint Index of the parent joint.
     /// \param[in] body_placement The relative placement of the body regarding to the parent joint. Set default to the Identity placement.
-    /// \param[in] previousFrame Index of the parent frame. If negative,
+    /// \param[in] parentFrame Index of the parent frame. If negative,
     ///            the parent frame is the frame of the parent joint.
     ///
     /// \return The index of the new frame
@@ -333,7 +333,7 @@ namespace pinocchio
     FrameIndex addBodyFrame(const std::string & body_name,
                             const JointIndex  & parentJoint,
                             const SE3         & body_placement = SE3::Identity(),
-                            int                 previousFrame  = -1);
+                            int                 parentFrame  = -1);
 
     ///
     /// \brief Return the index of a body given by its name.
@@ -408,7 +408,7 @@ namespace pinocchio
     
     ///
     /// \brief Adds a frame to the kinematic tree.
-    ///        The inertia stored within the frame will be happened to the inertia supported by the joint (frame.parent).
+    ///        The inertia stored within the frame will be happened to the inertia supported by the joint (frame.parentJoint).
     ///
     /// \param[in] frame The frame to add to the kinematic tree.
     /// \param[in] append_inertia Append the inertia contained in the Frame to the inertia supported by the joint.

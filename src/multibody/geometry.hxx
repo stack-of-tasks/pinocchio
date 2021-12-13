@@ -101,12 +101,12 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
     if(object.parentFrame < (FrameIndex)model.nframes)
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parentJoint == object.parentJoint,
                                      "The object joint parent and its frame joint parent do not match.");
     
     GeomIndex idx = (GeomIndex) (ngeoms ++);
     geometryObjects.push_back(object);
-    geometryObjects.back().parentJoint = model.frames[object.parentFrame].parent;
+    geometryObjects.back().parentJoint = model.frames[object.parentFrame].parentJoint;
     return idx;
   }
   

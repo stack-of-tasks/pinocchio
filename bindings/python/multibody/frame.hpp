@@ -8,6 +8,7 @@
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/multibody/frame.hpp"
 
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
@@ -37,8 +38,16 @@ namespace pinocchio
         .def(bp::init<const Frame &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
         .def_readwrite("name", &Frame::name, "name of the frame")
-        .def_readwrite("parent", &Frame::parent, "id of the parent joint")
-        .def_readwrite("previousFrame", &Frame::previousFrame, "id of the previous frame")
+        .def_readwrite("parentJoint", &Frame::parentJoint, "id of the parent joint")
+        .def_readwrite("parentFrame", &Frame::parentFrame, "id of the parent frame")
+        .add_property("parent",
+                      bp::make_getter(&Frame::parentJoint,
+                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentJoint")),
+                      bp::make_setter(&Frame::parentJoint, deprecated_member<>("Deprecated. Use parentJoint")), "See parent joint")
+        .add_property("previousFrame",
+                      bp::make_getter(&Frame::parentFrame,
+                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentFrame")),
+                      bp::make_setter(&Frame::parentFrame, deprecated_member<>("Deprecated. Use parentFrame")), "See parent frame")          
         .def_readwrite("placement",
                        &Frame::placement,
                        "placement in the parent joint local frame")
@@ -89,14 +98,14 @@ namespace pinocchio
 
         static bp::tuple getstate(const Frame & f)
         {
-          return bp::make_tuple(f.name, f.parent, f.previousFrame, f.placement, (int)f.type, f.inertia);
+          return bp::make_tuple(f.name, f.parentJoint, f.parentFrame, f.placement, (int)f.type, f.inertia);
         }
 
         static void setstate(Frame & f, bp::tuple tup)
         {
           f.name = bp::extract<std::string>(tup[0]); 
-          f.parent = bp::extract<JointIndex>(tup[1]); 
-          f.previousFrame = bp::extract<JointIndex>(tup[2]); 
+          f.parentJoint = bp::extract<JointIndex>(tup[1]); 
+          f.parentFrame = bp::extract<JointIndex>(tup[2]); 
           f.placement = bp::extract<SE3&>(tup[3]); 
           f.type = (FrameType)(int)bp::extract<int>(tup[4]);
           if(bp::len(tup) > 5)
