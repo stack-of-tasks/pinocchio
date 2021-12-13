@@ -43,7 +43,7 @@ namespace pinocchio
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
-                              const std::string & rootLinkName,
+                              const std::string & rootLinkName = "",
                               const std::vector<std::string> & packageDirs = std::vector<std::string> (),
                               ::hpp::fcl::MeshLoaderPtr meshLoader = ::hpp::fcl::MeshLoaderPtr());
 
@@ -134,7 +134,7 @@ namespace pinocchio
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
-               const std::string rootLinkName,
+               const std::string& rootLinkName = "",
                const bool verbose = false);
 
 
@@ -151,7 +151,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
-               const std::string rootLinkName,
+               const std::string& rootLinkName = "",
                const bool verbose = false);
 
   } // namespace sdf

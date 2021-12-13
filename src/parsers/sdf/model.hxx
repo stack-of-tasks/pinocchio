@@ -306,8 +306,8 @@ namespace pinocchio
           const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
           const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
           joint_info << "Joint " << jointName << " connects parent " << parentName
-                    << " link to child " << childName << " link" << " with joint type "
-                    << jointElement->template Get<std::string>("type")<<std::endl;
+                     << " link to child " << childName << " link" << " with joint type "
+                     << jointElement->template Get<std::string>("type")<<std::endl;
 
           const Scalar infty = std::numeric_limits<Scalar>::infinity();
           FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
@@ -322,11 +322,18 @@ namespace pinocchio
 
           if (jointElement->HasElement("axis")) {
             const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
-            
+            const ::sdf::ElementPtr xyzElem = axisElem->GetElement("xyz");
             axis_ignition =
               axisElem->Get<ignition::math::Vector3d>("xyz");
             axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
-            
+
+            if(xyzElem->HasAttribute("expressed_in")) {
+              const std::string parentModelFrame = xyzElem->template Get<std::string>("expressed_in");
+              if(parentModelFrame == "__model__") {
+                axis = oMc.rotation().inverse() * axis;
+              }
+            }
+
             if (axisElem->HasElement("limit")) {
               const ::sdf::ElementPtr limitElem = axisElem->GetElement("limit");
               if (limitElem->HasElement("upper")) {
