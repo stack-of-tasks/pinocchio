@@ -18,8 +18,6 @@
 
 #include "pinocchio/utils/timer.hpp"
 
-#include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main(int argc, const char ** argv)
 {
@@ -50,9 +48,9 @@ int main(int argc, const char ** argv)
   MatrixXd A(model.nv,model.nv), B(model.nv,model.nv);
   A.setZero(); B.setRandom();
 
-  std::vector<VectorXd> qs     (NBT);
-  std::vector<VectorXd> lhs  (NBT);
-  std::vector<VectorXd> rhs (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) lhs (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) rhs (NBT);
   for(size_t i=0;i<NBT;++i)
   {
     qs[i] = randomConfiguration(model,-qmax,qmax);

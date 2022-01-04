@@ -19,8 +19,6 @@
 
 #include "pinocchio/utils/timer.hpp"
 
-#include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main(int /*argc*/, const char ** /*argv*/)
 {
@@ -87,8 +85,6 @@ int main(int /*argc*/, const char ** /*argv*/)
   MatrixXd as(model.nv,BATCH_SIZE);
   MatrixXd taus(model.nv,BATCH_SIZE);
   MatrixXd res(model.nv,BATCH_SIZE);
-  
-//  VectorXb cols()
   
   PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) q_vec(NBT);
   for(size_t i=0; i < NBT; ++i)

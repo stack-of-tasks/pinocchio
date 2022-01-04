@@ -11,9 +11,7 @@
 #include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
-#include <Eigen/StdVector>
 
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main()
 {
@@ -47,9 +45,9 @@ int main()
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
 
-  std::vector<VectorXd> qs_romeo     (NBT);
-  std::vector<VectorXd> qdots_romeo  (NBT);
-  std::vector<VectorXd> qddots_romeo (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs_romeo     (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots_romeo  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots_romeo (NBT);
   for(size_t i=0;i<NBT;++i)
   {
     qs_romeo[i]     = randomConfiguration(model,-qmax,qmax);
