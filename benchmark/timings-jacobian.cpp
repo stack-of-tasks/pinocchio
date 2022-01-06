@@ -14,8 +14,6 @@
 
 #include "pinocchio/utils/timer.hpp"
 
-#include <Eigen/StdVector>
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main(int argc, const char ** argv)
 {
@@ -54,13 +52,12 @@ int main(int argc, const char ** argv)
 
   pinocchio::Data data(model);
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-  //VectorXd q = randomConfiguration(model);
 
   pinocchio::Data::Matrix6x J(6,model.nv);
   J.setZero();
   pinocchio::Model::JointIndex JOINT_ID = (Model::JointIndex)(model.njoints-1);
 
-  std::vector<VectorXd> qs(NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs(NBT);
   for(size_t i=0;i<NBT;++i)
   {
     qs[i] = randomConfiguration(model,-qmax,qmax);
