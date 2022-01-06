@@ -493,7 +493,7 @@ namespace pinocchio
 
       M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
 
       if(parent>0)
       {
