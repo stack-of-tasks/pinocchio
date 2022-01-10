@@ -76,6 +76,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(max_config.size(),joint_model.nq(),"The joint upper configuration bound is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_friction.size(),joint_model.nv(),"The joint friction vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(joint_damping.size(),joint_model.nv(),"The joint damping vector is not of right size");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(parent < (JointIndex)njoints, "The index of the parent joint is not valid.");
 
     JointIndex idx = (JointIndex)(njoints++);
     
