@@ -66,6 +66,15 @@ namespace pinocchio
     GeomIndex addGeometryObject(const GeometryObject & object);
 
     /**
+     * @brief     Remove a GeometryObject
+     *
+     * @param[in]  name  Name of the GeometryObject
+     *
+     * @node Remove also the collision pairs that contain the object.
+     */
+    void removeGeometryObject(const std::string& name);
+
+    /**
      * @brief      Return the index of a GeometryObject given by its name.
      *
      * @param[in]  name  Name of the GeometryObject
