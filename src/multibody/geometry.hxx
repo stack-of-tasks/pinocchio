@@ -110,18 +110,18 @@ namespace pinocchio
     GeometryObjectVector::iterator it;
     for (it=geometryObjects.begin(); it!=geometryObjects.end(); ++it, ++i){
       if (it->name == name){
-	break;
+        break;
       }
     }
     PINOCCHIO_THROW(it != geometryObjects.end(),std::invalid_argument, (std::string("Object ") + name + std::string(" does not belong to model")).c_str());
     // Remove all collision pairs that contain i as first or second index,
     for (CollisionPairVector::iterator itCol = collisionPairs.begin(); itCol != collisionPairs.end(); ++itCol){
       if ((itCol->first == i) || (itCol->second == i)) {
-	itCol = collisionPairs.erase(itCol); itCol--;
+        itCol = collisionPairs.erase(itCol); itCol--;
       } else {
-	// Indices of objects after the one that is removed should be decreased by one.
-	if (itCol->first > i)  itCol->first--;
-	if (itCol->second > i) itCol->second--;
+        // Indices of objects after the one that is removed should be decreased by one.
+        if (itCol->first > i)  itCol->first--;
+        if (itCol->second > i) itCol->second--;
       }
     }
     geometryObjects.erase(it);
