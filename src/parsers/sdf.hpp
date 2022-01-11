@@ -124,6 +124,7 @@ namespace pinocchio
     ///
     /// \param[in] filename The SDF complete file path.
     /// \param[in] rootJoint The joint at the root of the model tree.
+    /// \param[in] parentGuidance Joint names which should be preferred for cases where two joints can qualify as parent. The other joint appears in the constraint_model. If empty, joint appearance order in .sdf is taken as default.
     /// \param[in] verbose Print parsing info.
     /// \param[out] model Reference model where to put the parsed information.
     /// \return Return the reference on argument model for convenience.
@@ -135,6 +136,7 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const std::string& rootLinkName = "",
+               const std::vector<std::string>& parentGuidance = {},
                const bool verbose = false);
 
 
@@ -152,6 +154,7 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const std::string& rootLinkName = "",
+               const std::vector<std::string>& parentGuidance = {},
                const bool verbose = false);
 
   } // namespace sdf
