@@ -57,7 +57,7 @@ def createDatas(*models):
     return tuple([None if model is None else model.createData() for model in models])
 
 
-def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, root_link_name="", verbose=False, meshLoader=None, geometry_types=None):
+def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, root_link_name="", parent_guidance=[], verbose=False, meshLoader=None, geometry_types=None):
     """Parse the SDF file given in input and return a Pinocchio Model and a list of Constraint Models, followed by corresponding GeometryModels of types specified by geometry_types, in the same order as listed.
     Examples of usage:
         # load model, constraint models, collision model, and visual model, in this order (default)
@@ -70,9 +70,9 @@ def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, root_link_n
     """
 
     if root_joint is None:
-        model, constraint_models = pin.buildModelFromSdf(filename, root_link_name)
+        model, constraint_models = pin.buildModelFromSdf(filename, root_link_name, parent_guidance)
     else:
-        model, constraint_models = pin.buildModelFromSdf(filename, root_joint, root_link_name)
+        model, constraint_models = pin.buildModelFromSdf(filename, root_joint, root_link_name, parent_guidance)
 
     if verbose and not WITH_HPP_FCL and meshLoader is not None:
         print('Info: MeshLoader is ignored. Pinocchio has not been compiled with HPP-FCL.')
