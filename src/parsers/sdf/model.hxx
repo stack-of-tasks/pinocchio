@@ -120,14 +120,23 @@ namespace pinocchio
       {
       public:
         typedef std::map<std::string, ::sdf::ElementPtr> ElementMap_t;
+        typedef std::map<std::string, SE3, std::less<std::string>, 
+                         Eigen::aligned_allocator<std::pair<const std::string, SE3> > > ChildPoseMap;
+
+        
         typedef std::map<std::string, std::vector<std::string> > StringVectorMap_t;
+        typedef std::vector<std::string> VectorOfStrings;
+        typedef std::vector<int> VectorOfInts;
         typedef ContactDetailsTpl<double, 0> ContactDetails;
         
         ElementMap_t mapOfLinks, mapOfJoints;
         StringVectorMap_t childrenOfLinks;
         StringVectorMap_t parentOfLinks;
+        VectorOfStrings linksWithMultipleParents;
+        VectorOfStrings parentGuidance;
+        VectorOfInts parentOrderWithGuidance;
+        ChildPoseMap childPoseMap;
         std::string modelName;
-        std::vector<std::string> childToBeAdded;
 
         typedef pinocchio::urdf::details::UrdfVisitor<double, 0, ::pinocchio::JointCollectionDefaultTpl > UrdfVisitor;
         UrdfVisitor& urdfVisitor;
@@ -137,6 +146,11 @@ namespace pinocchio
           : urdfVisitor(urdfVisitor)
         {}
 
+        void setParentGuidance(const VectorOfStrings& parentGuidance_in)
+        {
+          parentGuidance = parentGuidance_in;
+        }
+        
         void parseGraph(const std::string & filename)
         {
           // load and check sdf file
@@ -190,6 +204,32 @@ namespace pinocchio
             parentOfLinks.find(childLinkName)->second.push_back(jointName);
             jointElement = jointElement->GetNextElement("joint");
           }
+
+          for(StringVectorMap_t::const_iterator linkMap = parentOfLinks.begin();
+              linkMap != parentOfLinks.end(); ++linkMap)
+          {
+            const std::string linkName = linkMap->first;
+            const VectorOfStrings&  parents = linkMap->second;
+            if(parents.size() >= 2)
+            {
+              linksWithMultipleParents.push_back(linkName);
+              urdfVisitor <<linkName<<" has "<<parents.size()<<" parents"<< '\n';
+
+              // Find which parent would become the chain creator:
+              int parentOrder = 0;
+              for(VectorOfStrings::const_iterator parentJoint = std::begin(parents);
+                  parentJoint != std::end(parents); ++parentJoint) {
+                VectorOfStrings::const_iterator p_it = std::find(parentGuidance.cbegin(),
+                                                                 parentGuidance.cend(), *parentJoint);
+                if (p_it != parentGuidance.end()) {
+                  parentOrder = std::distance(parents.cbegin(), parentJoint);
+                  break;
+                }
+              }
+              parentOrderWithGuidance.push_back(parentOrder);
+            }
+          }
+          
         }
 
         static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(ContactDetails)& contact_details,
@@ -265,12 +305,53 @@ namespace pinocchio
           typedef UrdfVisitor::Vector Vector;
           typedef UrdfVisitor::Vector3 Vector3;
           const std::string& jointName = jointElement->template Get<std::string>("name");
-          bool is_constraint = false;
-          std::ostringstream joint_info;
-          const std::string parentName = jointElement->GetElement("parent")->Get<std::string>();
-          const std::string childName =
-            jointElement->GetElement("child")->Get<std::string>();          
-          const ::sdf::ElementPtr childElement =  mapOfLinks.find(childName)->second;
+
+          urdfVisitor<<jointName<<" being parsed."<< '\n';
+
+          const std::string& parentName = jointElement->GetElement("parent")->Get<std::string>();
+          const std::string& childNameOrig =
+            jointElement->GetElement("child")->Get<std::string>();
+
+          bool multiple_parents = false;
+          bool make_parent = true;
+          int nParents = 1;
+
+          int parentOrderId = -1;
+          int currentJointOrderId = -1;
+          int link_index = -1;
+          // Find is the link has multiple parents
+          // If yes, one parent would create chain, while other parents would create constraints
+          // If there is guidance, use guidance to choose parent which creates chain
+          // If there is no guidance, use first element to create chain.
+
+          VectorOfStrings::const_iterator linkHasParents = std::find(linksWithMultipleParents.cbegin(),
+                                                                     linksWithMultipleParents.cend(), childNameOrig);
+          if (linkHasParents != linksWithMultipleParents.end()) {
+            link_index = std::distance(linksWithMultipleParents.cbegin(), linkHasParents);
+            parentOrderId = parentOrderWithGuidance.at(link_index);
+            multiple_parents = true;
+            const VectorOfStrings&  parentsOfChild = parentOfLinks.find(childNameOrig)->second;
+
+            VectorOfStrings::const_iterator currentJointIt = std::find(parentsOfChild.cbegin(), parentsOfChild.cend(), jointName);
+            currentJointOrderId = std::distance(parentsOfChild.cbegin(), currentJointIt);
+
+            if (jointName == parentsOfChild.at(parentOrderId))
+            {
+              make_parent = true;  
+            }
+            else
+            {
+              make_parent = false;
+            }
+            nParents = parentsOfChild.size();
+          }
+
+          std::string childName = childNameOrig;
+          if(not make_parent and multiple_parents) {
+            childName += "_"+jointName;
+          }
+          
+          const ::sdf::ElementPtr childElement =  mapOfLinks.find(childNameOrig)->second;
           const ::sdf::ElementPtr parentElement = mapOfLinks.find(parentName)->second;
           const ignition::math::Pose3d parentPlacement =
             parentElement->template Get<ignition::math::Pose3d>("pose");
@@ -280,7 +361,6 @@ namespace pinocchio
           const JointIndex parentJointId = urdfVisitor.getParentId(parentName);
           const std::string& parentJointName = urdfVisitor.getJointName(parentJointId);
 
-          
           SE3 cMj(SE3::Identity()), pMjp(SE3::Identity());
 
           if (jointElement->HasElement("pose"))
@@ -301,14 +381,15 @@ namespace pinocchio
               pMjp = ::pinocchio::sdf::details::convertFromPose3d(parentcMj_ig);
             }
           }
-          
+
           const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
           const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-          const SE3 jointPlacement = oMp.inverse() * oMc * cMj;
-          joint_info << "Joint " << jointName << " connects parent " << parentName
-                     << " link to child " << childName << " link" << " with joint type "
-                     << jointElement->template Get<std::string>("type")<<std::endl;
+          const SE3 jointPlacement = pMjp.inverse() * oMp.inverse() * oMc * cMj;
 
+          urdfVisitor << "Joint " << jointName << " connects parent " << parentName
+                          << " link"<<" with parent joint "<<parentJointName<<" to child "
+                          << childNameOrig << " link" << " with joint type "
+                          << jointElement->template Get<std::string>("type")<< '\n';
           const Scalar infty = std::numeric_limits<Scalar>::infinity();
           FrameIndex parentFrameId = urdfVisitor.getBodyId(parentName);
           Vector max_effort(Vector::Constant(1, infty)),
@@ -365,43 +446,34 @@ namespace pinocchio
 
           const ::sdf::ElementPtr inertialElem = childElement->GetElement("inertial");
           Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
-          JointIndex existingJointId = -1;
-          if (urdfVisitor.existFrame(childName, BODY))
-          { // Child link exists, thus loop constraint should be active.
-            //No Inertial Information is needed, as it would have already been added.
-            is_constraint = true;
-
-            // Find existing joint before adding new one.
-            existingJointId = urdfVisitor.getParentId(childName);
-            Y.mass() *= 0.5;
-            Y.inertia() *= 0.5;
-
-            //TODO: ADD CONSTRAINT DEFINITION HERE
-          }
+          
+          Y.mass() *= 1.0/(double)nParents;
+          Y.inertia() *= 1.0/(double)nParents;
+          
           if (jointElement->template Get<std::string>("type") == "universal") {
           }
           else if (jointElement->template Get<std::string>("type") == "revolute") {
-            joint_info << "joint REVOLUTE with axis"<< axis.transpose();
+            urdfVisitor << "joint REVOLUTE with axis"<< axis.transpose()<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, childName, max_effort, max_velocity,
+                                        Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction, damping);
           }
           else if (jointElement->template Get<std::string>("type") == "gearbox")
           {
-            joint_info << "joint GEARBOX with axis";
+            urdfVisitor << "joint GEARBOX with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, childName, max_effort, max_velocity,
+                                        Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
             
           }
           else if (jointElement->template Get<std::string>("type") == "prismatic")
           {
-            joint_info << "joint prismatic with axis";
+            urdfVisitor << "joint prismatic with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::PRISMATIC, axis,
                                         parentFrameId, jointPlacement, jointName,
-                                        Y, childName, max_effort, max_velocity,
+                                        Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
           }          
           else if (jointElement->template Get<std::string>("type") == "ball")
@@ -415,21 +487,31 @@ namespace pinocchio
             friction = Vector::Constant(3, 0.);
             damping = Vector::Constant(3, 0.);
               
-            joint_info << "joint BALL";
+            urdfVisitor << "joint BALL"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
-                                        parentFrameId, jointPlacement, jointName, Y, childName,
+                                        parentFrameId, jointPlacement, jointName, Y, cMj.inverse(),
+                                        childName,
                                         max_effort, max_velocity, min_config, max_config,
                                         friction, damping);
           }
           else
           {
-            joint_info<<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<<std::endl;
+            urdfVisitor <<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<< '\n';
           }
 
-          if (not is_constraint) {
+          SE3 cMj1(SE3::Identity());
+          JointIndex existingJointId = -1;
+          std::string constraint_name;
+          //Get joint Id that was just added:
+          JointIndex currentAddedJointId = urdfVisitor.getJointId(jointName);
+
+          if (make_parent) {
+            if (multiple_parents) {
+              childPoseMap.insert(std::make_pair(childNameOrig, cMj));
+            }
             // Add a recursion to the remaining children of the link just added.
             const std::vector<std::string>& childrenOfLink =
-              childrenOfLinks.find(childName)->second;
+              childrenOfLinks.find(childNameOrig)->second;
             
             for(std::vector<std::string>::const_iterator childOfChild = std::begin(childrenOfLink);
                 childOfChild != std::end(childrenOfLink); ++childOfChild) {
@@ -438,36 +520,28 @@ namespace pinocchio
               recursiveFillModel(childOfChildElement);
             }
           }
-          else { // If it is a constraint, add the constraint and half the previous inertia.
-            // Since Y_p is already present, halve it.
-            //TODO: For multiple joints connected to the same link, halving might be a problem.
-            //TODO: Handle inertias after full model is parsed.
+          else {
 
-            
-            Inertia & Y_p = urdfVisitor.model.inertias[existingJointId];
-            Y_p.mass() *= 0.5;
-            Y_p.inertia() *= 0.5;
+            // If there are multiple parents, use parent guidance to choose which parent to use.
+            // By default, it uses the first parent that is parsed in parentsOfLink.
+            // The inertia values are already divided by nParents before addJointAndBody.
+            // One parent creates the kinematic chain, while all other parents create constraints
 
-            //Get cMj of previous joint.
-            const ::sdf::ElementPtr prevJointElement =
-              mapOfJoints.find(urdfVisitor.getJointName(existingJointId))->second;
-            SE3 cMj1(SE3::Identity());
-            if (prevJointElement->HasElement("pose"))
-            {
-              const ignition::math::Pose3d prevcMj_ig =
-                prevJointElement->template Get<ignition::math::Pose3d>("pose");
-              cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
+            if (not multiple_parents) {
+              assert(true && "Should not happen.");
+            }
+            if (not currentJointOrderId != parentOrderId) {
+              assert(true && "Should not happen");
             }
 
-            //Get joint Id that was just added:
-            JointIndex currentJointId = urdfVisitor.getJointId(jointName);           
             ContactDetails rcm (::pinocchio::CONTACT_6D,
-                                currentJointId,
+                                currentAddedJointId,
                                 cMj.inverse(),
                                 existingJointId,
                                 cMj1.inverse());
-            rcm.name = childName+"_"+std::to_string(currentJointId)+"_"+std::to_string(existingJointId);
+            rcm.name = childNameOrig;
             contact_details.push_back(rcm);
+            
           }
         }
       }; //Struct sdfGraph
@@ -493,6 +567,7 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const std::string& rootLinkName,
+               const std::vector<std::string>& parentGuidance,               
                const bool verbose)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
@@ -502,6 +577,8 @@ namespace pinocchio
 
       SdfGraph graph (visitor);
       if (verbose) visitor.log = &std::cout;
+
+      graph.setParentGuidance(parentGuidance);
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
@@ -516,9 +593,15 @@ namespace pinocchio
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
-
+        // Get Link Name, and Link Pose, and set the values here:
+        const JointIndex joint_id = visitor.getParentId(cm->name);
+        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
+        
+        visitor <<"Adding constraints around link: "<<cm->name<< '\n';
+        visitor <<"with joint_id: "<<joint_id<< '\n';
+        visitor <<"With pose: "<<cMj<< '\n';
         RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 cm->joint2_id, cm->joint2_placement, cm->reference_frame);
+                                 joint_id, cMj.inverse(), cm->reference_frame);
 
         contact_models.push_back(rcm);
       }
@@ -532,12 +615,15 @@ namespace pinocchio
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const std::string& rootLinkName,
+               const std::vector<std::string>& parentGuidance,
                const bool verbose)
     {
       typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
       
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
       SdfGraph graph (visitor);
+
+      graph.setParentGuidance(parentGuidance);
       
       if (verbose) visitor.log = &std::cout;
 
@@ -554,9 +640,16 @@ namespace pinocchio
       for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
             cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
       {
+        // Get Link Name, and Link Pose, and set the values here:
+        const JointIndex joint_id = visitor.getParentId(cm->name);
+        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
+
+        visitor<<"Adding constraints around link: "<<cm->name<< '\n';
+        visitor<<"with joint_id: "<<joint_id<< '\n';
+        visitor<<"With pose: "<<cMj<< '\n';        
         RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 cm->joint2_id, cm->joint2_placement, cm->reference_frame);
-        rcm.name = cm->name;
+                                 joint_id, cMj.inverse(), cm->reference_frame);
+
         contact_models.push_back(rcm);
       }
       
