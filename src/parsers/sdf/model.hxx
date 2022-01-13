@@ -353,38 +353,84 @@ namespace pinocchio
           
           const ::sdf::ElementPtr childElement =  mapOfLinks.find(childNameOrig)->second;
           const ::sdf::ElementPtr parentElement = mapOfLinks.find(parentName)->second;
-          const ignition::math::Pose3d parentPlacement =
-            parentElement->template Get<ignition::math::Pose3d>("pose");
-          const ignition::math::Pose3d childPlacement =
-            childElement->template Get<ignition::math::Pose3d>("pose");
+          const ::sdf::ElementPtr parentLinkPoseElem =
+            parentElement->GetElement("pose");
+          const ::sdf::ElementPtr childLinkPoseElem =
+            childElement->GetElement("pose");
+          const ::sdf::ElementPtr jointPoseElem =
+            jointElement->GetElement("pose");
 
+          const ignition::math::Pose3d parentLinkPlacement_ig =
+            parentElement->template Get<ignition::math::Pose3d>("pose");
+
+          const ignition::math::Pose3d childLinkPlacement_ig =
+            childElement->template Get<ignition::math::Pose3d>("pose");
+          
+          const ignition::math::Pose3d curJointPlacement_ig =
+            jointElement->template Get<ignition::math::Pose3d>("pose");
+
+          const SE3 parentLinkPlacement = ::pinocchio::sdf::details::convertFromPose3d(parentLinkPlacement_ig);
+          const SE3 childLinkPlacement = ::pinocchio::sdf::details::convertFromPose3d(childLinkPlacement_ig);
+          const SE3 curJointPlacement = ::pinocchio::sdf::details::convertFromPose3d(curJointPlacement_ig);
+          
           const JointIndex parentJointId = urdfVisitor.getParentId(parentName);
           const std::string& parentJointName = urdfVisitor.getJointName(parentJointId);
 
-          SE3 cMj(SE3::Identity()), pMjp(SE3::Identity());
+          
+          SE3 cMj(SE3::Identity()), pMjp(SE3::Identity()),
+            oMc(SE3::Identity()), pMj(SE3::Identity());
 
-          if (jointElement->HasElement("pose"))
-          {
-            const ignition::math::Pose3d cMj_ig =
-              jointElement->template Get<ignition::math::Pose3d>("pose");
-            cMj = ::pinocchio::sdf::details::convertFromPose3d(cMj_ig);
-          }
-
+          //Find pose of parent link w.r.t. parent joint.
           if (parentJointName != "root_joint" && parentJointName != "universe" ) {
             const ::sdf::ElementPtr parentJointElement = mapOfJoints.find(parentJointName)->second;
-          
-            if (parentJointElement->HasElement("pose"))
-            {
 
-              const ignition::math::Pose3d parentcMj_ig =
-                parentJointElement->template Get<ignition::math::Pose3d>("pose");
-              pMjp = ::pinocchio::sdf::details::convertFromPose3d(parentcMj_ig);
+            const ::sdf::ElementPtr parentJointPoseElem = parentJointElement->GetElement("pose");
+
+            const ignition::math::Pose3d parentJointPoseElem_ig =
+              parentJointElement->template Get<ignition::math::Pose3d>("pose");
+
+            const SE3 parentJointPlacement = ::pinocchio::sdf::details::convertFromPose3d(parentJointPoseElem_ig);
+
+            const std::string relativeFrame = parentJointPoseElem->template Get<std::string>("relative_to");
+            const std::string parentJointParentName = parentJointElement->GetElement("parent")->Get<std::string>();
+            
+            if(not relativeFrame.compare(parentJointParentName)) { //If they are equal
+
+              // Pose is relative to Parent joint's parent. Search in parent link instead.
+              const std::string& parentLinkRelativeFrame = parentLinkPoseElem->template Get<std::string>("relative_to");
+              
+              // If the pMjp is not found, throw
+              PINOCCHIO_THROW(not parentLinkRelativeFrame.compare(parentJointName),
+                              std::logic_error, parentName + " pose is not defined w.r.t. parent joint" );
+
+              pMjp = parentLinkPlacement.inverse();
+            }
+            else {  //If the relative_to is not the parent
+              // The joint pose is defined w.r.t to the child, as per the SDF standard < 1.7
+              pMjp = ::pinocchio::sdf::details::convertFromPose3d(parentJointPoseElem_ig);
             }
           }
 
-          const SE3 oMp = ::pinocchio::sdf::details::convertFromPose3d(parentPlacement);
-          const SE3 oMc = ::pinocchio::sdf::details::convertFromPose3d(childPlacement);
-          const SE3 jointPlacement = pMjp.inverse() * oMp.inverse() * oMc * cMj;
+          // Find Pose of current joint w.r.t. child link, e.t. cMj;
+          const std::string& curJointRelativeFrame = jointPoseElem->template Get<std::string>("relative_to");
+          const std::string& childLinkRelativeFrame = childLinkPoseElem->template Get<std::string>("relative_to");
+          
+          if(not curJointRelativeFrame.compare(parentName)) { //If they are equal
+            pMj = curJointPlacement;
+          }
+          else {
+            cMj = curJointPlacement;
+          }
+          
+          if(not childLinkRelativeFrame.compare(jointName)) { //If they are equal
+            cMj = childLinkPlacement.inverse();
+          }
+          else {
+            oMc = childLinkPlacement;
+            pMj = parentLinkPlacement.inverse() * childLinkPlacement * cMj;
+          }
+
+          const SE3 jointPlacement = pMjp.inverse() * pMj;
 
           urdfVisitor << "Joint " << jointName << " connects parent " << parentName
                           << " link"<<" with parent joint "<<parentJointName<<" to child "
@@ -408,10 +454,11 @@ namespace pinocchio
               axisElem->Get<ignition::math::Vector3d>("xyz");
             axis << axis_ignition.X(), axis_ignition.Y(), axis_ignition.Z();
 
+            // if use_parent_model_frame has been set to true
             if(xyzElem->HasAttribute("expressed_in")) {
               const std::string parentModelFrame = xyzElem->template Get<std::string>("expressed_in");
               if(parentModelFrame == "__model__") {
-                axis = oMc.rotation().inverse() * axis;
+                axis = childLinkPlacement.rotation().inverse() * axis;
               }
             }
 
