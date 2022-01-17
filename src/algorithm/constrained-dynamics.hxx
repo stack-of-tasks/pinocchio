@@ -390,7 +390,7 @@ namespace pinocchio
 
     // Solve the system
 //    Scalar primal_infeasibility = Scalar(0);
-    int it = 1;
+    int it = 0;
     data.lambda_c_prox.setZero();
     for(; it < settings.max_iter; ++it)
     {
