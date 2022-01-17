@@ -393,17 +393,19 @@ namespace pinocchio
 //    Scalar primal_infeasibility = Scalar(0);
     int it = 0;
     data.lambda_c_prox.setZero();
-    for(; it < settings.max_iter; ++it)
+    for(it++; it <= settings.max_iter;)
     {
       primal_dual_contact_solution.head(contact_chol.constraintDim()) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
       primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
       contact_chol.solveInPlace(primal_dual_contact_solution);
+      
       settings.residual = (primal_dual_contact_solution.head(contact_chol.constraintDim()) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
       if(check_expression_if_real<Scalar,false>(settings.residual <= settings.accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
         break;
       data.lambda_c_prox = -primal_dual_contact_solution.head(contact_chol.constraintDim());
     }
     settings.iter = it;
+    assert(settings.iter <= settings.max_iter && "must never happened");
     
     // Retrieve the joint space acceleration
     a = primal_dual_contact_solution.tail(model.nv);
