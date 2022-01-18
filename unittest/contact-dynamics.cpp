@@ -1451,7 +1451,7 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   
   computeJointJacobians(model,data_ref,q);
   BOOST_CHECK(data.J.isApprox(data_ref.J));
-  aba(model, data_ref, q, v, tau);
+  minimal::aba(model, data_ref, q, v, tau);
   
   for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
   {
