@@ -393,8 +393,9 @@ namespace pinocchio
 //    Scalar primal_infeasibility = Scalar(0);
     int it = 0;
     data.lambda_c_prox.setZero();
-    for(it++; it <= settings.max_iter;)
+    for(; it < settings.max_iter;)
     {
+      it++;
       primal_dual_contact_solution.head(contact_chol.constraintDim()) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
       primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
       contact_chol.solveInPlace(primal_dual_contact_solution);
