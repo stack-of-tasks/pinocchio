@@ -736,6 +736,9 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd_prox)
   BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));
   std::cout << "data_fd.dlambda_dtau: " << data_fd.dlambda_dtau << std::endl;
   std::cout << "data.dlambda_dtau: " << data.dlambda_dtau << std::endl;
+  
+  std::cout << "data_fd.dlambda_dq: " << data_fd.dlambda_dq << std::endl;
+  std::cout << "data.dlambda_dq: " << data.dlambda_dq << std::endl;
 
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
