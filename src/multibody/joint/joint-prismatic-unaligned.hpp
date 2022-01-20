@@ -148,7 +148,8 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionPrismaticUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis && m_v == other.m_v;
+      return internal::comparison_eq(m_axis, other.m_axis) &&
+	internal::comparison_eq(m_v, other.m_v);
     }
     
     const Scalar & linearRate() const { return m_v; }
@@ -334,7 +335,7 @@ namespace pinocchio
     
     bool isEqual(const JointMotionSubspacePrismaticUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis;
+      return internal::comparison_eq(m_axis, other.m_axis);
     }
     
   protected:
@@ -539,7 +540,7 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelPrismaticUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis;
+      return Base::isEqual(other) && internal::comparison_eq(axis, other.axis);
     }
     
     template<typename ConfigVector>

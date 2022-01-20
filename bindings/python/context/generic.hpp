@@ -106,8 +106,8 @@ typedef JointDataCompositeTpl<Scalar> JointDataComposite;
 typedef ProximalSettingsTpl<Scalar> ProximalSettings;
 typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholeskyDecomposition;
 
-typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
 
 // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP

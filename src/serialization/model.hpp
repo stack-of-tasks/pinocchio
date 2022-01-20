@@ -13,6 +13,7 @@
 #include "pinocchio/serialization/fwd.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
 #include "pinocchio/serialization/spatial.hpp"
+#include "pinocchio/serialization/eigen.hpp"
 #include "pinocchio/serialization/joints.hpp"
 #include "pinocchio/serialization/frame.hpp"
 

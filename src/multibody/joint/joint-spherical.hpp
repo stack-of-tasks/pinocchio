@@ -97,13 +97,13 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionSphericalTpl & other) const
     {
-      return m_w == other.m_w;
+      return internal::comparison_eq(m_w, other.m_w);
     }
     
     template<typename MotionDerived>
     bool isEqual_impl(const MotionDense<MotionDerived> & other) const
     {
-      return other.angular() == m_w && other.linear().isZero(0);
+      return internal::comparison_eq(other.angular(), m_w) && other.linear().isZero(0);
     }
     
     template<typename S2, int O2, typename D2>

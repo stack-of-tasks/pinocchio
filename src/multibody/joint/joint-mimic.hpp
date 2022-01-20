@@ -173,8 +173,8 @@ namespace pinocchio
     
     bool isEqual(const ScaledJointMotionSubspace & other) const
     {
-      return m_constraint == other.m_constraint
-      && m_scaling_factor == other.m_scaling_factor;
+      return internal::comparison_eq(m_constraint, other.m_constraint) &&  
+             internal::comparison_eq(m_scaling_factor, other.m_scaling_factor);
     }
     
   protected:
@@ -346,10 +346,10 @@ namespace pinocchio
     bool isEqual(const JointDataMimic & other) const
     {
       return Base::isEqual(other)
-      && m_jdata_ref == other.m_jdata_ref
-      && m_scaling == other.m_scaling
-      && joint_q == other.joint_q
-      && joint_v == other.joint_v
+        && internal::comparison_eq(m_jdata_ref, other.m_jdata_ref)
+        && internal::comparison_eq(m_scaling, other.m_scaling)
+        && internal::comparison_eq(joint_q, other.joint_q)
+        && internal::comparison_eq(joint_v, other.joint_v)
       ;
     }
     

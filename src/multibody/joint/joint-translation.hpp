@@ -82,7 +82,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionTranslationTpl & other) const
     {
-      return m_v == other.m_v;
+      return internal::comparison_eq(m_v, other.m_v);
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
@@ -244,7 +244,7 @@ namespace pinocchio
     
     bool isEqual(const TransformTranslationTpl & other) const
     {
-      return m_translation == other.m_translation;
+      return internal::comparison_eq(m_translation, other.m_translation);
     }
     
   protected:

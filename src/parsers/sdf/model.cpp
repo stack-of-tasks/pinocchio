@@ -21,7 +21,7 @@ namespace pinocchio
   namespace sdf
   {
     namespace details
-    {      
+    {
       void parseRootTree(SdfGraph& graph)
       {
         //First joint connecting universe

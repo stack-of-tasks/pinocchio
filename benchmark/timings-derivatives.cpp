@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"

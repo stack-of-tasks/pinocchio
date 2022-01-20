@@ -21,7 +21,7 @@ namespace pinocchio
     bp::tuple buildModelFromSdf(const std::string & filename)
     {
       Model model;
-      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
       ::pinocchio::sdf::buildModel(filename, model, contact_models);
       return bp::make_tuple(model,contact_models);
     }
@@ -31,7 +31,7 @@ namespace pinocchio
     {
       JointModelVariant root_joint = bp::extract<JointModelVariant>(root_joint_object)();
       Model model;
-      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
       pinocchio::sdf::buildModel(filename, root_joint, model, contact_models);
       return bp::make_tuple(model,contact_models);
     }

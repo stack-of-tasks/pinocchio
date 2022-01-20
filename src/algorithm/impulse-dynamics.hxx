@@ -6,7 +6,7 @@
 #define __pinocchio_algorithm_impulse_dynamics_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hxx"
+#include "pinocchio/algorithm/constrained-dynamics.hxx"
 #include <limits>
 
 namespace pinocchio
@@ -18,8 +18,8 @@ namespace pinocchio
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v_before,
-                  const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
                   const Scalar r_coeff,
                   const Scalar mu)
   {
@@ -37,8 +37,8 @@ namespace pinocchio
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typename Data::TangentVectorType & dq_after = data.dq_after;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -77,8 +77,8 @@ namespace pinocchio
     Eigen::DenseIndex current_row_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
+      const RigidConstraintModel & contact_model = contact_models[contact_id];
+      RigidConstraintData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
       const JointIndex joint1_id = contact_model.joint1_id;
@@ -143,9 +143,9 @@ namespace pinocchio
     Eigen::DenseIndex current_row_sol_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
-      typename RigidContactData::Force & impulse = contact_data.contact_force;
+      const RigidConstraintModel & contact_model = contact_models[contact_id];
+      RigidConstraintData & contact_data = contact_datas[contact_id];
+      typename RigidConstraintData::Force & impulse = contact_data.contact_force;
       const int contact_dim = contact_model.size();
       
       switch(contact_model.type)

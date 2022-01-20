@@ -617,7 +617,7 @@ namespace pinocchio
   };
 
   template<typename _Scalar>
-  struct CodeGenContactDynamicsDerivatives : public CodeGenBase<_Scalar>
+  struct CodeGenConstraintDynamicsDerivatives : public CodeGenBase<_Scalar>
   {
     typedef CodeGenBase<_Scalar> Base;
     typedef typename Base::Scalar Scalar;
@@ -631,17 +631,17 @@ namespace pinocchio
     typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
     typedef typename Base::VectorXs VectorXs;
 
-    typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
+    typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
     typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
     typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-    typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
+    typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
     typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
     typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
 
-    typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
+    typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
     typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
     typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-    typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
+    typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADContactData;
     typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
     typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
 
@@ -664,10 +664,10 @@ namespace pinocchio
     }
 
     
-    CodeGenContactDynamicsDerivatives(const Model & model,
+    CodeGenConstraintDynamicsDerivatives(const Model & model,
                                       const ContactModelVector& contact_models,
-                                      const std::string & function_name = "partial_contactDynamics",
-                                      const std::string & library_name = "cg_partial_contactDynamics_eval")
+                                      const std::string & function_name = "partial_constraintDynamics",
+                                      const std::string & library_name = "cg_partial_constraintDynamics_eval")
       : Base(model,model.nq+2*model.nv,
              3*model.nv*model.nv + 3*constraintDim(contact_models)*model.nv,
              function_name,library_name),
@@ -694,11 +694,11 @@ namespace pinocchio
         ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
       }
 
-      pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
+      pinocchio::initConstraintDynamics(ad_model, ad_data, ad_contact_models);
       Base::build_jacobian = false;
     }
 
-    virtual ~CodeGenContactDynamicsDerivatives() {}
+    virtual ~CodeGenConstraintDynamicsDerivatives() {}
     
     void buildMap()
     {
@@ -709,7 +709,7 @@ namespace pinocchio
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_tau = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
 
-      pinocchio::contactDynamics(ad_model,ad_data,
+      pinocchio::constraintDynamics(ad_model,ad_data,
                                  ad_q,ad_v,ad_tau,
                                  ad_contact_models,ad_contact_datas);
       pinocchio::computeContactDynamicsDerivatives(ad_model,ad_data,
@@ -785,7 +785,7 @@ namespace pinocchio
   };
 
   template<typename _Scalar>
-  struct CodeGenContactDynamics : public CodeGenBase<_Scalar>
+  struct CodeGenConstraintDynamics : public CodeGenBase<_Scalar>
   {
     typedef CodeGenBase<_Scalar> Base;
     typedef typename Base::Scalar Scalar;
@@ -799,17 +799,17 @@ namespace pinocchio
     typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(MatrixXs) RowMatrixXs;
     typedef typename Base::VectorXs VectorXs;
 
-    typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
+    typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ContactModel;
     typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
     typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-    typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
+    typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ContactData;
     typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
     typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
 
-    typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
+    typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADContactModel;
     typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
     typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-    typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
+    typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADContactData;
     typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
     typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
 
@@ -831,10 +831,10 @@ namespace pinocchio
       return num_total_constraints;
     }
     
-    CodeGenContactDynamics(const Model & model,
+    CodeGenConstraintDynamics(const Model & model,
                            const ContactModelVector& contact_models,
-                           const std::string & function_name = "contactDynamics",
-                           const std::string & library_name = "cg_contactDynamics_eval")
+                           const std::string & function_name = "constraintDynamics",
+                           const std::string & library_name = "cg_constraintDynamics_eval")
       : Base(model,model.nq+2*model.nv,
              model.nv + constraintDim(contact_models),
              function_name,library_name),
@@ -863,10 +863,10 @@ namespace pinocchio
       for(int k=0;k<ad_contact_models.size();++k){
         ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
       }
-      pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
+      pinocchio::initConstraintDynamics(ad_model, ad_data, ad_contact_models);
     }
 
-    virtual ~CodeGenContactDynamics() {}
+    virtual ~CodeGenConstraintDynamics() {}
     
     void buildMap()
     {
@@ -877,7 +877,7 @@ namespace pinocchio
       ad_v = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
       ad_tau = ad_X.segment(it,ad_model.nv); it += ad_model.nv;
 
-      pinocchio::contactDynamics(ad_model,ad_data,
+      pinocchio::constraintDynamics(ad_model,ad_data,
                                  ad_q,ad_v,ad_tau,
                                  ad_contact_models,ad_contact_datas);
       ad_Y.head(ad_model.nv) = ad_data.ddq;

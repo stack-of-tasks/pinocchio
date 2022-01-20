@@ -172,7 +172,7 @@ namespace pinocchio
     
     bool isEqual(const JointMotionSubspaceSphericalZYXTpl & other) const
     {
-      return m_S == other.m_S;
+      return internal::comparison_eq(m_S, other.m_S);
     }
     
   protected:

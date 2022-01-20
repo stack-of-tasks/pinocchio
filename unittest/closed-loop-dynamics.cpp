@@ -42,14 +42,14 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL)
   const std::string LF = "lleg6_joint";
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   
-  RigidContactModel ci_RF_LF(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidConstraintModel ci_RF_LF(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),LOCAL);
   ci_RF_LF.joint1_placement.setRandom();
   ci_RF_LF.joint2_placement.setRandom();
   contact_models.push_back(ci_RF_LF);
-  contact_datas.push_back(RigidContactData(ci_RF_LF));
+  contact_datas.push_back(RigidConstraintData(ci_RF_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL)
 
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   
@@ -114,14 +114,14 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL_WORLD_ALIGNED)
   const std::string LF = "lleg6_joint";
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   
-  RigidContactModel ci_RF_LF(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF_LF(CONTACT_6D,model.getJointId(RF),model.getJointId(LF),LOCAL_WORLD_ALIGNED);
   ci_RF_LF.joint1_placement.setRandom();
   ci_RF_LF.joint2_placement.setRandom();
   contact_models.push_back(ci_RF_LF);
-  contact_datas.push_back(RigidContactData(ci_RF_LF));
+  contact_datas.push_back(RigidConstraintData(ci_RF_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE(closed_loop_constraint_6D_LOCAL_WORLD_ALIGNED)
 
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
   
   BOOST_CHECK((J_ref*data.ddq+rhs_ref).isZero());
   

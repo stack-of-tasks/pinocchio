@@ -18,11 +18,11 @@ namespace pinocchio
     typedef ContactCholeskyDecompositionTpl<double,0> ContactCholeskyDecomposition;
   }
 
-  template<typename Scalar, int Options> struct RigidContactModelTpl;
-  template<typename Scalar, int Options> struct RigidContactDataTpl;
+  template<typename Scalar, int Options> struct RigidConstraintModelTpl;
+  template<typename Scalar, int Options> struct RigidConstraintDataTpl;
   
-  typedef RigidContactModelTpl<double,0> RigidContactModel;
-  typedef RigidContactDataTpl<double,0> RigidContactData;
+  typedef RigidConstraintModelTpl<double,0> RigidConstraintModel;
+  typedef RigidConstraintDataTpl<double,0> RigidConstraintData;
 }
 
 

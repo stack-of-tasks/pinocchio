@@ -22,9 +22,9 @@ namespace pinocchio
       exposeKinematics();
       
       exposeContactJacobian();
+      exposeConstraintDynamics();
+      exposeConstraintDynamicsDerivatives();
       exposeContactDynamics();
-      exposeContactDynamicsDerivatives();
-      exposeConstrainedDynamics();
       exposeCAT();
       exposeJacobian();
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)

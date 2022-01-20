@@ -14,13 +14,13 @@ namespace pinocchio
     namespace python
     {
     
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
   
       static void impulseDynamicsDerivatives_proxy(const context::Model & model,
                                                    context::Data & data,
-                                                   const RigidContactModelVector & contact_models,
-                                                   RigidContactDataVector & contact_datas,
+                                                   const RigidConstraintModelVector & contact_models,
+                                                   RigidConstraintDataVector & contact_datas,
                                                    const context::Scalar & r_coeff = context::Scalar(0),
                                                    const context::Scalar & mu = context::Scalar(0))
       {

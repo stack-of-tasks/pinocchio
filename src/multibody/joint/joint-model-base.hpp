@@ -157,7 +157,7 @@ namespace pinocchio
     
     template <class OtherDerived>
     bool operator!=(const JointModelBase<OtherDerived> & other) const
-    { return !(derived() == other.derived()); }
+    { return !(internal::comparison_eq(derived(), other.derived())); }
     
     template <class OtherDerived>
     bool isEqual(const JointModelBase<OtherDerived> &) const
@@ -171,9 +171,9 @@ namespace pinocchio
     template <class OtherDerived>
     bool hasSameIndexes(const JointModelBase<OtherDerived> & other) const
     {
-      return other.id() == id()
-      && other.idx_q() == idx_q()
-      && other.idx_v() == idx_v();
+      return internal::comparison_eq(other.id(), id())
+	&& internal::comparison_eq(other.idx_q(), idx_q())
+	&& internal::comparison_eq(other.idx_v(), idx_v());
     }
 
     /* Acces to dedicated segment in robot config space.  */

@@ -45,7 +45,34 @@ namespace pinocchio
         }
       }
     };
+
+
+    template<typename Scalar>
+    struct comparison_eq_impl<::casadi::Matrix<Scalar>,::casadi::Matrix<Scalar> >
+    {
+      typedef ::casadi::Matrix<Scalar> CasadiType;
+      
+      static inline bool run(const CasadiType & lhs_value,
+			     const CasadiType & rhs_value)
+      {
+	return (lhs_value == rhs_value).is_zero();
+      }
+    };
+
   } // namespace internal
 } // namespace pinocchio
+
+namespace std {
+
+  template<typename Scalar>
+  struct equal_to<::casadi::Matrix<Scalar> >
+  {
+    bool operator() (const ::casadi::Matrix<Scalar> & lhs_value,
+		     const ::casadi::Matrix<Scalar> & rhs_value) const
+    {
+      return (lhs_value == rhs_value).is_zero();
+    }
+  };
+}
 
 #endif // ifndef __pinocchio_autodiff_casadi_utils_static_if_hpp__

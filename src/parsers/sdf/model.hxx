@@ -83,10 +83,10 @@ namespace pinocchio
 
         typedef ::pinocchio::urdf::details::UrdfVisitorBase UrdfVisitorBase;
         UrdfVisitorBase& urdfVisitor;
-        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models;
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models;
 
         SdfGraph(::pinocchio::urdf::details::UrdfVisitorBase& urdfVisitor,
-                 PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models)
+                 PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models)
           : urdfVisitor(urdfVisitor),
             contact_models(contact_models)
         {}
@@ -143,10 +143,10 @@ namespace pinocchio
           }
         }
 
-        static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+        static bool existConstraint(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                                const std::string& jointName)
         {
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
                 cm = std::begin(contact_models);
               cm != std::end(contact_models); ++cm)
             {
@@ -169,11 +169,11 @@ namespace pinocchio
         }
 
         
-        static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+        static int getConstraintId(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                                            const std::string& jointName)
         {
           std::size_t i = 0;
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
                 cm = std::begin(contact_models);
               cm != std::end(contact_models); ++cm)
           {
@@ -185,11 +185,11 @@ namespace pinocchio
         }
 
 
-        int getConstraintIdFromChild(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+        int getConstraintIdFromChild(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                                      const std::string& childName)
         {
           std::size_t i = 0;
-          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)::const_iterator
+          for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)::const_iterator
                 cm = std::begin(contact_models);
               cm != std::end(contact_models); ++cm)
           {
@@ -284,7 +284,7 @@ namespace pinocchio
                   cMj1 = ::pinocchio::sdf::details::convertFromPose3d(prevcMj_ig);
                 }
 
-                ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
+                ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
                                                     parentJointId,
                                                     jointPlacement,
                                                     existingParentJointId,
@@ -311,7 +311,7 @@ namespace pinocchio
               std::cout<<childName<<" not yet added to model"<<std::endl;
               std::cout<<jointName<<" corresponds to pending link"<<childName<<std::endl;
               existingParentJointId = -1;
-              ::pinocchio::RigidContactModel rcm (::pinocchio::CONTACT_3D,
+              ::pinocchio::RigidConstraintModel rcm (::pinocchio::CONTACT_3D,
                                                   parentJointId,
                                                   jointPlacement,
                                                   existingParentJointId,
@@ -458,7 +458,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const bool verbose)
     {
       ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
@@ -480,7 +480,7 @@ namespace pinocchio
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const bool verbose)
     {
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);

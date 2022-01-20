@@ -39,7 +39,7 @@ namespace pinocchio
      */
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     GeometryModel & buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+                              PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                               const std::string & filename,
                               const GeometryType type,
                               GeometryModel & geomModel,
@@ -64,7 +64,7 @@ namespace pinocchio
     buildModel(const std::string & filename,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const bool verbose = false);
 
 
@@ -80,7 +80,7 @@ namespace pinocchio
     ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModel(const std::string & filename,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
                const bool verbose = false);
 
   } // namespace sdf

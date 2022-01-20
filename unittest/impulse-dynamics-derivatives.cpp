@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives_no_contact)
   VectorXd v = VectorXd::Random(model.nv);
   
   // Contact models and data
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) empty_contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) empty_contact_data;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) empty_contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) empty_contact_data;
 
   const double mu0 = 0.;
   const double r_coeff = 0.5;
   
-  initContactDynamics(model,data,empty_contact_models);
+  initConstraintDynamics(model,data,empty_contact_models);
   impulseDynamics(model,data,q,v,empty_contact_models,empty_contact_data,r_coeff, mu0);
 
   const Eigen::VectorXd dv = data.dq_after-v;
@@ -77,14 +77,14 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_derivatives)
   const double mu0 = 0.;
   const double r_coeff = 0.5;
   
-  initContactDynamics(model,data,contact_models);
+  initConstraintDynamics(model,data,contact_models);
   impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
   computeImpulseDynamicsDerivatives(model,data,contact_models,contact_data,r_coeff,mu0);
   
@@ -164,14 +164,14 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -180,12 +180,12 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_fd )
   const double mu0 = 0.;
   const double r_coeff = 0.5;
 
-  initContactDynamics(model,data,contact_models);
+  initConstraintDynamics(model,data,contact_models);
   impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
   computeImpulseDynamicsDerivatives(model, data, contact_models, contact_data, r_coeff, mu0);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd dqafter_partial_dq_fd(model.nv,model.nv); dqafter_partial_dq_fd.setZero();
   MatrixXd dqafter_partial_dv_fd(model.nv,model.nv); dqafter_partial_dv_fd.setZero();
@@ -263,14 +263,14 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL_WORLD_ALIGNED);
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -279,12 +279,12 @@ BOOST_AUTO_TEST_CASE ( test_impulse_dynamics_derivatives_LOCAL_WORLD_ALIGNED_fd 
   const double mu0 = 0.;
   const double r_coeff = 0.5;
 
-  initContactDynamics(model,data,contact_models);
+  initConstraintDynamics(model,data,contact_models);
   impulseDynamics(model,data,q,v,contact_models,contact_data,r_coeff,mu0);
   computeImpulseDynamicsDerivatives(model, data, contact_models, contact_data, r_coeff, mu0);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd dqafter_partial_dq_fd(model.nv,model.nv); dqafter_partial_dq_fd.setZero();
   MatrixXd dqafter_partial_dv_fd(model.nv,model.nv); dqafter_partial_dv_fd.setZero();

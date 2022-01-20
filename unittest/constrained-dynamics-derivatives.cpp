@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_cst_gamma )
 }
 
 template<typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-VectorXd contactDynamics(const Model & model, Data & data,
+VectorXd constraintDynamics(const Model & model, Data & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & tau,
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_varying_gamma )
   getJointJacobian(model, data, RF_id, LOCAL, J_RF);
   Motion::Vector6 gamma_RF; gamma_RF.setZero();
   
-  VectorXd x_ref = contactDynamics(model,data,q,v,tau,RF_id);
+  VectorXd x_ref = constraintDynamics(model,data,q,v,tau,RF_id);
   VectorXd ddq_ref = x_ref.head(model.nv);
   Force::Vector6 contact_force_ref = x_ref.tail(6);
   
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_varying_gamma )
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += eps;
-    x_plus = contactDynamics(model,data,q,v,tau_plus,RF_id);
+    x_plus = constraintDynamics(model,data,q,v,tau_plus,RF_id);
 
     const Data::TangentVectorType ddq_plus = x_plus.head(model.nv);
     Force::Vector6 contact_force_plus = x_plus.tail(6);
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_varying_gamma )
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += eps;
-    x_plus = contactDynamics(model,data,q,v_plus,tau,RF_id);
+    x_plus = constraintDynamics(model,data,q,v_plus,tau,RF_id);
 
     const Data::TangentVectorType ddq_plus = x_plus.head(model.nv);
     Force::Vector6 contact_force_plus = x_plus.tail(6);
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE ( test_FD_with_contact_varying_gamma )
     v_eps[k] = eps;
     q_plus = integrate(model,q,v_eps);
     
-    x_plus = contactDynamics(model,data,q_plus,v,tau,RF_id);
+    x_plus = constraintDynamics(model,data,q_plus,v,tau,RF_id);
     
     const Data::TangentVectorType ddq_plus = x_plus.head(model.nv);
     Force::Vector6 contact_force_plus = x_plus.tail(6);

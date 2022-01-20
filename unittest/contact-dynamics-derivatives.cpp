@@ -12,8 +12,8 @@
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/frames-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/spatial/classic-acceleration.hpp"
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 using namespace Eigen;
 using namespace pinocchio;
 
-BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives_no_contact)
+BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives_no_contact)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -43,17 +43,17 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives_no_contact)
   VectorXd tau = VectorXd::Random(model.nv);
 
   // Contact models and data
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) empty_contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) empty_contact_data;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) empty_contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) empty_contact_data;
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
 
-  initContactDynamics(model,data,empty_contact_models);
-  contactDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_data,prox_settings);
+  initConstraintDynamics(model,data,empty_contact_models);
+  constraintDynamics(model,data,q,v,tau,empty_contact_models,empty_contact_data,prox_settings);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data,prox_settings);
+  computeConstraintDynamicsDerivatives(model,data,empty_contact_models,empty_contact_data);
 
   // Reference values
   computeABADerivatives(model, data_ref, q, v, tau);
@@ -85,8 +85,7 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives_no_contact)
   BOOST_CHECK(data_ref.Minv.isApprox(data.ddq_dtau));
 }
 
-
-BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
+BOOST_AUTO_TEST_CASE(test_sparse_constraint_dynamics_derivatives)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -107,16 +106,16 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -124,12 +123,11 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   data.M.triangularView<Eigen::StrictlyLower>()
   = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model,data,contact_models,contact_data,prox_settings);
+  computeConstraintDynamicsDerivatives(model,data,contact_models,contact_data);
 
   // Reference values
   crba(model, data_ref, q);
@@ -138,8 +136,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_contact_dynamics_derivatives)
   container::aligned_vector<Force> fext((size_t)model.njoints,Force::Zero());
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
-    const RigidContactData & cdata = contact_data[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
+    const RigidConstraintData & cdata = contact_data[k];
     fext[cmodel.joint1_id] = cmodel.joint1_placement.act(cdata.contact_force);
 
     BOOST_CHECK(cdata.oMc1.isApprox(data_ref.oMi[cmodel.joint1_id] * cmodel.joint1_placement));
@@ -278,12 +276,12 @@ pinocchio::Motion computeAcceleration(const pinocchio::Model & model,
 
 pinocchio::Motion getContactAcceleration(const Model & model,
                                          const Data & data,
-                                         const RigidContactModel & cmodel)
+                                         const RigidConstraintModel & cmodel)
 {
   return computeAcceleration(model,data,cmodel.joint1_id,cmodel.reference_frame,cmodel.type,cmodel.joint1_placement);
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -303,13 +301,13 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -317,15 +315,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -335,7 +332,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -350,7 +347,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -363,7 +360,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -376,7 +373,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -386,12 +383,12 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_fd)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData)
-createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactModel) & contact_models)
+PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData)
+createData(const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) & contact_models)
 {
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidContactData) contact_datas;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_datas;
   for(size_t k = 0; k < contact_models.size(); ++k)
-    contact_datas.push_back(pinocchio::RigidContactData(contact_models[k]));
+    contact_datas.push_back(pinocchio::RigidConstraintData(contact_models[k]));
 
   return contact_datas;
 }
@@ -420,16 +417,16 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
 
-  RigidContactModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   ci_RF.joint2_placement.setRandom();
   ci_RF.corrector.Kp = 10.;
   ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
   contact_models.push_back(ci_RF);
 
-  RigidContactModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
   ci_LF.joint2_placement.setRandom();
   ci_LF.corrector.Kp = 10.;
@@ -440,14 +437,14 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
 
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas = createData(contact_models);
-  initContactDynamics(model,data,contact_models);
-  const Eigen::VectorXd ddq0 = contactDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas = createData(contact_models);
+  initConstraintDynamics(model,data,contact_models);
+  const Eigen::VectorXd ddq0 = constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,prox_settings);
 
   Eigen::MatrixXd ddq_dq(model.nv,model.nv), ddq_dv(model.nv,model.nv), ddq_dtau(model.nv,model.nv);
   Eigen::MatrixXd dlambda_dq(constraint_dim,model.nv), dlambda_dv(constraint_dim,model.nv), dlambda_dtau(constraint_dim,model.nv);
 
-  computeContactDynamicsDerivatives(model,data,contact_models,contact_datas,prox_settings,
+  computeConstraintDynamicsDerivatives(model,data,contact_models,contact_datas,
                                     ddq_dq,ddq_dv,ddq_dtau,
                                     dlambda_dq,dlambda_dv,dlambda_dtau);
   computeForwardKinematicsDerivatives(model,data,q,v,0*v);
@@ -487,8 +484,8 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
     BOOST_CHECK(dv_LF_dv_L.topRows<3>().isApprox(data.contact_chol.matrix().topRightCorner(9,model.nv).bottomRows<3>()));
   }
 
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_fd = createData(contact_models);
-  initContactDynamics(model,data_fd,contact_models);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_fd = createData(contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   Data::Matrix6x dacc_corrector_RF_dq_fd(6,model.nv);
   Data::Matrix3x dacc_corrector_LF_dq_fd(3,model.nv);
@@ -502,7 +499,7 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
     v_eps[k] = eps;
     const Eigen::VectorXd q_plus = integrate(model,q,v_eps);
 
-    Eigen::VectorXd ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_datas_fd,prox_settings);
+    Eigen::VectorXd ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_datas_fd,prox_settings);
     dacc_corrector_RF_dq_fd.col(k) = (contact_datas_fd[0].contact_acceleration_error - contact_datas[0].contact_acceleration_error).toVector() / eps;
     dacc_corrector_LF_dq_fd.col(k) = (contact_datas_fd[1].contact_acceleration_error.linear() - contact_datas[1].contact_acceleration_error.linear()) / eps;
 
@@ -524,7 +521,7 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
     Eigen::VectorXd v_plus(v);
     v_plus[k] += eps;
 
-    Eigen::VectorXd ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_datas_fd,prox_settings);
+    Eigen::VectorXd ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_datas_fd,prox_settings);
     dacc_corrector_RF_dv_fd.col(k) = (contact_datas_fd[0].contact_acceleration_error - contact_datas[0].contact_acceleration_error).toVector() / eps;
     dacc_corrector_LF_dv_fd.col(k) = (contact_datas_fd[1].contact_acceleration_error.linear() - contact_datas[1].contact_acceleration_error.linear()) / eps;
 
@@ -541,7 +538,7 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
     Eigen::VectorXd tau_plus(tau);
     tau_plus[k] += eps;
 
-    Eigen::VectorXd ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_datas_fd,prox_settings);
+    Eigen::VectorXd ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_datas_fd,prox_settings);
     dacc_corrector_RF_dtau_fd.col(k) = (contact_datas_fd[0].contact_acceleration_error - contact_datas[0].contact_acceleration_error).toVector() / eps;
     dacc_corrector_LF_dtau_fd.col(k) = (contact_datas_fd[1].contact_acceleration_error.linear() - contact_datas[1].contact_acceleration_error.linear()) / eps;
 
@@ -552,7 +549,7 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   BOOST_CHECK(dacc_corrector_LF_dtau_fd.isZero(sqrt(eps)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -574,12 +571,12 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -587,15 +584,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -605,7 +601,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -620,7 +616,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -633,7 +629,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -646,7 +642,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -656,7 +652,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd_prox)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd_prox)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -789,7 +785,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_fd_prox)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -811,8 +807,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -821,11 +817,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_3D, model,  0, SE3::Identity(),
+  RigidConstraintModel ci_closure (CONTACT_3D, model,  0, SE3::Identity(),
                                 RA_id, SE3::Random(), LOCAL);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -834,15 +830,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -852,7 +847,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -867,7 +862,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -880,7 +875,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -893,7 +888,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -904,7 +899,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j2_
 }
 
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -926,8 +921,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -936,11 +931,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_6D, model, 0, SE3::Identity(),
+  RigidConstraintModel ci_closure (CONTACT_6D, 0, SE3::Identity(),
                                 RA_id, SE3::Random(), LOCAL);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -949,15 +944,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -967,7 +961,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -982,7 +976,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -995,7 +989,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1008,7 +1002,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1018,7 +1012,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j2_
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_j1j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1040,8 +1034,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -1050,11 +1044,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_6D, model, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_6D, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -1063,15 +1057,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1081,7 +1074,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1096,7 +1089,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1108,7 +1101,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1121,7 +1114,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1131,7 +1124,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_6D_loop_closure_j1j
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loop_closure_j1j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loop_closure_j1j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1153,8 +1146,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -1163,11 +1156,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_6D, model, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_6D, model, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -1176,15 +1169,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1194,7 +1186,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1209,7 +1201,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1222,7 +1214,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1235,7 +1227,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1246,7 +1238,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_loo
 }
 
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_j1j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1268,8 +1260,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -1278,11 +1270,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_3D, model, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_3D, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -1291,15 +1283,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1309,7 +1300,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1324,7 +1315,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1337,7 +1328,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1350,7 +1341,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1360,7 +1351,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_3D_loop_closure_j1j
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_loop_closure_j1j2_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_loop_closure_j1j2_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1382,8 +1373,8 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
   // Add Loop Closure Constraint
 
@@ -1392,11 +1383,11 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   const std::string LA = "larm5_joint";
   const Model::JointIndex LA_id = model.getJointId(LA);
 
-  RigidContactModel ci_closure (CONTACT_3D, model, LA_id, SE3::Random(),
+  RigidConstraintModel ci_closure (CONTACT_3D, model, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
 
   contact_models.push_back(ci_closure);
-  contact_data.push_back(RigidContactData(ci_closure));
+  contact_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -1405,15 +1396,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1423,7 +1413,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1438,7 +1428,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1451,7 +1441,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1464,7 +1454,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1475,7 +1465,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_lo
 }
 
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1497,13 +1487,13 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
 
   ci_LF.joint1_placement.setRandom();
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -1511,15 +1501,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1529,7 +1518,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1542,7 +1531,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1555,7 +1544,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1568,7 +1557,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1578,7 +1567,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D_fd
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_fd )
+BOOST_AUTO_TEST_CASE ( test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_fd )
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1600,12 +1589,12 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL_WORLD_ALIGNED);
   ci_RF.joint1_placement.setRandom();
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -1613,15 +1602,14 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
 
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1631,7 +1619,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1644,7 +1632,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   {
     v_eps[k] += alpha;
     q_plus = integrate(model,q,v_eps);
-    ddq_plus = contactDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
@@ -1657,7 +1645,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1670,7 +1658,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1680,7 +1668,7 @@ BOOST_AUTO_TEST_CASE ( test_contact_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D_
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -1706,22 +1694,22 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   const Model::JointIndex LH_id = model.getJointId(LH);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
   ci_LF.joint1_placement.setRandom();
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  RigidContactModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
-  RigidContactModel ci_LH(CONTACT_3D,model,LH_id,LOCAL_WORLD_ALIGNED);
+  RigidConstraintModel ci_LH(CONTACT_3D,model,LH_id,LOCAL_WORLD_ALIGNED);
   ci_LH.joint1_placement.setRandom();
-  contact_models.push_back(ci_LH); contact_data.push_back(RigidContactData(ci_LH));
-  RigidContactModel ci_RH(CONTACT_3D,model,RH_id,LOCAL);
+  contact_models.push_back(ci_LH); contact_data.push_back(RigidConstraintData(ci_LH));
+  RigidConstraintModel ci_RH(CONTACT_3D,model,RH_id,LOCAL);
   ci_RH.joint1_placement.setRandom();
-  contact_models.push_back(ci_RH); contact_data.push_back(RigidContactData(ci_RH));
+  contact_models.push_back(ci_RH); contact_data.push_back(RigidConstraintData(ci_RH));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -1729,15 +1717,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data,contact_models);
-  contactDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
+  initConstraintDynamics(model,data,contact_models);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_data,prox_settings);
   const Data::TangentVectorType a = data.ddq;
   data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
-  computeContactDynamicsDerivatives(model, data, contact_models, contact_data, prox_settings);
+  computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
 
   //Data_fd
-  initContactDynamics(model,data_fd,contact_models);
+  initConstraintDynamics(model,data_fd,contact_models);
 
   MatrixXd ddq_partial_dq_fd(model.nv,model.nv); ddq_partial_dq_fd.setZero();
   MatrixXd ddq_partial_dv_fd(model.nv,model.nv); ddq_partial_dv_fd.setZero();
@@ -1747,7 +1734,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   MatrixXd lambda_partial_dq_fd(constraint_dim,model.nv); lambda_partial_dq_fd.setZero();
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
-  const VectorXd ddq0 = contactDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,contact_models,contact_data,prox_settings);
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1774,7 +1761,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   forwardKinematics(model,data,q,v,data.ddq);
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
     const Eigen::DenseIndex size = cmodel.size();
 
     const Motion contact_acc = getContactAcceleration(model,data,cmodel);
@@ -1833,7 +1820,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     v_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v_plus,tau,contact_models,contact_data,prox_settings);
     ddq_partial_dv_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dv_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_plus[k] -= alpha;
@@ -1846,7 +1833,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   for(int k = 0; k < model.nv; ++k)
   {
     tau_plus[k] += alpha;
-    ddq_plus = contactDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
+    ddq_plus = constraintDynamics(model,data_fd,q,v,tau_plus,contact_models,contact_data,prox_settings);
     ddq_partial_dtau_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dtau_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     tau_plus[k] -= alpha;
@@ -1856,7 +1843,7 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_mix_fd)
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
 
-BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
 {
   // Verify that a dirty data doesn't affect the results of the contact dynamics derivs
   using namespace Eigen;
@@ -1879,14 +1866,14 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
   const Model::JointIndex LF_id = model.getJointId(LF);
 
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data;
 
-  RigidContactModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
-  RigidContactModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
+  RigidConstraintModel ci_LF(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintModel ci_RF(CONTACT_3D,RF_id,LOCAL);
 
-  contact_models.push_back(ci_LF); contact_data.push_back(RigidContactData(ci_LF));
-  contact_models.push_back(ci_RF); contact_data.push_back(RigidContactData(ci_RF));
+  contact_models.push_back(ci_LF); contact_data.push_back(RigidConstraintData(ci_LF));
+  contact_models.push_back(ci_RF); contact_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
@@ -1894,23 +1881,22 @@ BOOST_AUTO_TEST_CASE(test_contact_dynamics_derivatives_dirty_data)
 
   const double mu0 = 0.;
   ProximalSettings prox_settings(1e-12,mu0,1);
-
-  initContactDynamics(model,data_dirty,contact_models);
-  contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, prox_settings);
+  initConstraintDynamics(model,data_dirty,contact_models);
+  constraintDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
+  computeConstraintDynamicsDerivatives(model, data_dirty, contact_models, contact_data);
 
   // Reuse the same data with new configurations
   q = randomConfiguration(model);
   v = VectorXd::Random(model.nv);
   tau = VectorXd::Random(model.nv);
-  contactDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_dirty, contact_models, contact_data, prox_settings);
+  constraintDynamics(model,data_dirty,q,v,tau,contact_models,contact_data,prox_settings);
+  computeConstraintDynamicsDerivatives(model, data_dirty, contact_models, contact_data);
 
   //Test with fresh data
   Data data_fresh(model);
-  initContactDynamics(model,data_fresh,contact_models);
-  contactDynamics(model,data_fresh,q,v,tau,contact_models,contact_data,prox_settings);
-  computeContactDynamicsDerivatives(model, data_fresh, contact_models, contact_data, prox_settings);
+  initConstraintDynamics(model,data_fresh,contact_models);
+  constraintDynamics(model,data_fresh,q,v,tau,contact_models,contact_data,prox_settings);
+  computeConstraintDynamicsDerivatives(model, data_fresh, contact_models, contact_data);
   const double alpha = 1e-12;
 
   BOOST_CHECK(data_dirty.ddq_dq.isApprox(data_fresh.ddq_dq,sqrt(alpha)));

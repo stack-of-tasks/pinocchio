@@ -13,17 +13,17 @@ namespace pinocchio
     namespace python
     {
     
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
+      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
     
       static const context::VectorXs impulseDynamics_proxy(const context::Model & model,
                                                            context::Data & data,
                                                            const context::VectorXs & q,
                                                            const context::VectorXs & v,
-                                                           const RigidContactModelVector & contact_models,
-                                                           RigidContactDataVector & contact_datas,
-                                                           const context::Scalar & r_coeff =0.0,
-                                                           const context::Scalar & mu = 0.0)
+                                                           const RigidConstraintModelVector & contact_models,
+                                                           RigidConstraintDataVector & contact_datas,
+                                                           const context::Scalar & r_coeff =Scalar(0.0),
+                                                           const context::Scalar & mu = Scalar(0.0))
       {
         return impulseDynamics(model, data, q, v, contact_models, contact_datas, r_coeff, mu);
       }

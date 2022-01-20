@@ -64,7 +64,7 @@ contact_datas = []
 
 for frame_id in frame_ids:
     frame = model.frames[frame_id]
-    contact_model = pin.RigidContactModel(pin.ContactType.CONTACT_6D,model,frame.parent,frame.placement)
+    contact_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_6D,frame.parent,frame.placement)
 
     contact_models.append(contact_model)
     contact_datas.append(contact_model.createData())
@@ -72,7 +72,7 @@ for frame_id in frame_ids:
 num_constraints = len(frame_ids)
 contact_dim = 6 * num_constraints
 
-pin.initContactDynamics(model,data_sim,contact_models)
+pin.initConstraintDynamics(model,data_sim,contact_models)
 
 t = 0
 dt = 5e-3
@@ -110,7 +110,7 @@ while t <= T:
     tau[6:] += -Kp_posture*(pin.difference(model,q_ref,q))[6:] - Kv_posture*(v - v_ref)[6:]
 
     prox_settings = pin.ProximalSettings(1e-12,1e-12,10)
-    a = pin.contactDynamics(model,data_sim,q,v,tau,contact_models,contact_datas,prox_settings)
+    a = pin.constraintDynamics(model,data_sim,q,v,tau,contact_models,contact_datas,prox_settings)
     print("a:",a.T)
     print("v:",v.T)
     print("constraint:",np.linalg.norm(J_constraint@a))

@@ -176,7 +176,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionPlanarTpl & other) const
     {
-      return m_data == other.m_data;
+      return internal::comparison_eq(m_data, other.m_data);
     }
     
   protected:

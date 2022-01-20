@@ -5,92 +5,134 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/algorithm/contact-info.hpp"
 #include "pinocchio/bindings/python/algorithm/proximal.hpp"
-#include "pinocchio/bindings/python/algorithm/contact-cholesky.hpp"
-
-#include "pinocchio/bindings/python/utils/eigen.hpp"
-#include "pinocchio/bindings/python/utils/std-vector.hpp"
-#include "pinocchio/bindings/python/utils/registration.hpp"
-
 #include "pinocchio/algorithm/contact-dynamics.hpp"
-
-namespace bp = boost::python;
 
 namespace pinocchio
 {
-    namespace python
+  namespace python
+  {
+   
+    static const context::VectorXs forwardDynamics_proxy(const context::Model & model,
+                                                         context::Data & data,
+                                                         const context::VectorXs & q,
+                                                         const context::VectorXs & v,
+                                                         const context::VectorXs & tau,
+                                                         const context::MatrixXs & J,
+                                                         const context::VectorXs & gamma,
+                                                         const context::Scalar inv_damping = 0.0)
     {
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
-      typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
-    
-      static const context::VectorXs contactDynamics_proxy(const context::Model & model,
-                                                           context::Data & data,
-                                                           const context::VectorXs & q,
-                                                           const context::VectorXs & v,
-                                                           const context::VectorXs & tau,
-                                                           const RigidContactModelVector & contact_models,
-                                                           RigidContactDataVector & contact_datas,
-                                                           context::ProximalSettings & prox_settings)
-      {
-        return contactDynamics(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
-      }
-    
-      static const context::VectorXs contactDynamics_proxy_default(const context::Model & model,
-                                                                   context::Data & data,
-                                                                   const context::VectorXs & q,
-                                                                   const context::VectorXs & v,
-                                                                   const context::VectorXs & tau,
-                                                                   const RigidContactModelVector & contact_models,
-                                                                   RigidContactDataVector & contact_datas)
-      {
-        return contactDynamics(model, data, q, v, tau, contact_models, contact_datas);
-      }
-    
-    
-      void exposeContactDynamics()
-      {
-        using namespace Eigen;
-        
-        // Expose type of contacts
-        if(!register_symbolic_link_to_registered_type<ContactType>())
-        {
-          bp::enum_<ContactType>("ContactType")
-          .value("CONTACT_3D",CONTACT_3D)
-          .value("CONTACT_6D",CONTACT_6D)
-          .value("CONTACT_UNDEFINED",CONTACT_UNDEFINED)
-          ;
-        }
-        
-        ContactCholeskyDecompositionPythonVisitor<context::ContactCholeskyDecomposition>::expose();
-        
-        RigidContactModelPythonVisitor<context::RigidContactModel>::expose();
-        RigidContactDataPythonVisitor<context::RigidContactData>::expose();
-        
-        StdVectorPythonVisitor<RigidContactModelVector>::expose("StdVec_RigidContactModel");
-        
-        StdVectorPythonVisitor<RigidContactDataVector>::expose("StdVec_RigidContactData");
-        
-        ProximalSettingsPythonVisitor<context::ProximalSettings>::expose();
-        
-        bp::def("initContactDynamics",
-                &initContactDynamics<context::Scalar,context::Options,JointCollectionDefaultTpl,typename RigidContactModelVector::allocator_type>,
-                bp::args("model","data","contact_models"),
-                "This function allows to allocate the memory before hand for contact dynamics algorithms.\n"
-                "This allows to avoid online memory allocation when running these algorithms.");
-        
-        bp::def("contactDynamics",
-                contactDynamics_proxy,
-                bp::args("model","data","q","v","tau","contact_models","contact_datas","prox_settings"),
-                "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
-                "When using contactDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
-                "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces.");
-        
-        bp::def("contactDynamics",
-                contactDynamics_proxy_default,
-                bp::args("model","data","q","v","tau","contact_models","contact_datas"),
-                "Computes the forward dynamics with contact constraints according to a given list of Contact information.\n"
-                "When using contactDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.\n"
-                "This function returns joint acceleration of the system. The contact forces are stored in the list data.contact_forces.");
-      }
+      return forwardDynamics(model, data, q, v, tau, J, gamma, inv_damping);
     }
-}
+    
+    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads, forwardDynamics_proxy, 7, 8)
 
+    static const context::VectorXs forwardDynamics_proxy_no_q(const context::Model & model,
+                                                              context::Data & data,
+                                                              const context::VectorXs & tau,
+                                                              const context::MatrixXs & J,
+                                                              const context::VectorXs & gamma,
+                                                              const context::Scalar inv_damping = 0.0)
+    {
+      return forwardDynamics(model, data, tau, J, gamma, inv_damping);
+    }
+    
+    BOOST_PYTHON_FUNCTION_OVERLOADS(forwardDynamics_overloads_no_q, forwardDynamics_proxy_no_q, 5, 6)
+
+    static const context::VectorXs impulseDynamics_proxy(const context::Model & model,
+                                                         context::Data & data,
+                                                         const context::VectorXs & q,
+                                                         const context::VectorXs & v_before,
+                                                         const context::MatrixXs & J,
+                                                         const context::Scalar r_coeff = 0.,
+                                                         const context::Scalar inv_damping = 0.)
+    {
+      return impulseDynamics(model, data, q, v_before, J, r_coeff, inv_damping);
+    }
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads, impulseDynamics_proxy, 5, 7)
+    
+    static const context::VectorXs impulseDynamics_proxy_no_q(const context::Model & model,
+                                                              context::Data & data,
+                                                              const context::VectorXs & v_before,
+                                                              const context::MatrixXs & J,
+                                                              const context::Scalar r_coeff = 0.,
+                                                              const context::Scalar inv_damping = 0.)
+    {
+      return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
+    }
+
+    BOOST_PYTHON_FUNCTION_OVERLOADS(impulseDynamics_overloads_no_q, impulseDynamics_proxy_no_q, 4, 6)
+
+    static context::MatrixXs computeKKTContactDynamicMatrixInverse_proxy(const context::Model & model,
+                                                                         context::Data & data,
+                                                                         const context::VectorXs & q,
+                                                                         const context::MatrixXs & J,
+                                                                         const context::Scalar mu = 0)
+    {
+      context::MatrixXs KKTMatrix_inv(model.nv+J.rows(), model.nv+J.rows());
+      computeKKTContactDynamicMatrixInverse(model, data, q, J, KKTMatrix_inv, mu);
+      return KKTMatrix_inv;
+    }
+  
+    BOOST_PYTHON_FUNCTION_OVERLOADS(computeKKTContactDynamicMatrixInverse_overload,
+                                    computeKKTContactDynamicMatrixInverse_proxy, 4, 5)
+
+    static const context::MatrixXs getKKTContactDynamicMatrixInverse_proxy(const context::Model & model,
+                                                                           context::Data & data,
+                                                                           const context::MatrixXs & J)
+    {
+      context::MatrixXs MJtJ_inv(model.nv+J.rows(), model.nv+J.rows());
+      getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+      return MJtJ_inv;
+    }
+
+    void exposeContactDynamics()
+    {
+      using namespace Eigen;
+      
+      bp::def("forwardDynamics",
+              &forwardDynamics_proxy,
+              forwardDynamics_overloads(
+              bp::args("model","data","q","v","tau","constraint_jacobian","constraint_drift","damping"),
+              "Solves the constrained dynamics problem with contacts, puts the result in context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
+              "Note: internally, pinocchio.computeAllTerms is called."
+              ));
+
+      bp::def("forwardDynamics",
+              &forwardDynamics_proxy_no_q,
+              forwardDynamics_overloads_no_q(
+              bp::args("model","data","tau","constraint_jacobian","constraint_drift","damping"),
+              "Solves the forward dynamics problem with contacts, puts the result in context::Data::ddq and return it. The contact forces are stored in data.lambda_c.\n"
+              "Note: this function assumes that pinocchio.computeAllTerms has been called first."
+              ));
+
+      bp::def("impulseDynamics",
+              &impulseDynamics_proxy,
+              impulseDynamics_overloads(
+              bp::args("model","data","q","v_before","constraint_jacobian","restitution_coefficient","damping"),
+              "Solves the impact dynamics problem with contacts, store the result in context::Data::dq_after and return it. The contact impulses are stored in data.impulse_c.\n"
+              "Note: internally, pinocchio.crba is called."
+              ));
+      
+      bp::def("impulseDynamics",
+              &impulseDynamics_proxy_no_q,
+              impulseDynamics_overloads_no_q(
+              bp::args("model","data","v_before","constraint_jacobian","restitution_coefficient","damping"),
+              "Solves the impact dynamics problem with contacts, store the result in context::Data::dq_after and return it. The contact impulses are stored in data.impulse_c.\n"
+              "Note: this function assumes that pinocchio.crba has been called first."
+              ));
+
+      bp::def("computeKKTContactDynamicMatrixInverse",
+              computeKKTContactDynamicMatrixInverse_proxy,
+              computeKKTContactDynamicMatrixInverse_overload(bp::args("model","data","q","constraint_jacobian","damping"),
+              "Computes the inverse of the constraint matrix [[M J^T], [J 0]]."));
+      
+      bp::def("getKKTContactDynamicMatrixInverse",
+              getKKTContactDynamicMatrixInverse_proxy,
+              bp::args("model","data","constraint_jacobian"),
+              "Computes the inverse of the constraint matrix [[M Jt], [J 0]].\n forwardDynamics or impulseDynamics must have been called first.\n"
+              "Note: the constraint Jacobian should be the same that was provided to forwardDynamics or impulseDynamics.");
+    }
+    
+  } // namespace python
+} // namespace pinocchio

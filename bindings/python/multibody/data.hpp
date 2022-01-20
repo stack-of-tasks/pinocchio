@@ -177,7 +177,7 @@ namespace pinocchio
           
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dq,"Partial derivative of the contact force vector with respect to the joint configuration.")
         .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dv,"Partial derivative of the contact force vector with respect to the joint velocity.")
-        
+        .ADD_DATA_PROPERTY_READONLY_BYVALUE(dlambda_dtau,"Partial derivative of the contact force vector with respect to the torque.")        
         .ADD_DATA_PROPERTY(kinetic_energy,"Kinetic energy in [J] computed by computeKineticEnergy")
         .ADD_DATA_PROPERTY(potential_energy,"Potential energy in [J] computed by computePotentialEnergy")
         .ADD_DATA_PROPERTY(mechanical_energy,"Mechanical energy in [J] of the system computed by computeMechanicalEnergy")

@@ -68,17 +68,17 @@ namespace pinocchio
     Scalar Kd;
   };
 
-  template<typename Scalar, int Options> struct RigidContactModelTpl;
-  template<typename Scalar, int Options> struct RigidContactDataTpl;
+  template<typename Scalar, int Options> struct RigidConstraintModelTpl;
+  template<typename Scalar, int Options> struct RigidConstraintDataTpl;
 
   template<typename _Scalar, int _Options>
-  struct traits< RigidContactModelTpl<_Scalar,_Options> >
+  struct traits< RigidConstraintModelTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
   };
 
   template<typename _Scalar, int _Options>
-  struct traits< RigidContactDataTpl<_Scalar,_Options> >
+  struct traits< RigidConstraintDataTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
   };
@@ -87,16 +87,16 @@ namespace pinocchio
   /// \brief Contact model structure containg all the info describing the rigid contact model
   ///
   template<typename _Scalar, int _Options>
-  struct RigidContactModelTpl
-  : NumericalBase< RigidContactModelTpl<_Scalar,_Options> >
+  struct RigidConstraintModelTpl
+  : NumericalBase< RigidConstraintModelTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef _Scalar Scalar;
     enum { Options = _Options };
     
-    typedef RigidContactModelTpl ContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> ContactData;
+    typedef RigidConstraintModelTpl ContactModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> ContactData;
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
@@ -174,7 +174,7 @@ namespace pinocchio
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
-    RigidContactModelTpl(const ContactType type,
+    RigidConstraintModelTpl(const ContactType type,
                          const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const SE3 & joint1_placement,
@@ -205,7 +205,7 @@ namespace pinocchio
     /// \param[in] reference_frame Reference frame in which the constraints quantities are expressed.
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
-    RigidContactModelTpl(const ContactType type,
+    RigidConstraintModelTpl(const ContactType type,
                          const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const SE3 & joint1_placement,
@@ -233,7 +233,7 @@ namespace pinocchio
     /// \param[in] joint2_id Index of the joint 2 in the model tree.
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
-    RigidContactModelTpl(const ContactType type,
+    RigidConstraintModelTpl(const ContactType type,
                          const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const JointIndex joint2_id,
@@ -262,7 +262,7 @@ namespace pinocchio
     /// \remarks The second joint id (joint2_id) is set to be 0 (corresponding to the index of the universe).
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
-    RigidContactModelTpl(const ContactType type,
+    RigidConstraintModelTpl(const ContactType type,
                          const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                          const JointIndex joint1_id,
                          const ReferenceFrame & reference_frame = LOCAL)
@@ -284,7 +284,7 @@ namespace pinocchio
     ///
     /// \brief Comparison operator
     ///
-    /// \param[in] other Other RigidContactModelTpl to compare with.
+    /// \param[in] other Other RigidConstraintModelTpl to compare with.
     ///
     /// \returns true if the two *this is equal to other (type, joint1_id and placement attributs must be the same).
     ///
@@ -312,12 +312,12 @@ namespace pinocchio
     ///
     /// \brief Oposite of the comparison operator.
     ///
-    /// \param[in] other Other RigidContactModelTpl to compare with.
+    /// \param[in] other Other RigidConstraintModelTpl to compare with.
     ///
     /// \returns false if the two *this is not equal to other (at least type, joint1_id or placement attributs is different).
     ///
     template<int OtherOptions>
-    bool operator!=(const RigidContactModelTpl<Scalar,OtherOptions> & other) const
+    bool operator!=(const RigidConstraintModelTpl<Scalar,OtherOptions> & other) const
     {
       return !(*this == other);
     }
@@ -340,7 +340,7 @@ namespace pinocchio
     template<typename NewScalar>
     RigidContactModelTpl<NewScalar,Options> cast() const
     {
-      typedef RigidContactModelTpl<NewScalar,Options> ReturnType;
+      typedef RigidConstraintModelTpl<NewScalar,Options> ReturnType;
       ReturnType res;
       res.type = type;
       res.joint1_id = joint1_id;
@@ -451,16 +451,16 @@ namespace pinocchio
   /// \brief Contact model structure containg all the info describing the rigid contact model
   ///
   template<typename _Scalar, int _Options>
-  struct RigidContactDataTpl
-  : NumericalBase< RigidContactDataTpl<_Scalar,_Options> >
+  struct RigidConstraintDataTpl
+  : NumericalBase< RigidConstraintDataTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef _Scalar Scalar;
     enum { Options = _Options };
     
-    typedef RigidContactModelTpl<Scalar,Options> ContactModel;
-    typedef RigidContactDataTpl ContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> ContactModel;
+    typedef RigidConstraintDataTpl ContactData;
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
@@ -516,7 +516,7 @@ namespace pinocchio
     VectorOfMatrix6 lambdas_joint1;
     VectorOfMatrix6 extended_motion_propagators_joint2;
     
-    RigidContactDataTpl(const ContactModel & contact_model)
+    RigidConstraintDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
     , contact_placement_error(Motion::Zero())
     , contact1_velocity(Motion::Zero())
@@ -533,7 +533,7 @@ namespace pinocchio
     , extended_motion_propagators_joint2(contact_model.depth_joint2,Matrix6::Zero())
     {}
     
-    bool operator==(const RigidContactDataTpl & other) const
+    bool operator==(const RigidConstraintDataTpl & other) const
     {
       return
          contact_force == other.contact_force
@@ -556,7 +556,7 @@ namespace pinocchio
       ;
     }
     
-    bool operator!=(const RigidContactDataTpl & other) const
+    bool operator!=(const RigidConstraintDataTpl & other) const
     {
       return !(*this == other);
     }

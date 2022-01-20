@@ -25,8 +25,8 @@ namespace pinocchio
     void exposeKinematics();
     void exposeContactJacobian();
     void exposeContactDynamics();
-    void exposeContactDynamicsDerivatives();
-    void exposeConstrainedDynamics();
+    void exposeConstraintDynamics();
+    void exposeConstraintDynamicsDerivatives();
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();

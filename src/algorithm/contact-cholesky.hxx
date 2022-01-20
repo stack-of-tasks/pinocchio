@@ -21,17 +21,17 @@ namespace pinocchio
     void
     ContactCholeskyDecompositionTpl<Scalar,Options>::
     allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-             const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_models)
+             const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models)
     {
       typedef ModelTpl<S1,O1,JointCollectionTpl> Model;
-      typedef RigidContactModelTpl<S1,O1> RigidContactModel;
-      typedef std::vector<RigidContactModel,Allocator> RigidContactModelVector;
+      typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
+      typedef std::vector<RigidConstraintModel,Allocator> RigidConstraintModelVector;
       
       nv = model.nv;
       num_contacts = (Eigen::DenseIndex)contact_models.size();
       
       Eigen::DenseIndex num_total_constraints = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+      for(typename RigidConstraintModelVector::const_iterator it = contact_models.begin();
           it != contact_models.end();
           ++it)
       {
@@ -96,11 +96,11 @@ namespace pinocchio
       
       // Fill nv_subtree_fromRow for constraints
       Eigen::DenseIndex row_id = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+      for(typename RigidConstraintModelVector::const_iterator it = contact_models.begin();
           it != contact_models.end();
           ++it)
       {
-        const RigidContactModel & cmodel = *it;
+        const RigidConstraintModel & cmodel = *it;
         const JointIndex joint1_id = cmodel.joint1_id;
         const typename Model::JointModel & joint1 = model.joints[joint1_id];
         const JointIndex joint2_id = cmodel.joint2_id;
@@ -136,7 +136,7 @@ namespace pinocchio
         IndexVector & colwise_sparsity_patterns_ee = colwise_sparsity_patterns[ee_id];
         IndexVector & colwise_loop_sparsity_patterns_ee = colwise_loop_sparsity_patterns[ee_id];
         
-        const RigidContactModel & cmodel = contact_models[ee_id];
+        const RigidConstraintModel & cmodel = contact_models[ee_id];
         
         const JointIndex joint1_id = cmodel.joint1_id;
         JointIndex current1_id = 0;
@@ -216,11 +216,11 @@ namespace pinocchio
       rowise_sparsity_pattern.clear();
       rowise_sparsity_pattern.resize((size_t)num_total_constraints,default_slice_vector);
       row_id = 0; size_t ee_id = 0;
-      for(typename RigidContactModelVector::const_iterator it = contact_models.begin();
+      for(typename RigidConstraintModelVector::const_iterator it = contact_models.begin();
           it != contact_models.end();
           ++it, ++ee_id)
       {
-        const RigidContactModel & cmodel = *it;
+        const RigidConstraintModel & cmodel = *it;
         const BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
         const Eigen::DenseIndex contact_dim = cmodel.size();
 
@@ -265,12 +265,12 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
             DataTpl<S1,O1,JointCollectionTpl> & data,
-            const std::vector<RigidContactModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
-            std::vector<RigidContactDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
+            const std::vector<RigidConstraintModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
+            std::vector<RigidConstraintDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
             const S1 mu)
     {
-      typedef RigidContactModelTpl<S1,O1> RigidContactModel;
-      typedef RigidContactDataTpl<S1,O1> RigidContactData;
+      typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
+      typedef RigidConstraintDataTpl<S1,O1> RigidConstraintData;
       typedef MotionTpl<Scalar,Options> Motion;
       typedef SE3Tpl<Scalar,Options> SE3;
       assert(model.check(data) && "data is not consistent with model.");
@@ -292,8 +292,8 @@ namespace pinocchio
       // Update frame placements if needed
       for(size_t ee_id = 0; ee_id < num_ee; ++ee_id)
       {
-        const RigidContactModel & cmodel = contact_models[ee_id];
-        RigidContactData & cdata = contact_datas[ee_id];
+        const RigidConstraintModel & cmodel = contact_models[ee_id];
+        RigidConstraintData & cdata = contact_datas[ee_id];
 
         const typename Model::JointIndex joint1_id = cmodel.joint1_id;
         if(joint1_id > 0)
@@ -346,8 +346,8 @@ namespace pinocchio
 
           const BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
           const BooleanVector & joint2_indexes_ee = joint2_indexes[ee_id];
-          const RigidContactModel & cmodel = contact_models[ee_id];
-          const RigidContactData & cdata = contact_datas[ee_id];
+          const RigidConstraintModel & cmodel = contact_models[ee_id];
+          const RigidConstraintData & cdata = contact_datas[ee_id];
           
           const Eigen::DenseIndex constraint_dim = cmodel.size();
 	        const SE3 & oMc1 = cdata.oMc1;

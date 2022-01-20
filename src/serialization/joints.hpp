@@ -11,6 +11,7 @@
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 
 #include "pinocchio/serialization/fwd.hpp"
+#include "pinocchio/serialization/eigen.hpp"
 #include "pinocchio/serialization/vector.hpp"
 #include "pinocchio/serialization/aligned-vector.hpp"
 

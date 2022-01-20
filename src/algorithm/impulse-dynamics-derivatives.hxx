@@ -9,7 +9,7 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hxx"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hxx"
 
 namespace pinocchio
 {
@@ -197,8 +197,8 @@ namespace pinocchio
            typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4>
   inline void computeImpulseDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
                                                 const Scalar r_coeff,
                                                 const Scalar mu,
                                                 const Eigen::MatrixBase<MatrixType1> & dvimpulse_partial_dq,
@@ -235,12 +235,12 @@ namespace pinocchio
     typedef typename Data::SE3 SE3;
     typedef typename Data::Force Force;
     
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,false> Pass1;
+    typedef ComputeConstraintDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,false> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
@@ -250,8 +250,8 @@ namespace pinocchio
     // Add the contribution of the impulse. TODO: this should be done at the contact model level.
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       const SE3 & oMc = cdata.oMc1;
       const JointIndex joint1_id = cmodel.joint1_id;
       Force & of = data.of[joint1_id];
@@ -287,7 +287,7 @@ namespace pinocchio
     typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type Rows6Block;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
 
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
 
@@ -364,8 +364,8 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       switch(cmodel.reference_frame)

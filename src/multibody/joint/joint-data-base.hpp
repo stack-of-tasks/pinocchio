@@ -150,19 +150,18 @@ namespace pinocchio
     }
     
     /// \brief Default operator== implementation
-    bool isEqual(const JointDataBase & other) const
+    bool isEqual(const JointDataBase<Derived> & other) const
     {
       return
-             joint_q() == other.joint_q()
-          && joint_v() == other.joint_v()
-          && S() == other.S()
-          && M() == other.M()
-          && v() == other.v()
-          && c() == other.c()
-          && U() == other.U()
-          && Dinv() == other.Dinv()
-          && UDinv() == other.UDinv()
-          && StU() == other.StU()
+        internal::comparison_eq(joint_q(), other.joint_q())
+        && internal::comparison_eq(joint_v(), other.joint_v())
+        && internal::comparison_eq(S(), other.S())
+        && internal::comparison_eq(M(), other.M())
+        && internal::comparison_eq(v(), other.v())
+        && internal::comparison_eq(c(), other.c())
+        && internal::comparison_eq(U(), other.U())
+        && internal::comparison_eq(Dinv(), other.Dinv())
+        && internal::comparison_eq(UDinv(), other.UDinv())
       ;
     }
     
@@ -182,7 +181,7 @@ namespace pinocchio
     /// \brief Default operator!= implementation
     bool isNotEqual(const JointDataBase<Derived> & other) const
     {
-      return !(derived() == other.derived());
+      return !(internal::comparison_eq(derived(), other.derived()));
     }
     
   protected:
