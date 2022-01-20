@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
 BOOST_AUTO_TEST_CASE ( build_model )
 {
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie.sdf");
   const std::string dir = PINOCCHIO_MODEL_DIR;
   
   pinocchio::Model model;
@@ -28,13 +28,13 @@ BOOST_AUTO_TEST_CASE ( build_model )
   pinocchio::GeometryModel geomModel;
   pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel,rootLinkName, dir);
 
-  BOOST_CHECK(model.nq == 38);
+  BOOST_CHECK(model.nq == 62);
 }
   
 BOOST_AUTO_TEST_CASE ( build_model_with_joint )
 {
 
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie.sdf");
   const std::string dir = PINOCCHIO_MODEL_DIR;
   const std::string rootLinkName = "pelvis";
   pinocchio::Model model;
@@ -43,7 +43,22 @@ BOOST_AUTO_TEST_CASE ( build_model_with_joint )
   pinocchio::GeometryModel geomModel;
   pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel,rootLinkName, dir);
 
-  BOOST_CHECK(model.nq == 45);
+  BOOST_CHECK(model.nq == 69);
+}
+
+BOOST_AUTO_TEST_CASE ( build_model_without_rootLink )
+{
+
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie.sdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+  const std::string rootLinkName = "";
+  pinocchio::Model model;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  pinocchio::sdf::buildModel(filename, pinocchio::JointModelFreeFlyer(), model, contact_models,rootLinkName);
+  pinocchio::GeometryModel geomModel;
+  pinocchio::sdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel,rootLinkName, dir);
+  
+  BOOST_CHECK(model.nq == 69);
 }
 
 BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
