@@ -747,8 +747,10 @@ namespace pinocchio
       
       if(settings.iter % 2 == 0 && settings.iter > 0)
       {
-        lambda_partial_dtau_.swap(dlambda_dx_prox);
+        lambda_partial_dtau_.swap(dlambda_dx_prox); // restore previous memory address
+        lambda_partial_dtau_ = dlambda_dx_prox;
       }
+
     }
 
     ddq_partial_dtau_.noalias() = JMinv.transpose() * lambda_partial_dtau;
@@ -769,7 +771,8 @@ namespace pinocchio
       
       if(settings.iter % 2 == 0 && settings.iter > 0)
       {
-        lambda_partial_dq_.swap(dlambda_dx_prox);
+        lambda_partial_dq_.swap(dlambda_dx_prox); // restore previous memory address
+        lambda_partial_dq_ = dlambda_dx_prox;
       }
     }
     
@@ -788,7 +791,8 @@ namespace pinocchio
       
       if(settings.iter % 2 == 0 && settings.iter > 0)
       {
-        lambda_partial_dv_.swap(dlambda_dx_prox);
+        lambda_partial_dv_.swap(dlambda_dx_prox); // restore previous memory address
+        lambda_partial_dv_ = dlambda_dx_prox;
       }
     }
 
