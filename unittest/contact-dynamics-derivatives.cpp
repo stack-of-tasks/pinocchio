@@ -715,10 +715,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd_prox)
   BOOST_CHECK(a_res.isApprox(ddq0));
   const VectorXd lambda0 = data_fd.lambda_c;
 
-  computeConstraintDynamicsDerivatives(model, data_fd, contact_models, contact_data_fd, prox_settings_fd);
-  BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));  
   computeConstraintDynamicsDerivatives(model, data_fd, constraint_models, constraint_data, prox_settings_fd);
-  
   BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));
 
   VectorXd v_eps(VectorXd::Zero(model.nv));
