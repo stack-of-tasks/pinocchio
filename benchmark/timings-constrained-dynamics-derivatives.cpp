@@ -60,11 +60,11 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidConstraintModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
+  RigidConstraintModel ci_RF_6D(CONTACT_6D,model,RF_id,LOCAL);
   RigidConstraintData cd_RF_6D(ci_RF_6D);
   //RigidConstraintModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
   
-  RigidConstraintModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
+  RigidConstraintModel ci_LF_6D(CONTACT_6D,model,LF_id,LOCAL);
   RigidConstraintData cd_LF_6D(ci_LF_6D);
   // RigidConstraintModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
   

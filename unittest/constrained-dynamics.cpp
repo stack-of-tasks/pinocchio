@@ -1385,6 +1385,36 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_contact_ABA_with_armature)
+{
+  using namespace pinocchio;
+  using namespace Eigen;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.rotorInertia = 100. * (Model::VectorXs::Random(model.nv) + Model::VectorXs::Constant(model.nv,1.));
+  model.rotorGearRatio.fill(100);
+  
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
+  const RigidConstraintModelVector empty_rigid_contact_models;
+  RigidConstraintDataVector empty_rigid_contact_data;
+  
+  const Data::VectorXs a = contactABA(model,data,q,v,tau,empty_rigid_contact_models,empty_rigid_contact_data);
+  const Data::VectorXs tau_ref = rnea(model,data_ref,q,v,a);
+  
+  BOOST_CHECK(tau.isApprox(tau_ref));
+}
+
 BOOST_AUTO_TEST_CASE(test_diagonal_inertia)
 {
   using namespace pinocchio;
@@ -1419,5 +1449,287 @@ BOOST_AUTO_TEST_CASE(test_diagonal_inertia)
   BOOST_CHECK(I3_translate.isApprox(I3_ref));
 }
 
+BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+//  const Frame & RF_frame = model.frames[model.getJointId(RF)];
+//  Frame RF_contact_frame("RF_contact_frame",
+//                         RF_frame.parent,model.getJointId(RF),
+//                         SE3::Random(),OP_FRAME);
+//  model.addFrame(RF_contact_frame);
+  
+  const std::string LF = "lleg6_joint";
+//  const Frame & LF_frame = model.frames[model.getJointId(LF)];
+//  Frame LF_contact_frame("LF_contact_frame",
+//                         LF_frame.parent,model.getJointId(RF),
+//                         SE3::Random(),OP_FRAME);
+//  model.addFrame(LF_contact_frame);
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact models and data
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
+  
+  const RigidConstraintModelVector empty_contact_models;
+  RigidConstraintDataVector empty_contact_data;
+  
+  contactABA(model, data, q, v, tau, empty_contact_models, empty_contact_data);
+  forwardKinematics(model, data_ref, q, v, 0*v);
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+  {
+    BOOST_CHECK(data.liMi[joint_id].isApprox(data_ref.liMi[joint_id]));
+    BOOST_CHECK(data.oMi[joint_id].isApprox(data_ref.oMi[joint_id]));
+    BOOST_CHECK(data.ov[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.v[joint_id])));
+    BOOST_CHECK(data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+  }
+  
+  computeJointJacobians(model,data_ref,q);
+  BOOST_CHECK(data.J.isApprox(data_ref.J));
+  minimal::aba(model, data_ref, q, v, tau);
+  
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+  {
+    const Data::SE3 & oMi = data.oMi[joint_id];
+    Eigen::MatrixXd U_ref = oMi.toDualActionMatrix() * data_ref.joints[joint_id].U();
+    BOOST_CHECK(data.joints[joint_id].U().isApprox(U_ref));
+    Eigen::MatrixXd StYS_ref = data_ref.joints[joint_id].S().matrix().transpose() * data_ref.joints[joint_id].U();
+    BOOST_CHECK(data.joints[joint_id].StU().isApprox(StYS_ref));
+    const Data::Matrix6 oYaba_ref = oMi.toDualActionMatrix() * data_ref.Yaba[joint_id] * oMi.inverse().toActionMatrix();
+    BOOST_CHECK(data.oYaba[joint_id].isApprox(oYaba_ref));
+    BOOST_CHECK(data.oa_augmented[joint_id].isApprox(model.gravity+data_ref.oMi[joint_id].act(data_ref.a_gf[joint_id])));
+  }
+  
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  
+  // Test second call
+  contactABA(model, data, q, v, tau, empty_contact_models, empty_contact_data);
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  
+  RigidConstraintModelVector contact_models; RigidConstraintDataVector contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
+  ci_RF.joint1_placement.setRandom();
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
+  ci_LF.joint1_placement.setRandom();
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  
+  RigidConstraintDataVector contact_datas_ref(contact_datas);
+  
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
+  
+  const double mu0 = 0.;
+  
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  
+  ProximalSettings prox_settings_cd(1e-12,mu0,1);
+  initConstraintDynamics(model, data_ref, contact_models);
+  constraintDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref, prox_settings_cd);
+  forwardKinematics(model, data_ref, q, v, v*0);
+  
+  updateFramePlacements(model,data_ref);
+  Data::Matrix6x Jtmp(6,model.nv);
+  
+  Jtmp.setZero();
+  getJointJacobian(model,data_ref,
+                   ci_RF.joint1_id,ci_RF.reference_frame,
+                   Jtmp);
+  J_ref.middleRows<6>(0) = ci_RF.joint1_placement.inverse().toActionMatrix()*Jtmp;
+  
+  Jtmp.setZero();
+  getJointJacobian(model,data_ref,
+                   ci_LF.joint1_id,ci_LF.reference_frame,
+                   Jtmp);
+  J_ref.middleRows<6>(6) = ci_LF.joint1_placement.inverse().toActionMatrix()*Jtmp;
+  
+  Eigen::VectorXd gamma(constraint_dim);
+  
+  gamma.segment<6>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type,ci_RF.joint1_placement).toVector();
+  gamma.segment<6>(6) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.type,ci_LF.joint1_placement).toVector();
+  
+  BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
+  
+  Data data_constrained_dyn(model);
+  forwardDynamics(model,data_constrained_dyn,q,v,tau,J_ref,gamma,mu0);
+  BOOST_CHECK((J_ref*data_constrained_dyn.ddq + gamma).isZero());
+  
+  ProximalSettings prox_settings;
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e8;
+  const double mu = prox_settings.mu;
+  contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  
+  std::cout << "data.ddq: " << data.ddq.transpose() << std::endl;
+  std::cout << "data_ref.ddq: " << data_ref.ddq.transpose() << std::endl;
+  BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
+  
+  forwardKinematics(model, data_ref, q, v, 0*v);
+  for(JointIndex joint_id = 1; joint_id < (JointIndex)model.njoints; ++joint_id)
+  {
+    BOOST_CHECK(data.oa_drift[joint_id].isApprox(data_ref.oMi[joint_id].act(data_ref.a[joint_id])));
+  }
+       
+  aba(model,data_ref,q,v,0*v);
+  for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
+  {
+    const RigidConstraintModel & cmodel = contact_models[contact_id];
+    const RigidConstraintData & cdata = contact_datas[contact_id];
+
+    const JointIndex & joint1_id = cmodel.joint1_id;
+    
+    // Check contact placement
+    const SE3 & iMc = cmodel.joint1_placement;
+    const SE3 oMc = data_ref.oMi[joint1_id] * iMc;
+    BOOST_CHECK(cdata.oMc1.isApprox(oMc));
+    
+    // Check contact velocity
+    const Motion contact1_velocity_ref = iMc.actInv(data_ref.v[joint1_id]);
+    BOOST_CHECK(cdata.contact1_velocity.isApprox(contact1_velocity_ref));
+    
+    // Check contact inertia
+    Symmetric3 S(Symmetric3::Zero());
+    if(cmodel.type == CONTACT_6D)
+      S.setDiagonal(Symmetric3::Vector3::Constant(mu));
+    
+    const Inertia contact_inertia(mu,oMc.translation(),S);
+    
+    Inertia::Matrix6 contact_inertia_ref = Inertia::Matrix6::Zero();
+    
+    if(cmodel.type == CONTACT_6D)
+      contact_inertia_ref.diagonal().fill(mu);
+    else
+      contact_inertia_ref.diagonal().head<3>().fill(mu);
+    contact_inertia_ref = oMc.toDualActionMatrix() * contact_inertia_ref * oMc.toActionMatrixInverse();
+    BOOST_CHECK(contact_inertia_ref.isApprox(contact_inertia.matrix()));
+    
+    Inertia::Matrix6 Yaba_ref
+    = data_ref.oMi[joint1_id].toDualActionMatrix() * model.inertias[joint1_id].matrix() * data_ref.oMi[joint1_id].toActionMatrixInverse()
+    + contact_inertia_ref;
+    
+    const JointModel & jmodel = model.joints[joint1_id];
+    const JointData & jdata = data.joints[joint1_id];
+//    const JointData & jdata_ref = data_ref.joints[joint_id];
+    
+    const MatrixXd U_ref = Yaba_ref * data_ref.J.middleCols(jmodel.idx_v(),jmodel.nv());
+    const MatrixXd D_ref = data_ref.J.middleCols(jmodel.idx_v(),jmodel.nv()).transpose() * U_ref;
+    const MatrixXd Dinv_ref = D_ref.inverse();
+    const MatrixXd UDinv_ref = U_ref * Dinv_ref;
+    BOOST_CHECK(jdata.U().isApprox(U_ref));
+    BOOST_CHECK(jdata.StU().isApprox(D_ref));
+    BOOST_CHECK(jdata.Dinv().isApprox(Dinv_ref));
+    BOOST_CHECK(jdata.UDinv().isApprox(UDinv_ref));
+    
+    Yaba_ref -= UDinv_ref * U_ref.transpose();
+    
+    BOOST_CHECK(data.oYaba[joint1_id].isApprox(Yaba_ref));
+    
+  }
+  
+  // Call the algorithm a second time
+  Data data2(model);
+  ProximalSettings prox_settings2;
+  contactABA(model, data2, q, v, tau, contact_models, contact_datas, prox_settings2);
+  
+  BOOST_CHECK(prox_settings2.iter == 0);
+  
+}
+
+BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  //  const Model::JointIndex RF_id = model.getJointId(RF);
+  const std::string LF = "lleg6_joint";
+  //  const Model::JointIndex LF_id = model.getJointId(LF);
+  
+  // Contact models and data
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
+  typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
+  
+  RigidConstraintModelVector contact_models; RigidConstraintDataVector contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_3D,model,model.getJointId(RF),LOCAL);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),LOCAL);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  
+  RigidConstraintDataVector contact_datas_ref(contact_datas);
+  
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < contact_models.size(); ++k)
+    constraint_dim += contact_models[k].size();
+  
+  Eigen::MatrixXd J_ref(constraint_dim,model.nv);
+  J_ref.setZero();
+  
+  ProximalSettings prox_settings_cd(1e-12,0,1);
+  initConstraintDynamics(model, data_ref, contact_models);
+  constraintDynamics(model, data_ref, q, v, tau, contact_models, contact_datas_ref, prox_settings_cd);
+  forwardKinematics(model, data_ref, q, v, v*0);
+  
+  Data::Matrix6x Jtmp = Data::Matrix6x::Zero(6,model.nv);
+  getJointJacobian(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,Jtmp);
+  J_ref.middleRows<3>(0) = Jtmp.middleRows<3>(Motion::LINEAR);
+  Jtmp.setZero(); getJointJacobian(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,Jtmp);
+  J_ref.middleRows<3>(3) = Jtmp.middleRows<3>(Motion::LINEAR);
+  
+  Eigen::VectorXd gamma(constraint_dim);
+  
+  gamma.segment<3>(0) = computeAcceleration(model,data_ref,ci_RF.joint1_id,ci_RF.reference_frame,ci_RF.type).linear();
+  gamma.segment<3>(3) = computeAcceleration(model,data_ref,ci_LF.joint1_id,ci_LF.reference_frame,ci_LF.type).linear();
+  
+  BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
+  
+  Data data_constrained_dyn(model);
+  forwardDynamics(model,data_constrained_dyn,q,v,tau,J_ref,gamma,0.);
+  BOOST_CHECK((J_ref*data_constrained_dyn.ddq + gamma).isZero());
+  
+  ProximalSettings prox_settings;
+  prox_settings.max_iter = 10;
+  prox_settings.mu = 1e8;
+  contactABA(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
+  
+  BOOST_CHECK((J_ref*data.ddq + gamma).isZero());
+  
+  // Call the algorithm a second time
+  Data data2(model);
+  ProximalSettings prox_settings2;
+  contactABA(model, data2, q, v, tau, contact_models, contact_datas, prox_settings2);
+  
+  BOOST_CHECK(prox_settings2.iter == 0);
+  
+}
 
 BOOST_AUTO_TEST_SUITE_END()

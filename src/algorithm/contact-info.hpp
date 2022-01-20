@@ -516,7 +516,7 @@ namespace pinocchio
     VectorOfMatrix6 lambdas_joint1;
     VectorOfMatrix6 extended_motion_propagators_joint2;
     
-    RigidConstraintDataTpl(const ContactModel & /*contact_model*/)
+    RigidConstraintDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
     , contact_placement_error(Motion::Zero())
     , contact1_velocity(Motion::Zero())

@@ -4,7 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/impulse-dynamics-derivatives.hpp"
-
+#include "pinocchio/algorithm/proximal.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
 namespace bp = boost::python;
@@ -32,7 +32,7 @@ namespace pinocchio
       void exposeImpulseDynamicsDerivatives()
       {
         bp::def("computeImpulseDynamicsDerivatives",impulseDynamicsDerivatives_proxy,
-                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff"),bp::arg("prox_settings")),
+                (bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("r_coeff") = 0,bp::arg("prox_settings") = context::ProximalSettings()),
                  "Computes the impulse dynamics derivatives with contact constraints according to a given list of Contact information.\n"
                  "impulseDynamics should have been called before.");
       }

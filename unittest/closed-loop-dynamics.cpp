@@ -9,6 +9,8 @@
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/algorithm/proximal.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"

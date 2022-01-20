@@ -712,7 +712,7 @@ namespace pinocchio
       pinocchio::constraintDynamics(ad_model,ad_data,
                                  ad_q,ad_v,ad_tau,
                                  ad_contact_models,ad_contact_datas);
-      pinocchio::computeContactDynamicsDerivatives(ad_model,ad_data,
+      pinocchio::computeConstraintDynamicsDerivatives(ad_model,ad_data,
                                                    ad_contact_models,ad_contact_datas); 
       assert(ad_Y.size() == Base::getOutputDimension());
 

@@ -745,7 +745,7 @@ namespace pinocchio
         lambda_partial_dtau_.noalias() = data.osim * dlambda_dx_prox;
       }
       
-      if(settings.iter % 2 == 0)
+      if(settings.iter % 2 == 0 && settings.iter > 0)
       {
         lambda_partial_dtau_.swap(dlambda_dx_prox);
       }
@@ -767,7 +767,7 @@ namespace pinocchio
         lambda_partial_dq_.noalias() = data.osim * dlambda_dx_prox;
       }
       
-      if(settings.iter % 2 == 0)
+      if(settings.iter % 2 == 0 && settings.iter > 0)
       {
         lambda_partial_dq_.swap(dlambda_dx_prox);
       }
@@ -786,7 +786,7 @@ namespace pinocchio
         lambda_partial_dv_.noalias() = data.osim * dlambda_dx_prox;
       }
       
-      if(settings.iter % 2 == 0)
+      if(settings.iter % 2 == 0 && settings.iter > 0)
       {
         lambda_partial_dv_.swap(dlambda_dx_prox);
       }
