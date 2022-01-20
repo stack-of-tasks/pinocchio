@@ -88,4 +88,4 @@ ADD_BENCH(timings-jacobian TRUE)
 # timings-contact-dynamics
 #
 ADD_BENCH(timings-contact-dynamics TRUE)
-ADD_BENCH(timings-contact-dynamics-derivatives TRUE)
+ADD_BENCH(timings-constrained-dynamics-derivatives TRUE)
