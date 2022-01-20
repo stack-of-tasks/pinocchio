@@ -714,7 +714,9 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd_prox)
   const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,constraint_models,constraint_data,prox_settings_fd);
   BOOST_CHECK(a_res.isApprox(ddq0));
   const VectorXd lambda0 = data_fd.lambda_c;
-  
+
+  computeConstraintDynamicsDerivatives(model, data_fd, contact_models, contact_data_fd, prox_settings_fd);
+  BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));  
   computeConstraintDynamicsDerivatives(model, data_fd, constraint_models, constraint_data, prox_settings_fd);
   
   BOOST_CHECK(data_fd.dlambda_dtau.isApprox(data.dlambda_dtau));
@@ -1950,7 +1952,6 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
   MatrixXd lambda_partial_dv_fd(constraint_dim,model.nv); lambda_partial_dv_fd.setZero();
 
   const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,constraint_models,constraint_datas,prox_settings);
-  std::cerr<<"ddq0: "<<ddq0.transpose()<<std::endl;
   const VectorXd lambda0 = data_fd.lambda_c;
   VectorXd v_eps(VectorXd::Zero(model.nv));
   VectorXd q_plus(model.nq);
@@ -1965,16 +1966,11 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
     q_plus = integrate(model,q,v_eps);
     ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,
                                   constraint_models,constraint_datas,prox_settings);
-    std::cerr<<"ddq_plus: "<<ddq_plus.transpose()<<std::endl;
     ddq_partial_dq_fd.col(k) = (ddq_plus - ddq0)/alpha;
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
   }
 
-  std::cerr<<"ddq_dq_fd:"<<std::endl<<ddq_partial_dq_fd<<std::endl;
-  std::cerr<<"ddq_dq anal:"<<std::endl<<data.ddq_dq<<std::endl;
-
-  std::cerr<<"ddq_dq anal-ddq_dq_fd:"<<std::endl<<data.ddq_dq-ddq_partial_dq_fd<<std::endl;
   BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
 
   
