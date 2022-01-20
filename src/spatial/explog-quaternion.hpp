@@ -115,7 +115,7 @@ namespace pinocchio
 
       // linear part
       Eigen::Map<Vector3> trans_(qout.derived().template head<3>().data());
-      trans_.noalias() = v + alpha_wxv * w.cross(v) + alpha_w2*w.cross(w.cross(v));
+      trans_.noalias() = v + alpha_wxv * w.cross(v) + alpha_w2 * w.cross(w.cross(v));
 
       // quaternion part
       typedef Eigen::Map<Quaternion_t> QuaternionMap_t;

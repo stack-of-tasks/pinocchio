@@ -220,13 +220,18 @@ namespace pinocchio
 
       using namespace internal;
 
+
+      const Scalar pos_neg = if_then_else(GE, quat.w(), Scalar(0),
+                                          Scalar(+1),
+                                          Scalar(-1));
+
       Scalar theta;
       Vector3 w(quaternion::log3(quat, theta));  // theta nonsingular by construction
       const Scalar t2 = w.squaredNorm();
 
       // Scalar st,ct; SINCOS(theta,&st,&ct);
       Scalar st_2, ct_2;
-      ct_2 = quat.w();
+      ct_2 = pos_neg * quat.w();
       st_2 = math::sqrt(quat.vec().squaredNorm() + eps * eps);
       const Scalar cot_th_2 = ct_2 / st_2;
       // const Scalar cot_th_2 = ( st / (Scalar(1) - ct) ); // cotan of half angle
@@ -248,7 +253,8 @@ namespace pinocchio
                                         // static_cast<Scalar>(Scalar(1) / t2 - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
                                         );
 
-      mout.linear().noalias() = alpha * vec - Scalar(0.5) * w.cross(vec) + (beta * w.dot(vec)) * w;
+      // mout.linear().noalias() = alpha * vec - Scalar(0.5) * w.cross(vec) + (beta * w.dot(vec)) * w;
+      mout.linear().noalias() = vec - Scalar(0.5) * w.cross(vec) + beta * w.cross(w.cross(vec));
       mout.angular() = w;
     }
   };
