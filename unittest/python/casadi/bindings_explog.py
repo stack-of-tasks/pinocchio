@@ -121,7 +121,7 @@ class TestLogExpDerivatives(TestCase):
 
     cquat_i = SO3.integrate(cquat, cdv)
 
-    clog = cpin.log3_quat(cquat_i)
+    clog = cpin.log3(cquat_i)
     cJlog = casadi.jacobian(clog, cdv)
     clog_eval = casadi.Function("log", [cquat], [repl_dargs(clog)])
     cJlog_eval = casadi.Function("Jlog", [cquat], [repl_dargs(cJlog)])

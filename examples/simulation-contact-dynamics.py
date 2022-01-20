@@ -64,7 +64,7 @@ contact_datas = []
 
 for frame_id in frame_ids:
     frame = model.frames[frame_id]
-    contact_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_6D,model,frame.parent,frame.placement)
+    contact_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_6D,model,frame.parentJoint,frame.placement)
 
     contact_models.append(contact_model)
     contact_datas.append(contact_model.createData())
