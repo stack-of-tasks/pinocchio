@@ -23,7 +23,8 @@ def buildModelsFromUrdf(filename, package_dirs=None, root_joint=None, verbose=Fa
 
         model = buildModelsFromUrdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromUrdf(filename[, root_joint])
     """
-
+    if geometry_types is None:
+        geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
     if root_joint is None:
         model = pin.buildModelFromUrdf(filename)
     else:
@@ -68,7 +69,8 @@ def buildModelsFromSdf(filename, package_dirs=None, root_joint=None, root_link_n
         model, constraint_models, visual_model    = buildModelsFromSdf(filename[, ...], geometry_types=pin.GeometryType.VISUAL)      # only load the model and the visual model        
         model, constraint_models = buildModelsFromSdf(filename[, ...], geometry_types=[])  # equivalent to buildModelFromSdf(filename[, root_joint])
     """
-
+    if geometry_types is None:
+        geometry_types = [pin.GeometryType.COLLISION,pin.GeometryType.VISUAL]
     if root_joint is None:
         model, constraint_models = pin.buildModelFromSdf(filename, root_link_name, parent_guidance)
     else:
