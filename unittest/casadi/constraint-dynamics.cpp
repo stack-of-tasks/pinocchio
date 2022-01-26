@@ -44,11 +44,11 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamics_casadi_algo)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintData) contact_data;
 
-  pinocchio::RigidConstraintModel ci_RF(pinocchio::CONTACT_3D,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidConstraintModel ci_RF(pinocchio::CONTACT_3D,model,RF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_RF.joint1_placement.setRandom();
   contact_models.push_back(ci_RF); contact_data.push_back(pinocchio::RigidConstraintData(ci_RF));
 
-  pinocchio::RigidConstraintModel ci_LF(pinocchio::CONTACT_6D,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
+  pinocchio::RigidConstraintModel ci_LF(pinocchio::CONTACT_6D,model,LF_id,pinocchio::LOCAL_WORLD_ALIGNED);
   ci_LF.joint1_placement.setRandom();
   contact_models.push_back(ci_LF); contact_data.push_back(pinocchio::RigidConstraintData(ci_LF));
   const double mu0 = 0.;
