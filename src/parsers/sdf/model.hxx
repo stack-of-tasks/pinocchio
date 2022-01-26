@@ -198,6 +198,12 @@ namespace pinocchio
             std::string childLinkName =
               jointElement->GetElement("child")->template Get<std::string>();
             //Inserting data in std::map
+            StringVectorMap_t::const_iterator parent_link = childrenOfLinks.find(parentLinkName);
+            if (parent_link == childrenOfLinks.end()) {
+              const std::string msg= "Parent of " + jointName+ " doesn't exist";
+              throw std::invalid_argument(msg);
+            }
+            
             mapOfJoints.insert(std::make_pair(jointName, jointElement));
             //Create data of children of links
             childrenOfLinks.find(parentLinkName)->second.push_back(jointName);
