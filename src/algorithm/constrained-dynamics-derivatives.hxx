@@ -208,12 +208,17 @@ namespace pinocchio
                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator>& contact_data)
       {
+        typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+        typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+        typedef SE3Tpl<Scalar,Options> SE3;
+        typedef ForceTpl<Scalar,Options> Force;
 
+        
         Force of_tmp;
         
         // Add the contribution of the external forces.
         for(size_t k = 0; k < contact_models.size(); ++k)
-        {
+        {          
           const RigidConstraintModel & cmodel = contact_models[k];
           const RigidConstraintData & cdata = contact_data[k];
 
