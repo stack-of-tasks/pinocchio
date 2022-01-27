@@ -452,8 +452,10 @@ namespace pinocchio
           Vector friction(Vector::Constant(1,0.)), damping(Vector::Constant(1,0.));
           ignition::math::Vector3d axis_ignition;
           Vector3 axis;
+          bool axis_found = false;
 
           if (jointElement->HasElement("axis")) {
+            axis_found = true;
             const ::sdf::ElementPtr axisElem = jointElement->GetElement("axis");
             const ::sdf::ElementPtr xyzElem = axisElem->GetElement("xyz");
             axis_ignition =
@@ -506,6 +508,12 @@ namespace pinocchio
           if (jointElement->template Get<std::string>("type") == "universal") {
           }
           else if (jointElement->template Get<std::string>("type") == "revolute") {
+            if (not axis_found) {
+              const std::string msg("Axis information missing in joint "+jointName);
+              throw std::invalid_argument(msg);
+            }
+
+            
             urdfVisitor << "joint REVOLUTE with axis"<< axis.transpose()<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
                                         parentFrameId, jointPlacement, jointName,
@@ -523,12 +531,24 @@ namespace pinocchio
           }
           else if (jointElement->template Get<std::string>("type") == "prismatic")
           {
+            if (not axis_found) {
+              const std::string msg("Axis information missing in joint "+jointName);
+              throw std::invalid_argument(msg);
+            }
+            
             urdfVisitor << "joint prismatic with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::PRISMATIC, axis,
                                         parentFrameId, jointPlacement, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
-          }          
+          }
+          else if (jointElement->template Get<std::string>("type") == "fixed")
+          {
+            urdfVisitor << "joint fixed"<<  '\n';
+            urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement,
+                                             jointName, Y, childName);
+            
+          }
           else if (jointElement->template Get<std::string>("type") == "ball")
           {
             max_effort   = Vector::Constant(3, infty);
@@ -549,14 +569,15 @@ namespace pinocchio
           }
           else
           {
-            urdfVisitor <<"This type is yet to be implemented "<<jointElement->template Get<std::string>("type")<< '\n';
+            const std::string msg = "This type is yet to be implemented " + jointElement->template Get<std::string>("type");
+            urdfVisitor <<msg << '\n';
+            throw std::invalid_argument(msg);
           }
 
           SE3 cMj1(SE3::Identity());
           JointIndex existingJointId = -1;
           std::string constraint_name;
           //Get joint Id that was just added:
-          JointIndex currentAddedJointId = urdfVisitor.getJointId(jointName);
 
           if (make_parent) {
             if (multiple_parents) {
@@ -586,7 +607,7 @@ namespace pinocchio
             if (not currentJointOrderId != parentOrderId) {
               assert(true && "Should not happen");
             }
-
+            const JointIndex currentAddedJointId = urdfVisitor.getJointId(jointName);
             ContactDetails rcm (::pinocchio::CONTACT_6D,
                                 currentAddedJointId,
                                 cMj.inverse(),
