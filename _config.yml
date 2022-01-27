@@ -11,15 +11,11 @@ category_list:
     links:
       - name: Tutorials
         url: https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html
+
+link_list:
   - name: Documentation
     icon: book
-    links:
-      - name: Doxygen
-        url: https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/
+    url: https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/
   - name: Development
-    icon: wrench
-    links:
-      - name: View on Github
-        url: http://www.github.com/stack-of-tasks/pinocchio
-  - name: Support
-    icon: question-circle
+    icon: github
+    url: http://www.github.com/stack-of-tasks/pinocchio
