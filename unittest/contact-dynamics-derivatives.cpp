@@ -1902,7 +1902,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
 {
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie_v2.sdf");
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/robots/cassie.sdf");
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/cassie_description/srdf/cassie_v2.srdf");
   const std::string dir = PINOCCHIO_MODEL_DIR;
   
@@ -1968,9 +1968,25 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
     v_eps[k] = 0.;
   }
 
+  std::cerr<<"YYYYYYYYYYYYYYYYYYYYYY"<<std::endl;
+  std::cerr<<ddq_partial_dq_fd<<std::endl;
+  std::cerr<<"XXXXXXXXXXXXXXXXXXXXXXXXXXX"<<std::endl;
+  std::cerr<<data.ddq_dq<<std::endl;
+  std::cerr<<"ZZZZZZZZZZZZZZZZZZZZZZZZZZZ"<<std::endl;
+  std::cerr<<(data.ddq_dq - ddq_partial_dq_fd)<<std::endl;
+  std::cerr<<"AAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;
+  std::cerr<<(data.ddq_dq - ddq_partial_dq_fd).norm()<<std::endl;
+  
   BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
 
-  
+  std::cerr<<"YYYYYYYYYYYYYYYYYYYYYY"<<std::endl;
+  std::cerr<<lambda_partial_dq_fd<<std::endl;
+  std::cerr<<"XXXXXXXXXXXXXXXXXXXXXXXXXXX"<<std::endl;
+  std::cerr<<data.dlambda_dq<<std::endl;
+  std::cerr<<"ZZZZZZZZZZZZZZZZZZZZZZZZZZZ"<<std::endl;
+  std::cerr<<(data.dlambda_dq - lambda_partial_dq_fd)<<std::endl;
+  std::cerr<<"AAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;
+  std::cerr<<(data.dlambda_dq - lambda_partial_dq_fd).norm()<<std::endl;
   BOOST_CHECK(lambda_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
 
   VectorXd v_plus(v);
