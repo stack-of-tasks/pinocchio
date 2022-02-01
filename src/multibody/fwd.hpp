@@ -30,10 +30,10 @@ namespace pinocchio
   typedef Index FrameIndex;
   typedef Index PairIndex;
   
-  typedef FrameTpl<double> Frame;
+  typedef FrameTpl<context::Scalar, context::Options> Frame;
   
-  typedef ModelTpl<double> Model;
-  typedef DataTpl<double> Data;
+  typedef ModelTpl<context::Scalar, context::Options> Model;
+  typedef DataTpl<context::Scalar, context::Options> Data;
   
   struct GeometryModel;
   struct GeometryData;
