@@ -7,7 +7,6 @@
   except:
     - gh-pages
   script:
-    - sccache -s
     - cd /root/robotpkg/math
     - git pull
     - cd pinocchio
@@ -15,32 +14,12 @@
     - make install
     - build=$(make show-var VARNAME=CONFIGURE_DIRS); cd $(make show-var VARNAME=WRKSRC); cd $build
     - make test
-    - sccache -s
-robotpkg-pinocchio-16.04:
-  <<: *robotpkg-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:16.04
-  allow_failure: true
 
 robotpkg-pinocchio-18.04:
   <<: *robotpkg-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:18.04
+  image: gepetto/buildfarm:pinocchio-18.04
   allow_failure: true
-
-robotpkg-pinocchio-20.04:
-  <<: *robotpkg-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:20.04
-  allow_failure: true
-
-robotpkg-pinocchio-buster:
-  <<: *robotpkg-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:buster
-  allow_failure: true
-
-robotpkg-pinocchio-ferrum:
-  <<: *robotpkg-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/pinocchio:ferrum
-  allow_failure: true
-
+  
 .robotpkg-py-pinocchio: &robotpkg-py-pinocchio
   retry:
     max: 2
@@ -48,7 +27,6 @@ robotpkg-pinocchio-ferrum:
   except:
     - gh-pages
   script:
-    - sccache -s
     - cd /root/robotpkg/math
     - git pull
     - cd pinocchio
@@ -59,35 +37,15 @@ robotpkg-pinocchio-ferrum:
     - make install
     - build=$(make show-var VARNAME=CONFIGURE_DIRS); cd $(make show-var VARNAME=WRKSRC); cd $build
     - make test
-    - sccache -s
-robotpkg-py-pinocchio-16.04:
-  <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:16.04
-  allow_failure: true
-
+    
 robotpkg-py-pinocchio-18.04:
   <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:18.04
-  allow_failure: true
-
-robotpkg-py-pinocchio-20.04:
-  <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:20.04
-  allow_failure: true
-
-robotpkg-py-pinocchio-buster:
-  <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:buster
-  allow_failure: true
-
-robotpkg-py-pinocchio-ferrum:
-  <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:ferrum
+  image: gepetto/buildfarm:py-pinocchio-18.04
   allow_failure: true
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
-  image: memmos.laas.fr:5000/stack-of-tasks/pinocchio/py-pinocchio:20.04
+  image: gepetto/buildfarm:py-pinocchio-20.04
   before_script:
     - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
   after_script:
@@ -103,18 +61,3 @@ doc-coverage:
     paths:
       - doxygen-html/
       - coverage/
-
-format:
-  image:
-    name: gepetto/linters
-    entrypoint: [""]
-  allow_failure: true
-  retry:
-    max: 2
-    when: runner_system_failure
-  before_script:
-    - test -f /builds/setup.cfg || ln -s /root/setup.cfg /builds
-    - test -f /builds/.clang-format || ln -s /root/.clang-format /builds
-  script:
-    - entrypoint.sh --clang-6
-
