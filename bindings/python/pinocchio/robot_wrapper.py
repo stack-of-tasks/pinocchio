@@ -274,13 +274,13 @@ class RobotWrapper(object):
         """For each geometry object, returns the corresponding name of the node in the display."""
         return self.viz.getViewerNodeName(geometry_object, geometry_type)
 
-    def initViewer(self, shared_data=True, *args, **kwargs):
+    def initViewer(self, share_data=True, *args, **kwargs):
         """Init the viewer"""
         # Set viewer to use to gepetto-gui.
         if self.viz is None:
             from .visualize import GepettoVisualizer
             data, collision_data, visual_data = None, None, None
-            if shared_data:
+            if share_data:
                 data = self.data
                 collision_data = self.collision_data
                 visual_data = self.visual_data
@@ -288,7 +288,7 @@ class RobotWrapper(object):
                 self.model,
                 self.collision_model,
                 self.visual_model,
-                not shared_data,
+                not share_data,
                 data,
                 collision_data,
                 visual_data,
