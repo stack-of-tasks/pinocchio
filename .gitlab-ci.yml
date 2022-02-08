@@ -7,7 +7,7 @@
   except:
     - gh-pages
   script:
-    - cd /root/robotpkg/math
+    - cd /opt/conda
     - git pull
     - cd pinocchio
     - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
@@ -15,9 +15,9 @@
     - build=$(make show-var VARNAME=CONFIGURE_DIRS); cd $(make show-var VARNAME=WRKSRC); cd $build
     - make test
 
-robotpkg-pinocchio-18.04:
+robotpkg-pinocchio-20.04:
   <<: *robotpkg-pinocchio
-  image: gepetto/buildfarm:pinocchio-18.04
+  image: registry.gitlab.inria.fr/jucarpen/pinocchio:py-pinocchio-20.04
   allow_failure: true
   
 .robotpkg-py-pinocchio: &robotpkg-py-pinocchio
@@ -27,7 +27,7 @@ robotpkg-pinocchio-18.04:
   except:
     - gh-pages
   script:
-    - cd /root/robotpkg/math
+    - cd /opt/conda
     - git pull
     - cd pinocchio
     - make checkout MASTER_REPOSITORY="git ${CI_PROJECT_DIR}/.git"
@@ -38,14 +38,14 @@ robotpkg-pinocchio-18.04:
     - build=$(make show-var VARNAME=CONFIGURE_DIRS); cd $(make show-var VARNAME=WRKSRC); cd $build
     - make test
     
-robotpkg-py-pinocchio-18.04:
+robotpkg-py-pinocchio-20.04:
   <<: *robotpkg-py-pinocchio
-  image: gepetto/buildfarm:py-pinocchio-18.04
+  image: registry.gitlab.inria.fr/jucarpen/pinocchio:py-pinocchio-20.04
   allow_failure: true
 
 doc-coverage:
   <<: *robotpkg-py-pinocchio
-  image: gepetto/buildfarm:py-pinocchio-20.04
+  image: registry.gitlab.inria.fr/jucarpen/pinocchio:py-pinocchio-20.04
   before_script:
     - echo -e 'CXXFLAGS+= --coverage\nLDFLAGS+= --coverage\nPKG_DEFAULT_OPTIONS= debug' >> /opt/openrobots/etc/robotpkg.conf
   after_script:
