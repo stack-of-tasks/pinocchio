@@ -12,7 +12,7 @@
 
 namespace pinocchio
 {
-  template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
+  template<int Dim, typename Scalar, int Options = context::Options> struct VectorSpaceOperationTpl;
   
   template<int Dim, typename _Scalar, int _Options>
   struct traits< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >

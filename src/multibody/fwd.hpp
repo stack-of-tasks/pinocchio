@@ -17,11 +17,11 @@ namespace pinocchio
    * @{
    */
 
-  template<typename Scalar, int Options=0> struct FrameTpl;
+  template<typename Scalar, int Options=context::Options> struct FrameTpl;
 
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct ModelTpl;
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct DataTpl;
 
   typedef std::size_t Index;

@@ -34,7 +34,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef context::Scalar Scalar;
-    enum { Options = 0 };
+    enum { Options = context::Options };
     
     typedef SE3Tpl<Scalar,Options> SE3;
     
@@ -212,7 +212,7 @@ namespace pinocchio
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef context::Scalar Scalar;
-    enum { Options = 0 };
+    enum { Options = context::Options };
     
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef std::vector<GeomIndex> GeomIndexList;

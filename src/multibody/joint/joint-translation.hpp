@@ -15,7 +15,7 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options=0> struct MotionTranslationTpl;
+  template<typename Scalar, int Options=context::Options> struct MotionTranslationTpl;
   typedef MotionTranslationTpl<context::Scalar> MotionTranslation;
   
   template<typename Scalar, int Options>

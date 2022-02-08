@@ -16,7 +16,7 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options=0> struct MotionPrismaticUnalignedTpl;
+  template<typename Scalar, int Options=context::Options> struct MotionPrismaticUnalignedTpl;
   typedef MotionPrismaticUnalignedTpl<context::Scalar> MotionPrismaticUnaligned;
   
   template<typename Scalar, int Options>

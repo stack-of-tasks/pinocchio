@@ -153,7 +153,7 @@ namespace pinocchio
     Matrix3x m_f,m_n;
   };
 
-  typedef ForceSetTpl<context::Scalar,0> ForceSet;
+  typedef ForceSetTpl<context::Scalar,context::Options> ForceSet;
 
   template<>
   struct SE3GroupAction<ForceSet::Block> { typedef ForceSet ReturnType; };

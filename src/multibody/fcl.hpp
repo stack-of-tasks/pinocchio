@@ -127,7 +127,7 @@ template<>
 struct traits<GeometryObject>
 {
   typedef context::Scalar Scalar;
-  enum { Options = 0};
+  enum { Options = context::Options};
 };
 
 struct GeometryObject : public ModelItem<GeometryObject>

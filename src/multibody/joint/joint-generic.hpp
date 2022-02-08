@@ -15,7 +15,7 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct JointTpl;
   typedef JointTpl<context::Scalar> Joint;
 

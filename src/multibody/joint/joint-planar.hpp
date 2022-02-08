@@ -16,7 +16,7 @@
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
+  template<typename Scalar, int Options = context::Options> struct MotionPlanarTpl;
   typedef MotionPlanarTpl<context::Scalar> MotionPlanar;
   
   template<typename Scalar, int Options>

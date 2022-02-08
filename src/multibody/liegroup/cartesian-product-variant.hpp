@@ -13,10 +13,10 @@
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options = 0,
+  template<typename Scalar, int Options = context::Options,
     template<typename,int> class LieGroupCollectionTpl = LieGroupCollectionDefaultTpl>
       struct CartesianProductOperationVariantTpl;
-  typedef CartesianProductOperationVariantTpl<context::Scalar, 0, LieGroupCollectionDefaultTpl> CartesianProductOperationVariant;
+  typedef CartesianProductOperationVariantTpl<context::Scalar, context::Options, LieGroupCollectionDefaultTpl> CartesianProductOperationVariant;
   
   template<typename _Scalar, int _Options, template<typename,int> class LieGroupCollectionTpl>
   struct traits<CartesianProductOperationVariantTpl<_Scalar, _Options, LieGroupCollectionTpl> >

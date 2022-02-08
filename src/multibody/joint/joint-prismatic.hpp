@@ -659,17 +659,17 @@ namespace pinocchio
 
   }; // struct JointModelPrismaticTpl
 
-  typedef JointPrismaticTpl<context::Scalar,0,0> JointPX;
-  typedef JointDataPrismaticTpl<context::Scalar,0,0> JointDataPX;
-  typedef JointModelPrismaticTpl<context::Scalar,0,0> JointModelPX;
+  typedef JointPrismaticTpl<context::Scalar,context::Options,0> JointPX;
+  typedef JointDataPrismaticTpl<context::Scalar,context::Options,0> JointDataPX;
+  typedef JointModelPrismaticTpl<context::Scalar,context::Options,0> JointModelPX;
 
-  typedef JointPrismaticTpl<context::Scalar,0,1> JointPY;
-  typedef JointDataPrismaticTpl<context::Scalar,0,1> JointDataPY;
-  typedef JointModelPrismaticTpl<context::Scalar,0,1> JointModelPY;
+  typedef JointPrismaticTpl<context::Scalar,context::Options,1> JointPY;
+  typedef JointDataPrismaticTpl<context::Scalar,context::Options,1> JointDataPY;
+  typedef JointModelPrismaticTpl<context::Scalar,context::Options,1> JointModelPY;
 
-  typedef JointPrismaticTpl<context::Scalar,0,2> JointPZ;
-  typedef JointDataPrismaticTpl<context::Scalar,0,2> JointDataPZ;
-  typedef JointModelPrismaticTpl<context::Scalar,0,2> JointModelPZ;
+  typedef JointPrismaticTpl<context::Scalar,context::Options,2> JointPZ;
+  typedef JointDataPrismaticTpl<context::Scalar,context::Options,2> JointDataPZ;
+  typedef JointModelPrismaticTpl<context::Scalar,context::Options,2> JointModelPZ;
 
 } //namespace pinocchio
 

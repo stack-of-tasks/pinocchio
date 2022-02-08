@@ -204,17 +204,17 @@ namespace pinocchio
     typedef UnboundedRevoluteAffineTransform Type;
   };
   
-  typedef JointRevoluteUnboundedTpl<context::Scalar,0,0> JointRUBX;
-  typedef JointDataRevoluteUnboundedTpl<context::Scalar,0,0> JointDataRUBX;
-  typedef JointModelRevoluteUnboundedTpl<context::Scalar,0,0> JointModelRUBX;
+  typedef JointRevoluteUnboundedTpl<context::Scalar,context::Options,0> JointRUBX;
+  typedef JointDataRevoluteUnboundedTpl<context::Scalar,context::Options,0> JointDataRUBX;
+  typedef JointModelRevoluteUnboundedTpl<context::Scalar,context::Options,0> JointModelRUBX;
 
-  typedef JointRevoluteUnboundedTpl<context::Scalar,0,1> JointRUBY;
-  typedef JointDataRevoluteUnboundedTpl<context::Scalar,0,1> JointDataRUBY;
-  typedef JointModelRevoluteUnboundedTpl<context::Scalar,0,1> JointModelRUBY;
+  typedef JointRevoluteUnboundedTpl<context::Scalar,context::Options,1> JointRUBY;
+  typedef JointDataRevoluteUnboundedTpl<context::Scalar,context::Options,1> JointDataRUBY;
+  typedef JointModelRevoluteUnboundedTpl<context::Scalar,context::Options,1> JointModelRUBY;
 
-  typedef JointRevoluteUnboundedTpl<context::Scalar,0,2> JointRUBZ;
-  typedef JointDataRevoluteUnboundedTpl<context::Scalar,0,2> JointDataRUBZ;
-  typedef JointModelRevoluteUnboundedTpl<context::Scalar,0,2> JointModelRUBZ;
+  typedef JointRevoluteUnboundedTpl<context::Scalar,context::Options,2> JointRUBZ;
+  typedef JointDataRevoluteUnboundedTpl<context::Scalar,context::Options,2> JointDataRUBZ;
+  typedef JointModelRevoluteUnboundedTpl<context::Scalar,context::Options,2> JointModelRUBZ;
 
 } //namespace pinocchio
 

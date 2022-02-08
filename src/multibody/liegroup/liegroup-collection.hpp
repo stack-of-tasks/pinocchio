@@ -14,7 +14,7 @@
 
 namespace pinocchio
 {
-  template<typename _Scalar, int _Options = 0>
+  template<typename _Scalar, int _Options = context::Options>
   struct LieGroupCollectionDefaultTpl
   {
     typedef _Scalar Scalar;
