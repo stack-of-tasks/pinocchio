@@ -17,7 +17,7 @@ namespace pinocchio
 {
 
   template<typename Scalar, int Options = 0> struct MotionSphericalTpl;
-  typedef MotionSphericalTpl<double> MotionSpherical;
+  typedef MotionSphericalTpl<context::Scalar> MotionSpherical;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionSphericalTpl<Scalar,Options> >

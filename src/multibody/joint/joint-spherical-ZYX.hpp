@@ -212,7 +212,7 @@ namespace pinocchio
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  //  inline Eigen::Matrix<double,6,3>
+  //  inline Eigen::Matrix<context::Scalar,6,3>
   template<typename Matrix6Like, typename S2, int O2>
   const typename MatrixMatrixProduct<
   typename Eigen::internal::remove_const<typename SizeDepType<3>::ColsReturn<Matrix6Like>::ConstType>::type,
@@ -229,8 +229,8 @@ namespace pinocchio
   struct SE3GroupAction< JointMotionSubspaceSphericalZYXTpl<S1,O1> >
   {
     //      typedef const typename Eigen::ProductReturnType<
-    //      Eigen::Matrix <double,6,3,0>,
-    //      Eigen::Matrix <double,3,3,0>
+    //      Eigen::Matrix <context::Scalar,6,3,0>,
+    //      Eigen::Matrix <context::Scalar,3,3,0>
     //      >::Type Type;
     typedef Eigen::Matrix<S1,6,3,O1> ReturnType;
   };

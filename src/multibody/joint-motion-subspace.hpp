@@ -12,10 +12,10 @@ namespace pinocchio
   
   template<int _Dim, typename _Scalar, int _Options=0> struct JointMotionSubspaceTpl;
   
-  typedef JointMotionSubspaceTpl<1,double,0> JointMotionSubspace1d;
-  typedef JointMotionSubspaceTpl<3,double,0> JointMotionSubspace3d;
-  typedef JointMotionSubspaceTpl<6,double,0> JointMotionSubspace6d;
-  typedef JointMotionSubspaceTpl<Eigen::Dynamic,double,0> JointMotionSubspaceXd;
+  typedef JointMotionSubspaceTpl<1,context::Scalar,0> JointMotionSubspace1d;
+  typedef JointMotionSubspaceTpl<3,context::Scalar,0> JointMotionSubspace3d;
+  typedef JointMotionSubspaceTpl<6,context::Scalar,0> JointMotionSubspace6d;
+  typedef JointMotionSubspaceTpl<Eigen::Dynamic,context::Scalar,0> JointMotionSubspaceXd;
   
 } // namespace pinocchio
 

@@ -16,7 +16,7 @@ namespace pinocchio
 {
 
   template<typename Scalar, int Options=0> struct MotionTranslationTpl;
-  typedef MotionTranslationTpl<double> MotionTranslation;
+  typedef MotionTranslationTpl<context::Scalar> MotionTranslation;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionTranslationTpl<Scalar,Options> >

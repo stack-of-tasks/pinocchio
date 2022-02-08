@@ -25,7 +25,7 @@ namespace pinocchio
   template<>
   struct traits<GeometryModel>
   {
-    typedef double Scalar;
+    typedef context::Scalar Scalar;
   };
   
   struct GeometryModel
@@ -33,7 +33,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef double Scalar;
+    typedef context::Scalar Scalar;
     enum { Options = 0 };
     
     typedef SE3Tpl<Scalar,Options> SE3;
@@ -202,7 +202,7 @@ namespace pinocchio
   template<>
   struct traits<GeometryData>
   {
-    typedef double Scalar;
+    typedef context::Scalar Scalar;
   };
 
   struct GeometryData
@@ -211,7 +211,7 @@ namespace pinocchio
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef double Scalar;
+    typedef context::Scalar Scalar;
     enum { Options = 0 };
     
     typedef SE3Tpl<Scalar,Options> SE3;

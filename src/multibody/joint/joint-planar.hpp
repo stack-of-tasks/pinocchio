@@ -17,7 +17,7 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
-  typedef MotionPlanarTpl<double> MotionPlanar;
+  typedef MotionPlanarTpl<context::Scalar> MotionPlanar;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
@@ -373,7 +373,7 @@ namespace pinocchio
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  //  inline Eigen::Matrix<double,6,1>
+  //  inline Eigen::Matrix<context::Scalar,6,1>
   
   template<typename M6Like, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>

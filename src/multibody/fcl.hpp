@@ -126,7 +126,7 @@ struct CollisionObjectData
 template<>
 struct traits<GeometryObject>
 {
-  typedef double Scalar;
+  typedef context::Scalar Scalar;
   enum { Options = 0};
 };
 

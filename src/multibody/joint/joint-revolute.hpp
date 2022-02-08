@@ -764,17 +764,17 @@ namespace pinocchio
     
   }; // struct JointModelRevoluteTpl
 
-  typedef JointRevoluteTpl<double,0,0> JointRX;
-  typedef JointDataRevoluteTpl<double,0,0> JointDataRX;
-  typedef JointModelRevoluteTpl<double,0,0> JointModelRX;
+  typedef JointRevoluteTpl<context::Scalar,0,0> JointRX;
+  typedef JointDataRevoluteTpl<context::Scalar,0,0> JointDataRX;
+  typedef JointModelRevoluteTpl<context::Scalar,0,0> JointModelRX;
 
-  typedef JointRevoluteTpl<double,0,1> JointRY;
-  typedef JointDataRevoluteTpl<double,0,1> JointDataRY;
-  typedef JointModelRevoluteTpl<double,0,1> JointModelRY;
+  typedef JointRevoluteTpl<context::Scalar,0,1> JointRY;
+  typedef JointDataRevoluteTpl<context::Scalar,0,1> JointDataRY;
+  typedef JointModelRevoluteTpl<context::Scalar,0,1> JointModelRY;
 
-  typedef JointRevoluteTpl<double,0,2> JointRZ;
-  typedef JointDataRevoluteTpl<double,0,2> JointDataRZ;
-  typedef JointModelRevoluteTpl<double,0,2> JointModelRZ;
+  typedef JointRevoluteTpl<context::Scalar,0,2> JointRZ;
+  typedef JointDataRevoluteTpl<context::Scalar,0,2> JointDataRZ;
+  typedef JointModelRevoluteTpl<context::Scalar,0,2> JointModelRZ;
 
 } //namespace pinocchio
 

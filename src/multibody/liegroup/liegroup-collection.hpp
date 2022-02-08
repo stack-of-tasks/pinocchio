@@ -33,7 +33,7 @@ namespace pinocchio
     
   };
   
-  typedef LieGroupCollectionDefaultTpl<double> LieGroupCollectionDefault;
+  typedef LieGroupCollectionDefaultTpl<context::Scalar> LieGroupCollectionDefault;
   
 }
 
