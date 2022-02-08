@@ -8,7 +8,6 @@
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/crba.hpp"
-#include "pinocchio/parsers/sdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
@@ -21,6 +20,12 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#ifdef PINOCCHIO_WITH_SDFORMAT
+
+#include "pinocchio/parsers/sdf.hpp"
+
+#endif //PINOCCHIO_WITH_SDFORMAT
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
