@@ -40,8 +40,8 @@ namespace pinocchio
     ///
     ModelItem()
     : name()
-    , parentJoint()
     , parentFrame()
+    , parentJoint()
     , placement()
     {}
 
