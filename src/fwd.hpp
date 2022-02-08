@@ -105,16 +105,6 @@ namespace pinocchio
   struct ReturnTypeNotDefined;
 }
 
-namespace pinocchio {
-  namespace context {
-    
-    typedef PINOCCHIO_SCALAR_TYPE Scalar;
-    enum { Options = 0 };
-    
-    
-  } //namespace context
-} //namespace pinocchio
-
-
+#include "pinocchio/context.hpp"
 
 #endif // #ifndef __pinocchio_fwd_hpp__
