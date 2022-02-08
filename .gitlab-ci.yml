@@ -15,10 +15,11 @@ variables:
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_WITH_SDF_SUPPORT=ON -DBUILD_ADVANCED_TESTING=OFF -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF
-    - make
+    - make -j3
     - make build_tests
     - make test
     - make install
+  interruptible: true
 
 robotpkg-py-pinocchio-20.04:
   <<: *robotpkg-py-pinocchio
