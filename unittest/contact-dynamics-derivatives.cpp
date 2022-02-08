@@ -2014,6 +2014,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
   BOOST_CHECK(data_dirty.dlambda_dtau.isApprox(data_fresh.dlambda_dtau,sqrt(alpha)));
 }
 
+#ifdef PINOCCHIO_WITH_SDFORMAT
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
 {
@@ -2132,6 +2133,6 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
 
 }
   
-
+#endif //PINOCCHIO_WITH_SDFORMAT
 
 BOOST_AUTO_TEST_SUITE_END ()
