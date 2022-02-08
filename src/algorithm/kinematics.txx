@@ -7,31 +7,31 @@
 
 namespace pinocchio {
   extern template PINOCCHIO_DLLAPI void updateGlobalPlacements
-    <double, 0, JointCollectionDefaultTpl>
+    <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const Model &, Data & data);
 
   extern template PINOCCHIO_DLLAPI void forwardKinematics
-    <double, 0, JointCollectionDefaultTpl, Model::ConfigVectorType>
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Model::ConfigVectorType>
     (const Model &, Data &, const Eigen::MatrixBase<Model::ConfigVectorType> &);
 
   extern template PINOCCHIO_DLLAPI void forwardKinematics
-    <double, 0, JointCollectionDefaultTpl, Model::ConfigVectorType, Model::TangentVectorType>
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Model::ConfigVectorType, Model::TangentVectorType>
     (const Model &, Data &, const Eigen::MatrixBase<Model::ConfigVectorType> &, const Eigen::MatrixBase<Model::TangentVectorType> &);
 
   extern template PINOCCHIO_DLLAPI void forwardKinematics
-    <double, 0, JointCollectionDefaultTpl, Model::ConfigVectorType, Model::TangentVectorType, Model::TangentVectorType>
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Model::ConfigVectorType, Model::TangentVectorType, Model::TangentVectorType>
     (const Model &, Data &, const Eigen::MatrixBase<Model::ConfigVectorType> &, const Eigen::MatrixBase<Model::TangentVectorType> &, const Eigen::MatrixBase<Model::TangentVectorType> &);
 
-  extern template PINOCCHIO_DLLAPI MotionTpl<double, 0> getVelocity
-    <double, 0, JointCollectionDefaultTpl>
+  extern template PINOCCHIO_DLLAPI MotionTpl<context::Scalar, context::Options> getVelocity
+    <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const Model &, const Data &, const JointIndex, const ReferenceFrame);
 
-  extern template PINOCCHIO_DLLAPI MotionTpl<double, 0> getAcceleration
-    <double, 0, JointCollectionDefaultTpl>
+  extern template PINOCCHIO_DLLAPI MotionTpl<context::Scalar, context::Options> getAcceleration
+    <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const Model &, const Data &, const JointIndex, const ReferenceFrame);
 
-  extern template PINOCCHIO_DLLAPI MotionTpl<double, 0> getClassicalAcceleration
-    <double, 0, JointCollectionDefaultTpl>
+  extern template PINOCCHIO_DLLAPI MotionTpl<context::Scalar, context::Options> getClassicalAcceleration
+    <context::Scalar, context::Options, JointCollectionDefaultTpl>
     (const Model &, const Data &, const JointIndex, const ReferenceFrame);
 } // namespace pinocchio
 
