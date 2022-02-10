@@ -144,7 +144,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       
       static std::string print(const BoostNumber & self)
       {
-        return self.str(get_display_precision(),true);
+        return self.str(get_display_precision(), std::ios_base::dec);
       }
       
       static void set_display_precision(const int digit)
