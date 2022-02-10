@@ -173,6 +173,24 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
   pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model, package_dirs);
   geom_model.addAllCollisionPairs();
   
+  for(Eigen::DenseIndex i = 0; i < (Eigen::DenseIndex)geom_model.ngeoms; ++i)
+  {
+    for(Eigen::DenseIndex j = i+1; j < (Eigen::DenseIndex)geom_model.ngeoms; ++j)
+    {
+      BOOST_CHECK(geom_model.collisionPairMapping(i,j) < (int)geom_model.collisionPairs.size());
+      BOOST_CHECK(geom_model.collisionPairMapping(j,i) < (int)geom_model.collisionPairs.size());
+      BOOST_CHECK(geom_model.collisionPairMapping(j,i) == geom_model.collisionPairMapping(i,j));
+
+      if(geom_model.collisionPairMapping(i,j) != -1)
+      {
+        const PairIndex pair_index = (PairIndex)geom_model.collisionPairMapping(i,j);
+        const CollisionPair & cp_ref = geom_model.collisionPairs[pair_index];
+        const CollisionPair cp((size_t)i,(size_t)j);
+        BOOST_CHECK(cp == cp_ref);
+      }
+    }
+  }
+  
   GeometryModel::MatrixXb collision_map(GeometryModel::MatrixXb::Zero((Eigen::DenseIndex)geom_model.ngeoms,(Eigen::DenseIndex)geom_model.ngeoms));
 
   for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
