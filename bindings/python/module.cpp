@@ -30,6 +30,10 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   // Enable warnings
   bp::import("warnings");
   
+#if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE) && defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS)
+  bp::import("hppfcl");
+#endif
+  
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
   
