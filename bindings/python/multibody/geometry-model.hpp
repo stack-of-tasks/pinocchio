@@ -65,6 +65,9 @@ namespace pinocchio
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")
+        .add_property("collisionPairMapping",
+                 &GeometryModel::collisionPairMapping,
+                 "Matrix relating the collision pair ID to a pair of two GeometryObject indexes.")
         .def("addCollisionPair",&GeometryModel::addCollisionPair,
              bp::args("self","collision_pair"),
              "Add a collision pair given by the index of the two collision objects.")
