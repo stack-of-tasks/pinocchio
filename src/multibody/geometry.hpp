@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hpp__
@@ -42,6 +42,7 @@ namespace pinocchio
     typedef PINOCCHIO_ALIGNED_STD_VECTOR(GeometryObject) GeometryObjectVector;
     typedef std::vector<CollisionPair> CollisionPairVector;
     typedef Eigen::Matrix<bool,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXb;
+    typedef Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXi;
     
     typedef pinocchio::GeomIndex GeomIndex;
   
@@ -160,6 +161,7 @@ namespace pinocchio
          ngeoms == other.ngeoms
       && geometryObjects == other.geometryObjects
       && collisionPairs == other.collisionPairs
+      && collisionPairMapping == other.collisionPairMapping
       ;
     }
     
@@ -182,6 +184,9 @@ namespace pinocchio
     
     /// \brief Vector of collision pairs.
     CollisionPairVector collisionPairs;
+    
+    /// \brief Matrix relating the collision pair ID to a pair of two GeometryObject indexes
+    MatrixXi collisionPairMapping;
     
   }; // struct GeometryModel
 

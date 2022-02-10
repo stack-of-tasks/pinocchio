@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_geometry_hxx__
@@ -91,17 +91,29 @@ namespace pinocchio
       PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
                                      "The object joint parent and its frame joint parent do not match.");
     
-    GeomIndex idx = (GeomIndex) (ngeoms ++);
+    Eigen::DenseIndex idx = (Eigen::DenseIndex)(ngeoms ++);
     geometryObjects.push_back(object);
     geometryObjects.back().parentJoint = model.frames[object.parentFrame].parent;
-    return idx;
+    
+    collisionPairMapping.conservativeResize(idx+1,idx+1);
+    collisionPairMapping.col(idx).fill(-1);
+    collisionPairMapping.row(idx).fill(-1);
+    assert(collisionPairMapping.cols() == (Eigen::DenseIndex)ngeoms);
+    
+    return (GeomIndex) idx;
   }
   
   inline GeomIndex GeometryModel::addGeometryObject(const GeometryObject & object)
   {
-    GeomIndex idx = (GeomIndex) (ngeoms ++);
+    Eigen::DenseIndex idx = (Eigen::DenseIndex)(ngeoms ++);
     geometryObjects.push_back(object);
-    return idx;
+    
+    collisionPairMapping.conservativeResize(idx+1,idx+1);
+    collisionPairMapping.col(idx).fill(-1);
+    collisionPairMapping.row(idx).fill(-1);
+    assert(collisionPairMapping.cols() == (Eigen::DenseIndex)ngeoms);
+    
+    return (GeomIndex) idx;
   }
 
   inline GeomIndex GeometryModel::getGeometryId(const std::string & name) const
@@ -176,7 +188,13 @@ namespace pinocchio
                                    "The input pair.first is larger than the number of geometries contained in the GeometryModel");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
                                    "The input pair.second is larger than the number of geometries contained in the GeometryModel");
-    if (!existCollisionPair(pair)) { collisionPairs.push_back(pair); }
+    if (!existCollisionPair(pair))
+    {
+      collisionPairs.push_back(pair);
+      
+      collisionPairMapping((Eigen::DenseIndex)pair.second,(Eigen::DenseIndex)pair.first) = (int)(collisionPairs.size()-1);
+      collisionPairMapping((Eigen::DenseIndex)pair.first,(Eigen::DenseIndex)pair.second) = collisionPairMapping((Eigen::DenseIndex)pair.second,(Eigen::DenseIndex)pair.first); // make symmetric
+    }
   }
 
   inline void GeometryModel::setCollisionPairs(const MatrixXb & map,
@@ -187,6 +205,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(map.cols(),(Eigen::DenseIndex)ngeoms,
                                   "Input map does not have the correct number of columns.");
     removeAllCollisionPairs();
+    
     for(Eigen::DenseIndex i = 0; i < (Eigen::DenseIndex)ngeoms; ++i)
     {
       for(Eigen::DenseIndex j = i+1; j < (Eigen::DenseIndex)ngeoms; ++j)
@@ -194,12 +213,12 @@ namespace pinocchio
         if(upper)
         {
           if(map(i,j))
-            collisionPairs.push_back(CollisionPair((std::size_t)i,(std::size_t)j));
+            addCollisionPair(CollisionPair((std::size_t)i,(std::size_t)j));
         }
         else
         {
           if(map(j,i))
-            collisionPairs.push_back(CollisionPair((std::size_t)i,(std::size_t)j));
+            addCollisionPair(CollisionPair((std::size_t)i,(std::size_t)j));
         }
       }
     }
@@ -227,28 +246,46 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(pair.second < ngeoms,
                                    "The input pair.second is larger than the number of geometries contained in the GeometryModel");
 
-    CollisionPairVector::iterator it = std::find(collisionPairs.begin(),
-                                                 collisionPairs.end(),
-                                                 pair);
-    if (it != collisionPairs.end()) { collisionPairs.erase(it); }
+    const long index = (long) findCollisionPair(pair);
+    
+    if(index != (long) collisionPairs.size())
+    {
+      collisionPairMapping((Eigen::DenseIndex)pair.first,(Eigen::DenseIndex)pair.second)
+      = collisionPairMapping((Eigen::DenseIndex)pair.second,(Eigen::DenseIndex)pair.first) = -1;
+      collisionPairs.erase(collisionPairs.begin()+index);
+      
+      for(Eigen::DenseIndex i = 0; i < collisionPairMapping.cols(); ++i)
+      {
+        for(Eigen::DenseIndex j = i+1; j < collisionPairMapping.cols(); ++j)
+        {
+          if(collisionPairMapping(i,j) > index)
+          {
+            collisionPairMapping(i,j)--;
+            collisionPairMapping(j,i) = collisionPairMapping(i,j);
+          }
+        }
+      }
+    }
   }
   
-  inline void GeometryModel::removeAllCollisionPairs() { collisionPairs.clear(); }
+  inline void GeometryModel::removeAllCollisionPairs()
+  {
+    collisionPairs.clear();
+    collisionPairMapping.fill(-1);
+  }
 
   inline bool GeometryModel::existCollisionPair(const CollisionPair & pair) const
   {
-    return (std::find(collisionPairs.begin(),
-                      collisionPairs.end(),
-                      pair) != collisionPairs.end());
+    return collisionPairMapping((Eigen::DenseIndex)pair.first,(Eigen::DenseIndex)pair.second) != -1;
   }
   
   inline PairIndex GeometryModel::findCollisionPair(const CollisionPair & pair) const
   {
-    CollisionPairVector::const_iterator it = std::find(collisionPairs.begin(),
-                                                       collisionPairs.end(),
-                                                       pair);
-    
-    return (PairIndex) std::distance(collisionPairs.begin(), it);
+    int res = collisionPairMapping((Eigen::DenseIndex)pair.first,(Eigen::DenseIndex)pair.second);
+    if(res == -1)
+      return collisionPairs.size();
+    else
+      return (PairIndex) res;
   }
   
   inline void GeometryData::activateCollisionPair(const PairIndex pair_id)
