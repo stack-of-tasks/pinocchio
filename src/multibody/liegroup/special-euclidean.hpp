@@ -558,7 +558,6 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       typedef typename SE3::Vector3 Vector3;
-      typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat0 (q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat0,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
