@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -36,13 +36,13 @@ namespace pinocchio
 
       bp::def("computeCollisions",
               (bool (*)(const GeometryModel &, GeometryData &, const bool))&computeCollisions,
-              bp::args("geometry_model","geometry_data","stop_at_first_collision"),
-              "Determine if collision pairs are effectively in collision."
+              (bp::arg("geometry_model"),bp::arg("geometry_data"),bp::arg("stop_at_first_collision") = false),
+              "Determine if all collision pairs are effectively in collision or not."
               );
       
       bp::def("computeCollisions",
               &computeCollisions<double,0,JointCollectionDefaultTpl,VectorXd>,
-              bp::args("model","data","geometry_model","geometry_data","q","stop_at_first_collision"),
+              (bp::arg("model"),bp::arg("data"),bp::arg("geometry_model"),bp::arg("geometry_data"),bp::arg("q"),bp::arg("stop_at_first_collision") = false),
               "Update the geometry for a given configuration and "
               "determine if all collision pairs are effectively in collision or not."
               );
