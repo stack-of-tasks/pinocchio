@@ -104,7 +104,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     taus.col(i) = Eigen::VectorXd::Random(model.nv);
   }
   
-  ModelPool pool(model,NUM_THREADS);
+  ModelPool pool(&model,NUM_THREADS);
   
   timer.tic();
   SMOOTH(NBT)
