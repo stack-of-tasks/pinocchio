@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2020 CNRS INRIA
+// Copyright (c) 2017-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_parser_srdf_hxx__
@@ -67,23 +67,27 @@ namespace pinocchio
 
             typedef GeometryModel::CollisionPairVector CollisionPairVector;
             bool didRemove = false;
-            for(CollisionPairVector::iterator _colPair = geom_model.collisionPairs.begin();
-                _colPair != geom_model.collisionPairs.end(); ) {
-              const CollisionPair& colPair (*_colPair);
-              bool remove =
+            for(CollisionPairVector::const_iterator cp_iterator = geom_model.collisionPairs.begin();
+                cp_iterator != geom_model.collisionPairs.end(); ) {
+              const CollisionPair & cp = *cp_iterator;
+              const PairIndex cp_index = geom_model.findCollisionPair(cp);
+              const bool remove =
               (
-               (geom_model.geometryObjects[colPair.first ].parentFrame == frame_id1)
-               && (geom_model.geometryObjects[colPair.second].parentFrame == frame_id2)
+               (geom_model.geometryObjects[cp.first ].parentFrame == frame_id1)
+               && (geom_model.geometryObjects[cp.second].parentFrame == frame_id2)
                ) || (
-                     (geom_model.geometryObjects[colPair.second].parentFrame == frame_id1)
-                     && (geom_model.geometryObjects[colPair.first ].parentFrame == frame_id2)
+                     (geom_model.geometryObjects[cp.second].parentFrame == frame_id1)
+                     && (geom_model.geometryObjects[cp.first ].parentFrame == frame_id2)
                      );
               
-              if (remove) {
-                _colPair = geom_model.collisionPairs.erase(_colPair);
+              if(remove)
+              {
+                geom_model.removeCollisionPair(cp);
+                cp_iterator = geom_model.collisionPairs.begin() + (long)cp_index;
                 didRemove = true;
-              } else {
-                ++_colPair;
+              } else
+              {
+                ++cp_iterator;
               }
             }
             if(didRemove && verbose)
