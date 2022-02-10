@@ -584,4 +584,16 @@ BOOST_AUTO_TEST_CASE(test_SE3_interpolate)
   BOOST_CHECK(D.isApprox(C));
 }
 
+BOOST_AUTO_TEST_CASE(test_Jlog6_robustness)
+{
+  const int num_tests = 1e1;
+  for(int k = 0; k < num_tests; ++k)
+  {
+    const SE3 M = SE3::Random();
+    SE3::Matrix6 res = Jlog6(M.actInv(M));
+    
+    BOOST_CHECK(res.isIdentity());
+  }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
