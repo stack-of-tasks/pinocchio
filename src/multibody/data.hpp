@@ -332,7 +332,7 @@ namespace pinocchio
     /// \brief Operational space inertia matrix;
     MatrixXs osim;
 
-    /// \brief Partial derivatives of the contact lambdas wrt joint params;
+    /// \brief Partial derivatives of the constraints forces with respect to the joint configuration, velocity and torque;
     MatrixXs dlambda_dq;
     MatrixXs dlambda_dv;
     MatrixXs dlambda_dtau;
