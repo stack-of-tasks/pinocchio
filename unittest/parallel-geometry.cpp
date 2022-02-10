@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include <iostream>
@@ -33,13 +33,10 @@ BOOST_AUTO_TEST_CASE(test_pool)
   
   
   const int num_thread = omp_get_max_threads();
-  GeometryPool pool(model,pinocchio::GeometryModel(),num_thread);
+  pinocchio::GeometryModel geometry_model_empty;
+  GeometryPool pool(&model,&geometry_model_empty,num_thread);
   
-  pool.update(geometry_model);
-  BOOST_CHECK(pool.geometry_model() == geometry_model);
   pool.update(GeometryData(geometry_model));
-  
-  pool.update(geometry_model,GeometryData(geometry_model));
 }
 
 BOOST_AUTO_TEST_CASE(test_talos)
@@ -102,7 +99,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   GeometryData geometry_data_ref(geometry_model);
   
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
-  const Eigen::DenseIndex batch_size = 128;
+  const Eigen::DenseIndex batch_size = 2048;
   const int num_thread = omp_get_max_threads();
 
   Eigen::MatrixXd q(model.nq,batch_size);
@@ -112,15 +109,21 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   }
   
   typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
-  VectorXb res(batch_size); res.fill(false);
+  
   VectorXb res_ref(batch_size); res_ref.fill(false);
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
   {
     res_ref[i] = computeCollisions(model,data_ref,geometry_model,geometry_data_ref,q.col(i));
   }
+  BOOST_CHECK(res_ref.sum() > 0);
   
-  GeometryPool pool(model,geometry_model,num_thread);
-  computeCollisions(num_thread,pool,q,res);
+  {
+    VectorXb res(batch_size); res.fill(false);
+    GeometryPool geometry_pool(&model,&geometry_model,num_thread);
+    computeCollisions(num_thread,geometry_pool,q,res);
+    
+    BOOST_CHECK(res == res_ref);
+  }
   
   BOOST_CHECK(res == res_ref);
 }

@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_aba)
   model.upperPositionLimit.head<3>().fill( 1.);
   
   const Eigen::DenseIndex batch_size = 128;
-  const int num_threads = omp_get_max_threads();
+  const size_t num_threads = omp_get_max_threads();
 
   Eigen::MatrixXd q(model.nq,batch_size);
   Eigen::MatrixXd v(model.nv,batch_size);
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_aba)
     tau.col(i) = Eigen::VectorXd::Random(model.nv);
   }
   
-  ModelPool pool(model);
+  ModelPool pool(&model);
   aba(num_threads,pool,q,v,tau,a);
   
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
