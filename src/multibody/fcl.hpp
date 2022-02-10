@@ -116,6 +116,12 @@ enum GeometryType
 
 struct GeometryObject; //fwd
 
+struct CollisionObjectData
+{
+  /// @brief Geometry object index related to the current collision object.
+  size_t geometry_object_index;
+};
+
 template<>
 struct traits<GeometryObject>
 {
