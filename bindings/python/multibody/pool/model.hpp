@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_python_multibody_pool_model_hpp__
@@ -39,18 +39,18 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<Model,bp::optional<int> >(bp::args("self","model","size"),
-                                                "Default constructor."))
+        .def(bp::init<const Model *,bp::optional<int> >(bp::args("self","model","size"),"Default constructor.")
+             [bp::with_custodian_and_ward<1,2>()])
         .def(bp::init<ModelPool>(bp::args("self","other"),
                                   "Copy constructor."))
         
-        .def("model",(Model & (ModelPool::*)())&ModelPool::model,
+        .def("getModel",(Model & (ModelPool::*)())&ModelPool::getModel,
              bp::arg("self"),"Model contained in the pool.",
              bp::return_internal_reference<>())
-        .def("data",(Data & (ModelPool::*)(const size_t))&ModelPool::data,
+        .def("getData",(Data & (ModelPool::*)(const size_t))&ModelPool::getData,
              bp::args("self","index"),"Return a specific data.",
              bp::return_internal_reference<>())
-        .def("datas",(DataVector & (ModelPool::*)())&ModelPool::datas,
+        .def("getDatas",(DataVector & (ModelPool::*)())&ModelPool::getDatas,
              bp::arg("self"),"Returns the data vectors.",
              bp::return_internal_reference<>())
         
@@ -58,14 +58,9 @@ namespace pinocchio
              "Returns the size of the pool.")
         .def("resize",&ModelPool::resize,bp::args("self","new_size"),
              "Resize the pool.")
-        
-        .def("update",(void (ModelPool::*)(const Model &))&ModelPool::update,
-             bp::args("self","model"),
-             "Update the model, meaning that all the datas will be refreshed accordingly.")
+             
         .def("update",(void (ModelPool::*)(const Data &))&ModelPool::update,
              bp::args("self","data"),"Update all the datas with the input data value.")
-        .def("update",(void (ModelPool::*)(const Model &, const Data &))&ModelPool::update,
-             bp::args("self","model","data"),"Update the model and data together.")
         ;
       }
       
