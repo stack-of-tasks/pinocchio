@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_multibody_pool_geometry_hpp__
@@ -37,11 +37,12 @@ namespace pinocchio
     /// \param[in] geometry_model input geometry model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    GeometryPoolTpl(const Model & model, const GeometryModel & geometry_model,
+    GeometryPoolTpl(const Model * model_ptr,
+                    const GeometryModel * geometry_model_ptr,
                     const int pool_size = omp_get_max_threads())
-    : Base(model,pool_size)
-    , m_geometry_model(geometry_model)
-    , m_geometry_datas((size_t)pool_size,GeometryData(geometry_model))
+    : Base(model_ptr,pool_size)
+    , m_geometry_model_ptr(geometry_model_ptr)
+    , m_geometry_datas((size_t)pool_size,GeometryData(*geometry_model_ptr))
     {}
     
     /// \brief Copy constructor from an other GeometryPoolTpl.
@@ -50,18 +51,15 @@ namespace pinocchio
     ///
     GeometryPoolTpl(const GeometryPoolTpl & other)
     : Base(other)
-    , m_geometry_model(other.m_geometry_model)
+    , m_geometry_model_ptr(other.m_geometry_model_ptr)
     , m_geometry_datas(other.m_geometry_datas)
     {}
     
     /// \brief Returns the geometry model
-    const GeometryModel & geometry_model() const { return m_geometry_model; }
-    
-    /// \brief Returns the geometry model
-    GeometryModel & geometry_model() { return m_geometry_model; }
+    const GeometryModel & getGeometryModel() const { return *m_geometry_model_ptr; }
     
     /// \brief Returns the geometry_data at index
-    const GeometryData & geometry_data(const size_t index) const
+    const GeometryData & getGeometryData(const size_t index) const
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_datas.size(),
                                      "Index greater than the size of the geometry_datas vector.");
@@ -69,7 +67,7 @@ namespace pinocchio
     }
     
     /// \brief Returns the geometry_data at index
-    GeometryData & geometry_data(const size_t index)
+    GeometryData & getGeometryData(const size_t index)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_datas.size(),
                                      "Index greater than the size of the geometry_datas vector.");
@@ -77,72 +75,42 @@ namespace pinocchio
     }
     
     /// \brief Vector of Geometry Data
-    const GeometryDataVector & geometry_datas() const { return m_geometry_datas; }
+    const GeometryDataVector & getGeometryDatas() const { return m_geometry_datas; }
     
     /// \brief Vector of Geometry Data
-    GeometryDataVector & geometry_datas() { return m_geometry_datas; }
+    GeometryDataVector & getGeometryDatas() { return m_geometry_datas; }
     
     using Base::update;
     using Base::size;
-    using Base::model;
-    using Base::datas;
     
     ///
     /// \brief Update the geometry datas with the new value
     ///
     /// \param[in] geometry_data new geometry data value
     ///
-    void update(const GeometryData & geometry_data)
+    virtual void update(const GeometryData & geometry_data)
     {
       std::fill(m_geometry_datas.begin(),m_geometry_datas.end(),geometry_data);
     }
-    
-    ///
-    /// \brief Update the geometry model with the new input value.
-    ///        In this case, all the geometry_datas will be replaced
-    ///
-    /// \param[in] geometry_model new geometry model value.
-    ///
-    void update(const GeometryModel & geometry_model)
-    {
-      m_geometry_model = geometry_model;
-      std::fill(m_geometry_datas.begin(),m_geometry_datas.end(),
-                GeometryData(m_geometry_model));
-    }
-    
-    ///
-    /// \brief Update the geometry model and data with the new input values.
-    ///        In this case, all the geometry_datas will be replaced
-    ///
-    /// \param[in] geometry_model new geometry model value.
-    /// \param[in] geometry_data new geometry data value
-    ///
-    void update(const GeometryModel & geometry_model,
-                const GeometryData & geometry_data)
-    {
-      m_geometry_model = geometry_model;
-      update(geometry_data);
-    }
-    
     /// \brief Destructor
     virtual ~GeometryPoolTpl() {};
     
   protected:
     
     /// \brief Geometry Model associated to the pool.
-    GeometryModel m_geometry_model;
+    const GeometryModel * m_geometry_model_ptr;
     
     /// \brief Vector of Geometry Data associated to the pool.
     GeometryDataVector m_geometry_datas;
       
     /// \brief Method to implement in the derived classes.
-    virtual void do_resize(const int new_size)
+    virtual void doResize(const size_t new_size)
     {
       m_geometry_datas.resize((size_t)new_size);
-      if(size() < new_size)
+      if((size_t)size() < new_size)
       {
         typename GeometryDataVector::iterator it = m_geometry_datas.begin();
-        std::advance(it, (long)(new_size - size()));
+        std::advance(it, (long)(new_size - (size_t)size()));
         std::fill(it,m_geometry_datas.end(),m_geometry_datas[0]);
       }
     }
