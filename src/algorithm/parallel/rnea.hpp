@@ -29,7 +29,7 @@ namespace pinocchio
   /// \param[out] tau The joint torque vector (dim model.nv x batch_size).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename TangentVectorPool1, typename TangentVectorPool2, typename TangentVectorPool3>
-  void rnea(const int num_threads,
+  void rnea(const size_t num_threads,
             ModelPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
             const Eigen::MatrixBase<ConfigVectorPool> & q,
             const Eigen::MatrixBase<TangentVectorPool1> & v,
@@ -41,8 +41,8 @@ namespace pinocchio
     typedef typename Pool::Data Data;
     typedef typename Pool::DataVector DataVector;
     
-    const Model & model = pool.model();
-    DataVector & datas = pool.datas();
+    const Model & model = pool.getModel();
+    DataVector & datas = pool.getDatas();
     TangentVectorPool3 & res = tau.const_cast_derived();
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");

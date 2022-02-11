@@ -13,7 +13,7 @@
 namespace pinocchio
 {
 
-  inline bool computeCollisions(const int num_threads,
+  inline bool computeCollisions(const size_t num_threads,
                                 const GeometryModel & geom_model,
                                 GeometryData & geom_data,
                                 const bool stopAtFirstCollision = false)
@@ -57,7 +57,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  bool computeCollisions(const int num_threads,
+  bool computeCollisions(const size_t num_threads,
                          const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const GeometryModel & geom_model,
@@ -70,7 +70,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename CollisionVectorResult>
-  void computeCollisions(const int num_threads,
+  void computeCollisions(const size_t num_threads,
                          GeometryPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
                          const Eigen::MatrixBase<ConfigVectorPool> & q,
                          const Eigen::MatrixBase<CollisionVectorResult> & res,
@@ -84,10 +84,10 @@ namespace pinocchio
     typedef typename Pool::DataVector DataVector;
     typedef typename Pool::GeometryDataVector GeometryDataVector;
     
-    const Model & model = pool.model();
-    const GeometryModel & geometry_model = pool.geometry_model();
-    DataVector & datas = pool.datas();
-    GeometryDataVector & geometry_datas = pool.geometry_datas();
+    const Model & model = pool.getModel();
+    const GeometryModel & geometry_model = pool.getGeometryModel();
+    DataVector & datas = pool.getDatas();
+    GeometryDataVector & geometry_datas = pool.getGeometryDatas();
     CollisionVectorResult & res_ = res.const_cast_derived();
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
