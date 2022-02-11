@@ -55,7 +55,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), a.cols());
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.cols());
     
-    omp_set_num_threads(num_threads);
+    omp_set_num_threads((int)num_threads);
     const Eigen::DenseIndex batch_size = res.cols();
     Eigen::DenseIndex i = 0;
     

@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(test_pool)
   pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
   
   
-  const int num_thread = omp_get_max_threads();
+  const size_t num_thread = (size_t)omp_get_max_threads();
   pinocchio::GeometryModel geometry_model_empty;
   GeometryPool pool(&model,&geometry_model_empty,num_thread);
   
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   const Eigen::DenseIndex batch_size = 2048;
-  const int num_thread = omp_get_max_threads();
+  const size_t num_thread = (size_t)omp_get_max_threads();
 
   Eigen::MatrixXd q(model.nq,batch_size);
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)

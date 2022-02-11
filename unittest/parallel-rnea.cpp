@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_rnea)
   model.upperPositionLimit.head<3>().fill( 1.);
   
   const Eigen::DenseIndex batch_size = 128;
-  const int num_thread = omp_get_max_threads();
+  const size_t num_thread = (size_t)omp_get_max_threads();
 
   Eigen::MatrixXd q(model.nq,batch_size);
   Eigen::MatrixXd v(model.nv,batch_size);

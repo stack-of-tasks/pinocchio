@@ -20,7 +20,7 @@ namespace pinocchio
   {
     bool is_colliding = false;
     
-    omp_set_num_threads(num_threads);
+    omp_set_num_threads((int)num_threads);
     std::size_t cp_index = 0;
     
 #pragma omp parallel for
@@ -95,7 +95,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
     
-    omp_set_num_threads(num_threads);
+    omp_set_num_threads((int)num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
     
