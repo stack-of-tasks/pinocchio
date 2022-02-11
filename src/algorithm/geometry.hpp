@@ -12,6 +12,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/collision.hpp"
 #include "pinocchio/algorithm/distance.hpp"
+#include "pinocchio/algorithm/broadphase.hpp"
 
 namespace pinocchio
 {
