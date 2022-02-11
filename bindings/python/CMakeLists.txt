@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021 CNRS INRIA
+# Copyright (c) 2015-2022 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -90,6 +90,7 @@ IF(NOT BUILD_WITH_OPENMP_SUPPORT)
 ELSE(NOT BUILD_WITH_OPENMP_SUPPORT)
   IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
     LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/pool/geometry.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
+    LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/broadphase-manager.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
     LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel/geometry.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
     #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^multibody/pool/geometry.hpp")
     #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel/geometry.cpp")
