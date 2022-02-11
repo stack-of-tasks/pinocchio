@@ -39,7 +39,7 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<const Model *,bp::optional<int> >(bp::args("self","model","size"),"Default constructor.")
+        .def(bp::init<const Model *,bp::optional<size_t> >(bp::args("self","model","size"),"Default constructor.")
              [bp::with_custodian_and_ward<1,2>()])
         .def(bp::init<ModelPool>(bp::args("self","other"),
                                   "Copy constructor."))

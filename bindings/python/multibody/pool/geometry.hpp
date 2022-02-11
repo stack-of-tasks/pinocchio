@@ -41,7 +41,7 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<const Model *, const GeometryModel *,bp::optional<int> >(bp::args("self","model","geometry_model","size"),
+        .def(bp::init<const Model *, const GeometryModel *,bp::optional<size_t> >(bp::args("self","model","geometry_model","size"),
                                                               "Default constructor.")
              [bp::with_custodian_and_ward<1,2>(),bp::with_custodian_and_ward<1,3>()])
         .def(bp::init<GeometryPool>(bp::args("self","other"),

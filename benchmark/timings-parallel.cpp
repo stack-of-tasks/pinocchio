@@ -40,7 +40,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   #endif
   
   const int BATCH_SIZE = 256;
-  const int NUM_THREADS = omp_get_max_threads();
+  const size_t NUM_THREADS = (size_t)omp_get_max_threads();
     
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
   
