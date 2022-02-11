@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_algorithms_hpp__
@@ -30,6 +30,7 @@ namespace pinocchio
     void exposeCAT();
     void exposeJacobian();
     void exposeGeometryAlgo();
+    void exposeBroadphase();
     void exposeKinematicRegressor();
     void exposeRegressor();
     void exposeCholesky();

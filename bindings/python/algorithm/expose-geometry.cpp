@@ -70,6 +70,8 @@ namespace pinocchio
               &computeBodyRadius<double,0,JointCollectionDefaultTpl>,
               bp::args("model","geometry_model","geometry_data"),
               "Compute the radius of the geometry volumes attached to every joints.");
+      
+      exposeBroadphase();
 #endif // PINOCCHIO_WITH_HPP_FCL
       
     }
