@@ -1,9 +1,10 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/parallel/geometry.hpp"
+#include "pinocchio/algorithm/parallel/broadphase.hpp"
 
 #include <eigenpy/eigen-from-python.hpp>
 
@@ -13,9 +14,12 @@ namespace pinocchio
   {
   
     using namespace Eigen;
+  
+    void exposeParallelBroadPhase();
+  
     typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
   
-    static bool computeCollisions_proxy(const int num_threads,
+    static bool computeCollisions_proxy(const size_t num_threads,
                                         const GeometryModel & geom_model,
                                         GeometryData & geom_data,
                                         const bool stopAtFirstCollision = false)
@@ -23,7 +27,7 @@ namespace pinocchio
       return computeCollisions(num_threads, geom_model, geom_data, stopAtFirstCollision);
     }
   
-    static bool computeCollisions_full_proxy(const int num_threads,
+    static bool computeCollisions_full_proxy(const size_t num_threads,
                                              const Model & model,
                                              Data & data,
                                              const GeometryModel & geom_model,
@@ -104,6 +108,8 @@ namespace pinocchio
                                                         "\tq: the joint configuration vector (size model.nq x batch_size)\n"
                                                         "\tres: the resulting collision vector (batch_size)\n"
                                                         "\tstop_at_first_collision: if set to true, stop when encountering the first collision in a batch element.\n"));
+      
+      exposeParallelBroadPhase();
       
     }
     
