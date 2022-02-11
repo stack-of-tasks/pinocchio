@@ -1,16 +1,17 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_geometry_hpp__
 #define __pinocchio_algo_geometry_hpp__
 
-#include "pinocchio/multibody/visitor.hpp"
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/multibody/geometry.hpp"
 
 #include "pinocchio/algorithm/kinematics.hpp"
-#include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/algorithm/collision.hpp"
+#include "pinocchio/algorithm/distance.hpp"
 
 namespace pinocchio
 {
@@ -51,10 +52,10 @@ namespace pinocchio
                                        GeometryData & geom_data);
 
   ///
-  /// \brief     Set a mesh scaling vector to each GeometryObject contained in the the GeometryModel.
+  /// \brief Set a mesh scaling vector to each GeometryObject contained in the the GeometryModel.
   ///
-  /// param[in]  geom_model The geometry model containing the collision objects.
-  /// param[in]  meshScale The scale to be applied to each GeometryObject
+  /// \param[in]  geom_model The geometry model containing the collision objects.
+  /// \param[in]  meshScale The scale to be applied to each GeometryObject
   ///
   /// \deprecated This function is now deprecated without replacement.
   ///
@@ -70,8 +71,8 @@ namespace pinocchio
   ///
   /// \brief     Set an isotropic mesh scaling to each GeometryObject contained in the the GeometryModel.
   ///
-  /// param[in]  geom_model The geometry model containing the collision objects.
-  /// param[in]  meshScale The scale, to be applied to each GeometryObject, equally in all directions
+  /// \param[in]  geom_model The geometry model containing the collision objects.
+  /// \param[in]  meshScale The scale, to be applied to each GeometryObject, equally in all directions
   ///
   /// \deprecated This function is now deprecated without replacement.
   ///
@@ -83,36 +84,6 @@ namespace pinocchio
   }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
-
-  ///
-  /// \brief Compute the collision status between a *SINGLE* collision pair.
-  /// The result is store in the collisionResults vector.
-  ///
-  /// \param[in] GeomModel the geometry model (const)
-  /// \param[out] GeomData the corresponding geometry data, where computations are done.
-  /// \param[in] pair_id The collsion pair index in the GeometryModel.
-  ///
-  /// \return Return true is the collision objects are colliding.
-  /// \note The complete collision result is also available in geom_data.collisionResults[pair_id]
-  ///
-  bool computeCollision(const GeometryModel & geom_model,
-                        GeometryData & geom_data,
-                        const PairIndex pair_id);
-
-  ///
-  /// \brief Calls computeCollision for every active pairs of GeometryData. 
-  /// This function assumes that \ref updateGeometryPlacements has been called first.
-  ///
-  /// \param[in] geom_model: geometry model (const)
-  /// \param[out] geom_data: corresponding geometry data (nonconst) where collisions are computed
-  /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
-  ///
-  /// \warning if stopAtFirstcollision = true, then the collisions vector will
-  /// not be entirely fulfilled (of course).
-  ///
-  inline bool computeCollisions(const GeometryModel & geom_model,
-                                GeometryData & geom_data,
-                                const bool stopAtFirstCollision = false);
 
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -139,21 +110,6 @@ namespace pinocchio
                                 GeometryData & geom_data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q,
                                 const bool stopAtFirstCollision = false);
-
-  ///
-  /// \brief Compute the minimal distance between collision objects of a *SINGLE* collison pair
-  ///
-  /// \param[in] GeomModel the geometry model (const)
-  /// \param[out] GeomData the corresponding geometry data, where computations are done.
-  /// \param[in] pair_id The index of the collision pair in geom model.
-  ///
-  /// \return A reference on fcl struct containing the distance result, referring an element
-  /// of vector geom_data::distanceResults.
-  /// \note The complete distance result is also available in geom_data.distanceResults[pair_id]
-  ///
-  fcl::DistanceResult & computeDistance(const GeometryModel & geom_model,
-                                        GeometryData & geom_data,
-                                        const PairIndex pair_id);
   
   ///
   /// Compute the forward kinematics, update the geometry placements and
@@ -176,25 +132,6 @@ namespace pinocchio
                                       const GeometryModel & geom_model,
                                       GeometryData & geom_data,
                                       const Eigen::MatrixBase<ConfigVectorType> & q);
-  
-  ///
-  /// Update the geometry placements and
-  /// calls computeDistance for every active pairs of GeometryData.
-  ///
-  /// \tparam JointCollection Collection of Joint types.
-  ///
-  /// \param[in] model: robot model (const)
-  /// \param[out] data: corresponding data (const)
-  /// \param[in] geom_model: geometry model (const)
-  /// \param[out] geom_data: corresponding geometry data (nonconst) where distances are computed
-  ///
-  /// \note A similar function is available without model, data and q, not recomputing the FK.
-  ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline std::size_t computeDistances(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const GeometryModel & geom_model,
-                                      GeometryData & geom_data);
 
   ///
   /// Compute the radius of the geometry volumes attached to every joints.
