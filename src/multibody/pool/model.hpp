@@ -38,9 +38,9 @@ namespace pinocchio
     /// \param[in] pool_size total size of the pool.
     ///
     explicit ModelPoolTpl(const Model * model_ptr,
-                          const int pool_size = omp_get_max_threads())
+                          const size_t pool_size = (size_t)omp_get_max_threads())
     : m_model_ptr(model_ptr)
-    , m_datas((size_t)pool_size, Data(*model_ptr))
+    , m_datas(pool_size, Data(*model_ptr))
     {}
     
     /// \brief Copy constructor from an other PoolModel.

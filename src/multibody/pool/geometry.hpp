@@ -39,10 +39,10 @@ namespace pinocchio
     ///
     GeometryPoolTpl(const Model * model_ptr,
                     const GeometryModel * geometry_model_ptr,
-                    const int pool_size = omp_get_max_threads())
+                    const size_t pool_size = (size_t)omp_get_max_threads())
     : Base(model_ptr,pool_size)
     , m_geometry_model_ptr(geometry_model_ptr)
-    , m_geometry_datas((size_t)pool_size,GeometryData(*geometry_model_ptr))
+    , m_geometry_datas(pool_size,GeometryData(*geometry_model_ptr))
     {}
     
     /// \brief Copy constructor from an other GeometryPoolTpl.
