@@ -116,6 +116,20 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
 
   pinocchio::updateGeometryPlacements(model, data, geomModel, geomData, q);
   BOOST_CHECK(computeCollision(geomModel,geomData,0) == false);
+
+  geomModel.removeGeometryObject("ff2_collision_object");
+  geomData = pinocchio::GeometryData(geomModel);
+
+  BOOST_CHECK(geomModel.ngeoms == 2);
+  BOOST_CHECK(geomModel.geometryObjects.size() == 2);
+  BOOST_CHECK(geomModel.collisionPairs.size() == 1);
+  BOOST_CHECK((geomModel.collisionPairs[0].first == 0 && geomModel.collisionPairs[0].second == 1) ||
+	      (geomModel.collisionPairs[0].first == 1 && geomModel.collisionPairs[0].second == 0));
+  BOOST_CHECK(geomData.activeCollisionPairs.size() == 1);
+  BOOST_CHECK(geomData.distanceRequests.size() == 1);
+  BOOST_CHECK(geomData.distanceResults.size() == 1);
+  BOOST_CHECK(geomData.distanceResults.size() == 1);
+  BOOST_CHECK(geomData.collisionResults.size() == 1);
 }
 
 BOOST_AUTO_TEST_CASE ( loading_model )

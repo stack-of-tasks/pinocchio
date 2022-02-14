@@ -234,9 +234,21 @@ class RobotWrapper(object):
     def rebuildData(self):
         """Re-build the data objects. Needed if the models were modified.
         Warning: this will delete any information stored in all data objects."""
-        self.data, self.collision_data, self.visual_data = createDatas(self.model, self.collision_model, self.visual_model)
+        data, collision_data, visual_data = createDatas(self.model, self.collision_model, self.visual_model)
         if self.viz is not None:
-            self.viz.rebuildData()
+            if (
+                id(self.data) == id(self.viz.data)
+                and id(self.collision_data) == id(self.viz.collision_data)
+                and id(self.visual_data) == id(self.viz.visual_data)
+            ):
+                self.viz.data = data
+                self.viz.collision_data = collision_data
+                self.viz.visual_data = visual_data
+            else:
+                self.viz.rebuildData()
+        self.data = data
+        self.collision_data = collision_data
+        self.visual_data = visual_data
 
     # --- ACCESS TO NAMES ----
     # Return the index of the joint whose name is given in argument.
@@ -262,12 +274,25 @@ class RobotWrapper(object):
         """For each geometry object, returns the corresponding name of the node in the display."""
         return self.viz.getViewerNodeName(geometry_object, geometry_type)
 
-    def initViewer(self, *args, **kwargs):
+    def initViewer(self, share_data=True, *args, **kwargs):
         """Init the viewer"""
         # Set viewer to use to gepetto-gui.
         if self.viz is None:
             from .visualize import GepettoVisualizer
-            self.viz = GepettoVisualizer(self.model, self.collision_model, self.visual_model)
+            data, collision_data, visual_data = None, None, None
+            if share_data:
+                data = self.data
+                collision_data = self.collision_data
+                visual_data = self.visual_data
+            self.viz = GepettoVisualizer(
+                self.model,
+                self.collision_model,
+                self.visual_model,
+                not share_data,
+                data,
+                collision_data,
+                visual_data,
+            )
 
         self.viz.initViewer(*args, **kwargs)
 

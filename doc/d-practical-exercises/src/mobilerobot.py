@@ -17,8 +17,8 @@ class MobileRobotWrapper(RobotWrapper):
     '''
 
     def __init__(self, urdf, pkgs):
-        super(MobileRobotWrapper, self).__init__(self, urdf, pkgs, pin.JointModelPlanar())
-
+        self.initFromURDF(urdf, pkgs, pin.JointModelPlanar())
+        
         M0 = pin.SE3(eye(3), np.matrix([.0, .0, .6]).T)
         self.model.jointPlacements[2] = M0 * self.model.jointPlacements[2]
         self.visual_model.geometryObjects[0].placement = M0 * self.visual_model.geometryObjects[0].placement
@@ -58,13 +58,13 @@ class MobileRobotWrapper(RobotWrapper):
     def display(self, q):
         RobotWrapper.display(self, q)
         M1 = self.data.oMi[1]
-        self.viewer.gui.applyConfiguration('world/mobilebasis', pin.se3ToXYZQUATtuple(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel1', pin.se3ToXYZQUATtuple(M1))
-        self.viewer.gui.applyConfiguration('world/mobilewheel2', pin.se3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilebasis', pin.SE3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel1', pin.SE3ToXYZQUATtuple(M1))
+        self.viewer.gui.applyConfiguration('world/mobilewheel2', pin.SE3ToXYZQUATtuple(M1))
         self.viewer.gui.refresh()
 
-        pin.framesKinematics(self.model, self.data)
-        self.viewer.gui.applyConfiguration('world/framebasis', pin.se3ToXYZQUATtuple(self.data.oMf[-2]))
-        self.viewer.gui.applyConfiguration('world/frametool', pin.se3ToXYZQUATtuple(self.data.oMf[-1]))
+        pin.updateFramePlacements(self.model, self.data)
+        self.viewer.gui.applyConfiguration('world/framebasis', pin.SE3ToXYZQUATtuple(self.data.oMf[-2]))
+        self.viewer.gui.applyConfiguration('world/frametool', pin.SE3ToXYZQUATtuple(self.data.oMf[-1]))
 
         self.viewer.gui.refresh()

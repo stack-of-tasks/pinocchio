@@ -11,9 +11,7 @@
 #include "pinocchio/utils/timer.hpp"
 
 #include <iostream>
-#include <Eigen/StdVector>
 
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::VectorXd)
 
 int main()
 {
@@ -30,9 +28,9 @@ int main()
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
   
-  std::string romeo_filename = PINOCCHIO_MODEL_DIR + std::string("/others/robots/romeo_description/urdf/romeo_small.urdf");
+  std::string romeo_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > package_dirs;
-  std::string romeo_meshDir  = PINOCCHIO_MODEL_DIR + std::string("/others/robots");
+  std::string romeo_meshDir = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots");
   package_dirs.push_back(romeo_meshDir);
 
   pinocchio::Model model;
@@ -47,9 +45,9 @@ int main()
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
 
 
-  std::vector<VectorXd> qs_romeo     (NBT);
-  std::vector<VectorXd> qdots_romeo  (NBT);
-  std::vector<VectorXd> qddots_romeo (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qs_romeo     (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qdots_romeo  (NBT);
+  PINOCCHIO_ALIGNED_STD_VECTOR(VectorXd) qddots_romeo (NBT);
   for(size_t i=0;i<NBT;++i)
   {
     qs_romeo[i]     = randomConfiguration(model,-qmax,qmax);

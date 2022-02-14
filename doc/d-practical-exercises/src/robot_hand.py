@@ -44,19 +44,19 @@ class Visual(object):
             oMj2 = data.oMi[c2.jointParent]
         M1 = oMj1 * self.placement
         M2 = oMj2 * c2.placement
-
-        assert(self.isCapsule() and c2.isCapsule())
+        assert (self.isCapsule() and c2.isCapsule())
         l1 = self.length
         r1 = self.radius
         l2 = c2.length
         r2 = c2.radius
 
-        a1 = M1.act(np.matrix([0, 0, -l1 / 2]).T)
-        b1 = M2.act(np.matrix([0, 0, -l2 / 2]).T)
-        a2 = M1.act(np.matrix([0, 0, +l1 / 2]).T)
-        b2 = M2.act(np.matrix([0, 0, +l2 / 2]).T)
-
-        ab = pinv(np.hstack([a1 - a2, b2 - b1])) * (b2 - a2)
+        a1 = M1.act(np.array([0, 0, -l1 / 2]))
+        b1 = M2.act(np.array([0, 0, -l2 / 2]))
+        a2 = M1.act(np.array([0, 0, +l1 / 2]))
+        b2 = M2.act(np.array([0, 0, +l2 / 2]))
+                
+        a1a2_b1b2 = np.array([a1 - a2, b1 - b2]).T
+        ab = pinv(a1a2_b1b2) * (b2 - a2)
 
         if (0 <= ab).all() and (ab <= 1).all():
             asat = bsat = False
@@ -69,7 +69,7 @@ class Visual(object):
             pa = a2 if i == 0 else a1
             pb = b2 if i == 1 else b1
             if i == 0 or i == 2:  # fix a to pa, search b
-                b = (pinv(b1 - b2) * (pa - b2))[0, 0]
+                b = (pinv((b1 - b2).reshape(3, 1)) * (pa - b2))[0, 0]
                 if b < 0:
                     pb = b2
                 elif b > 1:
@@ -78,7 +78,7 @@ class Visual(object):
                     pb = b2 + b * (b1 - b2)
                     bsat = False
             else:  # fix b
-                a = (pinv(a1 - a2) * (pb - a2))[0, 0]
+                a = (pinv((a1 - a2).reshape(3, 1)) * (pb - a2))[0, 0]
                 if a < 0:
                     pa = a2
                 elif a > 1:
@@ -103,7 +103,7 @@ class Visual(object):
             r1 = cross(ab, x)
             r1 /= norm(r1)
             r2 = cross(ab, r1)
-            R = np.hstack([r1, r2, ab])
+            R = np.hstack([r1, r2, ab.reshape(3,1)])
 
             self.dist = dist
             c2.dist = dist

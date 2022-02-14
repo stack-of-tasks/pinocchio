@@ -43,12 +43,26 @@ namespace pinocchio
     return list_of_paths;
   }
 
+  void appendSuffixToPaths(std::vector<std::string> & list_of_paths,
+                           const std::string & suffix)
+  {
+    for (size_t i = 0; i < list_of_paths.size(); ++i)
+    {
+      list_of_paths[i] += suffix;
+    }
+  }
+  
   std::vector<std::string> rosPaths()
   {
     std::vector<std::string> raw_list_of_paths;
+    std::vector<std::string> raw_list_of_prefixes;
     extractPathFromEnvVar("ROS_PACKAGE_PATH", raw_list_of_paths);
-    extractPathFromEnvVar("AMENT_PREFIX_PATH", raw_list_of_paths);
+    extractPathFromEnvVar("AMENT_PREFIX_PATH", raw_list_of_prefixes);
 
+    appendSuffixToPaths(raw_list_of_prefixes, "/share");
+    raw_list_of_paths.insert(raw_list_of_paths.end(), raw_list_of_prefixes.begin(),
+                             raw_list_of_prefixes.end());
+    
     // Work-around for https://github.com/stack-of-tasks/pinocchio/issues/1463
     // To support ROS devel/isolated spaces, we also need to look one package above the package.xml:
     fs::path path;

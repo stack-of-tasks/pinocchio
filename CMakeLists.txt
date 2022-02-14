@@ -16,6 +16,12 @@ SET(PROJECT_USE_KEYWORD_LINK_LIBRARIES TRUE)
 SET(CXX_DISABLE_WERROR True)
 SET(CMAKE_VERBOSE_MAKEFILE True)
 
+# ----------------------------------------------------
+# --- OPTIONS  ---------------------------------------
+# Need to be set before including base.cmake
+# ----------------------------------------------------
+OPTION(INSTALL_DOCUMENTATION "Generate and install the documentation" OFF)
+
 # Check if the submodule cmake have been initialized
 IF(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/base.cmake")
   MESSAGE(FATAL_ERROR "\nPlease run the following command first:\ngit submodule update --init\n")

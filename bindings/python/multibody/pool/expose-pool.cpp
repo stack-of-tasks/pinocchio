@@ -4,6 +4,8 @@
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/multibody/pool/model.hpp"
+
+#ifdef PINOCCHIO_WITH_HPP_FCL
 #include "pinocchio/bindings/python/multibody/pool/geometry.hpp"
 #include "pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp"
 
@@ -14,6 +16,7 @@
 #include <hpp/fcl/broadphase/broadphase_bruteforce.h>
 #include <hpp/fcl/broadphase/broadphase_interval_tree.h>
 #include <hpp/fcl/broadphase/broadphase_spatialhash.h>
+#endif
 
 namespace pinocchio
 {
@@ -23,10 +26,11 @@ namespace pinocchio
     void exposePool()
     {
       ModelPoolPythonVisitor<context::ModelPool>::expose();
-      GeometryPoolPythonVisitor<context::GeometryPool>::expose();
       
+#ifdef PINOCCHIO_WITH_HPP_FCL
       BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,context::Scalar> >::expose();
-      
+      GeometryPoolPythonVisitor<GeometryPool>::expose();
+#endif
     }
     
   } // namespace python

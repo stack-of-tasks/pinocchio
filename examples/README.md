@@ -18,6 +18,11 @@ Installing **panda3d_viewer**:
 pip install panda3d_viewer
 ```
 
+Installing **RViz**:
+```bash
+conda install ros-noetic-rviz -c RoboStack
+```
+
 ## Loading a model
 
 - Loading an embeded Model: `python -i overview-simple.py` and in C++ `g++ overview-simple.cpp -o overview-simple $(pkg-config --cflags --libs pinocchio) && ./overview-simple`

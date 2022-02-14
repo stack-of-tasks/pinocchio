@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 CNRS
+// Copyright (c) 2016-2022 CNRS INRIA
 //
 
 #include <boost/fusion/container/generation/make_list.hpp>
@@ -33,10 +33,7 @@ BOOST_AUTO_TEST_CASE ( test_check )
   
   BOOST_CHECK(model.check (Check1()));
   BOOST_CHECK(model.check (CRBAChecker()));
-  BOOST_CHECK(! model.check (ABAChecker())); // some inertias are negative ... check fail.
-  BOOST_FOREACH(Inertia& Y,model.inertias) 
-      Y.mass() = Y.inertia().data()[0] = Y.inertia().data()[3] = Y.inertia().data()[5] = 1.0 ;
-  BOOST_CHECK(model.check (ABAChecker())); // some inertias are negative ... check fail.
+  BOOST_CHECK(model.check (ABAChecker()));
 
   BOOST_CHECK(model.check(makeAlgoCheckerList(Check1(),ParentChecker(),CRBAChecker()) ));
   BOOST_CHECK(model.check(DEFAULT_CHECKERS));
@@ -44,6 +41,12 @@ BOOST_AUTO_TEST_CASE ( test_check )
   pinocchio::Data data(model);
   BOOST_CHECK(checkData(model,data));
   BOOST_CHECK(model.check(data));
+
+  BOOST_FOREACH(Inertia& Y,model.inertias)
+  {
+    Y.inertia().data().fill(-1.);
+  }
+  BOOST_CHECK(! model.check (ABAChecker())); // some inertias are negative ... check fail.
   
 }
 

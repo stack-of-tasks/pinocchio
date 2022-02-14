@@ -44,7 +44,7 @@ void rnea_fd(const pinocchio::Model & model, pinocchio::Data & data_fd,
   for(int k = 0; k < model.nv; ++k)
   {
     v_eps[k] += alpha;
-    q_plus = integrate(model,q,v_eps);
+    integrate(model,q,v_eps,q_plus);
     tau_plus = rnea(model,data_fd,q_plus,v,a);
     
     drnea_dq.col(k) = (tau_plus - tau0)/alpha;

@@ -1,4 +1,4 @@
-name: Build Pinocchio for Windows (v142) via Conda
+name: CI - Windows (v142) via Conda
 on:
   pull_request:
   push:
@@ -34,7 +34,7 @@ jobs:
     - name: Display the path
       run: echo %cd%
       shell: cmd
-    
+
     - name: Build Pinocchio
       shell: cmd /C CALL {0}
       env:
@@ -46,7 +46,7 @@ jobs:
         set BOOST_ROOT_1_72_0=
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
-    
+
         :: Create build directory
         mkdir build
         pushd build
@@ -62,6 +62,7 @@ jobs:
           -DBUILD_PYTHON_INTERFACE=OFF ^
           -DBUILD_WITH_COLLISION_SUPPORT=ON ^
           -DBUILD_TESTING=ON ^
+          -DINSTALL_DOCUMENTATION=ON ^
           ..
 
         :: Build

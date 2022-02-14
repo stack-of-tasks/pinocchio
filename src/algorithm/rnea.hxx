@@ -499,7 +499,7 @@ namespace pinocchio
 
       Mat_tmp.noalias() = J_cols.transpose() * data.vxI[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
-        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j) += Mat_tmp * data.J.col(j);
+        data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += Mat_tmp * data.J.col(j);
 
       if(parent>0)
       {

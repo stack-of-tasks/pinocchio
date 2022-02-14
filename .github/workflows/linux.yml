@@ -1,4 +1,4 @@
-name: Test Pinocchio on Linux
+name: CI - Linux via APT
 
 on: [push,pull_request]
 
@@ -6,16 +6,22 @@ jobs:
   build:
 
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
-        os: [ubuntu-20.04,ubuntu-18.04] 
-    
+        os: [ubuntu-20.04,ubuntu-18.04]
+
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        submodules: recursive 
+        submodules: recursive
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ matrix.os }}-${{ matrix.type }}
+        max-size: 1G
 
     # extract branch name
     - name: Get branch name (merge)
@@ -34,7 +40,7 @@ jobs:
       run: echo ${{ env.BRANCH_NAME }}
 
     - name: Register robotpkg
-      run: | 
+      run: |
         sudo sh -c "echo \"deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg\" >> /etc/apt/sources.list "
         sudo apt-key adv --fetch-keys http://robotpkg.openrobots.org/packages/debian/robotpkg.key
     - name: Set and install dependencies
@@ -71,9 +77,11 @@ jobs:
         export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
         export MAKEFLAGS="-j1"
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=ON -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
@@ -103,14 +111,14 @@ jobs:
         export PINOCCHIO_GIT_REPOSITORY="file://"$GITHUB_WORKSPACE
         #export PINOCCHIO_GIT_REPOSITORY=$(git remote get-url origin)
         export PINOCCHIO_GIT_TAG="test-external-"$(git rev-parse --short HEAD)
-        git tag $PINOCCHIO_GIT_TAG 
+        git tag $PINOCCHIO_GIT_TAG
         mkdir build
         cd build
         cmake ..
         make
         ./run_rnea
         ./load_urdf
-        
+
 
     - name: Uninstall project
       run: |

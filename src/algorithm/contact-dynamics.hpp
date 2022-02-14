@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_dynamics_hpp__
@@ -36,8 +36,9 @@ namespace pinocchio
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
   ///        When using forwardDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.
   ///
-  /// \note It computes the following problem: <BR>
-  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\ %
+  /// \brief Compute the forward dynamics with contact constraints, assuming pinocchio::computeAllTerms has been called.
+  /// \note It solves the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
   ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
   ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.
@@ -77,8 +78,8 @@ namespace pinocchio
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
   ///        When using forwardDynamics for the first time, you should call first initContactDynamics to initialize the internal memory used in the algorithm.
   ///
-  /// \note It computes the following problem: <BR>
-  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\ %
+  /// \note It solves the following problem: <BR>
+  ///       <CENTER> \f$ \begin{eqnarray} \underset{\ddot{q}}{\min} & & \| \ddot{q} - \ddot{q}_{\text{free}} \|_{M(q)} \\
   ///           \text{s.t.} & & J (q) \ddot{q} + \gamma (q, \dot{q}) = 0 \end{eqnarray} \f$ </CENTER> <BR>
   ///       where \f$ \ddot{q}_{\text{free}} \f$ is the free acceleration (i.e. without constraints),
   ///       \f$ M \f$ is the mass matrix, \f$ J \f$ the constraint Jacobian and \f$ \gamma \f$ is the constraint drift.

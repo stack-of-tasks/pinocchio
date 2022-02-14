@@ -13,10 +13,9 @@
 
 namespace pinocchio
 {
-
   namespace internal
   {
-    
+
     template<typename Scalar>
     struct SE3actOn
     {
@@ -28,49 +27,49 @@ namespace pinocchio
         typedef SE3Tpl<Scalar,Options> SE3;
         typedef typename SE3::Matrix3 Matrix3;
         typedef typename SE3::Vector3 Vector3;
-        
+
         typedef const Eigen::Block<Matrix6Type,3,3> constBlock3;
-        
+
         typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix6Type) ReturnType;
         typedef Eigen::Block<ReturnType,3,3> Block3;
-        
+
         Matrix6Type & I_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix6Type,I);
         const constBlock3 & Ai = I_.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
         const constBlock3 & Bi = I_.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
         const constBlock3 & Di = I_.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-        
+
         const Matrix3 & R = M.rotation();
         const Vector3 & t = M.translation();
-        
+
         ReturnType res;
         Block3 Ao = res.template block<3,3>(Inertia::LINEAR, Inertia::LINEAR);
         Block3 Bo = res.template block<3,3>(Inertia::LINEAR, Inertia::ANGULAR);
         Block3 Co = res.template block<3,3>(Inertia::ANGULAR, Inertia::LINEAR);
         Block3 Do = res.template block<3,3>(Inertia::ANGULAR, Inertia::ANGULAR);
-        
+
         Do.noalias() = R*Ai; // tmp variable
         Ao.noalias() = Do*R.transpose();
-        
+
         Do.noalias() = R*Bi; // tmp variable
         Bo.noalias() = Do*R.transpose();
-        
+
         Co.noalias() = R*Di; // tmp variable
         Do.noalias() = Co*R.transpose();
-        
+
         Do.row(0) += t.cross(Bo.col(0));
         Do.row(1) += t.cross(Bo.col(1));
         Do.row(2) += t.cross(Bo.col(2));
-        
+
         Co.col(0) = t.cross(Ao.col(0));
         Co.col(1) = t.cross(Ao.col(1));
         Co.col(2) = t.cross(Ao.col(2));
         Co += Bo.transpose();
-        
+
         Bo = Co.transpose();
         Do.col(0) += t.cross(Bo.col(0));
         Do.col(1) += t.cross(Bo.col(1));
         Do.col(2) += t.cross(Bo.col(2));
-        
+
         return res;
       }
     };
@@ -545,12 +544,12 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
+
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const ConfigVectorType &
                                   > ArgsType;
-    
+
     template<typename JointModel>
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
                      pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -559,18 +558,18 @@ namespace pinocchio
                      const Eigen::MatrixBase<ConfigVectorType> & q)
     {
       typedef typename Model::JointIndex JointIndex;
-      
+
       const JointIndex & i = jmodel.id();
       jmodel.calc(jdata.derived(),q.derived());
-      
+
       const JointIndex & parent = model.parents[i];
       data.liMi[i] = model.jointPlacements[i] * jdata.M();
-      
+
       if (parent>0)
         data.oMi[i] = data.oMi[parent] * data.liMi[i];
       else
         data.oMi[i] = data.liMi[i];
-      
+
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock J_cols = jmodel.jointCols(data.J);
       J_cols = data.oMi[i].act(jdata.S());
@@ -578,19 +577,19 @@ namespace pinocchio
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
       data.oYaba[i] = data.oYcrb[i].matrix();
     }
-    
+
   };
-  
+
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct ComputeMinverseBackwardStep
   : public fusion::JointUnaryVisitorBase< ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
+
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
-    
+
     template<typename JointModel>
     static void algo(const JointModelBase<JointModel> & jmodel,
                      JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -625,10 +624,10 @@ namespace pinocchio
       {
         ColsBlock SDinv_cols = jmodel.jointCols(data.SDinv);
         SDinv_cols.noalias() = J_cols * jdata.Dinv();
-        
+
         Minv.block(jmodel.idx_v(),jmodel.idx_v()+jmodel.nv(),jmodel.nv(),nv_children).noalias()
         = -SDinv_cols.transpose() * Fcrb.middleCols(jmodel.idx_v()+jmodel.nv(),nv_children);
-      
+
         if(parent > 0)
         {
           Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
@@ -640,7 +639,7 @@ namespace pinocchio
         Fcrb.middleCols(jmodel.idx_v(),data.nvSubtree[i]).noalias()
         = jdata.U() * Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]);
       }
-      
+
       if(parent > 0)
       {
         Ia.noalias() -= jdata.UDinv() * jdata.U().transpose();
@@ -708,10 +707,10 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    
+
     typedef boost::fusion::vector<const Model &,
                                   Data &> ArgsType;
-    
+
     template<typename JointModel>
     static void algo(const pinocchio::JointModelBase<JointModel> & jmodel,
                      pinocchio::JointDataBase<typename JointModel::JointDataDerived> & jdata,
@@ -732,14 +731,13 @@ namespace pinocchio
         Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v()).noalias()
         -= jdata.UDinv().transpose() * data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
       }
-      
-      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias()
-      = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
+
+      data.Fcrb[i].rightCols(model.nv - jmodel.idx_v()).noalias() = J_cols * Minv.middleRows(jmodel.idx_v(),jmodel.nv()).rightCols(model.nv - jmodel.idx_v());
       if(parent > 0)
         data.Fcrb[i].rightCols(model.nv - jmodel.idx_v())
         += data.Fcrb[parent].rightCols(model.nv - jmodel.idx_v());
     }
-    
+
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -750,17 +748,17 @@ namespace pinocchio
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
-    
+
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     data.Minv.template triangularView<Eigen::Upper>().setZero();
-    
+
     typedef ComputeMinverseForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data,q.derived()));
     }
-    
+
     data.Fcrb[0].setZero();
     typedef ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
@@ -775,7 +773,7 @@ namespace pinocchio
       Pass3::run(model.joints[i],data.joints[i],
                  typename Pass3::ArgsType(model,data));
     }
-    
+
     return data.Minv;
   }
 
@@ -818,11 +816,11 @@ namespace pinocchio
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
-    
+
     for(JointIndex j=1;j<(JointIndex)model.njoints;j++)
-      if(    (model.inertias[j].mass   ()           < 1e-5) 
+      if(    (model.inertias[j].mass   ()           < 1e-5)
           || (model.inertias[j].inertia().data()[0] < 1e-5)
-          || (model.inertias[j].inertia().data()[3] < 1e-5)
+          || (model.inertias[j].inertia().data()[2] < 1e-5)
           || (model.inertias[j].inertia().data()[5] < 1e-5) )
         return false;
     return true;

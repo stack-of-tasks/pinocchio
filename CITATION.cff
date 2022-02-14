@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: Thanks for using Pinocchio. Please use the following metadata and also consider the reference paper https://hal-laas.archives-ouvertes.fr/hal-01866228.
+title: Pinocchio - Efficient and versatile Rigid Body Dynamics algorithms
+abstract: Pinocchio instantiates the state-of-the-art Rigid Body Algorithms for poly-articulated systems based on revisited Roy Featherstone's algorithms. Besides, Pinocchio provides the analytical derivatives of the main Rigid-Body Algorithms like the Recursive Newton-Euler Algorithm or the Articulated-Body Algorithm. Pinocchio is first tailored for robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, vision, etc.). It is built upon Eigen for linear algebra and FCL for collision detection. Pinocchio comes with a Python interface for fast code prototyping, directly accessible through Conda. Pinocchio is now at the heart of various robotics softwares as Crocoddyl, an open-source and efficient Differential Dynamic Programming solver for robotics, the Stack-of-Tasks, an open-source and versatile hierarchical controller framework or the Humanoid Path Planner, an open-source software for Motion and Manipulation Planning.
+authors:
+  - family-names: Carpentier
+    given-names: Justin
+    orcid: "https://orcid.org/0000-0001-6585-2894"
+  - family-names: Mansard
+    given-names: Nicolas
+    orcid: "https://orcid.org/0000-0002-8090-0601"
+  - family-names: Valenza
+    given-names: Florian
+  - family-names: Mirabel
+    given-names: Joseph
+  - family-names: Saurel
+    given-names: Guilhem
+  - family-names: Budhiraja
+    given-names: Rohan
+version: 2.6.3
+date-released: "2021-07-21"
+license: BSD-2-Clause
+repository-code: "https://github.com/stack-of-tasks/pinocchio"

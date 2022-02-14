@@ -1,4 +1,4 @@
-name: Build Pinocchio for Mac OS X/Linux via Conda
+name: CI - OSX/Linux via Conda
 
 on: [push,pull_request]
 
@@ -14,6 +14,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ matrix.os }}-${{ matrix.type }}
+        max-size: 1G
 
     - name: Checkout submodules
       run: |
@@ -32,17 +38,19 @@ jobs:
         conda activate pinocchio
         conda install cmake -c main
         conda install llvm-openmp libcxx=11 -c conda-forge
-    
+
     - name: Build Pinocchio
       shell: bash -l {0}
       run: |
         conda activate pinocchio
         echo $CONDA_PREFIX
-        
+
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+
         mkdir build
         cd build
 
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON
+        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
