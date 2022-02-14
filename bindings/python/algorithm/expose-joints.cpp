@@ -17,7 +17,7 @@ namespace pinocchio
       normalize(model,q);
       return q;
     }
-    
+
     static context::VectorXs randomConfiguration_proxy(const context::Model & model)
     {
       return randomConfiguration(model);
@@ -42,9 +42,9 @@ namespace pinocchio
                                            const ArgumentPosition arg)
     {
       context::MatrixXs J(context::MatrixXs::Zero(model.nv,model.nv));
-      
+
       dIntegrate(model,q,v,J,arg, SETTO);
-      
+
       return J;
     }
 
@@ -56,16 +56,6 @@ namespace pinocchio
     {
       int ncols = Jin.cols();
       Eigen::MatrixXd Jout(Eigen::MatrixXd::Zero(model.nv,ncols));
-      dIntegrateTransport(model, q, v, Jin, Jout, arg);
-      return Jout;
-    }
-
-    bp::tuple dDifference_proxy(const Model & model,
-                                const Eigen::VectorXd & q1,
-                                const Eigen::VectorXd & q2)
-    {
-      int ncols = Jin.cols();
-      context::MatrixXs Jout(context::MatrixXs::Zero(model.nv,ncols));
       dIntegrateTransport(model, q, v, Jin, Jout, arg);
       return Jout;
     }
@@ -89,18 +79,18 @@ namespace pinocchio
                                             const ArgumentPosition arg)
     {
       context::MatrixXs J(context::MatrixXs::Zero(model.nv,model.nv));
-      
+
       dDifference(model,q1,q2,J,arg);
-      
+
       return J;
     }
-  
+
     void exposeJointsAlgo()
     {
       typedef context::Scalar Scalar;
       typedef context::VectorXs VectorXs;
       enum { Options = context::Options };
-      
+
       bp::def("integrate",
               &integrate<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q","v"),
@@ -110,7 +100,7 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tv: the joint velocity vector (size model.nv)\n");
-      
+
       bp::def("dIntegrate",
               &dIntegrate_proxy,
               bp::args("model","q","v"),
@@ -153,7 +143,7 @@ namespace pinocchio
               "\tq1: the initial joint configuration vector (size model.nq)\n"
               "\tq2: the terminal joint configuration vector (size model.nq)\n"
               "\talpha: the interpolation coefficient in [0,1]\n");
-      
+
       bp::def("difference",
               &difference<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
@@ -163,7 +153,7 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tq1: the initial joint configuration vector (size model.nq)\n"
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
-      
+
       bp::def("squaredDistance",
               &squaredDistance<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
@@ -172,7 +162,7 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tq1: the initial joint configuration vector (size model.nq)\n"
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
-      
+
       bp::def("distance",
               &distance<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","q1","q2"),
@@ -183,7 +173,7 @@ namespace pinocchio
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
 
       bp::def("dDifference",
-              &dDifference_proxy,
+          &dDifference_proxy,
               bp::args("model","q1","q2"),
               "Computes the partial derivatives of the difference function with respect to the first "
               "and the second argument, and returns the two Jacobians as a tuple.\n\n"
@@ -191,7 +181,7 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tq1: the initial joint configuration vector (size model.nq)\n"
               "\tq2: the terminal joint configuration vector (size model.nq)\n");
-      
+
       bp::def("dDifference",
               &dDifference_arg_proxy,
               bp::args("model","q1","q2","argument_position"),
@@ -202,14 +192,14 @@ namespace pinocchio
               "\tq1: the initial joint configuration vector (size model.nq)\n"
               "\tq2: the terminal joint configuration vector (size model.nq)\n"
               "\targument_position: either pinocchio.ArgumentPosition.ARG0 or pinocchio.ArgumentPosition.ARG1, depending on the desired Jacobian value.\n");
-      
+
       bp::def("randomConfiguration",
               &randomConfiguration_proxy,
               bp::arg("model"),
               "Generate a random configuration in the bounds given by the lower and upper limits contained in model.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n");
-      
+
       bp::def("randomConfiguration",
               &randomConfiguration<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
               bp::args("model","lower_bound","upper_bound"),
@@ -218,14 +208,14 @@ namespace pinocchio
               "\tmodel: model of the kinematic tree\n"
               "\tlower_bound: the lower bound on the joint configuration vectors (size model.nq)\n"
               "\tupper_bound: the upper bound on the joint configuration vectors (size model.nq)\n");
-      
+
       bp::def("neutral",
               &neutral<Scalar,Options,JointCollectionDefaultTpl>,
               bp::arg("model"),
               "Returns the neutral configuration vector associated to the model.\n\n"
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n");
-      
+
       bp::def("normalize",normalize_proxy,
               bp::args("model","q"),
               "Returns the configuration normalized.\n"
@@ -233,9 +223,9 @@ namespace pinocchio
               "Parameters:\n"
               "\tmodel: model of the kinematic tree\n"
               "\tq: a joint configuration vector to normalize (size model.nq)\n");
-      
+
 #ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
-      
+
       static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
       bp::def("isSameConfiguration",
               &isSameConfiguration<Scalar,Options,JointCollectionDefaultTpl,VectorXs,VectorXs>,
@@ -257,6 +247,6 @@ namespace pinocchio
                 "\tprec: requested accuracy for the check\n");
 #endif
     }
-    
+
   } // namespace python
 } // namespace pinocchio
