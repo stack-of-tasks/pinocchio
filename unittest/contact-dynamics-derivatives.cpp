@@ -283,9 +283,13 @@ pinocchio::Motion computeAcceleration(const pinocchio::Model & model,
 
 pinocchio::Motion getContactAcceleration(const Model & model,
                                          const Data & data,
-                                         const RigidConstraintModel & cmodel)
+                                         const RigidConstraintModel & cmodel,
+                                         const pinocchio::SE3 & c1Mc2 = SE3::Identity())
 {
-  return computeAcceleration(model,data,cmodel.joint1_id,cmodel.reference_frame,cmodel.type,cmodel.joint1_placement);
+  Motion acc1 =  computeAcceleration(model,data,cmodel.joint1_id,cmodel.reference_frame,cmodel.type,cmodel.joint1_placement);
+  Motion acc2 = computeAcceleration(model,data,cmodel.joint2_id,cmodel.reference_frame,cmodel.type,cmodel.joint2_placement);
+  return acc1 - c1Mc2.act(acc2);
+  
 }
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_fd)
@@ -1916,16 +1920,9 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
     
     v_eps[k] = 0.;
   }
-  
-  // std::cout << "dac_dq_fd:\n" << dac_dq_fd << std::endl;
-  // std::cout << "dac_dq:\n" << data.dac_da << std::endl;
-  // std::cout << "dac_dq:\n" << dac_dq_fd<< std::endl;
 
   BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
   BOOST_CHECK(lambda_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
-  
-  // std::cout << "lambda_partial_dq_fd:\n" << lambda_partial_dq_fd << std::endl;
-  // std::cout << "dlambda_dq:\n" << data.dlambda_dq << std::endl;
 
   VectorXd v_plus(v);
   for(int k = 0; k < model.nv; ++k)
@@ -1953,6 +1950,124 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
   BOOST_CHECK(lambda_partial_dtau_fd.isApprox(data.dlambda_dtau,sqrt(alpha)));
   BOOST_CHECK(ddq_partial_dtau_fd.isApprox(data.ddq_dtau,sqrt(alpha)));
 }
+
+
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_loop_closure_kinematics_fd)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  Data data(model), data_fd(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  const std::string RH = "rarm6_joint";
+  const Model::JointIndex RH_id = model.getJointId(RH);
+  const std::string LH = "larm6_joint";
+  const Model::JointIndex LH_id = model.getJointId(LH);
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) constraint_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data;
+
+  RigidConstraintModel ci_RH(CONTACT_6D,model,RH_id,SE3::Random(),
+                             LH_id,SE3::Random(),LOCAL);  
+  constraint_models.push_back(ci_RH); constraint_data.push_back(RigidConstraintData(ci_RH));
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < constraint_models.size(); ++k)
+    constraint_dim += constraint_models[k].size();
+
+  const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
+
+  initConstraintDynamics(model,data,constraint_models);
+  constraintDynamics(model,data,q,v,tau,constraint_models,constraint_data,prox_settings);
+  const Data::TangentVectorType a = data.ddq;
+  data.M.triangularView<Eigen::StrictlyLower>() = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+  computeConstraintDynamicsDerivatives(model, data, constraint_models, constraint_data, prox_settings);
+
+  //Data_fd
+  initConstraintDynamics(model,data_fd,constraint_models);
+  const VectorXd ddq0 = constraintDynamics(model,data_fd,q,v,tau,constraint_models,constraint_data,prox_settings);
+  const VectorXd lambda0 = data_fd.lambda_c;
+  VectorXd v_eps(VectorXd::Zero(model.nv));
+  VectorXd q_plus(model.nq);
+  VectorXd ddq_plus(model.nv);
+
+  VectorXd lambda_plus(constraint_dim);
+
+  const double alpha = 1e-8;
+  forwardKinematics(model,data,q,v,a);
+  
+  const Eigen::MatrixXd Jc = data.dac_da;
+  const Eigen::MatrixXd Jc_ref = data.contact_chol.matrix().topRightCorner(constraint_dim,model.nv);
+  
+  BOOST_CHECK(Jc.isApprox(Jc_ref));
+  
+  const Eigen::MatrixXd JMinv = Jc * data.Minv;
+  const Eigen::MatrixXd dac_dq = data.dac_dq + JMinv * data.dtau_dq;
+  
+  Eigen::MatrixXd dac_dq_fd(constraint_dim,model.nv);
+  
+  Eigen::VectorXd contact_acc0(constraint_dim);
+  Eigen::DenseIndex row_id = 0;
+  
+  forwardKinematics(model,data,q,v,data.ddq);
+  for(size_t k = 0; k < constraint_models.size(); ++k)
+  {
+    const RigidConstraintModel & cmodel = constraint_models[k];
+    const RigidConstraintData & cdata = constraint_data[k];
+    const Eigen::DenseIndex size = cmodel.size();
+    
+    const Motion contact_acc = getContactAcceleration(model,data,cmodel,cdata.c1Mc2);
+    
+    if(cmodel.type == CONTACT_3D)
+      contact_acc0.segment<3>(row_id) = contact_acc.linear();
+    else
+      contact_acc0.segment<6>(row_id) = contact_acc.toVector();
+    
+    row_id += size;
+  }
+  
+  for(int k = 0; k < model.nv; ++k)
+  {
+    v_eps[k] += alpha;
+    q_plus = integrate(model,q,v_eps);
+    ddq_plus = constraintDynamics(model,data_fd,q_plus,v,tau,constraint_models,constraint_data,prox_settings);
+    
+    Eigen::VectorXd contact_acc_plus(constraint_dim);
+    Eigen::DenseIndex row_id = 0;
+    forwardKinematics(model,data_fd,q_plus,v,data.ddq);
+    for(size_t k = 0; k < constraint_models.size(); ++k)
+    {
+      const RigidConstraintModel & cmodel = constraint_models[k];
+      const RigidConstraintData & cdata = constraint_data[k];
+      const Eigen::DenseIndex size = cmodel.size();
+      
+      const Motion contact_acc = getContactAcceleration(model,data_fd,cmodel,cdata.c1Mc2);
+      
+      if(cmodel.type == CONTACT_3D)
+        contact_acc_plus.segment<3>(row_id) = contact_acc.linear();
+      else
+        contact_acc_plus.segment<6>(row_id) = contact_acc.toVector();
+      
+      row_id += size;
+    }
+    
+    dac_dq_fd.col(k) = (contact_acc_plus - contact_acc0)/alpha;
+    
+    v_eps[k] = 0.;
+  }
+}
+
 
 BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
 {
@@ -2088,26 +2203,9 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
     lambda_partial_dq_fd.col(k) = (data_fd.lambda_c - lambda0)/alpha;
     v_eps[k] = 0.;
   }
-
-  // std::cerr<<"YYYYYYYYYYYYYYYYYYYYYY"<<std::endl;
-  // std::cerr<<ddq_partial_dq_fd<<std::endl;
-  // std::cerr<<"XXXXXXXXXXXXXXXXXXXXXXXXXXX"<<std::endl;
-  // std::cerr<<data.ddq_dq<<std::endl;
-  // std::cerr<<"ZZZZZZZZZZZZZZZZZZZZZZZZZZZ"<<std::endl;
-  // std::cerr<<(data.ddq_dq - ddq_partial_dq_fd)<<std::endl;
-  // std::cerr<<"AAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;
-  // std::cerr<<(data.ddq_dq - ddq_partial_dq_fd).norm()<<std::endl;
   
   BOOST_CHECK(ddq_partial_dq_fd.isApprox(data.ddq_dq,sqrt(alpha)));
 
-  // std::cerr<<"YYYYYYYYYYYYYYYYYYYYYY"<<std::endl;
-  // std::cerr<<lambda_partial_dq_fd<<std::endl;
-  // std::cerr<<"XXXXXXXXXXXXXXXXXXXXXXXXXXX"<<std::endl;
-  // std::cerr<<data.dlambda_dq<<std::endl;
-  // std::cerr<<"ZZZZZZZZZZZZZZZZZZZZZZZZZZZ"<<std::endl;
-  // std::cerr<<(data.dlambda_dq - lambda_partial_dq_fd)<<std::endl;
-  // std::cerr<<"AAAAAAAAAAAAAAAAAAAAAAAA"<<std::endl;
-  // std::cerr<<(data.dlambda_dq - lambda_partial_dq_fd).norm()<<std::endl;
   BOOST_CHECK(lambda_partial_dq_fd.isApprox(data.dlambda_dq,sqrt(alpha)));
 
   VectorXd v_plus(v);
