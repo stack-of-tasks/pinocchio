@@ -55,7 +55,7 @@ namespace pinocchio
                                                 const ArgumentPosition arg)
     {
       int ncols = Jin.cols();
-      Eigen::MatrixXd Jout(Eigen::MatrixXd::Zero(model.nv,ncols));
+      context::MatrixXs Jout(context::MatrixXs::Zero(model.nv,ncols));
       dIntegrateTransport(model, q, v, Jin, Jout, arg);
       return Jout;
     }
