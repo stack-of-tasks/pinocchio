@@ -31,10 +31,10 @@ class TestExpLog(TestCase):
         from eigenpy import Quaternion
         quat_v = np.array([0., 0., 0., 1.])
         quat = Quaternion(quat_v)
-        v0 = pin.log3_quat(quat)
+        v0 = pin.log3(quat)
         self.assertApprox(v0, zero(3))
-        
-        v1 = pin.log3_quat(quat_v)
+
+        v1 = pin.log3(quat_v)
         self.assertApprox(v1, zero(3))
 
     def test_exp3_quat(self):
