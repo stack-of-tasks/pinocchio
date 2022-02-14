@@ -27,29 +27,27 @@ namespace pinocchio
     typedef typename Pool::DataVector DataVector;
     typedef typename Pool::BroadPhaseManager BroadPhaseManager;
     typedef typename Pool::BroadPhaseManagerVector BroadPhaseManagerVector;
-    
+
     const Model & model = pool.getModel();
     DataVector & datas = pool.getDatas();
     BroadPhaseManagerVector & broadphase_managers = pool.getBroadPhaseManagers();
     CollisionVectorResult & res_ = res.const_cast_derived();
-    
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.rows(), model.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
-    
+
     omp_set_num_threads((int)num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
-    
+
 #pragma omp parallel for
     for(i = 0; i < batch_size; i++)
     {
       const int thread_id = omp_get_thread_num();
       Data & data = datas[(size_t)thread_id];
       BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
-      const GeometryModel & geom_model = pool.getGeometryModel();
-      GeometryData & geom_data = pool.getGeometryData((size_t)thread_id);
       res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollision);
     }
   }
