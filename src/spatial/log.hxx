@@ -18,17 +18,17 @@ namespace pinocchio
     {
       typedef typename Matrix3::Scalar Scalar;
       static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-      
+
       static const long i1 = (i0+1) % 3;
       static const long i2 = (i0+2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
-      
+
       const Scalar s = math::sqrt(val + eps*eps) * if_then_else(GE,R.coeff(i2,i1),R.coeff(i1,i2),Scalar(1.),Scalar(-1.));
       axis[i0] = s/Scalar(2);
       axis[i1] = Scalar(1)/(2*s) * (R.coeff(i1,i0) + R.coeff(i0,i1));
       axis[i2] = Scalar(1)/(2*s) * (R.coeff(i2,i0) + R.coeff(i0,i2));
       const Scalar w = Scalar(1)/(2*s)*(R.coeff(i2,i1) - R.coeff(i1,i2));
-      
+
       const Scalar axis_norm = axis.norm();
       angle = 2*math::atan2(axis_norm,w);
       axis /= axis_norm;
@@ -64,7 +64,7 @@ namespace pinocchio
       typedef typename Matrix3Like::Scalar Scalar;
       typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix3Like)::Options> Vector3;
       static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
-    
+
       const static Scalar PI_value = PI<Scalar>();
       Vector3Out & angle_axis_ = angle_axis.const_cast_derived();
 
@@ -83,17 +83,17 @@ namespace pinocchio
         val_singular.array() = 2*Rnormed.diagonal().array() - tr + Scalar(1);
         Vector3 axis_0, axis_1, axis_2;
         Scalar theta_0, theta_1, theta_2;
-        
+
         internal::compute_theta_axis<0>(val_singular[0], Rnormed, theta_0, axis_0);
         internal::compute_theta_axis<1>(val_singular[1], Rnormed, theta_1, axis_1);
         internal::compute_theta_axis<2>(val_singular[2], Rnormed, theta_2, axis_2);
-        
+
         theta_singular = if_then_else(GE, val_singular[0], val_singular[1],
                                       if_then_else(GE, val_singular[0], val_singular[2],
                                                    theta_0, theta_2),
                                       if_then_else(GE, val_singular[1], val_singular[2],
                                                    theta_1, theta_2));
-        
+
         for(int k = 0; k < 3; ++k)
           angle_axis_singular[k] = if_then_else(GE, val_singular[0], val_singular[1],
                                                 if_then_else(GE, val_singular[0], val_singular[2],
@@ -110,7 +110,7 @@ namespace pinocchio
                                                 static_cast<Scalar>(acos_expansion) // else
                                                 );
       assert(check_expression_if_real<Scalar>(theta_nominal == theta_nominal) && "theta contains some NaN"); // theta != NaN
-      
+
       Vector3 antisymmetric_R; unSkew(Rnormed, antisymmetric_R);
       const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm();
 
@@ -118,10 +118,10 @@ namespace pinocchio
                                     static_cast<Scalar>(theta_nominal / sin(theta_nominal)), // then
                                     static_cast<Scalar>(Scalar(1.) + norm_antisymmetric_R_squared/Scalar(6) + norm_antisymmetric_R_squared*norm_antisymmetric_R_squared*Scalar(3)/Scalar(40)) // else
                                     );
-      
+
       theta = if_then_else(GE,cos_value,static_cast<Scalar>(Scalar(-1.) + prec),
                            theta_nominal, theta_singular);
-      
+
       for(int k = 0; k < 3; ++k)
         angle_axis_[k] = if_then_else(GE,cos_value,
                                       static_cast<Scalar>(Scalar(-1.) + prec),
@@ -142,26 +142,26 @@ namespace pinocchio
     {
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like,  log, 3, 1);
       PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Matrix3Like, Jlog, 3, 3);
-       
+
       using namespace internal;
       Scalar ct,st; SINCOS(theta,&st,&ct);
       const Scalar st_1mct = st/(Scalar(1)-ct);
       const Scalar prec = TaylorSeriesExpansion<Scalar>::template precision<3>();
-      
+
       const Scalar alpha = if_then_else(LT,theta,prec,
                                         static_cast<Scalar>(Scalar(1)/Scalar(12) + theta*theta / Scalar(720)), // then
                                         static_cast<Scalar>(Scalar(1)/(theta*theta) - st_1mct/(Scalar(2)*theta)) // else
                                         );
-      
+
       const Scalar diag_value = if_then_else(LT,theta,prec,
                                              static_cast<Scalar>(Scalar(0.5) * (2 - theta*theta / Scalar(6))), // then
                                              static_cast<Scalar>(Scalar(0.5) * (theta * st_1mct)) // else
                                              );
-        
+
       Matrix3Like & Jlog_ = PINOCCHIO_EIGEN_CONST_CAST(Matrix3Like,Jlog);
       Jlog_.noalias() = alpha * log * log.transpose();
       Jlog_.diagonal().array() += diag_value;
-        
+
       // Jlog += r_{\times}/2
       addSkew(Scalar(0.5) * log, Jlog_);
     }
@@ -180,12 +180,12 @@ namespace pinocchio
 
       typename SE3::ConstAngularRef R = M.rotation();
       typename SE3::ConstLinearRef p = M.translation();
-      
+
       using namespace internal;
-      
+
       Vector3 antisymmetric_R; unSkew(R,antisymmetric_R);
       const Scalar norm_antisymmetric_R_squared = antisymmetric_R.squaredNorm();
-      
+
       Scalar theta;
       const Scalar tr = R.trace();
       const Vector3 w(log3(R,theta)); // t in [0,π]
@@ -196,12 +196,12 @@ namespace pinocchio
                                         static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
                                         static_cast<Scalar>(theta*st/(Scalar(2)*(Scalar(1)-ct))) // else
                                         );
-      
+
       const Scalar beta = if_then_else(GE,tr,static_cast<Scalar>(Scalar(3) - TaylorSeriesExpansion<Scalar>::template precision<2>()),
                                        static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
                                        static_cast<Scalar>(Scalar(1)/(theta*theta) - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
                                        );
-      
+
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + (beta * w.dot(p)) * w;
       mout.angular() = w;
     }
@@ -241,10 +241,10 @@ namespace pinocchio
       const Scalar th_2_squared = t2 / Scalar(4);  // (theta / 2) squared
 
 
-      const Scalar alpha = if_then_else(LE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
-                                        static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
-                                        static_cast<Scalar>(theta * cot_th_2 /(Scalar(2))) // else
-                                        );
+//      const Scalar alpha = if_then_else(LE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+//                                        static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
+//                                        static_cast<Scalar>(theta * cot_th_2 /(Scalar(2))) // else
+//                                        );
 
       const Scalar beta_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
       const Scalar beta = if_then_else(LE,theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
@@ -274,7 +274,7 @@ namespace pinocchio
 
       typename SE3::ConstAngularRef R = M.rotation();
       typename SE3::ConstLinearRef p = M.translation();
-      
+
       using namespace internal;
 
       Scalar t;
@@ -295,7 +295,7 @@ namespace pinocchio
       const Scalar t2 = t*t;
       const Scalar tinv = Scalar(1)/t,
                    t2inv = tinv*tinv;
-      
+
       Scalar st,ct; SINCOS (t, &st, &ct);
       const Scalar inv_2_2ct = Scalar(1)/(Scalar(2)*(Scalar(1)-ct));
 
@@ -303,7 +303,7 @@ namespace pinocchio
                                        static_cast<Scalar>(Scalar(1)/Scalar(12) + t2/Scalar(720)), // then
                                        static_cast<Scalar>(t2inv - st*tinv*inv_2_2ct) // else
                                        );
-      
+
       const Scalar beta_dot_over_theta = if_then_else(LT,t,TaylorSeriesExpansion<Scalar>::template precision<3>(),
                                                       static_cast<Scalar>(Scalar(1)/Scalar(360)), // then
                                                       static_cast<Scalar>(-Scalar(2)*t2inv*t2inv + (Scalar(1) + st*tinv) * t2inv * inv_2_2ct) // else
