@@ -10,7 +10,7 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
 
     #pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp) # BUG: might not work out of the box on OSX with conda: https://github.com/pybind/pybind11/issues/3081
     add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
-    target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap pybind11::module)
+    target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap_default pybind11::module)
 
     SET_TARGET_PROPERTIES(cpp2pybind11
       PROPERTIES
