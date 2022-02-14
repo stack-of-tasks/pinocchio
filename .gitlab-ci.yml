@@ -11,6 +11,7 @@ variables:
     - gh-pages
   timeout: 3 hours 30 minutes
   script:
+    - conda install -c conda-forge libsdformat12 eigenpy hpp-fcl
     - cd $CI_PROJECT_DIR
     - mkdir build
     - cd build
