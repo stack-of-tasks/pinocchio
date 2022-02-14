@@ -41,13 +41,13 @@ namespace pinocchio
               );
       
       bp::def("computeCollisions",
-              (bool (*)(const context::Model &, context::Data &, Manager &, const Eigen::MatrixBase<Eigen::VectorXd> &, const bool))&computeCollisions<double,0,JointCollectionDefaultTpl,BroadPhaseManager,Eigen::VectorXd>,
+              (bool (*)(const Model &, Data &, Manager &, const Eigen::MatrixBase<Eigen::VectorXd> &, const bool))&computeCollisions<double,0,JointCollectionDefaultTpl,BroadPhaseManager,Eigen::VectorXd>,
               (bp::arg("model"),bp::arg("data"),bp::arg("broadphase_manager"),bp::arg("q"),bp::arg("stop_at_first_collision") = false),
               "Compute the forward kinematics, update the geometry placements and run the collision detection using the broadphase manager."
               );
       
       bp::def("computeCollisions",
-              (bool (*)(const context::Model &, context::Data &, Manager &,
+              (bool (*)(const Model &, Data &, Manager &,
                         CollisionCallBackBase *, const Eigen::MatrixBase<Eigen::VectorXd> &))&computeCollisions<double,0,JointCollectionDefaultTpl,BroadPhaseManager,Eigen::VectorXd>,
               (bp::arg("model"),bp::arg("data"),bp::arg("broadphase_manager"),bp::arg("callback"),bp::arg("q")),
               "Compute the forward kinematics, update the geometry placements and run the collision detection using the broadphase manager."
