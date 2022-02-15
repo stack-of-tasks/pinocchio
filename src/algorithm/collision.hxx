@@ -31,8 +31,8 @@ namespace pinocchio
     collision_result.clear();
     
     const bool check_collision =
-         geom_data.activeCollisionPairs[cp_index]
-    && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision);
+         geom_data.activeCollisionPairs[pair_id]
+    && !(geom_model.geometryObjects[pair.first].disableCollision || geom_model.geometryObjects[pair.second].disableCollision);
     
     if(!check_collision)
       return false;
