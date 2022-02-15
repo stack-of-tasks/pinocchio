@@ -7,8 +7,6 @@
 
 #include <Eigen/Dense>
 
-// no pinocchio structure / classes imported here
-
 namespace pinocchio {
   namespace context {
     typedef PINOCCHIO_SCALAR_TYPE Scalar;
