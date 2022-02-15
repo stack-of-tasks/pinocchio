@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_collision_hxx__
@@ -26,15 +26,16 @@ namespace pinocchio
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(geom_data.activeCollisionPairs[pair_id]);
 
-    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
-    
-    collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
-    
     fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
     collision_result.clear();
+    
+    if(!geom_data.activeCollisionPairs[pair_id])
+      return false;
 
+    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
+    
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
     
