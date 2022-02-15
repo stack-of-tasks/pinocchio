@@ -7,4 +7,3 @@ coverage*
 .travis
 .vscode*
 *.orig
-_build*

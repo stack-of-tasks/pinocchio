@@ -277,7 +277,7 @@ struct LieGroup_Jdifference{
                           
     SE3 M_u = SE3::Interpolate(M0,M1,u);
     SE3 M_interp(quat_interp,q_interp.template head<3>());
-    BOOST_CHECK(M_u.isApprox(M_interp, prec*1e1));
+    BOOST_CHECK(M_u.isApprox(M_interp, prec));
   }
 
   template <typename Scalar, int Options>
