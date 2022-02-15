@@ -30,7 +30,11 @@ namespace pinocchio
     fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
     collision_result.clear();
     
-    if(!geom_data.activeCollisionPairs[pair_id])
+    const bool check_collision =
+         geom_data.activeCollisionPairs[cp_index]
+    && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision);
+    
+    if(!check_collision)
       return false;
 
     fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
@@ -65,18 +69,13 @@ namespace pinocchio
          cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
       const CollisionPair & cp = geom_model.collisionPairs[cp_index];
-      
-      if(geom_data.activeCollisionPairs[cp_index]
-         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
+      bool res = computeCollision(geom_model,geom_data,cp_index);
+      if(!isColliding && res)
       {
-        bool res = computeCollision(geom_model,geom_data,cp_index);
-        if(!isColliding && res)
-        {
-          isColliding = true;
-          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
-          if(stopAtFirstCollision)
-            return true;
-        }
+        isColliding = true;
+        geom_data.collisionPairIndex = cp_index; // first pair to be in collision
+        if(stopAtFirstCollision)
+          return true;
       }
     }
     

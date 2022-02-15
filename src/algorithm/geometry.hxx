@@ -58,7 +58,7 @@ namespace pinocchio
                                 const bool stopAtFirstCollision)
   {
     updateGeometryPlacements(model, data, geom_model, geom_data, q);
-    return computeCollisions(geom_model,geom_data, stopAtFirstCollision);
+    return computeCollisions(geom_model, geom_data, stopAtFirstCollision);
   }
 
   /* --- DISTANCES ----------------------------------------------------------------- */
