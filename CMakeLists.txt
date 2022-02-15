@@ -301,6 +301,7 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/u
 IF(ENABLE_TEMPLATE_INSTANTIATION)
   LIST(APPEND ${PROJECT_NAME}_TEMPLATE_SOURCES
     algorithm/kinematics.cpp
+    algorithm/jacobian.cpp
     )
   LIST(APPEND ${PROJECT_NAME}_TEMPLATE_DECLARATIONS
     algorithm/kinematics.txx
