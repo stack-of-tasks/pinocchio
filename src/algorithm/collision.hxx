@@ -68,7 +68,6 @@ namespace pinocchio
     for (std::size_t cp_index = 0;
          cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
       bool res = computeCollision(geom_model,geom_data,cp_index);
       if(!isColliding && res)
       {
