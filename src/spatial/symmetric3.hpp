@@ -511,9 +511,8 @@ namespace pinocchio
       return Symmetric3Tpl<NewScalar,Options>(m_data.template cast<NewScalar>());
     }
 
-    template<typename Sc, int Opt>
     friend std::ostream & operator << (std::ostream& os,
-                                      const Symmetric3Tpl<Sc,Opt> & S3)
+                                       const Symmetric3Tpl<Scalar,Options> & S3)
     {
       os
       << "m_data: " << S3.m_data.transpose() << "\n";
