@@ -110,7 +110,6 @@ struct BroadPhaseManagerTpl
       const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[i];
       hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
       
-
       if(geometry.get() != geometry_of_geom_obj.get())
         return false;
     }

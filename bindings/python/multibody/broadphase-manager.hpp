@@ -35,13 +35,22 @@ namespace pinocchio
                                                              "Copy constructor")[bp::with_custodian_and_ward<1,2>()])
         
         .def("getGeometryModel",&Self::getGeometryModel,
+             bp::arg("self"),
              bp::return_value_policy<bp::copy_const_reference>())
         .def("getGeometryData",(GeometryData & (Self::*)())&Self::getGeometryData,
+             bp::arg("self"),
              bp::return_internal_reference<>())
         
         .def("update",(void (Self::*)(const bool))&Self::update,
-             (bp::arg("compute_local_aabb") = true),
+             (bp::arg("self"),bp::arg("compute_local_aabb") = true),
              "Update the manager from the current geometry positions and update the underlying FCL broad phase manager.")
+        
+        .def("check", (bool (Self::*)() const)&Self::check,
+             bp::arg("self"),
+             "Check whether the base broad phase manager is aligned with the current collision_objects.")
+        .def("check", (bool (Self::*)(CollisionCallBackBase *) const)&Self::check,
+             bp::args("self","callback"),
+             "Check whether the callback is inline with *this.")
         ;
       }
      
