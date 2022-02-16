@@ -510,7 +510,16 @@ namespace pinocchio
     {
       return Symmetric3Tpl<NewScalar,Options>(m_data.template cast<NewScalar>());
     }
-    
+
+    template<typename Sc, int Opt>
+    friend std::ostream & operator << (std::ostream& os,
+                                      const Symmetric3Tpl<Sc,Opt> & S3)
+    {
+      os
+      << "m_data: " << S3.m_data.transpose() << "\n";
+      return os;
+    }
+
     // TODO: adjust code
 //    bool isValid() const
 //    {
@@ -523,7 +532,7 @@ namespace pinocchio
   protected:
     Vector6 m_data;
     
-  };
+  };  // class Symmetric3Tpl
 
 } // namespace pinocchio
 
