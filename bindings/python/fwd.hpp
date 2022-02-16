@@ -18,6 +18,7 @@ namespace pinocchio
     void exposeForce();
     void exposeMotion();
     void exposeInertia();
+    void exposeSymmetric3();
     void exposeExplog();
     void exposeSkew();
     void exposeLieGroups();
