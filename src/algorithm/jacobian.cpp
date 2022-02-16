@@ -3,32 +3,32 @@
 #if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 namespace pinocchio {
   
-  template context::Matrix6xs &
-    computeJointJacobians <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &, const context::VectorXs);
-
-  template context::Matrix6xs &
-    computeJointJacobians <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &);
-
+  template const context::Matrix6xs &
+  computeJointJacobians <context::Scalar, context::Options, JointCollectionDefaultTpl>
+  (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &);
+  
+  template const context::Matrix6xs &
+  computeJointJacobians <context::Scalar, context::Options, JointCollectionDefaultTpl>
+  (const Model &, Data &);
+  
   template void getJointJacobian
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, Matrix6Like>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame, const Eigen::MatrixBase<Matrix6Like> &);
-
+  <context::Scalar, context::Options, JointCollectionDefaultTpl, context::Matrix6xs>
+  (const Model &, const Data &, const JointIndex, const ReferenceFrame, const Eigen::MatrixBase<context::Matrix6xs> &);
+  
   template context::Matrix6xs
   getJointJacobian <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame);
-
+  (const Model &, const Data &, const JointIndex, const ReferenceFrame);
+  
   template void computeJointJacobian
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, Matrix6Like>
-    (const Model &, const Data &, const context::VectorXs &, const JointIndex, const Eigen::MatrixBase<Matrix6Like> &);
-
-  template context::Matrix6xs &
+  <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::Matrix6xs>
+  (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &, const JointIndex, const Eigen::MatrixBase<context::Matrix6xs> &);
+  
+  template const context::Matrix6xs &
   computeJointJacobiansTimeVariation <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs>
-    (const Model &, const Data &, const context::VectorXs &, const context::VectorXs &);
-
-  template void computeJointJacobiansTimeVariation <context::Scalar, context::Options, JointCollectionDefaultTpl, Matrix6Like>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame, const Eigen::MatrixBase<Matrix6Like> &);
-
+  (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &);
+  
+  template void getJointJacobianTimeVariation <context::Scalar, context::Options, JointCollectionDefaultTpl, context::Matrix6xs>
+  (const Model &, const Data &, const JointIndex, const ReferenceFrame, const Eigen::MatrixBase<context::Matrix6xs> &);
+  
 } // namespace pinocchio 
 #endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
