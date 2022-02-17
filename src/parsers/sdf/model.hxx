@@ -126,7 +126,7 @@ namespace pinocchio
         
         typedef std::map<std::string, std::vector<std::string> > StringVectorMap_t;
         typedef std::vector<std::string> VectorOfStrings;
-        typedef std::vector<int> VectorOfInts;
+        typedef std::vector<JointIndex> VectorOfIndexes;
         typedef ContactDetailsTpl<double, 0> ContactDetails;
         
         ElementMap_t mapOfLinks, mapOfJoints;
@@ -134,7 +134,7 @@ namespace pinocchio
         StringVectorMap_t parentOfLinks;
         VectorOfStrings linksWithMultipleParents;
         VectorOfStrings parentGuidance;
-        VectorOfInts parentOrderWithGuidance;
+        VectorOfIndexes parentOrderWithGuidance;
         ChildPoseMap childPoseMap;
         std::string modelName;
 
@@ -222,13 +222,13 @@ namespace pinocchio
               urdfVisitor <<linkName<<" has "<<parents.size()<<" parents"<< '\n';
 
               // Find which parent would become the chain creator:
-              int parentOrder = 0;
+              JointIndex parentOrder = 0;
               for(VectorOfStrings::const_iterator parentJoint = std::begin(parents);
                   parentJoint != std::end(parents); ++parentJoint) {
                 VectorOfStrings::const_iterator p_it = std::find(parentGuidance.cbegin(),
                                                                  parentGuidance.cend(), *parentJoint);
                 if (p_it != parentGuidance.end()) {
-                  parentOrder = std::distance(parents.cbegin(), parentJoint);
+                  parentOrder = static_cast<JointIndex>(std::distance(parents.cbegin(), parentJoint));
                   break;
                 }
               }
@@ -273,7 +273,7 @@ namespace pinocchio
               cm != std::end(contact_details); ++cm)
           {
             if(cm->name == jointName)
-              return i;
+              return static_cast<int>(i);
             i++;
             }
           return -1;
@@ -291,7 +291,7 @@ namespace pinocchio
             const std::string childFromMap =
               mapOfJoints.find(cm->name)->second->GetElement("child")->Get<std::string>();
             if(childFromMap == childName)
-              return i;
+              return static_cast<int>(i);
             i++;
           }
           return -1;
@@ -322,9 +322,7 @@ namespace pinocchio
           bool make_parent = true;
           int nParents = 1;
 
-          int parentOrderId = -1;
-          int currentJointOrderId = -1;
-          int link_index = -1;
+          JointIndex parentOrderId, link_index, currentJointOrderId;
           // Find is the link has multiple parents
           // If yes, one parent would create chain, while other parents would create constraints
           // If there is guidance, use guidance to choose parent which creates chain
@@ -333,13 +331,13 @@ namespace pinocchio
           VectorOfStrings::const_iterator linkHasParents = std::find(linksWithMultipleParents.cbegin(),
                                                                      linksWithMultipleParents.cend(), childNameOrig);
           if (linkHasParents != linksWithMultipleParents.end()) {
-            link_index = std::distance(linksWithMultipleParents.cbegin(), linkHasParents);
-            parentOrderId = parentOrderWithGuidance.at(link_index);
+            link_index = static_cast<JointIndex>(std::distance(linksWithMultipleParents.cbegin(), linkHasParents));
+            parentOrderId = (parentOrderWithGuidance.at(link_index));
             multiple_parents = true;
             const VectorOfStrings&  parentsOfChild = parentOfLinks.find(childNameOrig)->second;
 
             VectorOfStrings::const_iterator currentJointIt = std::find(parentsOfChild.cbegin(), parentsOfChild.cend(), jointName);
-            currentJointOrderId = std::distance(parentsOfChild.cbegin(), currentJointIt);
+            currentJointOrderId = static_cast<JointIndex>(std::distance(parentsOfChild.cbegin(), currentJointIt));
 
             if (jointName == parentsOfChild.at(parentOrderId))
             {
@@ -349,7 +347,7 @@ namespace pinocchio
             {
               make_parent = false;
             }
-            nParents = parentsOfChild.size();
+            nParents = static_cast<int>(parentsOfChild.size());
           }
 
           std::string childName = childNameOrig;
@@ -394,8 +392,6 @@ namespace pinocchio
 
             const ignition::math::Pose3d parentJointPoseElem_ig =
               parentJointElement->template Get<ignition::math::Pose3d>("pose");
-
-            const SE3 parentJointPlacement = ::pinocchio::sdf::details::convertFromPose3d(parentJointPoseElem_ig);
 
             const std::string relativeFrame = parentJointPoseElem->template Get<std::string>("relative_to");
             const std::string parentJointParentName = parentJointElement->GetElement("parent")->Get<std::string>();
@@ -575,7 +571,7 @@ namespace pinocchio
           }
 
           SE3 cMj1(SE3::Identity());
-          JointIndex existingJointId = -1;
+          JointIndex existingJointId=0;
           std::string constraint_name;
           //Get joint Id that was just added:
 
@@ -603,9 +599,6 @@ namespace pinocchio
 
             if (not multiple_parents) {
               assert(true && "Should not happen.");
-            }
-            if (not currentJointOrderId != parentOrderId) {
-              assert(true && "Should not happen");
             }
             const JointIndex currentAddedJointId = urdfVisitor.getJointId(jointName);
             ContactDetails rcm (::pinocchio::CONTACT_6D,

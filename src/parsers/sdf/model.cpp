@@ -32,7 +32,6 @@ namespace pinocchio
             graph.parentOfLinks.find(trial_link)->second;
           if (parents_of_links.size() ==0) {
             search_for_parent = false;
-            std::cerr<<"Link "<<trial_link<<" is the root link"<<std::endl;
             return trial_link;
           }
           else {
@@ -41,6 +40,7 @@ namespace pinocchio
               joint_element->GetElement("parent")->template Get<std::string>();
           }
         }
+        return std::string("");
       }
       
       void parseRootTree(SdfGraph& graph,
@@ -49,7 +49,6 @@ namespace pinocchio
         //First joint connecting universe
         const ::sdf::ElementPtr rootLinkElement = graph.mapOfLinks.find(rootLinkName)->second;
         const ::sdf::ElementPtr inertialElem = rootLinkElement->GetElement("inertial");
-        const Inertia Y = ::pinocchio::sdf::details::convertInertiaFromSdf(inertialElem);
 
         graph.urdfVisitor.addRootJoint(convertInertiaFromSdf(inertialElem), rootLinkName);
         const std::vector<std::string>& childrenOfLink =

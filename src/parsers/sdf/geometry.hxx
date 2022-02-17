@@ -116,10 +116,7 @@ namespace pinocchio
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
       boost::shared_ptr<fcl::CollisionGeometry>
-      inline retrieveCollisionGeometry(const SdfGraph& graph,
-                                       fcl::MeshLoaderPtr& meshLoader,
-                                       const std::string& linkName,
-                                       const std::string& geomName,
+      inline retrieveCollisionGeometry(fcl::MeshLoaderPtr& meshLoader,
                                        const ::sdf::ElementPtr sdf_geometry,
                                        const std::vector<std::string> & package_dirs,
                                        std::string & meshPath,
@@ -216,8 +213,7 @@ namespace pinocchio
         typedef std::vector< ::sdf::ElementPtr> GeometryArray;
         typedef GeometryModel::SE3 SE3;
 
-        bool has_element = false;
-        if(hasLinkElement<type>)
+        if(hasLinkElement<type>(link))
         {
           std::string meshPath = "";
 
@@ -243,8 +239,7 @@ namespace pinocchio
             const ::sdf::ElementPtr sdf_geometry = (*i)->GetElement("geometry");
             
             const GeometryObject::CollisionGeometryPtr geometry =
-              retrieveCollisionGeometry(graph, meshLoader, link_name, geom_name,
-                                        sdf_geometry, package_dirs, meshPath, meshScale);
+              retrieveCollisionGeometry(meshLoader, sdf_geometry, package_dirs, meshPath, meshScale);
 #else
             const ::sdf::ElementPtr sdf_mesh = sdf_geometry->GetElement("mesh");
 
