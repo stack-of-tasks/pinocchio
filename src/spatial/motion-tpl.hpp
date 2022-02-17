@@ -95,6 +95,17 @@ namespace pinocchio
     template<typename M2>
     explicit MotionTpl(const MotionBase<M2> & clone)
     { *this = clone; }
+
+    ///
+    /// \brief Copy assignment operator.
+    ///
+    /// \param[in] other MotionTpl to copy
+    ///
+    MotionTpl& operator=(const MotionTpl & clone)  // Copy assignment operator
+    {
+      m_data = clone.toVector();
+      return *this;
+    }
     
     // initializers
     static MotionTpl Zero()   { return MotionTpl(Vector6::Zero());   }

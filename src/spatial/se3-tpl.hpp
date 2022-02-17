@@ -115,6 +115,19 @@ namespace pinocchio
       trans = other.translation();
       return *this;
     }
+
+    ///
+    /// \brief Copy assignment operator.
+    ///
+    /// \param[in] other SE3 to copy
+    ///
+    SE3Tpl & operator=(const SE3Tpl & other)
+    {
+      rot = other.rotation();
+      trans = other.translation();
+      return *this;
+    }
+
     
     static SE3Tpl Identity()
     {

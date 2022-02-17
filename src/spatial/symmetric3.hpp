@@ -49,6 +49,18 @@ namespace pinocchio
     {
       *this = other.template cast<Scalar>();
     }
+
+    ///
+    /// \brief Copy assignment operator.
+    ///
+    /// \param[in] other Symmetric3 to copy
+    ///
+    Symmetric3Tpl& operator=(const Symmetric3Tpl & clone)  // Copy assignment operator
+    {
+      m_data = clone.m_data;
+      return *this;
+    }
+
     
     Symmetric3Tpl(const Scalar & a0, const Scalar & a1, const Scalar & a2,
 		  const Scalar & a3, const Scalar & a4, const Scalar & a5)
