@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_multibody_model_item_hpp__
@@ -28,10 +28,10 @@ namespace pinocchio
     /// The URDF parser of Pinocchio is setting it to the proper value according to the urdf link-joint tree.
     /// In particular, anchor joints of URDF would cause parent frame to be different to joint frame.
     FrameIndex parentFrame;
-        
+
     /// \brief Index of the parent joint
     JointIndex parentJoint;
-    
+
     /// \brief Position of kinematic element in parent joint frame
     SE3 placement;
 
@@ -59,12 +59,12 @@ namespace pinocchio
               const FrameIndex parent_frame,
               const SE3 & frame_placement)
       : name(name)
-      , parentJoint(parent_joint)
       , parentFrame(parent_frame)
+      , parentJoint(parent_joint)
       , placement(frame_placement)
     {}
-    
-    
+
+
   };
 } //namespace pinocchio
 
