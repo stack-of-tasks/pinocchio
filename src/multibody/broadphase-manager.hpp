@@ -24,6 +24,8 @@ struct BroadPhaseManagerTpl
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef BroadPhaseManagerDerived Base;
   
+  typedef std::vector<hpp::fcl::CollisionObject> CollisionObjectVector;
+  
   BroadPhaseManagerTpl() // for std::vector
   : geometry_model_ptr(nullptr)
   , geometry_data_ptr(nullptr)
@@ -131,11 +133,14 @@ struct BroadPhaseManagerTpl
   const GeometryData & getGeometryData() const { return *geometry_data_ptr; }
   GeometryData & getGeometryData() { return *geometry_data_ptr; }
   
+  const CollisionObjectVector & getCollisionObjects() const { return collision_objects; }
+  CollisionObjectVector & getCollisionObjects() { return collision_objects; }
+  
 protected:
   const GeometryModel * geometry_model_ptr;
   GeometryData * geometry_data_ptr;
   
-  std::vector<hpp::fcl::CollisionObject> collision_objects;
+  CollisionObjectVector collision_objects;
   
   void init()
   {
