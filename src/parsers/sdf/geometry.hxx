@@ -69,7 +69,7 @@ namespace pinocchio
 	  if (geomElement->Get<std::string>("name") != "__default__") {
 	    geometry_array.push_back(geomElement);
 	  }
-	    geomElement = link->GetNextElement("collision");
+	    geomElement = geomElement->GetNextElement("collision");
         }
         return geometry_array;
       }
@@ -86,7 +86,7 @@ namespace pinocchio
 	  if (geomElement->Get<std::string>("name") != "__default__") {
 	    geometry_array.push_back(geomElement);
 	  }
-          geomElement = link->GetNextElement("visual");
+          geomElement = geomElement->GetNextElement("visual");
         }
         return geometry_array;
       }
