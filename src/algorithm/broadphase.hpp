@@ -88,7 +88,7 @@ inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> 
                            broadphase_manager.getGeometryData(),
                            q);
   
-  broadphase_manager.update(true); // TODO: (jcarpent) - check the false entry
+  broadphase_manager.update(false); // TODO: (jcarpent) - check the false entry
   return computeCollisions(broadphase_manager, &callback);
 }
 
