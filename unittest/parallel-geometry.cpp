@@ -19,7 +19,7 @@ using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
-BOOST_AUTO_TEST_CASE(test_pool)
+BOOST_AUTO_TEST_CASE(test_geometry_pool)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
   
@@ -34,12 +34,34 @@ BOOST_AUTO_TEST_CASE(test_pool)
   pinocchio::GeometryModel geometry_model;
   pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
   
-  
   const size_t num_thread = (size_t)omp_get_max_threads();
   pinocchio::GeometryModel geometry_model_empty;
   GeometryPool pool(&model,&geometry_model_empty,num_thread);
   
   pool.update(GeometryData(geometry_model));
+}
+
+BOOST_AUTO_TEST_CASE(test_broadphase_pool)
+{
+  Model empty_model;
+  GeometryModel geom_model;
+  
+  hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
+  hpp::fcl::CollisionGeometryPtr_t box_ptr(new hpp::fcl::Box(0.5,0.5,0.5));
+  
+  GeometryObject obj1("obj1",0,sphere_ptr,SE3::Identity());
+  const GeomIndex obj1_index = geom_model.addGeometryObject(obj1);
+  
+  GeometryObject obj2("obj2",0,box_ptr,SE3::Identity());
+  const GeomIndex obj2_index = geom_model.addGeometryObject(obj2);
+
+//  GeometryObject & go1 = geom_model.geometryObjects[obj_index];
+
+  const size_t num_thread = (size_t)omp_get_max_threads();
+  typedef BroadPhaseManagerPoolTpl<hpp::fcl::DynamicAABBTreeCollisionManager, double> BroadPhaseManagerPool;
+  BroadPhaseManagerPool pool(&empty_model,&geom_model,num_thread);
+  
+  BOOST_CHECK(pool.check());
 }
 
 BOOST_AUTO_TEST_CASE(test_talos)
