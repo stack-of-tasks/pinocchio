@@ -12,12 +12,14 @@
 namespace pinocchio
 {
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /**
    * \addtogroup pinocchio_multibody
    * @{
    */
-
   template<typename Scalar, int Options=context::Options> struct FrameTpl;
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct ModelTpl;
