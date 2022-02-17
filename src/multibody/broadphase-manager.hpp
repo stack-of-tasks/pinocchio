@@ -104,11 +104,17 @@ struct BroadPhaseManagerTpl
     for(size_t i = 0; i < collision_objects.size(); ++i)
     {
       const hpp::fcl::CollisionObject & collision_obj = collision_objects[i];
+      const hpp::fcl::CollisionObject & collision_obj_internal = *collision_objects_ptr[i];
 
       if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
         return false;
       
+      
       hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
+      hpp::fcl::CollisionGeometryConstPtr_t geometry_internal = collision_obj_internal.collisionGeometry();
+      if(geometry.get() != geometry_internal.get())
+        return false;
+      
       const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[i];
       hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
       

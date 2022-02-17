@@ -52,12 +52,15 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   BOOST_CHECK(!broadphase_manager.check());
   BOOST_CHECK(sphere_ptr.get() != go.geometry.get());
   BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() == sphere_ptr.get());
+  BOOST_CHECK(broadphase_manager.getObjects()[obj_index]->collisionGeometry().get() == sphere_ptr.get());
   BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() != go.geometry.get());
   BOOST_CHECK(sphere_new_ptr.get() == go.geometry.get());
   
   broadphase_manager.update(false);
   BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() != sphere_ptr.get());
   BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() == go.geometry.get());
+  BOOST_CHECK(broadphase_manager.getObjects()[obj_index]->collisionGeometry().get() == go.geometry.get());
+
   BOOST_CHECK(broadphase_manager.check());
 }
 
