@@ -20,13 +20,49 @@ using namespace pinocchio;
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   
+BOOST_AUTO_TEST_CASE (test_broadphase_with_empty_models)
+{
+  GeometryModel geom_model;
+  GeometryData geom_data(geom_model);
+  
+  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&geom_model, &geom_data);
+  
+  BOOST_CHECK(broadphase_manager.check());
+}
+
+BOOST_AUTO_TEST_CASE (test_broadphase)
+{
+  GeometryModel geom_model;
+  
+  hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
+  
+  GeometryObject obj("obj1",0,sphere_ptr,SE3::Identity());
+  const GeomIndex obj_index = geom_model.addGeometryObject(obj);
+
+  GeometryObject & go = geom_model.geometryObjects[obj_index];
+  
+  GeometryData geom_data(geom_model);
+  
+  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&geom_model, &geom_data);
+  BOOST_CHECK(broadphase_manager.check());
+  BOOST_CHECK(sphere_ptr.get() == go.geometry.get());
+  
+  hpp::fcl::CollisionGeometryPtr_t sphere_new_ptr(new hpp::fcl::Sphere(5.));
+  go.geometry = sphere_new_ptr;
+  BOOST_CHECK(!broadphase_manager.check());
+  BOOST_CHECK(sphere_ptr.get() != go.geometry.get());
+  BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() == sphere_ptr.get());
+  BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() != go.geometry.get());
+  BOOST_CHECK(sphere_new_ptr.get() == go.geometry.get());
+  
+  broadphase_manager.update(false);
+  BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() != sphere_ptr.get());
+  BOOST_CHECK(broadphase_manager.getCollisionObjects()[obj_index].collisionGeometry().get() == go.geometry.get());
+  BOOST_CHECK(broadphase_manager.check());
+}
+
 BOOST_AUTO_TEST_CASE (test_collisions)
 {
-  typedef pinocchio::Model Model;
-  typedef pinocchio::GeometryModel GeometryModel;
-  typedef pinocchio::Data Data;
-  typedef pinocchio::GeometryData GeometryData;
-  
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;
   const std::string meshDir  = PINOCCHIO_MODEL_DIR;
