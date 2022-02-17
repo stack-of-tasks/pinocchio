@@ -802,8 +802,6 @@ namespace pinocchio
     {
       const RigidConstraintModel & cmodel = contact_models[k];
 
-      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-
       switch(cmodel.type)
       {
         case CONTACT_6D:
