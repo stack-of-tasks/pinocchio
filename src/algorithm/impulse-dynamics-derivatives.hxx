@@ -243,7 +243,6 @@ namespace pinocchio
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Data::SE3 SE3;
     typedef typename Data::Force Force;
     
     typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;

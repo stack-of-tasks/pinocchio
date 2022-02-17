@@ -36,8 +36,6 @@ namespace pinocchio
       void exposeConstraintDynamicsDerivatives()
       {
         using namespace Eigen;
-
-        typedef Eigen::aligned_allocator<context::RigidConstraintModel> RigidConstraintModelAllocator;
         
         bp::def("computeConstraintDynamicsDerivatives",
                 computeConstraintDynamicsDerivatives_proxy,

@@ -364,7 +364,6 @@ namespace pinocchio
     typedef typename Data::SE3 SE3;
     typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
-    typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
 
     //TODO: Temp variable
@@ -519,10 +518,7 @@ namespace pinocchio
 	  //TODO: THIS IS FOR THE LOCAL FRAME ONLY	  
 	  const Motion& o_acc_c2 = data.oa[cmodel.joint2_id];
 	  typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-	  const RowsBlock contact_dvc_dq = SizeDepType<6>::middleRows(data.dvc_dq,current_row_sol_id);
 	  RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
-	  RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
-	  const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
 	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
@@ -807,9 +803,6 @@ namespace pinocchio
       const RigidConstraintModel & cmodel = contact_models[k];
 
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-      const typename Model::JointIndex joint2_id = cmodel.joint2_id;
-      const Eigen::DenseIndex colRef = nv(model.joints[joint1_id])
-        +idx_v(model.joints[joint1_id])-1;
 
       switch(cmodel.type)
       {
@@ -915,9 +908,9 @@ namespace pinocchio
           Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
-            typedef typename Rows6Block::ColXpr ColType;
+            typedef typename Data::Matrix6x::ColXpr ColType;
             typedef typename Rows6Block::ColXpr ColTypeOut;
-            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            const MotionRef<ColType> J_col(data.J.col(j));
             ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
             fout.linear().noalias() += J_col.angular().cross(of.linear());
             fout.angular().noalias() += J_col.angular().cross(of.angular());
@@ -930,7 +923,7 @@ namespace pinocchio
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             typedef typename Data::Matrix6x::ColXpr ColType;
-            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            const MotionRef<ColType> J_col(data.J.col(j));
             contact_dfc_dq.col(j).noalias() += J_col.angular().cross(of.linear());
           }
           break;
