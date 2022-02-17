@@ -5,6 +5,8 @@
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/multibody/broadphase-manager.hpp"
 
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
+
 #include "pinocchio/algorithm/broadphase.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
@@ -58,6 +60,10 @@ namespace pinocchio
     {
       using namespace Eigen;
       exposeBroadphaseCallbacks();
+      
+      typedef ::hpp::fcl::CollisionObject* CollisionObjectPointer;
+      StdVectorPythonVisitor< std::vector<CollisionObjectPointer> >::expose("StdVec_CollisionObjectPointer");
+      StdVectorPythonVisitor< std::vector<::hpp::fcl::CollisionObject> >::expose("StdVec_CollisionObject");
       
       exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeCollisionManager>();
       exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeArrayCollisionManager>();

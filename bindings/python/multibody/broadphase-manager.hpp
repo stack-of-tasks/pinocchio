@@ -22,6 +22,7 @@ namespace pinocchio
     public:
       
       typedef BroadPhaseManagerTpl<Derived> Self;
+      typedef typename Self::CollisionObjectVector CollisionObjectVector;
       typedef Derived Base;
       
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -38,6 +39,9 @@ namespace pinocchio
              bp::arg("self"),
              bp::return_value_policy<bp::copy_const_reference>())
         .def("getGeometryData",(GeometryData & (Self::*)())&Self::getGeometryData,
+             bp::arg("self"),
+             bp::return_internal_reference<>())
+        .def("getCollisionObjects",(CollisionObjectVector & (Self::*)())&Self::getCollisionObjects,
              bp::arg("self"),
              bp::return_internal_reference<>())
         
