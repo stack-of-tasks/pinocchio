@@ -103,6 +103,12 @@ namespace pinocchio
                                                           (bp::arg("self"),bp::arg("compute_local_aabb"))),
                                         "Update the manager from the current geometry positions and update the underlying FCL broad phase manager.");
           
+          bp::objects::add_to_namespace(registered_class,"update",
+                                        bp::make_function((void (Self::*)(GeometryData * geom_data_new))&Self::update,
+                                                          bp::with_custodian_and_ward<1,2>(),
+                                                          (bp::arg("self"),bp::arg("geom_data_new"))),
+                                        "Update the manager with a new geometry data.");
+          
         }
       }
       
