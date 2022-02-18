@@ -1100,8 +1100,8 @@ BOOST_AUTO_TEST_CASE(test_correction_CONTACT_3D)
         {
 	  const RigidConstraintData & cdata = contact_data_sim[k];
 	  const RigidConstraintData & cdata_prev = contact_data_sim_prev[k];
-	  contact_placement_error.segment<6>(6*k) = cdata.contact_placement_error.toVector();
-	  contact_placement_error_prev.segment<6>(6*k) =
+	  contact_placement_error.segment<6>(6*(Eigen::Index)k) = cdata.contact_placement_error.toVector();
+	  contact_placement_error_prev.segment<6>(6*(Eigen::Index)k) =
 	    cdata_prev.contact_placement_error.toVector();
         }
 	BOOST_CHECK(contact_placement_error.norm() <= contact_placement_error_prev.norm());
