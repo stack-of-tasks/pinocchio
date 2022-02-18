@@ -19,7 +19,11 @@ namespace pinocchio
                                                          const context::VectorXs & gamma,
                                                          const context::Scalar inv_damping = 0.0)
     {
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       return forwardDynamics(model, data, q, v, tau, J, gamma, inv_damping);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     }
 
     static const context::VectorXs forwardDynamics_proxy_no_q(const context::Model & model,
@@ -29,7 +33,12 @@ namespace pinocchio
                                                               const context::VectorXs & gamma,
                                                               const context::Scalar inv_damping = 0.0)
     {
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       return forwardDynamics(model, data, tau, J, gamma, inv_damping);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
     }
     
     static const context::VectorXs impulseDynamics_proxy(const context::Model & model,
@@ -40,7 +49,12 @@ namespace pinocchio
                                                          const context::Scalar r_coeff = 0.,
                                                          const context::Scalar inv_damping = 0.)
     {
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       return impulseDynamics(model, data, q, v_before, J, r_coeff, inv_damping);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
     }
 
     static const context::VectorXs impulseDynamics_proxy_no_q(const context::Model & model,
@@ -50,7 +64,12 @@ namespace pinocchio
                                                               const context::Scalar r_coeff = 0.,
                                                               const context::Scalar inv_damping = 0.)
     {
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  
       return impulseDynamics(model, data, v_before, J, r_coeff, inv_damping);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
     }
 
     static context::MatrixXs computeKKTContactDynamicMatrixInverse_proxy(const context::Model & model,
@@ -69,7 +88,12 @@ namespace pinocchio
                                                                            const context::MatrixXs & J)
     {
       context::MatrixXs MJtJ_inv(model.nv+J.rows(), model.nv+J.rows());
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
       getKKTContactDynamicMatrixInverse(model, data, J, MJtJ_inv);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
       return MJtJ_inv;
     }
 

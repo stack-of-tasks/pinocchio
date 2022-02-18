@@ -308,8 +308,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS  
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
   BOOST_CHECK((J_ref*data_ref.ddq+rhs_ref).isZero());
@@ -425,8 +429,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_3D)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
   ProximalSettings prox_settings(1e-12,mu0,1);
@@ -534,8 +542,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   forwardKinematics(model,data_ref,q,v,data_ref.ddq);
   
   ProximalSettings prox_settings(1e-12,mu0,1);
@@ -707,8 +719,12 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   forwardKinematics(model,data_ref,q,v,0*data_ref.ddq);
   
   ProximalSettings prox_settings(1e-12,mu0,1);
@@ -1235,7 +1251,11 @@ BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_specifying_joint2id
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_ref,q,v,tau,J_ref,rhs_ref,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   forwardKinematics(model,data_ref,q,v,0*data_ref.ddq);
 
   ProximalSettings prox_settings(1e-12,0,1);
@@ -1568,7 +1588,12 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_6D)
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_constrained_dyn,q,v,tau,J_ref,gamma,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+
   BOOST_CHECK((J_ref*data_constrained_dyn.ddq + gamma).isZero());
   
   ProximalSettings prox_settings;
@@ -1713,7 +1738,12 @@ BOOST_AUTO_TEST_CASE(test_contact_ABA_3D)
   BOOST_CHECK((J_ref*data_ref.ddq + gamma).isZero());
   
   Data data_constrained_dyn(model);
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   forwardDynamics(model,data_constrained_dyn,q,v,tau,J_ref,gamma,0.);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+ 
   BOOST_CHECK((J_ref*data_constrained_dyn.ddq + gamma).isZero());
   
   ProximalSettings prox_settings;

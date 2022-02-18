@@ -908,7 +908,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -921,7 +921,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
   const std::string RA = "rarm5_joint";
   const Model::JointIndex RA_id = model.getJointId(RA);
   const std::string LA = "larm5_joint";
-  const Model::JointIndex LA_id = model.getJointId(LA);
+  //const Model::JointIndex LA_id = model.getJointId(LA);
 
   RigidConstraintModel ci_closure (CONTACT_3D, model,  0, SE3::Identity(),
                                 RA_id, SE3::Random(), LOCAL);
@@ -1023,7 +1023,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_
   const std::string RA = "rarm5_joint";
   const Model::JointIndex RA_id = model.getJointId(RA);
   const std::string LA = "larm5_joint";
-  const Model::JointIndex LA_id = model.getJointId(LA);
+  //const Model::JointIndex LA_id = model.getJointId(LA);
 
   RigidConstraintModel ci_closure (CONTACT_6D, model, 0, SE3::Identity(),
                                 RA_id, SE3::Random(), LOCAL);
@@ -1137,7 +1137,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -1250,7 +1250,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -1365,7 +1365,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -1479,7 +1479,7 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D
   VectorXd tau = VectorXd::Random(model.nv);
 
   const std::string RF = "rleg6_joint";
-    const Model::JointIndex RF_id = model.getJointId(RF);
+  //const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";
   //  const Model::JointIndex LF_id = model.getJointId(LF);
 
@@ -2168,8 +2168,8 @@ BOOST_AUTO_TEST_CASE(test_cassie_constraint_dynamics_derivatives_loop_closure_ki
   const double mu0 = 1e-5;
   ProximalSettings prox_settings(1e-12,mu0,100);
 
-  for(int k=0;k<constraint_models.size();++k) {
-    constraint_data.push_back(RigidConstraintData(constraint_models[k]));
+  for(int k=0;k<(int)constraint_models.size();++k) {
+    constraint_data.push_back(RigidConstraintData(constraint_models[(pinocchio::JointIndex)k]));
   }
   Data data(model), data_fd(model);  
   initConstraintDynamics(model,data,constraint_models);
@@ -2278,8 +2278,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_cassie_proximal)
   Data data(model), data_fd(model);
   
   initConstraintDynamics(model,data,constraint_models);
-  for(int k=0;k<constraint_models.size();++k) {
-    constraint_datas.push_back(RigidConstraintData(constraint_models[k]));
+  for(int k=0;k<(int)constraint_models.size();++k) {
+    constraint_datas.push_back(RigidConstraintData(constraint_models[(pinocchio::JointIndex)k]));
   }
 
   Eigen::DenseIndex constraint_dim = 0;
