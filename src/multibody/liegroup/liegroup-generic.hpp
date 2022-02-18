@@ -42,6 +42,11 @@ namespace pinocchio
     LieGroupGenericTpl(const LieGroupVariant & lg_variant)
     : Base(lg_variant)
     {}
+
+
+    LieGroupGenericTpl(const LieGroupGenericTpl & other)
+    : Base(other.toVariant())
+    {}
     
     LieGroupGenericTpl & operator=(const LieGroupGenericTpl & other)
     {

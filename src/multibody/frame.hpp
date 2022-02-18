@@ -105,6 +105,20 @@ namespace pinocchio
     {}
     
     ///
+    /// \brief Copy constructor
+    ///
+    /// \param[in] other Frame to copy
+    ///
+    FrameTpl(const FrameTpl & other)
+      : Base(other.name, other.parentJoint, other.parentFrame, other.placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
+      , type(other.type)
+      , inertia(other.inertia)      
+    {}
+
+
+    ///
     /// \brief Copy constructor by casting
     ///
     /// \param[in] other Frame to copy
