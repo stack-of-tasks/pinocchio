@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/broadphase-manager.hpp"
 
+#include <eigenpy/eigen-to-python.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
 namespace pinocchio
@@ -43,6 +44,11 @@ namespace pinocchio
              bp::return_internal_reference<>())
         .def("getCollisionObjects",(CollisionObjectVector & (Self::*)())&Self::getCollisionObjects,
              bp::arg("self"),
+             bp::return_internal_reference<>())
+        
+        .def("getCollisionObjectInflation",&Self::getCollisionObjectInflation,
+             bp::arg("self"),
+             "Returns the inflation value related to each collision object.",
              bp::return_internal_reference<>())
         
         .def("check", (bool (Self::*)() const)&Self::check,
