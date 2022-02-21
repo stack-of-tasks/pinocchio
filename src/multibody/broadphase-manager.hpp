@@ -81,6 +81,17 @@ struct BroadPhaseManagerTpl
     Base::update(); // because the position has changed.
   }
   
+  ///
+  /// @brief Update the manager from the current geometry positions and update the underlying FCL broad phase manager.
+  ///
+  void update()
+  {
+    update(false);
+  }
+  
+  ///
+  /// @brief Update the manager with a new geometry data.
+  ///
   void update(GeometryData * geom_data_new)
   {
     geometry_data_ptr = geom_data_new;
