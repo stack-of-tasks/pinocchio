@@ -25,23 +25,36 @@ struct BroadPhaseManagerTpl
   typedef BroadPhaseManagerDerived Base;
   
   typedef std::vector<hpp::fcl::CollisionObject> CollisionObjectVector;
+  typedef Eigen::VectorXd VectorXs;
   
+  /// @brief Default constructor.
   BroadPhaseManagerTpl() // for std::vector
   : geometry_model_ptr(nullptr)
   , geometry_data_ptr(nullptr)
   {}
   
+  /// @brief Constructor from a given geometry model and data.
+  ///
+  /// \param[in] geometry_model_ptr pointer to the geometry model.
+  /// \param[in] geometry_data_ptr pointer to the geometry data.
+  ///
   BroadPhaseManagerTpl(const GeometryModel * geometry_model_ptr,
                        GeometryData * geometry_data_ptr)
   : geometry_model_ptr(geometry_model_ptr)
   , geometry_data_ptr(geometry_data_ptr)
+  , collision_object_inflation(geometry_model_ptr->ngeoms)
   {
     init();
   }
   
+  /// @brief Copy contructor.
+  ///
+  /// \param[in] other manager to copy.
+  ///
   BroadPhaseManagerTpl(const BroadPhaseManagerTpl & other)
   : geometry_model_ptr(other.geometry_model_ptr)
   , geometry_data_ptr(other.geometry_data_ptr)
+  , collision_object_inflation(other.collision_object_inflation.size())
   {
     init();
   }
@@ -55,6 +68,31 @@ struct BroadPhaseManagerTpl
   ///
   void update(bool compute_local_aabb)
   {
+    assert(geometry_model_ptr->ngeoms == collision_object_inflation.size());
+    
+    const GeometryModel & geom_model = *geometry_model_ptr;
+    GeometryData & geom_data = *geometry_data_ptr;
+    collision_object_inflation.setZero();
+    
+    for(size_t pair_id = 0; pair_id < geom_data.activeCollisionPairs.size(); ++pair_id)
+    {
+      const CollisionPair & pair = geom_model.collisionPairs[pair_id];
+      const GeomIndex geom1_id = pair.first;
+      const GeomIndex geom2_id = pair.second;
+      
+      const bool check_collision =
+           geom_data.activeCollisionPairs[pair_id]
+      && !(geom_model.geometryObjects[geom1_id].disableCollision || geom_model.geometryObjects[geom2_id].disableCollision);
+      
+      if(!check_collision) continue;
+      
+      const ::hpp::fcl::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
+      const double inflation = (cr.break_distance + cr.security_margin)*0.5;
+      
+      collision_object_inflation[geom1_id] = (std::max)(inflation,collision_object_inflation[geom1_id]);
+      collision_object_inflation[geom2_id] = (std::max)(inflation,collision_object_inflation[geom2_id]);
+    }
+    
     for(size_t i = 0; i < geometry_model_ptr->geometryObjects.size(); ++i)
     {
       const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[i];
@@ -63,7 +101,7 @@ struct BroadPhaseManagerTpl
       hpp::fcl::CollisionObject & collision_obj = collision_objects[i];
       hpp::fcl::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
       
-      collision_obj.setTransform(toFclTransform3f(geometry_data_ptr->oMg[i]));
+      collision_obj.setTransform(toFclTransform3f(geom_data.oMg[i]));
       
       if(new_geometry.get() != geometry.get())
       {
@@ -74,6 +112,7 @@ struct BroadPhaseManagerTpl
         collision_obj.computeAABB();
       }
       
+      collision_obj.getAABB().expand(collision_object_inflation[i]);
     }
     
     assert(check() && "The status of the BroadPhaseManager is not valid");
@@ -92,9 +131,11 @@ struct BroadPhaseManagerTpl
   ///
   /// @brief Update the manager with a new geometry data.
   ///
-  void update(GeometryData * geom_data_new)
+  /// \param[in] geom_data_ptr_new pointer to the new geometry data.
+  ///
+  void update(GeometryData * geom_data_ptr_new)
   {
-    geometry_data_ptr = geom_data_new;
+    geometry_data_ptr = geom_data_ptr_new;
     update(false);
   }
   
@@ -145,19 +186,38 @@ struct BroadPhaseManagerTpl
   
 //  void setGeometryModel(const GeometryModel & geometry_model)
 //  { geometry_model_ptr = &geometry_model; }
+  
+  /// @brief Returns the geometry model associated to the manager.
   const GeometryModel & getGeometryModel() const { return *geometry_model_ptr; }
+  
+  /// @brief Returns the geometry data associated to the manager.
   const GeometryData & getGeometryData() const { return *geometry_data_ptr; }
+  /// @brief Returns the geometry data associated to the manager.
   GeometryData & getGeometryData() { return *geometry_data_ptr; }
   
+  /// @brief Returns the vector of collision objects associated to the manager.
   const CollisionObjectVector & getCollisionObjects() const { return collision_objects; }
+  /// @brief Returns the vector of collision objects associated to the manager.
   CollisionObjectVector & getCollisionObjects() { return collision_objects; }
   
+  /// @brief Returns the inflation value related to each collision object.
+  const VectorXs & getCollisionObjectInflation() { return collision_object_inflation; }
+  
 protected:
+  
+  /// @brief Pointer to the geometry model
   const GeometryModel * geometry_model_ptr;
+  
+  /// @brief Pointer to the geometry data
   GeometryData * geometry_data_ptr;
   
+  /// @brief the vector of collision objects.
   CollisionObjectVector collision_objects;
   
+  /// @brief the inflation value related to each collision object.
+  VectorXs collision_object_inflation;
+  
+  /// @brief Initialialisation of BroadPhaseManagerTpl
   void init()
   {
     collision_objects.reserve(geometry_model_ptr->geometryObjects.size());
