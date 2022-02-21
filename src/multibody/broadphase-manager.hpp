@@ -53,7 +53,7 @@ struct BroadPhaseManagerTpl
   ///
   /// @param[in] compute_local_aabb whether to recompute the local AABB of the collision geometries which have changed.
   ///
-  void update(bool compute_local_aabb = true)
+  void update(bool compute_local_aabb)
   {
     for(size_t i = 0; i < geometry_model_ptr->geometryObjects.size(); ++i)
     {
@@ -63,12 +63,17 @@ struct BroadPhaseManagerTpl
       hpp::fcl::CollisionObject & collision_obj = collision_objects[i];
       hpp::fcl::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
       
+      collision_obj.setTransform(toFclTransform3f(geometry_data_ptr->oMg[i]));
+      
       if(new_geometry.get() != geometry.get())
       {
         collision_obj.setCollisionGeometry(new_geometry,compute_local_aabb);
       }
+      else
+      {
+        collision_obj.computeAABB();
+      }
       
-      collision_obj.setTransform(toFclTransform3f(geometry_data_ptr->oMg[i]));
     }
     
     assert(check() && "The status of the BroadPhaseManager is not valid");
