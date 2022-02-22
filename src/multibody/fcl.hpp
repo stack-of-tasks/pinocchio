@@ -116,12 +116,6 @@ enum GeometryType
 
 struct GeometryObject; //fwd
 
-struct CollisionObjectData
-{
-  /// @brief Geometry object index related to the current collision object.
-  size_t geometry_object_index;
-};
-
 template<>
 struct traits<GeometryObject>
 {
@@ -287,6 +281,31 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 };
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+
+  struct CollisionObject
+  : ::hpp::fcl::CollisionObject
+  {
+    typedef ::hpp::fcl::CollisionObject Base;
+    typedef SE3Tpl<double> SE3;
+    
+    CollisionObject(const boost::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+                    const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
+                    bool compute_local_aabb = true)
+    : Base(collision_geometry,compute_local_aabb)
+    , geometryObjectIndex(geometryObjectIndex)
+    {}
+    
+    CollisionObject(const boost::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+                    const SE3 & transform,
+                    const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
+                    bool compute_local_aabb = true)
+    : Base(collision_geometry,toFclTransform3f(transform),compute_local_aabb)
+    , geometryObjectIndex(geometryObjectIndex)
+    {}
+    
+    /// @brief Geometry object index related to the current collision object.
+    size_t geometryObjectIndex;
+  };
 
   struct ComputeCollision
   : ::hpp::fcl::ComputeCollision

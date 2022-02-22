@@ -24,7 +24,7 @@ struct BroadPhaseManagerTpl
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   typedef BroadPhaseManagerDerived Base;
   
-  typedef std::vector<hpp::fcl::CollisionObject> CollisionObjectVector;
+  typedef std::vector<CollisionObject> CollisionObjectVector;
   typedef Eigen::VectorXd VectorXs;
   
   /// @brief Default constructor.
@@ -87,9 +87,6 @@ struct BroadPhaseManagerTpl
   
   /// @brief Check whether the callback is inline with *this
   bool check(CollisionCallBackBase * callback) const;
-  
-//  void setGeometryModel(const GeometryModel & geometry_model)
-//  { geometry_model_ptr = &geometry_model; }
   
   /// @brief Returns the geometry model associated to the manager.
   const GeometryModel & getGeometryModel() const { return *geometry_model_ptr; }

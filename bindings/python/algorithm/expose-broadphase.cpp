@@ -62,8 +62,8 @@ namespace pinocchio
       exposeBroadphaseCallbacks();
       
       typedef ::hpp::fcl::CollisionObject* CollisionObjectPointer;
-      StdVectorPythonVisitor< std::vector<CollisionObjectPointer> >::expose("StdVec_CollisionObjectPointer");
-      StdVectorPythonVisitor< std::vector<::hpp::fcl::CollisionObject> >::expose("StdVec_CollisionObject");
+      StdVectorPythonVisitor< std::vector<CollisionObjectPointer> >::expose("StdVec_FCL_CollisionObjectPointer");
+      StdVectorPythonVisitor< std::vector<CollisionObject> >::expose("StdVec_CollisionObject");
       
       exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeCollisionManager>();
       exposeBroadphaseAlgo<hpp::fcl::DynamicAABBTreeArrayCollisionManager>();

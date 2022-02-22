@@ -67,14 +67,11 @@ struct CollisionCallBackDefault : CollisionCallBackBase
   
   bool collide(hpp::fcl::CollisionObject* o1, hpp::fcl::CollisionObject* o2)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(o1->getUserData() != nullptr);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(o2->getUserData() != nullptr);
+    CollisionObject & co1 = reinterpret_cast<CollisionObject&>(*o1);
+    CollisionObject & co2 = reinterpret_cast<CollisionObject&>(*o2);
     
-    const CollisionObjectData & data1 = *static_cast<CollisionObjectData *>(o1->getUserData());
-    const CollisionObjectData & data2 = *static_cast<CollisionObjectData *>(o2->getUserData());
-    
-    const Eigen::DenseIndex go1_index = (Eigen::DenseIndex)data1.geometry_object_index;
-    const Eigen::DenseIndex go2_index = (Eigen::DenseIndex)data2.geometry_object_index;
+    const Eigen::DenseIndex go1_index = (Eigen::DenseIndex)co1.geometryObjectIndex;
+    const Eigen::DenseIndex go2_index = (Eigen::DenseIndex)co2.geometryObjectIndex;
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(go1_index < (Eigen::DenseIndex)geometry_model_ptr->ngeoms && go1_index >= 0);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(go2_index < (Eigen::DenseIndex)geometry_model_ptr->ngeoms && go2_index >= 0);
