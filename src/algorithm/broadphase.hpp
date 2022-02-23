@@ -20,9 +20,9 @@ namespace pinocchio
 
 ///
 /// \brief Calls computeCollision for every active pairs of GeometryData.
-/// This function assumes that \ref updateGeometryPlacements has been called first.
+/// This function assumes that \ref updateGeometryPlacements and  broadphase_manager.update() have been called first.
 ///
-/// \param[in] broadphase broadphase instance for collision detection.
+/// \param[in] broadphase_manager broadphase instance for collision detection.
 /// \param[in] callback callback pointer used for collision detection.
 /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
 ///
@@ -40,7 +40,7 @@ bool computeCollisions(BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadpha
 
 ///
 /// \brief Calls computeCollision for every active pairs of GeometryData.
-/// This function assumes that \ref updateGeometryPlacements has been called first.
+/// This function assumes that \ref updateGeometryPlacements and  broadphase_manager.update() have been called first.
 ///
 /// \param[in] broadphase_manager broadphase instance for collision detection.
 /// \param[in] stopAtFirstCollision if true, stop the loop over the collision pairs when the first collision is detected.
@@ -88,7 +88,7 @@ inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> 
                            broadphase_manager.getGeometryData(),
                            q);
   
-  broadphase_manager.update(false); // TODO: (jcarpent) - check the false entry
+  broadphase_manager.update(false);
   return computeCollisions(broadphase_manager, &callback);
 }
 
@@ -120,13 +120,12 @@ inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> 
                            broadphase_manager.getGeometryData(),
                            q);
   
-  broadphase_manager.update(true); // TODO: (jcarpent) - check the false entry
+  broadphase_manager.update(false);
 
   CollisionCallBackDefault callback(broadphase_manager.getGeometryModel(),
                                     broadphase_manager.getGeometryData(),
                                     stopAtFirstCollision);
   return computeCollisions(broadphase_manager, &callback);
-  return true;
 }
 
 } // namespace pinocchio
