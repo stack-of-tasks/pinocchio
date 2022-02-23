@@ -64,13 +64,7 @@ namespace pinocchio
     
     assert(check() && "The status of the BroadPhaseManager is not valid");
     
-    Base::update(); // because the position has changed.
-  }
-  
-  template<typename BroadPhaseManagerDerived>
-  void BroadPhaseManagerTpl<BroadPhaseManagerDerived>::update()
-  {
-    update(false);
+    manager.update(); // because the position has changed.
   }
   
   template<typename BroadPhaseManagerDerived>
@@ -87,7 +81,7 @@ namespace pinocchio
   template<typename BroadPhaseManagerDerived>
   bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::check() const
   {
-    std::vector<hpp::fcl::CollisionObject*> collision_objects_ptr = this->getObjects();
+    std::vector<hpp::fcl::CollisionObject*> collision_objects_ptr = manager.getObjects();
     if(collision_objects_ptr.size() != collision_objects.size())
       return false;
     
@@ -127,8 +121,31 @@ namespace pinocchio
       collision_objects.push_back(CollisionObject(geom_obj.geometry,i));
 
       // Feed the base broadphase manager
-      Base::registerObject(&collision_objects[i]);
+      manager.registerObject(&collision_objects[i]);
     }
+  }
+
+  template<typename BroadPhaseManagerDerived>
+  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(CollisionObject & obj,
+                                                               CollisionCallBackBase * callback) const
+  {
+    manager.collide(&obj,callback);
+    return callback->collision;
+  }
+
+  template<typename BroadPhaseManagerDerived>
+  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(CollisionCallBackBase * callback) const
+  {
+    manager.collide(callback);
+    return callback->collision;
+  }
+
+  template<typename BroadPhaseManagerDerived>
+  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(BroadPhaseManagerTpl & other_manager,
+                                                               CollisionCallBackBase * callback) const
+  {
+    manager.collide(&other_manager.manager,callback);
+    return callback->collision;
   }
 
 } // namespace pinocchio

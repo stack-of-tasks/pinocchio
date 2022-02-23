@@ -33,13 +33,15 @@ namespace pinocchio
       bp::def("computeCollisions",
               (bool (*)(Manager &, CollisionCallBackBase *))&computeCollisions,
               (bp::arg("manager"),bp::arg("callback")),
-              "Determine if all collision pairs are effectively in collision or not."
+              "Determine if all collision pairs are effectively in collision or not.\n"
+              "This function assumes that updateGeometryPlacements and broadphase_manager.update() have been called first."
               );
       
       bp::def("computeCollisions",
               (bool (*)(Manager &, const bool))&computeCollisions,
               (bp::arg("manager"),bp::arg("stop_at_first_collision") = false),
-              "Determine if all collision pairs are effectively in collision or not."
+              "Determine if all collision pairs are effectively in collision or not.\n"
+              "This function assumes that updateGeometryPlacements and broadphase_manager.update() have been called first."
               );
       
       bp::def("computeCollisions",

@@ -17,15 +17,14 @@
 namespace pinocchio
 {
 
-template<typename BroadPhaseManagerDerived>
+template<typename _Manager>
 struct BroadPhaseManagerTpl
-: BroadPhaseManagerDerived
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  typedef BroadPhaseManagerDerived Base;
   
   typedef std::vector<CollisionObject> CollisionObjectVector;
   typedef Eigen::VectorXd VectorXs;
+  typedef _Manager Manager;
   
   /// @brief Default constructor.
   BroadPhaseManagerTpl() // for std::vector
@@ -59,19 +58,12 @@ struct BroadPhaseManagerTpl
     init();
   }
   
-  using Base::update;
-  
   ///
   /// @brief Update the manager from the current geometry positions and update the underlying FCL broad phase manager.
   ///
   /// @param[in] compute_local_aabb whether to recompute the local AABB of the collision geometries which have changed.
   ///
-  void update(bool compute_local_aabb);
-  
-  ///
-  /// @brief Update the manager from the current geometry positions and update the underlying FCL broad phase manager.
-  ///
-  void update();
+  void update(bool compute_local_aabb = false);
   
   ///
   /// @brief Update the manager with a new geometry data.
@@ -104,7 +96,34 @@ struct BroadPhaseManagerTpl
   /// @brief Returns the inflation value related to each collision object.
   const VectorXs & getCollisionObjectInflation() { return collision_object_inflation; }
   
+  /// @brief Performs collision test between one object and all the objects belonging to the manager.
+  bool collide(CollisionObject & obj, CollisionCallBackBase * callback) const;
+  
+  /// @brief Performs collision test for the objects belonging to the manager.
+  bool collide(CollisionCallBackBase * callback) const;
+  
+  /// @brief Performs collision test with objects belonging to another manager.
+  bool collide(BroadPhaseManagerTpl & other_manager, CollisionCallBackBase * callback) const;
+
+//  /// @brief Performs distance computation between one object and all the objects belonging to the manager
+//  void distance(CollisionObject* obj, DistanceCallBackBase * callback) const;
+
+//  /// @brief Performs distance test for the objects belonging to the manager (i.e., N^2 self distance)
+//  void distance(DistanceCallBackBase * callback) const;
+  
+//  /// @brief Performs distance test with objects belonging to another manager
+//  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
+  
+  /// @brief Returns internal manager.
+  Manager & getManager() { return manager; }
+
+  /// @brief Returns internal manager.
+  const Manager & getManager() const { return manager; }
+  
 protected:
+  
+  /// @brief internal manager
+  Manager manager;
   
   /// @brief Pointer to the geometry model
   const GeometryModel * geometry_model_ptr;
