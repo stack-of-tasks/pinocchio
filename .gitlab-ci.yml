@@ -1,1 +1,28 @@
-include: http://rainboard.laas.fr/project/pinocchio/.gitlab-ci.yml
+# https://rainboard.laas.fr/project/pinocchio/.gitlab-ci.yml
+variables:
+  GIT_SUBMODULE_STRATEGY: "recursive"
+  GIT_DEPTH: "3"
+    
+.robotpkg-py-pinocchio: &robotpkg-py-pinocchio
+  retry:
+    max: 2
+    when: runner_system_failure
+  except:
+    - gh-pages
+  timeout: 3 hours 30 minutes
+  script:
+    - conda install -c conda-forge libsdformat12 eigenpy hpp-fcl
+    - cd $CI_PROJECT_DIR
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_WITH_SDF_SUPPORT=ON -DBUILD_ADVANCED_TESTING=OFF -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF -DCMAKE_VERBOSE_MAKEFILE=False
+    - make -j3 > make.log
+    - make build_tests
+    - make test
+    - make install
+  interruptible: true
+
+robotpkg-py-pinocchio-20.04:
+  <<: *robotpkg-py-pinocchio
+  image: registry.gitlab.inria.fr/jucarpen/pinocchio:py-pinocchio-20.04
+  allow_failure: false

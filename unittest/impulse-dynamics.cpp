@@ -9,7 +9,9 @@
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
+#include "pinocchio/algorithm/compute-all-terms.hpp"
 #include "pinocchio/algorithm/impulse-dynamics.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
@@ -38,17 +40,18 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_empty)
   VectorXd tau = VectorXd::Random(model.nv);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   computeAllTerms(model,data_ref,q,v);
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
   data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   
-  initContactDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  initConstraintDynamics(model,data,contact_models);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -80,20 +83,21 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
 //  const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -119,16 +123,20 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   impulseDynamics(model,data_ref,q,v,J_ref,r_coeff,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   BOOST_CHECK((data_ref.M*data_ref.dq_after-data_ref.M*v-J_ref.transpose()*data_ref.impulse_c).isZero());
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  initConstraintDynamics(model,data,contact_models);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
   data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -161,8 +169,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D)
   Eigen::DenseIndex constraint_id = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
-    const RigidContactData & cdata = contact_datas[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
+    const RigidConstraintData & cdata = contact_datas[k];
     
     switch(cmodel.type)
     {
@@ -209,20 +217,21 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
 //  const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -248,16 +257,20 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   impulseDynamics(model,data_ref,q,v,J_ref,r_coeff,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   BOOST_CHECK((data_ref.M*data_ref.dq_after-data_ref.M*v-J_ref.transpose()*data_ref.impulse_c).isZero());
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  initConstraintDynamics(model,data,contact_models);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -291,8 +304,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL)
   Eigen::DenseIndex constraint_id = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
-    const RigidContactData & cdata = contact_datas[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
+    const RigidConstraintData & cdata = contact_datas[k];
     
     switch(cmodel.type)
     {
@@ -339,20 +352,21 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
 //  const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv);
   J_ref.setZero();
@@ -378,16 +392,19 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   impulseDynamics(model,data_ref,q,v,J_ref,r_coeff,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   BOOST_CHECK((data_ref.M*data_ref.dq_after-data_ref.M*v-J_ref.transpose()*data_ref.impulse_c).isZero());
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  initConstraintDynamics(model,data,contact_models);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -421,8 +438,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_LOCAL_WORLD_ALIG
   Eigen::DenseIndex constraint_id = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
-    const RigidContactData & cdata = contact_datas[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
+    const RigidConstraintData & cdata = contact_datas[k];
     
     switch(cmodel.type)
     {
@@ -469,20 +486,21 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
 //  const Model::JointIndex LF_id = model.getJointId(LF);
   
   // Contact models and data
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   Eigen::DenseIndex constraint_dim = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
     constraint_dim += contact_models[k].size();
   
   const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,1);
   const double r_coeff = 0.5;
   Eigen::MatrixXd J_ref(constraint_dim,model.nv), Jtmp(6,model.nv);
   J_ref.setZero(); Jtmp.setZero();
@@ -510,16 +528,19 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
   KKT_matrix_ref.bottomRightCorner(model.nv,model.nv) = data_ref.M;
   KKT_matrix_ref.topRightCorner(constraint_dim,model.nv) = J_ref;
   KKT_matrix_ref.bottomLeftCorner(model.nv,constraint_dim) = J_ref.transpose();
-  
+
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   impulseDynamics(model,data_ref,q,v,J_ref,r_coeff,mu0);
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   data_ref.M.triangularView<Eigen::StrictlyLower>() =
     data_ref.M.transpose().triangularView<Eigen::StrictlyLower>();
   BOOST_CHECK((data_ref.M*data_ref.dq_after-data_ref.M*v-J_ref.transpose()*data_ref.impulse_c).isZero());
   BOOST_CHECK((J_ref*data_ref.dq_after+r_coeff*J_ref*v).isZero());
   
-  initContactDynamics(model,data,contact_models);
-  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,mu0);
+  initConstraintDynamics(model,data,contact_models);
+  impulseDynamics(model,data,q,v,contact_models,contact_datas,r_coeff,prox_settings);
   BOOST_CHECK((J_ref*data.dq_after+r_coeff*J_ref*v).isZero());
   data.M.triangularView<Eigen::StrictlyLower>() =
     data.M.transpose().triangularView<Eigen::StrictlyLower>();
@@ -553,8 +574,8 @@ BOOST_AUTO_TEST_CASE(test_sparse_impulse_dynamics_in_contact_6D_3D)
   Eigen::DenseIndex constraint_id = 0;
   for(size_t k = 0; k < contact_models.size(); ++k)
   {
-    const RigidContactModel & cmodel = contact_models[k];
-    const RigidContactData & cdata = contact_datas[k];
+    const RigidConstraintModel & cmodel = contact_models[k];
+    const RigidConstraintData & cdata = contact_datas[k];
     
     switch(cmodel.type)
     {

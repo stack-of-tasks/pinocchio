@@ -67,7 +67,8 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
-        
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED        
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<Vector3,Vector3>
@@ -119,10 +120,7 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self -= bp::self)
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def(-bp::self)
         .def(bp::self ^ bp::self)
         .def(bp::self ^ Force())
@@ -157,6 +155,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def_pickle(Pickle())
 #endif
         ;
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP        
       }
 
       static void expose()

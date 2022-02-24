@@ -168,14 +168,13 @@ namespace pinocchio
     PINOCCHIO_JOINT_TYPEDEF_TEMPLATE(JointDerived);
     
     typedef JointCollectionTpl<Scalar,Options> JointCollection;
-    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModel;
-    typedef JointModel JointModelVariant;
+    typedef JointModelTpl<Scalar,Options,JointCollectionTpl> JointModelVariant;
 
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef MotionTpl<Scalar,Options> Motion;
     typedef InertiaTpl<Scalar,Options> Inertia;
   
-    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModel) JointModelVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(JointModelVariant) JointModelVector;
     
     using Base::id;
     using Base::idx_q;
@@ -338,15 +337,15 @@ namespace pinocchio
     bool isEqual(const JointModelCompositeTpl & other) const
     {
       return Base::isEqual(other)
-      && nq() == other.nq()
-      && nv() == other.nv()
-      && m_idx_q == other.m_idx_q
-      && m_idx_v == other.m_idx_v
-      && m_nqs == other.m_nqs
-      && m_nvs == other.m_nvs
-      && joints == other.joints
-      && jointPlacements == other.jointPlacements
-      && njoints == other.njoints;
+	&& internal::comparison_eq(nq(), other.nq())
+	&& internal::comparison_eq(nv(), other.nv())
+	&& internal::comparison_eq(m_idx_q, other.m_idx_q)
+	&& internal::comparison_eq(m_idx_v, other.m_idx_v)
+	&& internal::comparison_eq(m_nqs, other.m_nqs)
+	&& internal::comparison_eq(m_nvs, other.m_nvs)
+	&& internal::comparison_eq(joints, other.joints)
+	&& internal::comparison_eq(jointPlacements, other.jointPlacements)
+	&& internal::comparison_eq(njoints, other.njoints);
     }
     
     /// \returns An expression of *this with the Scalar type casted to NewScalar.

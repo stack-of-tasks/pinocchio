@@ -35,34 +35,34 @@ namespace pinocchio
    * @{
    */
 
-  template<typename Scalar, int Options=0> struct SE3Tpl;
+  template<typename Scalar, int Options=context::Options> struct SE3Tpl;
 
   template<typename Derived> class MotionBase;
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
-  template<typename Scalar, int Options=0> class MotionTpl;
-  template<typename Scalar, int Options=0> struct MotionZeroTpl;
-  template<typename Scalar, int Options=0> struct PINOCCHIO_DEPRECATED BiasZeroTpl;
+  template<typename Scalar, int Options=context::Options> class MotionTpl;
+  template<typename Scalar, int Options=context::Options> struct MotionZeroTpl;
+  template<typename Scalar, int Options=context::Options> struct PINOCCHIO_DEPRECATED BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
   template<typename Vector6ArgType> class ForceRef;
-  template<typename Scalar, int Options=0> class ForceTpl;
+  template<typename Scalar, int Options=context::Options> class ForceTpl;
   
-  template<typename Scalar, int Options=0> struct InertiaTpl;
-  template<typename Scalar, int Options=0> class Symmetric3Tpl;
+  template<typename Scalar, int Options=context::Options> struct InertiaTpl;
+  template<typename Scalar, int Options=context::Options> class Symmetric3Tpl;
   
 
-  typedef SE3Tpl        <double,0> SE3;
-  typedef MotionTpl     <double,0> Motion;
-  typedef ForceTpl      <double,0> Force;
-  typedef InertiaTpl    <double,0> Inertia;
-  typedef Symmetric3Tpl <double,0> Symmetric3;
-  typedef MotionZeroTpl <double,0> MotionZero;
+  typedef SE3Tpl        <context::Scalar,context::Options> SE3;
+  typedef MotionTpl     <context::Scalar,context::Options> Motion;
+  typedef ForceTpl      <context::Scalar,context::Options> Force;
+  typedef InertiaTpl    <context::Scalar,context::Options> Inertia;
+  typedef Symmetric3Tpl <context::Scalar,context::Options> Symmetric3;
+  typedef MotionZeroTpl <context::Scalar,context::Options> MotionZero;
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
-  typedef BiasZeroTpl   <double,0> BiasZero;
+  typedef BiasZeroTpl   <context::Scalar,context::Options> BiasZero;
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
 

@@ -6,29 +6,29 @@
 #define __pinocchio_algorithm_impulse_dynamics_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hxx"
+#include "pinocchio/algorithm/constrained-dynamics.hxx"
 #include <limits>
 
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v_before,
-                  const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
                   const Scalar r_coeff,
-                  const Scalar mu)
+                  const ProximalSettingsTpl<Scalar> & settings)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(q.size() == model.nq,
                                    "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(v_before.size() == model.nv,
                                    "The joint velocity vector is not of right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Scalar(0)),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= Scalar(0)),
                                    "mu has to be positive");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) &&(r_coeff <= Scalar(1))),
                                    "r_coeff has to be in [0,1]");
@@ -37,8 +37,8 @@ namespace pinocchio
     
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
 
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typename Data::TangentVectorType & dq_after = data.dq_after;
     typename Data::ContactCholeskyDecomposition & contact_chol = data.contact_chol;
@@ -60,7 +60,7 @@ namespace pinocchio
     }
 
     data.M.diagonal() += model.armature;
-    contact_chol.compute(model,data,contact_models,contact_datas,mu);
+    contact_chol.compute(model,data,contact_models,contact_datas,settings.mu);
     
     //Centroidal computations
     typedef typename Data::Force Force;
@@ -77,8 +77,8 @@ namespace pinocchio
     Eigen::DenseIndex current_row_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
+      const RigidConstraintModel & contact_model = contact_models[contact_id];
+      RigidConstraintData & contact_data = contact_datas[contact_id];
       const int contact_dim = contact_model.size();
 
       const JointIndex joint1_id = contact_model.joint1_id;
@@ -143,9 +143,9 @@ namespace pinocchio
     Eigen::DenseIndex current_row_sol_id = 0;
     for(size_t contact_id = 0; contact_id < contact_models.size(); ++contact_id)
     {
-      const RigidContactModel & contact_model = contact_models[contact_id];
-      RigidContactData & contact_data = contact_datas[contact_id];
-      typename RigidContactData::Force & impulse = contact_data.contact_force;
+      const RigidConstraintModel & contact_model = contact_models[contact_id];
+      RigidConstraintData & contact_data = contact_datas[contact_id];
+      typename RigidConstraintData::Force & impulse = contact_data.contact_force;
       const int contact_dim = contact_model.size();
       
       switch(contact_model.type)

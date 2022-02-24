@@ -15,13 +15,21 @@
 #define PINOCCHIO_PYTHON_NO_SERIALIZATION
 
 #include <eigenpy/eigenpy.hpp>
+#include <eigenpy/user-type.hpp>
 
 namespace pinocchio
 {
   namespace python
   {
-    inline void exposeSpecificTypeFeatures() { };
+    inline void exposeSpecificTypeFeatures() {
+      boost::python::import("pycppad");
+    };
 
+    inline boost::python::object getScalarType()
+    {
+      return eigenpy::getInstanceClass<context::Scalar>();
+    }
+    
   }
 }
 
@@ -34,8 +42,8 @@ namespace pinocchio
   
       template<typename T> struct has_operator_equal;
   
-      template<typename Scalar>
-      struct has_operator_equal< ::CppAD::AD<Scalar> > : boost::false_type   {};
+      template<typename BaseScalar>
+      struct has_operator_equal< ::CppAD::AD<BaseScalar> > : boost::false_type   {};
       
     }
   }

@@ -51,19 +51,19 @@ namespace pinocchio
           const ::sdf::ElementPtr childJointElement =
             graph.mapOfJoints.find(*childOfChild)->second;
 
-          if (childJointElement->template Get<std::string>("type") != "ball") {
-            const std::string childLinkName =
-              childJointElement->GetElement("child")->template Get<std::string>();
-            const ::sdf::ElementPtr childLinkElement =
-              graph.mapOfLinks.find(childLinkName)->second;
-            recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
-                                       geomModel, package_dirs,type);
-          }
+          const std::string childLinkName =
+            childJointElement->GetElement("child")->template Get<std::string>();
+          const ::sdf::ElementPtr childLinkElement =
+            graph.mapOfLinks.find(childLinkName)->second;
+          recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
+                                     geomModel, package_dirs,type);
+          
         }
       }
       
       void parseTreeForGeom(const SdfGraph& graph,
                             GeometryModel & geomModel,
+                            const std::string& rootLinkName,
                             const GeometryType type,
                             const std::vector<std::string> & package_dirs,
                             ::hpp::fcl::MeshLoaderPtr meshLoader)
@@ -74,12 +74,9 @@ namespace pinocchio
                                 ros_pkg_paths.end());
         
         if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
-        const ::sdf::ElementPtr jointElement = graph.mapOfJoints.find("static")->second;
 
-        const std::string& childName =
-          jointElement->GetElement("child")->Get<std::string>();
-        const ::sdf::ElementPtr childElement = graph.mapOfLinks.find(childName)->second;
-        recursiveParseGraphForGeom(graph, meshLoader, childElement,
+        const ::sdf::ElementPtr rootElement = graph.mapOfLinks.find(rootLinkName)->second;
+        recursiveParseGraphForGeom(graph, meshLoader, rootElement,
                                    geomModel, hint_directories, type);
         
       }

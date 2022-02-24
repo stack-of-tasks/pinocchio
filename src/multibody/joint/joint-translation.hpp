@@ -15,8 +15,8 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options=0> struct MotionTranslationTpl;
-  typedef MotionTranslationTpl<double> MotionTranslation;
+  template<typename Scalar, int Options=context::Options> struct MotionTranslationTpl;
+  typedef MotionTranslationTpl<context::Scalar> MotionTranslation;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionTranslationTpl<Scalar,Options> >
@@ -82,7 +82,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionTranslationTpl & other) const
     {
-      return m_v == other.m_v;
+      return internal::comparison_eq(m_v, other.m_v);
     }
     
     MotionTranslationTpl & operator=(const MotionTranslationTpl & other)
@@ -244,7 +244,7 @@ namespace pinocchio
     
     bool isEqual(const TransformTranslationTpl & other) const
     {
-      return m_translation == other.m_translation;
+      return internal::comparison_eq(m_translation, other.m_translation);
     }
     
   protected:

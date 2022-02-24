@@ -8,8 +8,8 @@
 #include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/algorithm/centroidal.hpp"
 #include "pinocchio/algorithm/aba.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
@@ -40,7 +40,7 @@ int main(int argc, const char ** argv)
     std::cout << "(the time score in debug mode is not relevant) " << std::endl;
   #endif
     
-  pinocchio::Model model;  
+  pinocchio::Model model;
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
   if(argc>1) filename = argv[1];
   
@@ -68,17 +68,17 @@ int main(int argc, const char ** argv)
 
   const std::string RF = "RLEG_ANKLE_R";
   const std::string LF = "LLEG_ANKLE_R";
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
 
-  RigidContactModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidContactModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model.getFrameId(RF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model.getFrameId(LF),WORLD);
   contact_models_6D6D.push_back(ci_RF);
   contact_models_6D6D.push_back(ci_LF);
 
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_6D6D;
 
-  RigidContactData cd_RF(ci_RF);  contact_datas_6D6D.push_back(cd_RF);
-  RigidContactData cd_LF(ci_LF);  contact_datas_6D6D.push_back(cd_LF);
+  RigidConstraintData cd_RF(ci_RF);  contact_datas_6D6D.push_back(cd_RF);
+  RigidConstraintData cd_LF(ci_LF);  contact_datas_6D6D.push_back(cd_LF);
     
   VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   
@@ -106,9 +106,9 @@ int main(int argc, const char ** argv)
   aba_derivatives_code_gen.initLib();
   aba_derivatives_code_gen.loadLib();
   
-  CodeGenContactDynamicsDerivatives<double> contact_dynamics_derivatives_code_gen(model, contact_models_6D6D);
-  contact_dynamics_derivatives_code_gen.initLib();
-  contact_dynamics_derivatives_code_gen.loadLib();
+  CodeGenConstraintDynamicsDerivatives<double> constraint_dynamics_derivatives_code_gen(model, contact_models_6D6D);
+  constraint_dynamics_derivatives_code_gen.initLib();
+  constraint_dynamics_derivatives_code_gen.loadLib();
   
   pinocchio::container::aligned_vector<VectorXd> qs     (NBT);
   pinocchio::container::aligned_vector<VectorXd> qdots  (NBT);
@@ -215,13 +215,13 @@ int main(int argc, const char ** argv)
   std::cout << "ABA partial derivatives code gen = \t\t"; timer.toc(std::cout,NBT);
 
 
-  pinocchio::initContactDynamics(model, data, contact_models_6D6D);
+  pinocchio::initConstraintDynamics(model, data, contact_models_6D6D);
   timer.tic();
   SMOOTH(NBT)
   {
-    pinocchio::contactDynamics(model, data, qs[_smooth],qdots[_smooth],qddots[_smooth],
+    pinocchio::constraintDynamics(model, data, qs[_smooth],qdots[_smooth],qddots[_smooth],
                                contact_models_6D6D, contact_datas_6D6D);
-    pinocchio::computeContactDynamicsDerivatives(model, data,
+    pinocchio::computeConstraintDynamicsDerivatives(model, data,
                                                  contact_models_6D6D, contact_datas_6D6D);
   }
   std::cout << "contact dynamics derivatives 6D,6D = \t\t"; timer.toc(std::cout,NBT);
@@ -230,7 +230,7 @@ int main(int argc, const char ** argv)
   timer.tic();
   SMOOTH(NBT)
   {
-    contact_dynamics_derivatives_code_gen.evalFunction(qs[_smooth],qdots[_smooth],qddots[_smooth]);
+    constraint_dynamics_derivatives_code_gen.evalFunction(qs[_smooth],qdots[_smooth],qddots[_smooth]);
   }
   std::cout << "contact dynamics derivatives 6D,6D code gen = \t\t"; timer.toc(std::cout,NBT);
 

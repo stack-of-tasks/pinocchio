@@ -64,10 +64,12 @@ namespace pinocchio
         std::vector< ::sdf::ElementPtr> geometry_array;
         ::sdf::ElementPtr geomElement = link->GetElement("collision");
         while (geomElement)
-        {
-          //Inserting data in std::map
-          geometry_array.push_back(geomElement);
-          geomElement = link->GetNextElement("collision");
+        { 
+	  //Inserting data in std::map
+	  if (geomElement->Get<std::string>("name") != "__default__") {
+	    geometry_array.push_back(geomElement);
+	  }
+	    geomElement = geomElement->GetNextElement("collision");
         }
         return geometry_array;
       }
@@ -81,8 +83,10 @@ namespace pinocchio
         while (geomElement)
         {
           //Inserting data in std::map
-          geometry_array.push_back(geomElement);
-          geomElement = link->GetNextElement("visual");
+	  if (geomElement->Get<std::string>("name") != "__default__") {
+	    geometry_array.push_back(geomElement);
+	  }
+          geomElement = geomElement->GetNextElement("visual");
         }
         return geometry_array;
       }
@@ -112,10 +116,7 @@ namespace pinocchio
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
       boost::shared_ptr<fcl::CollisionGeometry>
-      inline retrieveCollisionGeometry(const SdfGraph& graph,
-                                       fcl::MeshLoaderPtr& meshLoader,
-                                       const std::string& linkName,
-                                       const std::string& geomName,
+      inline retrieveCollisionGeometry(fcl::MeshLoaderPtr& meshLoader,
                                        const ::sdf::ElementPtr sdf_geometry,
                                        const std::vector<std::string> & package_dirs,
                                        std::string & meshPath,
@@ -212,8 +213,7 @@ namespace pinocchio
         typedef std::vector< ::sdf::ElementPtr> GeometryArray;
         typedef GeometryModel::SE3 SE3;
 
-        bool has_element = false;
-        if(hasLinkElement<type>)
+        if(hasLinkElement<type>(link))
         {
           std::string meshPath = "";
 
@@ -239,8 +239,7 @@ namespace pinocchio
             const ::sdf::ElementPtr sdf_geometry = (*i)->GetElement("geometry");
             
             const GeometryObject::CollisionGeometryPtr geometry =
-              retrieveCollisionGeometry(graph, meshLoader, link_name, geom_name,
-                                        sdf_geometry, package_dirs, meshPath, meshScale);
+              retrieveCollisionGeometry(meshLoader, sdf_geometry, package_dirs, meshPath, meshScale);
 #else
             const ::sdf::ElementPtr sdf_mesh = sdf_geometry->GetElement("mesh");
 
@@ -270,13 +269,13 @@ namespace pinocchio
             const ::sdf::ElementPtr sdf_material = (*i)->GetElement("material");
             if (sdf_material)
             {
-              const ignition::math::Vector4d ign_meshColor =
-                sdf_material->Get<ignition::math::Vector4d>("ambient");
+              const ignition::math::Color ign_meshColor =
+                sdf_material->Get<ignition::math::Color>("ambient");
               
-              meshColor << ign_meshColor.X(),
-                ign_meshColor.Y(),
-                ign_meshColor.Z(),
-                ign_meshColor.W();
+              meshColor << ign_meshColor.R(),
+                ign_meshColor.G(),
+                ign_meshColor.B(),
+                ign_meshColor.A();
               overrideMaterial = true;
             }
 
@@ -286,9 +285,9 @@ namespace pinocchio
             geometry_object_suffix << "_" << objectId;
             const std::string & geometry_object_name = std::string(link_name + geometry_object_suffix.str());
             GeometryObject geometry_object(geometry_object_name,
-                                           frame_id, frame.parent,
-                                           geometry,
-                                           geomPlacement, meshPath, meshScale,
+                                           frame.parentJoint, frame_id,
+                                           geomPlacement, geometry,
+                                           meshPath, meshScale,
                                            overrideMaterial, meshColor, meshTexturePath);
             geomModel.addGeometryObject(geometry_object);
             ++objectId;
@@ -319,29 +318,36 @@ namespace pinocchio
 
       PINOCCHIO_DLLAPI void parseTreeForGeom(const SdfGraph& graph,
                                              GeometryModel & geomModel,
+                                             const std::string& rootLinkName,
                                              const GeometryType type,
                                              const std::vector<std::string> & package_dirs,
                                              ::hpp::fcl::MeshLoaderPtr meshLoader);
     } // namespace details
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    GeometryModel& buildGeom(ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                             PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel)& contact_models,
+    GeometryModel& buildGeom(const ModelTpl<Scalar,Options,JointCollectionTpl> & const_model,
                              const std::string & filename,
                              const GeometryType type,
                              GeometryModel & geomModel,
+                             const std::string & rootLinkName,
                              const std::vector<std::string> & package_dirs,
                              ::hpp::fcl::MeshLoaderPtr meshLoader)
       
     {
+      Model& model = const_cast<Model &>(const_model); //TODO: buildGeom should not need to parse model again.
       ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
-      ::pinocchio::sdf::details::SdfGraph graph (visitor, contact_models);
+      ::pinocchio::sdf::details::SdfGraph graph (visitor);
+
       //if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
       graph.parseGraph(filename);
+
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
       
-      details::parseTreeForGeom (graph, geomModel, type,
+      details::parseTreeForGeom (graph, geomModel, rootLinkName, type,
                                  package_dirs, meshLoader);
       return geomModel;
     }

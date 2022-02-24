@@ -29,7 +29,7 @@ pinocchio.framesForwardKinematics(model, data, robot.q0)
 constraint_models = []
 
 for j, frame_id in enumerate(foot_frame_ids):
-    contact_model_lf1 = pinocchio.RigidContactModel(pinocchio.ContactType.CONTACT_6D,
+    contact_model_lf1 = pinocchio.RigidConstraintModel(pinocchio.ContactType.CONTACT_6D,
                                                     foot_joint_ids[j],
                                                     robot.model.frames[frame_id].placement,
                                                     0,

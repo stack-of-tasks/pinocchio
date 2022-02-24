@@ -14,8 +14,8 @@
 #include "pinocchio/bindings/python/utils/comparable.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactModel)
-EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidContactData)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidConstraintModel)
+EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::python::context::RigidConstraintData)
 
 namespace pinocchio
 {
@@ -56,17 +56,17 @@ namespace pinocchio
       }
     };
     
-    template<typename RigidContactModel>
-    struct RigidContactModelPythonVisitor
-    : public boost::python::def_visitor< RigidContactModelPythonVisitor<RigidContactModel> >
+    template<typename RigidConstraintModel>
+    struct RigidConstraintModelPythonVisitor
+    : public boost::python::def_visitor< RigidConstraintModelPythonVisitor<RigidConstraintModel> >
     {
-      typedef typename RigidContactModel::Scalar Scalar;
-      typedef typename RigidContactModel::SE3 SE3;
-      typedef RigidContactModel Self;
-      typedef typename RigidContactModel::ContactData ContactData;
-      typedef typename RigidContactModel::BaumgarteCorrectorParameters BaumgarteCorrectorParameters;
+      typedef typename RigidConstraintModel::Scalar Scalar;
+      typedef typename RigidConstraintModel::SE3 SE3;
+      typedef RigidConstraintModel Self;
+      typedef typename RigidConstraintModel::ContactData ContactData;
+      typedef typename RigidConstraintModel::BaumgarteCorrectorParameters BaumgarteCorrectorParameters;
 
-      typedef ModelTpl<Scalar,RigidContactModel::Options,JointCollectionDefaultTpl> Model;
+      typedef ModelTpl<Scalar,RigidConstraintModel::Options,JointCollectionDefaultTpl> Model;
       
     public:
       
@@ -74,6 +74,8 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
+        .def(bp::init<>(bp::arg("self"),
+                        "Default constructor."))
         .def(bp::init<ContactType,Model,JointIndex,SE3,JointIndex,SE3,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
@@ -121,10 +123,10 @@ namespace pinocchio
         .PINOCCHIO_ADD_PROPERTY(Self,colwise_joint2_sparsity,"Sparsity pattern associated to joint 2.")
         .PINOCCHIO_ADD_PROPERTY(Self,colwise_span_indexes,"Indexes of the columns spanned by the constraints.")
 
-        .def("size", &RigidContactModel::size, "Size of the constraint")
+        .def("size", &RigidConstraintModel::size, "Size of the constraint")
         
         .def("createData",
-             &RigidContactModelPythonVisitor::createData,
+             &RigidConstraintModelPythonVisitor::createData,
              "Create a Data object for the given model.")
         
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
@@ -133,12 +135,12 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<RigidContactModel>("RigidContactModel",
+        bp::class_<RigidConstraintModel>("RigidConstraintModel",
                                       "Rigid contact model for contact dynamic algorithms.",
                                       bp::no_init)
-        .def(RigidContactModelPythonVisitor())
+        .def(RigidConstraintModelPythonVisitor())
         .def(CastVisitor<Model>())
-        .def(ExposeConstructorByCastVisitor<RigidContactModel,::pinocchio::RigidContactModel>())
+        .def(ExposeConstructorByCastVisitor<RigidConstraintModel,::pinocchio::RigidConstraintModel>())
         ;
         
         BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters>::expose();
@@ -151,13 +153,13 @@ namespace pinocchio
       }
     };
   
-    template<typename RigidContactData>
-    struct RigidContactDataPythonVisitor
-    : public boost::python::def_visitor< RigidContactDataPythonVisitor<RigidContactData> >
+    template<typename RigidConstraintData>
+    struct RigidConstraintDataPythonVisitor
+    : public boost::python::def_visitor< RigidConstraintDataPythonVisitor<RigidConstraintData> >
     {
-      typedef typename RigidContactData::Scalar Scalar;
-      typedef RigidContactData Self;
-      typedef typename RigidContactData::ContactModel ContactModel;
+      typedef typename RigidConstraintData::Scalar Scalar;
+      typedef RigidConstraintData Self;
+      typedef typename RigidConstraintData::ContactModel ContactModel;
 
     public:
       
@@ -209,13 +211,13 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<RigidContactData>("RigidContactData",
-                                     "Rigid contact data associated to a RigidContactModel for contact dynamic algorithms.",
+        bp::class_<RigidConstraintData>("RigidConstraintData",
+                                     "Rigid constraint data associated to a RigidConstraintModel for contact dynamic algorithms.",
                                      bp::no_init)
-        .def(RigidContactDataPythonVisitor())
+        .def(RigidConstraintDataPythonVisitor())
         ;
         
-        typedef typename RigidContactData::VectorOfMatrix6 VectorOfMatrix6;
+        typedef typename RigidConstraintData::VectorOfMatrix6 VectorOfMatrix6;
         StdVectorPythonVisitor<VectorOfMatrix6,true>::expose("StdVec_Matrix6_");
         
       }

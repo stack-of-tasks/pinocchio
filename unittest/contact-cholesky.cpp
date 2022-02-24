@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE(contact_operator_equal)
   pinocchio::buildModels::manipulator(manipulator_model);
   Data manipulator_data(manipulator_model);
 
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_empty;
   
   humanoid_model.lowerPositionLimit.head<3>().fill(-1.);
   humanoid_model.upperPositionLimit.head<3>().fill(1.);
@@ -103,8 +103,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
   
   ContactCholeskyDecomposition contact_chol_decomposition;
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_empty;
   contact_chol_decomposition.allocate(model,contact_models_empty);
   
   BOOST_CHECK(contact_chol_decomposition.D.size() == model.nv);
@@ -270,14 +270,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
 
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -340,6 +340,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // test Operational Space Inertia Matrix
+  
   MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
   MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
   MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
@@ -496,20 +497,20 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   const std::string RA = "rarm6_joint";
   const std::string LA = "larm6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
-//  RigidContactModel ci_RA(CONTACT_3D,model.getJointId(RA),LOCAL);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+//  RigidConstraintModel ci_RA(CONTACT_3D,model.getJointId(RA),LOCAL);
 //  contact_models.push_back(ci_RA);
-//  contact_datas.push_back(RigidContactData(ci_RA));
-//  RigidContactModel ci_LA(CONTACT_3D,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+//  contact_datas.push_back(RigidConstraintData(ci_RA));
+//  RigidConstraintModel ci_LA(CONTACT_3D,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
 //  contact_models.push_back(ci_LA);
-//  contact_datas.push_back(RigidContactData(ci_LA));
+//  contact_datas.push_back(RigidConstraintData(ci_LA));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -712,14 +713,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -801,14 +802,14 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   const std::string RF = "rleg6_joint";
   const std::string LF = "lleg6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
+  contact_datas.push_back(RigidConstraintData(ci_LF));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -892,20 +893,20 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   const std::string RA = "rarm6_joint";
   const std::string LA = "larm6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_6D,model,0,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,0,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
-  RigidContactModel ci_RA(CONTACT_6D,model,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  RigidConstraintModel ci_RA(CONTACT_6D,model,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RA);
-  contact_datas.push_back(RigidContactData(ci_RA));
-  RigidContactModel ci_LA(CONTACT_6D,model,0,model.getJointId(LA),LOCAL);
+  contact_datas.push_back(RigidConstraintData(ci_RA));
+  RigidConstraintModel ci_LA(CONTACT_6D,model,0,model.getJointId(LA),LOCAL);
   contact_models.push_back(ci_LA);
-  contact_datas.push_back(RigidContactData(ci_LA));
+  contact_datas.push_back(RigidConstraintData(ci_LA));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -1087,20 +1088,20 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   const std::string RA = "rarm6_joint";
   const std::string LA = "larm6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
   contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidContactData(ci_RF));
-  RigidContactModel ci_LF(CONTACT_3D,model,0,model.getJointId(LF),WORLD);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_3D,model,0,model.getJointId(LF),WORLD);
   contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidContactData(ci_LF));
-  RigidContactModel ci_RA(CONTACT_3D,model,0,model.getJointId(RA),LOCAL);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  RigidConstraintModel ci_RA(CONTACT_3D,model,0,model.getJointId(RA),LOCAL);
   contact_models.push_back(ci_RA);
-  contact_datas.push_back(RigidContactData(ci_RA));
-  RigidContactModel ci_LA(CONTACT_3D,model,0,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  contact_datas.push_back(RigidConstraintData(ci_RA));
+  RigidConstraintModel ci_LA(CONTACT_3D,model,0,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_LA);
-  contact_datas.push_back(RigidContactData(ci_LA));
+  contact_datas.push_back(RigidConstraintData(ci_LA));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -1194,11 +1195,11 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   const std::string RA = "rarm6_joint";
   const std::string LA = "larm6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel loop_RF_LF_local(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidContactModel loop_RF_LF_world(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
-  RigidContactModel loop_RA_LA_lwa(CONTACT_6D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel loop_RF_LF_local(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidConstraintModel loop_RF_LF_world(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
+  RigidConstraintModel loop_RA_LA_lwa(CONTACT_6D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
   loop_RF_LF_local.joint2_placement.setRandom();
@@ -1207,13 +1208,13 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   loop_RA_LA_lwa.joint2_placement.setRandom();
   
   contact_models.push_back(loop_RF_LF_local);
-  contact_datas.push_back(RigidContactData(loop_RF_LF_local));
+  contact_datas.push_back(RigidConstraintData(loop_RF_LF_local));
   
   contact_models.push_back(loop_RF_LF_world);
-  contact_datas.push_back(RigidContactData(loop_RF_LF_world));
+  contact_datas.push_back(RigidConstraintData(loop_RF_LF_world));
   
   contact_models.push_back(loop_RA_LA_lwa);
-  contact_datas.push_back(RigidContactData(loop_RA_LA_lwa));
+  contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);
@@ -1325,11 +1326,11 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   const std::string RA = "rarm6_joint";
   const std::string LA = "larm6_joint";
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_datas;
-  RigidContactModel loop_RF_LF_local(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidContactModel loop_RF_LF_world(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
-  RigidContactModel loop_RA_LA_lwa(CONTACT_3D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel loop_RF_LF_local(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
+  RigidConstraintModel loop_RF_LF_world(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
+  RigidConstraintModel loop_RA_LA_lwa(CONTACT_3D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
   loop_RF_LF_local.joint2_placement.setRandom();
@@ -1341,13 +1342,13 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   loop_RA_LA_lwa.joint2_placement.setRandom();
   
   contact_models.push_back(loop_RF_LF_local);
-  contact_datas.push_back(RigidContactData(loop_RF_LF_local));
+  contact_datas.push_back(RigidConstraintData(loop_RF_LF_local));
   
   contact_models.push_back(loop_RF_LF_world);
-  contact_datas.push_back(RigidContactData(loop_RF_LF_world));
+  contact_datas.push_back(RigidConstraintData(loop_RF_LF_world));
   
   contact_models.push_back(loop_RA_LA_lwa);
-  contact_datas.push_back(RigidContactData(loop_RA_LA_lwa));
+  contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
   
   // Compute Mass Matrix
   crba(model,data_ref,q);

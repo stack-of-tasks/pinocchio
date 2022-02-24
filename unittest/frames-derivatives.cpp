@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(test_frames_derivatives_velocity)
   FrameIndex frameId = model.addFrame(frame);
   
   BOOST_CHECK(model.getFrameId("rand") == frameId);
-  BOOST_CHECK(model.frames[frameId].parent == jointId);
+  BOOST_CHECK(model.frames[frameId].parentJoint == jointId);
   
   Data data(model), data_ref(model);
   
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(test_kinematics_derivatives_acceleration)
   FrameIndex frameId = model.addFrame(frame);
   
   BOOST_CHECK(model.getFrameId("rand") == frameId);
-  BOOST_CHECK(model.frames[frameId].parent == jointId);
+  BOOST_CHECK(model.frames[frameId].parentJoint == jointId);
   
   Data data(model), data_ref(model);
   

@@ -49,34 +49,34 @@ BOOST_AUTO_TEST_CASE ( simple_boxes )
   
   boost::shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_1 = model.getBodyId("planar1_body");
-  Model::JointIndex joint_parent_1 = model.frames[body_id_1].parent;
+  Model::JointIndex joint_parent_1 = model.frames[body_id_1].parentJoint;
   Model::JointIndex idx_geom1 = geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
-                                                                           model.getBodyId("planar1_body"),joint_parent_1,
-                                                                           sample,SE3::Identity(), "", Eigen::Vector3d::Ones())
+                                                                           joint_parent_1,model.getBodyId("planar1_body"),
+                                                                           SE3::Identity(),sample, "", Eigen::Vector3d::Ones())
                                                             );
-  geomModel.geometryObjects[idx_geom1].parentJoint = model.frames[body_id_1].parent;
+  geomModel.geometryObjects[idx_geom1].parentJoint = model.frames[body_id_1].parentJoint;
   
   
   boost::shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_2 = model.getBodyId("planar2_body");
-  Model::JointIndex joint_parent_2 = model.frames[body_id_2].parent;
+  Model::JointIndex joint_parent_2 = model.frames[body_id_2].parentJoint;
   Model::JointIndex idx_geom2 = geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
-                                                                           model.getBodyId("planar2_body"),joint_parent_2,
-                                                                           sample2,SE3::Identity(), "", Eigen::Vector3d::Ones()),
+                                                                           joint_parent_2,model.getBodyId("planar2_body"),
+                                                                           SE3::Identity(),sample2, "", Eigen::Vector3d::Ones()),
                                                             model);
-  BOOST_CHECK(geomModel.geometryObjects[idx_geom2].parentJoint == model.frames[body_id_2].parent);
+  BOOST_CHECK(geomModel.geometryObjects[idx_geom2].parentJoint == model.frames[body_id_2].parentJoint);
   
   boost::shared_ptr<fcl::Box> universe_body_geometry(new fcl::Box(1, 1, 1));
   model.addBodyFrame("universe_body", 0, SE3::Identity());
   Model::FrameIndex body_id_3 = model.getBodyId("universe_body");
-  Model::JointIndex joint_parent_3 = model.frames[body_id_3].parent;
+  Model::JointIndex joint_parent_3 = model.frames[body_id_3].parentJoint;
   SE3 universe_body_placement = SE3::Random();
   Model::JointIndex idx_geom3 = geomModel.addGeometryObject(GeometryObject("universe_collision_object",
-                                                                           model.getBodyId("universe_body"),joint_parent_3,
-                                                                           universe_body_geometry,universe_body_placement, "", Eigen::Vector3d::Ones()),
+                                                                           joint_parent_3,model.getBodyId("universe_body"),
+                                                                           universe_body_placement,universe_body_geometry, "", Eigen::Vector3d::Ones()),
                                                             model);
   
-  BOOST_CHECK(geomModel.geometryObjects[idx_geom3].parentJoint == model.frames[body_id_3].parent);
+  BOOST_CHECK(geomModel.geometryObjects[idx_geom3].parentJoint == model.frames[body_id_3].parentJoint);
 
   geomModel.addAllCollisionPairs();
   pinocchio::Data data(model);

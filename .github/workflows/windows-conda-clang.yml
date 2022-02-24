@@ -2,6 +2,9 @@ name: CI - Windows (CLANG) via Conda
 on:
   pull_request:
   push:
+    branches:
+      - master
+      - devel
 
 jobs:
   build:
@@ -25,8 +28,8 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
-        activate-environment: pinocchio
-        environment-file: .github/workflows/conda/conda-env.yml
+        activate-environment: pinocchio-windows
+        environment-file: .github/workflows/conda/windows-env.yml
         python-version: 3.7
     - name: Install cmake and update conda
       run: |

@@ -63,7 +63,6 @@ namespace pinocchio
 #else
         PINOCCHIO_UNUSED_VARIABLE(cl);
 #endif
-        
       }
 
     };

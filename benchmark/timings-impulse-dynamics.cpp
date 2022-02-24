@@ -61,32 +61,32 @@ int main(int argc, const char ** argv)
   const std::string RF = "RLEG_LINK6";
   const std::string LF = "LLEG_LINK6";
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
-  RigidContactModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
+  RigidConstraintModel ci_RF_6D(CONTACT_6D,model.getFrameId(RF),WORLD);
+  RigidConstraintModel ci_RF_3D(CONTACT_3D,model.getFrameId(RF),WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
-  RigidContactModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
+  RigidConstraintModel ci_LF_6D(CONTACT_6D,model.getFrameId(LF),WORLD);
+  RigidConstraintModel ci_LF_3D(CONTACT_3D,model.getFrameId(LF),WORLD);
   
-  RigidContactModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
-  RigidContactModel ci_LA_3D(CONTACT_3D,model.getFrameId(LA),WORLD);
+  RigidConstraintModel ci_RA_3D(CONTACT_3D,model.getFrameId(RA),WORLD);
+  RigidConstraintModel ci_LA_3D(CONTACT_3D,model.getFrameId(LA),WORLD);
   
   // Define contact infos structure
-  static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
-  static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_empty;
+  static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
+  static PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D;
   contact_models_6D.push_back(ci_RF_6D);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D;
-  contact_data_6D.push_back(RigidContactData(ci_RF_6D));
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
+  contact_data_6D.push_back(RigidConstraintData(ci_RF_6D));
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
   contact_models_6D6D.push_back(ci_RF_6D);
   contact_models_6D6D.push_back(ci_LF_6D);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D6D;
-  contact_data_6D6D.push_back(RigidContactData(ci_RF_6D));
-  contact_data_6D6D.push_back(RigidContactData(ci_LF_6D));
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
+  contact_data_6D6D.push_back(RigidConstraintData(ci_RF_6D));
+  contact_data_6D6D.push_back(RigidConstraintData(ci_LF_6D));
   cholesky::ContactCholeskyDecomposition contact_chol_6D6D(model,contact_models_6D6D);
   
   ProximalSettings prox_settings;
@@ -105,7 +105,7 @@ int main(int argc, const char ** argv)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) qddots(NBT);
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(VectorXd) taus(NBT);
   
-  static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models;
+  static const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   
   for(size_t i=0;i<NBT;++i)
   {
@@ -115,7 +115,7 @@ int main(int argc, const char ** argv)
   }
   Eigen::ArrayXd r_coeffs = (Eigen::ArrayXd::Random(NBT)+1.)/2.;
   
-  initContactDynamics(model,data,contact_models_empty);
+  initConstraintDynamics(model,data,contact_models_empty);
   timer.tic();
   SMOOTH(NBT)
   {
@@ -124,7 +124,7 @@ int main(int argc, const char ** argv)
   std::cout << "impulseDynamics {} = \t\t"; timer.toc(std::cout,NBT);
 
   
-  initContactDynamics(model,data,contact_models_6D);
+  initConstraintDynamics(model,data,contact_models_6D);
   timer.tic();
   SMOOTH(NBT)
   {
@@ -132,7 +132,7 @@ int main(int argc, const char ** argv)
   }
   std::cout << "impulseDynamics {6D} = \t\t"; timer.toc(std::cout,NBT);
   
-  initContactDynamics(model,data,contact_models_6D6D);
+  initConstraintDynamics(model,data,contact_models_6D6D);
   timer.tic();
   SMOOTH(NBT)
   {

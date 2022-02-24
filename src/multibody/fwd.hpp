@@ -12,16 +12,18 @@
 namespace pinocchio
 {
 
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /**
    * \addtogroup pinocchio_multibody
    * @{
    */
+  template<typename Scalar, int Options=context::Options> struct FrameTpl;
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
-  template<typename Scalar, int Options=0> struct FrameTpl;
-
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct ModelTpl;
-  template<typename Scalar, int Options = 0, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
+  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
   struct DataTpl;
 
   typedef std::size_t Index;
@@ -30,10 +32,10 @@ namespace pinocchio
   typedef Index FrameIndex;
   typedef Index PairIndex;
   
-  typedef FrameTpl<double> Frame;
+  typedef FrameTpl<context::Scalar, context::Options> Frame;
   
-  typedef ModelTpl<double> Model;
-  typedef DataTpl<double> Data;
+  typedef ModelTpl<context::Scalar, context::Options> Model;
+  typedef DataTpl<context::Scalar, context::Options> Data;
   
   struct GeometryModel;
   struct GeometryData;

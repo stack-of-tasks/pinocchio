@@ -9,7 +9,7 @@
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/contact-cholesky.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hxx"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hxx"
 
 namespace pinocchio
 {
@@ -24,6 +24,7 @@ namespace pinocchio
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const typename Model::JointIndex &,
+                                  const SE3Tpl<Scalar> &,
                                   const ReferenceFrame &,
                                   const Scalar &,
                                   Matrix3xOut1 &,
@@ -35,6 +36,7 @@ namespace pinocchio
                      const Model & model,
                      Data & data,
                      const typename Model::JointIndex & joint_id,
+                     const SE3Tpl<Scalar> & placement,
                      const ReferenceFrame & rf,
                      const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix3xOut1> & v_partial_dq,
@@ -47,7 +49,7 @@ namespace pinocchio
       const JointIndex i = jmodel.id();
       const JointIndex parent = model.parents[i];
       
-      const SE3 & oMlast = data.oMi[joint_id];
+      const SE3 oMlast = data.oMi[joint_id] * placement;
       
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
       ColsBlock Jcols = jmodel.jointCols(data.J);
@@ -111,6 +113,7 @@ namespace pinocchio
     typedef boost::fusion::vector<const Model &,
                                   Data &,
                                   const typename Model::JointIndex &,
+                                  const SE3Tpl<Scalar> &,
                                   const ReferenceFrame &,
                                   const Scalar &,
                                   Matrix6xOut1 &,
@@ -122,6 +125,7 @@ namespace pinocchio
                      const Model & model,
                      Data & data,
                      const typename Model::JointIndex & joint_id,
+                     const SE3Tpl<Scalar> & placement,
                      const ReferenceFrame & rf,
                      const Scalar & r_coeff,
                      const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
@@ -135,7 +139,7 @@ namespace pinocchio
       const JointIndex parent = model.parents[i];
       Motion vtmp; // Temporary variables
       
-      const SE3 & oMlast = data.oMi[joint_id];
+      const SE3 oMlast = data.oMi[joint_id] * placement;
       const Motion & v_last = data.ov[joint_id];
       const Motion & dv_last = data.oa[joint_id];
 
@@ -193,14 +197,14 @@ namespace pinocchio
     }
   };
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator,
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator,
            typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4>
   inline void computeImpulseDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_data,
                                                 const Scalar r_coeff,
-                                                const Scalar mu,
+                                                const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & dvimpulse_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & dvimpulse_partial_dv,
                                                 const Eigen::MatrixBase<MatrixType3> & impulse_partial_dq,
@@ -219,61 +223,41 @@ namespace pinocchio
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dq.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dq.rows() == nc);
+
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dv.cols() == model.nv);
     PINOCCHIO_CHECK_INPUT_ARGUMENT(impulse_partial_dv.rows() == nc);
+
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(
+                                     model.gravity.angular()[0] == Scalar(0)
+                                     && model.gravity.angular()[1] == Scalar(0)
+                                     && model.gravity.angular()[2] == Scalar(0)),
+                                   "The gravity must be a pure force vector, no angular part");
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) && (r_coeff <= Scalar(1))) && "mu must be positive.");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= (Scalar(0))) && "mu must be positive.");
-//    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(model.gravity.angular().isZero()),
-//                                   "The gravity must be a pure force vector, no angular part");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>((r_coeff >= Scalar(0)) && (r_coeff <= Scalar(1))) && "coeff of restitution lies between 0 and 1.");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(settings.mu >= (Scalar(0))) && "mu must be positive.");
     
     assert(model.check(data) && "data is not consistent with model.");
+
+    // TODO: User should make sure the internal quantities are reset.
     data.dtau_dq.setZero();
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef typename Data::SE3 SE3;
     typedef typename Data::Force Force;
     
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,false> Pass1;
+    typedef ComputeConstraintDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,false> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data));
     }
     
-    // Add the contribution of the impulse. TODO: this should be done at the contact model level.
-    for(size_t k = 0; k < contact_models.size(); ++k)
-    {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
-      const SE3 & oMc = cdata.oMc1;
-      const JointIndex joint1_id = cmodel.joint1_id;
-      Force & of = data.of[joint1_id];
-      
-      switch(cmodel.reference_frame)
-      {
-        case LOCAL:
-        {
-          of -= oMc.act(cdata.contact_force);
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED:
-        {
-          of -= cdata.contact_force;
-          of.angular().noalias() -= oMc.translation().cross(cdata.contact_force.linear());
-          break;
-        }
-        default:
-          assert(false && "Should never happened");
-          break;
-      }
-    }
+    internal::ContactForceContribution<Scalar>::run(contact_models, data, contact_data);
 
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,false> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
@@ -287,7 +271,7 @@ namespace pinocchio
     typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type Rows6Block;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
 
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
 
@@ -305,11 +289,13 @@ namespace pinocchio
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
+                                                cmodel.joint1_placement,
                                                 cmodel.reference_frame,
                                                 r_coeff,
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dq),
                                                 PINOCCHIO_EIGEN_CONST_CAST(Rows6Block,contact_dvc_dv)));
           }
+
           break;
         }
         case CONTACT_3D:
@@ -324,6 +310,7 @@ namespace pinocchio
             Pass3::run(model.joints[i],
                        typename Pass3::ArgsType(model,data,
                                                 joint1_id,
+                                                cmodel.joint1_placement,
                                                 cmodel.reference_frame,
                                                 r_coeff,
                                                 contact_dvc_dq,
@@ -340,7 +327,6 @@ namespace pinocchio
     
     data.contact_chol.getOperationalSpaceInertiaMatrix(data.osim);
     data.contact_chol.getInverseMassMatrix(data.Minv);
-    
     //Temporary: dlambda_dtau stores J*Minv
     typename Data::MatrixXs & JMinv = data.dlambda_dtau;
     typename Data::MatrixXs & Jc = data.dac_da;
@@ -364,8 +350,8 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       switch(cmodel.reference_frame)

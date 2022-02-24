@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2019 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_visitor_joint_unary_visitor_hpp__

@@ -88,12 +88,12 @@ namespace pinocchio
                                              const ModelTpl<S2,O2,JointCollectionTpl> & model)
   {
     if(object.parentFrame < (FrameIndex)model.nframes)
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parent == object.parentJoint,
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(model.frames[object.parentFrame].parentJoint == object.parentJoint,
                                      "The object joint parent and its frame joint parent do not match.");
     
     Eigen::DenseIndex idx = (Eigen::DenseIndex)(ngeoms ++);
     geometryObjects.push_back(object);
-    geometryObjects.back().parentJoint = model.frames[object.parentFrame].parent;
+    geometryObjects.back().parentJoint = model.frames[object.parentFrame].parentJoint;
     
     collisionPairMapping.conservativeResize(idx+1,idx+1);
     collisionPairMapping.col(idx).fill(-1);

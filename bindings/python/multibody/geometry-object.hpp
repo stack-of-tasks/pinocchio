@@ -9,6 +9,7 @@
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
 #include "pinocchio/bindings/python/utils/registration.hpp"
+#include "pinocchio/bindings/python/utils/deprecation.hpp"
 
 
 #include "pinocchio/multibody/geometry.hpp"
@@ -30,19 +31,32 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
+        .def(bp::init<std::string,JointIndex,FrameIndex,SE3,CollisionGeometryPtr,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+             bp::args("self","name","parent_joint","parent_frame","placement","collision_geometry",
+                       "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+             "Full constructor of a GeometryObject."))
+        .def(bp::init<std::string,JointIndex,SE3,CollisionGeometryPtr,
+                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+             (
+              bp::args("self","name","parent_joint","placement","collision_geometry",
+                        "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
+              "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
+              ))
         .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
              (
              bp::args("self","name","parent_frame","parent_joint","collision_geometry",
                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
-             "Full constructor of a GeometryObject."))
+             "Deprecated. Full constructor of a GeometryObject.")[deprecated_function<>()] )
         .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
                       bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
              (
               bp::args("self","name","parent_joint","collision_geometry",
                        "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
-              "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
-              ))
+              "Deprecated. Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
+              )[deprecated_function<>()] )
         .def(bp::init<const GeometryObject&>
              (
               bp::args("self","otherGeometryObject"),
@@ -90,9 +104,9 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL
       static GeometryObject maker_capsule(const double radius, const double length)
       {
-        return GeometryObject("",FrameIndex(0),JointIndex(0),
-                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)),
-                              SE3::Identity());
+        return GeometryObject("",JointIndex(0),FrameIndex(0),
+                              SE3::Identity(),
+                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
 
       }
 #endif // PINOCCHIO_WITH_HPP_FCL

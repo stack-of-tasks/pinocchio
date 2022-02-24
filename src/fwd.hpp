@@ -105,4 +105,6 @@ namespace pinocchio
   struct ReturnTypeNotDefined;
 }
 
+#include "pinocchio/context.hpp"
+
 #endif // #ifndef __pinocchio_fwd_hpp__

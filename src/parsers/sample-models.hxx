@@ -132,9 +132,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"shoulder1_body");
         GeometryObject shoulderBall(pre+"shoulder_object",
-                                    parentFrame, model.frames[parentFrame].parent,
-                                    boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                    model.frames[parentFrame].parentJoint, parentFrame,
                                     SE3::Identity(),
+                                    boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                     "SPHERE",
                                     Eigen::Vector3d::Ones(),
                                     false,
@@ -143,9 +143,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"elbow_body");
         GeometryObject elbowBall(pre+"elbow_object",
-                                 parentFrame, model.frames[parentFrame].parent,
-                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                 model.frames[parentFrame].parentJoint, parentFrame,
                                  SE3::Identity(),
+                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                  "SPHERE",
                                  Eigen::Vector3d::Ones(),
                                  false,
@@ -154,9 +154,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"wrist1_body");
         GeometryObject wristBall(pre+"wrist_object",
-                                 parentFrame, model.frames[parentFrame].parent,
-                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                                 model.frames[parentFrame].parentJoint, parentFrame,
                                  SE3::Identity(),
+                                 boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                  "SPHERE",
                                  Eigen::Vector3d::Ones(),
                                  false,
@@ -165,9 +165,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"upperarm_body");
         GeometryObject upperArm(pre+"upperarm_object",
-                                parentFrame, model.frames[parentFrame].parent,
-                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                                model.frames[parentFrame].parentJoint, parentFrame,
                                 SE3(SE3::Matrix3::Identity(), typename  SE3::Vector3(0,0,0.5)),
+                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                                 "CAPSULE",
                                 Eigen::Vector3d::Ones(),
                                 false,
@@ -176,9 +176,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"lowerarm_body");
         GeometryObject lowerArm(pre+"lowerarm_object",
-                                parentFrame, model.frames[parentFrame].parent,
-                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                                model.frames[parentFrame].parentJoint, parentFrame,
                                 SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.5)),
+                                boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                                 "CAPSULE",
                                 Eigen::Vector3d::Ones(),
                                 false,
@@ -187,9 +187,9 @@ namespace pinocchio
         
         parentFrame = model.getBodyId(pre+"effector_body");
         GeometryObject effectorArm(pre+"effector_object",
-                                   parentFrame, model.frames[parentFrame].parent,
-                                   boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
+                                   model.frames[parentFrame].parentJoint, parentFrame,
                                    SE3(SE3::Matrix3::Identity(), typename SE3::Vector3(0,0,0.1)),
+                                   boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .2)),
                                    "CAPSULE",
                                    Eigen::Vector3d::Ones(),
                                    false,
@@ -403,9 +403,9 @@ namespace pinocchio
       
       parentFrame = model.getBodyId("chest1_body");
       GeometryObject chestBall("chest_object",
-                               parentFrame, model.frames[parentFrame].parent,
-                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
+                               model.frames[parentFrame].parentJoint, parentFrame,
                                SE3::Identity(),
+                               boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.05)),
                                "SPHERE",
                                Eigen::Vector3d::Ones(),
                                false,
@@ -414,10 +414,10 @@ namespace pinocchio
       
       parentFrame = model.getBodyId("head2_body");
       GeometryObject headBall("head_object",
-                              parentFrame, model.frames[parentFrame].parent,
-                              boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
+                              model.frames[parentFrame].parentJoint, parentFrame,
                               SE3(SE3::Matrix3::Identity(),
                                   typename SE3::Vector3(0,0,0.5)),
+                              boost::shared_ptr<fcl::Sphere>(new fcl::Sphere(0.25)),
                               "SPHERE",
                                Eigen::Vector3d::Ones(),
                                false,
@@ -426,10 +426,10 @@ namespace pinocchio
       
       parentFrame = model.getBodyId("chest2_body");
       GeometryObject chestArm("chest2_object",
-                              parentFrame, model.frames[parentFrame].parent,
-                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
+                              model.frames[parentFrame].parentJoint, parentFrame,
                               SE3(SE3::Matrix3::Identity(),
                                   typename SE3::Vector3(0,0,0.5)),
+                              boost::shared_ptr<fcl::Capsule>(new fcl::Capsule(0.05, .8)),
                               "SPHERE",
                               Eigen::Vector3d::Ones(),
                               false,

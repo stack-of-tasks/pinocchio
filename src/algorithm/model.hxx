@@ -23,7 +23,7 @@ namespace pinocchio
       typedef typename Model::Frame Frame;
 
       const Frame & pframe = model.frames[parentFrame];
-      JointIndex jid = pframe.parent;
+      JointIndex jid = pframe.parentJoint;
       assert(jid < model.joints.size());
 
       // If inertia is not NaN, add it.
@@ -34,21 +34,21 @@ namespace pinocchio
       for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
       {
         Frame frame = modelAB.frames[fid];
-        if (frame.parent == 0)
+        if (frame.parentJoint == 0)
         {
           PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existFrame(frame.name, frame.type),
                                          "The two models have conflicting frame names.");
 
-          frame.parent = jid;
-          if (frame.previousFrame != 0)
+          frame.parentJoint = jid;
+          if (frame.parentFrame != 0)
           {
-            frame.previousFrame = model.getFrameId (
-                modelAB.frames[frame.previousFrame].name,
-                modelAB.frames[frame.previousFrame].type);
+            frame.parentFrame = model.getFrameId (
+                modelAB.frames[frame.parentFrame].name,
+                modelAB.frames[frame.parentFrame].type);
           }
           else
           {
-            frame.previousFrame = parentFrame;
+            frame.parentFrame = parentFrame;
           }
           
           // Modify frame placement
@@ -136,17 +136,17 @@ namespace pinocchio
         for (FrameIndex fid = 1; fid < modelAB.frames.size(); ++fid)
         {
           Frame frame = modelAB.frames[fid];
-          if (frame.parent == jmodel_in.id())
+          if (frame.parentJoint == jmodel_in.id())
           {
             PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existFrame(frame.name, frame.type),
                                            "The two models have conflicting frame names.");
             
-            frame.parent = joint_id_out;
-            assert (frame.previousFrame > 0 || frame.type == JOINT);
-            if (frame.previousFrame != 0)
+            frame.parentJoint = joint_id_out;
+            assert (frame.parentFrame > 0 || frame.type == JOINT);
+            if (frame.parentFrame != 0)
             {
-              frame.previousFrame = model.getFrameId(modelAB.frames[frame.previousFrame].name,
-                                                     modelAB.frames[frame.previousFrame].type);
+              frame.parentFrame = model.getFrameId(modelAB.frames[frame.parentFrame].name,
+                                                     modelAB.frames[frame.parentFrame].type);
             }
             
             model.addFrame(frame);
@@ -223,7 +223,7 @@ namespace pinocchio
 
     // Copy modelA joints until frame.parentJoint
     details::appendUniverseToModel (modelA, geomModelA, 0, id, model, geomModel);
-    for (JointIndex jid = 1; jid <= frame.parent; ++jid)
+    for (JointIndex jid = 1; jid <= frame.parentJoint; ++jid)
     {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
       AppendJointOfModelAlgo::run (modelA.joints[jid], args);
@@ -235,12 +235,12 @@ namespace pinocchio
     for (JointIndex jid = 1; jid < modelB.joints.size(); ++jid)
     {
       SE3 pMi = (jid == 1 ? frame.placement * aMb : id);
-      ArgsType args (modelB, geomModelB, frame.parent, pMi, model, geomModel);
+      ArgsType args (modelB, geomModelB, frame.parentJoint, pMi, model, geomModel);
       AppendJointOfModelAlgo::run (modelB.joints[jid], args);
     }
 
     // Copy remaining joints of modelA
-    for (JointIndex jid = frame.parent+1; jid < modelA.joints.size(); ++jid)
+    for (JointIndex jid = frame.parentJoint+1; jid < modelA.joints.size(); ++jid)
     {
       ArgsType args (modelA, geomModelA, 0, id, model, geomModel);
       AppendJointOfModelAlgo::run (modelA.joints[jid], args);
@@ -317,6 +317,7 @@ namespace pinocchio
     reduced_model.joints                .reserve((size_t)njoints);
     reduced_model.jointPlacements       .reserve((size_t)njoints);
     reduced_model.parents               .reserve((size_t)njoints);
+    reduced_model.inertias              .reserve((size_t)njoints);
     
     reduced_model.names[0] = input_model.names[0];
     reduced_model.joints[0] = input_model.joints[0];
@@ -344,7 +345,7 @@ namespace pinocchio
       const JointIndex reduced_parent_joint_index
       = exist_parent_joint
       ? reduced_model.getJointId(parent_joint_name)
-      : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].parent;
+      : reduced_model.frames[reduced_model.getFrameId(parent_joint_name)].parentJoint;
       
       const SE3 parent_frame_placement
       = exist_parent_joint
@@ -372,7 +373,7 @@ namespace pinocchio
                             input_model.inertias[joint_id]);
         
         FrameIndex frame_id = reduced_model.addFrame(frame);
-        reduced_model.frames[frame_id].previousFrame = frame_id; // a bit weird, but this is a solution for missing parent frame
+        reduced_model.frames[frame_id].parentFrame = frame_id; // a bit weird, but this is a solution for missing parent frame
         
         current_index_to_lock++;
       }
@@ -431,11 +432,11 @@ namespace pinocchio
     for(++frame_it;frame_it != input_model.frames.end(); ++frame_it)
     {
       const Frame & input_frame = *frame_it;
-      const std::string & support_joint_name = input_model.names[input_frame.parent];
+      const std::string & support_joint_name = input_model.names[input_frame.parentJoint];
       
       std::vector<JointIndex>::const_iterator support_joint_it = std::find(list_of_joints_to_lock.begin(),
                                                                            list_of_joints_to_lock.end(),
-                                                                           input_frame.parent);
+                                                                           input_frame.parentJoint);
       
       if(support_joint_it != list_of_joints_to_lock.end())
       {
@@ -449,15 +450,15 @@ namespace pinocchio
         const Frame & joint_frame = reduced_model.frames[joint_frame_id];
         Frame reduced_frame = input_frame;
         reduced_frame.placement = joint_frame.placement * input_frame.placement;
-        reduced_frame.parent = joint_frame.parent;
-        reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+        reduced_frame.parentJoint = joint_frame.parentJoint;
+        reduced_frame.parentFrame = reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
         reduced_model.addFrame(reduced_frame, false);
       }
       else
       {
         Frame reduced_frame = input_frame;
-        reduced_frame.parent = reduced_model.getJointId(input_model.names[input_frame.parent]);
-        reduced_frame.previousFrame = reduced_model.getFrameId(input_model.frames[input_frame.previousFrame].name);
+        reduced_frame.parentJoint = reduced_model.getJointId(input_model.names[input_frame.parentJoint]);
+        reduced_frame.parentFrame = reduced_model.getFrameId(input_model.frames[input_frame.parentFrame].name);
         reduced_model.addFrame(reduced_frame, false);
       }
     }
@@ -525,7 +526,7 @@ namespace pinocchio
         else // The joint is now a frame
         {
           const FrameIndex reduced_frame_id = reduced_model.getFrameId(parent_joint_name);
-          reduced_joint_id = reduced_model.frames[reduced_frame_id].parent;
+          reduced_joint_id = reduced_model.frames[reduced_frame_id].parentJoint;
           relative_placement = reduced_model.frames[reduced_frame_id].placement;
         }
 

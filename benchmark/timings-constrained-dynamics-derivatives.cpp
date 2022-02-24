@@ -3,9 +3,10 @@
 //
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
 #include "pinocchio/algorithm/cholesky.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
@@ -59,34 +60,34 @@ int main(int argc, const char ** argv)
   const std::string LF = "LLEG_LINK6";
   const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
   
-  RigidContactModel ci_RF_6D(CONTACT_6D,RF_id,LOCAL);
-  RigidContactData cd_RF_6D(ci_RF_6D);
-  //RigidContactModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF_6D(CONTACT_6D,model,RF_id,LOCAL);
+  RigidConstraintData cd_RF_6D(ci_RF_6D);
+  //RigidConstraintModel ci_RF_3D(CONTACT_3D,model.getJointId(RF),WORLD);
   
-  RigidContactModel ci_LF_6D(CONTACT_6D,LF_id,LOCAL);
-  RigidContactData cd_LF_6D(ci_LF_6D);
-  // RigidContactModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF_6D(CONTACT_6D,model,LF_id,LOCAL);
+  RigidConstraintData cd_LF_6D(ci_LF_6D);
+  // RigidConstraintModel ci_LF_3D(CONTACT_3D,model.getJointId(LF),WORLD);
   
-  //RigidContactModel ci_RA_3D(CONTACT_3D,model.getJointId(RA),WORLD);
-  //RigidContactModel ci_LA_3D(CONTACT_3D,model.getJointId(LA),WORLD);
+  //RigidConstraintModel ci_RA_3D(CONTACT_3D,model.getJointId(RA),WORLD);
+  //RigidConstraintModel ci_LA_3D(CONTACT_3D,model.getJointId(LA),WORLD);
   
   // Define contact infos structure
-  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_empty;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_empty;
+  const PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_empty;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_empty;
 
   cholesky::ContactCholeskyDecomposition contact_chol_empty(model,contact_models_empty);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D;
   contact_models_6D.push_back(ci_RF_6D);
   contact_data_6D.push_back(cd_RF_6D);
   
   cholesky::ContactCholeskyDecomposition contact_chol_6D(model,contact_models_6D);
   
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) contact_models_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_6D6D;
   contact_models_6D6D.push_back(ci_RF_6D);
   contact_models_6D6D.push_back(ci_LF_6D);
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactData) contact_data_6D6D;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_data_6D6D;
   contact_data_6D6D.push_back(cd_RF_6D);
   contact_data_6D6D.push_back(cd_LF_6D);
 
@@ -121,38 +122,38 @@ int main(int argc, const char ** argv)
 
   
   double total_time = 0;  
-  initContactDynamics(model,data,contact_models_empty);
+  initConstraintDynamics(model,data,contact_models_empty);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_empty,contact_data_empty);
     timer.tic();
-    computeContactDynamicsDerivatives(model, data,
+    computeConstraintDynamicsDerivatives(model, data,
                                       contact_models_empty, contact_data_empty);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "constraintDynamicsDerivs {} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;  
-  initContactDynamics(model,data,contact_models_6D);
+  initConstraintDynamics(model,data,contact_models_6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D,contact_data_6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data,contact_models_6D,contact_data_6D);
+    computeConstraintDynamicsDerivatives(model,data,contact_models_6D,contact_data_6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
+  std::cout << "constraintDynamicsDerivs {6D} = \t\t" << (total_time/NBT)<<std::endl;
 
   total_time = 0;
-  initContactDynamics(model,data,contact_models_6D6D);
+  initConstraintDynamics(model,data,contact_models_6D6D);
   SMOOTH(NBT)
   {
-    contactDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
+    constraintDynamics(model,data,qs[_smooth],qdots[_smooth],taus[_smooth],contact_models_6D6D,contact_data_6D6D);
     timer.tic();
-    computeContactDynamicsDerivatives(model,data, contact_models_6D6D, contact_data_6D6D);
+    computeConstraintDynamicsDerivatives(model,data, contact_models_6D6D, contact_data_6D6D);
     total_time += timer.toc(timer.DEFAULT_UNIT);
   }
-  std::cout << "contactDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
+  std::cout << "constraintDynamicsDerivs {6D,6D} = \t" << (total_time/NBT)<<std::endl;  
   return 0;
 }
 

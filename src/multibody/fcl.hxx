@@ -15,6 +15,13 @@ namespace pinocchio
   : Base((std::numeric_limits<GeomIndex>::max)(),(std::numeric_limits<GeomIndex>::max)())
   {}
 
+  ///
+  /// \brief Default constructor of a collision pair from two collision object indexes.
+  /// \remarks The two indexes must be different, otherwise the constructor throws.
+  ///
+  /// \param[in] co1 Index of the first collision object.
+  /// \param[in] co2 Index of the second collision object.
+  ///
   inline CollisionPair::CollisionPair(const GeomIndex co1, const GeomIndex co2) 
   : Base(co1,co2)
   {

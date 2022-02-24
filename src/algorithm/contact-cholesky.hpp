@@ -62,8 +62,8 @@ namespace pinocchio
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> Vector;
       typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> Matrix;
       typedef typename PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Matrix) RowMatrix;
-      typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-      typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+      typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+      typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
       typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(IndexVector) VectorOfIndexVector;
       typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
@@ -98,19 +98,19 @@ namespace pinocchio
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl>
       ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model)
       {
-        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidContactModel) empty_contact_models;
+        PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) empty_contact_models;
         allocate(model,empty_contact_models);
       }
       
       ///
-      /// \brief Constructor from a model and a collection of RigidContactModel objects.
+      /// \brief Constructor from a model and a collection of RigidConstraintModel objects.
       ///
       /// \param[in] model Model of the kinematic tree
-      /// \param[in] contact_models Vector of RigidContactModel objects containing the contact information
+      /// \param[in] contact_models Vector of RigidConstraintModel objects containing the contact information
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       ContactCholeskyDecompositionTpl(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                                      const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_models)
+                                      const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models)
       {
         allocate(model,contact_models);
       }
@@ -119,11 +119,11 @@ namespace pinocchio
       /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U.
       ///
       /// \param[in] model Model of the kinematic tree
-      /// \param[in] contact_models Vector of RigidContactModel objects containing the contact information
+      /// \param[in] contact_models Vector of RigidConstraintModel objects containing the contact information
       ///
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
-                    const std::vector<RigidContactModelTpl<S1,O1>,Allocator> & contact_models);
+                    const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models);
       
       ///
       /// \brief Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.
@@ -195,7 +195,7 @@ namespace pinocchio
       ///
       /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
       ///        related to the system mass matrix and the Jacobians of the contact patches contained in
-      ///        the vector of RigidContactModel named contact_models.
+      ///        the vector of RigidConstraintModel named contact_models.
       ///
       /// \param[in] model Model of the dynamical system
       /// \param[in] data Data related to model containing the computed mass matrix and the Jacobian of the kinematic tree
@@ -205,11 +205,11 @@ namespace pinocchio
       ///
       /// \remarks The mass matrix and the Jacobians of the dynamical system should have been computed first. This can be achieved by simply calling pinocchio::crba.
       ///
-      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator>
       void compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                    DataTpl<S1,O1,JointCollectionTpl> & data,
-                   const std::vector<RigidContactModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
-                   std::vector<RigidContactDataTpl<S1,O1>,ContactDataAllocator> & contact_datas,
+                   const std::vector<RigidConstraintModelTpl<S1,O1>,ConstraintModelAllocator> & contact_models,
+                   std::vector<RigidConstraintDataTpl<S1,O1>,ConstraintDataAllocator> & contact_datas,
                    const S1 mu = S1(0.));
       
       /// \brief Size of the decomposition

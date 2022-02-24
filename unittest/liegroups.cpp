@@ -93,7 +93,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
   
   q_interpolate = LieGroupType().interpolate(q1,q2,1.);
-  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2,1e1*prec), std::string("Error when interpolating " + jmodel.shortname()));
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {
@@ -242,6 +242,8 @@ struct LieGroup_Jdifference{
   template <typename Scalar, int Options>
   void specificTests(const SpecialEuclideanOperationTpl<3,Scalar,Options>) const
   {
+
+    const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
     typedef SE3Tpl<Scalar> SE3;
     typedef SpecialEuclideanOperationTpl<3,Scalar,Options> LG_t;
     typedef typename LG_t::ConfigVector_t ConfigVector_t;
@@ -275,8 +277,7 @@ struct LieGroup_Jdifference{
                           
     SE3 M_u = SE3::Interpolate(M0,M1,u);
     SE3 M_interp(quat_interp,q_interp.template head<3>());
-                          
-    BOOST_CHECK(M_u.isApprox(M_interp));
+    BOOST_CHECK(M_u.isApprox(M_interp, prec));
   }
 
   template <typename Scalar, int Options>

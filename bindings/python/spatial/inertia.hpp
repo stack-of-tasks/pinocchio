@@ -46,7 +46,8 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
-        
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED        
         cl
         .def("__init__",
              bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
@@ -88,10 +89,7 @@ namespace pinocchio
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self -= bp::self)
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def(bp::self * bp::other<Motion>())
         
         .add_property("np",(Matrix6 (Inertia::*)() const)&Inertia::matrix)
@@ -170,6 +168,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def_pickle(Pickle())
 #endif
         ;
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP 
       }
       
       static Scalar getMass( const Inertia & self ) { return self.mass(); }

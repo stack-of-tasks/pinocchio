@@ -49,6 +49,18 @@ namespace pinocchio
     {
       *this = other.template cast<Scalar>();
     }
+
+    ///
+    /// \brief Copy assignment operator.
+    ///
+    /// \param[in] other Symmetric3 to copy
+    ///
+    Symmetric3Tpl& operator=(const Symmetric3Tpl & clone)  // Copy assignment operator
+    {
+      m_data = clone.m_data;
+      return *this;
+    }
+
     
     Symmetric3Tpl(const Scalar & a0, const Scalar & a1, const Scalar & a2,
 		  const Scalar & a3, const Scalar & a4, const Scalar & a5)
@@ -388,6 +400,11 @@ namespace pinocchio
       m_data -= s2.m_data; return *this;
     }
 
+    Symmetric3Tpl & operator*=(const Scalar s)
+    {
+      m_data *= s; return *this;
+    }
+
     template<typename V3in, typename V3out>
     static void rhsMult(const Symmetric3Tpl & S3,
                         const Eigen::MatrixBase<V3in> & vin,
@@ -505,7 +522,15 @@ namespace pinocchio
     {
       return Symmetric3Tpl<NewScalar,Options>(m_data.template cast<NewScalar>());
     }
-    
+
+    friend std::ostream & operator << (std::ostream& os,
+                                       const Symmetric3Tpl<Scalar,Options> & S3)
+    {
+      os
+      << "m_data: " << S3.m_data.transpose() << "\n";
+      return os;
+    }
+
     // TODO: adjust code
 //    bool isValid() const
 //    {
@@ -518,7 +543,7 @@ namespace pinocchio
   protected:
     Vector6 m_data;
     
-  };
+  };  // class Symmetric3Tpl
 
 } // namespace pinocchio
 

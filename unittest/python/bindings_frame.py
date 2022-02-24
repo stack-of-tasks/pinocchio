@@ -32,10 +32,10 @@ class TestFrameBindings(PinocchioTestCase):
 
     def test_parent_get_set(self):
         f = self.model.frames[self.frame_idx]
-        self.assertTrue(f.parent == self.parent_idx)
+        self.assertTrue(f.parentJoint == self.parent_idx)
         newparent = self.parent_idx-1
-        f.parent = newparent
-        self.assertTrue(f.parent == newparent)
+        f.parentJoint = newparent
+        self.assertTrue(f.parentJoint == newparent)
 
     def test_placement_get_set(self):
         f = self.model.frames[self.frame_idx]

@@ -12,7 +12,7 @@
 
 namespace pinocchio
 {
-  template<int Dim, typename Scalar, int Options = 0> struct VectorSpaceOperationTpl;
+  template<int Dim, typename Scalar, int Options = context::Options> struct VectorSpaceOperationTpl;
   
   template<int Dim, typename _Scalar, int _Options>
   struct traits< VectorSpaceOperationTpl<Dim,_Scalar,_Options> >
@@ -46,6 +46,12 @@ namespace pinocchio
     : Base(), size_(other.size_.value())
     {
       assert(size_.value() >= 0);
+    }
+
+    VectorSpaceOperationTpl& operator=(const VectorSpaceOperationTpl& other)
+    {
+      size_.setValue(other.size_.value());
+      return *this;
     }
 
     Index nq () const
@@ -230,7 +236,7 @@ namespace pinocchio
 
 
     // template <class ConfigL_t, class ConfigR_t>
-    // static double squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
+    // static context::Scalar squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                                        // const Eigen::MatrixBase<ConfigR_t> & q1)
 
     template <class Config_t>

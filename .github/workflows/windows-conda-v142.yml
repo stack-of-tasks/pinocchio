@@ -24,8 +24,8 @@ jobs:
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
-        activate-environment: pinocchio
-        environment-file: .github/workflows/conda/conda-env.yml
+        activate-environment: pinocchio-windows
+        environment-file: .github/workflows/conda/windows-env.yml
         python-version: 3.7
     - name: Install cmake and update conda
       run: |
@@ -44,6 +44,7 @@ jobs:
         set Boost_ROOT=
         set BOOST_ROOT_1_69_0=
         set BOOST_ROOT_1_72_0=
+        set PATH=%PATH:C:\hostedtoolcache\windows\Boost\1.72.0;=%
 
         call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
@@ -56,6 +57,7 @@ jobs:
           -G "Visual Studio 16 2019" -T "v142" -DCMAKE_GENERATOR_PLATFORM=x64 ^
           -DCMAKE_INSTALL_PREFIX=%CONDA_PREFIX%\Library ^
           -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ^
           -DPYTHON_SITELIB=%CONDA_PREFIX%\Lib\site-packages ^
           -DPYTHON_EXECUTABLE=%CONDA_PREFIX%\python.exe ^
           -DBUILD_WITH_URDF_SUPPORT=ON ^

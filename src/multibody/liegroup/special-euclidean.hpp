@@ -9,6 +9,7 @@
 
 #include "pinocchio/macros.hpp"
 #include "pinocchio/math/quaternion.hpp"
+#include "pinocchio/math/matrix.hpp"
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/utils/static-if.hpp"
 #include "pinocchio/spatial/se3.hpp"
@@ -427,7 +428,7 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout)
     {
-      normalize(qout.const_cast_derived().template tail<2>());
+      pinocchio::normalize(qout.const_cast_derived().template tail<2>());
     }
 
     template <class Config_t>
@@ -798,7 +799,7 @@ namespace pinocchio
     template <class Config_t>
     static void normalize_impl(const Eigen::MatrixBase<Config_t> & qout)
     {
-      normalize(qout.const_cast_derived().template tail<4>());
+      pinocchio::normalize(qout.const_cast_derived().template tail<4>());
     }
 
     template <class Config_t>

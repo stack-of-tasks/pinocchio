@@ -2,8 +2,8 @@
 // Copyright (c) 2020-2021 CNRS INRIA
 //
 
-#ifndef __pinocchio_algorithm_contact_dynamics_derivatives_hxx__
-#define __pinocchio_algorithm_contact_dynamics_derivatives_hxx__
+#ifndef __pinocchio_algorithm_constraint_dynamics_derivatives_hxx__
+#define __pinocchio_algorithm_constraint_dynamics_derivatives_hxx__
 
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
@@ -18,8 +18,8 @@ namespace pinocchio
 {
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, bool ContactMode>
-  struct ComputeContactDynamicsDerivativesForwardStep
-  : public fusion::JointUnaryVisitorBase< ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
+  struct ComputeConstraintDynamicsDerivativesForwardStep
+  : public fusion::JointUnaryVisitorBase< ComputeConstraintDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ContactMode> >
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
@@ -195,13 +195,120 @@ namespace pinocchio
         data.of[parent] += data.of[i];
     }
   };
+
+  namespace internal {
   
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
+    template<typename Scalar>
+    struct ContactForceContribution
+    {
+
+      template<int Options, template<typename,int> class JointCollectionTpl,
+               class ConstraintModelAllocator, class ConstraintDataAllocator>
+      static void run(const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator>& contact_data)
+      {
+        typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+        typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+        typedef SE3Tpl<Scalar,Options> SE3;
+        typedef ForceTpl<Scalar,Options> Force;
+
+        
+        Force of_tmp;
+        
+        // Add the contribution of the external forces.
+        for(size_t k = 0; k < contact_models.size(); ++k)
+        {          
+          const RigidConstraintModel & cmodel = contact_models[k];
+          const RigidConstraintData & cdata = contact_data[k];
+
+          // TODO: Temporary variable
+          const SE3 & oMc1 = cdata.oMc1;
+          Force & of1 = data.of[cmodel.joint1_id];
+          const SE3 & oMc2 = cdata.oMc2;
+          Force & of2 = data.of[cmodel.joint2_id];
+
+          switch(cmodel.reference_frame) 
+          {
+          case LOCAL: {
+            switch(cmodel.type) {
+            case CONTACT_6D: {
+              if(cmodel.joint1_id > 0) {
+                of1 -= oMc1.act(cdata.contact_force);
+              }
+              if(cmodel.joint2_id > 0) {
+                of_tmp = oMc1.act(cdata.contact_force);
+                of2 += of_tmp;
+              }
+              break;
+            }
+            case CONTACT_3D: {
+              of_tmp.linear().noalias() = oMc1.rotation()*cdata.contact_force.linear();
+
+              if(cmodel.joint1_id > 0) {
+                of1.linear().noalias() -= of_tmp.linear();
+                of1.angular().noalias() -= oMc1.translation().cross(of_tmp.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2.linear() += of_tmp.linear();
+                of2.angular().noalias() += oMc2.translation().cross(of_tmp.linear());
+              }
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
+            }
+            break;
+          }
+          case LOCAL_WORLD_ALIGNED:
+          {
+            switch(cmodel.type) {
+            case CONTACT_6D: {
+              if(cmodel.joint1_id > 0) {
+                of1 -= cdata.contact_force;
+                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2 += cdata.contact_force;
+                of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              break;
+            }
+            case CONTACT_3D: {
+              if(cmodel.joint1_id > 0) {
+                of1.linear() -= cdata.contact_force.linear();
+                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
+              }
+              if(cmodel.joint2_id > 0) {
+                of2.linear() += cdata.contact_force.linear();
+                of2.angular().noalias() += oMc2.translation().cross(cdata.contact_force.linear());
+              }
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
+            }
+            break;
+          }
+          default:
+            assert(false && "Should never happen");
+            break;
+          }
+        }
+      }
+    };
+  } //namespace internal
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
            typename MatrixType5, typename MatrixType6>
-  inline void computeContactDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  inline void computeConstraintDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                                                std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_data,
+                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_data,
                                                 const ProximalSettingsTpl<Scalar> & settings,
                                                 const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
                                                 const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
@@ -240,6 +347,8 @@ namespace pinocchio
                                   "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");
+
+    // TODO: User should make sure the internal quantities are reset.
     data.dtau_dq.setZero();
     data.dtau_dv.setZero();
     data.dac_dq.setZero();
@@ -248,14 +357,13 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     
-    typedef RigidContactModelTpl<Scalar,Options> RigidContactModel;
-    typedef RigidContactDataTpl<Scalar,Options> RigidContactData;
+    typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
+    typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
     
     typedef typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointIndex JointIndex;
     typedef typename Data::SE3 SE3;
     typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
-    typedef typename Data::Vector3 Vector3;
     data.oa_gf[0] = -model.gravity;
 
     //TODO: Temp variable
@@ -263,97 +371,15 @@ namespace pinocchio
     Motion a_tmp;
     SE3 M_tmp;
     
-    typedef ComputeContactDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
+    typedef ComputeConstraintDynamicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,true> Pass1;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
                  typename Pass1::ArgsType(model,data));
     }
 
-    // Add the contribution of the external forces.
-    for(size_t k = 0; k < contact_models.size(); ++k)
-    {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
-
-      // TODO: Temporary variable
-      const SE3 & oMc1 = cdata.oMc1;
-      Force & of1 = data.of[cmodel.joint1_id];
-      const SE3 & oMc2 = cdata.oMc2;
-      Force & of2 = data.of[cmodel.joint2_id];
-
-      switch(cmodel.reference_frame) 
-      {
-        case LOCAL: {
-          switch(cmodel.type) {
-            case CONTACT_6D: {
-              if(cmodel.joint1_id > 0) {
-                of1 -= oMc1.act(cdata.contact_force);
-              }
-              if(cmodel.joint2_id > 0) {
-                of_tmp = oMc1.act(cdata.contact_force);
-                of2 += of_tmp;
-              }
-              break;
-            }
-            case CONTACT_3D: {
-              of_tmp.linear().noalias() = oMc1.rotation()*cdata.contact_force.linear();
-              
-              if(cmodel.joint1_id > 0) {
-                of1.linear().noalias() -= of_tmp.linear();
-                of1.angular().noalias() -= oMc1.translation().cross(of_tmp.linear());
-              }
-              if(cmodel.joint2_id > 0) {
-                of2.linear() += of_tmp.linear();
-                of2.angular().noalias() += oMc2.translation().cross(of_tmp.linear());
-                break;
-              }
-            }
-            default: {
-              assert(false && "must never happen");
-              break;
-            }
-          }
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED:
-        {
-          switch(cmodel.type) {
-            case CONTACT_6D: {
-              if(cmodel.joint1_id > 0) {
-                of1 -= cdata.contact_force;
-                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
-              }
-              if(cmodel.joint2_id > 0) {
-                of2 += cdata.contact_force;
-                of2.angular().noalias() += oMc1.translation().cross(cdata.contact_force.linear());
-              }
-              break;
-            }
-            case CONTACT_3D: {
-              if(cmodel.joint1_id > 0) {
-                of1.linear() -= cdata.contact_force.linear();
-                of1.angular().noalias() -= oMc1.translation().cross(cdata.contact_force.linear());
-              }
-              if(cmodel.joint2_id > 0) {
-                of2.linear() += cdata.contact_force.linear();
-                of2.angular().noalias() += oMc2.translation().cross(cdata.contact_force.linear());
-              }
-              break;
-            }
-            default: {
-              assert(false && "must never happen");
-              break;
-            }
-          }
-          break;
-        }
-        default:
-          assert(false && "Should never happen");
-          break;
-      }
-    }
-
+    internal::ContactForceContribution<Scalar>::run(contact_models, data, contact_data);
+    
     //Backward Pass
     typedef ComputeContactDynamicDerivativesBackwardStep<Scalar,Options,JointCollectionTpl,true> Pass2;
     for(JointIndex i=(JointIndex)(model.njoints-1); i>0; --i)
@@ -368,8 +394,8 @@ namespace pinocchio
     const Eigen::DenseIndex constraint_dim = data.contact_chol.constraintDim();
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
       typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
       typedef typename ContactCholeskyDecomposition::BooleanVector BooleanVector;
@@ -492,147 +518,144 @@ namespace pinocchio
 	  //TODO: THIS IS FOR THE LOCAL FRAME ONLY	  
 	  const Motion& o_acc_c2 = data.oa[cmodel.joint2_id];
 	  typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-	  const RowsBlock contact_dvc_dq = SizeDepType<6>::middleRows(data.dvc_dq,current_row_sol_id);
 	  RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
-	  RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
-	  const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
 	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
 
 	  switch(cmodel.reference_frame) {
-      case LOCAL: {
-        of_tmp = cdata.oMc1.act(cdata.contact_force);
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED: {
-        of_tmp = cdata.contact_force;
-        of_tmp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
-        break;
-      }
-      default: {
-        assert(false && "must never happen");
-        break;
-      }
+          case LOCAL: {
+            of_tmp = cdata.oMc1.act(cdata.contact_force);
+            break;
+          }
+          case LOCAL_WORLD_ALIGNED: {
+            of_tmp = cdata.contact_force;
+            of_tmp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
+            break;
+          }
+          default: {
+            assert(false && "must never happen");
+            break;
+          }
 	  }
-
+          
 	  // d./dq
 	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
-	  {
-	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+          {
+            const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
 	    motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_tmp.toVector());
-
+            
 	    switch(cmodel.reference_frame) {
-        case LOCAL: {
-          if(joint2_indexes[col_id]) {
-            contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_tmp).toVector();
-          }
-          else {
-            contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_tmp).toVector();
-          }
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED: {
-          // Do nothing
-          break;
-        }
-        default: {
-          assert(false && "must never happen");
-          break;
-        }
-      }
+            case LOCAL: {
+              if(joint2_indexes[col_id]) {
+                contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_tmp).toVector();
+              }
+              else {
+                contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_tmp).toVector();
+              }
+              break;
+            }
+            case LOCAL_WORLD_ALIGNED: {
+              // Do nothing
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
+            }
 
 	    motionSet::act(data.J.col(col_id), of_tmp, of_tmp2.toVector());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
-	    {
-	      if(joint2_indexes[col_id]) {
-          data.dtau_dq(j,col_id) -= data.J.col(j).dot(of_tmp2.toVector());
+            {
+              if(joint2_indexes[col_id]) {
+                data.dtau_dq(j,col_id) -= data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	      else {
-          data.dtau_dq(j,col_id) += data.J.col(j).dot(of_tmp2.toVector());
+                data.dtau_dq(j,col_id) += data.J.col(j).dot(of_tmp2.toVector());
 	      }
 	    }  
 	  }
 	  break;
 	}
 	case CONTACT_3D:
-	{
+        {
 
 	  typedef typename SizeDepType<3>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
 	  RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
 	  const typename Model::JointIndex joint2_id = cmodel.joint2_id;
 	  const Eigen::DenseIndex colRef2 =
 	    nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
-
+          
 	  switch(cmodel.reference_frame) {
-      case LOCAL: {
-        of_tmp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
-        const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data,
-                                                                cmodel.joint2_id,
-                                                                cmodel.joint2_placement,
-                                                                cmodel.reference_frame);
-        a_tmp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
-        break;
-      }
-      case LOCAL_WORLD_ALIGNED: {
-        of_tmp.linear() = cdata.contact_force.linear();
-        break;
-      }
-      default: {
-        assert(false && "must never happen");
-        break;
-      }
+          case LOCAL: {
+            of_tmp.linear().noalias() = cdata.oMc1.rotation()*cdata.contact_force.linear();
+            const Motion& c2_acc_c2 = getFrameClassicalAcceleration(model, data,
+                                                                    cmodel.joint2_id,
+                                                                    cmodel.joint2_placement,
+                                                                    cmodel.reference_frame);
+            a_tmp.angular().noalias() = cdata.oMc2.rotation() * c2_acc_c2.linear();
+            break;
+          }
+          case LOCAL_WORLD_ALIGNED: {
+            of_tmp.linear() = cdata.contact_force.linear();
+            break;
+          }
+          default: {
+            assert(false && "must never happen");
+            break;
+          }
 	  }
-
+          
 	  // d./dq
 	  for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
-	  {
-	    const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+          {
+            const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
 	    const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
-
+            
 	    switch(cmodel.reference_frame) {
-        case LOCAL: {
-          a_tmp.linear().noalias() = a_tmp.angular().cross(J_col.angular());
-          if(joint2_indexes[col_id]) {
-            contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_tmp.linear();
-          }
-          else {
-            contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_tmp.linear();
-          }
-          break;
-        }
-        case LOCAL_WORLD_ALIGNED: {
-          // Do nothing
-          break;
-        }
-        default: {
-          assert(false && "must never happen");
-          break;
-        }
+            case LOCAL: {
+              a_tmp.linear().noalias() = a_tmp.angular().cross(J_col.angular());
+              if(joint2_indexes[col_id]) {
+                contact_dac_dq.col(col_id).noalias() += cdata.oMc1.rotation().transpose() * a_tmp.linear();
+              }
+              else {
+                contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.rotation().transpose() * a_tmp.linear();
+              }
+              break;
+            }
+            case LOCAL_WORLD_ALIGNED: {
+              // Do nothing
+              break;
+            }
+            default: {
+              assert(false && "must never happen");
+              break;
+            }
 	    }
-
+            
 	    of_tmp2.linear().noalias() = of_tmp.linear().cross(J_col.angular());
 	    for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
-	    {
+            {
 	      const MotionRef<typename Data::Matrix6x::ColXpr> J2_col(data.J.col(j));      
 	      //Temporary assignment
 	      of_tmp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());
 	      if(joint2_indexes[col_id]) {
-          data.dtau_dq(j,col_id) += of_tmp2.angular().dot(of_tmp2.linear());
+                data.dtau_dq(j,col_id) += of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	      else {
-          data.dtau_dq(j,col_id) -= of_tmp2.angular().dot(of_tmp2.linear());
+                data.dtau_dq(j,col_id) -= of_tmp2.angular().dot(of_tmp2.linear());
 	      }
 	    }
 	  }
 	  break;
 	}
 	default:
-	{
-	  assert(false && "must never happen");
-	  break;
-	}
+          {
+            assert(false && "must never happen");
+            break;
+          }
 	}
       }
 
@@ -712,8 +735,7 @@ namespace pinocchio
     MatrixType3 & ddq_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType3,ddq_partial_dtau);
     MatrixType6 & lambda_partial_dtau_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType6,lambda_partial_dtau);
     typename Data::MatrixXs & dlambda_dx_prox = data.dlambda_dx_prox;
-    typename Data::MatrixXs & drhs_prox = data.drhs_prox;
-    
+    typename Data::MatrixXs & drhs_prox = data.drhs_prox;    
     {
       lambda_partial_dtau_.noalias() = -data.osim * JMinv; //OUTPUT
       for(int it = 1; it < settings.iter; ++it)
@@ -778,13 +800,7 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-
-      const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-      const typename Model::JointIndex joint2_id = cmodel.joint2_id;
-      const Eigen::DenseIndex colRef
-      = nv(model.joints[joint1_id])
-      + idx_v(model.joints[joint1_id])-1;
+      const RigidConstraintModel & cmodel = contact_models[k];
 
       switch(cmodel.type)
       {
@@ -871,8 +887,8 @@ namespace pinocchio
     current_row_sol_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidContactModel & cmodel = contact_models[k];
-      const RigidContactData & cdata = contact_data[k];
+      const RigidConstraintModel & cmodel = contact_models[k];
+      const RigidConstraintData & cdata = contact_data[k];
       const typename Model::JointIndex joint1_id = cmodel.joint1_id;
       const int colRef = nv(model.joints[joint1_id])+idx_v(model.joints[joint1_id])-1;
       
@@ -890,9 +906,9 @@ namespace pinocchio
           Rows6Block contact_dfc_dq = SizeDepType<6>::middleRows(dfc_dq, current_row_sol_id);
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
-            typedef typename Rows6Block::ColXpr ColType;
+            typedef typename Data::Matrix6x::ColXpr ColType;
             typedef typename Rows6Block::ColXpr ColTypeOut;
-            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            const MotionRef<ColType> J_col(data.J.col(j));
             ForceRef<ColTypeOut> fout(contact_dfc_dq.col(j));
             fout.linear().noalias() += J_col.angular().cross(of.linear());
             fout.angular().noalias() += J_col.angular().cross(of.angular());
@@ -905,7 +921,7 @@ namespace pinocchio
           for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
           {
             typedef typename Data::Matrix6x::ColXpr ColType;
-            const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(j));
+            const MotionRef<ColType> J_col(data.J.col(j));
             contact_dfc_dq.col(j).noalias() += J_col.angular().cross(of.linear());
           }
           break;
@@ -927,4 +943,4 @@ namespace pinocchio
   
 } // namespace pinocchio
 
-#endif // ifndef __pinocchio_algorithm_contact_dynamics_derivatives_hxx__
+#endif // ifndef __pinocchio_algorithm_constraint_dynamics_derivatives_hxx__

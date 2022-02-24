@@ -14,13 +14,13 @@ namespace pinocchio
   namespace python
   {
   
-    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactModel) RigidContactModelVector;
-    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidContactData) RigidContactDataVector;
+    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintModel) RigidConstraintModelVector;
+    typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
     
     static context::MatrixXs getConstraintJacobian_proxy(const context::Model & model,
                                                          const context::Data & data,
-                                                         const context::RigidContactModel & contact_model,
-                                                         context::RigidContactData & contact_data)
+                                                         const context::RigidConstraintModel & contact_model,
+                                                         context::RigidConstraintData & contact_data)
     {
       context::MatrixXs J(contact_model.size(),model.nv); J.setZero();
       getConstraintJacobian(model, data, contact_model, contact_data, J);
@@ -29,8 +29,8 @@ namespace pinocchio
   
     static context::MatrixXs getConstraintsJacobian_proxy(const context::Model & model,
                                                           const context::Data & data,
-                                                          const RigidContactModelVector & contact_models,
-                                                          RigidContactDataVector & contact_datas)
+                                                          const RigidConstraintModelVector & contact_models,
+                                                          RigidConstraintDataVector & contact_datas)
     {
       const Eigen::DenseIndex constraint_size = getTotalConstraintSize(contact_models);
       context::MatrixXs J(constraint_size,model.nv); J.setZero();

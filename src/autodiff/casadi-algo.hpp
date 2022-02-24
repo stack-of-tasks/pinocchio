@@ -11,8 +11,8 @@
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/contact-dynamics-derivatives.hpp"
-#include "pinocchio/algorithm/contact-dynamics.hpp"
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
+#include "pinocchio/algorithm/constrained-dynamics.hpp"
 
 namespace pinocchio
 {
@@ -388,7 +388,7 @@ namespace pinocchio
 
 
     template<typename _Scalar>
-    struct AutoDiffContactDynamics : public AutoDiffAlgoBase<_Scalar>
+    struct AutoDiffConstraintDynamics : public AutoDiffAlgoBase<_Scalar>
     {
       typedef AutoDiffAlgoBase<_Scalar> Base;
       typedef typename Base::Scalar Scalar;
@@ -407,24 +407,24 @@ namespace pinocchio
       typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
       
-      typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
-      typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
-      typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
-      typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
-      typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+      typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ConstraintModel;
+      typedef Eigen::aligned_allocator<ConstraintModel> ConstraintModelAllocator;
+      typedef typename std::vector<ConstraintModel, ConstraintModelAllocator> ConstraintModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ConstraintData;
+      typedef Eigen::aligned_allocator<ConstraintData> ConstraintDataAllocator;
+      typedef typename std::vector<ConstraintData, ConstraintDataAllocator> ConstraintDataVector;
       
-      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
-      typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
-      typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<ADScalar, Base::Options> ADContactData;
-      typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
-      typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+      typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADConstraintModel;
+      typedef Eigen::aligned_allocator<ADConstraintModel> ADConstraintModelAllocator;
+      typedef typename std::vector<ADConstraintModel, ADConstraintModelAllocator> ADConstraintModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<ADScalar, Base::Options> ADConstraintData;
+      typedef Eigen::aligned_allocator<ADConstraintData> ADConstraintDataAllocator;
+      typedef typename std::vector<ADConstraintData, ADConstraintDataAllocator> ADConstraintDataVector;
 
-      static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
+      static Eigen::DenseIndex constraintDim(const ConstraintModelVector& contact_models)
       {
         Eigen::DenseIndex num_total_constraints = 0;
-        for(typename ContactModelVector::const_iterator it = contact_models.begin();
+        for(typename ConstraintModelVector::const_iterator it = contact_models.begin();
             it != contact_models.end();
             ++it)
         {
@@ -435,8 +435,8 @@ namespace pinocchio
         return num_total_constraints;
       }
       
-      explicit AutoDiffContactDynamics(const Model& model,
-                                       const ContactModelVector& contact_models,
+      explicit AutoDiffConstraintDynamics(const Model& model,
+                                       const ConstraintModelVector& contact_models,
                                        const std::string& filename = "casadi_contactDyn",
                                        const std::string& libname = "libcasadi_cg_contactDyn",
                                        const std::string& fun_name = "eval_f")
@@ -475,20 +475,20 @@ namespace pinocchio
 
         for(int k=0;k<contact_models.size();++k){
           ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
-          ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
+          ad_contact_datas.push_back(ADConstraintData(ad_contact_models[k]));
         }
       }
 
-      virtual ~AutoDiffContactDynamics() {}
+      virtual ~AutoDiffConstraintDynamics() {}
       
             
       virtual void buildMap()
       {
-        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
+        pinocchio::initConstraintDynamics(ad_model, ad_data, ad_contact_models);
         //Integrate q + v_int = q_int
         pinocchio::integrate(ad_model,q_ad,v_int_ad,q_int_ad);
         //Run contact dynamics with new q_int
-        pinocchio::contactDynamics(ad_model,ad_data,q_int_ad,v_ad,tau_ad,
+        pinocchio::constraintDynamics(ad_model,ad_data,q_int_ad,v_ad,tau_ad,
                                    ad_contact_models,ad_contact_datas);
         //Copy Output
         pinocchio::casadi::copy(ad_data.ddq,cs_ddq);
@@ -579,8 +579,8 @@ namespace pinocchio
       using Base::fun_output;
       using Base::fun_output_derivs;
       
-      ADContactModelVector ad_contact_models;
-      ADContactDataVector ad_contact_datas;
+      ADConstraintModelVector ad_contact_models;
+      ADConstraintDataVector ad_contact_datas;
       
       Eigen::DenseIndex nc;
       ADScalar cs_q, cs_v, cs_tau, cs_v_int, cs_ddq, cs_lambda_c;
@@ -597,7 +597,7 @@ namespace pinocchio
 
 
     template<typename _Scalar>
-    struct AutoDiffContactDynamicsDerivatives : public AutoDiffAlgoBase<_Scalar>
+    struct AutoDiffConstraintDynamicsDerivatives : public AutoDiffAlgoBase<_Scalar>
     {
       typedef AutoDiffAlgoBase<_Scalar> Base;
       typedef typename Base::Scalar Scalar;
@@ -616,24 +616,24 @@ namespace pinocchio
       typedef typename Base::ADTangentVectorType ADTangentVectorType;
 
       
-      typedef typename pinocchio::RigidContactModelTpl<Scalar,Base::Options> ContactModel;
-      typedef Eigen::aligned_allocator<ContactModel> ContactModelAllocator;
-      typedef typename std::vector<ContactModel, ContactModelAllocator> ContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<Scalar,Base::Options> ContactData;
-      typedef Eigen::aligned_allocator<ContactData> ContactDataAllocator;
-      typedef typename std::vector<ContactData, ContactDataAllocator> ContactDataVector;
+      typedef typename pinocchio::RigidConstraintModelTpl<Scalar,Base::Options> ConstraintModel;
+      typedef Eigen::aligned_allocator<ConstraintModel> ConstraintModelAllocator;
+      typedef typename std::vector<ConstraintModel, ConstraintModelAllocator> ConstraintModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<Scalar,Base::Options> ConstraintData;
+      typedef Eigen::aligned_allocator<ConstraintData> ConstraintDataAllocator;
+      typedef typename std::vector<ConstraintData, ConstraintDataAllocator> ConstraintDataVector;
       
-      typedef typename pinocchio::RigidContactModelTpl<ADScalar,Base::Options> ADContactModel;
-      typedef Eigen::aligned_allocator<ADContactModel> ADContactModelAllocator;
-      typedef typename std::vector<ADContactModel, ADContactModelAllocator> ADContactModelVector;
-      typedef typename pinocchio::RigidContactDataTpl<ADScalar,Base::Options> ADContactData;
-      typedef Eigen::aligned_allocator<ADContactData> ADContactDataAllocator;
-      typedef typename std::vector<ADContactData, ADContactDataAllocator> ADContactDataVector;
+      typedef typename pinocchio::RigidConstraintModelTpl<ADScalar,Base::Options> ADConstraintModel;
+      typedef Eigen::aligned_allocator<ADConstraintModel> ADConstraintModelAllocator;
+      typedef typename std::vector<ADConstraintModel, ADConstraintModelAllocator> ADConstraintModelVector;
+      typedef typename pinocchio::RigidConstraintDataTpl<ADScalar,Base::Options> ADConstraintData;
+      typedef Eigen::aligned_allocator<ADConstraintData> ADConstraintDataAllocator;
+      typedef typename std::vector<ADConstraintData, ADConstraintDataAllocator> ADConstraintDataVector;
 
-      static Eigen::DenseIndex constraintDim(const ContactModelVector& contact_models)
+      static Eigen::DenseIndex constraintDim(const ConstraintModelVector& contact_models)
       {
         Eigen::DenseIndex num_total_constraints = 0;
-        for(typename ContactModelVector::const_iterator it = contact_models.begin();
+        for(typename ConstraintModelVector::const_iterator it = contact_models.begin();
             it != contact_models.end();
             ++it)
         {
@@ -644,8 +644,8 @@ namespace pinocchio
         return num_total_constraints;
       }
       
-      explicit AutoDiffContactDynamicsDerivatives(const Model& model,
-                                                  const ContactModelVector& contact_models,
+      explicit AutoDiffConstraintDynamicsDerivatives(const Model& model,
+                                                  const ConstraintModelVector& contact_models,
                                                   const std::string& filename = "casadi_contactDynDerivs",
                                                   const std::string& libname = "libcasadi_cg_contactDynDerivs",
                                                   const std::string& fun_name = "eval_f")
@@ -679,22 +679,22 @@ namespace pinocchio
 
         for(int k=0;k<contact_models.size();++k){
           ad_contact_models.push_back(contact_models[k].template cast<ADScalar>());
-          ad_contact_datas.push_back(ADContactData(ad_contact_models[k]));
+          ad_contact_datas.push_back(ADConstraintData(ad_contact_models[k]));
         }
 
         Base::build_jacobian = false;
         
       }
       
-      virtual ~AutoDiffContactDynamicsDerivatives() {}
+      virtual ~AutoDiffConstraintDynamicsDerivatives() {}
       
 
       virtual void buildMap()
       {
-        pinocchio::initContactDynamics(ad_model, ad_data, ad_contact_models);
-        pinocchio::contactDynamics(ad_model,ad_data,q_ad,v_ad,tau_ad,
+        pinocchio::initConstraintDynamics(ad_model, ad_data, ad_contact_models);
+        pinocchio::constraintDynamics(ad_model,ad_data,q_ad,v_ad,tau_ad,
                                    ad_contact_models,ad_contact_datas);
-        pinocchio::computeContactDynamicsDerivatives(ad_model,ad_data,
+        pinocchio::computeConstraintDynamicsDerivatives(ad_model,ad_data,
                                                      ad_contact_models,ad_contact_datas);
         //Copy Output
         pinocchio::casadi::copy(ad_data.ddq,cs_ddq);
@@ -767,8 +767,8 @@ namespace pinocchio
       using Base::fun_derivs;
       using Base::fun_output;
       using Base::fun_output_derivs;
-      ADContactModelVector ad_contact_models;
-      ADContactDataVector ad_contact_datas;
+      ADConstraintModelVector ad_contact_models;
+      ADConstraintDataVector ad_contact_datas;
       
       Eigen::DenseIndex nc;
       ADScalar cs_q, cs_v, cs_tau, cs_ddq, cs_lambda_c;

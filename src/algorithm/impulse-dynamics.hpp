@@ -39,16 +39,16 @@ namespace pinocchio
   ///
   /// \return A reference to the joint velocities stored in data.dq_after. The Lagrange Multipliers linked to the contact forces are available throw data.impulse_c vector.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ContactModelAllocator, class ContactDataAllocator>
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
                   const Eigen::MatrixBase<TangentVectorType1> & v_before,
-                  const std::vector<RigidContactModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
-                  std::vector<RigidContactDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas,
-                  const Scalar r_coeff = Scalar(0.),
-                  const Scalar mu = Scalar(0.));
+                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
+                  const Scalar r_coeff,
+                  const ProximalSettingsTpl<Scalar>& settings);
 
 } // namespace pinocchio
 

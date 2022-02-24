@@ -16,8 +16,8 @@
 namespace pinocchio
 {
   
-  template<typename Scalar, int Options = 0> struct MotionPlanarTpl;
-  typedef MotionPlanarTpl<double> MotionPlanar;
+  template<typename Scalar, int Options = context::Options> struct MotionPlanarTpl;
+  typedef MotionPlanarTpl<context::Scalar> MotionPlanar;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionPlanarTpl<Scalar,Options> >
@@ -176,7 +176,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionPlanarTpl & other) const
     {
-      return m_data == other.m_data;
+      return internal::comparison_eq(m_data, other.m_data);
     }
     
   protected:
@@ -373,7 +373,7 @@ namespace pinocchio
   }
   
   /* [ABA] Y*S operator (Inertia Y,Constraint S) */
-  //  inline Eigen::Matrix<double,6,1>
+  //  inline Eigen::Matrix<context::Scalar,6,1>
   
   template<typename M6Like, typename S2, int O2>
   inline Eigen::Matrix<S2,6,3,O2>

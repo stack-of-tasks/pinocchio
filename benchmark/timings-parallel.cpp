@@ -179,7 +179,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   
   std::cout << "--" << std::endl;
-  GeometryPool geometry_pool(model,geometry_model,NUM_THREADS);
+  GeometryPool geometry_pool(&model,&geometry_model,NUM_THREADS);
   VectorXb collision_res(BATCH_SIZE);
   collision_res.fill(false);
   

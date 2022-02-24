@@ -164,7 +164,8 @@ namespace pinocchio
     
     bool isEqual(const TransformRevoluteTpl & other) const
     {
-      return m_cos == other.m_cos && m_sin == other.m_sin;
+      return internal::comparison_eq(m_cos, other.m_cos) &&
+	internal::comparison_eq(m_sin, other.m_sin);
     }
     
   protected:
@@ -235,8 +236,9 @@ namespace pinocchio
     void setTo(MotionDense<MotionDerived> & m) const
     {
       m.linear().setZero();
-      for(Eigen::DenseIndex k = 0; k < 3; ++k)
-        m.angular()[k] = k == axis ? m_w : (Scalar)0;
+      for(Eigen::DenseIndex k = 0; k < 3; ++k){
+        m.angular()[k] = k == axis ? m_w : Scalar(0);
+      }
     }
     
     template<typename MotionDerived>
@@ -305,7 +307,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionRevoluteTpl & other) const
     {
-      return m_w == other.m_w;
+      return internal::comparison_eq(m_w, other.m_w);
     }
     
   protected:
@@ -762,17 +764,17 @@ namespace pinocchio
     
   }; // struct JointModelRevoluteTpl
 
-  typedef JointRevoluteTpl<double,0,0> JointRX;
-  typedef JointDataRevoluteTpl<double,0,0> JointDataRX;
-  typedef JointModelRevoluteTpl<double,0,0> JointModelRX;
+  typedef JointRevoluteTpl<context::Scalar,context::Options,0> JointRX;
+  typedef JointDataRevoluteTpl<context::Scalar,context::Options,0> JointDataRX;
+  typedef JointModelRevoluteTpl<context::Scalar,context::Options,0> JointModelRX;
 
-  typedef JointRevoluteTpl<double,0,1> JointRY;
-  typedef JointDataRevoluteTpl<double,0,1> JointDataRY;
-  typedef JointModelRevoluteTpl<double,0,1> JointModelRY;
+  typedef JointRevoluteTpl<context::Scalar,context::Options,1> JointRY;
+  typedef JointDataRevoluteTpl<context::Scalar,context::Options,1> JointDataRY;
+  typedef JointModelRevoluteTpl<context::Scalar,context::Options,1> JointModelRY;
 
-  typedef JointRevoluteTpl<double,0,2> JointRZ;
-  typedef JointDataRevoluteTpl<double,0,2> JointDataRZ;
-  typedef JointModelRevoluteTpl<double,0,2> JointModelRZ;
+  typedef JointRevoluteTpl<context::Scalar,context::Options,2> JointRZ;
+  typedef JointDataRevoluteTpl<context::Scalar,context::Options,2> JointDataRZ;
+  typedef JointModelRevoluteTpl<context::Scalar,context::Options,2> JointModelRZ;
 
 } //namespace pinocchio
 

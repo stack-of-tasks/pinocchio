@@ -95,7 +95,7 @@ constraint1_joint1_placement.translation = pin.XAxis * length_link_B
 constraint1_joint2_placement = pin.SE3.Identity()
 constraint1_joint2_placement.translation = - pin.XAxis * length_link_A/2.  
 
-constraint_model = pin.RigidContactModel(pin.ContactType.CONTACT_3D,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
+constraint_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_3D,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
 constraint_data = constraint_model.createData()
 constraint_dim = constraint_model.size() 
 
@@ -147,10 +147,10 @@ t = 0
 mu_sim = 1e-10
 constraint_model.corrector.Kp = 10
 constraint_model.corrector.Kd = 2. * np.sqrt(constraint_model.corrector.Kp)
-pin.initContactDynamics(model,data,[constraint_model])
+pin.initConstraintDynamics(model,data,[constraint_model])
 import time
 while t <= T_sim:
-    a = pin.contactDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],mu_sim)
+    a = pin.constraintDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],mu_sim)
     v += a*dt
     q = pin.integrate(model,q,v*dt)
     viz.display(q)

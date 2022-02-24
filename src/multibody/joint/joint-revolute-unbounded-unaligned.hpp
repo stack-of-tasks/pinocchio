@@ -154,7 +154,7 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelRevoluteUnboundedUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis;
+      return Base::isEqual(other) && internal::comparison_eq(axis, other.axis);
     }
     
     template<typename ConfigVector>

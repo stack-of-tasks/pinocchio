@@ -17,6 +17,9 @@ submodules = inspect.getmembers(pinocchio_pywrap_default, inspect.ismodule)
 for module_info in submodules:
   sys.modules['pinocchio.' + module_info[0]] = module_info[1]
 
+sys.modules['pinocchio.rpy'] = rpy
+sys.modules['pinocchio.cholesky'] = cholesky
+
 if WITH_HPP_FCL:
   try:
     import hppfcl

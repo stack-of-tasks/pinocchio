@@ -148,5 +148,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/kinematics.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/kinematics.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 
 #endif // ifndef __pinocchio_kinematics_hpp__

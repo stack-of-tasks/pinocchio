@@ -316,7 +316,7 @@ namespace pinocchio
     static bool algo(const JointModelBase<JointModel> & jmodel_lhs,
                      const JointModelDerived & jmodel_rhs)
     {
-      return jmodel_lhs.derived() == jmodel_rhs;
+      return internal::comparison_eq(jmodel_lhs.derived(), jmodel_rhs);
     }
 
   };

@@ -17,8 +17,8 @@
 namespace pinocchio
 {
 
-  template<typename Scalar, int Options=0> struct MotionRevoluteUnalignedTpl;
-  typedef MotionRevoluteUnalignedTpl<double> MotionRevoluteUnaligned;
+  template<typename Scalar, int Options=context::Options> struct MotionRevoluteUnalignedTpl;
+  typedef MotionRevoluteUnalignedTpl<context::Scalar> MotionRevoluteUnaligned;
   
   template<typename Scalar, int Options>
   struct SE3GroupAction< MotionRevoluteUnalignedTpl<Scalar,Options> >
@@ -159,7 +159,8 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionRevoluteUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis && m_w == other.m_w;
+      return internal::comparison_eq(m_axis, other.m_axis) &&
+	internal::comparison_eq(m_w, other.m_w);
     }
     
     const Scalar & angularRate() const { return m_w; }
@@ -355,7 +356,7 @@ namespace pinocchio
     
     bool isEqual(const JointMotionSubspaceRevoluteUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis;
+      return internal::comparison_eq(m_axis, other.m_axis);
     }
     
   protected:
@@ -564,7 +565,8 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelRevoluteUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis;
+      return Base::isEqual(other) &&
+	internal::comparison_eq(axis, other.axis);
     }
     
     template<typename ConfigVector>

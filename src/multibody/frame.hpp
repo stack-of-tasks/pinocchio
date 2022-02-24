@@ -8,6 +8,7 @@
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/model-item.hpp"
 
 #include <string>
 
@@ -29,28 +30,32 @@ namespace pinocchio
   struct traits< FrameTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
+    enum { Options = _Options };
   };
   
   ///
   /// \brief A Plucker coordinate frame attached to a parent joint inside a kinematic tree
   ///
   template<typename _Scalar, int _Options>
-  struct FrameTpl : NumericalBase< FrameTpl<_Scalar,_Options> >
+  struct FrameTpl : ModelItem< FrameTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef pinocchio::JointIndex JointIndex;
-    enum { Options = _Options };
-    typedef _Scalar Scalar;
+    typedef FrameTpl<_Scalar, _Options> ModelItemDerived;
+    typedef typename traits<ModelItemDerived>::Scalar Scalar;
+    enum { Options = traits<ModelItemDerived>::Options };
+    typedef ModelItem<ModelItemDerived> Base;
+    
     typedef SE3Tpl<Scalar,Options> SE3;
     typedef InertiaTpl<Scalar,Options> Inertia;
+    typedef pinocchio::JointIndex JointIndex;
     
     ///
     /// \brief Default constructor of a frame.
     ///
     FrameTpl()
-    : name()
-    , parent()
-    , placement()
+    : Base()
+    , parent(Base::parentJoint)
+    , previousFrame(Base::parentFrame)      
     , type()
     , inertia(Inertia::Zero())
     {} // needed by std::vector
@@ -65,16 +70,15 @@ namespace pinocchio
     /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
-             const JointIndex parent,
+             const JointIndex parentJoint,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-    : name(name)
-    , parent(parent)
-    , previousFrame(0)
-    , placement(frame_placement)
-    , type(type)
-    , inertia(inertia)
+      : Base(name, parentJoint, 0, frame_placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)        
+      , type(type)
+      , inertia(inertia)
     {}
     
     ///
@@ -82,34 +86,68 @@ namespace pinocchio
     ///
     /// \param[in] name Name of the frame.
     /// \param[in] parent Index of the parent joint in the kinematic tree.
-    /// \param[in] previousFrame Index of the parent frame in the kinematic tree.
+    /// \param[in] parentFrame Index of the parent frame in the kinematic tree.
     /// \param[in] frame_placement Placement of the frame wrt the parent joint frame.
     /// \param[in] type The type of the frame, see the enum FrameType.
     /// \param[in] inertia Inertia info attached to the frame.
     ///
     FrameTpl(const std::string & name,
-             const JointIndex parent,
-             const FrameIndex previous_frame,
+             const JointIndex parent_joint,
+             const FrameIndex parent_frame,
              const SE3 & frame_placement,
              const FrameType type,
              const Inertia & inertia = Inertia::Zero())
-    : name(name)
-    , parent(parent)
-    , previousFrame(previous_frame)
-    , placement(frame_placement)
-    , type(type)
-    , inertia(inertia)
+      : Base(name, parent_joint, parent_frame, frame_placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
+      , type(type)
+      , inertia(inertia)
     {}
     
     ///
-    /// \brief Copy constructor by casting
+    /// \brief Copy constructor
+    ///
+    /// \param[in] other Frame to copy
+    ///
+    FrameTpl(const FrameTpl & other)
+      : Base(other.name, other.parentJoint, other.parentFrame, other.placement)
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
+      , type(other.type)
+      , inertia(other.inertia)      
+    {}
+
+
+    ///
+    /// \brief Copy constructor by casting
     ///
     /// \param[in] other Frame to copy
     ///
     template<typename S2, int O2>
     explicit FrameTpl(const FrameTpl<S2,O2> & other)
+      : Base(other.name, other.parentJoint, other.parentFrame, other.placement.template cast<Scalar>())
+      , parent(Base::parentJoint)
+      , previousFrame(Base::parentFrame)
+      , type(other.type)
+      , inertia(other.inertia.template cast<Scalar>())      
+    {}
+
+
+    ///
+    /// \brief Copy assignment operator. It needs to be user-define because references cannot be re-assigned during copy
+    ///
+    /// \param[in] other Frame to copy
+    ///
+
+    FrameTpl<Scalar,Options>& operator=(const FrameTpl<Scalar, Options>& other)
     {
-      *this = other.template cast<Scalar>();
+      name = other.name;
+      parentJoint = other.parentJoint;
+      parentFrame = other.parentFrame;
+      placement = other.placement;
+      type = other.type;
+      inertia = other.inertia;
+      return *this;
     }
     
     ///
@@ -123,8 +161,8 @@ namespace pinocchio
     bool operator ==(const FrameTpl<S2,O2> & other) const
     {
       return name == other.name
-      && parent == other.parent
-      && previousFrame == other.previousFrame
+      && parentJoint == other.parentJoint
+      && parentFrame == other.parentFrame
       && placement == other.placement
       && type == other.type
       && inertia == other.inertia;
@@ -145,8 +183,8 @@ namespace pinocchio
     {
       typedef FrameTpl<NewScalar,Options> ReturnType;
       ReturnType res(name,
-                     parent,
-                     previousFrame,
+                     parentJoint,
+                     parentFrame,
                      placement.template cast<NewScalar>(),
                      type,
                      inertia.template cast<NewScalar>());
@@ -154,18 +192,18 @@ namespace pinocchio
     }
     
     // data
-    
-    /// \brief Name of the frame.
-    std::string name;
-    
     /// \brief Index of the parent joint.
-    JointIndex parent;
+    /// \deprecated use \ref parentJoint instead
+    PINOCCHIO_DEPRECATED JointIndex& parent;
     
     /// \brief Index of the previous frame.
-    FrameIndex previousFrame;
-    
-    /// \brief Placement of the frame wrt the parent joint.
-    SE3 placement;
+    /// \deprecated use \ref parentFrame instead
+    PINOCCHIO_DEPRECATED FrameIndex& previousFrame;
+
+    using Base::name;
+    using Base::parentFrame;
+    using Base::parentJoint;
+    using Base::placement;
 
     /// \brief Type of the frame.
     FrameType type;
@@ -184,8 +222,8 @@ namespace pinocchio
     os
     << "Frame name: "
     << f.name
-    << " paired to (parent joint/ previous frame)"
-    << "(" << f.parent << "/" << f.previousFrame << ")"
+    << " paired to (parent joint/ parent frame)"
+    << "(" << f.parentJoint << "/" << f.parentFrame << ")"
     << std::endl
     << "with relative placement wrt parent joint:\n"
     << f.placement

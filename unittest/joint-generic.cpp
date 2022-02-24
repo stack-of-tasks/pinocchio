@@ -25,14 +25,20 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   std::cout << "Testing Joint over " << jmodel.shortname() << std::endl;
   
   Eigen::VectorXd q1, q2;
-  Eigen::VectorXd v1(Eigen::VectorXd::Random(jdata.S().nv()));
-  Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   Eigen::VectorXd armature = Eigen::VectorXd::Random(jdata.S().nv()) + Eigen::VectorXd::Ones(jdata.S().nv());
-  bool update_I = false;
 
   q1 = LieGroupType().random();
   q2 = LieGroupType().random();
   
+  Eigen::VectorXd
+  v1(Eigen::VectorXd::Random(jdata.S().nv())),
+  v2(Eigen::VectorXd::Random(jdata.S().nv()));
+  
+  Inertia::Matrix6
+  Ia(pinocchio::Inertia::Random().matrix()),
+  Ia2(pinocchio::Inertia::Random().matrix());
+  bool update_I = false;
+
 
   jmodel.calc(jdata.derived(), q1, v1);
   jmodel.calc_aba(jdata.derived(), armature, Ia, update_I);
@@ -42,12 +48,21 @@ void test_joint_methods(JointModelBase<JointModel> & jmodel,
   BOOST_CHECK(jma == jmodel);
   BOOST_CHECK(jma.hasSameIndexes(jmodel));
   
-  pinocchio::JointData jda(jdata);
+  pinocchio::JointData jda(jdata.derived());
   BOOST_CHECK(jda == jdata);
   BOOST_CHECK(jdata == jda);
 
   jma.calc(jda, q1, v1);
   jma.calc_aba(jda, armature, Ia, update_I);
+  pinocchio::JointData jda_other(jdata);
+  
+  jma.calc(jda_other, q2, v2);
+  jma.calc_aba(jda_other, armature, Ia2, update_I);
+  
+  BOOST_CHECK(jda_other != jda);
+  BOOST_CHECK(jda != jda_other);
+  BOOST_CHECK(jda_other != jdata);
+  BOOST_CHECK(jdata != jda_other);
 
   const std::string error_prefix("JointModel on " + jma.shortname());
   BOOST_CHECK_MESSAGE(jmodel.nq() == jma.nq() ,std::string(error_prefix + " - nq "));

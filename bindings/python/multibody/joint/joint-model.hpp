@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_joint_joint_model_hpp__
@@ -27,6 +27,7 @@ namespace pinocchio
                                "Generic Joint Model",
                                bp::no_init)
         .def(bp::init<JointModel>())
+        .def(bp::init<JointModel>(bp::args("self","other")))
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
         ;

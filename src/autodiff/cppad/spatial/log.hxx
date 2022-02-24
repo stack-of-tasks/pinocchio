@@ -139,6 +139,59 @@ namespace pinocchio
       mout.linear().noalias() = alpha * p - Scalar(0.5) * w.cross(p) + beta * w.dot(p) * w;
       mout.angular() = w;
     }
+
+
+
+    template<typename Vector3Like, typename QuaternionLike, typename MotionDerived>
+    static void run(const Eigen::QuaternionBase<QuaternionLike> & quat,
+                    const Eigen::MatrixBase<Vector3Like> & vec,
+                    MotionDense<MotionDerived> & mout)
+    {
+      PINOCCHIO_ASSERT_MATRIX_SPECIFIC_SIZE(Vector3Like,vec,3,1);
+
+      typedef typename Vector3Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)::Options };
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+      const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+
+      using namespace internal;
+
+      const Scalar pos_neg = CppAD::CondExpGe<_Scalar>(quat.w(), Scalar(0),
+                                                      Scalar(+1),
+                                                      Scalar(-1));
+      Scalar theta;
+      Vector3 w(quaternion::log3(quat, theta));  // theta nonsingular by construction
+      const Scalar t2 = w.squaredNorm();
+
+      // Scalar st,ct; SINCOS(theta,&st,&ct);
+      Scalar st_2, ct_2;
+      ct_2 = pos_neg * quat.w();
+      st_2 = CppAD::sqrt(quat.vec().squaredNorm() + eps * eps);
+      const Scalar cot_th_2 = ct_2 / st_2;
+      // const Scalar cot_th_2 = ( st / (Scalar(1) - ct) ); // cotan of half angle
+
+      // we use formula (9.26) from https://ingmec.ual.es/~jlblanco/papers/jlblanco2010geometry3D_techrep.pdf
+      // for the linear part of the Log map. A Taylor series expansion of cotan can be used up to order 4
+      const Scalar th_2_squared = t2 / Scalar(4);  // (theta / 2) squared
+
+
+      const Scalar alpha = CppAD::CondExpLe<_Scalar>(theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                                    static_cast<Scalar>(Scalar(1) - t2/Scalar(12) - t2*t2/Scalar(720)), // then
+                                                    static_cast<Scalar>(theta * cot_th_2 /(Scalar(2))) // else
+                                                    );
+      
+      const Scalar beta_alt = (Scalar(1) / Scalar(3) - th_2_squared / Scalar(45)) / Scalar(4);
+
+      const Scalar beta = CppAD::CondExpLe<_Scalar>(theta,TaylorSeriesExpansion<Scalar>::template precision<3>(),
+                                                   static_cast<Scalar>(beta_alt), // then
+                                                   static_cast<Scalar>(Scalar(1)/t2 - cot_th_2 * Scalar(0.5)/theta) // else
+                                                   // static_cast<Scalar>(Scalar(1) / t2 - st/(Scalar(2)*theta*(Scalar(1)-ct))) // else
+                                                   );
+
+      // mout.linear().noalias() = alpha * vec - Scalar(0.5) * w.cross(vec) + (beta * w.dot(vec)) * w;
+      mout.linear().noalias() = vec - Scalar(0.5) * w.cross(vec) + beta * w.cross(w.cross(vec));
+      mout.angular() = w;
+    }
   };
 
   /// \brief Template specialization of Jlog6 function
