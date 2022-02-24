@@ -11,7 +11,6 @@
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/symmetric3.hpp"
-#include "pinocchio/spatial/se3.hpp"
 
 #include "pinocchio/bindings/python/utils/cast.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
@@ -50,8 +49,10 @@ namespace pinocchio
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
 
         cl
+        .def(bp::init<>((bp::arg("self")),
+                        "Default constructor."))
         .def(bp::init<const Matrix3 &>((bp::arg("self"),bp::arg("I")),
-              "Initialize from symmetrical matrix I of size 3x3."))
+                                       "Initialize from symmetrical matrix I of size 3x3."))
         .def(bp::init<const Vector6 &>
              ((bp::arg("self"),bp::arg("I")),
               "Initialize from vector I of size 6."))
@@ -99,42 +100,45 @@ namespace pinocchio
         )   
         .def("matrix",&Symmetric3::matrix,bp::arg("self"),"Returns a matrix representation of the data.")
         .def("vtiv",&Symmetric3::vtiv,bp::args("self","v"))
-        .def("vxs",&Symmetric3::template vxs<Vector3>,bp::args("v","SE3"),
+        .def("vxs",&Symmetric3::template vxs<Vector3>,bp::args("v","S3"),
              "Performs the operation \f$ M = [v]_{\times} S_{3} \f$., Apply the cross product of v on each column of S and return result matrix M.")
-        .def("vxs",&Symmetric3::template vxs<Vector3,Matrix3>,bp::args("v","SE3","M"),
-             "Performs the operation \f$ M = [v]_{\times} S_{3} \f$. Apply the cross product of v on each column of S and return result in matrix M.")
         .staticmethod("vxs")
-        .def("svx",&Symmetric3::template vxs<Vector3>,bp::args("v","SE3"),
-             "Performs the operation \f$ M = S_{3} [v]_{\times} \f$.")   
-        .def("svx",&Symmetric3::template vxs<Vector3,Matrix3>,bp::args("v","SE3","M"),
+        .def("svx",&Symmetric3::template vxs<Vector3>,bp::args("v","S3"),
              "Performs the operation \f$ M = S_{3} [v]_{\times} \f$.")
-        .staticmethod("svx")   
+        .staticmethod("svx")
+        .def("rhsMult",&Symmetric3::template rhsMult<Vector3,Vector3>,bp::args("SE3","vin","vout"))
+        .staticmethod("rhsMult")
+        
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
         .def(bp::self -= bp::self)    
-        .def(bp::self *= bp::other<Scalar>())        
-        .def("rhsMult",&Symmetric3::template rhsMult<Vector3,Vector3>,bp::args("SE3","vin","vout")) 
-        .staticmethod("rhsMult")         
+        .def(bp::self *= bp::other<Scalar>())
         .def(bp::self * bp::other<Vector3Like>())  
         .def(bp::self - bp::other<Matrix3Like>())  
-        .def(bp::self + bp::other<Matrix3Like>())  
+        .def(bp::self + bp::other<Matrix3Like>())
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP
+        
         .def("decomposeltI",&Symmetric3::decomposeltI,bp::arg("self"),"Computes L for a symmetric matrix S.")
         .def("rotate",&Symmetric3::template rotate<Matrix3>,bp::args("self","R"),"Computes R*S*R'")
+        
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
         .def_pickle(Pickle())
 #endif
         ;
       }
+      
       static Vector6 getData( const Symmetric3 & self ) { return self.data(); }
-      static void setData( Symmetric3 & self, Vector6 data ) { self.data() = data; }
+      static void setData(Symmetric3 & self, Vector6 data) { self.data() = data; }
    
       static void expose()
       {
         bp::class_<Symmetric3>("Symmetric3",
-                            "This class represents symmetric 3x3 matrices.\n\n"
-                            "Supported operations ...",
-                            bp::no_init)
+                               "This class represents symmetric 3x3 matrices.\n\n"
+                               "Supported operations ...",
+                               bp::no_init)
         .def(Symmetric3PythonVisitor<Symmetric3>())
         .def(CastVisitor<Symmetric3>())
         .def(ExposeConstructorByCastVisitor<Symmetric3,::pinocchio::Symmetric3>())
