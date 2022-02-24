@@ -6,6 +6,7 @@
 
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/multibody/pool/broadphase-manager.hpp"
+#include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/algorithm/parallel/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/parsers/srdf.hpp"
@@ -22,77 +23,185 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 BOOST_AUTO_TEST_CASE(test_geometry_pool)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
-  
+
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   Data data(model);
-  
+
   const std::string package_path = PINOCCHIO_MODEL_DIR;
   hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;
   pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
-  
+
   const size_t num_thread = (size_t)omp_get_max_threads();
   pinocchio::GeometryModel geometry_model_empty;
   GeometryPool pool(&model,&geometry_model_empty,num_thread);
-  
+
   pool.update(GeometryData(geometry_model));
 }
 
 BOOST_AUTO_TEST_CASE(test_broadphase_pool)
 {
-  Model empty_model;
+  Model model;
+  model.addJoint(0, JointModelFreeFlyer(), SE3::Identity(), "ff");
+  
+  Data data(model);
   GeometryModel geom_model;
   
-  hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
-  hpp::fcl::CollisionGeometryPtr_t box_ptr(new hpp::fcl::Box(0.5,0.5,0.5));
+  hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.1));
+  hpp::fcl::CollisionGeometryPtr_t sphere2_ptr(new hpp::fcl::Sphere(0.1));
   
-  GeometryObject obj1("obj1",0,sphere_ptr,SE3::Identity());
+  GeometryObject obj1("obj1",1,sphere_ptr,SE3::Identity());
   const GeomIndex obj1_index = geom_model.addGeometryObject(obj1);
   
-  GeometryObject obj2("obj2",0,box_ptr,SE3::Identity());
+  GeometryObject obj2("obj2",0,sphere2_ptr,SE3::Identity());
   const GeomIndex obj2_index = geom_model.addGeometryObject(obj2);
+  
+  geom_model.addAllCollisionPairs();
 
 //  GeometryObject & go1 = geom_model.geometryObjects[obj_index];
 
   const size_t num_thread = (size_t)omp_get_max_threads();
   typedef BroadPhaseManagerPoolTpl<hpp::fcl::DynamicAABBTreeCollisionManager, double> BroadPhaseManagerPool;
-  BroadPhaseManagerPool pool(&empty_model,&geom_model,num_thread);
+  BroadPhaseManagerPool pool(&model,&geom_model,num_thread);
+  
+  auto manager = pool.getBroadPhaseManager(0);
+  GeometryData & geom_data = manager.getGeometryData();
+  
+  BOOST_CHECK(&manager.getGeometryModel() == &geom_model);
   
   BOOST_CHECK(pool.check());
+
+  const int batch_size = 256;
+  Eigen::MatrixXd qs(model.nq,batch_size);
+  for(int i = 0; i < batch_size; ++i)
+  {
+    const SE3 placement = SE3::Random();
+    qs.col(i).head<3>() = 0.3*placement.translation();
+    qs.col(i).tail<4>() = Eigen::Quaterniond(placement.rotation()).coeffs();
+  }
+
+  typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorBool;
+  VectorBool res_all_before(batch_size), res_all_before_ref(batch_size);
+  
+  // Check potential memory leack
+  {
+    Data data_ref(model);
+    GeometryData geom_data_ref(geom_model);
+
+    for(int i = 0; i < batch_size; ++i)
+    {
+      const bool res = computeCollisions(model, data, manager, qs.col(i), false);
+      const bool res_ref = computeCollisions(model, data_ref, geom_model, geom_data_ref, qs.col(i), false);
+
+      BOOST_CHECK(res == res_ref);
+
+      res_all_before_ref[i] = res_ref;
+    }
+    
+    // Do collision checking
+    computeCollisions(num_thread, pool, qs, res_all_before, false);
+    BOOST_CHECK(res_all_before == res_all_before_ref);
+  }
+  
+  static_cast<hpp::fcl::Sphere*>(geom_model.geometryObjects[obj2_index].geometry.get())->radius = 100;
+  BOOST_CHECK(static_cast<hpp::fcl::Sphere*>(sphere2_ptr.get())->radius == 100);
+  
+  geom_model.geometryObjects[obj2_index].geometry->computeLocalAABB();
+  pool.update(geom_data);
+  
+  VectorBool res_all_intermediate(batch_size), res_all_intermediate_ref(batch_size);
+  {
+    Data data_ref(model);
+    GeometryData geom_data_ref(geom_model);
+
+    for(int i = 0; i < batch_size; ++i)
+    {
+      const bool res = computeCollisions(model, data, manager, qs.col(i), false);
+      const bool res_ref = computeCollisions(model, data_ref, geom_model, geom_data_ref, qs.col(i), false);
+
+      BOOST_CHECK(res == res_ref);
+
+      res_all_intermediate_ref[i] = res_ref;
+    }
+    
+    // Do collision checking
+    computeCollisions(num_thread, pool, qs, res_all_intermediate, false);
+    BOOST_CHECK(res_all_intermediate == res_all_intermediate_ref);
+  }
+  
+  BOOST_CHECK(res_all_intermediate != res_all_before);
+  
+  hpp::fcl::CollisionGeometryPtr_t new_sphere2_ptr(new hpp::fcl::Sphere(0.1));
+  new_sphere2_ptr->computeLocalAABB();
+  geom_model.geometryObjects[obj2_index].geometry = new_sphere2_ptr;
+  BOOST_CHECK(static_cast<hpp::fcl::Sphere*>(geom_model.geometryObjects[obj2_index].geometry.get())->radius
+              == static_cast<hpp::fcl::Sphere*>(new_sphere2_ptr.get())->radius);
+  BOOST_CHECK(geom_model.geometryObjects[obj2_index].geometry.get() == new_sphere2_ptr.get());
+  BOOST_CHECK(geom_model.geometryObjects[obj2_index].geometry.get() != sphere2_ptr.get());
+  
+  BOOST_CHECK(not pool.check());
+  pool.update(geom_data);
+  BOOST_CHECK(pool.check());
+  
+  VectorBool res_all_final(batch_size), res_all_final_ref(batch_size);
+  {
+    Data data_ref(model);
+    GeometryData geom_data_ref(geom_model);
+
+    for(int i = 0; i < batch_size; ++i)
+    {
+      const bool res = computeCollisions(model, data, manager, qs.col(i), false);
+      const bool res_ref = computeCollisions(model, data_ref, geom_model, geom_data_ref, qs.col(i), false);
+
+      BOOST_CHECK(res == res_ref);
+
+      res_all_final_ref[i] = res_ref;
+    }
+    
+    // Do collision checking
+    computeCollisions(num_thread, pool, qs, res_all_final, false);
+    BOOST_CHECK(res_all_final == res_all_final_ref);
+  }
+  
+  BOOST_CHECK(res_all_final == res_all_before);
+  
+  std::cout << "res_all_before: " << res_all_before.transpose() << std::endl;
+  std::cout << "res_all_intermediate: " << res_all_intermediate.transpose() << std::endl;
+  std::cout << "res_all_final: " << res_all_final.transpose() << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test_talos)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
-  
+
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   Data data(model), data_ref(model);
-  
+
   const std::string package_path = PINOCCHIO_MODEL_DIR;
   hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;
   pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
-  
+
   geometry_model.addAllCollisionPairs();
   pinocchio::srdf::removeCollisionPairs(model,geometry_model,srdf_filename,false);
-  
+
   GeometryData geometry_data(geometry_model), geometry_data_ref(geometry_model);
-  
+
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   Eigen::VectorXd q = randomConfiguration(model,-qmax,qmax);
-  
+
   const bool res_ref = computeCollisions(model,data_ref,geometry_model,geometry_data_ref,q);
   const bool res = computeCollisions(model,data,geometry_model,geometry_data,q);
-  
+
   BOOST_CHECK(res_ref == res);
   BOOST_CHECK(geometry_data_ref.collisionPairIndex == geometry_data.collisionPairIndex);
-  
+
   for(size_t k = 0; k < geometry_model.collisionPairs.size(); ++k)
   {
     const CollisionPair & cp = geometry_model.collisionPairs[k];
@@ -106,23 +215,23 @@ BOOST_AUTO_TEST_CASE(test_talos)
 BOOST_AUTO_TEST_CASE(test_pool_talos)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
-  
+
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
   Data data_ref(model);
-  
+
   const std::string package_path = PINOCCHIO_MODEL_DIR;
   hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;
   pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths,mesh_loader);
-  
+
   geometry_model.addAllCollisionPairs();
   pinocchio::srdf::removeCollisionPairs(model,geometry_model,srdf_filename,false);
-  
+
   GeometryData geometry_data_ref(geometry_model);
-  
+
   const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
   const Eigen::DenseIndex batch_size = 2048;
   const size_t num_thread = (size_t)omp_get_max_threads();
@@ -132,31 +241,31 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   {
     q.col(i) = randomConfiguration(model,-qmax,qmax);
   }
-  
+
   typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
-  
+
   VectorXb res_ref(batch_size); res_ref.fill(false);
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
   {
     res_ref[i] = computeCollisions(model,data_ref,geometry_model,geometry_data_ref,q.col(i));
   }
   BOOST_CHECK(res_ref.sum() > 0);
-  
+
   {
     VectorXb res(batch_size); res.fill(false);
     GeometryPool geometry_pool(&model,&geometry_model,num_thread);
     computeCollisions(num_thread,geometry_pool,q,res);
-    
+
     BOOST_CHECK(res == res_ref);
   }
-  
+
   {
     typedef BroadPhaseManagerPoolTpl<hpp::fcl::DynamicAABBTreeCollisionManager, double> BroadPhaseManagerPool;
-    
+
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
     VectorXb res(batch_size); res.fill(false);
     computeCollisions(num_thread,broadphase_manager_pool,q,res);
-    
+
     BOOST_CHECK(res == res_ref);
   }
 }
