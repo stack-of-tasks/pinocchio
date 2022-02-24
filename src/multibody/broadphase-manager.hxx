@@ -19,8 +19,9 @@ namespace pinocchio
     GeometryData & geom_data = *geometry_data_ptr;
     collision_object_inflation.setZero();
     
-    for(size_t pair_id = 0; pair_id < geom_data.activeCollisionPairs.size(); ++pair_id)
+    for(size_t k = 0; k < selected_collision_pairs.size(); ++k)
     {
+      const size_t pair_id = selected_collision_pairs[k];
       const CollisionPair & pair = geom_model.collisionPairs[pair_id];
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
@@ -40,15 +41,16 @@ namespace pinocchio
       = (std::max)(inflation,collision_object_inflation[static_cast<Eigen::DenseIndex>(geom2_id)]);
     }
     
-    for(size_t i = 0; i < geometry_model_ptr->geometryObjects.size(); ++i)
+    for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
-      const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[i];
+      const size_t geometry_object_id = selected_geometry_objects[k];
+      const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[geometry_object_id];
       hpp::fcl::CollisionGeometryPtr_t new_geometry = geom_obj.geometry;
       
-      CollisionObject & collision_obj = collision_objects[i];
+      CollisionObject & collision_obj = collision_objects[k];
       hpp::fcl::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
       
-      collision_obj.setTransform(toFclTransform3f(geom_data.oMg[i]));
+      collision_obj.setTransform(toFclTransform3f(geom_data.oMg[geometry_object_id]));
       
       if(new_geometry.get() != geometry.get())
       {
@@ -59,7 +61,7 @@ namespace pinocchio
         collision_obj.computeAABB();
       }
       
-      collision_obj.getAABB().expand(collision_object_inflation[static_cast<Eigen::DenseIndex>(i)]);
+      collision_obj.getAABB().expand(collision_object_inflation[static_cast<Eigen::DenseIndex>(k)]);
     }
     
     assert(check() && "The status of the BroadPhaseManager is not valid");
@@ -85,9 +87,10 @@ namespace pinocchio
     if(collision_objects_ptr.size() != collision_objects.size())
       return false;
     
-    for(size_t i = 0; i < collision_objects.size(); ++i)
+    for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
-      const hpp::fcl::CollisionObject & collision_obj = collision_objects[i];
+      const size_t i = selected_geometry_objects[k];
+      const hpp::fcl::CollisionObject & collision_obj = collision_objects[k];
 
       if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
         return false;
@@ -114,14 +117,14 @@ namespace pinocchio
   template<typename BroadPhaseManagerDerived>
   void BroadPhaseManagerTpl<BroadPhaseManagerDerived>::init()
   {
-    collision_objects.reserve(geometry_model_ptr->geometryObjects.size());
-    for(size_t i = 0; i < geometry_model_ptr->geometryObjects.size() ; ++i)
+    collision_objects.reserve(selected_geometry_objects.size());
+    for(size_t i: selected_geometry_objects)
     {
       GeometryObject & geom_obj = const_cast<GeometryObject &>(geometry_model_ptr->geometryObjects[i]);
       collision_objects.push_back(CollisionObject(geom_obj.geometry,i));
 
       // Feed the base broadphase manager
-      manager.registerObject(&collision_objects[i]);
+      manager.registerObject(&collision_objects.back());
     }
   }
 

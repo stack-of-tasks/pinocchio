@@ -11,6 +11,7 @@
 
 #include "pinocchio/multibody/fcl.hpp"
 #include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/multibody/geometry-object-filter.hpp"
 
 #include "pinocchio/algorithm/broadphase-callbacks.hpp"
 
@@ -38,11 +39,34 @@ struct BroadPhaseManagerTpl
   /// \param[in] geometry_data_ptr pointer to the geometry data.
   ///
   BroadPhaseManagerTpl(const GeometryModel * geometry_model_ptr,
-                       GeometryData * geometry_data_ptr)
+                       GeometryData * geometry_data_ptr,
+                       const GeometryObjectFilterBase & filter = GeometryObjectFilterNothing())
   : geometry_model_ptr(geometry_model_ptr)
   , geometry_data_ptr(geometry_data_ptr)
-  , collision_object_inflation(geometry_model_ptr->ngeoms)
   {
+    selected_geometry_objects = filter.apply(geometry_model_ptr->geometryObjects);
+    
+    geometry_to_collision_index.resize(selected_geometry_objects.size(), (std::numeric_limits<size_t>::max)());
+    for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
+    {
+      geometry_to_collision_index[selected_geometry_objects[k]] = k;
+    }
+    
+    selected_collision_pairs.reserve(geometry_model_ptr->collisionPairs.size());
+    for(size_t k = 0; k < geometry_model_ptr->collisionPairs.size(); ++k)
+    {
+      const CollisionPair & pair = geometry_model_ptr->collisionPairs[k];
+      if(   geometry_to_collision_index[pair.first] != (std::numeric_limits<size_t>::max)()
+         && geometry_to_collision_index[pair.second] != (std::numeric_limits<size_t>::max)())
+      {
+        selected_collision_pairs.push_back(k);
+      }
+      
+      selected_collision_pairs.resize(selected_collision_pairs.size());
+    }
+    
+    collision_object_inflation.resize(static_cast<Eigen::DenseIndex>(selected_geometry_objects.size()));
+    
     init();
   }
   
@@ -54,6 +78,9 @@ struct BroadPhaseManagerTpl
   : geometry_model_ptr(other.geometry_model_ptr)
   , geometry_data_ptr(other.geometry_data_ptr)
   , collision_object_inflation(other.collision_object_inflation.size())
+  , selected_geometry_objects(other.selected_geometry_objects)
+  , geometry_to_collision_index(other.geometry_to_collision_index)
+  , selected_collision_pairs(other.selected_collision_pairs)
   {
     init();
   }
@@ -136,6 +163,15 @@ protected:
   
   /// @brief the inflation value related to each collision object.
   VectorXs collision_object_inflation;
+  
+  /// @brief Selected geometry objects in the original geometry_model.
+  std::vector<size_t> selected_geometry_objects;
+  
+  /// @brief Mapping between a given geometry index and a collision index.
+  std::vector<size_t> geometry_to_collision_index;
+  
+  /// @brief Selected  collision pairs in the original geometry_model.
+  std::vector<size_t> selected_collision_pairs;
   
   /// @brief Initialialisation of BroadPhaseManagerTpl
   void init();
