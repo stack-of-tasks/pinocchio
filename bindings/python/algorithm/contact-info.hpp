@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2022 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_contact_info_hpp__
@@ -39,11 +39,20 @@ namespace pinocchio
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor."))
         
-        .PINOCCHIO_ADD_PROPERTY(Self,Kp,"Proportional corrector value.")
-        .PINOCCHIO_ADD_PROPERTY(Self,Kd,"Damping corrector value.")
+        .add_property("Kp",&getKp,&setKp,
+                      "Proportional corrector value.")
+        .add_property("Kd",&getKd,&setKd,
+                      "Damping corrector value.")
+        
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
+      
+      static void setKp(Self & self, const Scalar & value) { self.Kp = value; }
+      static Scalar getKp(const Self & self) { return self.Kp; }
+      
+      static void setKd(Self & self, const Scalar & value) { self.Kd = value; }
+      static Scalar getKd(const Self & self) { return self.Kd; }
       
       static void expose()
       {
