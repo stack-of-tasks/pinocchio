@@ -14,7 +14,7 @@ namespace pinocchio
 {
 
   template<typename _BroadPhaseManagerDerived, typename _Scalar, int _Options, template<typename,int> class JointCollectionTpl>
-  class BroadPhaseManagerPoolTpl
+  class BroadPhaseManagerPoolBaseTpl
   : public GeometryPoolTpl<_Scalar,_Options,JointCollectionTpl>
   {
   public:
@@ -42,9 +42,9 @@ namespace pinocchio
     /// \param[in] geometry_model input geometry model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    BroadPhaseManagerPoolTpl(const Model * model_ptr,
-                             const GeometryModel * geometry_model_ptr,
-                             const size_t pool_size = (size_t)omp_get_max_threads())
+    BroadPhaseManagerPoolBaseTpl(const Model * model_ptr,
+                                 const GeometryModel * geometry_model_ptr,
+                                 const size_t pool_size = (size_t)omp_get_max_threads())
     : Base(model_ptr,geometry_model_ptr,pool_size)
     {
       init();
@@ -54,7 +54,7 @@ namespace pinocchio
     ///
     /// \param[in] other BroadPhaseManagerPoolTpl to copy.
     ///
-    BroadPhaseManagerPoolTpl(const BroadPhaseManagerPoolTpl & other)
+    BroadPhaseManagerPoolBaseTpl(const BroadPhaseManagerPoolBaseTpl & other)
     : Base(other)
     , m_managers(other.m_managers)
     {
@@ -124,7 +124,7 @@ namespace pinocchio
     }
     
     /// \brief Destructor
-    virtual ~BroadPhaseManagerPoolTpl() {};
+    virtual ~BroadPhaseManagerPoolBaseTpl() {};
     
   protected:
     
