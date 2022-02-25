@@ -32,16 +32,16 @@ struct TreeBroadPhaseManagerTpl
   
   /// @brief Constructor from a given geometry model and data.
   ///
-  /// \param[in] model model of the kinematic tree.
+  /// \param[in] model_ptr pointer to the model of the kinematic tree.
   /// \param[in] geometry_model_ptr pointer to the geometry model.
   /// \param[in] geometry_data_ptr pointer to the geometry data.
   ///
-  TreeBroadPhaseManagerTpl(const Model & model,
+  TreeBroadPhaseManagerTpl(const Model * model_ptr,
                            const GeometryModel * geometry_model_ptr,
                            GeometryData * geometry_data_ptr)
-  : Base(geometry_model_ptr, geometry_data_ptr)
+  : Base(model_ptr, geometry_model_ptr, geometry_data_ptr)
   {
-    init(static_cast<size_t>(model.njoints));
+    init(static_cast<size_t>(model_ptr->njoints));
   }
   
   /// @brief Copy contructor.
@@ -54,6 +54,7 @@ struct TreeBroadPhaseManagerTpl
     init(other.managers.size());
   }
   
+  using Base::getModel;
   using Base::getGeometryModel;
   using Base::getGeometryData;
   

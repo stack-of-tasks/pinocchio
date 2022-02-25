@@ -34,13 +34,15 @@ struct BroadPhaseManagerTpl
   
   /// @brief Constructor from a given geometry model and data.
   ///
+  /// \param[in] model_ptr pointer to the model.
   /// \param[in] geometry_model_ptr pointer to the geometry model.
   /// \param[in] geometry_data_ptr pointer to the geometry data.
   ///
-  BroadPhaseManagerTpl(const GeometryModel * geometry_model_ptr,
+  BroadPhaseManagerTpl(const Model * model_ptr,
+                       const GeometryModel * geometry_model_ptr,
                        GeometryData * geometry_data_ptr,
                        const GeometryObjectFilterBase & filter = GeometryObjectFilterNothing())
-  : Base(geometry_model_ptr, geometry_data_ptr)
+  : Base(model_ptr, geometry_model_ptr, geometry_data_ptr)
   {
     selected_geometry_objects = filter.apply(geometry_model_ptr->geometryObjects);
     
@@ -82,6 +84,7 @@ struct BroadPhaseManagerTpl
     init();
   }
   
+  using Base::getModel;
   using Base::getGeometryModel;
   using Base::getGeometryData;
 

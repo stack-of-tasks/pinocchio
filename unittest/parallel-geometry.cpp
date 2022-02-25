@@ -53,10 +53,10 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
   hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.1));
   hpp::fcl::CollisionGeometryPtr_t sphere2_ptr(new hpp::fcl::Sphere(0.1));
   
-  GeometryObject obj1("obj1",1,sphere_ptr,SE3::Identity());
-  const GeomIndex obj1_index = geom_model.addGeometryObject(obj1);
+  GeometryObject obj1("obj1",1,SE3::Identity(),sphere_ptr);
+  geom_model.addGeometryObject(obj1);
   
-  GeometryObject obj2("obj2",0,sphere2_ptr,SE3::Identity());
+  GeometryObject obj2("obj2",0,SE3::Identity(),sphere2_ptr);
   const GeomIndex obj2_index = geom_model.addGeometryObject(obj2);
   
   geom_model.addAllCollisionPairs();
@@ -64,7 +64,8 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
 //  GeometryObject & go1 = geom_model.geometryObjects[obj_index];
 
   const size_t num_thread = (size_t)omp_get_max_threads();
-  typedef BroadPhaseManagerPoolTpl<hpp::fcl::DynamicAABBTreeCollisionManager, double> BroadPhaseManagerPool;
+  typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+  typedef BroadPhaseManagerPoolTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
   BroadPhaseManagerPool pool(&model,&geom_model,num_thread);
   
   auto manager = pool.getBroadPhaseManager(0);
@@ -260,7 +261,8 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   }
 
   {
-    typedef BroadPhaseManagerPoolTpl<hpp::fcl::DynamicAABBTreeCollisionManager, double> BroadPhaseManagerPool;
+    typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+    typedef BroadPhaseManagerPoolTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
     VectorXb res(batch_size); res.fill(false);

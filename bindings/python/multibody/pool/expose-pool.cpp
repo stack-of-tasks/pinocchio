@@ -29,7 +29,7 @@ namespace pinocchio
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
       GeometryPoolPythonVisitor<GeometryPool>::expose();
-      BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,context::Scalar> >::expose();
+      BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager>,context::Scalar> >::expose();
 #endif
     }
     

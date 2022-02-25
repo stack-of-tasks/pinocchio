@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE (test_tree_broadphase_with_empty_models)
   GeometryModel geom_model;
   GeometryData geom_data(geom_model);
   
-  TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(model, &geom_model, &geom_data);
+  TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data);
   
   BOOST_CHECK(broadphase_manager.check());
 }
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE (test_collisions)
   BOOST_CHECK(computeCollisions(geom_model,geom_data) == false);
   BOOST_CHECK(computeCollisions(geom_model,geom_data,false) == false);
 
-  TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(model, &geom_model, &geom_data_broadphase);
+  TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data_broadphase);
   BOOST_CHECK(computeCollisions(broadphase_manager) == false);
   BOOST_CHECK(computeCollisions(broadphase_manager,false) == false);
   BOOST_CHECK(computeCollisions(model, data_broadphase, broadphase_manager, q) == false);

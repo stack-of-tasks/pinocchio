@@ -59,20 +59,9 @@ void TreeBroadPhaseManagerTpl<Manager>::init(const size_t njoints)
   for(size_t joint_id = 0; joint_id < njoints; ++joint_id)
   {
     GeometryObjectFilterSelectByJoint filter(joint_id);
-    managers.push_back(BroadPhaseManager(&getGeometryModel(),&getGeometryData(),filter));
+    managers.push_back(BroadPhaseManager(&getModel(),&getGeometryModel(),&getGeometryData(),filter));
   }
 }
-//
-//namespace internal
-//{
-//  template<typename Manager, typename... Ts>
-//  bool _collide(const TreeBroadPhaseManagerTpl<Manager> & self,
-//                CollisionCallBackBase * callback,
-//                Ts... args)
-//  {
-//    
-//  }
-//}
 
 template<typename Manager>
 bool TreeBroadPhaseManagerTpl<Manager>::collide(CollisionCallBackBase * callback) const

@@ -22,16 +22,18 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
   
 BOOST_AUTO_TEST_CASE (test_broadphase_with_empty_models)
 {
+  Model model;
   GeometryModel geom_model;
   GeometryData geom_data(geom_model);
   
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&geom_model, &geom_data);
+  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data);
   
   BOOST_CHECK(broadphase_manager.check());
 }
 
 BOOST_AUTO_TEST_CASE (test_broadphase)
 {
+  Model model;
   GeometryModel geom_model;
   
   hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
@@ -47,7 +49,7 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   
   GeometryData geom_data(geom_model);
   
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&geom_model, &geom_data);
+  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data);
   BOOST_CHECK(broadphase_manager.check());
   BOOST_CHECK(sphere_ptr.get() == go.geometry.get());
   
@@ -91,7 +93,7 @@ BOOST_AUTO_TEST_CASE(test_advanced_filters)
   for(size_t joint_id = 0; joint_id < (size_t)model.njoints; ++joint_id)
   {
     const GeometryObjectFilterSelectByJoint filter(joint_id);
-    BroadPhaseManager manager(&geom_model,&geom_data,filter);
+    BroadPhaseManager manager(&model,&geom_model,&geom_data,filter);
     BOOST_CHECK(manager.check());
   }
   
@@ -124,7 +126,7 @@ BOOST_AUTO_TEST_CASE (test_collisions)
   BOOST_CHECK(computeCollisions(geom_model,geom_data) == false);
   BOOST_CHECK(computeCollisions(geom_model,geom_data,false) == false);
   
-  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&geom_model, &geom_data_broadphase);
+  BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> broadphase_manager(&model, &geom_model, &geom_data_broadphase);
   std::cout << "map:\n" << geom_model.collisionPairMapping << std::endl;
   BOOST_CHECK(computeCollisions(broadphase_manager) == false);
   BOOST_CHECK(computeCollisions(broadphase_manager,false) == false);

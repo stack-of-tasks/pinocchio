@@ -21,8 +21,7 @@ namespace pinocchio
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
-    typedef _BroadPhaseManagerDerived BroadPhaseManagerDerived;
-    typedef BroadPhaseManagerTpl<BroadPhaseManagerDerived> BroadPhaseManager;
+    typedef _BroadPhaseManagerDerived BroadPhaseManager;
     typedef GeometryPoolTpl<_Scalar,_Options,JointCollectionTpl> Base;
     typedef _Scalar Scalar;
     enum { Options = _Options };
@@ -134,7 +133,9 @@ namespace pinocchio
       m_managers.reserve(size());
       for(size_t i = 0; i < size(); ++i)
       {
-        m_managers.push_back(BroadPhaseManager(&getGeometryModel(),&getGeometryData(i)));
+        m_managers.push_back(BroadPhaseManager(&getModel(),
+                                               &getGeometryModel(),
+                                               &getGeometryData(i)));
       }
     }
     

@@ -18,20 +18,24 @@ struct BroadPhaseManagerBase
 {
   /// @brief Default constructor
   BroadPhaseManagerBase() // for std::vector
-  : geometry_model_ptr(nullptr)
+  : model_ptr(nullptr)
+  , geometry_model_ptr(nullptr)
   , geometry_data_ptr(nullptr)
   {}
   
   /// @brief Constructor from a given geometry model and geometry data
-  BroadPhaseManagerBase(const GeometryModel * geometry_model_ptr,
-                       GeometryData * geometry_data_ptr)
-  : geometry_model_ptr(geometry_model_ptr)
+  BroadPhaseManagerBase(const Model * model_ptr,
+                        const GeometryModel * geometry_model_ptr,
+                        GeometryData * geometry_data_ptr)
+  : model_ptr(model_ptr)
+  , geometry_model_ptr(geometry_model_ptr)
   , geometry_data_ptr(geometry_data_ptr)
   {}
   
   /// @brief Copy constructor
   BroadPhaseManagerBase(const BroadPhaseManagerBase & other)
-  : geometry_model_ptr(other.geometry_model_ptr)
+  : model_ptr(other.model_ptr)
+  , geometry_model_ptr(other.geometry_model_ptr)
   , geometry_data_ptr(other.geometry_data_ptr)
   {}
   
@@ -91,6 +95,9 @@ struct BroadPhaseManagerBase
   //  /// @brief Performs distance test with objects belonging to another manager
   //  void distance(BroadPhaseCollisionManager* other_manager, DistanceCallBackBase * callback) const;
   
+  /// @brief Returns the model associated to the manager.
+  const Model & getModel() const { return *model_ptr; }
+  
   /// @brief Returns the geometry model associated to the manager.
   const GeometryModel & getGeometryModel() const { return *geometry_model_ptr; }
   
@@ -101,6 +108,9 @@ struct BroadPhaseManagerBase
   GeometryData & getGeometryData() { return *geometry_data_ptr; }
   
 protected:
+  
+  /// @brief Pointer to the model
+  const Model * model_ptr;
   
   /// @brief Pointer to the geometry model
   const GeometryModel * geometry_model_ptr;

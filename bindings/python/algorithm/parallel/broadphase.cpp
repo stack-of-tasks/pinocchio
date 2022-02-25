@@ -37,9 +37,10 @@ namespace pinocchio
       return res;
     }
   
-    template<typename BroadPhaseManager>
+    template<typename CollisionManager>
     void exposeCase()
     {
+      typedef BroadPhaseManagerTpl<CollisionManager> BroadPhaseManager;
       bp::def("computeCollisions",
               computeCollisions_1<BroadPhaseManager>,
               (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("stop_at_first_collision") = false),
