@@ -73,7 +73,7 @@ namespace pinocchio
   template<typename Manager>
   void BroadPhaseManagerTpl<Manager>::update(GeometryData * geom_data_ptr_new)
   {
-    &getGeometryData() = geom_data_ptr_new;
+    Base::geometry_data_ptr = geom_data_ptr_new;
     update(false);
   }
   
