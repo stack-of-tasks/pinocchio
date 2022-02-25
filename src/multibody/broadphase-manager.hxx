@@ -35,10 +35,11 @@ namespace pinocchio
       const ::hpp::fcl::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
       const double inflation = (cr.break_distance + cr.security_margin)*0.5;
       
-      collision_object_inflation[static_cast<Eigen::DenseIndex>(geom1_id)]
-      = (std::max)(inflation,collision_object_inflation[static_cast<Eigen::DenseIndex>(geom1_id)]);
-      collision_object_inflation[static_cast<Eigen::DenseIndex>(geom2_id)]
-      = (std::max)(inflation,collision_object_inflation[static_cast<Eigen::DenseIndex>(geom2_id)]);
+      const Eigen::DenseIndex geom1_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom1_id]);
+      const Eigen::DenseIndex geom2_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom2_id]);
+      
+      collision_object_inflation[geom1_id_local] = (std::max)(inflation,collision_object_inflation[geom1_id_local]);
+      collision_object_inflation[geom2_id_local] = (std::max)(inflation,collision_object_inflation[geom2_id_local]);
     }
     
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)

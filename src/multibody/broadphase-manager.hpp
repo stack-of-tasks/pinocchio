@@ -44,7 +44,7 @@ struct BroadPhaseManagerTpl
   {
     selected_geometry_objects = filter.apply(geometry_model_ptr->geometryObjects);
     
-    geometry_to_collision_index.resize(selected_geometry_objects.size(), (std::numeric_limits<size_t>::max)());
+    geometry_to_collision_index.resize(geometry_model_ptr->geometryObjects.size(), (std::numeric_limits<size_t>::max)());
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       geometry_to_collision_index[selected_geometry_objects[k]] = k;

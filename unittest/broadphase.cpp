@@ -69,6 +69,34 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   BOOST_CHECK(broadphase_manager.check());
 }
 
+
+BOOST_AUTO_TEST_CASE(test_advanced_filters)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  std::vector < std::string > packageDirs;
+  const std::string meshDir  = PINOCCHIO_MODEL_DIR;
+  packageDirs.push_back(meshDir);
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/srdf/romeo.srdf");
+  
+  Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
+  GeometryModel geom_model;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model, packageDirs);
+  geom_model.addAllCollisionPairs();
+  pinocchio::srdf::removeCollisionPairs(model,geom_model,srdf_filename,false);
+  
+  GeometryData geom_data(geom_model);
+  
+  typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+  for(size_t joint_id = 0; joint_id < (size_t)model.njoints; ++joint_id)
+  {
+    const GeometryObjectFilterSelectByJoint filter(joint_id);
+    BroadPhaseManager manager(&geom_model,&geom_data,filter);
+    BOOST_CHECK(manager.check());
+  }
+  
+}
+
 BOOST_AUTO_TEST_CASE (test_collisions)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
