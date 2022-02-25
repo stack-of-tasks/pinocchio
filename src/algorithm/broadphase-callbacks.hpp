@@ -37,7 +37,7 @@ struct CollisionCallBackBase
   /// \brief If true, the stopping criteria related to the collision callback has been met and one can stop.
   virtual bool stop() const = 0;
   
-  /// \brief Callback method called after the termination of a collisition detection algorithms.
+  /// \brief Callback method called after the termination of a collisition detection algorithm.
   ///        The default implementation does nothing.
   virtual void done() {};
 
