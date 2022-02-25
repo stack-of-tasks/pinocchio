@@ -30,7 +30,7 @@ namespace pinocchio
 /// not be entirely fulfilled (of course).
 ///
 template<typename BroadPhaseManagerDerived>
-bool computeCollisions(BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadphase_manager,
+bool computeCollisions(BroadPhaseManagerBase<BroadPhaseManagerDerived> & broadphase_manager,
                        CollisionCallBackBase * callback)
 {
   PINOCCHIO_CHECK_INPUT_ARGUMENT(broadphase_manager.check(callback));
@@ -49,7 +49,7 @@ bool computeCollisions(BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadpha
 /// not be entirely fulfilled (of course).
 ///
 template<typename BroadPhaseManagerDerived>
-bool computeCollisions(BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadphase_manager,
+bool computeCollisions(BroadPhaseManagerBase<BroadPhaseManagerDerived> & broadphase_manager,
                        const bool stopAtFirstCollision = false)
 {
   CollisionCallBackDefault callback(broadphase_manager.getGeometryModel(),
@@ -79,7 +79,7 @@ bool computeCollisions(BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadpha
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename BroadPhaseManagerDerived, typename ConfigVectorType>
 inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadphase_manager,
+                              BroadPhaseManagerBase<BroadPhaseManagerDerived> & broadphase_manager,
                               CollisionCallBackBase * callback,
                               const Eigen::MatrixBase<ConfigVectorType> & q)
 {
@@ -111,7 +111,7 @@ inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename BroadPhaseManagerDerived, typename ConfigVectorType>
 inline bool computeCollisions(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              BroadPhaseManagerTpl<BroadPhaseManagerDerived> & broadphase_manager,
+                              BroadPhaseManagerBase<BroadPhaseManagerDerived> & broadphase_manager,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
                               const bool stopAtFirstCollision = false)
 {
