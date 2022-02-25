@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/bindings/python/multibody/broadphase-manager.hpp"
+#include "pinocchio/bindings/python/multibody/tree-broadphase-manager.hpp"
 
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 
@@ -24,14 +25,12 @@ namespace pinocchio
     void exposeBroadphaseCallbacks(); // fwd
   
     template<typename BroadPhaseManager>
-    void exposeBroadphaseAlgo()
+    void _exposeBroadphaseAlgo()
     {
       
-      BroadPhaseManagerPythonVisitor<BroadPhaseManager>::expose();
-      typedef BroadPhaseManagerTpl<BroadPhaseManager> Manager;
-      typedef BroadPhaseManagerBase<Manager> BaseManager;
-      
-      
+      typedef BroadPhaseManager Manager;
+      typedef BroadPhaseManagerBase<BroadPhaseManager> BaseManager;
+
       bp::def("computeCollisions",
               (bool (*)(BaseManager &, CollisionCallBackBase *))&computeCollisions,
               (bp::arg("manager"),bp::arg("callback")),
@@ -58,6 +57,16 @@ namespace pinocchio
               (bp::arg("model"),bp::arg("data"),bp::arg("broadphase_manager"),bp::arg("callback"),bp::arg("q")),
               "Compute the forward kinematics, update the geometry placements and run the collision detection using the broadphase manager."
               );
+    }
+  
+    template<typename BroadPhaseManager>
+    void exposeBroadphaseAlgo()
+    {
+      BroadPhaseManagerPythonVisitor<BroadPhaseManager>::expose();
+      _exposeBroadphaseAlgo<BroadPhaseManagerTpl<BroadPhaseManager> >();
+      
+      TreeBroadPhaseManagerPythonVisitor<BroadPhaseManager>::expose();
+      _exposeBroadphaseAlgo<TreeBroadPhaseManagerTpl<BroadPhaseManager> >();
     }
   
     void exposeBroadphase()
