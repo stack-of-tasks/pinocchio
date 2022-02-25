@@ -4,25 +4,61 @@
 
 #include <boost/python.hpp>
 #include <eigenpy/eigen-to-python.hpp>
-#include <iostream>
 
 #include "pinocchio/algorithm/broadphase-callbacks.hpp"
 
+namespace bp = boost::python;
+
 namespace pinocchio { namespace python {
+
+struct CollisionCallBackBaseWrapper
+: CollisionCallBackBase, bp::wrapper<CollisionCallBackBase>
+{
+  typedef CollisionCallBackBase Base;
+  
+  bool stop() const { return this->get_override("stop")(); }
+  void done()
+  {
+    if(bp::override done = this->get_override("done"))
+      done();
+    Base::done();
+  }
+  
+  void done_default()
+  {
+    return this->Base::done();
+  }
+
+  static void expose()
+  {
+    bp::class_<CollisionCallBackBaseWrapper, bp::bases<hpp::fcl::CollisionCallBackBase>, boost::noncopyable>("CollisionCallBackBase",bp::no_init)
+    .def("getGeometryModel",&CollisionCallBackDefault::getGeometryModel,
+         bp::arg("self"),
+         bp::return_value_policy<bp::copy_const_reference>())
+    .def("getGeometryData",(GeometryData & (CollisionCallBackDefault::*)())&CollisionCallBackDefault::getGeometryData,
+         bp::arg("self"),
+         bp::return_internal_reference<>())
+    
+    .def_readonly("collision",
+                  &CollisionCallBackDefault::collision,
+                  "Whether there is a collision or not.")
+    .def_readonly("accumulate",
+                  &CollisionCallBackDefault::accumulate,
+                  "Whether the callback is used in an accumulate mode where several collide methods are called successively.")
+    
+    .def("stop",
+         bp::pure_virtual(&Base::stop), bp::arg("self"),
+         "If true, the stopping criteria related to the collision callback has been met and one can stop.")
+    .def("done",
+         &Base::done, &CollisionCallBackBaseWrapper::done_default,
+         "Callback method called after the termination of a collisition detection algorithm.")
+    ;
+  }
+};
 
 void exposeBroadphaseCallbacks()
 {
-  namespace bp = boost::python;
-  
-  bp::class_<CollisionCallBackBase, bp::bases<hpp::fcl::CollisionCallBackBase>, boost::noncopyable>("CollisionCallBackBase",bp::no_init)
-  .def("getGeometryModel",&CollisionCallBackDefault::getGeometryModel,
-       bp::return_value_policy<bp::copy_const_reference>())
-  .def("getGeometryData",(GeometryData & (CollisionCallBackDefault::*)())&CollisionCallBackDefault::getGeometryData,
-       bp::return_internal_reference<>())
-  .def_readonly("collision",
-                &CollisionCallBackDefault::collision,
-                "Whether there is a collision or not")
-  ;
+  CollisionCallBackBaseWrapper::expose();
   
   bp::class_<CollisionCallBackDefault, bp::bases<CollisionCallBackBase> >("CollisionCallBackDefault",bp::no_init)
   .def(bp::init<const GeometryModel &,GeometryData &,bp::optional<bool> >
