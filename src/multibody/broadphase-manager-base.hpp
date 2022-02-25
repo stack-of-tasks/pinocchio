@@ -54,6 +54,16 @@ struct BroadPhaseManagerBase
     derived().update(compute_local_aabb);
   }
   
+  ///
+  /// @brief Update the manager with a new geometry data.
+  ///
+  /// \param[in] geom_data_ptr_new pointer to the new geometry data.
+  ///
+  void update(GeometryData * geom_data_ptr_new)
+  {
+    derived().update(geom_data_ptr_new);
+  }
+  
   /// @brief Performs collision test between one object and all the objects belonging to the manager.
   bool collide(CollisionObject & obj, CollisionCallBackBase * callback) const
   {
