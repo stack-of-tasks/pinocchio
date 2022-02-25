@@ -37,10 +37,10 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
   hpp::fcl::CollisionGeometryPtr_t box_ptr(new hpp::fcl::Box(0.5,0.5,0.5));
   
-  GeometryObject obj1("obj1",0,sphere_ptr,SE3::Identity());
+  GeometryObject obj1("obj1",0,SE3::Identity(),sphere_ptr);
   const GeomIndex obj1_index = geom_model.addGeometryObject(obj1);
   
-  GeometryObject obj2("obj2",0,box_ptr,SE3::Identity());
+  GeometryObject obj2("obj2",0,SE3::Identity(),box_ptr);
   const GeomIndex obj2_index = geom_model.addGeometryObject(obj2);
 
   GeometryObject & go = geom_model.geometryObjects[obj1_index];
@@ -100,45 +100,18 @@ BOOST_AUTO_TEST_CASE (test_collisions)
   std::cout << "map:\n" << geom_model.collisionPairMapping << std::endl;
   BOOST_CHECK(computeCollisions(broadphase_manager) == false);
   BOOST_CHECK(computeCollisions(broadphase_manager,false) == false);
+  BOOST_CHECK(computeCollisions(model, data, broadphase_manager, q) == false);
+  BOOST_CHECK(computeCollisions(model, data, broadphase_manager, q, false) == false);
+
+  const int num_configs = 1000;
+  for(int i = 0; i < num_configs; ++i)
+  {
+    Eigen::VectorXd q_rand = randomConfiguration(model);
+    q_rand.head<7>() = q.head<7>();
+    
+    BOOST_CHECK(computeCollisions(model, data, broadphase_manager, q_rand) == computeCollisions(model, data, geom_model, geom_data, q_rand));
+  }
   
-  for(size_t cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
-  {
-    const CollisionPair & cp = geom_model.collisionPairs[cp_index];
-    const GeometryObject & obj1 = geom_model.geometryObjects[cp.first];
-    const GeometryObject & obj2 = geom_model.geometryObjects[cp.second];
-     
-    hpp::fcl::CollisionResult other_res;
-    computeCollision(geom_model,geom_data,cp_index);
-    
-    fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[cp.first ])),
-                     oM2 (toFclTransform3f(geom_data.oMg[cp.second]));
-    
-    fcl::collide(obj1.geometry.get(), oM1,
-                 obj2.geometry.get(), oM2,
-                 geom_data.collisionRequests[cp_index],
-                 other_res);
-    
-    {
-      const hpp::fcl::CollisionResult & res = geom_data.collisionResults[cp_index];
-      
-      BOOST_CHECK(res.isCollision() == other_res.isCollision());
-      BOOST_CHECK(!res.isCollision());
-    }
-    
-    {
-      const hpp::fcl::CollisionResult & res = geom_data_broadphase.collisionResults[cp_index];
-      
-      BOOST_CHECK(res.isCollision() == other_res.isCollision());
-      BOOST_CHECK(!res.isCollision());
-    }
-  }
-    
-  // test other signatures
-  {
-    Data data(model);
-    GeometryData geom_data(geom_model);
-    BOOST_CHECK(computeCollisions(model,data,geom_model,geom_data,q) == false);
-  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
