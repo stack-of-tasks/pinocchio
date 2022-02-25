@@ -21,7 +21,7 @@ namespace pinocchio
 {
   namespace python
   {
-    void exposeBroadphaseCallbacks();
+    void exposeBroadphaseCallbacks(); // fwd
   
     template<typename BroadPhaseManager>
     void exposeBroadphaseAlgo()
@@ -29,30 +29,32 @@ namespace pinocchio
       
       BroadPhaseManagerPythonVisitor<BroadPhaseManager>::expose();
       typedef BroadPhaseManagerTpl<BroadPhaseManager> Manager;
+      typedef BroadPhaseManagerBase<Manager> BaseManager;
+      
       
       bp::def("computeCollisions",
-              (bool (*)(Manager &, CollisionCallBackBase *))&computeCollisions,
+              (bool (*)(BaseManager &, CollisionCallBackBase *))&computeCollisions,
               (bp::arg("manager"),bp::arg("callback")),
               "Determine if all collision pairs are effectively in collision or not.\n"
               "This function assumes that updateGeometryPlacements and broadphase_manager.update() have been called first."
               );
       
       bp::def("computeCollisions",
-              (bool (*)(Manager &, const bool))&computeCollisions,
+              (bool (*)(BaseManager &, const bool))&computeCollisions,
               (bp::arg("manager"),bp::arg("stop_at_first_collision") = false),
               "Determine if all collision pairs are effectively in collision or not.\n"
               "This function assumes that updateGeometryPlacements and broadphase_manager.update() have been called first."
               );
       
       bp::def("computeCollisions",
-              (bool (*)(const Model &, Data &, Manager &, const Eigen::MatrixBase<Eigen::VectorXd> &, const bool))&computeCollisions<double,0,JointCollectionDefaultTpl,BroadPhaseManager,Eigen::VectorXd>,
+              (bool (*)(const Model &, Data &, BaseManager &, const Eigen::MatrixBase<Eigen::VectorXd> &, const bool))&computeCollisions<double,0,JointCollectionDefaultTpl,Manager,Eigen::VectorXd>,
               (bp::arg("model"),bp::arg("data"),bp::arg("broadphase_manager"),bp::arg("q"),bp::arg("stop_at_first_collision") = false),
               "Compute the forward kinematics, update the geometry placements and run the collision detection using the broadphase manager."
               );
       
       bp::def("computeCollisions",
-              (bool (*)(const Model &, Data &, Manager &,
-                        CollisionCallBackBase *, const Eigen::MatrixBase<Eigen::VectorXd> &))&computeCollisions<double,0,JointCollectionDefaultTpl,BroadPhaseManager,Eigen::VectorXd>,
+              (bool (*)(const Model &, Data &, BaseManager &,
+                        CollisionCallBackBase *, const Eigen::MatrixBase<Eigen::VectorXd> &))&computeCollisions<double,0,JointCollectionDefaultTpl,Manager,Eigen::VectorXd>,
               (bp::arg("model"),bp::arg("data"),bp::arg("broadphase_manager"),bp::arg("callback"),bp::arg("q")),
               "Compute the forward kinematics, update the geometry placements and run the collision detection using the broadphase manager."
               );
