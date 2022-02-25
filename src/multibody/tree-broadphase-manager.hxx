@@ -128,6 +128,36 @@ bool TreeBroadPhaseManagerTpl<Manager>::collide(CollisionObject & collision_obje
   return callback->collision;
 }
 
+template<typename Manager>
+bool TreeBroadPhaseManagerTpl<Manager>::collide(TreeBroadPhaseManagerTpl & other_manager,
+                                                CollisionCallBackBase * callback) const
+{
+  const size_t num_joints = managers.size();
+  
+  callback->init();
+  const bool accumulate_save_value = callback->accumulate;
+  callback->accumulate = true;
+  
+  for(size_t i = 0; i < num_joints; ++i)
+  {
+    const BroadPhaseManager & manager_outer = managers[i];
+    bool should_stop = false;
+    for(auto && manager_inner: other_manager.managers)
+    {
+      manager_outer.collide(manager_inner, callback);
+      should_stop = callback->stop();
+    
+      if(should_stop) break;
+    }
+    if(should_stop) break;
+  }
+  
+  callback->accumulate = accumulate_save_value; // restore initial value
+  
+  callback->done();
+  return callback->collision;
+}
+
 } // namespace pinocchio
 
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
