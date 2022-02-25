@@ -10,13 +10,13 @@
 namespace pinocchio
 {
 
-  template<typename BroadPhaseManagerDerived>
-  void BroadPhaseManagerTpl<BroadPhaseManagerDerived>::update(bool compute_local_aabb)
+  template<typename Manager>
+  void BroadPhaseManagerTpl<Manager>::update(bool compute_local_aabb)
   {
-    assert(geometry_model_ptr->ngeoms == collision_object_inflation.size());
+    const GeometryModel & geom_model = getGeometryModel();
+    assert(geom_model.ngeoms == collision_object_inflation.size());
     
-    const GeometryModel & geom_model = *geometry_model_ptr;
-    GeometryData & geom_data = *geometry_data_ptr;
+    GeometryData & geom_data = getGeometryData();
     collision_object_inflation.setZero();
     
     for(size_t k = 0; k < selected_collision_pairs.size(); ++k)
@@ -44,7 +44,7 @@ namespace pinocchio
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       const size_t geometry_object_id = selected_geometry_objects[k];
-      const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[geometry_object_id];
+      const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_object_id];
       hpp::fcl::CollisionGeometryPtr_t new_geometry = geom_obj.geometry;
       
       CollisionObject & collision_obj = collision_objects[k];
@@ -69,24 +69,25 @@ namespace pinocchio
     manager.update(); // because the position has changed.
   }
   
-  template<typename BroadPhaseManagerDerived>
-  void BroadPhaseManagerTpl<BroadPhaseManagerDerived>::update(GeometryData * geom_data_ptr_new)
+  template<typename Manager>
+  void BroadPhaseManagerTpl<Manager>::update(GeometryData * geom_data_ptr_new)
   {
-    geometry_data_ptr = geom_data_ptr_new;
+    &getGeometryData() = geom_data_ptr_new;
     update(false);
   }
   
-  template<typename BroadPhaseManagerDerived>
-  BroadPhaseManagerTpl<BroadPhaseManagerDerived>::~BroadPhaseManagerTpl()
+  template<typename Manager>
+  BroadPhaseManagerTpl<Manager>::~BroadPhaseManagerTpl()
   {}
   
-  template<typename BroadPhaseManagerDerived>
-  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::check() const
+  template<typename Manager>
+  bool BroadPhaseManagerTpl<Manager>::check() const
   {
     std::vector<hpp::fcl::CollisionObject*> collision_objects_ptr = manager.getObjects();
     if(collision_objects_ptr.size() != collision_objects.size())
       return false;
     
+    const GeometryModel & geom_model = getGeometryModel();
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       const size_t i = selected_geometry_objects[k];
@@ -96,7 +97,7 @@ namespace pinocchio
         return false;
       
       hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
-      const GeometryObject & geom_obj = geometry_model_ptr->geometryObjects[i];
+      const GeometryObject & geom_obj = geom_model.geometryObjects[i];
       hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
       
       if(geometry.get() != geometry_of_geom_obj.get())
@@ -106,21 +107,22 @@ namespace pinocchio
     return true;
   }
   
-  template<typename BroadPhaseManagerDerived>
-  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::check(CollisionCallBackBase * callback) const
+  template<typename Manager>
+  bool BroadPhaseManagerTpl<Manager>::check(CollisionCallBackBase * callback) const
   {
     return
-       &callback->getGeometryModel() == geometry_model_ptr
-    && &callback->getGeometryData() == geometry_data_ptr;
+       &callback->getGeometryModel() == &getGeometryModel()
+    && &callback->getGeometryData() == &getGeometryData();
   }
 
-  template<typename BroadPhaseManagerDerived>
-  void BroadPhaseManagerTpl<BroadPhaseManagerDerived>::init()
+  template<typename Manager>
+  void BroadPhaseManagerTpl<Manager>::init()
   {
+    const GeometryModel & geom_model = getGeometryModel();
     collision_objects.reserve(selected_geometry_objects.size());
     for(size_t i: selected_geometry_objects)
     {
-      GeometryObject & geom_obj = const_cast<GeometryObject &>(geometry_model_ptr->geometryObjects[i]);
+      GeometryObject & geom_obj = const_cast<GeometryObject &>(geom_model.geometryObjects[i]);
       collision_objects.push_back(CollisionObject(geom_obj.geometry,i));
 
       // Feed the base broadphase manager
@@ -128,24 +130,24 @@ namespace pinocchio
     }
   }
 
-  template<typename BroadPhaseManagerDerived>
-  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(CollisionObject & obj,
-                                                               CollisionCallBackBase * callback) const
+  template<typename Manager>
+  bool BroadPhaseManagerTpl<Manager>::collide(CollisionObject & obj,
+                                              CollisionCallBackBase * callback) const
   {
     manager.collide(&obj,callback);
     return callback->collision;
   }
 
-  template<typename BroadPhaseManagerDerived>
-  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(CollisionCallBackBase * callback) const
+  template<typename Manager>
+  bool BroadPhaseManagerTpl<Manager>::collide(CollisionCallBackBase * callback) const
   {
     manager.collide(callback);
     return callback->collision;
   }
 
-  template<typename BroadPhaseManagerDerived>
-  bool BroadPhaseManagerTpl<BroadPhaseManagerDerived>::collide(BroadPhaseManagerTpl & other_manager,
-                                                               CollisionCallBackBase * callback) const
+  template<typename Manager>
+  bool BroadPhaseManagerTpl<Manager>::collide(BroadPhaseManagerTpl & other_manager,
+                                              CollisionCallBackBase * callback) const
   {
     manager.collide(&other_manager.manager,callback);
     return callback->collision;

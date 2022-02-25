@@ -9,28 +9,27 @@
 
 #include <hpp/fcl/broadphase/broadphase_collision_manager.h>
 
-#include "pinocchio/multibody/fcl.hpp"
-#include "pinocchio/multibody/geometry.hpp"
+#include "pinocchio/multibody/broadphase-manager-base.hpp"
 #include "pinocchio/multibody/geometry-object-filter.hpp"
 
-#include "pinocchio/algorithm/broadphase-callbacks.hpp"
 
 namespace pinocchio
 {
 
 template<typename _Manager>
 struct BroadPhaseManagerTpl
+: public BroadPhaseManagerBase< BroadPhaseManagerTpl<_Manager> >
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
+  typedef BroadPhaseManagerBase< BroadPhaseManagerTpl<_Manager> > Base;
   typedef std::vector<CollisionObject> CollisionObjectVector;
   typedef Eigen::VectorXd VectorXs;
   typedef _Manager Manager;
   
   /// @brief Default constructor.
   BroadPhaseManagerTpl() // for std::vector
-  : geometry_model_ptr(nullptr)
-  , geometry_data_ptr(nullptr)
+  : Base()
   {}
   
   /// @brief Constructor from a given geometry model and data.
@@ -41,8 +40,7 @@ struct BroadPhaseManagerTpl
   BroadPhaseManagerTpl(const GeometryModel * geometry_model_ptr,
                        GeometryData * geometry_data_ptr,
                        const GeometryObjectFilterBase & filter = GeometryObjectFilterNothing())
-  : geometry_model_ptr(geometry_model_ptr)
-  , geometry_data_ptr(geometry_data_ptr)
+  : Base(geometry_model_ptr, geometry_data_ptr)
   {
     selected_geometry_objects = filter.apply(geometry_model_ptr->geometryObjects);
     
@@ -75,8 +73,7 @@ struct BroadPhaseManagerTpl
   /// \param[in] other manager to copy.
   ///
   BroadPhaseManagerTpl(const BroadPhaseManagerTpl & other)
-  : geometry_model_ptr(other.geometry_model_ptr)
-  , geometry_data_ptr(other.geometry_data_ptr)
+  : Base(other)
   , collision_object_inflation(other.collision_object_inflation.size())
   , selected_geometry_objects(other.selected_geometry_objects)
   , geometry_to_collision_index(other.geometry_to_collision_index)
@@ -85,6 +82,9 @@ struct BroadPhaseManagerTpl
     init();
   }
   
+  using Base::getGeometryModel;
+  using Base::getGeometryData;
+
   ///
   /// @brief Update the manager from the current geometry positions and update the underlying FCL broad phase manager.
   ///
@@ -106,14 +106,6 @@ struct BroadPhaseManagerTpl
   
   /// @brief Check whether the callback is inline with *this
   bool check(CollisionCallBackBase * callback) const;
-  
-  /// @brief Returns the geometry model associated to the manager.
-  const GeometryModel & getGeometryModel() const { return *geometry_model_ptr; }
-  
-  /// @brief Returns the geometry data associated to the manager.
-  const GeometryData & getGeometryData() const { return *geometry_data_ptr; }
-  /// @brief Returns the geometry data associated to the manager.
-  GeometryData & getGeometryData() { return *geometry_data_ptr; }
   
   /// @brief Returns the vector of collision objects associated to the manager.
   const CollisionObjectVector & getCollisionObjects() const { return collision_objects; }
@@ -151,12 +143,6 @@ protected:
   
   /// @brief internal manager
   Manager manager;
-  
-  /// @brief Pointer to the geometry model
-  const GeometryModel * geometry_model_ptr;
-  
-  /// @brief Pointer to the geometry data
-  GeometryData * geometry_data_ptr;
   
   /// @brief the vector of collision objects.
   CollisionObjectVector collision_objects;
