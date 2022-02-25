@@ -35,6 +35,7 @@ bool computeCollisions(BroadPhaseManagerBase<BroadPhaseManagerDerived> & broadph
 {
   PINOCCHIO_CHECK_INPUT_ARGUMENT(broadphase_manager.check(callback));
   broadphase_manager.collide(callback);
+  callback->done();
   return callback->collision;
 }
 

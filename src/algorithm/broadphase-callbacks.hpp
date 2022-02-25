@@ -19,18 +19,27 @@ namespace pinocchio
 {
 
 /// @brief Interface for Pinocchio collision callback functors
-struct CollisionCallBackBase : hpp::fcl::CollisionCallBackBase
+struct CollisionCallBackBase
+: hpp::fcl::CollisionCallBackBase
 {
   CollisionCallBackBase(const GeometryModel & geometry_model,
                         GeometryData & geometry_data)
   : geometry_model_ptr(&geometry_model)
   , geometry_data_ptr(&geometry_data)
   , collision(false)
+  , accumulate(false)
   {}
   
   const GeometryModel & getGeometryModel() const { return *geometry_model_ptr; }
   const GeometryData & getGeometryData() const { return *geometry_data_ptr; }
   GeometryData & getGeometryData() { return *geometry_data_ptr; }
+  
+  /// \brief If true, the stopping criteria related to the collision callback has been met and one can stop.
+  virtual bool stop() const = 0;
+  
+  /// \brief Callback method called after the termination of a collisition detection algorithms.
+  ///        The default implementation does nothing.
+  virtual void done() {};
 
 protected:
   /// @brief Geometry model associated to the callback
@@ -43,6 +52,9 @@ public:
   
   /// @brief Whether there is a collision or not
   bool collision;
+  
+  /// @brief Whether the callback is used in an accumulate mode where several collide methods are called successively.
+  bool accumulate;
   
 };
 
@@ -59,6 +71,9 @@ struct CollisionCallBackDefault : CollisionCallBackBase
   
   void init()
   {
+    if(accumulate) // skip reseting of the parameters
+      return;
+    
     count = 0;
     collision = false;
     collisionPairIndex = std::numeric_limits<PairIndex>::max();
@@ -67,6 +82,8 @@ struct CollisionCallBackDefault : CollisionCallBackBase
   
   bool collide(hpp::fcl::CollisionObject* o1, hpp::fcl::CollisionObject* o2)
   {
+    assert(stopAtFirstCollision && collision && "must never happened");
+    
     CollisionObject & co1 = reinterpret_cast<CollisionObject&>(*o1);
     CollisionObject & co2 = reinterpret_cast<CollisionObject&>(*o2);
     
@@ -92,6 +109,20 @@ struct CollisionCallBackDefault : CollisionCallBackBase
       return false;
     else
       return res;
+  }
+  
+  bool stop() const final
+  {
+    if(stopAtFirstCollision && collision)
+      return true;
+    
+    return false;
+  }
+  
+  void done() final
+  {
+    if(collision)
+      geometry_data_ptr->collisionPairIndex = collisionPairIndex;
   }
 
   /// @brief Whether to stop or not when localizing a first collision
