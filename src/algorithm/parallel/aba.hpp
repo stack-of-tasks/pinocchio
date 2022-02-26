@@ -1,14 +1,13 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2022 INRIA
 //
 
 #ifndef __pinocchio_algorithm_parallel_aba_hpp__
 #define __pinocchio_algorithm_parallel_aba_hpp__
 
-#include <omp.h>
-
 #include "pinocchio/multibody/pool/model.hpp"
 #include "pinocchio/algorithm/aba.hpp"
+#include "pinocchio/algorithm/parallel/omp.hpp"
   
 namespace pinocchio
 {
@@ -55,7 +54,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), a.cols());
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.cols());
     
-    omp_set_num_threads((int)num_threads);
+    set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.cols();
     Eigen::DenseIndex i = 0;
     

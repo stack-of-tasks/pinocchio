@@ -1,14 +1,13 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_algorithm_parallel_geometry_hpp__
 #define __pinocchio_algorithm_parallel_geometry_hpp__
 
-#include <omp.h>
-
 #include "pinocchio/multibody/pool/geometry.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#include "pinocchio/algorithm/parallel/omp.hpp"
   
 namespace pinocchio
 {
@@ -20,7 +19,7 @@ namespace pinocchio
   {
     bool is_colliding = false;
     
-    omp_set_num_threads((int)num_threads);
+    set_default_omp_options(num_threads);
     std::size_t cp_index = 0;
     
 #pragma omp parallel for
@@ -95,7 +94,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
     
-    omp_set_num_threads((int)num_threads);
+    set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
     

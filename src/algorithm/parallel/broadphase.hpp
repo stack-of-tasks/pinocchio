@@ -5,11 +5,10 @@
 #ifndef __pinocchio_algorithm_parallel_broadphase_hpp__
 #define __pinocchio_algorithm_parallel_broadphase_hpp__
 
-#include <omp.h>
-
 #include "pinocchio/multibody/pool/broadphase-manager.hpp"
 #include "pinocchio/algorithm/broadphase.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
+#include "pinocchio/algorithm/parallel/omp.hpp"
 
 namespace pinocchio
 {
@@ -38,7 +37,7 @@ namespace pinocchio
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
 
-    omp_set_num_threads((int)num_threads);
+    set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
 
