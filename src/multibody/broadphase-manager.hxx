@@ -27,8 +27,9 @@ namespace pinocchio
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
       
-      if(   geometry_to_collision_index[geom1_id] == std::numeric_limits<size_t>::max()
-         || geometry_to_collision_index[geom2_id] == std::numeric_limits<size_t>::max())
+      const bool geom1_is_selected = geometry_to_collision_index[geom1_id] != std::numeric_limits<size_t>::max();
+      const bool geom2_is_selected = geometry_to_collision_index[geom2_id] != std::numeric_limits<size_t>::max();
+      if(!(geom1_is_selected || geom2_is_selected))
         continue;
       
       const bool check_collision =
@@ -39,12 +40,19 @@ namespace pinocchio
       
       const ::hpp::fcl::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
       const double inflation = (cr.break_distance + cr.security_margin)*0.5;
+
+      if(geom1_is_selected)
+      {
+        const Eigen::DenseIndex geom1_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom1_id]);
+        collision_object_inflation[geom1_id_local] = (std::max)(inflation,collision_object_inflation[geom1_id_local]);
+      }
       
-      const Eigen::DenseIndex geom1_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom1_id]);
-      const Eigen::DenseIndex geom2_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom2_id]);
+      if(geom2_is_selected)
+      {
+        const Eigen::DenseIndex geom2_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom2_id]);
+        collision_object_inflation[geom2_id_local] = (std::max)(inflation,collision_object_inflation[geom2_id_local]);
+      }
       
-      collision_object_inflation[geom1_id_local] = (std::max)(inflation,collision_object_inflation[geom1_id_local]);
-      collision_object_inflation[geom2_id_local] = (std::max)(inflation,collision_object_inflation[geom2_id_local]);
     }
     
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
