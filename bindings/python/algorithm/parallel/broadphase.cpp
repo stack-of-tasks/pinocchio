@@ -28,7 +28,7 @@ namespace pinocchio
   
     template<typename BroadPhaseManager>
     VectorXb computeCollisions_1(const size_t num_threads,
-                                 BroadPhaseManagerPool<BroadPhaseManager,double> & pool,
+                                 BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
                                  const Eigen::MatrixBase<Eigen::MatrixXd> & q,
                                  const bool stopAtFirstCollisionInConfiguration = false,
                                  const bool stopAtFirstCollisionInBatch = false)
@@ -38,10 +38,9 @@ namespace pinocchio
       return res;
     }
   
-    template<typename CollisionManager>
+    template<typename BroadPhaseManager>
     void exposeCase()
     {
-      typedef BroadPhaseManagerTpl<CollisionManager> BroadPhaseManager;
       bp::def("computeCollisions",
               computeCollisions_1<BroadPhaseManager>,
               (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("stop_at_first_collision_in_configuration") = false, bp::arg("stop_at_first_collision_in_batch") = false),
@@ -56,7 +55,8 @@ namespace pinocchio
   
     void exposeParallelBroadPhase()
     {
-      exposeCase<hpp::fcl::DynamicAABBTreeCollisionManager>();
+      exposeCase< BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> >();
+      exposeCase< TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> >();
     }
     
   } // namespace python
