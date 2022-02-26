@@ -6,6 +6,7 @@
 
 #include "pinocchio/multibody/geometry.hpp"
 #include "pinocchio/multibody/pool/broadphase-manager.hpp"
+#include "pinocchio/multibody/tree-broadphase-manager.hpp"
 #include "pinocchio/algorithm/geometry.hpp"
 #include "pinocchio/algorithm/parallel/geometry.hpp"
 #include "pinocchio/parsers/urdf.hpp"
@@ -262,6 +263,17 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
 
   {
     typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+    typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
+
+    BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
+    VectorXb res(batch_size); res.fill(false);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res);
+
+    BOOST_CHECK(res == res_ref);
+  }
+  
+  {
+    typedef TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
     typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
