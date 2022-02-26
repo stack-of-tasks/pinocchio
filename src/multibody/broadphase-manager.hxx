@@ -19,9 +19,9 @@ namespace pinocchio
     GeometryData & geom_data = getGeometryData();
     collision_object_inflation.setZero();
     
-    for(size_t k = 0; k < selected_collision_pairs.size(); ++k)
+    // The pass should be done over all the geometry objects composing the collision tree.
+    for(size_t pair_id = 0; pair_id < geom_model.collisionPairs.size(); ++pair_id)
     {
-      const size_t pair_id = selected_collision_pairs[k];
       const CollisionPair & pair = geom_model.collisionPairs[pair_id];
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
