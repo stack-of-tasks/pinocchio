@@ -18,7 +18,8 @@ namespace pinocchio
                          BroadPhaseManagerPoolTpl<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> & pool,
                          const Eigen::MatrixBase<ConfigVectorPool> & q,
                          const Eigen::MatrixBase<CollisionVectorResult> & res,
-                         const bool stopAtFirstCollision = false)
+                         const bool stopAtFirstCollisionInConfiguration = false,
+                         const bool stopAtFirstCollisionInBatch = false)
   {
     typedef BroadPhaseManagerPoolTpl<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;
@@ -40,14 +41,22 @@ namespace pinocchio
     set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
+    volatile bool is_colliding = false;
 
-#pragma omp parallel for
+#pragma omp parallel for shared(is_colliding)
     for(i = 0; i < batch_size; i++)
     {
+      if(stopAtFirstCollisionInBatch && is_colliding) continue;
+      
       const int thread_id = omp_get_thread_num();
       Data & data = datas[(size_t)thread_id];
       BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
-      res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollision);
+      res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
+      
+      if(!is_colliding && res_[i])
+      {
+        is_colliding = true;
+      }
     }
   }
 }

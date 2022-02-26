@@ -266,10 +266,22 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
     typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
-    VectorXb res(batch_size); res.fill(false);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res);
+    VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res1);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res3,true,true);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res4,false,true);
 
-    BOOST_CHECK(res == res_ref);
+    BOOST_CHECK(res1 == res_ref);
+    BOOST_CHECK(res2 == res_ref);
+    
+    for(Eigen::DenseIndex k = 0; k < batch_size; ++k)
+    {
+      if(res3[k])
+        BOOST_CHECK(res_ref[k]);
+      if(res4[k])
+        BOOST_CHECK(res_ref[k]);
+    }
   }
   
   {
@@ -277,10 +289,22 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
     typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
-    VectorXb res(batch_size); res.fill(false);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res);
+    VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res1);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res3,true,true);
+    computeCollisions(num_thread,broadphase_manager_pool,q,res4,false,true);
 
-    BOOST_CHECK(res == res_ref);
+    BOOST_CHECK(res1 == res_ref);
+    BOOST_CHECK(res2 == res_ref);
+    
+    for(Eigen::DenseIndex k = 0; k < batch_size; ++k)
+    {
+      if(res3[k])
+        BOOST_CHECK(res_ref[k]);
+      if(res4[k])
+        BOOST_CHECK(res_ref[k]);
+    }
   }
 }
 

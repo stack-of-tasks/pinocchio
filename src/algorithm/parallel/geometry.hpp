@@ -17,12 +17,12 @@ namespace pinocchio
                                 GeometryData & geom_data,
                                 const bool stopAtFirstCollision = false)
   {
-    bool is_colliding = false;
+    volatile bool is_colliding = false;
     
     set_default_omp_options(num_threads);
     std::size_t cp_index = 0;
     
-#pragma omp parallel for
+#pragma omp parallel for shared(is_colliding)
     for(cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
       if(stopAtFirstCollision && is_colliding) continue;
@@ -73,7 +73,8 @@ namespace pinocchio
                          GeometryPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
                          const Eigen::MatrixBase<ConfigVectorPool> & q,
                          const Eigen::MatrixBase<CollisionVectorResult> & res,
-                         const bool stopAtFirstCollision = false)
+                         const bool stopAtFirstCollisionInConfiguration = false,
+                         const bool stopAtFirstCollisionInBatch = false)
   {
     typedef GeometryPoolTpl<Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;
@@ -97,14 +98,22 @@ namespace pinocchio
     set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
     Eigen::DenseIndex i = 0;
+    volatile bool is_colliding = false;
     
-#pragma omp parallel for
+#pragma omp parallel for shared(is_colliding)
     for(i = 0; i < batch_size; i++)
     {
+      if(stopAtFirstCollisionInBatch && is_colliding) continue;
+      
       const int thread_id = omp_get_thread_num();
       Data & data = datas[(size_t)thread_id];
       GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
-      res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollision);
+      res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
+      
+      if(!is_colliding && res_[i])
+      {
+        is_colliding = true;
+      }
     }
   }
 }
