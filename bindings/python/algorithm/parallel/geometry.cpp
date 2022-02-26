@@ -79,7 +79,7 @@ namespace pinocchio
       
       bp::def("computeCollisions",
               computeCollisions_pool_proxy,
-              (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("tstop_at_first_collision_in_configuration") = false,bp::arg("tstop_at_first_collision_in_batch") = false),
+              (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("stop_at_first_collision_in_configuration") = false,bp::arg("stop_at_first_collision_in_batch") = false),
               "Evaluates in parallel the collisions and returns the result.\n\n"
               "Parameters:\n"
               "\tnum_thread: number of threads used for the computation\n"
