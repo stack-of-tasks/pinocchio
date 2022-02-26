@@ -4,6 +4,7 @@
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/parallel/broadphase.hpp"
+#include "pinocchio/multibody/tree-broadphase-manager.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
