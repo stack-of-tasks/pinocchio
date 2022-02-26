@@ -40,22 +40,37 @@ namespace pinocchio
 
     set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
-    Eigen::DenseIndex i = 0;
-    volatile bool is_colliding = false;
 
-#pragma omp parallel for shared(is_colliding)
-    for(i = 0; i < batch_size; i++)
+    if(stopAtFirstCollisionInBatch)
     {
-      if(stopAtFirstCollisionInBatch && is_colliding) continue;
-      
-      const int thread_id = omp_get_thread_num();
-      Data & data = datas[(size_t)thread_id];
-      BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
-      res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
-      
-      if(!is_colliding && res_[i])
+      bool is_colliding = false;
+      Eigen::DenseIndex i = 0;
+#pragma omp parallel for
+      for(i = 0; i < batch_size; i++)
       {
-        is_colliding = true;
+        if(is_colliding) continue;
+        
+        const int thread_id = omp_get_thread_num();
+        Data & data = datas[(size_t)thread_id];
+        BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
+        res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
+        
+        if(res_[i])
+        {
+          is_colliding = true;
+        }
+      }
+    }
+    else
+    {
+      Eigen::DenseIndex i = 0;
+#pragma omp parallel for
+      for(i = 0; i < batch_size; i++)
+      {
+        const int thread_id = omp_get_thread_num();
+        Data & data = datas[(size_t)thread_id];
+        BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
+        res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
       }
     }
   }

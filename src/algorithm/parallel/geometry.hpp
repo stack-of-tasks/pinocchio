@@ -17,38 +17,22 @@ namespace pinocchio
                                 GeometryData & geom_data,
                                 const bool stopAtFirstCollision = false)
   {
-    volatile bool is_colliding = false;
+    bool is_colliding = false;
     
     set_default_omp_options(num_threads);
     std::size_t cp_index = 0;
     
-#pragma omp parallel for shared(is_colliding)
+#pragma omp parallel for
     for(cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
       if(stopAtFirstCollision && is_colliding) continue;
-      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+        
+      const bool res = computeCollision(geom_model, geom_data, cp_index);
       
-      if(geom_data.activeCollisionPairs[cp_index]
-         && !(   geom_model.geometryObjects[cp.first].disableCollision
-              || geom_model.geometryObjects[cp.second].disableCollision))
+      if(!is_colliding && res)
       {
-        fcl::CollisionRequest & collision_request = geom_data.collisionRequests[cp_index];
-        collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
-        
-        fcl::CollisionResult & collision_result = geom_data.collisionResults[cp_index];
-        collision_result.clear();
-
-        fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[cp.first ])),
-                         oM2 (toFclTransform3f(geom_data.oMg[cp.second]));
-        
-        const GeometryData::ComputeCollision & do_computations = geom_data.collision_functors[cp_index];
-        std::size_t res = do_computations(oM1, oM2, collision_request, collision_result);
-        
-        if(!is_colliding && res)
-        {
-          is_colliding = true;
-          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
-        }
+        is_colliding = true;
+        geom_data.collisionPairIndex = cp_index; // first pair to be in collision
       }
     }
     
@@ -97,22 +81,37 @@ namespace pinocchio
     
     set_default_omp_options(num_threads);
     const Eigen::DenseIndex batch_size = res.size();
-    Eigen::DenseIndex i = 0;
-    volatile bool is_colliding = false;
     
-#pragma omp parallel for shared(is_colliding)
-    for(i = 0; i < batch_size; i++)
+    if(stopAtFirstCollisionInBatch)
     {
-      if(stopAtFirstCollisionInBatch && is_colliding) continue;
-      
-      const int thread_id = omp_get_thread_num();
-      Data & data = datas[(size_t)thread_id];
-      GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
-      res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
-      
-      if(!is_colliding && res_[i])
+      bool is_colliding = false;
+      Eigen::DenseIndex i = 0;
+#pragma omp parallel for
+      for(i = 0; i < batch_size; i++)
       {
-        is_colliding = true;
+        if(is_colliding) continue;
+        
+        const int thread_id = omp_get_thread_num();
+        Data & data = datas[(size_t)thread_id];
+        GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
+        res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
+        
+        if(res_[i])
+        {
+          is_colliding = true;
+        }
+      }
+    }
+    else
+    {
+      Eigen::DenseIndex i = 0;
+#pragma omp parallel for
+      for(i = 0; i < batch_size; i++)
+      {
+        const int thread_id = omp_get_thread_num();
+        Data & data = datas[(size_t)thread_id];
+        GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
+        res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
       }
     }
   }
