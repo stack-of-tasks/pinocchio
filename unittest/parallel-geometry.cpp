@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
 
   const size_t num_thread = (size_t)omp_get_max_threads();
   typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
-  typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
+  typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
   BroadPhaseManagerPool pool(&model,&geom_model,num_thread);
   
   auto manager = pool.getBroadPhaseManager(0);
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
 
   {
     typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
-    typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
+    typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   
   {
     typedef TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
-    typedef BroadPhaseManagerPoolBaseTpl<BroadPhaseManager, double> BroadPhaseManagerPool;
+    typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
 
     BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);

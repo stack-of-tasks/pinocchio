@@ -15,13 +15,13 @@ namespace pinocchio
 
   template<typename BroadPhaseManagerDerived, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename CollisionVectorResult>
   void computeCollisions(const size_t num_threads,
-                         BroadPhaseManagerPoolTpl<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> & pool,
+                         BroadPhaseManagerPoolBase<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> & pool,
                          const Eigen::MatrixBase<ConfigVectorPool> & q,
                          const Eigen::MatrixBase<CollisionVectorResult> & res,
                          const bool stopAtFirstCollisionInConfiguration = false,
                          const bool stopAtFirstCollisionInBatch = false)
   {
-    typedef BroadPhaseManagerPoolTpl<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> Pool;
+    typedef BroadPhaseManagerPoolBase<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;
     typedef typename Pool::Data Data;
     typedef typename Pool::DataVector DataVector;
