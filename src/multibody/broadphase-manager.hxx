@@ -22,9 +22,14 @@ namespace pinocchio
     // The pass should be done over all the geometry objects composing the collision tree.
     for(size_t pair_id = 0; pair_id < geom_model.collisionPairs.size(); ++pair_id)
     {
+      // TODO(jcarpent): enhance the performances by collecting only the collision pairs related to the selected_geometry_objects
       const CollisionPair & pair = geom_model.collisionPairs[pair_id];
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
+      
+      if(   geometry_to_collision_index[geom1_id] == std::numeric_limits<size_t>::max()
+         || geometry_to_collision_index[geom2_id] == std::numeric_limits<size_t>::max())
+        continue;
       
       const bool check_collision =
            geom_data.activeCollisionPairs[pair_id]
