@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2021 CNRS INRIA
+// Copyright (c) 2016-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_frame_hpp__
@@ -40,16 +40,18 @@ namespace pinocchio
         .def(bp::init<const Frame &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
 
         .def_readwrite("name", &Frame::name, "name of the frame")
-        .def_readwrite("parentJoint", &Frame::parentJoint, "id of the parent joint")
-        .def_readwrite("parentFrame", &Frame::parentFrame, "id of the parent frame")
+        .def_readwrite("parentJoint", &Frame::parentJoint,
+                       "Index of the parent joint")
+        .def_readwrite("parentFrame", &Frame::parentFrame,
+                       "Index of the parent frame")
         .add_property("parent",
-                      bp::make_getter(&Frame::parentJoint,
-                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentJoint")),
-                      bp::make_setter(&Frame::parentJoint, deprecated_member<>("Deprecated. Use parentJoint")), "See parent joint")
+                      bp::make_function(+[](const Frame & self) { return self.parentJoint; }, deprecated_member<>("Deprecated member. Use Frame.parentJoint instead.")),
+                      bp::make_function(+[](Frame & self, const JointIndex index) { self.parentJoint = index; }, deprecated_member<>("Deprecated member. Use Frame.parentJoint instead.")),
+                      "See parentJoint property.")
         .add_property("previousFrame",
-                      bp::make_getter(&Frame::parentFrame,
-                                      deprecated_member<bp::return_value_policy<bp::copy_non_const_reference> >("Deprecated. Use parentFrame")),
-                      bp::make_setter(&Frame::parentFrame, deprecated_member<>("Deprecated. Use parentFrame")), "See parent frame")          
+                      bp::make_function(+[](const Frame & self) { return self.parentFrame; }, deprecated_member<>("Deprecated member. Use Frame.parentFrame instead.")),
+                      bp::make_function(+[](Frame & self, const FrameIndex index) { self.parentFrame = index; }, deprecated_member<>("Deprecated member. Use Frame.parentFrame instead.")),
+                      "See parentFrame property.")
         .def_readwrite("placement",
                        &Frame::placement,
                        "placement in the parent joint local frame")
