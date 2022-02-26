@@ -10,6 +10,7 @@
 #include "pinocchio/multibody/pool/broadphase-manager.hpp"
 
 #include <boost/python/overloads.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <eigenpy/memory.hpp>
 #include <eigenpy/exception.hpp>
 
@@ -24,6 +25,27 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+  
+    namespace helper
+    {
+      template<typename BroadPhaseManager>
+      struct base_class_name
+      {
+        static std::string get();
+      };
+    
+      template<typename Manager>
+      struct base_class_name< BroadPhaseManagerTpl<Manager> >
+      {
+        static std::string get() { return "BroadPhaseManager"; }
+      };
+    
+      template<typename Manager>
+      struct base_class_name< TreeBroadPhaseManagerTpl<Manager> >
+      {
+        static std::string get() { return "TreeBroadPhaseManager"; }
+      };
+    }
 
     template<typename BroadPhaseManagerPool>
     struct BroadPhaseManagerPoolPythonVisitor
@@ -36,6 +58,7 @@ namespace pinocchio
       typedef typename BroadPhaseManagerPool::GeometryData GeometryData;
       typedef typename BroadPhaseManagerPool::BroadPhaseManagerVector BroadPhaseManagerVector;
       typedef typename BroadPhaseManagerPool::BroadPhaseManager BroadPhaseManager;
+      typedef typename BroadPhaseManager::Manager Manager;
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
@@ -46,7 +69,7 @@ namespace pinocchio
                                                               "Default constructor.")
              [bp::with_custodian_and_ward<1,2>(),bp::with_custodian_and_ward<1,3>()])
         .def(bp::init<BroadPhaseManagerPool>(bp::args("self","other"),
-                                    "Copy constructor."))
+                                             "Copy constructor."))
         
         .def("getBroadPhaseManager",(BroadPhaseManager & (BroadPhaseManagerPool::*)(const size_t))&BroadPhaseManagerPool::getBroadPhaseManager,
              bp::args("self","index"),"Return a specific broadphase manager.",
@@ -65,15 +88,23 @@ namespace pinocchio
       
       static void expose()
       {
-
-        bp::class_<BroadPhaseManagerPool,bp::bases<Base> >("BroadPhaseManagerPool",
-                                                  "Pool containing a bunch of BroadPhaseManager",
-                                                  bp::no_init)
+        std::string manager_name = boost::typeindex::type_id<Manager>().pretty_name();
+        boost::algorithm::replace_all(manager_name, "hpp::fcl::", "");
+        const std::string broadphase_prefix = helper::base_class_name<BroadPhaseManager>::get();
+        const std::string class_name =
+        broadphase_prefix + "Pool" + "_" + manager_name;
+        
+        const std::string doc = "Pool containing a bunch of " + broadphase_prefix + ".";
+        
+        bp::class_<BroadPhaseManagerPool,bp::bases<Base> >(class_name.c_str(),
+                                                           doc.c_str(),
+                                                           bp::no_init)
         .def(BroadPhaseManagerPoolPythonVisitor())
         .def(CopyableVisitor<BroadPhaseManagerPool>())
         ;
         
-        StdVectorPythonVisitor<BroadPhaseManagerVector>::expose("StdVec_BroadPhaseManager_");
+        const std::string vector_name = "StdVec_" + broadphase_prefix + "_" + manager_name;
+        StdVectorPythonVisitor<BroadPhaseManagerVector>::expose(vector_name);
       }
     };
   }

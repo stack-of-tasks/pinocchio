@@ -8,6 +8,7 @@
 #ifdef PINOCCHIO_WITH_HPP_FCL
 #include "pinocchio/bindings/python/multibody/pool/geometry.hpp"
 #include "pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp"
+#include "pinocchio/multibody/tree-broadphase-manager.hpp"
 
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
 #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
@@ -29,7 +30,8 @@ namespace pinocchio
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
       GeometryPoolPythonVisitor<GeometryPool>::expose();
-      BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager>,context::Scalar> >::expose();
+      BroadPhaseManagerPoolPythonVisitor< BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,context::Scalar> >::expose();
+      BroadPhaseManagerPoolPythonVisitor< TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager,context::Scalar> >::expose();
 #endif
     }
     
