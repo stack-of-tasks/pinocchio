@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_algo_collision_hxx__
@@ -27,26 +27,20 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
-    collision_result.clear();
-    
-    const bool check_collision =
-         geom_data.activeCollisionPairs[pair_id]
-    && !(geom_model.geometryObjects[pair.first].disableCollision || geom_model.geometryObjects[pair.second].disableCollision);
-    
-    if(!check_collision)
-      return false;
-
     fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    
     collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
     
+    fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
+    collision_result.clear();
+
     fcl::Transform3f oM1 (toFclTransform3f(geom_data.oMg[pair.first ])),
                      oM2 (toFclTransform3f(geom_data.oMg[pair.second]));
     
     try
     {
       GeometryData::ComputeCollision & do_computations = geom_data.collision_functors[pair_id];
-      do_computations.run(oM1, oM2, collision_request, collision_result);
+      do_computations(oM1, oM2, collision_request, collision_result);
     }
     catch(std::invalid_argument & e)
     {
@@ -68,13 +62,19 @@ namespace pinocchio
     for (std::size_t cp_index = 0;
          cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
-      bool res = computeCollision(geom_model,geom_data,cp_index);
-      if(!isColliding && res)
+      const CollisionPair & cp = geom_model.collisionPairs[cp_index];
+      
+      if(geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[cp.first].disableCollision || geom_model.geometryObjects[cp.second].disableCollision))
       {
-        isColliding = true;
-        geom_data.collisionPairIndex = cp_index; // first pair to be in collision
-        if(stopAtFirstCollision)
-          return true;
+        bool res = computeCollision(geom_model,geom_data,cp_index);
+        if(!isColliding && res)
+        {
+          isColliding = true;
+          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
+          if(stopAtFirstCollision)
+            return true;
+        }
       }
     }
     
