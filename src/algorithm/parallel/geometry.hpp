@@ -27,12 +27,17 @@ namespace pinocchio
     {
       if(stopAtFirstCollision && is_colliding) continue;
         
-      const bool res = computeCollision(geom_model, geom_data, cp_index);
+      const CollisionPair & collision_pair = geom_model.collisionPairs[cp_index];
       
-      if(!is_colliding && res)
+      if(geom_data.activeCollisionPairs[cp_index]
+         && !(geom_model.geometryObjects[collision_pair.first].disableCollision || geom_model.geometryObjects[collision_pair.second].disableCollision))
       {
-        is_colliding = true;
-        geom_data.collisionPairIndex = cp_index; // first pair to be in collision
+        bool res = computeCollision(geom_model,geom_data,cp_index);
+        if(!is_colliding && res)
+        {
+          is_colliding = true;
+          geom_data.collisionPairIndex = cp_index; // first pair to be in collision
+        }
       }
     }
     
