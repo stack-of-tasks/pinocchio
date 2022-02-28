@@ -58,7 +58,7 @@ namespace pinocchio
     const Eigen::DenseIndex batch_size = res.cols();
     Eigen::DenseIndex i = 0;
     
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
     for(i = 0; i < batch_size; i++)
     {
       const int thread_id = omp_get_thread_num();

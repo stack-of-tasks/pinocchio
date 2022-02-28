@@ -22,7 +22,7 @@ namespace pinocchio
     set_default_omp_options(num_threads);
     std::size_t cp_index = 0;
     
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
     for(cp_index = 0; cp_index < geom_model.collisionPairs.size(); ++cp_index)
     {
       if(stopAtFirstCollision && is_colliding) continue;
@@ -91,7 +91,7 @@ namespace pinocchio
     {
       bool is_colliding = false;
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         if(is_colliding) continue;
@@ -110,7 +110,7 @@ namespace pinocchio
     else
     {
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         const int thread_id = omp_get_thread_num();
