@@ -65,6 +65,11 @@ namespace pinocchio
     
     // Joint Composite
     typedef JointModelCompositeTpl<Scalar,Options,::pinocchio::JointCollectionDefaultTpl> JointModelComposite;
+        
+    // Joint Helical
+    typedef JointModelHelicalTpl<Scalar,Options,0> JointModelHx;
+    typedef JointModelHelicalTpl<Scalar,Options,1> JointModelHy;
+    typedef JointModelHelicalTpl<Scalar,Options,2> JointModelHz;
     
     typedef boost::variant<
 //    JointModelVoid,
@@ -78,6 +83,7 @@ namespace pinocchio
     , JointModelTranslation
     , JointModelRUBX, JointModelRUBY, JointModelRUBZ
     , JointModelRevoluteUnboundedUnaligned
+    , JointModelHx, JointModelHy, JointModelHz
     , boost::recursive_wrapper<JointModelComposite>
     > JointModelVariant;
    
@@ -127,7 +133,12 @@ namespace pinocchio
     
     // Joint Composite
     typedef JointDataCompositeTpl<Scalar,Options,::pinocchio::JointCollectionDefaultTpl> JointDataComposite;
-    
+            
+    // Joint Helical
+    typedef JointDataHelicalTpl<Scalar,Options,0> JointDataHx;
+    typedef JointDataHelicalTpl<Scalar,Options,1> JointDataHy;
+    typedef JointDataHelicalTpl<Scalar,Options,2> JointDataHz;
+  
     typedef boost::variant<
 //    JointDataVoid
       JointDataRX, JointDataRY, JointDataRZ
@@ -140,6 +151,7 @@ namespace pinocchio
     , JointDataTranslation
     , JointDataRUBX, JointDataRUBY, JointDataRUBZ
     , JointDataRevoluteUnboundedUnaligned
+    , JointDataHx, JointDataHy, JointDataHz
     , boost::recursive_wrapper<JointDataComposite>
     > JointDataVariant;
 
