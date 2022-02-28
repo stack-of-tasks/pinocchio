@@ -25,8 +25,11 @@ namespace pinocchio
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
 
-  template<typename Scalar, int Options = context::Options> struct JointModelRevoluteUnalignedTpl;
-  typedef JointModelRevoluteUnalignedTpl<context::Scalar> JointModelRevoluteUnaligned;
+  template<typename Scalar, int Options, int axis> struct JointModelHelicalTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataHelicalTpl;
+
+  template<typename Scalar, int Options = 0> struct JointModelRevoluteUnalignedTpl;
+  typedef JointModelRevoluteUnalignedTpl<double> JointModelRevoluteUnaligned;
   
   template<typename Scalar, int Options = context::Options> struct JointDataRevoluteUnalignedTpl;
   typedef JointDataRevoluteUnalignedTpl<context::Scalar> JointDataRevoluteUnaligned;

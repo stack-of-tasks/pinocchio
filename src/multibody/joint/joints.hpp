@@ -17,5 +17,6 @@
 #include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint/joint-translation.hpp"
 #include "pinocchio/multibody/joint/joint-mimic.hpp"
+#include "pinocchio/multibody/joint/joint-helical.hpp"
 
 #endif // ifndef __pinocchio_multibody_joint_joints_hpp__
