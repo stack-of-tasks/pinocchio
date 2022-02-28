@@ -15,8 +15,89 @@
 
 using namespace pinocchio;
 
+template<typename D>
+void addJointAndBody(Model & model,
+                     const JointModelBase<D> & jmodel,
+                     const Model::JointIndex parent_id,
+                     const SE3 & joint_placement,
+                     const std::string & joint_name,
+                     const Inertia & Y)
+{
+  Model::JointIndex idx;
+  
+  idx = model.addJoint(parent_id,jmodel,joint_placement,joint_name);
+  model.appendBodyToJoint(idx,Y);
+}
+
 BOOST_AUTO_TEST_SUITE(JointHelical)
 
+BOOST_AUTO_TEST_CASE(vsRXPX)
+{
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+
+  Model modelHX, modelRXPX;
+
+  Inertia inertia(1., Vector3(0.5, 0., 0.0), Matrix3::Identity());
+  // Necessary to have the same mass for both systems, otherwise COM position not the same
+  Inertia inertia_zero_mass(0., Vector3(0.0, 0., 0.0), Matrix3::Identity());
+  const double pitch = 0.1;
+
+  JointModelHX joint_model_HX(pitch);
+  addJointAndBody(modelHX,joint_model_HX,0,SE3::Identity(),"helical x",inertia);
+  // addJointAndBody(modelHX,joint_model_HX,0,SE3::Identity(),"helical x",inertia_zero_mass);
+  
+  JointModelPX joint_model_PX;
+  JointModelRX joint_model_RX;
+
+  addJointAndBody(modelRXPX,joint_model_RX,0,SE3::Identity(),"revolute x",inertia_zero_mass);
+  addJointAndBody(modelRXPX,joint_model_PX,1,SE3::Identity(),"prismatic x",inertia);
+  // addJointAndBody(modelRXPX,joint_model_PX,1,SE3::Identity(),"prismatic x",inertia_zero_mass);
+
+  Data dataHX(modelHX);
+  Data dataRXPX(modelRXPX);
+
+  Eigen::VectorXd q_hx = 0*Eigen::VectorXd::Ones(modelHX.nq);  // dim 1
+  Eigen::VectorXd q_rxpx = 0*Eigen::VectorXd::Ones(modelRXPX.nq);  // dim 2
+  q_rxpx(1) = q_hx(0) * pitch;  // set the prismatic joint to corresponding displacement
+
+  Eigen::VectorXd v_hx = 0*Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd v_rxpx = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
+  v_rxpx(1) = v_hx(0) * pitch;
+
+  Eigen::VectorXd tauHX = 0*Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd tauRXPX = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
+  Eigen::VectorXd aHX = 0*Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd aRXPX = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
+  aRXPX(1) = aHX(0) * pitch;
+  
+  forwardKinematics(modelHX, dataHX, q_hx, v_hx);
+  forwardKinematics(modelRXPX, dataRXPX, q_rxpx, v_rxpx);
+
+  computeAllTerms(modelHX, dataHX, q_hx, v_hx);
+  computeAllTerms(modelRXPX, dataRXPX, q_rxpx, v_rxpx);
+
+  BOOST_CHECK(dataRXPX.oMi[2].isApprox(dataHX.oMi[1]));  // Body absolute placement (wrt world)
+  BOOST_CHECK((dataRXPX.liMi[2]*dataRXPX.liMi[1]).isApprox(dataHX.liMi[1]));  // Body relative placement (wrt parent) - does not make sense in this case
+  BOOST_CHECK(dataRXPX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));  // Inertia of the sub-tree composit rigid body
+  BOOST_CHECK(dataRXPX.f[2].toVector().isApprox(dataHX.f[1].toVector()));  // Vector of body forces expressed in the local frame of the joint
+  
+  BOOST_CHECK(dataRXPX.nle.isApprox(dataHX.nle));  // Non Linear Effects (output of nle algorithm)
+  BOOST_CHECK(dataRXPX.com[0].isApprox(dataHX.com[0]));  // CoM position of the subtree starting at joint index i.
+
+  // InverseDynamics == rnea
+  std::cout << " ------ rnea ------- HX" << std::endl;
+  tauHX = rnea(modelHX, dataHX, q_hx, v_hx, aHX);
+  std::cout << " ------ rnea ------- RXPX" << std::endl;
+  tauRXPX = rnea(modelRXPX, dataRXPX, q_rxpx, v_rxpx, aRXPX);
+
+  std::cout << "tauHX : " << tauHX << std::endl;
+  std::cout << "tauRXPX : " << tauRXPX.transpose() << std::endl;
+
+  BOOST_CHECK(tauHX.isApprox(tauRXPX));
+
+}
+  
 BOOST_AUTO_TEST_CASE(spatial)
 {
   typedef TransformHelicalTpl<double,0,0> TransformX;
