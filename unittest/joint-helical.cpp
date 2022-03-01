@@ -31,70 +31,67 @@ void addJointAndBody(Model & model,
 
 BOOST_AUTO_TEST_SUITE(JointHelical)
 
-BOOST_AUTO_TEST_CASE(vsRXPX)
+BOOST_AUTO_TEST_CASE(vsPXRX)
 {
   typedef SE3::Vector3 Vector3;
   typedef SE3::Matrix3 Matrix3;
 
-  Model modelHX, modelRXPX;
+  Model modelHX, modelPXRX;
 
-  Inertia inertia(1., Vector3(0.5, 0., 0.0), Matrix3::Identity());
-  // Necessary to have the same mass for both systems, otherwise COM position not the same
-  Inertia inertia_zero_mass(0., Vector3(0.0, 0., 0.0), Matrix3::Identity());
-  const double pitch = 0.1;
+  Inertia inertia(1., Vector3(0., 0., 0.0), Matrix3::Identity());
+  // Important to have the same mass for both systems, otherwise COM position not the same
+  Inertia inertia_zero_mass(0., Vector3(0.0, 0.0, 0.0), Matrix3::Identity());
+  const double pitch = 0.4;
 
   JointModelHX joint_model_HX(pitch);
   addJointAndBody(modelHX,joint_model_HX,0,SE3::Identity(),"helical x",inertia);
-  // addJointAndBody(modelHX,joint_model_HX,0,SE3::Identity(),"helical x",inertia_zero_mass);
   
   JointModelPX joint_model_PX;
   JointModelRX joint_model_RX;
-
-  addJointAndBody(modelRXPX,joint_model_RX,0,SE3::Identity(),"revolute x",inertia_zero_mass);
-  addJointAndBody(modelRXPX,joint_model_PX,1,SE3::Identity(),"prismatic x",inertia);
-  // addJointAndBody(modelRXPX,joint_model_PX,1,SE3::Identity(),"prismatic x",inertia_zero_mass);
+  addJointAndBody(modelPXRX,joint_model_PX,0,SE3::Identity(),"prismatic x",inertia);
+  addJointAndBody(modelPXRX,joint_model_RX,1,SE3::Identity(),"revolute x",inertia_zero_mass);
 
   Data dataHX(modelHX);
-  Data dataRXPX(modelRXPX);
+  Data dataPXRX(modelPXRX);
 
-  Eigen::VectorXd q_hx = 0*Eigen::VectorXd::Ones(modelHX.nq);  // dim 1
-  Eigen::VectorXd q_rxpx = 0*Eigen::VectorXd::Ones(modelRXPX.nq);  // dim 2
-  q_rxpx(1) = q_hx(0) * pitch;  // set the prismatic joint to corresponding displacement
+  // Set the prismatic joint to corresponding displacement, velocit and acceleration
+  Eigen::VectorXd q_hx = Eigen::VectorXd::Ones(modelHX.nq);      // dim 1
+  Eigen::VectorXd q_PXRX = Eigen::VectorXd::Ones(modelPXRX.nq);  // dim 2
+  q_PXRX(0) = q_hx(0) * pitch;  
 
-  Eigen::VectorXd v_hx = 0*Eigen::VectorXd::Ones(modelHX.nv);
-  Eigen::VectorXd v_rxpx = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
-  v_rxpx(1) = v_hx(0) * pitch;
+  Eigen::VectorXd v_hx = Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd v_PXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
+  v_PXRX(0) = v_hx(0) * pitch;
 
-  Eigen::VectorXd tauHX = 0*Eigen::VectorXd::Ones(modelHX.nv);
-  Eigen::VectorXd tauRXPX = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
-  Eigen::VectorXd aHX = 0*Eigen::VectorXd::Ones(modelHX.nv);
-  Eigen::VectorXd aRXPX = 0*Eigen::VectorXd::Ones(modelRXPX.nv);
-  aRXPX(1) = aHX(0) * pitch;
+  Eigen::VectorXd tauHX = Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd tauPXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
+  Eigen::VectorXd aHX = Eigen::VectorXd::Ones(modelHX.nv);
+  Eigen::VectorXd aPXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
+  aPXRX(0) = aHX(0) * pitch * pitch;
   
   forwardKinematics(modelHX, dataHX, q_hx, v_hx);
-  forwardKinematics(modelRXPX, dataRXPX, q_rxpx, v_rxpx);
+  forwardKinematics(modelPXRX, dataPXRX, q_PXRX, v_PXRX);
 
   computeAllTerms(modelHX, dataHX, q_hx, v_hx);
-  computeAllTerms(modelRXPX, dataRXPX, q_rxpx, v_rxpx);
+  computeAllTerms(modelPXRX, dataPXRX, q_PXRX, v_PXRX);
 
-  BOOST_CHECK(dataRXPX.oMi[2].isApprox(dataHX.oMi[1]));  // Body absolute placement (wrt world)
-  BOOST_CHECK((dataRXPX.liMi[2]*dataRXPX.liMi[1]).isApprox(dataHX.liMi[1]));  // Body relative placement (wrt parent) - does not make sense in this case
-  BOOST_CHECK(dataRXPX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));  // Inertia of the sub-tree composit rigid body
-  BOOST_CHECK(dataRXPX.f[2].toVector().isApprox(dataHX.f[1].toVector()));  // Vector of body forces expressed in the local frame of the joint
-  
-  BOOST_CHECK(dataRXPX.nle.isApprox(dataHX.nle));  // Non Linear Effects (output of nle algorithm)
-  BOOST_CHECK(dataRXPX.com[0].isApprox(dataHX.com[0]));  // CoM position of the subtree starting at joint index i.
+  BOOST_CHECK(dataPXRX.oMi[2].isApprox(dataHX.oMi[1]));  // Body absolute placement (wrt world)
+  BOOST_CHECK((dataPXRX.liMi[2]*dataPXRX.liMi[1]).isApprox(dataHX.liMi[1]));  // Body relative placement (wrt parent) 
+  BOOST_CHECK(dataPXRX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));  // Inertia of the sub-tree composit rigid body
+  BOOST_CHECK((dataPXRX.liMi[2].actInv(dataPXRX.f[1])).toVector().isApprox(dataHX.f[1].toVector()));  // Vector of body forces expressed in the local frame of the joint    
+  BOOST_CHECK(dataPXRX.nle.isApprox(dataHX.nle));  // Non Linear Effects (output of nle algorithm)
+  BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));  // CoM position of the subtree starting at joint index i.
 
   // InverseDynamics == rnea
-  std::cout << " ------ rnea ------- HX" << std::endl;
+  std::cout << " ------ rnea ------- HX -------" << std::endl;
   tauHX = rnea(modelHX, dataHX, q_hx, v_hx, aHX);
-  std::cout << " ------ rnea ------- RXPX" << std::endl;
-  tauRXPX = rnea(modelRXPX, dataRXPX, q_rxpx, v_rxpx, aRXPX);
+  std::cout << " ------ rnea ------- PXRX -------" << std::endl;
+  tauPXRX = rnea(modelPXRX, dataPXRX, q_PXRX, v_PXRX, aPXRX);
+  BOOST_CHECK(tauHX.isApprox(Eigen::Matrix<double,1,1>(tauPXRX.dot(Eigen::VectorXd::Ones(2)))));
 
   std::cout << "tauHX : " << tauHX << std::endl;
-  std::cout << "tauRXPX : " << tauRXPX.transpose() << std::endl;
+  std::cout << "tauPXRX : " << tauPXRX.transpose() << std::endl;
 
-  BOOST_CHECK(tauHX.isApprox(tauRXPX));
 
 }
   
@@ -124,7 +121,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   // TODO: Test against combinatino of revolute and prismatic joint
   // TransformPX MPx(alpha*pitch);
   // TransformRX MRx(sin_alpha,cos_alpha);
-  // // auto MRXPX = MPx * MRx;
+  // // auto MPXRX = MPx * MRx;
 
   // BOOST_CHECK(Mplain.translation().isApprox(MPx.translation()+MRx.translation()));
   // BOOST_CHECK(Mplain.rotation().isApprox(MPx.rotation() * MRx.rotation()));
