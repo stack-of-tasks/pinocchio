@@ -110,7 +110,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   std::cout << "mean RNEA = \t\t\t\t"; timer.toc(std::cout,NBT*BATCH_SIZE);
 
-  for(int num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+  for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
   {
     timer.tic();
     SMOOTH(NBT)
@@ -136,7 +136,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   std::cout << "mean ABA = \t\t\t\t"; timer.toc(std::cout,NBT*BATCH_SIZE);
 
-  for(int num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+  for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
   {
     timer.tic();
     SMOOTH(NBT)
@@ -162,7 +162,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   std::cout << "non parallel collision = \t\t\t"; timer.toc(std::cout,NBT_COLLISION);
 
-  for(int num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+  for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
   {
     timer.tic();
     SMOOTH((size_t)NBT_COLLISION)
@@ -191,7 +191,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   std::cout << "non parallel collision = \t\t\t"; timer.toc(std::cout,NBT_COLLISION);
 
-  for(int num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+  for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
   {
     timer.tic();
     SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
