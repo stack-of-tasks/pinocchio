@@ -44,7 +44,7 @@ namespace pinocchio
              bp::arg("self"),
              bp::return_internal_reference<>())
              
-        .def("manager",(Derived &(Self::*)())&Self::getManager,
+        .def("getManager",(Derived &(Self::*)())&Self::getManager,
              bp::arg("self"),
              "Returns the internal FCL manager",
              bp::return_internal_reference<>())
