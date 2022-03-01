@@ -27,8 +27,8 @@ namespace pinocchio
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
       
-      const bool geom1_is_selected = geometry_to_collision_index[geom1_id] != std::numeric_limits<size_t>::max();
-      const bool geom2_is_selected = geometry_to_collision_index[geom2_id] != std::numeric_limits<size_t>::max();
+      const bool geom1_is_selected = geometry_to_collision_index[geom1_id] != (std::numeric_limits<size_t>::max)();
+      const bool geom2_is_selected = geometry_to_collision_index[geom2_id] != (std::numeric_limits<size_t>::max)();
       if(!(geom1_is_selected || geom2_is_selected))
         continue;
       
