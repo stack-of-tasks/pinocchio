@@ -122,6 +122,18 @@ namespace pinocchio
           .def(GeometryObjectPythonVisitor())
           ;
         }
+        
+#ifdef PINOCCHIO_WITH_HPP_FCL
+        if(!register_symbolic_link_to_registered_type<CollisionObject>())
+        {
+          bp::class_<CollisionObject, bp::bases<::hpp::fcl::CollisionObject> >("CollisionObject",
+                                                                               "A Pinocchio collision object derived from FCL CollisionObject.",
+                                                                               bp::no_init)
+          .def(bp::init<const boost::shared_ptr<::hpp::fcl::CollisionGeometry> &, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
+          .def(bp::init<const boost::shared_ptr<::hpp::fcl::CollisionGeometry> &, SE3, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("placement"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
+               ;
+        }
+#endif
 
         if(!register_symbolic_link_to_registered_type<GeometryType>())
         {

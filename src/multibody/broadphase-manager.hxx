@@ -15,10 +15,10 @@ namespace pinocchio
   {
     const GeometryModel & geom_model = getGeometryModel();
     assert(geom_model.ngeoms == collision_object_inflation.size());
-    
+
     GeometryData & geom_data = getGeometryData();
     collision_object_inflation.setZero();
-    
+
     // The pass should be done over all the geometry objects composing the collision tree.
     for(size_t pair_id = 0; pair_id < geom_model.collisionPairs.size(); ++pair_id)
     {
@@ -26,18 +26,18 @@ namespace pinocchio
       const CollisionPair & pair = geom_model.collisionPairs[pair_id];
       const GeomIndex geom1_id = pair.first;
       const GeomIndex geom2_id = pair.second;
-      
+
       const bool geom1_is_selected = geometry_to_collision_index[geom1_id] != (std::numeric_limits<size_t>::max)();
       const bool geom2_is_selected = geometry_to_collision_index[geom2_id] != (std::numeric_limits<size_t>::max)();
       if(!(geom1_is_selected || geom2_is_selected))
         continue;
-      
+
       const bool check_collision =
            geom_data.activeCollisionPairs[pair_id]
       && !(geom_model.geometryObjects[geom1_id].disableCollision || geom_model.geometryObjects[geom2_id].disableCollision);
-      
+
       if(!check_collision) continue;
-      
+
       const ::hpp::fcl::CollisionRequest & cr = geom_data.collisionRequests[pair_id];
       const double inflation = (cr.break_distance + cr.security_margin)*0.5;
 
@@ -46,26 +46,27 @@ namespace pinocchio
         const Eigen::DenseIndex geom1_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom1_id]);
         collision_object_inflation[geom1_id_local] = (std::max)(inflation,collision_object_inflation[geom1_id_local]);
       }
-      
+
       if(geom2_is_selected)
       {
         const Eigen::DenseIndex geom2_id_local = static_cast<Eigen::DenseIndex>(geometry_to_collision_index[geom2_id]);
         collision_object_inflation[geom2_id_local] = (std::max)(inflation,collision_object_inflation[geom2_id_local]);
       }
-      
+
     }
-    
+
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       const size_t geometry_object_id = selected_geometry_objects[k];
+
       const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_object_id];
       hpp::fcl::CollisionGeometryPtr_t new_geometry = geom_obj.geometry;
-      
+
       CollisionObject & collision_obj = collision_objects[k];
       hpp::fcl::CollisionGeometryPtr_t geometry = collision_obj.collisionGeometry();
-      
+
       collision_obj.setTransform(toFclTransform3f(geom_data.oMg[geometry_object_id]));
-      
+
       if(new_geometry.get() != geometry.get())
       {
         collision_obj.setCollisionGeometry(new_geometry,compute_local_aabb);
@@ -74,33 +75,33 @@ namespace pinocchio
       {
         collision_obj.computeAABB();
       }
-      
+
       collision_obj.getAABB().expand(collision_object_inflation[static_cast<Eigen::DenseIndex>(k)]);
     }
-    
+
     assert(check() && "The status of the BroadPhaseManager is not valid");
-    
+
     manager.update(); // because the position has changed.
   }
-  
+
   template<typename Manager>
   void BroadPhaseManagerTpl<Manager>::update(GeometryData * geom_data_ptr_new)
   {
     Base::geometry_data_ptr = geom_data_ptr_new;
     update(false);
   }
-  
+
   template<typename Manager>
   BroadPhaseManagerTpl<Manager>::~BroadPhaseManagerTpl()
   {}
-  
+
   template<typename Manager>
   bool BroadPhaseManagerTpl<Manager>::check() const
   {
     std::vector<hpp::fcl::CollisionObject*> collision_objects_ptr = manager.getObjects();
     if(collision_objects_ptr.size() != collision_objects.size())
       return false;
-    
+
     const GeometryModel & geom_model = getGeometryModel();
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
@@ -109,18 +110,18 @@ namespace pinocchio
 
       if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
         return false;
-      
+
       hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
       const GeometryObject & geom_obj = geom_model.geometryObjects[i];
       hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
-      
+
       if(geometry.get() != geometry_of_geom_obj.get())
         return false;
     }
-    
+
     return true;
   }
-  
+
   template<typename Manager>
   bool BroadPhaseManagerTpl<Manager>::check(CollisionCallBackBase * callback) const
   {
