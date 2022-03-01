@@ -8,7 +8,17 @@
 #include "pinocchio/parsers/sample-models.hpp"
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
+  #include "pinocchio/multibody/tree-broadphase-manager.hpp"
   #include "pinocchio/algorithm/parallel/geometry.hpp"
+  #include "pinocchio/algorithm/parallel/broadphase.hpp"
+
+  #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree.h>
+  #include <hpp/fcl/broadphase/broadphase_dynamic_AABB_tree_array.h>
+  #include <hpp/fcl/broadphase/broadphase_SSaP.h>
+  #include <hpp/fcl/broadphase/broadphase_SaP.h>
+  #include <hpp/fcl/broadphase/broadphase_bruteforce.h>
+  #include <hpp/fcl/broadphase/broadphase_interval_tree.h>
+  #include <hpp/fcl/broadphase/broadphase_spatialhash.h>
 #endif
 
 #include "pinocchio/parsers/urdf.hpp"
@@ -205,6 +215,68 @@ int main(int /*argc*/, const char ** /*argv*/)
     ss << " threads) = \t\t";
     ss << elapsed << " us" << std::endl;
     std::cout << ss.str();
+  }
+  
+  std::cout << "--" << std::endl;
+  {
+    BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(&model,&geometry_model,NUM_THREADS);
+    VectorXb collision_res(BATCH_SIZE);
+    collision_res.fill(false);
+    
+    timer.tic();
+    SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
+    {
+      for(Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
+      computeCollisions(model,data,geometry_model,geometry_data,qs.col(i));
+    }
+    std::cout << "non parallel collision = \t\t\t"; timer.toc(std::cout,NBT_COLLISION);
+    
+    for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+    {
+      timer.tic();
+      SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
+      {
+        computeCollisions(num_threads,geometry_pool,qs,collision_res);
+      }
+      double elapsed = timer.toc()/(NBT_COLLISION);
+      std::stringstream ss;
+      ss << "pool parallel collision (";
+      ss << num_threads;
+      ss << " threads) = \t\t";
+      ss << elapsed << " us" << std::endl;
+      std::cout << ss.str();
+    }
+  }
+  
+  std::cout << "--" << std::endl;
+  {
+    TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(&model,&geometry_model,NUM_THREADS);
+    VectorXb collision_res(BATCH_SIZE);
+    collision_res.fill(false);
+    
+    timer.tic();
+    SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
+    {
+      for(Eigen::DenseIndex i = 0; i < BATCH_SIZE; ++i)
+      computeCollisions(model,data,geometry_model,geometry_data,qs.col(i));
+    }
+    std::cout << "non parallel collision = \t\t\t"; timer.toc(std::cout,NBT_COLLISION);
+    
+    for(size_t num_threads = 1; num_threads <= NUM_THREADS; ++num_threads)
+    {
+      timer.tic();
+      SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
+      {
+        computeCollisions(num_threads,geometry_pool,qs,collision_res);
+      }
+      double elapsed = timer.toc()/(NBT_COLLISION);
+      std::stringstream ss;
+      ss << "pool parallel collision (";
+      ss << num_threads;
+      ss << " threads) = \t\t";
+      ss << elapsed << " us" << std::endl;
+      std::cout << ss.str();
+    }
   }
 #endif
 
