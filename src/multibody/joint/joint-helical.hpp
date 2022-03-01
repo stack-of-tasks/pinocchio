@@ -587,6 +587,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
+        const S2 m_h = constraint.pitch();
         
         /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
         const S1
