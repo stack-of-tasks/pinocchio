@@ -92,7 +92,46 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   std::cout << "tauHX : " << tauHX << std::endl;
   std::cout << "tauPXRX : " << tauPXRX.transpose() << std::endl;
 
+  // ForwardDynamics == aba - working for both optimized and minimal
+  Eigen::VectorXd aAbaHX = aba(modelHX,dataHX, q_hx, v_hx, tauHX);
+  Eigen::VectorXd aAbaPXRX = aba(modelPXRX,dataPXRX, q_PXRX, v_PXRX, tauPXRX);
 
+  
+  BOOST_CHECK(aAbaHX.isApprox(aHX));
+  BOOST_CHECK(aAbaPXRX.isApprox(aPXRX));
+  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * pitch * pitch, aHX(0))));
+
+  aAbaHX = minimal::aba(modelHX,dataHX, q_hx, v_hx, tauHX);
+  aAbaPXRX = minimal::aba(modelPXRX,dataPXRX, q_PXRX, v_PXRX, tauPXRX);
+
+  BOOST_CHECK(aAbaHX.isApprox(aHX));
+  BOOST_CHECK(aAbaPXRX.isApprox(aPXRX));
+  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * pitch * pitch, aHX(0))));
+
+  // crba - working for both optimized and minimal
+  crba(modelHX, dataHX, q_hx);
+  crba(modelPXRX, dataPXRX, q_PXRX);
+
+  tauHX = dataHX.M * aHX;
+  tauPXRX = dataPXRX.M * aPXRX;
+
+  BOOST_CHECK(tauHX.isApprox(Eigen::Matrix<double,1,1>(tauPXRX.dot(Eigen::VectorXd::Ones(2)))));
+
+  minimal::crba(modelHX, dataHX, q_hx);
+  minimal::crba(modelPXRX, dataPXRX, q_PXRX);
+
+  tauHX = dataHX.M * aHX;
+  tauPXRX = dataPXRX.M * aPXRX;
+
+  BOOST_CHECK(tauHX.isApprox(Eigen::Matrix<double,1,1>(tauPXRX.dot(Eigen::VectorXd::Ones(2)))));
+
+
+  // Jacobian
+  computeJointJacobians(modelHX, dataHX, q_hx);
+  computeJointJacobians(modelPXRX, dataPXRX, q_PXRX);
+  Eigen::VectorXd v_body_hx = dataHX.J * v_hx;
+  Eigen::VectorXd v_body_PXRX = dataPXRX.J * v_PXRX;
+  BOOST_CHECK(v_body_hx.isApprox(v_body_PXRX));
 }
   
 BOOST_AUTO_TEST_CASE(spatial)
