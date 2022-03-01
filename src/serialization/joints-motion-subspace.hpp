@@ -26,7 +26,13 @@ namespace boost
                    pinocchio::JointMotionSubspacePrismaticTpl<Scalar,Options,axis> & /*S*/,
                    const unsigned int /*version*/)
     {}
-  
+
+    template <class Archive, typename Scalar, int Options, int axis>
+    void serialize(Archive & /*ar*/,
+                   pinocchio::JointMotionSubspaceHelicalTpl<Scalar,Options,axis> & /*S*/,
+                   const unsigned int /*version*/)
+    {}
+
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,
                    pinocchio::JointMotionSubspaceSphericalTpl<Scalar,Options> & /*S*/,

@@ -30,6 +30,14 @@ namespace boost
     {
       ar & make_nvp("v",m.linearRate());
     }
+
+    template <class Archive, typename Scalar, int Options, int axis>
+    void serialize(Archive & ar,
+                   pinocchio::MotionHelicalTpl<Scalar,Options,axis> & m,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("v",m.angularRate());
+    }
   
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
