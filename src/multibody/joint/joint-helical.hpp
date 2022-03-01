@@ -317,8 +317,8 @@ namespace pinocchio
     Scalar & angularRate() { return m_w; }
     const Scalar & angularRate() const { return m_w; }
 
-    Scalar & linearRate() { return m_h; }
-    const Scalar & linearRate() const { return m_h; }
+    Scalar & pitch() { return m_h; }
+    const Scalar & pitch() const { return m_h; }
     
     bool isEqual_impl(const MotionHelicalTpl & other) const
     {
@@ -359,11 +359,11 @@ namespace pinocchio
     
   template<typename Scalar, int Options, int axis, typename ForceDerived>
   struct ConstraintForceOp< JointMotionSubspaceHelicalTpl<Scalar,Options,axis>, ForceDerived>
-  { typedef typename ForceDense<ForceDerived>::ConstAngularType::template ConstFixedSegmentReturnType<1>::Type ReturnType; };
+  { typedef typename Eigen::Matrix<Scalar,1,1> ReturnType; };
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
   struct ConstraintForceSetOp< JointMotionSubspaceHelicalTpl<Scalar,Options,axis>, ForceSet>
-  { typedef typename Eigen::MatrixBase<ForceSet>::ConstRowXpr ReturnType; };
+  { typedef typename Eigen::Matrix<Scalar,1,1> ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< JointMotionSubspaceHelicalTpl<_Scalar,_Options,axis> >
@@ -397,6 +397,8 @@ namespace pinocchio
     
     typedef SpatialAxis<ANGULAR+axis> AxisAngular;\
     typedef SpatialAxis<ANGULAR+axis> AxisLinear;\
+    
+    JointMotionSubspaceHelicalTpl() {}
     
     JointMotionSubspaceHelicalTpl(const Scalar & h) : m_h(h) {}
 
@@ -441,7 +443,7 @@ namespace pinocchio
       template<typename ForceDerived>
       typename ConstraintForceOp<JointMotionSubspaceHelicalTpl,ForceDerived>::ReturnType
       operator*(const ForceDense<ForceDerived> & f) const
-      { return f.angular().template segment<1>(axis); }
+      { return Eigen::Matrix<Scalar,1,1>(f.angular()(axis) + f.linear()(axis) * ref.m_h); }
 
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
       template<typename Derived>
@@ -449,7 +451,8 @@ namespace pinocchio
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
         assert(F.rows()==6);
-        return F.row(ANGULAR + axis);
+        auto t = (F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h);
+        return Eigen::Matrix<Scalar,1,1>(t);
       }
     }; // struct TransposeConst
 
@@ -481,7 +484,10 @@ namespace pinocchio
     }
     
     bool isEqual(const JointMotionSubspaceHelicalTpl &) const { return true; }
-    
+
+    Scalar & pitch() { return m_h; }
+    const Scalar & pitch() const { return m_h; }
+
     protected:
     Scalar m_h;
   }; // struct JointMotionSubspaceHelicalTpl
@@ -514,9 +520,10 @@ namespace pinocchio
       typedef JointMotionSubspaceHelicalTpl<S2,O2,0> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
-                                   const Constraint & /*constraint*/)
+                                   const Constraint & constraint)
       {
         ReturnType res;
+        const S2 m_h = constraint.pitch();
         
         /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
         const S1
@@ -527,7 +534,7 @@ namespace pinocchio
         const typename Inertia::Symmetric3 & I = Y.inertia();
         
         res <<
-        (S2)0,
+        m*m_h,
         -m*z,
         m*y,
         I(0,0)+m*(y*y+z*z),
@@ -545,9 +552,10 @@ namespace pinocchio
       typedef JointMotionSubspaceHelicalTpl<S2,O2,1> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
-                                   const Constraint & /*constraint*/)
+                                   const Constraint & constraint)
       {
         ReturnType res;
+        const S2 m_h = constraint.pitch();
         
         /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
         const S1
@@ -559,7 +567,7 @@ namespace pinocchio
         
         res <<
         m*z,
-        (S2)0,
+        m*m_h,
         -m*x,
         I(1,0)-m*x*y,
         I(1,1)+m*(x*x+z*z),
@@ -576,7 +584,7 @@ namespace pinocchio
       typedef JointMotionSubspaceHelicalTpl<S2,O2,2> Constraint;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
-                                   const Constraint & /*constraint*/)
+                                   const Constraint & constraint)
       {
         ReturnType res;
         
@@ -591,7 +599,7 @@ namespace pinocchio
         res <<
         -m*y,
         m*x,
-        (S2)0,
+        m*m_h,
         I(2,0)-m*x*z,
         I(2,1)-m*y*z,
         I(2,2)+m*(x*x+y*y);
@@ -693,7 +701,7 @@ namespace pinocchio
     , joint_v(TangentVector_t::Zero())
     , S((Scalar)1)
     , M((Scalar)0,(Scalar)1,(Scalar)1,(Scalar)1)
-    , v((Scalar)0,(Scalar)1)
+    , v((Scalar)0,(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
     , UDinv(UD_t::Zero())
@@ -741,6 +749,7 @@ namespace pinocchio
       Scalar ca,sa; SINCOS(data.joint_q[0],&sa,&ca);
       // TODO still passing redundant information
       data.M.setValues(sa,ca,data.joint_q[0],m_pitch);
+      data.S.pitch() = m_pitch;
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -753,7 +762,7 @@ namespace pinocchio
 
       data.joint_v[0] = vs[idx_v()];
       data.v.angularRate() = data.joint_v[0];
-      // data.v.linearRate() = m_pitch;  // TODO 
+      data.v.pitch() = m_pitch;
     }
     
     template<typename VectorLike, typename Matrix6Like>
@@ -762,10 +771,12 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      data.U = I.col(Inertia::ANGULAR + axis);
-      data.Dinv[0] = Scalar(1)/(I(Inertia::ANGULAR + axis,Inertia::ANGULAR + axis) + armature[0]);
-      data.UDinv.noalias() = data.U * data.Dinv[0];
-      
+      // I is data.Yaba[i] - Articulated Body Inertia of the sub-tree
+      data.U = I.col(Inertia::ANGULAR + axis) + m_pitch *  I.col(Inertia::LINEAR + axis);
+      data.StU[0] = data.U(Inertia::ANGULAR + axis) + m_pitch * data.U(Inertia::LINEAR + axis) + armature[0];
+      data.Dinv[0] = Scalar(1) / data.StU[0];
+      data.UDinv.noalias() = data.U * data.Dinv;
+
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
     }
