@@ -40,6 +40,7 @@ namespace boost
     {
       ar & make_nvp("sin",m.sin());
       ar & make_nvp("cos",m.cos());
+      ar & make_nvp("pitch",m.h());
     }
   
     template <class Archive, typename Scalar, int Options>

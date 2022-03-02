@@ -31,7 +31,9 @@ namespace boost
     void serialize(Archive & /*ar*/,
                    pinocchio::JointMotionSubspaceHelicalTpl<Scalar,Options,axis> & /*S*/,
                    const unsigned int /*version*/)
-    {}
+    {
+      ar & make_nvp("pitch",S.pitch());
+    }
 
     template <class Archive, typename Scalar, int Options>
     void serialize(Archive & /*ar*/,

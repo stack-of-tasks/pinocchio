@@ -36,7 +36,8 @@ namespace boost
                    pinocchio::MotionHelicalTpl<Scalar,Options,axis> & m,
                    const unsigned int /*version*/)
     {
-      ar & make_nvp("v",m.angularRate());
+      ar & make_nvp("w",m.angularRate());
+      ar & make_nvp("pitch",m.pitch());
     }
   
     template <class Archive, typename Scalar, int Options>
