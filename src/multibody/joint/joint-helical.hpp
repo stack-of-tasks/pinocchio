@@ -468,6 +468,7 @@ namespace pinocchio
       DenseBase S;
       MotionRef<DenseBase> v(S);
       v << AxisAngular();
+      S(LINEAR + axis) = m_h;
       return S;
     }
     
