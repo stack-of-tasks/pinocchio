@@ -75,12 +75,12 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   computeAllTerms(modelHX, dataHX, q_hx, v_hx);
   computeAllTerms(modelPXRX, dataPXRX, q_PXRX, v_PXRX);
 
-  BOOST_CHECK(dataPXRX.oMi[2].isApprox(dataHX.oMi[1]));  // Body absolute placement (wrt world)
-  BOOST_CHECK((dataPXRX.liMi[2]*dataPXRX.liMi[1]).isApprox(dataHX.liMi[1]));  // Body relative placement (wrt parent) 
-  BOOST_CHECK(dataPXRX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));  // Inertia of the sub-tree composit rigid body
-  BOOST_CHECK((dataPXRX.liMi[2].actInv(dataPXRX.f[1])).toVector().isApprox(dataHX.f[1].toVector()));  // Vector of body forces expressed in the local frame of the joint    
-  BOOST_CHECK(dataPXRX.nle.isApprox(dataHX.nle));  // Non Linear Effects (output of nle algorithm)
-  BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));  // CoM position of the subtree starting at joint index i.
+  BOOST_CHECK(dataPXRX.oMi[2].isApprox(dataHX.oMi[1]));
+  BOOST_CHECK((dataPXRX.liMi[2]*dataPXRX.liMi[1]).isApprox(dataHX.liMi[1]));
+  BOOST_CHECK(dataPXRX.Ycrb[2].matrix().isApprox(dataHX.Ycrb[1].matrix()));
+  BOOST_CHECK((dataPXRX.liMi[2].actInv(dataPXRX.f[1])).toVector().isApprox(dataHX.f[1].toVector()));   
+  BOOST_CHECK(dataPXRX.nle.isApprox(dataHX.nle));
+  BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));  
 
   // InverseDynamics == rnea
   std::cout << " ------ rnea ------- HX -------" << std::endl;
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   std::cout << "tauHX : " << tauHX << std::endl;
   std::cout << "tauPXRX : " << tauPXRX.transpose() << std::endl;
 
-  // ForwardDynamics == aba - working for both optimized and minimal
+  // ForwardDynamics == aba
   Eigen::VectorXd aAbaHX = aba(modelHX,dataHX, q_hx, v_hx, tauHX);
   Eigen::VectorXd aAbaPXRX = aba(modelPXRX,dataPXRX, q_PXRX, v_PXRX, tauPXRX);
 
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   BOOST_CHECK(aAbaPXRX.isApprox(aPXRX));
   BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * pitch * pitch, aHX(0))));
 
-  // crba - working for both optimized and minimal
+  // crba
   crba(modelHX, dataHX, q_hx);
   crba(modelPXRX, dataPXRX, q_PXRX);
 
@@ -150,21 +150,11 @@ BOOST_AUTO_TEST_CASE(spatial)
   double sin_alpha, cos_alpha; SINCOS(alpha,&sin_alpha,&cos_alpha);
   SE3 Mplain, Mrand(SE3::Random());
   
-  // TODO Alpha is not necessary, it can be reconstrcuted, but where to put pitch if not here as input ?
   TransformX Mx(sin_alpha,cos_alpha,alpha,pitch);
   Mplain = Mx;
   BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitX()*alpha*pitch));
   BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitX()).toRotationMatrix()));
   BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
-
-  // TODO: Test against combinatino of revolute and prismatic joint
-  // TransformPX MPx(alpha*pitch);
-  // TransformRX MRx(sin_alpha,cos_alpha);
-  // // auto MPXRX = MPx * MRx;
-
-  // BOOST_CHECK(Mplain.translation().isApprox(MPx.translation()+MRx.translation()));
-  // BOOST_CHECK(Mplain.rotation().isApprox(MPx.rotation() * MRx.rotation()));
-  // BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*MPx*MRx));
   
   TransformY My(sin_alpha,cos_alpha,alpha,pitch);
   Mplain = My;
