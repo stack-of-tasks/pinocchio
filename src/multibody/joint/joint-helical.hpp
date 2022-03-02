@@ -625,10 +625,10 @@ namespace pinocchio
       typedef JointMotionSubspaceHelicalTpl<Scalar,Options,axis> Constraint;
       typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
-                                   const Constraint & /*constraint*/)
+                                   const Constraint & constraint)
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-        return Y.col(Inertia::ANGULAR + axis);
+        return Y.col(Inertia::ANGULAR + axis) + Y.col(Inertia::LINEAR + axis) * constraint.pitch();
       }
     };
   } // namespace impl
