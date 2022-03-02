@@ -223,7 +223,6 @@ namespace pinocchio
     typedef SpatialAxis<axis+LINEAR> AxisLinear;
     typedef typename AxisLinear::CartesianAxis3 CartesianAxis3Linear;
 
-    MotionHelicalTpl() {}
     
     MotionHelicalTpl(const Scalar & w, const Scalar & h) : m_w(w), m_h(h)  {}
     
@@ -435,6 +434,7 @@ namespace pinocchio
 
     int nv_impl() const { return NV; }
     
+    // For force T
     struct TransposeConst : JointMotionSubspaceTransposeBase<JointMotionSubspaceHelicalTpl>
     {
       const JointMotionSubspaceHelicalTpl & ref;
@@ -443,6 +443,16 @@ namespace pinocchio
       template<typename ForceDerived>
       typename ConstraintForceOp<JointMotionSubspaceHelicalTpl,ForceDerived>::ReturnType
       operator*(const ForceDense<ForceDerived> & f) const
+      // { std::cout << "TransposeConst operator*1" << std::endl;
+      //  std::cout << f << std::endl;
+      //  std::cout << f.angular().template segment<1>(axis) << std::endl;
+      //  std::cout << f.linear().template segment<1>(axis) << std::endl;
+      //  auto tmp = f.angular().template segment<1>(axis);
+      //  auto tmp2 = f.linear().template segment<1>(axis);
+      //  auto t = tmp+tmp2;
+      //  typedef typename ConstraintForceOp<JointMotionSubspaceHelicalTpl,ForceDerived>::ReturnType ReturnType;
+      //  ReturnType res;
+        // return static_cast<const Eigen::Block<const Eigen::Matrix<double, 6, 1, 0>, 3, 1, false>> (t); }
       { return Eigen::Matrix<Scalar,1,1>(f.angular()(axis) + f.linear()(axis) * ref.m_h); }
 
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
@@ -450,7 +460,11 @@ namespace pinocchio
       typename ConstraintForceSetOp<JointMotionSubspaceHelicalTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
+        std::cout << "TransposeConst operator*2:  " << std::endl << F << std::endl;
         assert(F.rows()==6);
+        // auto t = (F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h);
+        // std::cout << "t:  " << std::endl << t << std::endl;
+        // std::cout << "F.row(ANGULAR + axis):  " << std::endl << F.row(ANGULAR + axis) << std::endl;
         return Eigen::Matrix<Scalar,1,1>((F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h));
       }
     }; // struct TransposeConst
@@ -511,6 +525,7 @@ namespace pinocchio
   };
 
 /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
+// see joint-motion-subspace-base
   namespace impl
   {
     template<typename S1, int O1, typename S2, int O2>
@@ -541,6 +556,7 @@ namespace pinocchio
         I(0,1)-m*x*y,
         I(0,2)-m*x*z;
         
+        std::cout << "res" << std::endl << res << std::endl;
         return res;
       }
     };
@@ -748,7 +764,7 @@ namespace pinocchio
     {
       data.joint_q[0] = qs[idx_q()];
       Scalar ca,sa; SINCOS(data.joint_q[0],&sa,&ca);
-      // TODO still passing redundant information
+      // TODO still passing redundant information, could just set the transl. part here
       data.M.setValues(sa,ca,data.joint_q[0],m_pitch);
       data.S.pitch() = m_pitch;
     }
@@ -777,6 +793,10 @@ namespace pinocchio
       data.StU[0] = data.U(Inertia::ANGULAR + axis) + m_pitch * data.U(Inertia::LINEAR + axis) + armature[0];
       data.Dinv[0] = Scalar(1) / data.StU[0];
       data.UDinv.noalias() = data.U * data.Dinv;
+
+      // Too general
+      // data.StU.diagonal() += armature;
+      // internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
 
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();
@@ -807,13 +827,13 @@ namespace pinocchio
   typedef JointDataHelicalTpl<double,0,0> JointDataHX;
   typedef JointModelHelicalTpl<double,0,0> JointModelHX;
 
-  // typedef JointHelicalTpl<double,0,1> JointHY;
-  // typedef JointDataHelicalTpl<double,0,1> JointDataHY;
-  // typedef JointModelHelicalTpl<double,0,1> JointModelHY;
+  typedef JointHelicalTpl<double,0,1> JointHY;
+  typedef JointDataHelicalTpl<double,0,1> JointDataHY;
+  typedef JointModelHelicalTpl<double,0,1> JointModelHY;
 
-  // typedef JointHelicalTpl<double,0,2> JointHZ;
-  // typedef JointDataHelicalTpl<double,0,2> JointDataHZ;
-  // typedef JointModelHelicalTpl<double,0,2> JointModelHZ;
+  typedef JointHelicalTpl<double,0,2> JointHZ;
+  typedef JointDataHelicalTpl<double,0,2> JointDataHZ;
+  typedef JointModelHelicalTpl<double,0,2> JointModelHZ;
 
 } //namespace pinocchio
 
