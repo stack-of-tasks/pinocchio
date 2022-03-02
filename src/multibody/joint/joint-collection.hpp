@@ -70,6 +70,9 @@ namespace pinocchio
     typedef JointModelHelicalTpl<Scalar,Options,0> JointModelHx;
     typedef JointModelHelicalTpl<Scalar,Options,1> JointModelHy;
     typedef JointModelHelicalTpl<Scalar,Options,2> JointModelHz;
+
+    // Joint Helical Unaligned
+    typedef JointModelHelicalUnalignedTpl<Scalar,Options> JointModelHelicalUnaligned;
     
     typedef boost::variant<
 //    JointModelVoid,
@@ -84,6 +87,7 @@ namespace pinocchio
     , JointModelRUBX, JointModelRUBY, JointModelRUBZ
     , JointModelRevoluteUnboundedUnaligned
     , JointModelHx, JointModelHy, JointModelHz
+    , JointModelHelicalUnaligned
     , boost::recursive_wrapper<JointModelComposite>
     > JointModelVariant;
    
@@ -138,10 +142,13 @@ namespace pinocchio
     typedef JointDataHelicalTpl<Scalar,Options,0> JointDataHx;
     typedef JointDataHelicalTpl<Scalar,Options,1> JointDataHy;
     typedef JointDataHelicalTpl<Scalar,Options,2> JointDataHz;
-  
+   
+    // Joint Helical Unaligned
+    typedef JointDataHelicalUnalignedTpl<Scalar,Options> JointDataHelicalUnaligned;
+    
     typedef boost::variant<
 //    JointDataVoid
-      JointDataRX, JointDataRY, JointDataRZ
+      JointDataRX, JointDataRY, JointDataRZ 
     , JointDataMimicRX, JointDataMimicRY, JointDataMimicRZ
     , JointDataFreeFlyer, JointDataPlanar
     , JointDataRevoluteUnaligned
@@ -152,6 +159,7 @@ namespace pinocchio
     , JointDataRUBX, JointDataRUBY, JointDataRUBZ
     , JointDataRevoluteUnboundedUnaligned
     , JointDataHx, JointDataHy, JointDataHz
+    , JointDataHelicalUnaligned
     , boost::recursive_wrapper<JointDataComposite>
     > JointDataVariant;
 
