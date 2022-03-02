@@ -68,6 +68,15 @@ namespace boost
     {
       ar & make_nvp("axis",S.axis());
     }
+
+    template <class Archive, typename Scalar, int Options>
+    void serialize(Archive & ar,
+                   pinocchio::JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options> & S,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("axis",S.axis());
+      ar & make_nvp("pitch",S.pitch());
+    }
   
     template <class Archive, int Dim, typename Scalar, int Options>
     void serialize(Archive & ar,
