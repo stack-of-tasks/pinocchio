@@ -297,11 +297,10 @@ namespace pinocchio
     EIGEN_STRONG_INLINE
     void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
     {
-      Vector3 tmp;
       // Linear
       CartesianAxis3Linear::alphaCross(-m_w,v.linear(),mout.linear());
-      CartesianAxis3Linear::alphaCross(-m_h*m_w,v.angular(),tmp);
-      mout.linear() += tmp;
+      CartesianAxis3Linear::alphaCross(-m_h*m_w,v.angular(),mout.angular());
+      mout.linear() += mout.angular();
       // Angular
       CartesianAxis3Angular::alphaCross(-m_w,v.angular(),mout.angular());
     }
