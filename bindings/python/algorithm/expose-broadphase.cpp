@@ -71,6 +71,7 @@ namespace pinocchio
   
     void exposeBroadphase()
     {
+#if defined(PINOCCHIO_WITH_HPP_FCL) && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
       using namespace Eigen;
       exposeBroadphaseCallbacks();
       
@@ -85,7 +86,7 @@ namespace pinocchio
       exposeBroadphaseAlgo<hpp::fcl::NaiveCollisionManager>();
       exposeBroadphaseAlgo<hpp::fcl::IntervalTreeCollisionManager>();
 //      exposeBroadphaseAlgo<hpp::fcl::SpatialHashingCollisionManager<> >();
-      
+#endif
     }
   } // namespace python
 } // namespace pinocchio
