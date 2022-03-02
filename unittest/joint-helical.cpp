@@ -196,6 +196,9 @@ BOOST_AUTO_TEST_CASE(spatial)
   BOOST_CHECK(v.cross(mh_z).isApprox(v.cross(mh_dense_z)));
 
 }
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(JointHelicalUnaligned)
 
 BOOST_AUTO_TEST_CASE(vsHX)
 {
@@ -269,6 +272,5 @@ BOOST_AUTO_TEST_CASE(vsHX)
 
   BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()
