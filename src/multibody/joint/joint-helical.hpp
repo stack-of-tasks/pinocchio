@@ -427,7 +427,8 @@ namespace pinocchio
       typedef typename SE3GroupAction<JointMotionSubspaceHelicalTpl>::ReturnType ReturnType;
       typedef typename AxisAngular::CartesianAxis3 CartesianAxis3;
       ReturnType res;
-      res.template segment<3>(LINEAR).noalias() = m.rotation().transpose()*CartesianAxis3::cross(m.translation());
+      res.template segment<3>(LINEAR).noalias() = m.rotation().transpose()*CartesianAxis3::cross(m.translation())
+                                                + m.rotation().transpose().col(axis)*m_h;
       res.template segment<3>(ANGULAR) = m.rotation().transpose().col(axis);
       return res;
     }
