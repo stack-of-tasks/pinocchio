@@ -451,8 +451,7 @@ namespace pinocchio
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
         assert(F.rows()==6);
-        auto t = (F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h);
-        return Eigen::Matrix<Scalar,1,1>(t);
+        return Eigen::Matrix<Scalar,1,1>((F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h));
       }
     }; // struct TransposeConst
 
