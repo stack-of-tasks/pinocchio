@@ -24,6 +24,7 @@ namespace pinocchio
     public:
       
       typedef TreeBroadPhaseManagerTpl<Derived> Self;
+      typedef typename Self::BroadPhaseManagerVector BroadPhaseManagerVector;
 
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
@@ -34,6 +35,11 @@ namespace pinocchio
                                                              "Default constructor")[bp::with_custodian_and_ward<1,2>(),bp::with_custodian_and_ward<1,3>(),bp::with_custodian_and_ward<1,4>()])
         .def(bp::init<const Self &>(bp::args("self","other"),
                                     "Copy constructor")[bp::with_custodian_and_ward<1,2>()])
+        
+        .def("getBroadPhaseManagers",(BroadPhaseManagerVector &(Self::*)())&Self::getBroadPhaseManagers,
+             bp::arg("self"),
+             "Returns the internal broad phase managers",
+             bp::return_internal_reference<>())
         
         .def(BroadPhaseManagerBasePythonVisitor<Self>())
         ;

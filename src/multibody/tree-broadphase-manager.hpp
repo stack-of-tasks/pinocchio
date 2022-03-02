@@ -98,6 +98,18 @@ struct TreeBroadPhaseManagerTpl
 //  /// @brief Performs distance test with objects belonging to another manager
 //  void distance(TreeBroadPhaseManagerTpl* other_manager, DistanceCallBackBase * callback) const;
   
+  /// @brief Returns internal broad phase managers.
+  const BroadPhaseManagerVector & getBroadPhaseManagers() const
+  {
+    return managers;
+  }
+  
+  /// @brief Returns internal broad phase managers.
+  BroadPhaseManagerVector & getBroadPhaseManagers()
+  {
+    return managers;
+  }
+  
 protected:
   
   /// @brief the vector of collision objects.
