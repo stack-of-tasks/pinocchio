@@ -17,9 +17,24 @@ namespace pinocchio
     assert(geom_model.ngeoms == collision_object_inflation.size());
 
     GeometryData & geom_data = getGeometryData();
-    collision_object_inflation.setZero();
+
+    // Pass 1: check the new active geometries and list the new deactive geometries
+    std::vector<size_t> new_active, new_inactive;
+    for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
+    {
+      const size_t geometry_object_id = selected_geometry_objects[k];
+      if(collision_object_is_active[k] != !geom_model.geometryObjects[geometry_object_id].disableCollision)
+      {
+        collision_object_is_active[k] = !geom_model.geometryObjects[geometry_object_id].disableCollision;
+        if(geom_model.geometryObjects[geometry_object_id].disableCollision)
+          new_inactive.push_back(k);
+        else
+          new_active.push_back(k);
+      }
+    }
 
     // The pass should be done over all the geometry objects composing the collision tree.
+    collision_object_inflation.setZero();
     for(size_t pair_id = 0; pair_id < geom_model.collisionPairs.size(); ++pair_id)
     {
       // TODO(jcarpent): enhance the performances by collecting only the collision pairs related to the selected_geometry_objects
@@ -57,6 +72,8 @@ namespace pinocchio
 
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
+      if(!collision_object_is_active[k]) continue;
+
       const size_t geometry_object_id = selected_geometry_objects[k];
 
       const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_object_id];
@@ -79,9 +96,16 @@ namespace pinocchio
       collision_obj.getAABB().expand(collision_object_inflation[static_cast<Eigen::DenseIndex>(k)]);
     }
 
-    assert(check() && "The status of the BroadPhaseManager is not valid");
+    // Remove deactivated collision objects
+    for(size_t k: new_inactive)
+      manager.unregisterObject(&collision_objects[k]);
+
+    // Add deactivated collision objects
+    for(size_t k: new_active)
+      manager.registerObject(&collision_objects[k]);
 
     manager.update(); // because the position has changed.
+    assert(check() && "The status of the BroadPhaseManager is not valid");
   }
 
   template<typename Manager>
@@ -99,20 +123,33 @@ namespace pinocchio
   bool BroadPhaseManagerTpl<Manager>::check() const
   {
     std::vector<hpp::fcl::CollisionObject*> collision_objects_ptr = manager.getObjects();
-    if(collision_objects_ptr.size() != collision_objects.size())
+    if(collision_objects_ptr.size() > collision_objects.size())
+      return false;
+
+    size_t count_active_objects = 0;
+    for(auto active: collision_object_is_active)
+      count_active_objects += active;
+
+    if(count_active_objects != collision_objects_ptr.size())
       return false;
 
     const GeometryModel & geom_model = getGeometryModel();
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
-      const size_t i = selected_geometry_objects[k];
+      const size_t geometry_id = selected_geometry_objects[k];
       const hpp::fcl::CollisionObject & collision_obj = collision_objects[k];
-
-      if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
-        return false;
-
       hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
-      const GeometryObject & geom_obj = geom_model.geometryObjects[i];
+
+      if(collision_object_is_active[k]) // The collision object is active
+      {
+        if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
+          return false;
+
+        if(geometry.get()->aabb_local.volume() == (std::numeric_limits<hpp::fcl::FCL_REAL>::min)())
+          return false;
+      }
+
+      const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_id];
       hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
 
       if(geometry.get() != geometry_of_geom_obj.get())
@@ -135,13 +172,15 @@ namespace pinocchio
   {
     const GeometryModel & geom_model = getGeometryModel();
     collision_objects.reserve(selected_geometry_objects.size());
-    for(size_t i: selected_geometry_objects)
+    for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
-      GeometryObject & geom_obj = const_cast<GeometryObject &>(geom_model.geometryObjects[i]);
-      collision_objects.push_back(CollisionObject(geom_obj.geometry,i));
+      const size_t geometry_id = selected_geometry_objects[k];
+      GeometryObject & geom_obj = const_cast<GeometryObject &>(geom_model.geometryObjects[geometry_id]);
+      collision_objects.push_back(CollisionObject(geom_obj.geometry,geometry_id));
 
       // Feed the base broadphase manager
-      manager.registerObject(&collision_objects.back());
+      if(collision_object_is_active[k])
+        manager.registerObject(&collision_objects.back());
     }
   }
 

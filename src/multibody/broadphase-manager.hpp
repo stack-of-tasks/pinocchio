@@ -44,18 +44,22 @@ struct BroadPhaseManagerTpl
                        const GeometryObjectFilterBase & filter = GeometryObjectFilterNothing())
   : Base(model_ptr, geometry_model_ptr, geometry_data_ptr)
   {
-    selected_geometry_objects = filter.apply(geometry_model_ptr->geometryObjects);
+    const GeometryModel & geom_model = *geometry_model_ptr;
+    selected_geometry_objects = filter.apply(geom_model.geometryObjects);
     
     geometry_to_collision_index.resize(geometry_model_ptr->geometryObjects.size(), (std::numeric_limits<size_t>::max)());
+    collision_object_is_active.resize(selected_geometry_objects.size(),true);
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
-      geometry_to_collision_index[selected_geometry_objects[k]] = k;
+      const size_t geometry_id = selected_geometry_objects[k];
+      geometry_to_collision_index[geometry_id] = k;
+      collision_object_is_active[k] = !geom_model.geometryObjects[geometry_id].disableCollision;
     }
     
-    selected_collision_pairs.reserve(geometry_model_ptr->collisionPairs.size());
-    for(size_t k = 0; k < geometry_model_ptr->collisionPairs.size(); ++k)
+    selected_collision_pairs.reserve(geom_model.collisionPairs.size());
+    for(size_t k = 0; k < geom_model.collisionPairs.size(); ++k)
     {
-      const CollisionPair & pair = geometry_model_ptr->collisionPairs[k];
+      const CollisionPair & pair = geom_model.collisionPairs[k];
       if(   geometry_to_collision_index[pair.first] != (std::numeric_limits<size_t>::max)()
          && geometry_to_collision_index[pair.second] != (std::numeric_limits<size_t>::max)())
       {
@@ -80,6 +84,7 @@ struct BroadPhaseManagerTpl
   , selected_geometry_objects(other.selected_geometry_objects)
   , geometry_to_collision_index(other.geometry_to_collision_index)
   , selected_collision_pairs(other.selected_collision_pairs)
+  , collision_object_is_active(other.collision_object_is_active)
   {
     init();
   }
@@ -161,6 +166,9 @@ protected:
   
   /// @brief Selected  collision pairs in the original geometry_model.
   std::vector<size_t> selected_collision_pairs;
+  
+  /// @brief Disable status related to each collision objects.
+  std::vector<bool> collision_object_is_active;
   
   /// @brief Initialialisation of BroadPhaseManagerTpl
   void init();
