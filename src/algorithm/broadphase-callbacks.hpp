@@ -90,19 +90,31 @@ struct CollisionCallBackDefault : CollisionCallBackBase
     const Eigen::DenseIndex go1_index = (Eigen::DenseIndex)co1.geometryObjectIndex;
     const Eigen::DenseIndex go2_index = (Eigen::DenseIndex)co2.geometryObjectIndex;
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(go1_index < (Eigen::DenseIndex)geometry_model_ptr->ngeoms && go1_index >= 0);
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(go2_index < (Eigen::DenseIndex)geometry_model_ptr->ngeoms && go2_index >= 0);
+    const GeometryModel & geometry_model = *geometry_model_ptr;
+    
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(go1_index < (Eigen::DenseIndex)geometry_model.ngeoms && go1_index >= 0);
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(go2_index < (Eigen::DenseIndex)geometry_model.ngeoms && go2_index >= 0);
 
-    const int pair_index = geometry_model_ptr->collisionPairMapping(go1_index,go2_index);
+    const int pair_index = geometry_model.collisionPairMapping(go1_index,go2_index);
     if(pair_index == -1)
       return false;
+    
+    const GeometryData & geometry_data = *geometry_data_ptr;
+    const CollisionPair & cp = geometry_model.collisionPairs[(PairIndex)pair_index];
+    const bool do_collision_check
+    =  geometry_data.activeCollisionPairs[(PairIndex)pair_index]
+    && !(geometry_model.geometryObjects[cp.first].disableCollision || geometry_model.geometryObjects[cp.second].disableCollision);
+    if(!do_collision_check)
+      return false;
+    
     count++;
     
     const bool res = computeCollision(*geometry_model_ptr, *geometry_data_ptr, (PairIndex)pair_index);
     
     if(res && !collision)
     {
-      collision = true; collisionPairIndex = (PairIndex)pair_index;
+      collision = true;
+      collisionPairIndex = (PairIndex)pair_index;
     }
     
     if(!stopAtFirstCollision)
