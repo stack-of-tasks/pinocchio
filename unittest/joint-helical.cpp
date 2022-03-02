@@ -197,4 +197,78 @@ BOOST_AUTO_TEST_CASE(spatial)
 
 }
 
+BOOST_AUTO_TEST_CASE(vsHX)
+{
+  using namespace pinocchio;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+
+  Vector3 axis;
+  axis << 1.0, 0.0, 0.0;
+  const double pitch = 20.;
+
+  Model modelHX, modelHelicalUnaligned;
+
+  Inertia inertia (1., Vector3 (0.0, 0., 0.0), Matrix3::Identity ());
+  SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
+
+  JointModelHelicalUnaligned joint_model_HU(axis, pitch);
+  
+  addJointAndBody(modelHX,JointModelHX(pitch),0,pos,"HX",inertia);
+  addJointAndBody(modelHelicalUnaligned,joint_model_HU,0,pos,"Helical-unaligned",inertia);
+
+  Data dataHX(modelHX);
+  Data dataHelicalUnaligned(modelHelicalUnaligned);
+
+  Eigen::VectorXd q = 3*Eigen::VectorXd::Ones (modelHX.nq);
+  Eigen::VectorXd v = 30* Eigen::VectorXd::Ones (modelHX.nv);
+  Eigen::VectorXd tauHX = Eigen::VectorXd::Ones (modelHX.nv);
+  Eigen::VectorXd tauHelicalUnaligned = Eigen::VectorXd::Ones (modelHelicalUnaligned.nv);
+  Eigen::VectorXd aHX = 5*Eigen::VectorXd::Ones (modelHX.nv);
+  Eigen::VectorXd aHelicalUnaligned(aHX);
+
+  forwardKinematics(modelHX, dataHX, q, v);
+  forwardKinematics(modelHelicalUnaligned, dataHelicalUnaligned, q, v);
+
+  computeAllTerms(modelHX, dataHX, q, v);
+  computeAllTerms(modelHelicalUnaligned, dataHelicalUnaligned, q, v);
+
+  BOOST_CHECK(dataHelicalUnaligned.oMi[1].isApprox(dataHX.oMi[1]));
+  BOOST_CHECK(dataHelicalUnaligned.liMi[1].isApprox(dataHX.liMi[1]));
+  BOOST_CHECK(dataHelicalUnaligned.Ycrb[1].matrix().isApprox(dataHX.Ycrb[1].matrix()));
+  BOOST_CHECK(dataHelicalUnaligned.f[1].toVector().isApprox(dataHX.f[1].toVector()));
+  
+  BOOST_CHECK(dataHelicalUnaligned.nle.isApprox(dataHX.nle));
+  BOOST_CHECK(dataHelicalUnaligned.com[0].isApprox(dataHX.com[0]));
+  
+  // InverseDynamics == rnea
+  tauHX = rnea(modelHX, dataHX, q, v, aHX);
+  tauHelicalUnaligned = rnea(modelHelicalUnaligned, dataHelicalUnaligned, q, v, aHelicalUnaligned);
+
+  BOOST_CHECK(tauHX.isApprox(tauHelicalUnaligned));
+
+  // ForwardDynamics == aba
+  Eigen::VectorXd aAbaHX= aba(modelHX,dataHX, q, v, tauHX);
+  Eigen::VectorXd aAbaHelicalUnaligned = aba(modelHelicalUnaligned,dataHelicalUnaligned, q, v, tauHelicalUnaligned);
+
+  BOOST_CHECK(aAbaHX.isApprox(aAbaHelicalUnaligned));
+
+  // crba
+  crba(modelHX, dataHX,q);
+  crba(modelHelicalUnaligned, dataHelicalUnaligned, q);
+
+  BOOST_CHECK(dataHX.M.isApprox(dataHelicalUnaligned.M));
+   
+  // Jacobian
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPX;jacobianPX.resize(6,1); jacobianPX.setZero();
+  Eigen::Matrix<double, 6, Eigen::Dynamic> jacobianPrismaticUnaligned;jacobianPrismaticUnaligned.resize(6,1);jacobianPrismaticUnaligned.setZero();
+  computeJointJacobians(modelHX, dataHX, q);
+  computeJointJacobians(modelHelicalUnaligned, dataHelicalUnaligned, q);
+  getJointJacobian(modelHX, dataHX, 1, LOCAL, jacobianPX);
+  getJointJacobian(modelHelicalUnaligned, dataHelicalUnaligned, 1, LOCAL, jacobianPrismaticUnaligned);
+
+  BOOST_CHECK(jacobianPX.isApprox(jacobianPrismaticUnaligned));
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
