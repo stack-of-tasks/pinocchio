@@ -102,10 +102,10 @@ namespace pinocchio
         if(!existLib() && generate_if_not_exist)
           compileLib();
 
-        fun = ::casadi::external(fun_name, libname+".so");
+        fun = ::casadi::external(fun_name, "./"+libname+".so");
         if(build_jacobian)
         {
-          fun_derivs = ::casadi::external(fun_name+"_derivs", libname+".so");
+          fun_derivs = ::casadi::external(fun_name+"_derivs", "./"+libname+".so");
         }
       }
 
