@@ -558,6 +558,14 @@ namespace pinocchio
     using Base::setIndexes;
 
     JointModelHelicalUnalignedTpl() {}
+
+    template<typename Vector3Like>
+    JointModelHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
+    : axis(axis), m_pitch((Scalar)0)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
+      assert(isUnitary(axis) && "Rotation axis is not unitary");
+    }
     
     JointModelHelicalUnalignedTpl(const Scalar & x,
                                   const Scalar & y,
