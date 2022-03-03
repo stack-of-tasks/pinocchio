@@ -19,8 +19,8 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
   inline void initConstraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
     data.contact_chol.allocate(model,contact_models);
     data.primal_dual_contact_solution.resize(data.contact_chol.size());
@@ -162,13 +162,13 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
-                  ProximalSettingsTpl<Scalar> & settings)
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & tau,
+                     const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                     std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
+                     ProximalSettingsTpl<Scalar> & settings)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA CNRS
+// Copyright (c) 2019-2022 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_info_hpp__
@@ -175,12 +175,12 @@ namespace pinocchio
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidConstraintModelTpl(const ContactType type,
-                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
-                         const JointIndex joint1_id,
-                         const SE3 & joint1_placement,
-                         const JointIndex joint2_id,
-                         const SE3 & joint2_placement,
-                         const ReferenceFrame & reference_frame = LOCAL)
+                            const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
+                            const JointIndex joint1_id,
+                            const SE3 & joint1_placement,
+                            const JointIndex joint2_id,
+                            const SE3 & joint2_placement,
+                            const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
@@ -206,10 +206,10 @@ namespace pinocchio
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidConstraintModelTpl(const ContactType type,
-                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
-                         const JointIndex joint1_id,
-                         const SE3 & joint1_placement,
-                         const ReferenceFrame & reference_frame = LOCAL)
+                            const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
+                            const JointIndex joint1_id,
+                            const SE3 & joint1_placement,
+                            const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(0)
@@ -234,10 +234,10 @@ namespace pinocchio
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidConstraintModelTpl(const ContactType type,
-                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
-                         const JointIndex joint1_id,
-                         const JointIndex joint2_id,
-                         const ReferenceFrame & reference_frame = LOCAL)
+                            const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
+                            const JointIndex joint1_id,
+                            const JointIndex joint2_id,
+                            const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
@@ -263,9 +263,9 @@ namespace pinocchio
     ///
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     RigidConstraintModelTpl(const ContactType type,
-                         const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
-                         const JointIndex joint1_id,
-                         const ReferenceFrame & reference_frame = LOCAL)
+                            const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
+                            const JointIndex joint1_id,
+                            const ReferenceFrame & reference_frame = LOCAL)
     : type(type)
     , joint1_id(joint1_id)
     , joint2_id(0) // set to be the Universe

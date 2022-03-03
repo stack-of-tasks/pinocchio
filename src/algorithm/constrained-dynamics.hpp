@@ -29,8 +29,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class Allocator>
   inline void
   initConstraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models);
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models);
   
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
@@ -65,13 +65,13 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
-                  ProximalSettingsTpl<Scalar> & settings);
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & tau,
+                     const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                     std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas,
+                     ProximalSettingsTpl<Scalar> & settings);
 
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
@@ -103,12 +103,12 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, class ConstraintModelAllocator, class ConstraintDataAllocator>
   inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   constraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                  const Eigen::MatrixBase<TangentVectorType2> & tau,
-                  const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
-                  std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas)
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                     const Eigen::MatrixBase<TangentVectorType2> & tau,
+                     const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                     std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_datas)
   {
     ProximalSettingsTpl<Scalar> settings;
     return constraintDynamics(model,data,q,v,tau,contact_models,contact_datas,settings);
