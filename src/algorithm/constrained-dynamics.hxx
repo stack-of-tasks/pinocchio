@@ -399,10 +399,10 @@ namespace pinocchio
       primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
       contact_chol.solveInPlace(primal_dual_contact_solution);
       
-      settings.residual = (primal_dual_contact_solution.head(contact_chol.constraintDim()) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
-      if(check_expression_if_real<Scalar,false>(settings.residual <= settings.accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
-        break;
+      settings.relative_residual = (primal_dual_contact_solution.head(contact_chol.constraintDim()) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
       data.lambda_c_prox = -primal_dual_contact_solution.head(contact_chol.constraintDim());
+      if(check_expression_if_real<Scalar,false>(settings.relative_residual <= settings.relative_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
+        break;
     }
     settings.iter = it;
     assert(settings.iter <= settings.max_iter && "must never happened");
@@ -797,7 +797,7 @@ namespace pinocchio
         }
       }
 
-      if(primal_infeasibility < settings.accuracy)
+      if(primal_infeasibility < settings.absolute_accuracy)
       {
         optimal_solution_found = true;
         break;
@@ -850,7 +850,7 @@ namespace pinocchio
     }
 
     settings.iter = it;
-    settings.residual = primal_infeasibility;
+    settings.absolute_residual = primal_infeasibility;
 
     return data.ddq;
   }

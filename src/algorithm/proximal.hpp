@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2022 INRIA
 //
 
 #ifndef __pinocchio_algorithm_proximal_hpp__
@@ -24,34 +24,62 @@ namespace pinocchio
     
     /// \brief Default constructor.
     ProximalSettingsTpl()
-    : accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
+    : absolute_accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
+    , relative_accuracy(Eigen::NumTraits<Scalar>::dummy_precision())
     , mu(0)
     , max_iter(1)
-    , residual(-1.)
+    , absolute_residual(-1.)
+    , relative_residual(-1.)
     , iter(0)
     {}
     
     ///
     /// \brief Constructor with all the setting parameters.
     ///
-    ProximalSettingsTpl(Scalar accuracy,
-                        Scalar mu,
-                        int max_iter)
-    : accuracy(accuracy)
+    ProximalSettingsTpl(const Scalar accuracy,
+                        const Scalar mu,
+                        const int max_iter)
+    : absolute_accuracy(accuracy)
+    , relative_accuracy(accuracy)
     , mu(mu)
     , max_iter(max_iter)
-    , residual(-1.)
+    , absolute_residual(-1.)
+    , relative_residual(-1.)
     , iter(0)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(accuracy >= 0.) && "accuracy must be positive");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(accuracy >= 0.) && "Accuracy must be positive.");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0.) && "mu must be positive");
+      assert(max_iter >= 1 && "max_iter must be greater or equal to 1");
+    }
+    
+    ///
+    /// \brief Constructor with all the setting parameters.
+    ///
+    ProximalSettingsTpl(const Scalar absolute_accuracy,
+                        const Scalar relative_accuracy,
+                        const Scalar mu,
+                        const int max_iter)
+    : absolute_accuracy(absolute_accuracy)
+    , relative_accuracy(relative_accuracy)
+    , mu(mu)
+    , max_iter(max_iter)
+    , absolute_residual(-1.)
+    , relative_residual(-1.)
+    , iter(0)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(absolute_accuracy >= 0.) && "Absolute accuracy must be positive.");
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(relative_accuracy >= 0.) && "Relative accuracy must be positive.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0.) && "mu must be positive");
       assert(max_iter >= 1 && "max_iter must be greater or equal to 1");
     }
     
     // data
     
-    /// \brief Minimal proximal accuracy required for primal and dual feasibility
-    Scalar accuracy;
+    /// \brief Absolute proximal accuracy.
+    Scalar absolute_accuracy;
+    
+    /// \brief Relative proximal accuracy between two iterates.
+    Scalar relative_accuracy;
     
     /// \brief Regularization parameter of the Proximal algorithms.
     Scalar mu;
@@ -61,10 +89,13 @@ namespace pinocchio
     
     // data that can be modified by the algorithm
     
-    /// \brief Final residual when the algorithm has converged or reached the maximal number of allowed iterations.
-    Scalar residual;
+    /// \brief Absolute residual.
+    Scalar absolute_residual;
     
-    /// \brief Final number of iteration of the algorithm when it has converged or reached the maximal number of allowed iterations.
+    /// \brief Relatice residual  between two iterates.
+    Scalar relative_residual;
+    
+    /// \brief Total number of iterations of the algorithm when it has converged or reached the maximal number of allowed iterations.
     int iter;
     
   };
