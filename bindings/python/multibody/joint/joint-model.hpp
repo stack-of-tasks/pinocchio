@@ -18,7 +18,7 @@ namespace pinocchio
     namespace bp = boost::python;
   
     template<typename JointModel>
-    struct ExtractJointVariantTypeVisitor
+    struct ExtractJointModelVariantTypeVisitor
     {
       typedef typename JointModel::JointCollection JointCollection;
       typedef bp::object result_type;
@@ -30,9 +30,9 @@ namespace pinocchio
         return obj;
       }
       
-      static result_type extract(const JointModel & joint_generic)
+      static result_type extract(const JointModel & jmodel)
       {
-        return boost::apply_visitor(ExtractJointVariantTypeVisitor(), joint_generic);
+        return boost::apply_visitor(ExtractJointModelVariantTypeVisitor(), jmodel);
       }
     };
   
@@ -49,7 +49,7 @@ namespace pinocchio
         .def(bp::init<JointModel>(bp::args("self","other"),"Copy constructor"))
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
-        .def("extract",ExtractJointVariantTypeVisitor<JointModel>::extract,
+        .def("extract",ExtractJointModelVariantTypeVisitor<JointModel>::extract,
              bp::arg("self"),
              "Returns a reference of the internal joint managed by the JointModel",
              bp::with_custodian_and_ward_postcall<0,1>())
