@@ -238,7 +238,8 @@ namespace pinocchio
       Ag_ang.col(i) += Ag_lin.col(i).cross(data.com[0]);
 
     // Computes the Cholesky decomposition
-    contact_chol.compute(model,data,contact_models,contact_datas,settings.mu);
+    const Scalar mu = settings.mu;
+    contact_chol.compute(model,data,contact_models,contact_datas,mu);
 
     primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
 
@@ -392,16 +393,27 @@ namespace pinocchio
 //    Scalar primal_infeasibility = Scalar(0);
     int it = 0;
     data.lambda_c_prox.setZero();
+    const Eigen::DenseIndex constraint_dim = contact_chol.constraintDim();
     for(; it < settings.max_iter;)
     {
       it++;
-      primal_dual_contact_solution.head(contact_chol.constraintDim()) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
+      primal_dual_contact_solution.head(constraint_dim) = primal_rhs_contact + data.lambda_c_prox * settings.mu;
       primal_dual_contact_solution.tail(model.nv) = tau - data.nle;
       contact_chol.solveInPlace(primal_dual_contact_solution);
       
-      settings.relative_residual = (primal_dual_contact_solution.head(contact_chol.constraintDim()) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
-      data.lambda_c_prox = -primal_dual_contact_solution.head(contact_chol.constraintDim());
-      if(check_expression_if_real<Scalar,false>(settings.relative_residual <= settings.relative_accuracy)) // In the case where Scalar is not double, this will iterate for max_it.
+      // Use data.lambda_c as tmp variable for computing the constraint residual
+      contact_chol.getDelassusExpression().applyOnTheRight(primal_dual_contact_solution.head(constraint_dim),data.lambda_c);
+      data.lambda_c -= mu * primal_dual_contact_solution.head(constraint_dim) + primal_rhs_contact.head(constraint_dim);
+
+      settings.absolute_residual = data.lambda_c.template lpNorm<Eigen::Infinity>();
+      settings.relative_residual = (primal_dual_contact_solution.head(constraint_dim) + data.lambda_c_prox).template lpNorm<Eigen::Infinity>();
+      
+      data.lambda_c_prox = -primal_dual_contact_solution.head(constraint_dim);
+      
+      const bool convergence_criteria_reached =
+         check_expression_if_real<Scalar,false>(settings.absolute_residual <= settings.absolute_accuracy)
+      || check_expression_if_real<Scalar,false>(settings.relative_residual <= settings.relative_accuracy);
+      if(convergence_criteria_reached) // In the case where Scalar is not double, this will iterate for max_it.
         break;
     }
     settings.iter = it;
@@ -409,7 +421,7 @@ namespace pinocchio
     
     // Retrieve the joint space acceleration
     a = primal_dual_contact_solution.tail(model.nv);
-    data.lambda_c = -primal_dual_contact_solution.head(contact_chol.constraintDim());
+    data.lambda_c = -primal_dual_contact_solution.head(constraint_dim);
 
     // Retrieve the contact forces
     Eigen::DenseIndex current_row_sol_id = 0;
