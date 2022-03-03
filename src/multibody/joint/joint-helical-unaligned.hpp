@@ -366,8 +366,6 @@ namespace pinocchio
     Scalar & pitch() { return m_h; }
     const Scalar & pitch() const { return m_h; }
 
-  protected:
-
     Vector3 m_axis;
     Scalar m_h;
 
@@ -641,9 +639,8 @@ namespace pinocchio
       return res;
     }
 
-    protected:
     Scalar m_pitch;
-    Vector3 axis;  // maybe needs to be public ?
+    Vector3 axis;
 
   }; // struct JointModelHelicalUnalignedTpl
 
