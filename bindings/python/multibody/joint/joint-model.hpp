@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_joint_joint_model_hpp__
@@ -16,7 +16,26 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
-    
+  
+    template<typename JointModel>
+    struct ExtractJointVariantTypeVisitor
+    {
+      typedef typename JointModel::JointCollection JointCollection;
+      typedef bp::object result_type;
+
+      template<typename JointModelDerived>
+      result_type operator()(const JointModelBase<JointModelDerived> & jmodel) const
+      {
+        bp::object obj(boost::ref(jmodel.derived()));
+        return obj;
+      }
+      
+      static result_type extract(const JointModel & joint_generic)
+      {
+        return boost::apply_visitor(ExtractJointVariantTypeVisitor(), joint_generic);
+      }
+    };
+  
     template<typename JointModel>
     struct JointModelPythonVisitor
     {
@@ -26,10 +45,14 @@ namespace pinocchio
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<JointModel>())
-        .def(bp::init<JointModel>(bp::args("self","other")))
+        .def(bp::init<JointModel>(bp::arg("self"),"Default constructor"))
+        .def(bp::init<JointModel>(bp::args("self","other"),"Copy constructor"))
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
+        .def("extract",ExtractJointVariantTypeVisitor<JointModel>::extract,
+             bp::arg("self"),
+             "Returns a reference of the internal joint managed by the JointModel",
+             bp::with_custodian_and_ward_postcall<0,1>())
         ;
       }
 
