@@ -224,6 +224,8 @@ namespace pinocchio
     typedef typename AxisLinear::CartesianAxis3 CartesianAxis3Linear;
 
     
+    MotionHelicalTpl() {}
+
     MotionHelicalTpl(const Scalar & w, const Scalar & h) : m_w(w), m_h(h)  {}
     
     inline PlainReturnType plain() const
@@ -755,6 +757,8 @@ namespace pinocchio
     
     JointDataDerived createData() const { return JointDataDerived(); }
     
+    JointModelHelicalTpl() {}
+
     JointModelHelicalTpl(const Scalar & pitch) : m_pitch(pitch) {}
     
     template<typename ConfigVector>
