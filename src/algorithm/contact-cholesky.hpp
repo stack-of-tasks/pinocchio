@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2022 INRIA
 //
 
 #ifndef __pinocchio_algorithm_contact_cholesky_hpp__
@@ -81,6 +81,45 @@ namespace pinocchio
         Eigen::DenseIndex size;
       };
       
+      struct DelassusExpression
+      {
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
+        typedef typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<Vector>::ConstType VectorConstSegmentXpr;
+        typedef typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<Vector>::Type VectorSegmentXpr;
+        
+        const ContactCholeskyDecompositionTpl & self;
+        
+        DelassusExpression(const ContactCholeskyDecompositionTpl & self)
+        : self(self)
+        {}
+        
+        template<typename MatrixIn, typename MatrixOut>
+        void applyOnTheRight(const Eigen::MatrixBase<MatrixIn> & x,
+                             const Eigen::MatrixBase<MatrixOut> & res) const
+        {
+          PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+          
+          const RowMatrixConstBlockXpr U1 = self.U.topLeftCorner(self.constraintDim(),self.constraintDim());
+          VectorSegmentXpr vec_tmp = const_cast<ContactCholeskyDecompositionTpl&>(self).DUt.head(self.constraintDim());
+          vec_tmp.noalias() = U1.adjoint() * x;
+          vec_tmp.array() *= self.D.head(self.constraintDim()).array();
+          res.const_cast_derived().noalias() = -U1 * vec_tmp;
+          
+          PINOCCHIO_EIGEN_MALLOC_ALLOWED();
+        }
+        
+        template<typename MatrixDerived>
+        Vector operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
+        {
+          Vector res(self.constraintDim());
+          applyOnTheRight(x,res);
+          return res;
+        }
+        
+      };
+      
+      friend struct DelassusExpression;
+      
       typedef std::vector<Slice> SliceVector;
       typedef std::vector<SliceVector> VectorOfSliceVector;
       ///@}
@@ -148,6 +187,11 @@ namespace pinocchio
         OSIMinv_tmp.noalias() = D.head(constraintDim()).asDiagonal() * U1.adjoint();
         res_.noalias() = -U1 * OSIMinv_tmp;
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
+      }
+      
+      DelassusExpression getDelassusExpression() const
+      {
+        return DelassusExpression(*this);
       }
       
       ///

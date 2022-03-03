@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2022 INRIA
 //
 
 #include <iostream>
@@ -340,13 +340,20 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   BOOST_CHECK(H_recomposed.isApprox(H));
   
   // test Operational Space Inertia Matrix
-  
-  MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
-  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
-  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
-  
-  BOOST_CHECK(iosim.isApprox(JMinvJt));
-  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+  {
+    MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
+    MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
+    MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+    
+    BOOST_CHECK(iosim.isApprox(JMinvJt));
+    BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
+    
+    const MatrixXd rhs = MatrixXd::Random(12, 20);
+    const MatrixXd res = contact_chol_decomposition.getDelassusExpression() * rhs;
+    const MatrixXd res_ref = iosim * rhs;
+    
+    BOOST_CHECK(res_ref.isApprox(res));
+  }
   
   // test Mass matrix cholesky
   data_ref.Minv = data_ref.M.inverse();
@@ -367,6 +374,27 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   contact_chol_decomposition_mu.compute(model,data,contact_models,contact_datas,mu);
   Data::MatrixXs H_mu(H);
   H_mu.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
+  
+  // test damped Operational Space Inertia Matrix
+  {
+    MatrixXd JMinvJt_mu = H_mu.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H_mu.middleRows<12>(0).rightCols(model.nv).transpose() + mu * MatrixXd::Identity(12,12);
+    MatrixXd iosim_mu = contact_chol_decomposition_mu.getInverseOperationalSpaceInertiaMatrix();
+    MatrixXd osim_mu = contact_chol_decomposition_mu.getOperationalSpaceInertiaMatrix();
+    
+    BOOST_CHECK(iosim_mu.isApprox(JMinvJt_mu));
+    BOOST_CHECK(osim_mu.isApprox(JMinvJt_mu.inverse()));
+    
+    const MatrixXd rhs = MatrixXd::Random(12, 20);
+    const MatrixXd res = contact_chol_decomposition_mu.getDelassusExpression() * rhs;
+    const MatrixXd res_ref = iosim_mu * rhs;
+    
+    BOOST_CHECK(res_ref.isApprox(res));
+
+    const MatrixXd res_no_mu = contact_chol_decomposition_mu.getDelassusExpression() * rhs - mu * rhs;
+    const MatrixXd res_no_mu_ref = contact_chol_decomposition.getDelassusExpression() * rhs;
+    
+    BOOST_CHECK(res_no_mu.isApprox(res_no_mu_ref));
+  }
   
   Data::MatrixXs H_recomposed_mu
   = contact_chol_decomposition_mu.U
