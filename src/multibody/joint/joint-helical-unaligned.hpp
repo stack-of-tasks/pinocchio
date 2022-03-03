@@ -535,12 +535,6 @@ namespace pinocchio
     
   }; // struct JointDataHelicalUnalignedTpl
   
-  template<typename NewScalar, typename Scalar, int Options>
-  struct CastType< NewScalar, JointModelHelicalUnalignedTpl<Scalar,Options> >
-  {
-    typedef JointModelHelicalUnalignedTpl<NewScalar,Options> type;
-  };
-
   PINOCCHIO_JOINT_CAST_TYPE_SPECIALIZATION(JointModelHelicalUnalignedTpl);
   template<typename _Scalar, int _Options>
   struct JointModelHelicalUnalignedTpl
