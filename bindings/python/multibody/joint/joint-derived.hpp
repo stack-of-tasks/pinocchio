@@ -48,6 +48,8 @@ namespace pinocchio
              bp::args("self","jdata","q"))
         .def("calc",&calc1,
              bp::args("self","jdata","q","v"))
+        .def("createData",&JointModelDerived::createData,
+             bp::arg("self"),"Create data associated to the joint model.")
         .def("hasSameIndexes",
              &JointModelDerived::template hasSameIndexes<JointModelDerived>,
              bp::args("self","other"),
