@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -128,7 +128,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         
         .def("Identity",&Inertia::Identity,"Returns the identity Inertia.")
         .staticmethod("Identity")
-        .def("Zero",&Inertia::Zero,"Returns the null Inertia.")
+        .def("Zero",&Inertia::Zero,"Returns the zero Inertia.")
         .staticmethod("Zero")
         .def("Random",&Inertia::Random,"Returns a random Inertia.")
         .staticmethod("Random")
@@ -180,7 +180,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 //      static void setInertia(Inertia & self, const Vector6 & minimal_inertia) { self.inertia().data() = minimal_inertia; }
       static void setInertia(Inertia & self, const Matrix3 & symmetric_inertia)
       {
-        assert(check_expression_if_real<Scalar>(isZero(symmetric_inertia - symmetric_inertia.transpose())));
+        if(!check_expression_if_real<Scalar>(isZero(symmetric_inertia - symmetric_inertia.transpose())))
+          throw eigenpy::Exception("The 3d inertia should be symmetric.");
         self.inertia().data() <<
         symmetric_inertia(0,0),
         symmetric_inertia(1,0),
