@@ -822,7 +822,6 @@ namespace pinocchio
       return res;
     }
 
-    protected:
     Scalar m_pitch;
     
   }; // struct JointModelHelicalTpl
