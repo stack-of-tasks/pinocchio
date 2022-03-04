@@ -512,7 +512,7 @@ namespace pinocchio
             
             urdfVisitor << "joint REVOLUTE with axis"<< axis.transpose()<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction, damping);
           }
@@ -520,7 +520,7 @@ namespace pinocchio
           {
             urdfVisitor << "joint GEARBOX with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
             
@@ -534,14 +534,14 @@ namespace pinocchio
             
             urdfVisitor << "joint prismatic with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::PRISMATIC, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
           }
           else if (jointElement->template Get<std::string>("type") == "fixed")
           {
             urdfVisitor << "joint fixed"<<  '\n';
-            urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement,
+            urdfVisitor.addFixedJointAndBody(parentFrameId, pMj,
                                              jointName, Y, childName);
             
           }
@@ -558,7 +558,7 @@ namespace pinocchio
               
             urdfVisitor << "joint BALL"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
-                                        parentFrameId, jointPlacement, jointName, Y, cMj.inverse(),
+                                        parentFrameId, pMj, jointName, Y, cMj.inverse(),
                                         childName,
                                         max_effort, max_velocity, min_config, max_config,
                                         friction, damping);
