@@ -363,7 +363,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, int axis, typename ForceSet>
   struct ConstraintForceSetOp< JointMotionSubspaceHelicalTpl<Scalar,Options,axis>, ForceSet>
-  { typedef typename Eigen::Matrix<Scalar,1,1> ReturnType; };
+  { typedef typename Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> ReturnType; };
 
   template<typename _Scalar, int _Options, int axis>
   struct traits< JointMotionSubspaceHelicalTpl<_Scalar,_Options,axis> >
@@ -467,7 +467,7 @@ namespace pinocchio
         // auto t = (F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h);
         // std::cout << "t:  " << std::endl << t << std::endl;
         // std::cout << "F.row(ANGULAR + axis):  " << std::endl << F.row(ANGULAR + axis) << std::endl;
-        return Eigen::Matrix<Scalar,1,1>((F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h));
+        return F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h;
       }
     }; // struct TransposeConst
 

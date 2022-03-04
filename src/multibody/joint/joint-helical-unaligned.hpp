@@ -217,7 +217,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, typename ForceSet>
   struct ConstraintForceSetOp< JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options>, ForceSet>
-  { typedef typename Eigen::Matrix<Scalar,1,1> ReturnType; };
+  { typedef typename Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> ReturnType; };
 
   template<typename _Scalar, int _Options>
   struct traits< JointMotionSubspaceHelicalUnalignedTpl<_Scalar,_Options> >
@@ -320,8 +320,8 @@ namespace pinocchio
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
         assert(F.rows()==6);
-        return Eigen::Matrix<Scalar,1,1>((ref.axis().transpose() * F.template middleRows<3>(ANGULAR) 
-                                          +(ref.axis().transpose() * F.template middleRows<3>(LINEAR) * ref.m_h)));
+        return (ref.axis().transpose() * F.template middleRows<3>(ANGULAR) 
+              +(ref.axis().transpose() * F.template middleRows<3>(LINEAR) * ref.m_h));
       }
     }; // struct TransposeConst
 
