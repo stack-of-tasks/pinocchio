@@ -631,7 +631,7 @@ namespace pinocchio
   template<typename M6Like,typename S2, int O2, int axis>
   struct MultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspaceHelicalTpl<S2,O2,axis> >
   {
-    typedef typename M6Like::ConstColXpr ReturnType;
+    typedef Eigen::Matrix<S2,6,1> ReturnType;
   };
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
@@ -641,12 +641,12 @@ namespace pinocchio
     struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspaceHelicalTpl<Scalar,Options,axis> >
     {
       typedef JointMotionSubspaceHelicalTpl<Scalar,Options,axis> Constraint;
-      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      typedef Eigen::Matrix<Scalar,6,1> ReturnType;
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
                                    const Constraint & constraint)
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-        return Y.col(Inertia::ANGULAR + axis) + Y.col(Inertia::LINEAR + axis) * constraint.pitch();
+        return (Y.col(Inertia::ANGULAR + axis) + Y.col(Inertia::LINEAR + axis) * constraint.pitch());
       }
     };
   } // namespace impl

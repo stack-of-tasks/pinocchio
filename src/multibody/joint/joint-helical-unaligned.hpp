@@ -407,12 +407,7 @@ namespace pinocchio
   template<typename M6Like, typename Scalar, int Options>
   struct MultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options> >
   {
-    typedef typename SizeDepType<3>::ColsReturn<M6Like>::ConstType M6LikeCols;
-    typedef typename Eigen::internal::remove_const<M6LikeCols>::type M6LikeColsNonConst;
-    
-    typedef JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options> Constraint;
-    typedef typename Constraint::Vector3 Vector3;
-    typedef const typename MatrixMatrixProduct<M6LikeColsNonConst,Vector3>::type ReturnType;
+    typedef const Eigen::Matrix<Scalar,6,1> ReturnType;
   };
   
   /* [ABA] operator* (Inertia Y,Constraint S) */
@@ -422,12 +417,12 @@ namespace pinocchio
     struct LhsMultiplicationOp<Eigen::MatrixBase<M6Like>, JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options> >
     {
       typedef JointMotionSubspaceHelicalUnalignedTpl<Scalar,Options> Constraint;
-      typedef typename MultiplicationOp<Eigen::MatrixBase<M6Like>,Constraint>::ReturnType ReturnType;
+      typedef Eigen::Matrix<Scalar,6,1> ReturnType;
       static inline ReturnType run(const Eigen::MatrixBase<M6Like> & Y,
                                    const Constraint & cru)
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-        return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis() 
+        return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis()
                + Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis() * cru.pitch();
 
       }
