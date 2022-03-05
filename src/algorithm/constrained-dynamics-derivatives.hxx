@@ -539,24 +539,27 @@ namespace pinocchio
           case CONTACT_6D:
           {
             //TODO: THIS IS FOR THE LOCAL FRAME ONLY
-            const Motion& o_acc_c2 = data.oa[cmodel.joint2_id];
+            const Motion & o_acc_c2 = data.oa[cmodel.joint2_id];
             typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
             RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
             const typename Model::JointIndex joint2_id = cmodel.joint2_id;
-            const Eigen::DenseIndex colRef2 =
-            nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
+            const Eigen::DenseIndex colRef2 = nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
             
-            switch(cmodel.reference_frame) {
-              case LOCAL: {
+            switch(cmodel.reference_frame)
+            {
+              case LOCAL:
+              {
                 of_tmp = cdata.oMc1.act(cdata.contact_force);
                 break;
               }
-              case LOCAL_WORLD_ALIGNED: {
+              case LOCAL_WORLD_ALIGNED:
+              {
                 of_tmp = cdata.contact_force;
                 of_tmp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
                 break;
               }
-              default: {
+              default:
+              {
                 assert(false && "must never happen");
                 break;
               }
@@ -660,15 +663,18 @@ namespace pinocchio
               }
               
               of_tmp2.linear().noalias() = of_tmp.linear().cross(J_col.angular());
-              for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
+              for(Eigen::DenseIndex j=colRef2; j>=0 ; j=data.parents_fromRow[(size_t)j])
               {
                 const MotionRef<typename Data::Matrix6x::ColXpr> J2_col(data.J.col(j));
+                
                 //Temporary assignment
                 of_tmp2.angular().noalias() = J2_col.linear() - cdata.oMc2.translation().cross(J2_col.angular());
-                if(joint2_indexes[col_id]) {
+                if(joint2_indexes[col_id])
+                {
                   data.dtau_dq(j,col_id) += of_tmp2.angular().dot(of_tmp2.linear());
                 }
-                else {
+                else
+                {
                   data.dtau_dq(j,col_id) -= of_tmp2.angular().dot(of_tmp2.linear());
                 }
               }
