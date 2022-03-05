@@ -467,6 +467,8 @@ namespace pinocchio
     typedef ForceTpl<Scalar,Options> Force;
     typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
     typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(Matrix6) VectorOfMatrix6;
+    typedef Eigen::Matrix<Scalar,6,Eigen::Dynamic,Options> Matrix6x;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixX;
     
     // data
     
@@ -516,6 +518,12 @@ namespace pinocchio
     VectorOfMatrix6 lambdas_joint1;
     VectorOfMatrix6 extended_motion_propagators_joint2;
     
+    Matrix6x dv1_dq, da1_dq, da1_dv, da1_da;
+    Matrix6x & J1;
+    Matrix6x dv2_dq, da2_dq, da2_dv, da2_da;
+    Matrix6x & J2;
+    MatrixX dv_dq, da_dq, da_dv, da_da;
+
     RigidConstraintDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
     , contact_placement_error(Motion::Zero())
@@ -531,6 +539,20 @@ namespace pinocchio
     , extended_motion_propagators_joint1(contact_model.depth_joint1,Matrix6::Zero())
     , lambdas_joint1(contact_model.depth_joint1,Matrix6::Zero())
     , extended_motion_propagators_joint2(contact_model.depth_joint2,Matrix6::Zero())
+    , dv1_dq(6,contact_model.nv)
+    , da1_dq(6,contact_model.nv)
+    , da1_dv(6,contact_model.nv)
+    , da1_da(6,contact_model.nv)
+    , J1(da1_da)
+    , dv2_dq(6,contact_model.nv)
+    , da2_dq(6,contact_model.nv)
+    , da2_dv(6,contact_model.nv)
+    , da2_da(6,contact_model.nv)
+    , J2(da2_da)
+    , dv_dq(contact_model.size(),contact_model.nv)
+    , da_dq(contact_model.size(),contact_model.nv)
+    , da_dv(contact_model.size(),contact_model.nv)
+    , da_da(contact_model.size(),contact_model.nv)
     {}
     
     bool operator==(const RigidConstraintDataTpl & other) const
@@ -553,6 +575,21 @@ namespace pinocchio
       && extended_motion_propagators_joint1 == other.extended_motion_propagators_joint1
       && lambdas_joint1 == other.lambdas_joint1
       && extended_motion_propagators_joint2 == other.extended_motion_propagators_joint2
+      //
+      && dv1_dq == other.dv1_dq
+      && da1_dq == other.da1_dq
+      && da1_dv == other.da1_dv
+      && da1_da == other.da1_da
+      //
+      && dv2_dq == other.dv2_dq
+      && da2_dq == other.da2_dq
+      && da2_dv == other.da2_dv
+      && da2_da == other.da2_da
+      //
+      && dv_dq == other.dv_dq
+      && da_dq == other.da_dq
+      && da_dv == other.da_dv
+      && da_da == other.da_da
       ;
     }
     
