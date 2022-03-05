@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2020 INRIA CNRS
+// Copyright (c) 2019-2022 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_constraint_dynamics_hxx__
@@ -281,11 +281,12 @@ namespace pinocchio
       else
         vc2.setZero();
 
+      const Motion vc2_in_frame1 = c1Mc2.act(vc2);
       // Compute placement and velocity errors
       if(contact_model.type == CONTACT_6D)
       {
         contact_data.contact_placement_error = -log6(c1Mc2);
-        contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
+        contact_data.contact_velocity_error.toVector() = (vc1 - vc2_in_frame1).toVector();
       }
       else
       {
@@ -353,6 +354,8 @@ namespace pinocchio
             coriolis_centrifugal_acc1.linear() += vc1.angular().cross(vc1.linear());
             coriolis_centrifugal_acc1.angular().setZero();
           }
+          else
+            coriolis_centrifugal_acc1 += contact_data.contact_velocity_error.cross(vc2_in_frame1);
 
           if(contact_model.type == CONTACT_3D)
           {
