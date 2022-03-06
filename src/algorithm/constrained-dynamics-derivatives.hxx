@@ -528,18 +528,19 @@ namespace pinocchio
       }
       
       const IndexVector & colwise_sparsity = data.contact_chol.getLoopSparsityPattern(k);
-      const BooleanVector & joint2_indexes  = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
+      const auto & joint2_indexes = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
       
-      //Derivative of closed loop kinematic tree
+      // Derivative of closed loop kinematic tree
       if(cmodel.joint2_id > 0)
       {
         switch(cmodel.type)
         {
           case CONTACT_6D:
           {
-            //TODO: THIS IS FOR THE LOCAL FRAME ONLY
-            const Motion & o_acc_c2 = data.oa[cmodel.joint2_id];
+            // TODO: THIS IS FOR THE LOCAL FRAME ONLY
+            Force contact_force_in_WORLD;
+            const Motion & oa_joint2 = data.oa[cmodel.joint2_id];
             typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
             RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
             const typename Model::JointIndex joint2_id = cmodel.joint2_id;
@@ -549,13 +550,13 @@ namespace pinocchio
             {
               case LOCAL:
               {
-                of_tmp = cdata.oMc1.act(cdata.contact_force);
+                contact_force_in_WORLD = cdata.oMc1.act(cdata.contact_force);
                 break;
               }
               case LOCAL_WORLD_ALIGNED:
               {
-                of_tmp = cdata.contact_force;
-                of_tmp.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
+                contact_force_in_WORLD = cdata.contact_force;
+                contact_force_in_WORLD.angular().noalias() += cdata.oMc1.translation().cross(cdata.contact_force.linear());
                 break;
               }
               default:
@@ -570,37 +571,40 @@ namespace pinocchio
             {
               const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
-              motionSet::motionAction(o_acc_c2, data.J.col(col_id), a_tmp.toVector());
-              
+
+              const Motion oa_joint2_cross_J_col = oa_joint2.cross(J_col);
               switch(cmodel.reference_frame)
               {
-                case LOCAL: {
-                  if(joint2_indexes[col_id]) {
-                    contact_dac_dq.col(col_id).noalias() += cdata.oMc1.actInv(a_tmp).toVector();
-                  }
-                  else {
-                    contact_dac_dq.col(col_id).noalias() -= cdata.oMc1.actInv(a_tmp).toVector();
-                  }
+                case LOCAL:
+                {
+                  if(joint2_indexes[col_id])
+                    contact_dac_dq.col(col_id) += cdata.oMc1.actInv(oa_joint2_cross_J_col).toVector();
+                  else
+                    contact_dac_dq.col(col_id) -= cdata.oMc1.actInv(oa_joint2_cross_J_col).toVector();
                   break;
                 }
-                case LOCAL_WORLD_ALIGNED: {
+                case LOCAL_WORLD_ALIGNED:
+                {
                   // Do nothing
                   break;
                 }
-                default: {
+                default:
+                {
                   assert(false && "must never happen");
                   break;
                 }
               }
               
-              motionSet::act(data.J.col(col_id), of_tmp, of_tmp2.toVector());
-              for(Eigen::DenseIndex j=colRef2;j>=0;j=data.parents_fromRow[(size_t)j])
+              const Force J_col_cross_contact_force_in_WORLD = J_col.cross(contact_force_in_WORLD);
+              for(Eigen::DenseIndex j=colRef2; j>=0; j=data.parents_fromRow[(size_t)j])
               {
-                if(joint2_indexes[col_id]) {
-                  data.dtau_dq(j,col_id) -= data.J.col(j).dot(of_tmp2.toVector());
+                if(joint2_indexes[col_id])
+                {
+                  data.dtau_dq(j,col_id) -= data.J.col(j).dot(J_col_cross_contact_force_in_WORLD.toVector());
                 }
-                else {
-                  data.dtau_dq(j,col_id) += data.J.col(j).dot(of_tmp2.toVector());
+                else
+                {
+                  data.dtau_dq(j,col_id) += data.J.col(j).dot(J_col_cross_contact_force_in_WORLD.toVector());
                 }
               }
             }
