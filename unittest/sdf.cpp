@@ -156,5 +156,79 @@ BOOST_AUTO_TEST_CASE (compare_model_with_urdf)
   }
 }
 
+BOOST_AUTO_TEST_CASE (compare_model_in_version_1_5)
+{
+  double height = 0.1;
+  double width = 0.01;
+
+  double mass_link_A = 10.;
+  double length_link_A = 1.;
+
+  double mass_link_B = 5.;
+  double length_link_B = .6;
+
+  pinocchio::Inertia inertia_link_A = pinocchio::Inertia::FromBox(mass_link_A,length_link_A,width,height);
+  pinocchio::SE3 placement_center_link_A = pinocchio::SE3::Identity();
+  placement_center_link_A.translation() = Eigen::Vector3d::UnitX() * length_link_A / 2.;
+  pinocchio::SE3 placement_shape_A = placement_center_link_A;
+  placement_shape_A.rotation() = Eigen::Quaterniond::Quaternion::FromTwoVectors(Eigen::Vector3d::UnitZ(),
+                                                            Eigen::Vector3d::UnitX()).matrix();
+
+  pinocchio::Inertia inertia_link_B = pinocchio::Inertia::FromBox(mass_link_B,length_link_B,width,height);
+  pinocchio::SE3 placement_center_link_B = pinocchio::SE3::Identity();
+  placement_center_link_B.translation() = Eigen::Vector3d::UnitX() * length_link_B / 2.;
+  pinocchio::SE3 placement_shape_B = placement_center_link_B;
+  placement_shape_B.rotation() = Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(),
+                                                            Eigen::Vector3d::UnitX()).matrix();
+
+  pinocchio::Model model;
+  pinocchio::JointIndex base_joint_id = 0;
+
+  pinocchio::SE3 joint1_placement = pinocchio::SE3::Identity();
+  joint1_placement.translation() = Eigen::Vector3d::UnitX() * length_link_A/2;
+  pinocchio::JointIndex joint1_id = model.addJoint(base_joint_id,
+                                                   pinocchio::JointModelRY(),joint1_placement,"link_B1");
+  model.appendBodyToJoint(joint1_id,inertia_link_B,placement_center_link_B);
+
+  pinocchio::SE3 joint2_placement = pinocchio::SE3::Identity();
+  joint2_placement.translation() = Eigen::Vector3d::UnitX() * length_link_B;
+  pinocchio::JointIndex joint2_id = model.addJoint(joint1_id,pinocchio::JointModelRY(),joint2_placement,"link_A2");
+  model.appendBodyToJoint(joint2_id,inertia_link_A,placement_center_link_A);
+
+  pinocchio::SE3 joint3_placement = pinocchio::SE3::Identity();
+  joint3_placement.translation() = Eigen::Vector3d::UnitX() * length_link_A;
+  pinocchio::JointIndex joint3_id = model.addJoint(joint2_id,pinocchio::JointModelRY(),joint3_placement,"link_B2");
+  model.appendBodyToJoint(joint3_id,inertia_link_B,placement_center_link_B);
+
+  pinocchio::Model model_sdf;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
+  pinocchio::sdf::buildModel("parallel.sdf", model_sdf, contact_models);
+
+  BOOST_CHECK(model.nq == model_sdf.nq);
+  BOOST_CHECK(model.nv == model_sdf.nv);
+  BOOST_CHECK(model.njoints == model_sdf.njoints);
+  BOOST_CHECK(model.nbodies == model_sdf.nbodies);
+
+  BOOST_CHECK(model.parents == model_sdf.parents);
+
+  BOOST_CHECK(model.children == model_sdf.children);
+  BOOST_CHECK(model.subtrees == model_sdf.subtrees);
+
+  BOOST_CHECK(model.gravity == model_sdf.gravity);
+  BOOST_CHECK(model.idx_qs == model_sdf.idx_qs);
+        
+  BOOST_CHECK(model.nqs == model_sdf.nqs);
+  BOOST_CHECK(model.idx_vs == model_sdf.idx_vs);
+  BOOST_CHECK(model.nvs == model_sdf.nvs);
+
+  for(std::size_t k=1; k<model.jointPlacements.size(); k++) {
+    BOOST_CHECK(model.jointPlacements[k].isApprox(model_sdf.jointPlacements[k]));
+  }
+
+  for(std::size_t k=1; k<model.inertias.size(); k++) {
+    BOOST_CHECK(model.inertias[k].isApprox(model_sdf.inertias[k]));
+  }
+
+}
 
 BOOST_AUTO_TEST_SUITE_END()
