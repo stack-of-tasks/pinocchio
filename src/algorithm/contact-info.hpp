@@ -519,10 +519,8 @@ namespace pinocchio
     VectorOfMatrix6 extended_motion_propagators_joint2;
     
     Matrix6x dv1_dq, da1_dq, da1_dv, da1_da;
-    Matrix6x & J1;
     Matrix6x dv2_dq, da2_dq, da2_dv, da2_da;
-    Matrix6x & J2;
-    MatrixX dv_dq, da_dq, da_dv, da_da;
+    MatrixX dvc_dq, dac_dq, dac_dv, dac_da;
 
     RigidConstraintDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
@@ -543,16 +541,14 @@ namespace pinocchio
     , da1_dq(6,contact_model.nv)
     , da1_dv(6,contact_model.nv)
     , da1_da(6,contact_model.nv)
-    , J1(da1_da)
     , dv2_dq(6,contact_model.nv)
     , da2_dq(6,contact_model.nv)
     , da2_dv(6,contact_model.nv)
     , da2_da(6,contact_model.nv)
-    , J2(da2_da)
-    , dv_dq(contact_model.size(),contact_model.nv)
-    , da_dq(contact_model.size(),contact_model.nv)
-    , da_dv(contact_model.size(),contact_model.nv)
-    , da_da(contact_model.size(),contact_model.nv)
+    , dvc_dq(contact_model.size(),contact_model.nv)
+    , dac_dq(contact_model.size(),contact_model.nv)
+    , dac_dv(contact_model.size(),contact_model.nv)
+    , dac_da(contact_model.size(),contact_model.nv)
     {}
     
     bool operator==(const RigidConstraintDataTpl & other) const
@@ -586,10 +582,10 @@ namespace pinocchio
       && da2_dv == other.da2_dv
       && da2_da == other.da2_da
       //
-      && dv_dq == other.dv_dq
-      && da_dq == other.da_dq
-      && da_dv == other.da_dv
-      && da_da == other.da_da
+      && dvc_dq == other.dvc_dq
+      && dac_dq == other.dac_dq
+      && dac_dv == other.dac_dv
+      && dac_da == other.dac_da
       ;
     }
     
