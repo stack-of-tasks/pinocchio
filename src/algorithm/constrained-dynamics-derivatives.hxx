@@ -306,16 +306,16 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator, typename MatrixType1, typename MatrixType2, typename MatrixType3, typename MatrixType4,
            typename MatrixType5, typename MatrixType6>
   inline void computeConstraintDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
-                                                std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_data,
-                                                const ProximalSettingsTpl<Scalar> & settings,
-                                                const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
-                                                const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
-                                                const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
-                                                const Eigen::MatrixBase<MatrixType4> & lambda_partial_dq,
-                                                const Eigen::MatrixBase<MatrixType5> & lambda_partial_dv,
-                                                const Eigen::MatrixBase<MatrixType6> & lambda_partial_dtau)
+                                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                                   const std::vector<RigidConstraintModelTpl<Scalar,Options>,ConstraintModelAllocator> & contact_models,
+                                                   std::vector<RigidConstraintDataTpl<Scalar,Options>,ConstraintDataAllocator> & contact_data,
+                                                   const ProximalSettingsTpl<Scalar> & settings,
+                                                   const Eigen::MatrixBase<MatrixType1> & ddq_partial_dq,
+                                                   const Eigen::MatrixBase<MatrixType2> & ddq_partial_dv,
+                                                   const Eigen::MatrixBase<MatrixType3> & ddq_partial_dtau,
+                                                   const Eigen::MatrixBase<MatrixType4> & lambda_partial_dq,
+                                                   const Eigen::MatrixBase<MatrixType5> & lambda_partial_dv,
+                                                   const Eigen::MatrixBase<MatrixType6> & lambda_partial_dtau)
   {
     const Eigen::DenseIndex & nc = data.contact_chol.constraintDim();
     
@@ -341,9 +341,9 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT(lambda_partial_dtau.rows() == nc);
     
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(
-                                              model.gravity.angular()[0] == Scalar(0)
-                                              && model.gravity.angular()[1] == Scalar(0)
-                                              && model.gravity.angular()[2] == Scalar(0)),
+                                                                    model.gravity.angular()[0] == Scalar(0)
+                                                                    && model.gravity.angular()[1] == Scalar(0)
+                                                                    && model.gravity.angular()[2] == Scalar(0)),
                                   "The gravity must be a pure force vector, no angular part");
     
     assert(model.check(data) && "data is not consistent with model.");

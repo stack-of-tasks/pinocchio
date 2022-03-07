@@ -208,7 +208,7 @@ namespace pinocchio
     data.of[0].setZero();
     data.oa[0].setZero();
     data.ov[0].setZero();
-    typedef ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1, true> Pass1;
+    typedef ContactAndImpulseDynamicsForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,true> Pass1;
     for(JointIndex i=1;i<(JointIndex) model.njoints;++i)
     {
       Pass1::run(model.joints[i],data.joints[i],
