@@ -1,9 +1,11 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
 #include "pinocchio/algorithm/constrained-dynamics-derivatives.hpp"
+
+#include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/eigen.hpp"
 
 namespace bp = boost::python;
@@ -16,14 +18,14 @@ namespace pinocchio
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
 
       bp::tuple computeConstraintDynamicsDerivatives_proxy(const context::Model & model,
-                                                        context::Data & data,
-                                                        const RigidConstraintModelVector & contact_models,
-                                                        RigidConstraintDataVector & contact_datas,
-                                                        const context::ProximalSettings & settings = context::ProximalSettings())
+                                                           context::Data & data,
+                                                           const RigidConstraintModelVector & contact_models,
+                                                           RigidConstraintDataVector & contact_datas,
+                                                           const context::ProximalSettings & settings = context::ProximalSettings())
       {
         pinocchio::computeConstraintDynamicsDerivatives(model, data,
-                                                     contact_models, contact_datas,
-                                                     const_cast<context::ProximalSettings &>(settings));
+                                                        contact_models, contact_datas,
+                                                        const_cast<context::ProximalSettings &>(settings));
 
         return bp::make_tuple(make_ref(data.ddq_dq),
                               make_ref(data.ddq_dv),
