@@ -393,11 +393,13 @@ namespace pinocchio
     const Eigen::DenseIndex constraint_dim = data.contact_chol.constraintDim();
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
-      const RigidConstraintModel & cmodel = contact_models[k];
-      RigidConstraintData & cdata = contact_data[k];
       typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
       typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
-      typedef typename ContactCholeskyDecomposition::BooleanVector BooleanVector;
+
+      const RigidConstraintModel & cmodel = contact_models[k];
+      RigidConstraintData & cdata = contact_data[k];
+      const IndexVector & colwise_sparsity = data.contact_chol.getLoopSparsityPattern(k);
+      const auto & joint2_indexes = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
       
       switch(cmodel.type)
       {
@@ -446,17 +448,63 @@ namespace pinocchio
             getFrameAccelerationDerivatives(model, data,
                                             cmodel.joint2_id,
                                             joint2_M_c1,
+//                                            cmodel.joint2_placement,
                                             cmodel.reference_frame,
                                             cdata.dv2_dq,
                                             cdata.da2_dq,
                                             cdata.da2_dv,
                                             cdata.da2_da);
-            
+
             //TODO: This is only in case reference_frame is LOCAL
+            //TODO(jcarpent):to do colwise
             contact_dvc_dq -= cdata.dv2_dq;
             contact_dac_dq -= cdata.da2_dq;
             contact_dac_dv -= cdata.da2_dv;
             contact_dac_da -= cdata.da2_da;
+
+            const Motion v2_in_c1 = cdata.c1Mc2.act(cdata.contact2_velocity);
+            const Motion a2_in_c1 = cdata.oMc1.actInv(data.oa[cmodel.joint2_id]);
+
+            Eigen::DenseIndex k = colwise_sparsity.size()-1;
+            Eigen::DenseIndex col_id;
+            while(true && colwise_sparsity.size() > 0)
+            {
+              if(k >= 0)
+              {
+                col_id = colwise_sparsity[k] - constraint_dim;
+                k--;
+              }
+              else
+              {
+                col_id = data.parents_fromRow[(size_t)col_id];
+                if(col_id < 0)
+                  break;
+              }
+                
+              const MotionRef<typename RowsBlock::ColXpr> dvc_dv_col(contact_dac_da.col(col_id));
+              const MotionRef<typename RigidConstraintData::Matrix6x::ColXpr> da2_da_col(cdata.da2_da.col(col_id));
+              const MotionRef<typename RigidConstraintData::Matrix6x::ColXpr> dv2_dq_col(cdata.dv2_dq.col(col_id));
+              
+              // dv/dq
+              const Motion v2_in_c1_cross_dvc_dv_col = v2_in_c1.cross(dvc_dv_col);
+              contact_dvc_dq.col(col_id) -= v2_in_c1_cross_dvc_dv_col.toVector();
+              
+              // da/dv
+              contact_dac_dv.col(col_id) -= v2_in_c1_cross_dvc_dv_col.toVector();
+              contact_dac_dv.col(col_id) += cdata.contact_velocity_error.cross(da2_da_col).toVector();
+              
+              // da/dq
+              const MotionRef<typename RowsBlock::ColXpr> dvc_dq_col(contact_dvc_dq.col(col_id));
+              
+              contact_dac_dq.col(col_id) -= a2_in_c1.cross(dvc_dv_col).toVector();
+              contact_dac_dq.col(col_id) -= v2_in_c1.cross(dvc_dq_col).toVector();
+              contact_dac_dq.col(col_id) += cdata.contact_velocity_error.cross(v2_in_c1_cross_dvc_dv_col + dv2_dq_col).toVector();
+            }
+            
+            cdata.dvc_dq = contact_dvc_dq;
+            cdata.dac_dq = contact_dac_dq;
+            cdata.dac_dv = contact_dac_dv;
+            cdata.dac_da = contact_dac_da;
           }
 
           break;
@@ -527,8 +575,6 @@ namespace pinocchio
           break;
       }
       
-      const IndexVector & colwise_sparsity = data.contact_chol.getLoopSparsityPattern(k);
-      const auto & joint2_indexes = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
       assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
       
       // Derivative of closed loop kinematic tree
@@ -539,13 +585,10 @@ namespace pinocchio
           case CONTACT_6D:
           {
             // TODO: THIS IS FOR THE LOCAL FRAME ONLY
-            Force contact_force_in_WORLD;
-            const Motion & oa_joint2 = data.oa[cmodel.joint2_id];
-            typedef typename SizeDepType<6>::template RowsReturn<typename Data::MatrixXs>::Type RowsBlock;
-            RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
             const typename Model::JointIndex joint2_id = cmodel.joint2_id;
             const Eigen::DenseIndex colRef2 = nv(model.joints[joint2_id])+idx_v(model.joints[joint2_id])-1;
             
+            Force contact_force_in_WORLD;
             switch(cmodel.reference_frame)
             {
               case LOCAL:
@@ -571,30 +614,6 @@ namespace pinocchio
             {
               const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
-
-              const Motion oa_joint2_cross_J_col = oa_joint2.cross(J_col);
-              switch(cmodel.reference_frame)
-              {
-                case LOCAL:
-                {
-                  if(joint2_indexes[col_id])
-                    contact_dac_dq.col(col_id) += cdata.oMc1.actInv(oa_joint2_cross_J_col).toVector();
-                  else
-                    contact_dac_dq.col(col_id) -= cdata.oMc1.actInv(oa_joint2_cross_J_col).toVector();
-                  break;
-                }
-                case LOCAL_WORLD_ALIGNED:
-                {
-                  // Do nothing
-                  break;
-                }
-                default:
-                {
-                  assert(false && "must never happen");
-                  break;
-                }
-              }
-              
               const Force J_col_cross_contact_force_in_WORLD = J_col.cross(contact_force_in_WORLD);
               for(Eigen::DenseIndex j=colRef2; j>=0; j=data.parents_fromRow[(size_t)j])
               {
