@@ -432,7 +432,7 @@ namespace pinocchio
             pMj = parentLinkPlacement.inverse() * childLinkPlacement * cMj;
           }
 
-          const SE3 jointPlacement = pMjp.inverse() * pMj;
+          //const SE3 jointPlacement = pMjp.inverse() * pMj;
 
           urdfVisitor << "Joint " << jointName << " connects parent " << parentName
                           << " link"<<" with parent joint "<<parentJointName<<" to child "
@@ -614,6 +614,10 @@ namespace pinocchio
       }; //Struct sdfGraph
 
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph, const std::string& rootLinkName);
+      void PINOCCHIO_DLLAPI parseContactInformation(const SdfGraph& graph,
+                                                    const urdf::details::UrdfVisitorBase& visitor,
+                                                    const Model& model,
+                                                    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models);
 
       /**
       * @brief Find the parent of all elements, the root link, and return it.
@@ -653,25 +657,11 @@ namespace pinocchio
       if (rootLinkName =="") {
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
       }
-      
+
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);
 
-      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
-            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
-      {
-        // Get Link Name, and Link Pose, and set the values here:
-        const JointIndex joint_id = visitor.getParentId(cm->name);
-        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
-        
-        visitor <<"Adding constraints around link: "<<cm->name<< '\n';
-        visitor <<"with joint_id: "<<joint_id<< '\n';
-        visitor <<"With pose: "<<cMj<< '\n';
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 joint_id, cMj.inverse(), cm->reference_frame);
-
-        contact_models.push_back(rcm);
-      }
       return model;
     }
     
@@ -700,26 +690,11 @@ namespace pinocchio
       if (rootLinkName =="") {
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
       }
-      
+
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);      
 
-      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
-            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
-      {
-        // Get Link Name, and Link Pose, and set the values here:
-        const JointIndex joint_id = visitor.getParentId(cm->name);
-        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
-
-        visitor<<"Adding constraints around link: "<<cm->name<< '\n';
-        visitor<<"with joint_id: "<<joint_id<< '\n';
-        visitor<<"With pose: "<<cMj<< '\n';        
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 joint_id, cMj.inverse(), cm->reference_frame);
-
-        contact_models.push_back(rcm);
-      }
-      
       return model;
     }
   }

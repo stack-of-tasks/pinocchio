@@ -43,6 +43,26 @@ namespace pinocchio
         return std::string("");
       }
       
+      void parseContactInformation(const SdfGraph& graph,
+                                   const urdf::details::UrdfVisitorBase& visitor,
+                                   const Model& model,
+                                   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models)
+      {
+        for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
+            cm = std::cbegin(graph.contact_details); cm != std::cend(graph.contact_details); ++cm)
+        {
+          // Get Link Name, and Link Pose, and set the values here:
+          const JointIndex joint_id = visitor.getParentId(cm->name);
+          const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
+          
+          RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
+                                   joint_id, cMj.inverse(), cm->reference_frame);
+          
+          contact_models.push_back(rcm);
+        }
+        
+      }
+
       void parseRootTree(SdfGraph& graph,
                          const std::string& rootLinkName)
       {
