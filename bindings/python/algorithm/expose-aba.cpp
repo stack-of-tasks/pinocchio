@@ -45,8 +45,8 @@ namespace pinocchio
                 "\t model: Model of the kinematic tree\n"
                 "\t data: Data related to the kinematic tree\n"
                 "\t q: joint configuration (size model.nq)\n"
-                "\t tau: joint velocity (size model.nv)\n"
-                "\t v: joint torque (size model.nv)",
+                "\t v: joint velocity (size model.nv)\n"
+                "\t tau: joint torque (size model.nv)",
                 bp::return_value_policy<bp::return_by_value>());
         
         bp::def("aba",
