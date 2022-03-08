@@ -47,7 +47,8 @@ namespace pinocchio
       void visit(PyClass& cl) const 
       {
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
-
+PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
+PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         cl
         .def(bp::init<>((bp::arg("self")),
                         "Default constructor."))
@@ -109,8 +110,6 @@ namespace pinocchio
         .def("rhsMult",&Symmetric3::template rhsMult<Vector3,Vector3>,bp::args("SE3","vin","vout"))
         .staticmethod("rhsMult")
         
-PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
-PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self + bp::self)
         .def(bp::self += bp::self)
         .def(bp::self - bp::self)
@@ -119,7 +118,6 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def(bp::self * bp::other<Vector3Like>())  
         .def(bp::self - bp::other<Matrix3Like>())  
         .def(bp::self + bp::other<Matrix3Like>())
-PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         
         .def("decomposeltI",&Symmetric3::decomposeltI,bp::arg("self"),"Computes L for a symmetric matrix S.")
         .def("rotate",&Symmetric3::template rotate<Matrix3>,bp::args("self","R"),"Computes R*S*R'")
@@ -128,6 +126,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def_pickle(Pickle())
 #endif
         ;
+PINOCCHIO_COMPILER_DIAGNOSTIC_POP 
       }
       
       static Vector6 getData( const Symmetric3 & self ) { return self.data(); }
