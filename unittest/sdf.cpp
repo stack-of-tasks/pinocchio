@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
                       "      </visual>"
                       "    </link>"
                       "    <link name=\"link_B1\">"
-                      "      <pose>0.8 0 0 0 0 0</pose>"
+                      "      <pose>-0.2 0 0 0 0 0</pose>"
                       "      <inertial>"
                       "        <pose>0 0 0 0 0 0</pose>"
                       "        <mass>5</mass>"
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
                       "      </visual>"
                       "    </link>"
                       "    <link name=\"link_A2\">"
-                      "      <pose>1.6 0 0 0 0 0</pose>"
+                      "      <pose>0.6 0 0 0 0 0</pose>"
                       "      <inertial>"
                       "        <pose>0 0 0 0 0 0</pose>"
                       "        <mass>10</mass>"
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
                       "      </visual>"
                       "    </link>"
                       "    <link name=\"link_B2\">"
-                      "      <pose>2.4 0 0 0 0 0</pose>"
+                      "      <pose>0.8 0 0 0 0 0</pose>"
                       "      <inertial>"
                       "        <pose>0 0 0 0 0 0</pose>"
                       "        <mass>5</mass>"
@@ -275,12 +275,21 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
                       "    <joint name=\"joint_B2\" type=\"revolute\">"
                       "      <pose>-0.3 0 0 0 0 0</pose>"
                       "      <child>link_B2</child>"
-                      "      <parent>link_A2</parent>"
+                      "      <parent>link_A1</parent>"
                       "      <axis>"
                       "        <xyz>0 1 0</xyz>"
                       "        <use_parent_model_frame>1</use_parent_model_frame>"
                       "      </axis>"
                       "    </joint>"
+                      "    <joint name=\"joint_B3\" type=\"revolute\">"
+                      "      <pose>0.5 0 0 0 0 0</pose>"
+                      "      <child>link_A2</child>"
+                      "      <parent>link_B2</parent>"
+                      "      <axis>"
+                      "        <xyz>0 1 0</xyz>"
+                      "        <use_parent_model_frame>1</use_parent_model_frame>"
+                      "      </axis>"
+                      "    </joint>"                      
                       "  </model>"
                       "</sdf>"
                       );
@@ -296,8 +305,14 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
   double length_link_B = .6;
 
   pinocchio::Inertia inertia_link_A = pinocchio::Inertia::FromBox(mass_link_A,length_link_A,width,height);
+  pinocchio::Inertia inertia_link_A_2 = pinocchio::Inertia::FromBox(mass_link_A/2,length_link_A,width,height);
+  
   pinocchio::SE3 placement_center_link_A = pinocchio::SE3::Identity();
   placement_center_link_A.translation() = Eigen::Vector3d::UnitX() * length_link_A / 2.;
+
+  pinocchio::SE3 placement_center_link_A_minus = pinocchio::SE3::Identity();
+  placement_center_link_A_minus.translation() = -Eigen::Vector3d::UnitX() * length_link_A/2;
+  
   pinocchio::SE3 placement_shape_A = placement_center_link_A;
   placement_shape_A.rotation() = Eigen::Quaterniond::Quaternion::FromTwoVectors(Eigen::Vector3d::UnitZ(),
                                                             Eigen::Vector3d::UnitX()).matrix();
@@ -313,7 +328,7 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
   pinocchio::JointIndex base_joint_id = 0;
 
   pinocchio::SE3 joint1_placement = pinocchio::SE3::Identity();
-  joint1_placement.translation() = Eigen::Vector3d::UnitX() * length_link_A/2;
+  joint1_placement.translation() = -Eigen::Vector3d::UnitX() * length_link_A/2;
   pinocchio::JointIndex joint1_id = model.addJoint(base_joint_id,
                                                    pinocchio::JointModelRY(),joint1_placement,"link_B1");
   model.appendBodyToJoint(joint1_id,inertia_link_B,placement_center_link_B);
@@ -321,13 +336,18 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
   pinocchio::SE3 joint2_placement = pinocchio::SE3::Identity();
   joint2_placement.translation() = Eigen::Vector3d::UnitX() * length_link_B;
   pinocchio::JointIndex joint2_id = model.addJoint(joint1_id,pinocchio::JointModelRY(),joint2_placement,"link_A2");
-  model.appendBodyToJoint(joint2_id,inertia_link_A,placement_center_link_A);
+  model.appendBodyToJoint(joint2_id,inertia_link_A_2,placement_center_link_A);
 
   pinocchio::SE3 joint3_placement = pinocchio::SE3::Identity();
-  joint3_placement.translation() = Eigen::Vector3d::UnitX() * length_link_A;
-  pinocchio::JointIndex joint3_id = model.addJoint(joint2_id,pinocchio::JointModelRY(),joint3_placement,"link_B2");
+  joint3_placement.translation() = Eigen::Vector3d::UnitX() * length_link_A/2;
+  pinocchio::JointIndex joint3_id = model.addJoint(base_joint_id,pinocchio::JointModelRY(),joint3_placement,"link_B2");
   model.appendBodyToJoint(joint3_id,inertia_link_B,placement_center_link_B);
 
+  pinocchio::SE3 joint4_placement = pinocchio::SE3::Identity();
+  joint4_placement.translation() = Eigen::Vector3d::UnitX() * length_link_B;
+  pinocchio::JointIndex joint4_id = model.addJoint(joint3_id,pinocchio::JointModelRY(),joint4_placement,"link_B3");
+  model.appendBodyToJoint(joint4_id,inertia_link_A_2,placement_center_link_A_minus);
+  
   pinocchio::Model model_sdf;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(pinocchio::RigidConstraintModel) contact_models;
   pinocchio::sdf::buildModelFromXML(filestr, model_sdf, contact_models);
@@ -357,6 +377,13 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
     BOOST_CHECK(model.inertias[k].isApprox(model_sdf.inertias[k]));
   }
 
+  BOOST_CHECK(contact_models.size() == 1);
+  BOOST_CHECK(contact_models[0].joint1_id == 4);
+  BOOST_CHECK(contact_models[0].joint1_placement == placement_center_link_A_minus);
+  BOOST_CHECK(contact_models[0].joint2_id == 2);
+  BOOST_CHECK(contact_models[0].joint2_placement == placement_center_link_A);
+  BOOST_CHECK(contact_models[0].type == pinocchio::CONTACT_6D);
+  BOOST_CHECK(contact_models[0].reference_frame == pinocchio::LOCAL);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
