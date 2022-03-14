@@ -173,7 +173,9 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionHelicalUnalignedTpl & other) const
     {
-      return m_axis == other.m_axis && m_w == other.m_w && m_h == other.m_h;
+      return internal::comparison_eq(m_axis, other.m_axis) &&
+internal::comparison_eq(m_w, other.m_w) && 
+internal::comparison_eq(m_h, other.m_h);
     }
     
   protected:
@@ -349,7 +351,9 @@ namespace pinocchio
       const typename MotionDerived::ConstAngularType w = m.angular();
       
       DenseBase res;
-      res.template segment<3>(LINEAR).noalias() = v.cross(m_axis*m_h);
+      res.template segment<3>(LINEAR).noalias() = v.cross(m_axis);
+      res.template segment<3>(ANGULAR).noalias() = w.cross(m_axis*m_h);
+      res.template segment<3>(LINEAR).noalias() += res.template segment<3>(ANGULAR);
       res.template segment<3>(ANGULAR).noalias() = w.cross(m_axis);
       
       return res;
@@ -357,7 +361,8 @@ namespace pinocchio
     
     bool isEqual(const JointMotionSubspaceHelicalUnalignedTpl & other) const 
     {
-       return m_axis == other.m_axis && m_h == other.m_h; 
+       return internal::comparison_eq(m_axis, other.m_axis) &&
+      internal::comparison_eq(m_h, other.m_h); 
     }
     
     Vector3 & axis() { return m_axis; }
@@ -370,6 +375,18 @@ namespace pinocchio
     Scalar m_h;
 
   }; // struct JointMotionSubspaceHelicalUnalignedTpl
+
+  template<typename _Scalar, int _Options>
+  Eigen::Matrix<_Scalar,1,1,_Options>
+  operator*(const typename JointMotionSubspaceHelicalUnalignedTpl<_Scalar, _Options>::TransposeConst & S_transpose,
+            const JointMotionSubspaceHelicalUnalignedTpl<_Scalar, _Options> & S)
+  {
+    Eigen::Matrix<_Scalar,1,1,_Options> res;
+    res(0) = (S_transpose.ref.axis()*S_transpose.ref.pitch()).dot(S.axis()*S.pitch())
+           + (S_transpose.ref.axis().dot(S.axis()));
+    return res;
+  }
+
   template<typename S1, int O1,typename S2, int O2>
   struct MultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspaceHelicalUnalignedTpl<S2,O2> >
   {
@@ -389,6 +406,7 @@ namespace pinocchio
                                    const Constraint & cru)
       {
         ReturnType res;
+        /* YS = [ m -mcx ; mcx I-mcxcx ] [ h ; w ] = [mh-mcxw ; mcxh+Iw-mcxcxw ] */
 
         const S2 m_h = cru.pitch();
         const typename Inertia::Scalar & m       = Y.mass();
@@ -397,8 +415,9 @@ namespace pinocchio
 
         res.template segment<3>(Inertia::LINEAR) = -m*c.cross(cru.axis());
         res.template segment<3>(Inertia::ANGULAR).noalias() = I*cru.axis();
+        res.template segment<3>(Inertia::ANGULAR) += c.cross(cru.axis())*m*m_h;
         res.template segment<3>(Inertia::ANGULAR) += c.cross(res.template segment<3>(Inertia::LINEAR));
-        res.template segment<3>(Inertia::LINEAR) *= m_h;
+        res.template segment<3>(Inertia::LINEAR) += m*m_h*cru.axis();
         return res;
       }
     };
@@ -578,7 +597,9 @@ namespace pinocchio
     using Base::isEqual;
     bool isEqual(const JointModelHelicalUnalignedTpl & other) const
     {
-      return Base::isEqual(other) && axis == other.axis && m_pitch == other.m_pitch;
+      return Base::isEqual(other) &&
+  internal::comparison_eq(axis, other.axis) && 
+  internal::comparison_eq(m_pitch, other.m_pitch);
     }
 
     template<typename ConfigVector>
@@ -629,7 +650,7 @@ namespace pinocchio
     JointModelHelicalUnalignedTpl<NewScalar,Options> cast() const
     {
       typedef JointModelHelicalUnalignedTpl<NewScalar,Options> ReturnType;
-      ReturnType res(axis.template cast<NewScalar>());
+      ReturnType res(axis.template cast<NewScalar>(), static_cast<NewScalar>(m_pitch));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
