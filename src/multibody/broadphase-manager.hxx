@@ -85,14 +85,9 @@ namespace pinocchio
       collision_obj.setTransform(toFclTransform3f(geom_data.oMg[geometry_object_id]));
 
       if(new_geometry.get() != geometry.get())
-      {
         collision_obj.setCollisionGeometry(new_geometry,compute_local_aabb);
-      }
-      else
-      {
-        collision_obj.computeAABB();
-      }
-
+      
+      collision_obj.computeAABB();
       collision_obj.getAABB().expand(collision_object_inflation[static_cast<Eigen::DenseIndex>(k)]);
     }
 
