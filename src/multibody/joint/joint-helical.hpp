@@ -174,7 +174,10 @@ namespace pinocchio
     
     bool isEqual(const TransformHelicalTpl & other) const
     {
-      return m_cos == other.m_cos && m_sin == other.m_sin && m_h == other.m_h;
+      return internal::comparison_eq(m_cos, other.m_cos) &&
+	internal::comparison_eq(m_sin, other.m_sin) &&
+	internal::comparison_eq(m_theta, other.m_theta) &&
+  internal::comparison_eq(m_h, other.m_h);
     }
     
   protected:
@@ -322,7 +325,7 @@ namespace pinocchio
     
     bool isEqual_impl(const MotionHelicalTpl & other) const
     {
-      return m_w == other.m_w && m_h == other.m_h;
+      return internal::comparison_eq(m_w, other.m_w) && internal::comparison_eq(m_h, other.m_h);
     }
     
   protected:
@@ -386,6 +389,12 @@ namespace pinocchio
     typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
   }; // traits JointMotionSubspaceHelicalTpl
 
+  template<class ConstraintDerived>
+  struct TransposeConstraintActionConstraint
+  {
+    typedef typename Eigen::Matrix<typename ConstraintDerived::Scalar,1,1,ConstraintDerived::Options> ReturnType;
+  };
+
   template<typename _Scalar, int _Options, int axis>
   struct JointMotionSubspaceHelicalTpl
   : JointMotionSubspaceBase< JointMotionSubspaceHelicalTpl<_Scalar,_Options,axis> >
@@ -395,9 +404,12 @@ namespace pinocchio
     PINOCCHIO_CONSTRAINT_TYPEDEF_TPL(JointMotionSubspaceHelicalTpl)
     enum { NV = 1 };
     
-    typedef SpatialAxis<ANGULAR+axis> AxisAngular;\
-    typedef SpatialAxis<ANGULAR+axis> AxisLinear;\
+    typedef SpatialAxis<ANGULAR+axis> AxisAngular;
+    typedef SpatialAxis<ANGULAR+axis> AxisLinear;
     
+    typedef typename AxisAngular::CartesianAxis3 CartesianAxis3Angular;
+    typedef typename AxisLinear::CartesianAxis3 CartesianAxis3Linear;
+
     JointMotionSubspaceHelicalTpl() {}
     
     JointMotionSubspaceHelicalTpl(const Scalar & h) : m_h(h) {}
@@ -445,17 +457,7 @@ namespace pinocchio
       template<typename ForceDerived>
       typename ConstraintForceOp<JointMotionSubspaceHelicalTpl,ForceDerived>::ReturnType
       operator*(const ForceDense<ForceDerived> & f) const
-      // { std::cout << "TransposeConst operator*1" << std::endl;
-      //  std::cout << f << std::endl;
-      //  std::cout << f.angular().template segment<1>(axis) << std::endl;
-      //  std::cout << f.linear().template segment<1>(axis) << std::endl;
-      //  auto tmp = f.angular().template segment<1>(axis);
-      //  auto tmp2 = f.linear().template segment<1>(axis);
-      //  auto t = tmp+tmp2;
-      //  typedef typename ConstraintForceOp<JointMotionSubspaceHelicalTpl,ForceDerived>::ReturnType ReturnType;
-      //  ReturnType res;
-        // return static_cast<const Eigen::Block<const Eigen::Matrix<double, 6, 1, 0>, 3, 1, false>> (t); }
-      { return Eigen::Matrix<Scalar,1,1>(f.angular()(axis) + f.linear()(axis) * ref.m_h); }
+      {return Eigen::Matrix<Scalar,1,1>(f.angular()(axis) + f.linear()(axis) * ref.m_h); }
 
       /// [CRBA]  MatrixBase operator* (Constraint::Transpose S, ForceSet::Block)
       template<typename Derived>
@@ -494,8 +496,13 @@ namespace pinocchio
     {
       typedef typename MotionAlgebraAction<JointMotionSubspaceHelicalTpl,MotionDerived>::ReturnType ReturnType;
       ReturnType res;
-      MotionRef<ReturnType> v(res);
-      v = m.cross(AxisAngular() + AxisLinear() * m_h);
+      // Linear
+      CartesianAxis3Linear::cross(-m.linear(),res.template segment<3>(LINEAR));
+      CartesianAxis3Linear::alphaCross(-m_h,m.angular(),res.template segment<3>(ANGULAR));
+      res.template segment<3>(LINEAR) += res.template segment<3>(ANGULAR);
+      
+      // Angular
+      CartesianAxis3Angular::cross(-m.angular(),res.template segment<3>(ANGULAR));
       return res;
     }
     
@@ -508,6 +515,15 @@ namespace pinocchio
     Scalar m_h;
   }; // struct JointMotionSubspaceHelicalTpl
 
+  template<typename _Scalar, int _Options, int _axis>
+  Eigen::Matrix<_Scalar,1,1,_Options>
+  operator*(const typename JointMotionSubspaceHelicalTpl<_Scalar, _Options, _axis>::TransposeConst & S_transpose,
+            const JointMotionSubspaceHelicalTpl<_Scalar, _Options, _axis> & S)
+  {
+    Eigen::Matrix<_Scalar,1,1,_Options> res;
+    res(0) = 1.0+S_transpose.ref.pitch()*S.pitch();
+    return res;
+  }
   template<typename _Scalar, int _Options, int _axis>
   struct JointHelicalTpl
   {
@@ -543,6 +559,7 @@ namespace pinocchio
         const S2 m_h = constraint.pitch();
         
         /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
+        /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
         const S1
         &m = Y.mass(),
         &x = Y.lever()[0],
@@ -555,8 +572,8 @@ namespace pinocchio
         -m*z,
         m*y,
         I(0,0)+m*(y*y+z*z),
-        I(0,1)-m*x*y,
-        I(0,2)-m*x*z;
+        I(0,1)-m*x*y+m*z*m_h,
+        I(0,2)-m*x*z-m*y*m_h;
         
         std::cout << "res" << std::endl << res << std::endl;
         return res;
@@ -576,6 +593,7 @@ namespace pinocchio
         const S2 m_h = constraint.pitch();
         
         /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
+        /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
         const S1
         &m = Y.mass(),
         &x = Y.lever()[0],
@@ -587,9 +605,9 @@ namespace pinocchio
         m*z,
         m*m_h,
         -m*x,
-        I(1,0)-m*x*y,
+        I(1,0)-m*x*y-m*z*m_h,
         I(1,1)+m*(x*x+z*z),
-        I(1,2)-m*y*z;
+        I(1,2)-m*y*z+m*x*m_h;
         
         return res;
       }
@@ -608,6 +626,7 @@ namespace pinocchio
         const S2 m_h = constraint.pitch();
         
         /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
+        /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
         const S1
         &m = Y.mass(),
         &x = Y.lever()[0],
@@ -619,8 +638,8 @@ namespace pinocchio
         -m*y,
         m*x,
         m*m_h,
-        I(2,0)-m*x*z,
-        I(2,1)-m*y*z,
+        I(2,0)-m*x*z+m*y*m_h,
+        I(2,1)-m*y*z-m*x*m_h,
         I(2,2)+m*(x*x+y*y);
         
         return res;
