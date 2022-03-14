@@ -140,7 +140,7 @@ namespace pinocchio
         if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) == collision_objects_ptr.end())
           return false;
 
-        if(geometry.get()->aabb_local.volume() == (std::numeric_limits<hpp::fcl::FCL_REAL>::min)())
+        if(geometry.get()->aabb_local.volume() == -(std::numeric_limits<hpp::fcl::FCL_REAL>::infinity)())
           return false;
       }
 
