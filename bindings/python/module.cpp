@@ -99,10 +99,10 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   exposeData();
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
   exposeGeometry();
+  exposeParsers();
 #endif // defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
 
   exposeAlgorithms();
-  exposeParsers();
   exposeSerialization();
   
 #if defined(PINOCCHIO_PYTHON_INTERFACE_WITH_HPP_FCL_PYTHON_BINDINGS) && defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
