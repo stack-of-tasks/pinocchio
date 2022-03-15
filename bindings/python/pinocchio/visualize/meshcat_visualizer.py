@@ -345,7 +345,8 @@ class MeshcatVisualizer(BaseVisualizer):
             geom_model = self.visual_model
         else:
             geom_model = self.collision_model
-        
+            geometry_type = pin.GeometryType.COLLISION
+
         geom_id = geom_model.getGeometryId(new_geometry_object.name)
         geom_model.geometryObjects[geom_id] = new_geometry_object
 
