@@ -150,8 +150,21 @@ namespace pinocchio
         {
           parentGuidance = parentGuidance_in;
         }
-        
-        void parseGraph(const std::string & filename)
+
+        void parseGraphFromXML(const std::string& xmlString)
+        {
+          // load and check sdf file
+          ::sdf::SDFPtr sdfElement(new ::sdf::SDF());
+          ::sdf::init(sdfElement);
+          if (!::sdf::readString(xmlString, sdfElement))
+          {
+            throw std::invalid_argument("The xml string does not "
+                                        "contain a valid SDF model");
+          }
+          parseGraph(sdfElement);
+        }
+
+        void parseGraphFromFile(const std::string& filename)
         {
           // load and check sdf file
           ::sdf::SDFPtr sdfElement(new ::sdf::SDF());
@@ -159,16 +172,20 @@ namespace pinocchio
           if (!::sdf::readFile(filename, sdfElement))
           {
             throw std::invalid_argument("The file " + filename + " does not "
-                                        "contain a valid SDF model 1.");
+                                        "contain a valid SDF model");
           }
-          
+          parseGraph(sdfElement);
+        }
+        
+        void parseGraph(::sdf::SDFPtr sdfElement)
+        {          
           // start parsing model
           const ::sdf::ElementPtr rootElement = sdfElement->Root();
           
           if (!rootElement->HasElement("model"))
           {
-            throw std::invalid_argument("The file " + filename + " does not "
-                                        "contain a valid SDF model 2.");
+            throw std::invalid_argument("The sdf model does not "
+                                        "contain model element");
           }
           
           const ::sdf::ElementPtr modelElement = rootElement->GetElement("model");
@@ -432,7 +449,7 @@ namespace pinocchio
             pMj = parentLinkPlacement.inverse() * childLinkPlacement * cMj;
           }
 
-          const SE3 jointPlacement = pMjp.inverse() * pMj;
+          //const SE3 jointPlacement = pMjp.inverse() * pMj;
 
           urdfVisitor << "Joint " << jointName << " connects parent " << parentName
                           << " link"<<" with parent joint "<<parentJointName<<" to child "
@@ -512,7 +529,7 @@ namespace pinocchio
             
             urdfVisitor << "joint REVOLUTE with axis"<< axis.transpose()<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction, damping);
           }
@@ -520,7 +537,7 @@ namespace pinocchio
           {
             urdfVisitor << "joint GEARBOX with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::REVOLUTE, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
             
@@ -534,14 +551,14 @@ namespace pinocchio
             
             urdfVisitor << "joint prismatic with axis"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::PRISMATIC, axis,
-                                        parentFrameId, jointPlacement, jointName,
+                                        parentFrameId, pMj, jointName,
                                         Y, cMj.inverse(), childName, max_effort, max_velocity,
                                         min_config, max_config, friction,damping);
           }
           else if (jointElement->template Get<std::string>("type") == "fixed")
           {
             urdfVisitor << "joint fixed"<<  '\n';
-            urdfVisitor.addFixedJointAndBody(parentFrameId, jointPlacement,
+            urdfVisitor.addFixedJointAndBody(parentFrameId, pMj,
                                              jointName, Y, childName);
             
           }
@@ -558,7 +575,7 @@ namespace pinocchio
               
             urdfVisitor << "joint BALL"<<  '\n';
             urdfVisitor.addJointAndBody(UrdfVisitor::SPHERICAL, axis,
-                                        parentFrameId, jointPlacement, jointName, Y, cMj.inverse(),
+                                        parentFrameId, pMj, jointName, Y, cMj.inverse(),
                                         childName,
                                         max_effort, max_velocity, min_config, max_config,
                                         friction, damping);
@@ -614,6 +631,10 @@ namespace pinocchio
       }; //Struct sdfGraph
 
       void PINOCCHIO_DLLAPI parseRootTree(SdfGraph& graph, const std::string& rootLinkName);
+      void PINOCCHIO_DLLAPI parseContactInformation(const SdfGraph& graph,
+                                                    const urdf::details::UrdfVisitorBase& visitor,
+                                                    const Model& model,
+                                                    PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models);
 
       /**
       * @brief Find the parent of all elements, the root link, and return it.
@@ -626,6 +647,42 @@ namespace pinocchio
 
       
     } //namespace details
+
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModelFromXML(const std::string & xmlStream,
+               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & root_joint,
+               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+               PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+               const std::string& rootLinkName,
+               const std::vector<std::string>& parentGuidance,               
+               const bool verbose)
+    {
+      ::pinocchio::urdf::details::UrdfVisitorWithRootJoint<Scalar, Options,
+                                                           JointCollectionTpl> visitor (model, root_joint);
+
+      typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
+
+      SdfGraph graph (visitor);
+      if (verbose) visitor.log = &std::cout;
+
+      graph.setParentGuidance(parentGuidance);
+
+      //Create maps from the SDF Graph
+      graph.parseGraphFromXML(xmlStream);
+      
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
+
+      //Use the SDF graph to create the model
+      details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);
+
+      return model;
+    }
+
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
@@ -648,32 +705,54 @@ namespace pinocchio
       graph.setParentGuidance(parentGuidance);
 
       //Create maps from the SDF Graph
-      graph.parseGraph(filename);
+      graph.parseGraphFromFile(filename);
       
       if (rootLinkName =="") {
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
       }
-      
+
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);
 
-      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
-            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
-      {
-        // Get Link Name, and Link Pose, and set the values here:
-        const JointIndex joint_id = visitor.getParentId(cm->name);
-        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
-        
-        visitor <<"Adding constraints around link: "<<cm->name<< '\n';
-        visitor <<"with joint_id: "<<joint_id<< '\n';
-        visitor <<"With pose: "<<cMj<< '\n';
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 joint_id, cMj.inverse(), cm->reference_frame);
-
-        contact_models.push_back(rcm);
-      }
       return model;
     }
+
+
+    template<typename Scalar, int Options,
+             template<typename,int> class JointCollectionTpl>
+    ModelTpl<Scalar,Options,JointCollectionTpl> &
+    buildModelFromXML(const std::string & xmlStream,
+                      ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel)& contact_models,
+                      const std::string& rootLinkName,
+                      const std::vector<std::string>& parentGuidance,
+                      const bool verbose)
+    {
+      typedef ::pinocchio::sdf::details::SdfGraph SdfGraph;
+      
+      ::pinocchio::urdf::details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
+      SdfGraph graph (visitor);
+
+      graph.setParentGuidance(parentGuidance);
+      
+      if (verbose) visitor.log = &std::cout;
+
+      //Create maps from the SDF Graph
+      graph.parseGraphFromXML(xmlStream);
+
+      if (rootLinkName =="") {
+        const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
+      }
+
+      //Use the SDF graph to create the model
+      details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);      
+
+      return model;
+    }
+
+
     
     template<typename Scalar, int Options,
              template<typename,int> class JointCollectionTpl>
@@ -695,31 +774,16 @@ namespace pinocchio
       if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
-      graph.parseGraph(filename);
+      graph.parseGraphFromFile(filename);
 
       if (rootLinkName =="") {
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
       }
-      
+
       //Use the SDF graph to create the model
       details::parseRootTree(graph, rootLinkName);
+      details::parseContactInformation(graph, visitor, model, contact_models);      
 
-      for(PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(SdfGraph::ContactDetails)::const_iterator
-            cm = std::begin(graph.contact_details); cm != std::end(graph.contact_details); ++cm)
-      {
-        // Get Link Name, and Link Pose, and set the values here:
-        const JointIndex joint_id = visitor.getParentId(cm->name);
-        const SE3& cMj = graph.childPoseMap.find(cm->name)->second;
-
-        visitor<<"Adding constraints around link: "<<cm->name<< '\n';
-        visitor<<"with joint_id: "<<joint_id<< '\n';
-        visitor<<"With pose: "<<cMj<< '\n';        
-        RigidConstraintModel rcm(cm->type, model, cm->joint1_id, cm->joint1_placement,
-                                 joint_id, cMj.inverse(), cm->reference_frame);
-
-        contact_models.push_back(rcm);
-      }
-      
       return model;
     }
   }

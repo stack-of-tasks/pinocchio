@@ -341,7 +341,7 @@ namespace pinocchio
       //if (verbose) visitor.log = &std::cout;
 
       //Create maps from the SDF Graph
-      graph.parseGraph(filename);
+      graph.parseGraphFromFile(filename);
 
       if (rootLinkName =="") {
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
