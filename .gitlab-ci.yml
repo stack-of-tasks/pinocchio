@@ -11,8 +11,18 @@ variables:
     - gh-pages
   timeout: 3 hours 30 minutes
   script:
-    - conda install -c conda-forge libsdformat12 eigenpy hpp-fcl
+    - apt update
+    - apt install -y libassimp-dev
+    - conda install -c conda-forge libsdformat12 eigenpy octomap boost qhull
     - cd $CI_PROJECT_DIR
+    - git clone --recursive https://github.com/humanoid-path-planner/hpp-fcl.git
+    - cd hpp-fcl
+    - git checkout devel
+    - mkdir build
+    - cd build
+    - cmake .. -DCMAKE_BUILD_TYPE=Release
+    - make -j3 install
+    - cd ../../
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_WITH_SDF_SUPPORT=ON -DBUILD_ADVANCED_TESTING=OFF -DBUILD_PYTHON_BINDINGS_WITH_BOOST_MPFR_SUPPORT=OFF -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=OFF -DCMAKE_VERBOSE_MAKEFILE=False
