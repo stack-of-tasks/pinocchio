@@ -23,8 +23,3 @@ if WITH_HPP_FCL:
     WITH_HPP_FCL_BINDINGS = False
 else:
   WITH_HPP_FCL_BINDINGS = False
-
-from ..robot_wrapper import RobotWrapper
-from ..deprecated import *
-from ..shortcuts import *
-from .. import visualize
