@@ -48,7 +48,6 @@
 #include <assert.h>
 
 #include <boost/foreach.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace pinocchio
 {
@@ -134,7 +133,7 @@ struct GeometryObject : public ModelItem<GeometryObject>
 
   typedef SE3Tpl<Scalar,Options> SE3;
   
-  typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
+  typedef std::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
 
   using Base::name;
   using Base::parentFrame;
@@ -354,14 +353,14 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     typedef ::hpp::fcl::CollisionObject Base;
     typedef SE3Tpl<double> SE3;
     
-    CollisionObject(const boost::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+    CollisionObject(const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
                     const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
                     bool compute_local_aabb = true)
     : Base(collision_geometry,compute_local_aabb)
     , geometryObjectIndex(geometryObjectIndex)
     {}
     
-    CollisionObject(const boost::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+    CollisionObject(const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
                     const SE3 & transform,
                     const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
                     bool compute_local_aabb = true)
