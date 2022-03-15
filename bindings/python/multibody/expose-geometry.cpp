@@ -27,7 +27,7 @@ namespace pinocchio
       GeometryDataPythonVisitor::expose();
       
 #ifdef PINOCCHIO_WITH_HPP_FCL
-      bp::register_ptr_to_python< boost::shared_ptr<hpp::fcl::CollisionGeometry const> >();
+      bp::register_ptr_to_python< std::shared_ptr<hpp::fcl::CollisionGeometry const> >();
       
       bp::class_<ComputeCollision>("ComputeCollision",
                                    "Collision function between two geometry objects.\n\n",

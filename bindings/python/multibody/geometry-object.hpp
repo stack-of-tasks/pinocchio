@@ -106,7 +106,7 @@ namespace pinocchio
       {
         return GeometryObject("",JointIndex(0),FrameIndex(0),
                               SE3::Identity(),
-                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
+                              std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
 
       }
 #endif // PINOCCHIO_WITH_HPP_FCL
@@ -129,8 +129,8 @@ namespace pinocchio
           bp::class_<CollisionObject, bp::bases<::hpp::fcl::CollisionObject> >("CollisionObject",
                                                                                "A Pinocchio collision object derived from FCL CollisionObject.",
                                                                                bp::no_init)
-          .def(bp::init<const boost::shared_ptr<::hpp::fcl::CollisionGeometry> &, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
-          .def(bp::init<const boost::shared_ptr<::hpp::fcl::CollisionGeometry> &, SE3, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("placement"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
+          .def(bp::init<const std::shared_ptr<::hpp::fcl::CollisionGeometry> &, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
+          .def(bp::init<const std::shared_ptr<::hpp::fcl::CollisionGeometry> &, SE3, bp::optional<const size_t, bool> >((bp::arg("self"),bp::arg("collision_geometry"),bp::arg("placement"),bp::arg("geometryObjectIndex") = (std::numeric_limits<size_t>::max)(),bp::arg("compute_local_aabb") = true),"Constructor"))
                ;
         }
 #endif
