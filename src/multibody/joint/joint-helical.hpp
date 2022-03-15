@@ -739,7 +739,7 @@ namespace pinocchio
 
     static std::string classname()
     {
-      return std::string("JointDataR") + axisLabel<axis>();
+      return std::string("JointDataH") + axisLabel<axis>();
     }
     std::string shortname() const { return classname(); }
     
@@ -826,7 +826,7 @@ namespace pinocchio
     JointModelHelicalTpl<NewScalar,Options,axis> cast() const
     {
       typedef JointModelHelicalTpl<NewScalar,Options,axis> ReturnType;
-      ReturnType res;
+      ReturnType res(static_cast<NewScalar>(m_h));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
