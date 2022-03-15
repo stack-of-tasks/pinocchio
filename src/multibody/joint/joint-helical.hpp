@@ -536,7 +536,6 @@ namespace pinocchio
   };
 
 /* [CRBA] ForceSet operator* (Inertia Y,Constraint S) */
-// see joint-motion-subspace-base
   namespace impl
   {
     template<typename S1, int O1, typename S2, int O2>
@@ -549,7 +548,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.h();
+        const S2 & m_h = constraint.h();
         
         /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
         /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
@@ -582,7 +581,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.h();
+        const S2 & m_h = constraint.h();
         
         /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
         /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
@@ -615,7 +614,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.h();
+        const S2 & m_h = constraint.h();
         
         /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
         /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
@@ -802,15 +801,10 @@ namespace pinocchio
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      // I is data.Yaba[i] - Articulated Body Inertia of the sub-tree
       data.U = I.col(Inertia::ANGULAR + axis) + m_h *  I.col(Inertia::LINEAR + axis);
       data.StU[0] = data.U(Inertia::ANGULAR + axis) + m_h * data.U(Inertia::LINEAR + axis) + armature[0];
       data.Dinv[0] = Scalar(1) / data.StU[0];
       data.UDinv.noalias() = data.U * data.Dinv;
-
-      // Too general
-      // data.StU.diagonal() += armature;
-      // internal::PerformStYSInversion<Scalar>::run(data.StU,data.Dinv);
 
       if (update_I)
         PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,I).noalias() -= data.UDinv * data.U.transpose();

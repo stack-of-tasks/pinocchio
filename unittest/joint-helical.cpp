@@ -11,7 +11,6 @@
 #include "pinocchio/algorithm/compute-all-terms.hpp"
 
 #include <boost/test/unit_test.hpp>
-#include <iostream>
 
 using namespace pinocchio;
 
@@ -41,9 +40,9 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   Inertia inertia(1., Vector3(0., 0., 0.0), Matrix3::Identity());
   // Important to have the same mass for both systems, otherwise COM position not the same
   Inertia inertia_zero_mass(0., Vector3(0.0, 0.0, 0.0), Matrix3::Identity());
-  const double pitch = 0.4;
+  const double h = 0.4;
 
-  JointModelHX joint_model_HX(pitch);
+  JointModelHX joint_model_HX(h);
   addJointAndBody(modelHX,joint_model_HX,0,SE3::Identity(),"helical x",inertia);
   
   JointModelPX joint_model_PX;
@@ -57,17 +56,17 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   // Set the prismatic joint to corresponding displacement, velocit and acceleration
   Eigen::VectorXd q_hx = Eigen::VectorXd::Ones(modelHX.nq);      // dim 1
   Eigen::VectorXd q_PXRX = Eigen::VectorXd::Ones(modelPXRX.nq);  // dim 2
-  q_PXRX(0) = q_hx(0) * pitch;  
+  q_PXRX(0) = q_hx(0) * h;  
 
   Eigen::VectorXd v_hx = Eigen::VectorXd::Ones(modelHX.nv);
   Eigen::VectorXd v_PXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
-  v_PXRX(0) = v_hx(0) * pitch;
+  v_PXRX(0) = v_hx(0) * h;
 
   Eigen::VectorXd tauHX = Eigen::VectorXd::Ones(modelHX.nv);
   Eigen::VectorXd tauPXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
   Eigen::VectorXd aHX = Eigen::VectorXd::Ones(modelHX.nv);
   Eigen::VectorXd aPXRX = Eigen::VectorXd::Ones(modelPXRX.nv);
-  aPXRX(0) = aHX(0) * pitch * pitch;
+  aPXRX(0) = aHX(0) * h * h;
   
   forwardKinematics(modelHX, dataHX, q_hx, v_hx);
   forwardKinematics(modelPXRX, dataPXRX, q_PXRX, v_PXRX);
@@ -83,30 +82,24 @@ BOOST_AUTO_TEST_CASE(vsPXRX)
   BOOST_CHECK(dataPXRX.com[0].isApprox(dataHX.com[0]));  
 
   // InverseDynamics == rnea
-  std::cout << " ------ rnea ------- HX -------" << std::endl;
   tauHX = rnea(modelHX, dataHX, q_hx, v_hx, aHX);
-  std::cout << " ------ rnea ------- PXRX -------" << std::endl;
   tauPXRX = rnea(modelPXRX, dataPXRX, q_PXRX, v_PXRX, aPXRX);
   BOOST_CHECK(tauHX.isApprox(Eigen::Matrix<double,1,1>(tauPXRX.dot(Eigen::VectorXd::Ones(2)))));
-
-  std::cout << "tauHX : " << tauHX << std::endl;
-  std::cout << "tauPXRX : " << tauPXRX.transpose() << std::endl;
 
   // ForwardDynamics == aba
   Eigen::VectorXd aAbaHX = aba(modelHX,dataHX, q_hx, v_hx, tauHX);
   Eigen::VectorXd aAbaPXRX = aba(modelPXRX,dataPXRX, q_PXRX, v_PXRX, tauPXRX);
 
-  
   BOOST_CHECK(aAbaHX.isApprox(aHX));
   BOOST_CHECK(aAbaPXRX.isApprox(aPXRX));
-  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * pitch * pitch, aHX(0))));
+  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * h * h, aHX(0))));
 
   aAbaHX = minimal::aba(modelHX,dataHX, q_hx, v_hx, tauHX);
   aAbaPXRX = minimal::aba(modelPXRX,dataPXRX, q_PXRX, v_PXRX, tauPXRX);
 
   BOOST_CHECK(aAbaHX.isApprox(aHX));
   BOOST_CHECK(aAbaPXRX.isApprox(aPXRX));
-  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * pitch * pitch, aHX(0))));
+  BOOST_CHECK(aAbaPXRX.isApprox(Eigen::Matrix<double,2,1>(aHX(0) * h * h, aHX(0))));
 
   // crba
   crba(modelHX, dataHX, q_hx);
@@ -146,32 +139,32 @@ BOOST_AUTO_TEST_CASE(spatial)
   
   typedef SE3::Vector3 Vector3;
   
-  const double alpha = 0.2, pitch = 0.1;
+  const double alpha = 0.2, h = 0.1;
   double sin_alpha, cos_alpha; SINCOS(alpha,&sin_alpha,&cos_alpha);
   SE3 Mplain, Mrand(SE3::Random());
   
-  TransformX Mx(sin_alpha,cos_alpha,alpha,pitch);
+  TransformX Mx(sin_alpha,cos_alpha,alpha*h);
   Mplain = Mx;
-  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitX()*alpha*pitch));
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitX()*alpha*h));
   BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitX()).toRotationMatrix()));
   BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mx));
   
-  TransformY My(sin_alpha,cos_alpha,alpha,pitch);
+  TransformY My(sin_alpha,cos_alpha,alpha*h);
   Mplain = My;
-  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitY()*alpha*pitch));
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitY()*alpha*h));
   BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitY()).toRotationMatrix()));
   BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*My));
   
-  TransformZ Mz(sin_alpha,cos_alpha,alpha,pitch);
+  TransformZ Mz(sin_alpha,cos_alpha,alpha*h);
   Mplain = Mz;
-  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitZ()*alpha*pitch));
+  BOOST_CHECK(Mplain.translation().isApprox(Vector3::UnitZ()*alpha*h));
   BOOST_CHECK(Mplain.rotation().isApprox(Eigen::AngleAxisd(alpha,Vector3::UnitZ()).toRotationMatrix()));
   BOOST_CHECK((Mrand*Mplain).isApprox(Mrand*Mz));
   
   SE3 M(SE3::Random());
   Motion v(Motion::Random());
   
-  MotionHelicalTpl<double,0,0> mh_x(2., pitch);
+  MotionHelicalTpl<double,0,0> mh_x(2., h);
   Motion mh_dense_x(mh_x);
   
   BOOST_CHECK(M.act(mh_x).isApprox(M.act(mh_dense_x)));
@@ -179,7 +172,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   
   BOOST_CHECK(v.cross(mh_x).isApprox(v.cross(mh_dense_x)));
   
-  MotionHelicalTpl<double,0,1> mh_y(2., pitch);
+  MotionHelicalTpl<double,0,1> mh_y(2., h);
   Motion mh_dense_y(mh_y);
   
   BOOST_CHECK(M.act(mh_y).isApprox(M.act(mh_dense_y)));
@@ -187,7 +180,7 @@ BOOST_AUTO_TEST_CASE(spatial)
   
   BOOST_CHECK(v.cross(mh_y).isApprox(v.cross(mh_dense_y)));
   
-  MotionHelicalTpl<double,0,2> mh_z(2., pitch);
+  MotionHelicalTpl<double,0,2> mh_z(2., h);
   Motion mh_dense_z(mh_z);
   
   BOOST_CHECK(M.act(mh_z).isApprox(M.act(mh_dense_z)));
@@ -208,16 +201,16 @@ BOOST_AUTO_TEST_CASE(vsHX)
 
   Vector3 axis;
   axis << 1.0, 0.0, 0.0;
-  const double pitch = 20.;
+  const double h = 0.2;
 
   Model modelHX, modelHelicalUnaligned;
 
   Inertia inertia (1., Vector3 (0.0, 0., 0.0), Matrix3::Identity ());
   SE3 pos(1); pos.translation() = SE3::LinearType(1.,0.,0.);
 
-  JointModelHelicalUnaligned joint_model_HU(axis, pitch);
+  JointModelHelicalUnaligned joint_model_HU(axis, h);
   
-  addJointAndBody(modelHX,JointModelHX(pitch),0,pos,"HX",inertia);
+  addJointAndBody(modelHX,JointModelHX(h),0,pos,"HX",inertia);
   addJointAndBody(modelHelicalUnaligned,joint_model_HU,0,pos,"Helical-unaligned",inertia);
 
   Data dataHX(modelHX);
