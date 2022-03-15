@@ -68,22 +68,22 @@ namespace pinocchio
     template<typename Vector3Like, typename OtherScalar>
     MotionHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
                               const OtherScalar & w,
-                              const OtherScalar & h)
+                              const OtherScalar & v)
     : m_axis(axis)
     , m_w(w)
-    , m_h(h)
+    , m_v(v)
     {}
     
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(m_axis*m_w*m_h,
+      return PlainReturnType(m_axis*m_v,
                              m_axis*m_w);
     }
     
     template<typename OtherScalar>
     MotionHelicalUnalignedTpl __mult__(const OtherScalar & alpha) const
     {
-      return MotionHelicalUnalignedTpl(m_axis,alpha*m_w,m_h);
+      return MotionHelicalUnalignedTpl(m_axis,alpha*m_w,alpha*m_v);
     }
     
     template<typename MotionDerived>
@@ -92,7 +92,7 @@ namespace pinocchio
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
         m.angular().noalias() = m_axis*m_w;
-        m.linear().noalias() = m_axis*m_w*m_h;
+        m.linear().noalias() = m_axis*m_v;
       }
     }
     
@@ -100,14 +100,14 @@ namespace pinocchio
     inline void addTo(MotionDense<MotionDerived> & v) const
     {
       v.angular() += m_axis*m_w;
-      v.linear() += m_axis*m_w * m_h;
+      v.linear() += m_axis*m_v;
     }
     
     template<typename S2, int O2, typename D2>
     inline void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.angular().noalias() = m_w * m.rotation() * m_axis;
-      v.linear().noalias() = m.translation().cross(v.angular()) + m_w * m_h * m.rotation() * m_axis;
+      v.linear().noalias() = m.translation().cross(v.angular()) + m_v * m.rotation() * m_axis;
     }
     
     template<typename S2, int O2>
@@ -125,7 +125,7 @@ namespace pinocchio
       // Linear
       v.angular().noalias() = m_axis.cross(m.translation());
       v.angular() *= m_w;
-      v.linear().noalias() = m.rotation().transpose() * v.angular() + m_w * m_h * (m.rotation().transpose() * m_axis);
+      v.linear().noalias() = m.rotation().transpose() * v.angular() + m_v * (m.rotation().transpose() * m_axis);
       
       // Angular
       v.angular().noalias() = m.rotation().transpose() * m_axis * m_w;
@@ -146,7 +146,7 @@ namespace pinocchio
       mout.linear().noalias() = v.linear().cross(m_axis);
       mout.linear() *= m_w;
       mout.angular().noalias() = v.angular().cross(m_axis);
-      mout.angular() *= (m_h*m_w);
+      mout.angular() *= m_v;
       mout.linear() += mout.angular();
       
       // Angular
@@ -165,8 +165,8 @@ namespace pinocchio
     Scalar & angularRate() { return m_w; }
     const Scalar & angularRate() const { return m_w; }
 
-    Scalar & pitch() { return m_h; }
-    const Scalar & pitch() const { return m_h; }
+    Scalar & linearRate() { return m_v; }
+    const Scalar & linearRate() const { return m_v; }
 
     Vector3 & axis() { return m_axis; }
     const Vector3 & axis() const { return m_axis; }
@@ -175,13 +175,13 @@ namespace pinocchio
     {
       return internal::comparison_eq(m_axis, other.m_axis) &&
 internal::comparison_eq(m_w, other.m_w) && 
-internal::comparison_eq(m_h, other.m_h);
+internal::comparison_eq(m_v, other.m_v);
     }
     
   protected:
 
     Vector3 m_axis;
-    Scalar m_w, m_h;
+    Scalar m_w, m_v;
 
   }; // struct MotionHelicalUnalignedTpl
 
@@ -260,17 +260,15 @@ internal::comparison_eq(m_h, other.m_h);
     template<typename Vector3Like>
     JointMotionSubspaceHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
                                            const Scalar & h) 
-    : m_axis(axis)
-    , m_h(h)
-    {
-    }
+    : m_axis(axis), m_h(h)
+    {}
 
     template<typename Vector1Like>
     JointMotion __mult__(const Eigen::MatrixBase<Vector1Like> & v) const
     { 
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
       assert(v.size() == 1);
-      return JointMotion(m_axis,v[0],m_h);
+      return JointMotion(m_axis,v[0],v[0]*m_h);
     }
     
     template<typename S1, int O1>
@@ -368,8 +366,8 @@ internal::comparison_eq(m_h, other.m_h);
     Vector3 & axis() { return m_axis; }
     const Vector3 & axis() const { return m_axis; }
     
-    Scalar & pitch() { return m_h; }
-    const Scalar & pitch() const { return m_h; }
+    Scalar & h() { return m_h; }
+    const Scalar & h() const { return m_h; }
 
     Vector3 m_axis;
     Scalar m_h;
@@ -382,7 +380,7 @@ internal::comparison_eq(m_h, other.m_h);
             const JointMotionSubspaceHelicalUnalignedTpl<_Scalar, _Options> & S)
   {
     Eigen::Matrix<_Scalar,1,1,_Options> res;
-    res(0) = (S_transpose.ref.axis()*S_transpose.ref.pitch()).dot(S.axis()*S.pitch())
+    res(0) = (S_transpose.ref.axis()*S_transpose.ref.h()).dot(S.axis()*S.h())
            + (S_transpose.ref.axis().dot(S.axis()));
     return res;
   }
@@ -401,6 +399,7 @@ internal::comparison_eq(m_h, other.m_h);
     {
       typedef InertiaTpl<S1,O1> Inertia;
       typedef JointMotionSubspaceHelicalUnalignedTpl<S2,O2> Constraint;
+      typedef typename JointMotionSubspaceHelicalUnalignedTpl<S2,O2>::Vector3 Vector3;
       typedef typename MultiplicationOp<Inertia,Constraint>::ReturnType ReturnType;
       static inline ReturnType run(const Inertia & Y,
                                    const Constraint & cru)
@@ -408,7 +407,7 @@ internal::comparison_eq(m_h, other.m_h);
         ReturnType res;
         /* YS = [ m -mcx ; mcx I-mcxcx ] [ h ; w ] = [mh-mcxw ; mcxh+Iw-mcxcxw ] */
 
-        const S2 m_h = cru.pitch();
+        const S2 & m_h = cru.h();
         const typename Inertia::Scalar & m       = Y.mass();
         const typename Inertia::Vector3 & c      = Y.lever();
         const typename Inertia::Symmetric3 & I   = Y.inertia();
@@ -442,7 +441,7 @@ internal::comparison_eq(m_h, other.m_h);
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
         return Y.derived().template middleCols<3>(Constraint::ANGULAR) * cru.axis()
-               + Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis() * cru.pitch();
+               + Y.derived().template middleCols<3>(Constraint::LINEAR) * cru.axis() * cru.h();
 
       }
     };
@@ -517,7 +516,7 @@ internal::comparison_eq(m_h, other.m_h);
     JointDataHelicalUnalignedTpl()
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
-    , S(Constraint_t::Vector3::Zero(),(Scalar)1)
+    , S(Constraint_t::Vector3::Zero(),(Scalar)0)
     , M(Transformation_t::Identity())
     , v(Constraint_t::Vector3::Zero(),(Scalar)0,(Scalar)0)
     , U(U_t::Zero())
@@ -530,7 +529,7 @@ internal::comparison_eq(m_h, other.m_h);
     JointDataHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
-    , S(axis,(Scalar)1)
+    , S(axis,(Scalar)0)
     , M(Transformation_t::Identity())
     , v(axis,(Scalar)0,(Scalar)0)
     , U(U_t::Zero())
@@ -567,7 +566,7 @@ internal::comparison_eq(m_h, other.m_h);
 
     template<typename Vector3Like>
     JointModelHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis)
-    : axis(axis), m_pitch((Scalar)0)
+    : axis(axis), m_h((Scalar)0)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
@@ -576,8 +575,8 @@ internal::comparison_eq(m_h, other.m_h);
     JointModelHelicalUnalignedTpl(const Scalar & x,
                                   const Scalar & y,
                                   const Scalar & z,
-                                  const Scalar & pitch)
-    : axis(x,y,z), m_pitch(pitch)
+                                  const Scalar & h)
+    : axis(x,y,z), m_h(h)
     {
       normalize(axis);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
@@ -585,8 +584,8 @@ internal::comparison_eq(m_h, other.m_h);
     
     template<typename Vector3Like>
     JointModelHelicalUnalignedTpl(const Eigen::MatrixBase<Vector3Like> & axis,
-                                  const Scalar & pitch)
-    : axis(axis), m_pitch(pitch)
+                                  const Scalar & h)
+    : axis(axis), m_h(h)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
@@ -599,7 +598,7 @@ internal::comparison_eq(m_h, other.m_h);
     {
       return Base::isEqual(other) &&
   internal::comparison_eq(axis, other.axis) && 
-  internal::comparison_eq(m_pitch, other.m_pitch);
+  internal::comparison_eq(m_h, other.m_h);
     }
 
     template<typename ConfigVector>
@@ -609,8 +608,8 @@ internal::comparison_eq(m_h, other.m_h);
       data.joint_q[0] = qs[idx_q()];
 
       toRotationMatrix(axis,data.joint_q[0],data.M.rotation());
-      data.M.translation() = axis*data.joint_q[0]*m_pitch;
-      data.S.pitch() = m_pitch;
+      data.M.translation() = axis*data.joint_q[0]*m_h;
+      data.S.h() = m_h;
       data.S.axis() = axis;
     }
 
@@ -622,7 +621,7 @@ internal::comparison_eq(m_h, other.m_h);
       calc(data,qs.derived());
       data.v.angularRate() = static_cast<Scalar>(vs[idx_v()]);
       data.v.axis() = axis;
-      data.v.pitch() = m_pitch;
+      data.v.linearRate() = static_cast<Scalar>(vs[idx_v()]*m_h);
     }
     
     template<typename VectorLike, typename Matrix6Like>
@@ -631,8 +630,8 @@ internal::comparison_eq(m_h, other.m_h);
                   const Eigen::MatrixBase<Matrix6Like> & I,
                   const bool update_I) const
     {
-      data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * axis + m_pitch *  I.template middleCols<3>(Motion::LINEAR) * axis;
-      data.StU[0] = axis.dot(data.U.template segment<3>(Motion::ANGULAR)) + m_pitch * axis.dot(data.U.template segment<3>(Motion::LINEAR)) + armature[0];
+      data.U.noalias() = I.template middleCols<3>(Motion::ANGULAR) * axis + m_h *  I.template middleCols<3>(Motion::LINEAR) * axis;
+      data.StU[0] = axis.dot(data.U.template segment<3>(Motion::ANGULAR)) + m_h * axis.dot(data.U.template segment<3>(Motion::LINEAR)) + armature[0];
       data.Dinv[0] = Scalar(1) / data.StU[0];
       data.UDinv.noalias() = data.U * data.Dinv;
       if (update_I)
@@ -650,12 +649,12 @@ internal::comparison_eq(m_h, other.m_h);
     JointModelHelicalUnalignedTpl<NewScalar,Options> cast() const
     {
       typedef JointModelHelicalUnalignedTpl<NewScalar,Options> ReturnType;
-      ReturnType res(axis.template cast<NewScalar>(), static_cast<NewScalar>(m_pitch));
+      ReturnType res(axis.template cast<NewScalar>(), static_cast<NewScalar>(m_h));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
 
-    Scalar m_pitch;
+    Scalar m_h;
     Vector3 axis;
 
   }; // struct JointModelHelicalUnalignedTpl
