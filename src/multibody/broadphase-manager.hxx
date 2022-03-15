@@ -23,10 +23,23 @@ namespace pinocchio
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       const size_t geometry_object_id = selected_geometry_objects[k];
-      if(collision_object_is_active[k] != !geom_model.geometryObjects[geometry_object_id].disableCollision)
+      const GeometryObject & geom_object = geom_model.geometryObjects[geometry_object_id];
+      
+      if(geom_object.geometry->aabb_local.volume() <= 0.) // degenerated geometry, we should not consider it as an active object.
       {
-        collision_object_is_active[k] = !geom_model.geometryObjects[geometry_object_id].disableCollision;
-        if(geom_model.geometryObjects[geometry_object_id].disableCollision)
+        if(collision_object_is_active[k])
+        {
+          collision_object_is_active[k] = false;
+          new_inactive.push_back(k);
+        }
+        
+        continue; // don't go further and checks the next objects
+      }
+      
+      if(collision_object_is_active[k] != !geom_object.disableCollision) // change state
+      {
+        collision_object_is_active[k] = !geom_object.disableCollision;
+        if(geom_object.disableCollision)
           new_inactive.push_back(k);
         else
           new_active.push_back(k);
@@ -132,6 +145,7 @@ namespace pinocchio
     for(size_t k = 0; k < selected_geometry_objects.size(); ++k)
     {
       const size_t geometry_id = selected_geometry_objects[k];
+
       const hpp::fcl::CollisionObject & collision_obj = collision_objects[k];
       hpp::fcl::CollisionGeometryConstPtr_t geometry = collision_obj.collisionGeometry();
 
@@ -142,13 +156,13 @@ namespace pinocchio
 
         if(geometry.get()->aabb_local.volume() == -(std::numeric_limits<hpp::fcl::FCL_REAL>::infinity)())
           return false;
+      
+        const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_id];
+        hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
+
+        if(geometry.get() != geometry_of_geom_obj.get())
+          return false;
       }
-
-      const GeometryObject & geom_obj = geom_model.geometryObjects[geometry_id];
-      hpp::fcl::CollisionGeometryConstPtr_t geometry_of_geom_obj = geom_obj.geometry;
-
-      if(geometry.get() != geometry_of_geom_obj.get())
-        return false;
     }
 
     return true;
