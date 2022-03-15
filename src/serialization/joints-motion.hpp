@@ -37,7 +37,7 @@ namespace boost
                    const unsigned int /*version*/)
     {
       ar & make_nvp("w",m.angularRate());
-      ar & make_nvp("pitch",m.pitch());
+      ar & make_nvp("v",m.linearRate());
     }
   
     template <class Archive, typename Scalar, int Options>
@@ -89,7 +89,7 @@ namespace boost
     {
       ar & make_nvp("axis",m.axis());
       ar & make_nvp("w",m.angularRate());
-      ar & make_nvp("pitch",m.pitch());
+      ar & make_nvp("v",m.linearRate());
     }
     
   }

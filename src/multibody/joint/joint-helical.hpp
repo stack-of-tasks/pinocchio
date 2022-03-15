@@ -91,15 +91,15 @@ namespace pinocchio
     typedef typename AxisLinear::CartesianAxis3 CartesianAxis3Linear;
     
     TransformHelicalTpl() {}
-    TransformHelicalTpl(const Scalar & sin, const Scalar & cos, const Scalar & theta, const Scalar & h)
-    : m_sin(sin), m_cos(cos), m_theta(theta), m_h(h)
+    TransformHelicalTpl(const Scalar & sin, const Scalar & cos, const Scalar & displacement)
+    : m_sin(sin), m_cos(cos), m_displacement(displacement)
     {}
   
     PlainType plain() const
     {
       PlainType res(PlainType::Identity());
       _setRotation (res.rotation());
-      res.translation()[axis] = m_h * m_theta;
+      res.translation()[axis] = m_displacement;
       return res;
     }
     
@@ -141,7 +141,7 @@ namespace pinocchio
         }
       }
       res.translation() = m.translation();
-      res.translation()[axis] += m_h * m_theta;
+      res.translation()[axis] += m_displacement;
       return res;
     }
     
@@ -151,19 +151,16 @@ namespace pinocchio
     const Scalar & cos() const { return m_cos; }
     Scalar & cos() { return m_cos; }
 
-    const Scalar & h() const { return m_h; }
-    Scalar & h() { return m_h; }
-
-    const Scalar & theta() const { return m_theta; }
-    Scalar & theta() { return m_theta; }
+    const Scalar & displacement() const { return m_displacement; }
+    Scalar & displacement() { return m_displacement; }
     
     template<typename OtherScalar>
-    void setValues(const OtherScalar & sin, const OtherScalar & cos, const OtherScalar & theta, const OtherScalar & h)
-    { m_sin = sin; m_cos = cos; m_theta = theta; m_h = h;}
+    void setValues(const OtherScalar & sin, const OtherScalar & cos, const OtherScalar & displacement)
+    { m_sin = sin; m_cos = cos; m_displacement = displacement;}
 
     LinearType translation() const
     {
-      return CartesianAxis3Linear() * m_h() * m_theta();
+      return CartesianAxis3Linear() * displacement();
     }
     AngularType rotation() const
     {
@@ -176,13 +173,12 @@ namespace pinocchio
     {
       return internal::comparison_eq(m_cos, other.m_cos) &&
 	internal::comparison_eq(m_sin, other.m_sin) &&
-	internal::comparison_eq(m_theta, other.m_theta) &&
-  internal::comparison_eq(m_h, other.m_h);
+	internal::comparison_eq(m_displacement, other.m_displacement);
     }
     
   protected:
     
-    Scalar m_sin, m_cos, m_theta, m_h;
+    Scalar m_sin, m_cos, m_displacement;
     inline void _setRotation (typename PlainType::AngularRef& rot) const
     {
       switch(axis)
@@ -229,18 +225,18 @@ namespace pinocchio
     
     MotionHelicalTpl() {}
 
-    MotionHelicalTpl(const Scalar & w, const Scalar & h) : m_w(w), m_h(h)  {}
+    MotionHelicalTpl(const Scalar & w, const Scalar & v) : m_w(w), m_v(v)  {}
     
     inline PlainReturnType plain() const
     {
-      return PlainReturnType(CartesianAxis3Linear() * m_w * m_h,
+      return PlainReturnType(CartesianAxis3Linear() * m_v,
                              CartesianAxis3Angular() * m_w);
     }
     
     template<typename OtherScalar>
     MotionHelicalTpl __mult__(const OtherScalar & alpha) const
     {
-      return MotionHelicalTpl(alpha*m_w, m_h);
+      return MotionHelicalTpl(alpha*m_w, alpha*m_v);
     }
     
     template<typename MotionDerived>
@@ -249,7 +245,7 @@ namespace pinocchio
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
         m.angular()[k] = k == axis ? m_w : (Scalar)0;
-        m.linear()[k] = k == axis ? m_w * m_h : (Scalar)0;
+        m.linear()[k] = k == axis ? m_v : (Scalar)0;
       }
     }
     
@@ -258,14 +254,14 @@ namespace pinocchio
     {
       typedef typename MotionDense<MotionDerived>::Scalar OtherScalar;
       v.angular()[axis] += (OtherScalar)m_w;
-      v.linear()[axis] += (OtherScalar)m_w * m_h;
+      v.linear()[axis] += (OtherScalar)m_v;
     }
     
     template<typename S2, int O2, typename D2>
     inline void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
     {
       v.angular().noalias() = m.rotation().col(axis) * m_w;
-      v.linear().noalias() = m.translation().cross(v.angular()) + m_w * m_h * (m.rotation().col(axis));
+      v.linear().noalias() = m.translation().cross(v.angular()) + m_v * (m.rotation().col(axis));
     }
     
     template<typename S2, int O2>
@@ -283,7 +279,7 @@ namespace pinocchio
     {
       // Linear
       CartesianAxis3Linear::alphaCross(m_w,m.translation(),v.angular());
-      v.linear().noalias() = m.rotation().transpose() * v.angular() + m_w * m_h * (m.rotation().transpose().col(axis));
+      v.linear().noalias() = m.rotation().transpose() * v.angular() + m_v * (m.rotation().transpose().col(axis));
       
       // Angular
       v.angular().noalias() = m.rotation().transpose().col(axis) * m_w;
@@ -303,7 +299,7 @@ namespace pinocchio
     {
       // Linear
       CartesianAxis3Linear::alphaCross(-m_w,v.linear(),mout.linear());
-      CartesianAxis3Linear::alphaCross(-m_h*m_w,v.angular(),mout.angular());
+      CartesianAxis3Linear::alphaCross(-m_v,v.angular(),mout.angular());
       mout.linear() += mout.angular();
       // Angular
       CartesianAxis3Angular::alphaCross(-m_w,v.angular(),mout.angular());
@@ -320,17 +316,17 @@ namespace pinocchio
     Scalar & angularRate() { return m_w; }
     const Scalar & angularRate() const { return m_w; }
 
-    Scalar & pitch() { return m_h; }
-    const Scalar & pitch() const { return m_h; }
+    Scalar & linearRate() { return m_v; }
+    const Scalar & linearRate() const { return m_v; }
     
     bool isEqual_impl(const MotionHelicalTpl & other) const
     {
-      return internal::comparison_eq(m_w, other.m_w) && internal::comparison_eq(m_h, other.m_h);
+      return internal::comparison_eq(m_w, other.m_w) && internal::comparison_eq(m_v, other.m_v);
     }
     
   protected:
     
-    Scalar m_w, m_h;
+    Scalar m_w, m_v;
   }; // struct MotionHelicalTpl
   template<typename S1, int O1, int axis, typename MotionDerived>
   typename MotionDerived::MotionPlain
@@ -419,7 +415,7 @@ namespace pinocchio
     { 
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector1Like,1);
       assert(v.size() == 1);
-      return JointMotion(v[0],m_h);
+      return JointMotion(v[0],v[0]*m_h);
     }
     
     template<typename S1, int O1>
@@ -464,11 +460,7 @@ namespace pinocchio
       typename ConstraintForceSetOp<JointMotionSubspaceHelicalTpl,Derived>::ReturnType
       operator*(const Eigen::MatrixBase<Derived> & F) const
       {
-        std::cout << "TransposeConst operator*2:  " << std::endl << F << std::endl;
         assert(F.rows()==6);
-        // auto t = (F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h);
-        // std::cout << "t:  " << std::endl << t << std::endl;
-        // std::cout << "F.row(ANGULAR + axis):  " << std::endl << F.row(ANGULAR + axis) << std::endl;
         return F.row(ANGULAR + axis) + F.row(LINEAR + axis) * ref.m_h;
       }
     }; // struct TransposeConst
@@ -508,8 +500,8 @@ namespace pinocchio
     
     bool isEqual(const JointMotionSubspaceHelicalTpl &) const { return true; }
 
-    Scalar & pitch() { return m_h; }
-    const Scalar & pitch() const { return m_h; }
+    Scalar & h() { return m_h; }
+    const Scalar & h() const { return m_h; }
 
     protected:
     Scalar m_h;
@@ -521,9 +513,10 @@ namespace pinocchio
             const JointMotionSubspaceHelicalTpl<_Scalar, _Options, _axis> & S)
   {
     Eigen::Matrix<_Scalar,1,1,_Options> res;
-    res(0) = 1.0+S_transpose.ref.pitch()*S.pitch();
+    res(0) = 1.0+S_transpose.ref.h()*S.h();
     return res;
   }
+
   template<typename _Scalar, int _Options, int _axis>
   struct JointHelicalTpl
   {
@@ -556,7 +549,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.pitch();
+        const S2 m_h = constraint.h();
         
         /* Y(:,3) = ( 0,-z, y,  I00+yy+zz,  I01-xy   ,  I02-xz   ) */
         /* Y(:,0) = ( 1,0, 0, 0 , z , -y ) */
@@ -575,7 +568,6 @@ namespace pinocchio
         I(0,1)-m*x*y+m*z*m_h,
         I(0,2)-m*x*z-m*y*m_h;
         
-        std::cout << "res" << std::endl << res << std::endl;
         return res;
       }
     };
@@ -590,7 +582,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.pitch();
+        const S2 m_h = constraint.h();
         
         /* Y(:,4) = ( z, 0,-x,  I10-xy   ,  I11+xx+zz,  I12-yz   ) */
         /* Y(:,1) = ( 0,1, 0, -z , 0 , x) */
@@ -623,7 +615,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         ReturnType res;
-        const S2 m_h = constraint.pitch();
+        const S2 m_h = constraint.h();
         
         /* Y(:,5) = (-y, x, 0,  I20-xz   ,  I21-yz   ,  I22+xx+yy) */
         /* Y(:,2) = ( 0,0, 1, y , -x , 0) */
@@ -665,7 +657,7 @@ namespace pinocchio
                                    const Constraint & constraint)
       {
         EIGEN_STATIC_ASSERT_MATRIX_SPECIFIC_SIZE(M6Like,6,6);
-        return (Y.col(Inertia::ANGULAR + axis) + Y.col(Inertia::LINEAR + axis) * constraint.pitch());
+        return (Y.col(Inertia::ANGULAR + axis) + Y.col(Inertia::LINEAR + axis) * constraint.h());
       }
     };
   } // namespace impl
@@ -737,8 +729,8 @@ namespace pinocchio
     JointDataHelicalTpl()
     : joint_q(ConfigVector_t::Zero())
     , joint_v(TangentVector_t::Zero())
-    , S((Scalar)1)
-    , M((Scalar)0,(Scalar)1,(Scalar)1,(Scalar)1)
+    , S((Scalar)0)
+    , M((Scalar)0,(Scalar)1,(Scalar)0)
     , v((Scalar)0,(Scalar)0)
     , U(U_t::Zero())
     , Dinv(D_t::Zero())
@@ -778,7 +770,7 @@ namespace pinocchio
     
     JointModelHelicalTpl() {}
 
-    JointModelHelicalTpl(const Scalar & pitch) : m_pitch(pitch) {}
+    JointModelHelicalTpl(const Scalar & h) : m_h(h) {}
     
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
@@ -787,9 +779,8 @@ namespace pinocchio
     {
       data.joint_q[0] = qs[idx_q()];
       Scalar ca,sa; SINCOS(data.joint_q[0],&sa,&ca);
-      // TODO still passing redundant information, could just set the transl. part here
-      data.M.setValues(sa,ca,data.joint_q[0],m_pitch);
-      data.S.pitch() = m_pitch;
+      data.M.setValues(sa,ca,data.joint_q[0]*m_h);
+      data.S.h() = m_h;
     }
 
     template<typename ConfigVector, typename TangentVector>
@@ -802,7 +793,7 @@ namespace pinocchio
 
       data.joint_v[0] = vs[idx_v()];
       data.v.angularRate() = data.joint_v[0];
-      data.v.pitch() = m_pitch;
+      data.v.linearRate() = data.joint_v[0]*m_h;
     }
     
     template<typename VectorLike, typename Matrix6Like>
@@ -812,8 +803,8 @@ namespace pinocchio
                   const bool update_I) const
     {
       // I is data.Yaba[i] - Articulated Body Inertia of the sub-tree
-      data.U = I.col(Inertia::ANGULAR + axis) + m_pitch *  I.col(Inertia::LINEAR + axis);
-      data.StU[0] = data.U(Inertia::ANGULAR + axis) + m_pitch * data.U(Inertia::LINEAR + axis) + armature[0];
+      data.U = I.col(Inertia::ANGULAR + axis) + m_h *  I.col(Inertia::LINEAR + axis);
+      data.StU[0] = data.U(Inertia::ANGULAR + axis) + m_h * data.U(Inertia::LINEAR + axis) + armature[0];
       data.Dinv[0] = Scalar(1) / data.StU[0];
       data.UDinv.noalias() = data.U * data.Dinv;
 
@@ -841,7 +832,7 @@ namespace pinocchio
       return res;
     }
 
-    Scalar m_pitch;
+    Scalar m_h;
     
   }; // struct JointModelHelicalTpl
 

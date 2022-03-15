@@ -32,7 +32,7 @@ namespace boost
                    pinocchio::JointMotionSubspaceHelicalTpl<Scalar,Options,axis> & S,
                    const unsigned int /*version*/)
     {
-      ar & make_nvp("pitch",S.pitch());
+      ar & make_nvp("h",S.h());
     }
 
     template <class Archive, typename Scalar, int Options>
@@ -75,7 +75,7 @@ namespace boost
                    const unsigned int /*version*/)
     {
       ar & make_nvp("axis",S.axis());
-      ar & make_nvp("pitch",S.pitch());
+      ar & make_nvp("h",S.h());
     }
   
     template <class Archive, int Dim, typename Scalar, int Options>
