@@ -147,6 +147,12 @@ struct BroadPhaseManagerTpl
   /// @brief Returns internal manager.
   const Manager & getManager() const { return manager; }
   
+  /// @brief Returns the status of the collision object.
+  const std::vector<bool> & getCollisionObjectStatus() const
+  {
+    return collision_object_is_active;
+  }
+  
 protected:
   
   /// @brief internal manager

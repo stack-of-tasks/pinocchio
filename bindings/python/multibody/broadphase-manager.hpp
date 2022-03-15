@@ -49,6 +49,11 @@ namespace pinocchio
              "Returns the internal FCL manager",
              bp::return_internal_reference<>())
         
+        .def("getCollisionObjectStatus",&Self::getCollisionObjectStatus,
+             bp::arg("self"),
+             "Returns the status of the collision object.",
+             bp::return_value_policy<bp::copy_const_reference>())
+        
         .def(BroadPhaseManagerBasePythonVisitor<Self>())
         ;
       }
