@@ -91,6 +91,18 @@ typedef JointModelPrismaticTpl<Scalar,Options,2> JointModelPZ;
 typedef JointModelPrismaticUnalignedTpl<Scalar> JointModelPrismaticUnaligned;
 typedef JointDataPrismaticUnalignedTpl<Scalar> JointDataPrismaticUnaligned;
 
+typedef JointDataHelicalTpl<Scalar,Options,0> JointDataHX;
+typedef JointModelHelicalTpl<Scalar,Options,0> JointModelHX;
+
+typedef JointDataHelicalTpl<Scalar,Options,1> JointDataHY;
+typedef JointModelHelicalTpl<Scalar,Options,1> JointModelHY;
+
+typedef JointDataHelicalTpl<Scalar,Options,2> JointDataHZ;
+typedef JointModelHelicalTpl<Scalar,Options,2> JointModelHZ;
+
+typedef JointModelHelicalUnalignedTpl<Scalar> JointModelHelicalUnaligned;
+typedef JointDataHelicalUnalignedTpl<Scalar> JointDataHelicalUnaligned;
+
 typedef JointModelFreeFlyerTpl<Scalar> JointModelFreeFlyer;
 typedef JointDataFreeFlyerTpl<Scalar> JointDataFreeFlyer;
 
