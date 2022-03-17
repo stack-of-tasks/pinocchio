@@ -118,6 +118,7 @@ IF(urdfdom_FOUND)
 
   ADD_PINOCCHIO_UNIT_TEST(value)
   IF(hpp-fcl_FOUND)
+    ADD_PINOCCHIO_UNIT_TEST(geometry-object)
     ADD_PINOCCHIO_UNIT_TEST(geom)
     ADD_PINOCCHIO_UNIT_TEST(broadphase)
     ADD_PINOCCHIO_UNIT_TEST(tree-broadphase)

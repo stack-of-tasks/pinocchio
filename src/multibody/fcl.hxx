@@ -59,24 +59,6 @@ namespace pinocchio
   
 #endif // PINOCCHIO_WITH_HPP_FCL
 
-  inline bool operator==(const GeometryObject & lhs, const GeometryObject & rhs)
-  {
-    return (   lhs.name                 == rhs.name
-            && lhs.parentFrame          == rhs.parentFrame
-            && lhs.parentJoint          == rhs.parentJoint
-            && lhs.geometry             == rhs.geometry
-            && lhs.placement            == rhs.placement
-            && lhs.meshPath             == rhs.meshPath
-            && lhs.meshScale            == rhs.meshScale
-            && lhs.disableCollision    == rhs.disableCollision
-            );
-  }
-
-  inline bool operator!=(const GeometryObject & lhs, const GeometryObject & rhs)
-  {
-    return !(lhs == rhs);
-  }
-
   inline std::ostream & operator<< (std::ostream & os, const GeometryObject & geom_object)
   {
     os  << "Name: \t \n" << geom_object.name << "\n"

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -44,6 +44,7 @@
 #include <map>
 #include <vector>
 #include <utility>
+#include <memory>
 #include <limits>
 #include <assert.h>
 
@@ -322,12 +323,13 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   : fcl(geometry)
   {
     *this = other;
-    
   }
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   GeometryObject & operator=(const GeometryObject & other)
   {
+    if(&other == this) return *this;
+    
     name                = other.name;
     parentFrame         = other.parentFrame;
     parentJoint         = other.parentJoint;
@@ -338,8 +340,41 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     overrideMaterial    = other.overrideMaterial;
     meshColor           = other.meshColor;
     meshTexturePath     = other.meshTexturePath;
-    disableCollision   = other.disableCollision;
+    disableCollision    = other.disableCollision;
     return *this;
+  }
+  
+  ///
+  /// \brief Perform a deep copy of this. It will create a copy of the underlying FCL geometry.
+  ///
+  GeometryObject clone() const
+  {
+    GeometryObject res(*this);
+    res.geometry = CollisionGeometryPtr(geometry->clone());
+    return res;
+  }
+  
+  bool operator==(const GeometryObject & other) const
+  {
+    if(this == &other) return true;
+    return
+       name                == other.name
+    && parentFrame         == other.parentFrame
+    && parentJoint         == other.parentJoint
+    && *geometry.get()     == *other.geometry.get()
+    && placement           == other.placement
+    && meshPath            == other.meshPath
+    && meshScale           == other.meshScale
+    && overrideMaterial    == other.overrideMaterial
+    && meshColor           == other.meshColor
+    && meshTexturePath     == other.meshTexturePath
+    && disableCollision    == other.disableCollision
+    ;
+  }
+  
+  bool operator!=(const GeometryObject & other) const
+  {
+    return !(*this == other);
   }
 
   friend std::ostream & operator<< (std::ostream & os, const GeometryObject & geomObject);

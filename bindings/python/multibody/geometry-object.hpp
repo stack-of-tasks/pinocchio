@@ -90,6 +90,9 @@ namespace pinocchio
                        "Path to the mesh texture file.")
         .def_readwrite("disableCollision", &GeometryObject::disableCollision,
                        "If true, no collision or distance check will be done between the Geometry and any other geometry.")
+        
+        .def("clone", &GeometryObject::clone, bp::arg("self"),
+             "Perform a deep copy of this. It will create a copy of the underlying FCL geometry.")
 
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
