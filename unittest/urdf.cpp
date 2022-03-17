@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #include <iostream>
@@ -234,5 +234,30 @@ BOOST_AUTO_TEST_CASE(check_specific_models)
   pinocchio::Model model;
   pinocchio::urdf::buildModel(filename, model);
 }
+
+
+#if defined(PINOCCHIO_WITH_HPP_FCL)
+BOOST_AUTO_TEST_CASE(test_geometry_parsing)
+{
+  typedef pinocchio::Model Model;
+  typedef pinocchio::GeometryModel GeometryModel;
+  typedef pinocchio::Data Data;
+  typedef pinocchio::GeometryData GeometryData;
+
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  std::vector < std::string > packageDirs;
+  std::string meshDir  = PINOCCHIO_MODEL_DIR;
+  packageDirs.push_back(meshDir);
+
+  Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
+  GeometryModel geomModel;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, packageDirs );
+  geomModel.addAllCollisionPairs();
+  
+  GeometryModel geomModelOther = pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geomModel, packageDirs );
+  BOOST_CHECK(geomModelOther == geomModel);
+}
+#endif // if defined(PINOCCHIO_WITH_HPP_FCL)
 
 BOOST_AUTO_TEST_SUITE_END()
