@@ -17,10 +17,47 @@
 #endif
 #include <boost/foreach.hpp>
 
+#include <sstream>
 /// @cond DEV
 
 namespace pinocchio
 {
+  
+  inline CollisionPair::CollisionPair()
+  : Base((std::numeric_limits<GeomIndex>::max)(),(std::numeric_limits<GeomIndex>::max)())
+  {}
+
+  ///
+  /// \brief Default constructor of a collision pair from two collision object indexes.
+  /// \remarks The two indexes must be different, otherwise the constructor throws.
+  ///
+  /// \param[in] co1 Index of the first collision object.
+  /// \param[in] co2 Index of the second collision object.
+  ///
+  inline CollisionPair::CollisionPair(const GeomIndex co1, const GeomIndex co2)
+  : Base(co1,co2)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(co1 != co2,"The index of collision objects must not be equal.");
+  }
+
+  inline bool CollisionPair::operator==(const CollisionPair& rhs) const
+  {
+    return (first == rhs.first  && second == rhs.second)
+      ||   (first == rhs.second && second == rhs.first );
+  }
+
+  inline bool CollisionPair::operator!=(const CollisionPair& other) const
+  {
+    return !(*this == other);
+  }
+
+  inline void CollisionPair::disp(std::ostream & os) const
+  { os << "collision pair (" << first << "," << second << ")\n"; }
+
+  inline std::ostream & operator << (std::ostream & os, const CollisionPair & X)
+  {
+    X.disp(os); return os;
+  }
 
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)

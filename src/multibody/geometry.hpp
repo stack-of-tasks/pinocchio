@@ -5,8 +5,7 @@
 #ifndef __pinocchio_multibody_geometry_hpp__
 #define __pinocchio_multibody_geometry_hpp__
 
-#include "pinocchio/multibody/fcl.hpp"
-#include "pinocchio/multibody/fwd.hpp"
+#include "pinocchio/multibody/geometry-object.hpp"
 #include "pinocchio/container/aligned-vector.hpp"
 
 #include "pinocchio/serialization/serializable.hpp"
@@ -19,8 +18,29 @@
 namespace pinocchio
 {
 
-  struct GeometryModel;
-  struct GeometryData;
+  struct CollisionPair
+  : public std::pair<GeomIndex, GeomIndex>
+  {
+
+    typedef std::pair<GeomIndex, GeomIndex> Base;
+   
+    /// \brief Empty constructor
+    CollisionPair();
+    
+    ///
+    /// \brief Default constructor of a collision pair from two collision object indexes.
+    /// \remarks The two indexes must be different, otherwise the constructor throws.
+    ///
+    /// \param[in] co1 Index of the first collision object.
+    /// \param[in] co2 Index of the second collision object.
+    ///
+    CollisionPair(const GeomIndex co1, const GeomIndex co2);
+    bool                  operator == (const CollisionPair& rhs) const;
+    bool                  operator != (const CollisionPair& rhs) const;
+    void                  disp        (std::ostream & os)        const;
+    friend std::ostream & operator << (std::ostream & os,const CollisionPair & X);
+
+  }; // struct CollisionPair
 
   template<>
   struct traits<GeometryModel>
