@@ -19,10 +19,6 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(manage_collision_pairs)
 {
-  typedef pinocchio::Model Model;
-  typedef pinocchio::GeometryModel GeometryModel;
-  typedef pinocchio::GeometryData GeometryData;
-
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > package_dirs;
   std::string mesh_dir  = PINOCCHIO_MODEL_DIR;
@@ -178,6 +174,31 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
     }
     
   }
+}
+
+BOOST_AUTO_TEST_CASE(test_clone)
+{
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
+  std::vector < std::string > package_dirs;
+  std::string mesh_dir  = PINOCCHIO_MODEL_DIR;
+  package_dirs.push_back(mesh_dir);
+
+  Model model;
+  pinocchio::urdf::buildModel(filename, pinocchio::JointModelFreeFlyer(),model);
+  GeometryModel geom_model;
+  pinocchio::urdf::buildGeom(model, filename, pinocchio::COLLISION, geom_model, package_dirs);
+  geom_model.addAllCollisionPairs();
+  
+  geom_model.geometryObjects[0].geometry = GeometryObject::CollisionGeometryPtr(new ::hpp::fcl::Sphere(0.5));
+  GeometryModel geom_model_clone = geom_model.clone();
+  GeometryModel geom_model_copy = geom_model;
+  
+  BOOST_CHECK(geom_model_clone == geom_model);
+  BOOST_CHECK(geom_model_copy == geom_model);
+  
+  static_cast<::hpp::fcl::Sphere *>(geom_model.geometryObjects[0].geometry.get())->radius = 1.;
+  BOOST_CHECK(geom_model_clone != geom_model);
+  BOOST_CHECK(geom_model_copy == geom_model);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

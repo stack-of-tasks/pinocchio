@@ -180,6 +180,11 @@ namespace pinocchio
     /// \return The index of the CollisionPair in collisionPairs.
     ///
     PairIndex findCollisionPair(const CollisionPair & pair) const;
+    
+    ///
+    /// \brief Deep copy of *this.
+    ///
+    GeometryModel clone() const;
 
     ///
     /// \brief Returns true if *this and other are equal.

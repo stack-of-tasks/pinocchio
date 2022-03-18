@@ -59,6 +59,22 @@ namespace pinocchio
     X.disp(os); return os;
   }
 
+  inline GeometryModel GeometryModel::clone() const
+  {
+    GeometryModel res;
+    res.ngeoms = ngeoms;
+    res.collisionPairs = collisionPairs;
+    res.collisionPairMapping = collisionPairMapping;
+    
+    res.geometryObjects.reserve(geometryObjects.size());
+    for(const GeometryObject & geometry_object: geometryObjects)
+    {
+      res.geometryObjects.push_back(geometry_object.clone());
+    }
+    
+    return res;
+  }
+
   inline GeometryData::GeometryData(const GeometryModel & geom_model)
   : oMg(geom_model.ngeoms)
   , activeCollisionPairs(geom_model.collisionPairs.size(), true)
