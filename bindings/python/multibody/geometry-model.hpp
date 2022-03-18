@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_model_hpp__
@@ -62,6 +62,8 @@ namespace pinocchio
              &GeometryModelPythonVisitor::createData,
              bp::arg("self"),
              "Create a GeometryData associated to the current model.")
+        .def("clone",&GeometryModel::clone,bp::arg("self"),
+             "Create a deep copy of *this.")
         .add_property("collisionPairs",
                       &GeometryModel::collisionPairs,
                       "Vector of collision pairs.")

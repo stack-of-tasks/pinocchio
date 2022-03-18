@@ -182,7 +182,7 @@ namespace pinocchio
     PairIndex findCollisionPair(const CollisionPair & pair) const;
     
     ///
-    /// \brief Deep copy of *this.
+    /// \brief Create a deep copy of *this.
     ///
     GeometryModel clone() const;
 
