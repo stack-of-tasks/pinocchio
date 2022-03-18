@@ -7,7 +7,7 @@
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
 
-#include "pinocchio/multibody/fcl.hpp"
+#include "pinocchio/multibody/geometry-object.hpp"
 
 #include <vector>
 #include <boost/test/unit_test.hpp>
