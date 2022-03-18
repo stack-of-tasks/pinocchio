@@ -42,10 +42,10 @@ namespace pinocchio
     /// \param[in] geometry_model input geometry model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    BroadPhaseManagerPoolBase(const Model * model_ptr,
-                              const GeometryModel * geometry_model_ptr,
+    BroadPhaseManagerPoolBase(const Model & model,
+                              const GeometryModel & geometry_model,
                               const size_t pool_size = (size_t)omp_get_max_threads())
-    : Base(model_ptr,geometry_model_ptr,pool_size)
+    : Base(model,geometry_model,pool_size)
     {
       init();
     }
@@ -85,9 +85,13 @@ namespace pinocchio
     using Base::update;
     using Base::size;
     using Base::getModel;
+    using Base::getModels;
+    using Base::getData;
     using Base::getDatas;
     using Base::getGeometryData;
+    using Base::getGeometryDatas;
     using Base::getGeometryModel;
+    using Base::getGeometryModels;
     
     ///
     /// \brief Update the geometry datas with the new value
@@ -111,9 +115,10 @@ namespace pinocchio
       {
         const BroadPhaseManager & manager = m_managers[i];
         bool res = true;
+        res &= (&manager.getModel() == &getModel(i));
         res &= (&manager.getGeometryData() == &getGeometryData(i));
 
-        res &= (&manager.getGeometryModel() == &getGeometryModel());
+        res &= (&manager.getGeometryModel() == &getGeometryModel(i));
         res &= manager.check();
         
         if(!res)
@@ -133,8 +138,8 @@ namespace pinocchio
       m_managers.reserve(size());
       for(size_t i = 0; i < size(); ++i)
       {
-        m_managers.push_back(BroadPhaseManager(&getModel(),
-                                               &getGeometryModel(),
+        m_managers.push_back(BroadPhaseManager(&getModel(i),
+                                               &getGeometryModel(i),
                                                &getGeometryData(i)));
       }
     }

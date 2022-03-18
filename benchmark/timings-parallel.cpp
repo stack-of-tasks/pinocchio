@@ -110,7 +110,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     taus.col(i) = Eigen::VectorXd::Random(model.nv);
   }
   
-  ModelPool pool(&model,NUM_THREADS);
+  ModelPool pool(model,NUM_THREADS);
   
   timer.tic();
   SMOOTH(NBT)
@@ -189,7 +189,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   }
   
   std::cout << "--" << std::endl;
-  GeometryPool geometry_pool(&model,&geometry_model,NUM_THREADS);
+  GeometryPool geometry_pool(model,geometry_model,NUM_THREADS);
   VectorXb collision_res(BATCH_SIZE);
   collision_res.fill(false);
   
@@ -219,7 +219,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   
   std::cout << "--" << std::endl;
   {
-    BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(&model,&geometry_model,NUM_THREADS);
+    BroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(model,geometry_model,NUM_THREADS);
     VectorXb collision_res(BATCH_SIZE);
     collision_res.fill(false);
     
@@ -236,7 +236,7 @@ int main(int /*argc*/, const char ** /*argv*/)
       timer.tic();
       SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
       {
-        computeCollisions(num_threads,geometry_pool,qs,collision_res);
+        computeCollisions(num_threads,pool,qs,collision_res);
       }
       double elapsed = timer.toc()/(NBT_COLLISION);
       std::stringstream ss;
@@ -250,7 +250,7 @@ int main(int /*argc*/, const char ** /*argv*/)
   
   std::cout << "--" << std::endl;
   {
-    TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(&model,&geometry_model,NUM_THREADS);
+    TreeBroadPhaseManagerPool<hpp::fcl::DynamicAABBTreeCollisionManager, double> pool(model,geometry_model,NUM_THREADS);
     VectorXb collision_res(BATCH_SIZE);
     collision_res.fill(false);
     
@@ -267,7 +267,7 @@ int main(int /*argc*/, const char ** /*argv*/)
       timer.tic();
       SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
       {
-        computeCollisions(num_threads,geometry_pool,qs,collision_res);
+        computeCollisions(num_threads,pool,qs,collision_res);
       }
       double elapsed = timer.toc()/(NBT_COLLISION);
       std::stringstream ss;

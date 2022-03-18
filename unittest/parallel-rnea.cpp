@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/spatial/fwd.hpp"
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_rnea)
     a.col(i) = Eigen::VectorXd::Random(model.nv);
   }
   
-  ModelPool pool(&model,num_thread);
+  ModelPool pool(model,num_thread);
   rnea(num_thread,pool,q,v,a,tau);
   
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
@@ -55,4 +55,3 @@ BOOST_AUTO_TEST_CASE(test_parallel_rnea)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

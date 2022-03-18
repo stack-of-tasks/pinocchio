@@ -70,17 +70,22 @@ namespace pinocchio
     typedef typename Pool::Data Data;
     typedef typename Pool::GeometryModel GeometryModel;
     typedef typename Pool::GeometryData GeometryData;
+    typedef typename Pool::ModelVector ModelVector;
     typedef typename Pool::DataVector DataVector;
+    typedef typename Pool::GeometryModelVector GeometryModelVector;
     typedef typename Pool::GeometryDataVector GeometryDataVector;
     
-    const Model & model = pool.getModel();
-    const GeometryModel & geometry_model = pool.getGeometryModel();
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(pool.size() > 0, "The pool should have at least one element");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
+
+    const ModelVector & models = pool.getModels();
+    const Model & model_check = models[0];
+    const GeometryModelVector & geometry_models = pool.getGeometryModels();
     DataVector & datas = pool.getDatas();
     GeometryDataVector & geometry_datas = pool.getGeometryDatas();
     CollisionVectorResult & res_ = res.const_cast_derived();
     
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.rows(), model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.rows(), model_check.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
     
@@ -91,13 +96,16 @@ namespace pinocchio
     {
       bool is_colliding = false;
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         if(is_colliding) continue;
         
         const int thread_id = omp_get_thread_num();
+        
+        const Model & model = models[(size_t)thread_id];
         Data & data = datas[(size_t)thread_id];
+        const GeometryModel & geometry_model = geometry_models[(size_t)thread_id];
         GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
         res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
         
@@ -110,11 +118,14 @@ namespace pinocchio
     else
     {
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         const int thread_id = omp_get_thread_num();
+        
+        const Model & model = models[(size_t)thread_id];
         Data & data = datas[(size_t)thread_id];
+        const GeometryModel & geometry_model = geometry_models[(size_t)thread_id];
         GeometryData & geometry_data = geometry_datas[(size_t)thread_id];
         res_[i] = computeCollisions(model,data,geometry_model,geometry_data,q.col(i),stopAtFirstCollisionInConfiguration);
       }

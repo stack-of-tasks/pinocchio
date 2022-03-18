@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(test_geometry_pool)
 
   const size_t num_thread = (size_t)omp_get_max_threads();
   pinocchio::GeometryModel geometry_model_empty;
-  GeometryPool pool(&model,&geometry_model_empty,num_thread);
+  GeometryPool pool(model,geometry_model_empty,num_thread);
 
   pool.update(GeometryData(geometry_model));
 }
@@ -61,18 +61,18 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
   const GeomIndex obj2_index = geom_model.addGeometryObject(obj2);
   
   geom_model.addAllCollisionPairs();
+  
+  const GeometryModel geom_model_clone = geom_model.clone();
 
 //  GeometryObject & go1 = geom_model.geometryObjects[obj_index];
 
   const size_t num_thread = (size_t)omp_get_max_threads();
   typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
   typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
-  BroadPhaseManagerPool pool(&model,&geom_model,num_thread);
+  BroadPhaseManagerPool pool(model,geom_model,num_thread);
   
   auto manager = pool.getBroadPhaseManager(0);
   GeometryData & geom_data = manager.getGeometryData();
-  
-  BOOST_CHECK(&manager.getGeometryModel() == &geom_model);
   
   BOOST_CHECK(pool.check());
 
@@ -109,9 +109,14 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
   }
   
   static_cast<hpp::fcl::Sphere*>(geom_model.geometryObjects[obj2_index].geometry.get())->radius = 100;
+  geom_model.geometryObjects[obj2_index].geometry->computeLocalAABB();
   BOOST_CHECK(static_cast<hpp::fcl::Sphere*>(sphere2_ptr.get())->radius == 100);
   
-  geom_model.geometryObjects[obj2_index].geometry->computeLocalAABB();
+  for(GeometryModel & geom_model_pool: pool.getGeometryModels())
+  {
+    geom_model_pool.geometryObjects[obj2_index] = geom_model.geometryObjects[obj2_index].clone();
+  }
+  
   pool.update(geom_data);
   
   VectorBool res_all_intermediate(batch_size), res_all_intermediate_ref(batch_size);
@@ -136,13 +141,21 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
   
   BOOST_CHECK(res_all_intermediate != res_all_before);
   
-  hpp::fcl::CollisionGeometryPtr_t new_sphere2_ptr(new hpp::fcl::Sphere(0.1));
+  static_cast<hpp::fcl::Sphere*>(sphere2_ptr.get())->radius = 0.1;
+
+  hpp::fcl::CollisionGeometryPtr_t new_sphere2_ptr(new hpp::fcl::Sphere(static_cast<hpp::fcl::Sphere&>(*sphere2_ptr.get())));
   new_sphere2_ptr->computeLocalAABB();
   geom_model.geometryObjects[obj2_index].geometry = new_sphere2_ptr;
   BOOST_CHECK(static_cast<hpp::fcl::Sphere*>(geom_model.geometryObjects[obj2_index].geometry.get())->radius
               == static_cast<hpp::fcl::Sphere*>(new_sphere2_ptr.get())->radius);
   BOOST_CHECK(geom_model.geometryObjects[obj2_index].geometry.get() == new_sphere2_ptr.get());
   BOOST_CHECK(geom_model.geometryObjects[obj2_index].geometry.get() != sphere2_ptr.get());
+  BOOST_CHECK(*geom_model.geometryObjects[obj2_index].geometry.get() == *new_sphere2_ptr.get()->clone());
+  
+  for(GeometryModel & geom_model_pool: pool.getGeometryModels())
+  {
+    geom_model_pool.geometryObjects[obj2_index] = geom_model.geometryObjects[obj2_index].clone();
+  }
   
   BOOST_CHECK(not pool.check());
   pool.update(geom_data);
@@ -171,8 +184,11 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
   BOOST_CHECK(res_all_final == res_all_before);
   
   std::cout << "res_all_before: " << res_all_before.transpose() << std::endl;
+  std::cout << "res_all_before_ref: " << res_all_before_ref.transpose() << std::endl;
   std::cout << "res_all_intermediate: " << res_all_intermediate.transpose() << std::endl;
+  std::cout << "res_all_intermediate_ref: " << res_all_intermediate_ref.transpose() << std::endl;
   std::cout << "res_all_final: " << res_all_final.transpose() << std::endl;
+  std::cout << "res_all_final_ref: " << res_all_final_ref.transpose() << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE(test_talos)
@@ -255,7 +271,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
 
   {
     VectorXb res(batch_size); res.fill(false);
-    GeometryPool geometry_pool(&model,&geometry_model,num_thread);
+    GeometryPool geometry_pool(model,geometry_model,num_thread);
     computeCollisions(num_thread,geometry_pool,q,res);
 
     BOOST_CHECK(res == res_ref);
@@ -265,7 +281,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
     typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
     typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
 
-    BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
+    BroadPhaseManagerPool broadphase_manager_pool(model,geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
     computeCollisions(num_thread,broadphase_manager_pool,q,res1);
     computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);
@@ -288,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
     typedef TreeBroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
     typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
 
-    BroadPhaseManagerPool broadphase_manager_pool(&model,&geometry_model,num_thread);
+    BroadPhaseManagerPool broadphase_manager_pool(model,geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
     computeCollisions(num_thread,broadphase_manager_pool,q,res1);
     computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);

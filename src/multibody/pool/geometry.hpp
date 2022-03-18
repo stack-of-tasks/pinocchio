@@ -24,6 +24,7 @@ namespace pinocchio
     
     typedef typename Base::Model Model;
     typedef typename Base::Data Data;
+    typedef typename Base::ModelVector ModelVector;
     typedef typename Base::DataVector DataVector;
     typedef ::pinocchio::GeometryModel GeometryModel;
     typedef ::pinocchio::GeometryData GeometryData;
@@ -37,13 +38,19 @@ namespace pinocchio
     /// \param[in] geometry_model input geometry model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    GeometryPoolTpl(const Model * model_ptr,
-                    const GeometryModel * geometry_model_ptr,
+    GeometryPoolTpl(const Model & model,
+                    const GeometryModel & geometry_model,
                     const size_t pool_size = (size_t)omp_get_max_threads())
-    : Base(model_ptr,pool_size)
-    , m_geometry_model_ptr(geometry_model_ptr)
-    , m_geometry_datas(pool_size,GeometryData(*geometry_model_ptr))
-    {}
+    : Base(model,pool_size)
+    {
+      m_geometry_models.reserve(pool_size);
+      m_geometry_datas.reserve(pool_size);
+      for(size_t k = 0; k < pool_size; ++k)
+      {
+        m_geometry_models.push_back(geometry_model.clone());
+        m_geometry_datas.push_back(GeometryData(m_geometry_models[k]));
+      }
+    }
     
     /// \brief Copy constructor from an other GeometryPoolTpl.
     ///
@@ -51,14 +58,34 @@ namespace pinocchio
     ///
     GeometryPoolTpl(const GeometryPoolTpl & other)
     : Base(other)
-    , m_geometry_model_ptr(other.m_geometry_model_ptr)
-    , m_geometry_datas(other.m_geometry_datas)
-    {}
+    {
+      const size_t pool_size = other.size();
+      m_geometry_models.reserve(pool_size);
+      m_geometry_datas.reserve(pool_size);
+      for(size_t k = 0; k < pool_size; ++k)
+      {
+        m_geometry_models.push_back(other.geometry_models[k].clone());
+        m_geometry_datas.push_back(GeometryData(m_geometry_models[k]));
+      }
+    }
     
-    /// \brief Returns the geometry model
-    const GeometryModel & getGeometryModel() const { return *m_geometry_model_ptr; }
+    /// \brief Returns the geometry_model at given index
+    const GeometryModel & getGeometryModel(const size_t index) const
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_models.size(),
+                                     "Index greater than the size of the geometry_models vector.");
+      return m_geometry_models[index];
+    }
     
-    /// \brief Returns the geometry_data at index
+    /// \brief Returns the geometry_model at given index
+    GeometryModel & getGeometryModel(const size_t index)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_models.size(),
+                                     "Index greater than the size of the geometry_models vector.");
+      return m_geometry_models[index];
+    }
+    
+    /// \brief Returns the geometry_data at given index
     const GeometryData & getGeometryData(const size_t index) const
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_datas.size(),
@@ -66,7 +93,7 @@ namespace pinocchio
       return m_geometry_datas[index];
     }
     
-    /// \brief Returns the geometry_data at index
+    /// \brief Returns the geometry_data at given index
     GeometryData & getGeometryData(const size_t index)
     {
       PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_geometry_datas.size(),
@@ -74,11 +101,17 @@ namespace pinocchio
       return m_geometry_datas[index];
     }
     
-    /// \brief Vector of Geometry Data
+    /// \brief Returns the vector of Geometry Data
     const GeometryDataVector & getGeometryDatas() const { return m_geometry_datas; }
     
-    /// \brief Vector of Geometry Data
+    /// \brief Returns the vector of Geometry Data
     GeometryDataVector & getGeometryDatas() { return m_geometry_datas; }
+    
+    /// \brief Returns the vector of Geometry Model
+    const GeometryModelVector & getGeometryModels() const { return m_geometry_models; }
+    
+    /// \brief Returns the vector of Geometry Model
+    GeometryModelVector & getGeometryModels() { return m_geometry_models; }
     
     using Base::update;
     using Base::size;
@@ -86,19 +119,26 @@ namespace pinocchio
     ///
     /// \brief Update the geometry datas with the new value
     ///
-    /// \param[in] geometry_data new geometry data value
+    /// \param[in] geometry_data_to_copy new geometry data value to copy
     ///
-    virtual void update(const GeometryData & geometry_data)
+    virtual void update(const GeometryData & geometry_data_to_copy)
     {
-      std::fill(m_geometry_datas.begin(),m_geometry_datas.end(),geometry_data);
+      for(GeometryData & geometry_data: m_geometry_datas)
+      {
+        geometry_data.activeCollisionPairs = geometry_data_to_copy.activeCollisionPairs;
+        geometry_data.distanceRequests = geometry_data_to_copy.distanceRequests;
+        geometry_data.collisionRequests = geometry_data_to_copy.collisionRequests;
+        geometry_data.collisionPairIndex = geometry_data_to_copy.collisionPairIndex;
+      }
     }
+    
     /// \brief Destructor
     virtual ~GeometryPoolTpl() {};
     
   protected:
     
-    /// \brief Geometry Model associated to the pool.
-    const GeometryModel * m_geometry_model_ptr;
+    /// \brief Vector of Geometry Model associated to the pool.
+    GeometryModelVector m_geometry_models;
     
     /// \brief Vector of Geometry Data associated to the pool.
     GeometryDataVector m_geometry_datas;
@@ -106,12 +146,16 @@ namespace pinocchio
     /// \brief Method to implement in the derived classes.
     virtual void doResize(const size_t new_size)
     {
+      const size_t current_size = (size_t)size();
+      m_geometry_models.resize((size_t)new_size);
       m_geometry_datas.resize((size_t)new_size);
-      if((size_t)size() < new_size)
+      if(current_size < new_size)
       {
-        typename GeometryDataVector::iterator it = m_geometry_datas.begin();
-        std::advance(it, (long)(new_size - (size_t)size()));
-        std::fill(it,m_geometry_datas.end(),m_geometry_datas[0]);
+        for(size_t k = current_size; k < new_size; ++k)
+        {
+          m_geometry_models[k] = m_geometry_models[0].clone();
+          m_geometry_datas[k] = GeometryData(m_geometry_models[k]);
+        }
       }
     }
     

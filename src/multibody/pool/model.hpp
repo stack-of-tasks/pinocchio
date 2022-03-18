@@ -6,7 +6,6 @@
 #define __pinocchio_multibody_pool_model_hpp__
 
 #include <algorithm>
-#include <omp.h>
 
 #include "pinocchio/multibody/pool/fwd.hpp"
 #include "pinocchio/multibody/model.hpp"
@@ -34,26 +33,23 @@ namespace pinocchio
     
     /// \brief Default constructor from a model and a pool size.
     ///
-    /// \param[in] model_ptr input model pointer used for parallel computations.
+    /// \param[in] model input model used for parallel computations.
     /// \param[in] pool_size total size of the pool.
     ///
-    explicit ModelPoolTpl(const Model * model_ptr,
+    explicit ModelPoolTpl(const Model & model,
                           const size_t pool_size = (size_t)omp_get_max_threads())
-    : m_model_ptr(model_ptr)
-    , m_datas(pool_size, Data(*model_ptr))
+    : m_models(pool_size, model)
+    , m_datas(pool_size, Data(model))
     {}
     
     /// \brief Copy constructor from an other PoolModel.
     ///
     /// \param[in] pool_model PoolModel to copy.
     ///
-    ModelPoolTpl(const ModelPoolTpl & pool_model)
-    : m_model_ptr(pool_model.m_model_ptr)
-    , m_datas(pool_model.m_datas)
+    ModelPoolTpl(const ModelPoolTpl & pool)
+    : m_models(pool.m_models)
+    , m_datas(pool.m_datas)
     {}
-    
-    /// \brief Returns the model stored within the pool.
-    const Model & getModel() const { return *m_model_ptr; }
     
     /// \brief Update all the datas with the input data value.
     ///
@@ -71,20 +67,49 @@ namespace pinocchio
     void resize(const size_t new_size)
     {
       const size_t size = m_datas.size();
+      m_models.resize((size_t)new_size);
       m_datas.resize((size_t)new_size);
+      
       if(size < new_size)
       {
-        typename DataVector::iterator it = m_datas.begin();
-        std::advance(it, (long)(new_size - size));
-        std::fill(it,m_datas.end(),m_datas[0]);
+        typename ModelVector::iterator model_it = m_models.begin();
+        std::advance(model_it, (long)(new_size - size));
+        std::fill(model_it,m_models.end(),m_models[0]);
+        
+        typename DataVector::iterator data_it = m_datas.begin();
+        std::advance(data_it, (long)(new_size - size));
+        std::fill(data_it,m_datas.end(),m_datas[0]);
       }
+      
       doResize(new_size); // call Derived::doResize();
     }
+    
+    /// \brief Returns the vector of models
+    const ModelVector & getModels() const { return m_models; }
+    
+    /// \brief Returns the vector of models
+    ModelVector & getModels() { return m_models; }
+    
+    /// \brief Return a specific model
+    const Model & getModel(const size_t index) const
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_models.size(),
+                                     "Index greater than the size of the model vector.");
+      return m_models[index];
+    }
+    
+    /// \brief Returns a specific model
+    Model & getModel(const size_t index)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(index < m_models.size(),
+                                     "Index greater than the size of the model vector.");
+      return m_models[index];
+    }
 
-    /// \brief Returns the data vectors
+    /// \brief Returns the data vector
     const DataVector & getDatas() const { return m_datas; }
     
-    /// \brief Returns the data vectors
+    /// \brief Returns the data vector
     DataVector & getDatas() { return m_datas; }
     
     /// \brief Return a specific data
@@ -108,8 +133,8 @@ namespace pinocchio
     
   protected:
     
-    /// \brief Model stored within the pool.
-    const Model * m_model_ptr;
+    /// \brief Vector of model
+    ModelVector m_models;
     
     /// \brief Vector of data elements
     DataVector m_datas;

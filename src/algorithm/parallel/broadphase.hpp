@@ -24,17 +24,19 @@ namespace pinocchio
     typedef BroadPhaseManagerPoolBase<BroadPhaseManagerDerived,Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;
     typedef typename Pool::Data Data;
+    typedef typename Pool::ModelVector ModelVector;
     typedef typename Pool::DataVector DataVector;
     typedef typename Pool::BroadPhaseManager BroadPhaseManager;
     typedef typename Pool::BroadPhaseManagerVector BroadPhaseManagerVector;
 
-    const Model & model = pool.getModel();
+    const ModelVector & models = pool.getModels();
+    const Model & model_check = models[0];
     DataVector & datas = pool.getDatas();
     BroadPhaseManagerVector & broadphase_managers = pool.getBroadPhaseManagers();
     CollisionVectorResult & res_ = res.const_cast_derived();
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(num_threads <= pool.size(), "The pool is too small");
-    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.rows(), model.nq);
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(q.rows(), model_check.nq);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.cols(), res.size());
     res_.fill(false);
 
@@ -51,6 +53,7 @@ namespace pinocchio
         if(is_colliding) continue;
         
         const int thread_id = omp_get_thread_num();
+        const Model & model = models[(size_t)thread_id];
         Data & data = datas[(size_t)thread_id];
         BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
         res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
@@ -68,6 +71,7 @@ namespace pinocchio
       for(i = 0; i < batch_size; i++)
       {
         const int thread_id = omp_get_thread_num();
+        const Model & model = models[(size_t)thread_id];
         Data & data = datas[(size_t)thread_id];
         BroadPhaseManager & manager = broadphase_managers[(size_t)thread_id];
         res_[i] = computeCollisions(model,data,manager,q.col(i),stopAtFirstCollisionInConfiguration);
