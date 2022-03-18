@@ -64,7 +64,7 @@ namespace pinocchio
       m_geometry_datas.reserve(pool_size);
       for(size_t k = 0; k < pool_size; ++k)
       {
-        m_geometry_models.push_back(other.geometry_models[k].clone());
+        m_geometry_models.push_back(other.m_geometry_models[k].clone());
         m_geometry_datas.push_back(GeometryData(m_geometry_models[k]));
       }
     }
