@@ -32,6 +32,7 @@ namespace pinocchio
       
       typedef typename ModelPool::Model Model;
       typedef typename ModelPool::Data Data;
+      typedef typename ModelPool::ModelVector ModelVector;
       typedef typename ModelPool::DataVector DataVector;
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -39,14 +40,18 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<const Model *,bp::optional<size_t> >(bp::args("self","model","size"),"Default constructor.")
-             [bp::with_custodian_and_ward<1,2>()])
+        .def(bp::init<const Model &,bp::optional<size_t> >(bp::args("self","model","size"),
+                                                           "Default constructor."))
         .def(bp::init<ModelPool>(bp::args("self","other"),
                                   "Copy constructor."))
         
-        .def("getModel",(Model & (ModelPool::*)())&ModelPool::getModel,
-             bp::arg("self"),"Model contained in the pool.",
+        .def("getModel",(Model & (ModelPool::*)(const size_t))&ModelPool::getModel,
+             bp::args("self","index"),"Return a specific model.",
              bp::return_internal_reference<>())
+        .def("getModels",(ModelVector & (ModelPool::*)())&ModelPool::getModels,
+             bp::arg("self"),"Returns the model vectors.",
+             bp::return_internal_reference<>())
+        
         .def("getData",(Data & (ModelPool::*)(const size_t))&ModelPool::getData,
              bp::args("self","index"),"Return a specific data.",
              bp::return_internal_reference<>())
@@ -74,6 +79,7 @@ namespace pinocchio
         .def(CopyableVisitor<ModelPool>())
         ;
         
+        StdVectorPythonVisitor<ModelVector>::expose("StdVec_Model");
         StdVectorPythonVisitor<DataVector>::expose("StdVec_Data");
       }
     };

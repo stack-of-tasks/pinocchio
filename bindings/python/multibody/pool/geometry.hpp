@@ -34,6 +34,7 @@ namespace pinocchio
       typedef typename GeometryPool::Model Model;
       typedef typename GeometryPool::GeometryModel GeometryModel;
       typedef typename GeometryPool::GeometryData GeometryData;
+      typedef typename GeometryPool::GeometryModelVector GeometryModelVector;
       typedef typename GeometryPool::GeometryDataVector GeometryDataVector;
 
       /* --- Exposing C++ API to python through the handler ----------------- */
@@ -41,17 +42,20 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<const Model *, const GeometryModel *,bp::optional<size_t> >(bp::args("self","model","geometry_model","size"),
-                                                              "Default constructor.")
-             [bp::with_custodian_and_ward<1,2>(),bp::with_custodian_and_ward<1,3>()])
+        .def(bp::init<const Model &, const GeometryModel &,bp::optional<size_t> >(bp::args("self","model","geometry_model","size"),
+                                                                                  "Default constructor."))
         .def(bp::init<GeometryPool>(bp::args("self","other"),
                                     "Copy constructor."))
         
-        .def("getGeometryModel",(GeometryModel & (GeometryPool::*)())&GeometryPool::getGeometryModel,
-             bp::arg("self"),"Geometry model contained in the pool.",
+        .def("getGeometryModel",(GeometryModel & (GeometryPool::*)(const size_t))&GeometryPool::getGeometryModel,
+             bp::args("self","index"),"Return a specific geometry model.",
              bp::return_internal_reference<>())
+        .def("getGeometryModels",(GeometryModelVector & (GeometryPool::*)())&GeometryPool::getGeometryModels,
+             bp::arg("self"),"Returns the geometry model vector.",
+             bp::return_internal_reference<>())
+        
         .def("getGeometryData",(GeometryData & (GeometryPool::*)(const size_t))&GeometryPool::getGeometryData,
-             bp::args("self","index"),"Return a specific geometry_data data.",
+             bp::args("self","index"),"Return a specific geometry data.",
              bp::return_internal_reference<>())
         .def("getGeometryDatas",(GeometryDataVector & (GeometryPool::*)())&GeometryPool::getGeometryDatas,
              bp::arg("self"),"Returns the geometry data vector.",
@@ -72,6 +76,7 @@ namespace pinocchio
         .def(CopyableVisitor<GeometryPool>())
         ;
         
+        StdVectorPythonVisitor<GeometryModelVector>::expose("StdVec_GeometryModel");
         StdVectorPythonVisitor<GeometryDataVector>::expose("StdVec_GeometryData");
       }
     };
