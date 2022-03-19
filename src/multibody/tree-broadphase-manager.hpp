@@ -24,6 +24,10 @@ struct TreeBroadPhaseManagerTpl
   
   typedef std::vector<hpp::fcl::CollisionObject *> CollisionObjectPointerVector;
   typedef std::vector<BroadPhaseManager> BroadPhaseManagerVector;
+  
+  typedef typename BroadPhaseManager::Model Model;
+  typedef typename BroadPhaseManager::GeometryModel GeometryModel;
+  typedef typename BroadPhaseManager::GeometryData GeometryData;
 
   /// @brief Default constructor.
   TreeBroadPhaseManagerTpl() // for std::vector

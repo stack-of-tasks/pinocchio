@@ -27,6 +27,10 @@ struct BroadPhaseManagerTpl
   typedef Eigen::VectorXd VectorXs;
   typedef _Manager Manager;
   
+  typedef ::pinocchio::Model Model;
+  typedef ::pinocchio::GeometryModel GeometryModel;
+  typedef ::pinocchio::GeometryData GeometryData;
+  
   /// @brief Default constructor.
   BroadPhaseManagerTpl() // for std::vector
   : Base()

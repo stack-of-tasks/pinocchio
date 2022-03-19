@@ -21,17 +21,24 @@ namespace pinocchio
     {
       typedef Derived Self;
       
+      typedef typename Derived::GeometryModel GeometryModel;
+      
+      static GeometryModel & getGeometryModel(const Self & self)
+      {
+        return const_cast<GeometryModel &>(self.getGeometryModel());
+      }
+      
       /* --- Exposing C++ API to python through the handler ----------------- */
       template<class PyClass>
       void visit(PyClass& cl) const
       {
         
         cl
-        .def("getGeometryModel",&Self::getGeometryModel,
-             bp::arg("self"),
-             bp::return_value_policy<bp::copy_const_reference>())
+        .def("getGeometryModel",getGeometryModel,
+             bp::arg("self"),"Returns the related geometry model.",
+             bp::return_internal_reference<>())
         .def("getGeometryData",(GeometryData & (Self::*)())&Self::getGeometryData,
-             bp::arg("self"),
+             bp::arg("self"),"Returns the related geometry data.",
              bp::return_internal_reference<>())
         
         .def("check", (bool (Self::*)() const)&Self::check,
