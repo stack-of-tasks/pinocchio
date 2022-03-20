@@ -49,6 +49,12 @@ namespace pinocchio
       {
         m_geometry_models.push_back(geometry_model.clone());
         m_geometry_datas.push_back(GeometryData(m_geometry_models[k]));
+        
+        typedef typename GeometryData::SE3 SE3;
+        for(SE3 & oMg_i: m_geometry_datas.back().oMg)
+        {
+          oMg_i.setIdentity();
+        }
       }
     }
     
