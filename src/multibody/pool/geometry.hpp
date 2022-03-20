@@ -122,6 +122,21 @@ namespace pinocchio
     using Base::update;
     using Base::size;
     
+    /// \brief Synchronize the internal geometry models with the input geometry for all given geometry indexes by cloning the related geometryObjects.
+    void sync(const GeometryModel & geometry_model,
+              const std::vector<GeomIndex> & geometry_indexes)
+    {
+      for(GeomIndex i: geometry_indexes)
+        PINOCCHIO_CHECK_INPUT_ARGUMENT(i < geometry_model.ngeoms,
+                                       "One of the given geometry index is greater than geometry_model.ngeoms.");
+      
+      for(GeometryModel & geometry_model_pool: m_geometry_models)
+      {
+        for(GeomIndex i: geometry_indexes)
+          geometry_model_pool.geometryObjects[i] = geometry_model.geometryObjects[i].clone();
+      }
+    }
+    
     ///
     /// \brief Update the geometry datas with the new value
     ///

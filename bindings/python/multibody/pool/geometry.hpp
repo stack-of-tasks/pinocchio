@@ -61,6 +61,10 @@ namespace pinocchio
              bp::arg("self"),"Returns the geometry data vector.",
              bp::return_internal_reference<>())
         
+        .def("sync",&GeometryPool::sync,
+             bp::args("geometry_model","geometry_indexes"),
+             "Synchronize the internal geometry models with the input geometry for all given geometry indexes.")
+        
         .def("update",(void (GeometryPool::*)(const GeometryData &))&GeometryPool::update,
              bp::args("self","geometry_data"),"Update all the geometry datas with the input geometry data value.")
         ;
