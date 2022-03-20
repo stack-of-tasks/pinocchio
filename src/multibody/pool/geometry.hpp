@@ -125,6 +125,7 @@ namespace pinocchio
     {
       for(GeometryData & geometry_data: m_geometry_datas)
       {
+        geometry_data.oMg = geometry_data_to_copy.oMg;
         geometry_data.activeCollisionPairs = geometry_data_to_copy.activeCollisionPairs;
         geometry_data.distanceRequests = geometry_data_to_copy.distanceRequests;
         geometry_data.collisionRequests = geometry_data_to_copy.collisionRequests;
