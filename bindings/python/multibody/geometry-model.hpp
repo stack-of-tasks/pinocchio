@@ -7,6 +7,7 @@
 
 #include <eigenpy/memory.hpp>
 
+#include "pinocchio/bindings/python/utils/address.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
@@ -116,6 +117,7 @@ namespace pinocchio
           .def(GeometryModelPythonVisitor())
           .def(PrintableVisitor<GeometryModel>())
           .def(CopyableVisitor<GeometryModel>())
+          .def(AddressVisitor<GeometryModel>())
           ;
         }
       }

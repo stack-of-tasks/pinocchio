@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_data_hpp__
@@ -9,11 +9,13 @@
 
 #include "pinocchio/serialization/geometry.hpp"
 
+#include "pinocchio/bindings/python/utils/address.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
 #include "pinocchio/bindings/python/utils/std-vector.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+
 #include "pinocchio/bindings/python/serialization/serializable.hpp"
 
 EIGENPY_DEFINE_STRUCT_ALLOCATOR_SPECIALIZATION(pinocchio::GeometryData)
@@ -157,6 +159,7 @@ namespace pinocchio
           .def(PrintableVisitor<GeometryData>())
           .def(CopyableVisitor<GeometryData>())
           .def(SerializableVisitor<GeometryData>())
+          .def(AddressVisitor<GeometryModel>())
           ;
         }
      
