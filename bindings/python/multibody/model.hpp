@@ -115,7 +115,7 @@ namespace pinocchio
         .add_property("nbodies", &Model::nbodies)
         .add_property("nframes", &Model::nframes)
         .add_property("inertias",&Model::inertias)
-        .add_property("jointPlacements",&Model::jointPlacements)
+        .def_readwrite("jointPlacements",&Model::jointPlacements)
         .add_property("joints",&Model::joints)
         .add_property("idx_qs",&Model::idx_qs)
         .add_property("nqs",&Model::nqs)
