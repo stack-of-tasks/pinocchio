@@ -72,6 +72,8 @@ namespace pinocchio
     , collisionPairs()
     {}
     
+    GeometryModel(const GeometryModel & other) = default;
+    
     ~GeometryModel() {};
     
     /**
