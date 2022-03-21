@@ -47,7 +47,7 @@ namespace pinocchio
     {
       bool is_colliding = false;
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         if(is_colliding) continue;
@@ -67,7 +67,7 @@ namespace pinocchio
     else
     {
       Eigen::DenseIndex i = 0;
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(static)
       for(i = 0; i < batch_size; i++)
       {
         const int thread_id = omp_get_thread_num();
