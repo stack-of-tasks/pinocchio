@@ -2,7 +2,10 @@
 // Copyright (c) 2015-2020 CNRS INRIA
 //
 
+#ifdef PINOCCHIO_WITH_URDFDOM
 #include "pinocchio/parsers/urdf.hpp"
+#endif
+
 #include "pinocchio/bindings/python/parsers/urdf.hpp"
 
 #include <boost/python.hpp>
