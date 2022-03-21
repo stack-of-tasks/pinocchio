@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2021 CNRS INRIA
+// Copyright (c) 2016-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_std_vector_hpp__
@@ -16,6 +16,7 @@
 
 #include "pinocchio/bindings/python/utils/pickle-vector.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 
 namespace pinocchio
 {
@@ -401,6 +402,7 @@ namespace pinocchio
           bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
           cl
           .def(StdVectorPythonVisitor())
+          .def(bp::init<vector_type>(bp::args("self","other"),"Copy constructor"))
 //          .def(bp::init<std::size_t, bp::optional<value_type> >((bp::arg("self"),bp::arg("size"),bp::arg("value") = value_type())))
 //          .def(bp::init<std::size_t>((bp::arg("self"),bp::arg("size"))))
           .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
@@ -411,6 +413,7 @@ namespace pinocchio
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(PickleVector<vector_type>())
 #endif
+          .def(CopyableVisitor<vector_type>())
           ;
           
           // Register conversion

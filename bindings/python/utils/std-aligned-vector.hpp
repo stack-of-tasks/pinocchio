@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_utils_std_aligned_vector_hpp__
@@ -58,12 +58,14 @@ namespace pinocchio
           bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
           cl
           .def(StdAlignedVectorPythonVisitor())
+          .def(bp::init<vector_type>(bp::args("self","other"),"Copy constructor"))
           .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
                "Returns the aligned_vector as a Python list.")
           .def(visitor)
 #ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
           .def_pickle(PickleVector<vector_type>())
 #endif
+          .def(CopyableVisitor<vector_type>())
           ;
           
           // Register conversion
