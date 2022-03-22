@@ -17,7 +17,6 @@
   <doc_depend>texlive-latex-base</doc_depend>
   <!-- The following tags are recommended by REP-136 -->
   <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
-  <exec_depend condition="$ROS_VERSION == 2">ament_cmake</exec_depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
   <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
