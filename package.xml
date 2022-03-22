@@ -27,6 +27,9 @@
   <depend>eigenpy</depend>
   <depend>hpp-fcl</depend>
 
+  <!-- Compiling Pinocchio with clang reduces build time, required memory, and results in faster runtime. Note: This only specifies the build dependency, it does not auto-select the compiler - this needs to be specified manually -->
+  <buildtool_depend>clang</buildtool_depend>
+
   <buildtool_depend>cmake</buildtool_depend>
   <export>
     <build_type>cmake</build_type>
