@@ -347,6 +347,19 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       return Base::run(tf1, tf2, request, result);
     }
     
+    bool operator==(const ComputeCollision & other) const
+    {
+      return
+      Base::operator==(other)
+      && go1_ptr == other.go1_ptr
+      && go2_ptr == other.go2_ptr; // Maybe, it would be better to just check *go2_ptr == *other.go2_ptr
+    }
+    
+    bool operator!=(const ComputeCollision & other) const
+    {
+      return !(*this == other);
+    }
+    
     const GeometryObject & getGeometryObject1() const { return * go1_ptr; }
     const GeometryObject & getGeometryObject2() const { return * go2_ptr; }
     
@@ -376,6 +389,19 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       const_cast<Pointer&>(Base::o1) = go1_ptr->geometry.get();
       const_cast<Pointer&>(Base::o2) = go2_ptr->geometry.get();
       return Base::run(tf1, tf2, request, result);
+    }
+    
+    bool operator==(const ComputeDistance & other) const
+    {
+      return
+      Base::operator==(other)
+      && go1_ptr == other.go1_ptr
+      && go2_ptr == other.go2_ptr;
+    }
+    
+    bool operator!=(const ComputeDistance & other) const
+    {
+      return !(*this == other);
     }
     
     const GeometryObject & getGeometryObject1() const { return * go1_ptr; }
