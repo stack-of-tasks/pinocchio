@@ -66,6 +66,11 @@ namespace pinocchio
           .def_pickle(PickleVector<vector_type>())
 #endif
           .def(CopyableVisitor<vector_type>())
+          
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
+          .def(bp::self == bp::self)
+          .def(bp::self != bp::self)
+#endif
           ;
           
           // Register conversion
