@@ -22,6 +22,12 @@ namespace pinocchio
       typedef Derived Self;
       
       typedef typename Derived::GeometryModel GeometryModel;
+      typedef typename Derived::Model Model;
+      
+      static Model & getModel(const Self & self)
+      {
+        return const_cast<Model &>(self.getModel());
+      }
       
       static GeometryModel & getGeometryModel(const Self & self)
       {
@@ -34,6 +40,9 @@ namespace pinocchio
       {
         
         cl
+        .def("getModel",getModel,
+             bp::arg("self"),"Returns the related model.",
+             bp::return_internal_reference<>())
         .def("getGeometryModel",getGeometryModel,
              bp::arg("self"),"Returns the related geometry model.",
              bp::return_internal_reference<>())
