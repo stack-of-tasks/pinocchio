@@ -310,6 +310,17 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     , geometryObjectIndex(geometryObjectIndex)
     {}
     
+    bool operator==(const CollisionObject & other) const
+    {
+      return Base::operator==(other)
+      && geometryObjectIndex == other.geometryObjectIndex;
+    }
+    
+    bool operator!=(const CollisionObject & other) const
+    {
+      return !(*this == other);
+    }
+    
     /// @brief Geometry object index related to the current collision object.
     size_t geometryObjectIndex;
   };
