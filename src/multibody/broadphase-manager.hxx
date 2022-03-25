@@ -163,6 +163,11 @@ namespace pinocchio
         if(geometry.get() != geometry_of_geom_obj.get())
           return false;
       }
+      else
+      {
+        if(std::find(collision_objects_ptr.begin(), collision_objects_ptr.end(), &collision_obj) != collision_objects_ptr.end())
+          return false;
+      }
     }
 
     return true;
