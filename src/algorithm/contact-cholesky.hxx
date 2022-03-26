@@ -261,18 +261,19 @@ namespace pinocchio
     }
     
     template<typename Scalar, int Options>
-    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator>
+    template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ConstraintModelAllocator, class ConstraintDataAllocator, typename VectorLike>
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     compute(const ModelTpl<S1,O1,JointCollectionTpl> & model,
             DataTpl<S1,O1,JointCollectionTpl> & data,
             const std::vector<RigidConstraintModelTpl<S1,O1>,ConstraintModelAllocator> & contact_models,
             std::vector<RigidConstraintDataTpl<S1,O1>,ConstraintDataAllocator> & contact_datas,
-            const S1 mu)
+            const Eigen::MatrixBase<VectorLike> & mus)
     {
       typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
       typedef RigidConstraintDataTpl<S1,O1> RigidConstraintData;
       typedef MotionTpl<Scalar,Options> Motion;
       typedef SE3Tpl<Scalar,Options> SE3;
+      
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
                                      "The number of contacts inside contact_models and the one during allocation do not match.");
@@ -517,6 +518,18 @@ namespace pinocchio
 
       }
 
+      updateDamping(mus);
+    }
+    
+    template<typename Scalar, int Options>
+    template<typename VectorLike>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    updateDamping(const Eigen::MatrixBase<VectorLike> & vec)
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
+      const Eigen::DenseIndex total_dim = size();
+      const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
+      
       // Upper left triangular part of U
       for(Eigen::DenseIndex j = total_constraints_dim-1; j>=0; --j)
       {
@@ -524,7 +537,7 @@ namespace pinocchio
         typename Vector::SegmentReturnType DUt_partial = DUt.head(slice_dim);
         DUt_partial.noalias() = U.row(j).segment(j+1,slice_dim).transpose().cwiseProduct(D.segment(j+1,slice_dim));
 
-        D[j] = -mu - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
+        D[j] = -vec[j] - U.row(j).segment(j+1,slice_dim).dot(DUt_partial);
         assert(check_expression_if_real<Scalar>(D[j] != Scalar(0)) && "The diagonal element is equal to zero.");
         Dinv[j] = Scalar(1)/D[j];
 
