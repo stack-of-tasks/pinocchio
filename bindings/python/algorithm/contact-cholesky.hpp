@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2020-2021 INRIA
+// Copyright (c) 2020-2022 INRIA
 //
 
 #ifndef __pinocchio_python_algorithm_contact_cholesky_hpp__
@@ -29,6 +29,7 @@ namespace pinocchio
       typedef typename ContactCholeskyDecomposition::RigidConstraintModel RigidConstraintModel;
       typedef typename ContactCholeskyDecomposition::RigidConstraintData RigidConstraintData;
       typedef typename ContactCholeskyDecomposition::Matrix Matrix;
+      typedef typename ContactCholeskyDecomposition::Vector Vector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) RigidConstraintModelVector;
       typedef typename PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) RigidConstraintDataVector;
       
@@ -75,19 +76,25 @@ namespace pinocchio
              (Matrix (Self::*)(void) const)&Self::matrix,
              bp::arg("self"),
              "Returns the matrix resulting from the decomposition.")
-        .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidConstraintModelVector &, RigidConstraintDataVector &, const Scalar))&compute,
-             bp::args("self","model","data","contact_models","contact_datas","mu"),
-             "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
-             "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
-             "the vector of RigidConstraintModel named contact_models. The decomposition is regularized with a factor mu.\n")
         
         .def("compute",
-             (void (*)(Self & self, const Model &, Data &, const RigidConstraintModelVector &, RigidConstraintDataVector &))&compute,
-             bp::args("self","model","data","contact_models","contact_datas"),
+             (void (*)(Self & self, const Model &, Data &, const RigidConstraintModelVector &, RigidConstraintDataVector &, const Scalar))&compute,
+             (bp::arg("self"),bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("mu") = 0),
              "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
              "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
-             "the vector of RigidConstraintModel named contact_models.")
+             "the vector of RigidConstraintModel named contact_models. The decomposition is regularized with a factor mu.")
+        
+        .def("compute",
+             (void (*)(Self & self, const Model &, Data &, const RigidConstraintModelVector &, RigidConstraintDataVector &, const Vector &))&compute,
+             (bp::arg("self"),bp::arg("model"),bp::arg("data"),bp::arg("contact_models"),bp::arg("contact_datas"),bp::arg("mus")),
+             "Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix\n"
+             "related to the system mass matrix and the Jacobians of the contact patches contained in\n"
+             "the vector of RigidConstraintModel named contact_models. The decomposition is regularized with a factor mu.")
+        
+        .def("updateDamping",
+             &Self::template updateDamping<Vector>,
+             bp::args("self","mus"),
+             "Update the damping term on the upper left block part of the KKT matrix. The damping terms should be all positives.")
         
         .def("getInverseOperationalSpaceInertiaMatrix",
              (Matrix (Self::*)(void) const)&Self::getInverseOperationalSpaceInertiaMatrix,
@@ -137,14 +144,20 @@ namespace pinocchio
         return self.solve(mat);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidConstraintModelVector & contact_models, RigidConstraintDataVector & contact_datas, const Scalar mu)
+      static void compute(Self & self,
+                          const Model & model, Data & data,
+                          const RigidConstraintModelVector & contact_models, RigidConstraintDataVector & contact_datas,
+                          const Scalar mu = static_cast<Scalar>(0))
       {
         self.compute(model,data,contact_models,contact_datas,mu);
       }
       
-      static void compute(Self & self, const Model & model, Data & data, const RigidConstraintModelVector & contact_models, RigidConstraintDataVector & contact_datas)
+      static void compute(Self & self,
+                          const Model & model, Data & data,
+                          const RigidConstraintModelVector & contact_models, RigidConstraintDataVector & contact_datas,
+                          const Vector & mus)
       {
-        self.compute(model,data,contact_models,contact_datas);
+        self.compute(model,data,contact_models,contact_datas,mus);
       }
     };
     
