@@ -230,6 +230,48 @@ BOOST_AUTO_TEST_CASE(test_talos)
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_pool_talos_memory)
+{
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
+
+  pinocchio::Model * model_ptr = new Model();
+  Model & model = *model_ptr;
+  pinocchio::urdf::buildModel(filename,JointModelFreeFlyer(),model);
+  Data data_ref(model);
+
+  const std::string package_path = PINOCCHIO_MODEL_DIR;
+//  hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
+  const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
+  std::vector<std::string> package_paths(1,package_path);
+  pinocchio::GeometryModel * geometry_model_ptr = new GeometryModel();
+  GeometryModel & geometry_model = *geometry_model_ptr;
+  pinocchio::urdf::buildGeom(model,filename,COLLISION,geometry_model,package_paths);
+
+  geometry_model.addAllCollisionPairs();
+  pinocchio::srdf::removeCollisionPairs(model,geometry_model,srdf_filename,false);
+  
+  typedef BroadPhaseManagerTpl<hpp::fcl::DynamicAABBTreeCollisionManager> BroadPhaseManager;
+  typedef BroadPhaseManagerPoolBase<BroadPhaseManager, double> BroadPhaseManagerPool;
+  
+  const size_t num_thread = (size_t)omp_get_max_threads();;
+  BroadPhaseManagerPool broadphase_manager_pool(model,geometry_model,num_thread);
+  
+  const Eigen::DenseIndex batch_size = 2048;
+  const Eigen::VectorXd qmax = Eigen::VectorXd::Ones(model.nq);
+  Eigen::MatrixXd q(model.nq,batch_size);
+  for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
+  {
+    q.col(i) = randomConfiguration(model,-qmax,qmax);
+  }
+  
+  delete model_ptr;
+  delete geometry_model_ptr;
+
+  typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
+  VectorXb res(batch_size);
+  computeCollisions(num_thread,broadphase_manager_pool,q,res);
+}
+
 BOOST_AUTO_TEST_CASE(test_pool_talos)
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_reduced.urdf");
