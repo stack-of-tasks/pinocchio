@@ -57,6 +57,66 @@ namespace pinocchio
       ;
     }
 
+    // specialization for JointModelHelicalUnaligned
+    template<>
+    bp::class_<context::JointModelHelicalUnaligned>&
+    expose_joint_model<context::JointModelHelicalUnaligned> (bp::class_<context::JointModelHelicalUnaligned> & cl)
+    {
+      return cl
+      .def(bp::init<context::Scalar, context::Scalar, context::Scalar,  context::Scalar> (bp::args("self","x", "y", "z", "h"),
+                                                                                          "Init JointModelHelicalUnaligned from the components x, y, z of the axis and the pitch h"))
+      .def(bp::init<context::Vector3s,  context::Scalar> (bp::args("self","axis", "h"),
+                                                          "Init JointModelHelicalUnaligned from an axis with x-y-z components and the pitch h"))
+      .def_readwrite("axis",&context::JointModelHelicalUnaligned::axis,
+                     "Translation axis of the JointModelHelicalUnaligned.")
+      .def_readwrite("h",&context::JointModelHelicalUnaligned::m_h,
+                "Pitch h of the JointModelHelicalUnaligned.")
+      ;
+    }
+
+    // specialization for JointModelHelical
+    template<>
+    bp::class_<context::JointModelHX>&
+    expose_joint_model<context::JointModelHX> (bp::class_<context::JointModelHX> & cl)
+    {
+      return cl
+      .def(bp::init<context::Scalar> (bp::args("self","h"),
+                                      "Init JointModelHX with pitch h"))
+      .def(bp::init<> (bp::args("self"),
+                       "Init JointModelHX with pitch 0.0"))
+      .def_readwrite("h",&context::JointModelHX::m_h,
+          "Pitch h of the JointModelHX.")
+      ;
+    }
+
+    template<>
+    bp::class_<context::JointModelHY>&
+    expose_joint_model<context::JointModelHY> (bp::class_<context::JointModelHY> & cl)
+    {
+      return cl
+      .def(bp::init<context::Scalar> (bp::args("self","h"),
+                                      "Init JointModelHY with pitch h"))
+      .def(bp::init<> (bp::args("self"),
+                       "Init JointModelHY with pitch 0.0"))
+      .def_readwrite("h",&context::JointModelHY::m_h,
+          "Pitch h of the JointModelHY.")
+      ;
+    }
+
+    template<>
+    bp::class_<context::JointModelHZ>&
+    expose_joint_model<context::JointModelHZ> (bp::class_<context::JointModelHZ> & cl)
+    {
+      return cl
+      .def(bp::init<context::Scalar> (bp::args("self","h"),
+                                      "Init JointModelHZ with pitch h"))
+      .def(bp::init<> (bp::args("self"),
+                       "Init JointModelHZ with pitch 0.0"))
+      .def_readwrite("h",&context::JointModelHZ::m_h,
+          "Pitch h of the JointModelHZ.")
+      ;
+    }
+    
     // specialization for JointModelComposite
 
     struct JointModelCompositeAddJointVisitor

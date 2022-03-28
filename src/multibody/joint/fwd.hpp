@@ -25,8 +25,8 @@ namespace pinocchio
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteTpl;
 
-  template<typename Scalar, int Options = context::Options> struct JointModelRevoluteUnalignedTpl;
-  typedef JointModelRevoluteUnalignedTpl<context::Scalar> JointModelRevoluteUnaligned;
+  template<typename Scalar, int Options = 0> struct JointModelRevoluteUnalignedTpl;
+  typedef JointModelRevoluteUnalignedTpl<double> JointModelRevoluteUnaligned;
   
   template<typename Scalar, int Options = context::Options> struct JointDataRevoluteUnalignedTpl;
   typedef JointDataRevoluteUnalignedTpl<context::Scalar> JointDataRevoluteUnaligned;
@@ -39,8 +39,17 @@ namespace pinocchio
   template<typename Scalar, int Options, int axis> struct JointModelRevoluteUnboundedTpl;
   template<typename Scalar, int Options, int axis> struct JointDataRevoluteUnboundedTpl;
 
-  template<typename Scalar, int Options = context::Options> struct JointModelSphericalTpl;
-  typedef JointModelSphericalTpl<context::Scalar> JointModelSpherical;
+  template<typename Scalar, int Options, int axis> struct JointModelHelicalTpl;
+  template<typename Scalar, int Options, int axis> struct JointDataHelicalTpl;
+
+  template<typename Scalar, int Options = 0> struct JointModelHelicalUnalignedTpl;
+  typedef JointModelHelicalUnalignedTpl<double> JointModelHelicalUnaligned;
+  
+  template<typename Scalar, int Options = 0> struct JointDataHelicalUnalignedTpl;
+  typedef JointDataHelicalUnalignedTpl<double> JointDataHelicalUnaligned;  
+
+  template<typename Scalar, int Options = 0> struct JointModelSphericalTpl;
+  typedef JointModelSphericalTpl<double> JointModelSpherical;
   
   template<typename Scalar, int Options = context::Options> struct JointDataSphericalTpl;
   typedef JointDataSphericalTpl<context::Scalar> JointDataSpherical;

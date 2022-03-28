@@ -285,6 +285,35 @@ struct init<pinocchio::JointModelPrismaticUnalignedTpl<Scalar,Options> >
   }
 };
 
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
+template<typename Scalar, int Options, int axis>
+struct init<pinocchio::JointModelHelicalTpl<Scalar,Options,axis> >
+{
+  typedef pinocchio::JointModelHelicalTpl<Scalar,Options,axis> JointModel;
+  
+  static JointModel run()
+  {
+    JointModel jmodel(static_cast<Scalar>(0.0));
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
+
 template<typename Scalar, int Options, template<typename,int> class JointCollection>
 struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
 {

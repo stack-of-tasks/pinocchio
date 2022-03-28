@@ -38,6 +38,15 @@ namespace pinocchio
                ;
     }
 
+    // specialization for JointDataHelicalUnaligned
+    template<>
+    inline bp::class_<JointDataHelicalUnaligned>& expose_joint_data<JointDataHelicalUnaligned> (bp::class_<JointDataHelicalUnaligned> & cl)
+    {
+      return cl
+        .def(bp::init<Eigen::Vector3d> (bp::args("axis"), "Init JointDataHelicalUnaligned from an axis with x-y-z components"))
+               ;
+    }
+    
     template<>
     inline bp::class_<JointDataPlanar>& expose_joint_data<JointDataPlanar> (bp::class_<JointDataPlanar> & cl)
     {

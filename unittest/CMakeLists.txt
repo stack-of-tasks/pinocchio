@@ -169,6 +169,7 @@ ADD_PINOCCHIO_UNIT_TEST(joint-translation)
 ADD_PINOCCHIO_UNIT_TEST(joint-generic)
 ADD_PINOCCHIO_UNIT_TEST(joint-composite)
 ADD_PINOCCHIO_UNIT_TEST(joint-mimic)
+ADD_PINOCCHIO_UNIT_TEST(joint-helical)
 
 # Main corpus
 ADD_PINOCCHIO_UNIT_TEST(model)
