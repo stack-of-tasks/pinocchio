@@ -521,8 +521,11 @@ namespace pinocchio
     Matrix6x dv1_dq, da1_dq, da1_dv, da1_da;
     Matrix6x dv2_dq, da2_dq, da2_dv, da2_da;
     MatrixX dvc_dq, dac_dq, dac_dv, dac_da;
+    
+    /// \brief Default constructor
+    RigidConstraintDataTpl() {}
 
-    RigidConstraintDataTpl(const ContactModel & contact_model)
+    explicit RigidConstraintDataTpl(const ContactModel & contact_model)
     : contact_force(Force::Zero())
     , contact_placement_error(Motion::Zero())
     , contact1_velocity(Motion::Zero())
