@@ -33,6 +33,7 @@ namespace pinocchio
     {
       typedef container::aligned_vector<T> vector_type;
       typedef StdContainerFromPythonList<vector_type,NoProxy> FromPythonListConverter;
+      typedef T value_type;
       
       static void expose(const std::string & class_name,
                          const std::string & doc_string = "")
@@ -58,7 +59,10 @@ namespace pinocchio
           bp::class_<vector_type> cl(class_name.c_str(),doc_string.c_str());
           cl
           .def(StdAlignedVectorPythonVisitor())
+          
+          .def(bp::init<size_t, const value_type &>(bp::args("self","size","value"),"Constructor from a given size and a given value."))
           .def(bp::init<vector_type>(bp::args("self","other"),"Copy constructor"))
+          
           .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
                "Returns the aligned_vector as a Python list.")
           .def(visitor)
