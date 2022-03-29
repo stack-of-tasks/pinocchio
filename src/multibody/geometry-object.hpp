@@ -295,9 +295,9 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
     typedef ::hpp::fcl::CollisionObject Base;
     typedef SE3Tpl<double> SE3;
     
-    CollisionObject(const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
-                    const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
-                    bool compute_local_aabb = true)
+    explicit CollisionObject(const std::shared_ptr<::hpp::fcl::CollisionGeometry> & collision_geometry,
+                             const size_t geometryObjectIndex = (std::numeric_limits<size_t>::max)(),
+                             bool compute_local_aabb = true)
     : Base(collision_geometry,compute_local_aabb)
     , geometryObjectIndex(geometryObjectIndex)
     {}
