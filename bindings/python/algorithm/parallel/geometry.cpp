@@ -19,32 +19,32 @@ namespace pinocchio
   
     typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
   
-    static bool computeCollisions_proxy(const size_t num_threads,
-                                        const GeometryModel & geom_model,
-                                        GeometryData & geom_data,
-                                        const bool stopAtFirstCollision = false)
+    static bool computeCollisionsInParallel_proxy(const size_t num_threads,
+                                                  const GeometryModel & geom_model,
+                                                  GeometryData & geom_data,
+                                                  const bool stopAtFirstCollision = false)
     {
-      return computeCollisions(num_threads, geom_model, geom_data, stopAtFirstCollision);
+      return computeCollisionsInParallel(num_threads, geom_model, geom_data, stopAtFirstCollision);
     }
   
-    static bool computeCollisions_full_proxy(const size_t num_threads,
-                                             const Model & model,
-                                             Data & data,
-                                             const GeometryModel & geom_model,
-                                             GeometryData & geom_data,
-                                             const Eigen::VectorXd & q,
-                                             const bool stopAtFirstCollision = false)
+    static bool computeCollisionsInParallel_full_proxy(const size_t num_threads,
+                                                       const Model & model,
+                                                       Data & data,
+                                                       const GeometryModel & geom_model,
+                                                       GeometryData & geom_data,
+                                                       const Eigen::VectorXd & q,
+                                                       const bool stopAtFirstCollision = false)
     {
-      return computeCollisions(num_threads, model, data, geom_model, geom_data, q, stopAtFirstCollision);
+      return computeCollisionsInParallel(num_threads, model, data, geom_model, geom_data, q, stopAtFirstCollision);
     }
   
-    static VectorXb computeCollisions_pool_proxy(const int num_thread, GeometryPool & pool,
-                                                 const Eigen::MatrixXd & q,
-                                                 bool stopAtFirstCollisionInConfiguration = false,
-                                                 bool stopAtFirstCollisionInBatch = false)
+    static VectorXb computeCollisionsInParallel_pool_proxy(const int num_thread, GeometryPool & pool,
+                                                           const Eigen::MatrixXd & q,
+                                                           bool stopAtFirstCollisionInConfiguration = false,
+                                                           bool stopAtFirstCollisionInBatch = false)
     {
       VectorXb res(q.cols());
-      computeCollisions(num_thread,pool,q,res,stopAtFirstCollisionInConfiguration,stopAtFirstCollisionInBatch);
+      computeCollisionsInParallel(num_thread,pool,q,res,stopAtFirstCollisionInConfiguration,stopAtFirstCollisionInBatch);
       return res;
     }
   
@@ -54,8 +54,8 @@ namespace pinocchio
       
       using namespace Eigen;
       
-      bp::def("computeCollisions",
-              computeCollisions_proxy,
+      bp::def("computeCollisionsInParallel",
+              computeCollisionsInParallel_proxy,
               (bp::arg("num_thread"),bp::arg("geometry_model"),bp::arg("geometry_data"),bp::arg("stop_at_first_collision") = false),
               "Evaluates in parallel the collisions for a single data and returns the result.\n\n"
               "Parameters:\n"
@@ -64,8 +64,8 @@ namespace pinocchio
               "\tgeometry_data: the geometry data\n"
               "\tstop_at_first_collision: if set to true, stops when encountering the first collision.\n");
       
-      bp::def("computeCollisions",
-              computeCollisions_full_proxy,
+      bp::def("computeCollisionsInParallel",
+              computeCollisionsInParallel_full_proxy,
               (bp::arg("num_thread"),bp::arg("model"),bp::arg("data"),bp::arg("geometry_model"),bp::arg("geometry_data"),bp::arg("q"),bp::arg("stop_at_first_collision") = false),
               "Evaluates in parallel the collisions for a single data and returns the result.\n\n"
               "Parameters:\n"
@@ -77,8 +77,8 @@ namespace pinocchio
               "\tq: the joint configuration vector (size model.nq)\n"
               "\tstop_at_first_collision: if set to true, stops when encountering the first collision.\n");
       
-      bp::def("computeCollisions",
-              computeCollisions_pool_proxy,
+      bp::def("computeCollisionsInParallel",
+              computeCollisionsInParallel_pool_proxy,
               (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("stop_at_first_collision_in_configuration") = false,bp::arg("stop_at_first_collision_in_batch") = false),
               "Evaluates in parallel the collisions and returns the result.\n\n"
               "Parameters:\n"

@@ -12,10 +12,10 @@
 namespace pinocchio
 {
 
-  inline bool computeCollisions(const size_t num_threads,
-                                const GeometryModel & geom_model,
-                                GeometryData & geom_data,
-                                const bool stopAtFirstCollision = false)
+  inline bool computeCollisionsInParallel(const size_t num_threads,
+                                          const GeometryModel & geom_model,
+                                          GeometryData & geom_data,
+                                          const bool stopAtFirstCollision = false)
   {
     bool is_colliding = false;
     
@@ -45,25 +45,25 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  bool computeCollisions(const size_t num_threads,
-                         const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                         const GeometryModel & geom_model,
-                         GeometryData & geom_data,
-                         const Eigen::MatrixBase<ConfigVectorType> & q,
-                         const bool stopAtFirstCollision = false)
+  bool computeCollisionsInParallel(const size_t num_threads,
+                                   const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const GeometryModel & geom_model,
+                                   GeometryData & geom_data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const bool stopAtFirstCollision = false)
   {
     updateGeometryPlacements(model, data, geom_model, geom_data, q);
-    return computeCollisions(num_threads, geom_model, geom_data, stopAtFirstCollision);
+    return computeCollisionsInParallel(num_threads, geom_model, geom_data, stopAtFirstCollision);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename CollisionVectorResult>
-  void computeCollisions(const size_t num_threads,
-                         GeometryPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
-                         const Eigen::MatrixBase<ConfigVectorPool> & q,
-                         const Eigen::MatrixBase<CollisionVectorResult> & res,
-                         const bool stopAtFirstCollisionInConfiguration = false,
-                         const bool stopAtFirstCollisionInBatch = false)
+  void computeCollisionsInParallel(const size_t num_threads,
+                                   GeometryPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
+                                   const Eigen::MatrixBase<ConfigVectorPool> & q,
+                                   const Eigen::MatrixBase<CollisionVectorResult> & res,
+                                   const bool stopAtFirstCollisionInConfiguration = false,
+                                   const bool stopAtFirstCollisionInBatch = false)
   {
     typedef GeometryPoolTpl<Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;

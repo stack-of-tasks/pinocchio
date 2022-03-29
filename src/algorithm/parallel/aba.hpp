@@ -28,12 +28,12 @@ namespace pinocchio
   /// \param[out] a The joint torque vector (dim model.nv x batch_size).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename TangentVectorPool1, typename TangentVectorPool2, typename TangentVectorPool3>
-  void aba(const size_t num_threads,
-           ModelPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
-           const Eigen::MatrixBase<ConfigVectorPool> & q,
-           const Eigen::MatrixBase<TangentVectorPool1> & v,
-           const Eigen::MatrixBase<TangentVectorPool2> & tau,
-           const Eigen::MatrixBase<TangentVectorPool3> & a)
+  void abaInParallel(const size_t num_threads,
+                     ModelPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
+                     const Eigen::MatrixBase<ConfigVectorPool> & q,
+                     const Eigen::MatrixBase<TangentVectorPool1> & v,
+                     const Eigen::MatrixBase<TangentVectorPool2> & tau,
+                     const Eigen::MatrixBase<TangentVectorPool3> & a)
   {
     typedef ModelPoolTpl<Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;

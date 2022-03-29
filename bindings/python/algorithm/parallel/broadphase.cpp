@@ -28,22 +28,22 @@ namespace pinocchio
     typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
   
     template<typename BroadPhaseManager>
-    VectorXb computeCollisions_1(const size_t num_threads,
-                                 BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
-                                 const Eigen::MatrixBase<Eigen::MatrixXd> & q,
-                                 const bool stopAtFirstCollisionInConfiguration = false,
-                                 const bool stopAtFirstCollisionInBatch = false)
+    VectorXb computeCollisionsInParallel_1(const size_t num_threads,
+                                           BroadPhaseManagerPoolBase<BroadPhaseManager,double> & pool,
+                                           const Eigen::MatrixBase<Eigen::MatrixXd> & q,
+                                           const bool stopAtFirstCollisionInConfiguration = false,
+                                           const bool stopAtFirstCollisionInBatch = false)
     {
       VectorXb res(q.cols());
-      computeCollisions(num_threads, pool, q, res, stopAtFirstCollisionInConfiguration, stopAtFirstCollisionInBatch);
+      computeCollisionsInParallel(num_threads, pool, q, res, stopAtFirstCollisionInConfiguration, stopAtFirstCollisionInBatch);
       return res;
     }
   
     template<typename BroadPhaseManager>
     void exposeCase()
     {
-      bp::def("computeCollisions",
-              computeCollisions_1<BroadPhaseManager>,
+      bp::def("computeCollisionsInParallel",
+              computeCollisionsInParallel_1<BroadPhaseManager>,
               (bp::arg("num_thread"),bp::arg("pool"),bp::arg("q"),bp::arg("stop_at_first_collision_in_configuration") = false, bp::arg("stop_at_first_collision_in_batch") = false),
               "Evaluates in parallel the batch of configurations and returns the result.\n\n"
               "Parameters:\n"

@@ -125,7 +125,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     timer.tic();
     SMOOTH(NBT)
     {
-      rnea(num_threads,pool,qs,vs,as,res);
+      rneaInParallel(num_threads,pool,qs,vs,as,res);
     }
     double elapsed = timer.toc()/(NBT*BATCH_SIZE);
     std::stringstream ss;
@@ -151,7 +151,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     timer.tic();
     SMOOTH(NBT)
     {
-      aba(num_threads,pool,qs,vs,taus,res);
+      abaInParallel(num_threads,pool,qs,vs,taus,res);
     }
     double elapsed = timer.toc()/(NBT*BATCH_SIZE);
     std::stringstream ss;
@@ -177,7 +177,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     timer.tic();
     SMOOTH((size_t)NBT_COLLISION)
     {
-      computeCollisions(num_threads,model,data,geometry_model,geometry_data,q_vec[_smooth]);
+      computeCollisionsInParallel(num_threads,model,data,geometry_model,geometry_data,q_vec[_smooth]);
     }
     double elapsed = timer.toc()/(NBT_COLLISION);
     std::stringstream ss;
@@ -206,7 +206,7 @@ int main(int /*argc*/, const char ** /*argv*/)
     timer.tic();
     SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
     {
-      computeCollisions(num_threads,geometry_pool,qs,collision_res);
+      computeCollisionsInParallel(num_threads,geometry_pool,qs,collision_res);
     }
     double elapsed = timer.toc()/(NBT_COLLISION);
     std::stringstream ss;
@@ -236,7 +236,7 @@ int main(int /*argc*/, const char ** /*argv*/)
       timer.tic();
       SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
       {
-        computeCollisions(num_threads,pool,qs,collision_res);
+        computeCollisionsInParallel(num_threads,pool,qs,collision_res);
       }
       double elapsed = timer.toc()/(NBT_COLLISION);
       std::stringstream ss;
@@ -267,7 +267,7 @@ int main(int /*argc*/, const char ** /*argv*/)
       timer.tic();
       SMOOTH((size_t)(NBT_COLLISION/BATCH_SIZE))
       {
-        computeCollisions(num_threads,pool,qs,collision_res);
+        computeCollisionsInParallel(num_threads,pool,qs,collision_res);
       }
       double elapsed = timer.toc()/(NBT_COLLISION);
       std::stringstream ss;

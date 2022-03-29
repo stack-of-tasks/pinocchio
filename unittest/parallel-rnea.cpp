@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_rnea)
   }
   
   ModelPool pool(model,num_thread);
-  rnea(num_thread,pool,q,v,a,tau);
+  rneaInParallel(num_thread,pool,q,v,a,tau);
   
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
   {

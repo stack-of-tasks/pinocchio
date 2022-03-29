@@ -16,14 +16,14 @@ namespace pinocchio
                                const Eigen::MatrixXd & q, const Eigen::MatrixXd & v, const Eigen::MatrixXd & tau,
                                Eigen::Ref<Eigen::MatrixXd> a)
     {
-      aba(num_thread,pool,q,v,tau,a);
+      abaInParallel(num_thread,pool,q,v,tau,a);
     }
   
     static Eigen::MatrixXd aba_proxy(const int num_thread, ModelPool & pool,
                                       const Eigen::MatrixXd & q, const Eigen::MatrixXd & v, const Eigen::MatrixXd & tau)
     {
       Eigen::MatrixXd a(v.rows(),v.cols());
-      aba(num_thread,pool,q,v,tau,a);
+      abaInParallel(num_thread,pool,q,v,tau,a);
       return a;
     }
   
@@ -33,9 +33,9 @@ namespace pinocchio
       
       using namespace Eigen;
       
-      bp::def("aba",
+      bp::def("abaInParallel",
               aba_proxy,
-              bp::args("num_thread","pool","q","v","a"),
+              bp::args("num_thread","pool","q","v","tau"),
               "Computes in parallel the ABA and returns the result.\n\n"
               "Parameters:\n"
               "\tnum_thread: number of threads used for the computation\n"
@@ -44,9 +44,9 @@ namespace pinocchio
               "\tv: the joint velocity vector (size model.nv x batch_size)\n"
               "\ttau: the joint torque vector (size model.nv x batch_size)\n");
       
-      bp::def("aba",
+      bp::def("abaInParallel",
               aba_proxy_res,
-              bp::args("num_thread","pool","q","v","a","tau"),
+              bp::args("num_thread","pool","q","v","tau","a"),
               "Computes in parallel the ABA, store the result in a.\n\n"
               "Parameters:\n"
               "\tnum_thread: number of threads used for the computation\n"

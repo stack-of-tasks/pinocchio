@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/bindings/python/algorithm/algorithms.hpp"
@@ -16,14 +16,14 @@ namespace pinocchio
                                const Eigen::MatrixXd & q, const Eigen::MatrixXd & v, const Eigen::MatrixXd & a,
                                Eigen::Ref<Eigen::MatrixXd> tau)
     {
-      rnea(num_thread,pool,q,v,a,tau);
+      rneaInParallel(num_thread,pool,q,v,a,tau);
     }
   
     static Eigen::MatrixXd rnea_proxy(const int num_thread, ModelPool & pool,
                                       const Eigen::MatrixXd & q, const Eigen::MatrixXd & v, const Eigen::MatrixXd & a)
     {
       Eigen::MatrixXd tau(v.rows(),v.cols());
-      rnea(num_thread,pool,q,v,a,tau);
+      rneaInParallel(num_thread,pool,q,v,a,tau);
       return tau;
     }
   
@@ -33,7 +33,7 @@ namespace pinocchio
       
       using namespace Eigen;
       
-      bp::def("rnea",
+      bp::def("rneaInParallel",
               rnea_proxy,
               bp::args("num_thread","pool","q","v","a"),
               "Computes in parallel the RNEA and returns the result.\n\n"
@@ -44,7 +44,7 @@ namespace pinocchio
               "\tv: the joint velocity vector (size model.nv x batch_size)\n"
               "\ta: the joint acceleration vector (size model.nv x batch_size)\n");
       
-      bp::def("rnea",
+      bp::def("rneaInParallel",
               rnea_proxy_res,
               bp::args("num_thread","pool","q","v","a","tau"),
               "Computes in parallel the RNEA and stores the result in tau.\n\n"

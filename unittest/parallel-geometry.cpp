@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
     }
     
     // Do collision checking
-    computeCollisions(num_thread, pool, qs, res_all_before, false);
+    computeCollisionsInParallel(num_thread, pool, qs, res_all_before, false);
     BOOST_CHECK(res_all_before == res_all_before_ref);
   }
   
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
     }
     
     // Do collision checking
-    computeCollisions(num_thread, pool, qs, res_all_intermediate, false);
+    computeCollisionsInParallel(num_thread, pool, qs, res_all_intermediate, false);
     BOOST_CHECK(res_all_intermediate == res_all_intermediate_ref);
   }
   
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(test_broadphase_pool)
     }
     
     // Do collision checking
-    computeCollisions(num_thread, pool, qs, res_all_final, false);
+    computeCollisionsInParallel(num_thread, pool, qs, res_all_final, false);
     BOOST_CHECK(res_all_final == res_all_final_ref);
   }
   
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos_memory)
 
   typedef Eigen::Matrix<bool,Eigen::Dynamic,1> VectorXb;
   VectorXb res(batch_size);
-  computeCollisions(num_thread,broadphase_manager_pool,q,res);
+  computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res);
 }
 
 BOOST_AUTO_TEST_CASE(test_pool_talos)
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   {
     VectorXb res(batch_size); res.fill(false);
     GeometryPool geometry_pool(model,geometry_model,num_thread);
-    computeCollisions(num_thread,geometry_pool,q,res);
+    computeCollisionsInParallel(num_thread,geometry_pool,q,res);
 
     BOOST_CHECK(res == res_ref);
   }
@@ -325,10 +325,10 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
 
     BroadPhaseManagerPool broadphase_manager_pool(model,geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res1);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res3,true,true);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res4,false,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res1);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res2,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res3,true,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res4,false,true);
 
     BOOST_CHECK(res1 == res_ref);
     BOOST_CHECK(res2 == res_ref);
@@ -348,10 +348,10 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
 
     BroadPhaseManagerPool broadphase_manager_pool(model,geometry_model,num_thread);
     VectorXb res1(batch_size), res2(batch_size), res3(batch_size), res4(batch_size);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res1);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res2,true);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res3,true,true);
-    computeCollisions(num_thread,broadphase_manager_pool,q,res4,false,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res1);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res2,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res3,true,true);
+    computeCollisionsInParallel(num_thread,broadphase_manager_pool,q,res4,false,true);
 
     BOOST_CHECK(res1 == res_ref);
     BOOST_CHECK(res2 == res_ref);

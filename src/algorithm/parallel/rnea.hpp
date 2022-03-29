@@ -28,12 +28,12 @@ namespace pinocchio
   /// \param[out] tau The joint torque vector (dim model.nv x batch_size).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorPool, typename TangentVectorPool1, typename TangentVectorPool2, typename TangentVectorPool3>
-  void rnea(const size_t num_threads,
-            ModelPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
-            const Eigen::MatrixBase<ConfigVectorPool> & q,
-            const Eigen::MatrixBase<TangentVectorPool1> & v,
-            const Eigen::MatrixBase<TangentVectorPool2> & a,
-            const Eigen::MatrixBase<TangentVectorPool3> & tau)
+  void rneaInParallel(const size_t num_threads,
+                      ModelPoolTpl<Scalar,Options,JointCollectionTpl> & pool,
+                      const Eigen::MatrixBase<ConfigVectorPool> & q,
+                      const Eigen::MatrixBase<TangentVectorPool1> & v,
+                      const Eigen::MatrixBase<TangentVectorPool2> & a,
+                      const Eigen::MatrixBase<TangentVectorPool3> & tau)
   {
     typedef ModelPoolTpl<Scalar,Options,JointCollectionTpl> Pool;
     typedef typename Pool::Model Model;
