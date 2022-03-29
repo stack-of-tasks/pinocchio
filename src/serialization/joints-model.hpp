@@ -113,7 +113,7 @@ namespace boost
     {
       typedef pinocchio::JointModelHelicalTpl<Scalar,Options,axis> JointType;
       fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
-      ar & make_nvp("h",joint.m_h);
+      ar & make_nvp("m_pitch",joint.m_pitch);
     }
 
     template <class Archive, typename Scalar, int Options>
@@ -124,7 +124,7 @@ namespace boost
       typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> JointType;
       fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
       ar & make_nvp("axis",joint.axis);
-      ar & make_nvp("h",joint.m_h);
+      ar & make_nvp("m_pitch",joint.m_pitch);
     }
     
     template <class Archive, typename Scalar, int Options>
