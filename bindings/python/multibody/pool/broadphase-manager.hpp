@@ -84,6 +84,12 @@ namespace pinocchio
         .def("check",&BroadPhaseManagerPool::check,
              bp::arg("self"),
              "Check whether the current pool is valid.")
+        
+        .def("asGeometryPool",
+             +[](BroadPhaseManagerPool & self) -> Base & { return static_cast<Base&>(static_cast<Base&>(self)); },
+             bp::arg("self"),
+             "Cast the object as GeometryPool (equivalent to a C++ static_cast).",
+             bp::return_self<>())
         ;
       }
       
