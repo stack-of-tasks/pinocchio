@@ -750,7 +750,10 @@ namespace pinocchio
             RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
             RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
             const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
-            
+            a_tmp.linear() = cdata.oMc2.rotation() * cdata.contact2_velocity.linear();
+            typename SE3::Matrix3 vc2_cross_in_c1, vc2_cross_in_world;
+            skew(a_tmp.linear(), vc2_cross_in_world);
+            vc2_cross_in_c1.noalias() = cdata.oMc1.rotation().transpose() * vc2_cross_in_world;
             // d./dq
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
@@ -758,8 +761,16 @@ namespace pinocchio
               
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
               contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
-              contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kp * (cdata.oMc1.rotation().transpose()*J_col.angular()).cross(cdata.contact_placement_error.linear());
-              contact_dac_dq.col(row_id) += cmodel.corrector.Kp * contact_dac_da.col(row_id);
+              if(joint2_indexes[row_id])
+              {
+                contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kd * vc2_cross_in_c1 * J_col.angular();
+              }
+              else
+              {
+                contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kd * vc2_cross_in_c1 * J_col.angular();
+              }
+              //contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kp * (cdata.oMc1.rotation().transpose()*J_col.angular()).cross(cdata.contact_placement_error.linear());
+              //contact_dac_dq.col(row_id) += cmodel.corrector.Kp * contact_dac_da.col(row_id);
             }
             // d./dv
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
