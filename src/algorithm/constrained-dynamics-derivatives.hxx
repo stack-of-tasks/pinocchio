@@ -758,9 +758,7 @@ namespace pinocchio
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
               const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
-              contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
               if(joint2_indexes[row_id])
               {
                 contact_dac_dq.col(row_id).noalias() += vc2_cross_in_c1 * J_col.angular();
@@ -771,6 +769,7 @@ namespace pinocchio
               }
             }
             contact_dac_dq += cmodel.corrector.Kp * contact_dac_da;
+            contact_dac_dq += cmodel.corrector.Kd * contact_dvc_dq;
             // d./dv
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
