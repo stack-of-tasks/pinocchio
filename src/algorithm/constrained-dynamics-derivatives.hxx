@@ -768,14 +768,9 @@ namespace pinocchio
                 contact_dac_dq.col(row_id).noalias() -= vc2_cross_in_c1 * J_col.angular();
               }
             }
-            contact_dac_dq += cmodel.corrector.Kp * contact_dac_da;
-            contact_dac_dq += cmodel.corrector.Kd * contact_dvc_dq;
-            // d./dv
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
-            {
-              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              contact_dac_dv.col(row_id).noalias() += cmodel.corrector.Kd * contact_dac_da.col(row_id);
-            }
+            contact_dac_dq.noalias() += cmodel.corrector.Kp * contact_dac_da;
+            contact_dac_dq.noalias() += cmodel.corrector.Kd * contact_dvc_dq;
+            contact_dac_dv.noalias() += cmodel.corrector.Kd * contact_dac_da;
             const int colRef = nv(model.joints[cmodel.joint1_id])+idx_v(model.joints[cmodel.joint1_id])-1;
             for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
             {
