@@ -750,7 +750,7 @@ namespace pinocchio
             RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
             RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
             const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
-            a_tmp.linear() = cdata.oMc2.rotation() * cdata.contact2_velocity.linear();
+            a_tmp.linear() = cmodel.corrector.Kd * cdata.oMc2.rotation() * cdata.contact2_velocity.linear();
             typename SE3::Matrix3 vc2_cross_in_c1, vc2_cross_in_world;
             skew(a_tmp.linear(), vc2_cross_in_world);
             vc2_cross_in_c1.noalias() = cdata.oMc1.rotation().transpose() * vc2_cross_in_world;
@@ -763,20 +763,27 @@ namespace pinocchio
               contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
               if(joint2_indexes[row_id])
               {
-                contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kd * vc2_cross_in_c1 * J_col.angular();
+                contact_dac_dq.col(row_id).noalias() += vc2_cross_in_c1 * J_col.angular();
               }
               else
               {
-                contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kd * vc2_cross_in_c1 * J_col.angular();
+                contact_dac_dq.col(row_id).noalias() -= vc2_cross_in_c1 * J_col.angular();
               }
-              //contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kp * (cdata.oMc1.rotation().transpose()*J_col.angular()).cross(cdata.contact_placement_error.linear());
-              //contact_dac_dq.col(row_id) += cmodel.corrector.Kp * contact_dac_da.col(row_id);
             }
+            contact_dac_dq += cmodel.corrector.Kp * contact_dac_da;
             // d./dv
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
               const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
               contact_dac_dv.col(row_id).noalias() += cmodel.corrector.Kd * contact_dac_da.col(row_id);
+            }
+            const int colRef = nv(model.joints[cmodel.joint1_id])+idx_v(model.joints[cmodel.joint1_id])-1;
+            for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+            {
+              typedef typename Data::Matrix6x::ColXpr ColType;
+              const MotionRef<ColType> J_col(data.J.col(j));
+              a_tmp.angular() = cdata.oMc1.rotation().transpose() * J_col.angular();
+              contact_dac_dq.col(j).noalias() += cmodel.corrector.Kp * cdata.contact_placement_error.linear().cross(a_tmp.angular());
             }
             break;
           }
