@@ -467,7 +467,7 @@ namespace pinocchio
 
             Eigen::DenseIndex k = colwise_sparsity.size()-1;
             Eigen::DenseIndex col_id;
-            while(true && colwise_sparsity.size() > 0)
+            while(cmodel.reference_frame==LOCAL && colwise_sparsity.size() > 0)
             {
               if(k >= 0)
               {
