@@ -27,6 +27,9 @@
 
 #endif //PINOCCHIO_WITH_SDFORMAT
 
+#define KP 10
+#define KD 10
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 using namespace Eigen;
@@ -319,8 +322,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_fd)
 
   RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
-  ci_LF.corrector.Kp = 10.;
-  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
+  ci_LF.corrector.Kp = KP;
+  ci_LF.corrector.Kd = KD;
   
   constraint_models.push_back(ci_LF); constraint_data.push_back(RigidConstraintData(ci_LF));
 
@@ -437,15 +440,15 @@ BOOST_AUTO_TEST_CASE(test_correction_6D)
   RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
   ci_RF.joint2_placement.setRandom();
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   constraint_models.push_back(ci_RF);
   
   RigidConstraintModel ci_LF(CONTACT_3D,model,LF_id,LOCAL);
   ci_LF.joint1_placement.setRandom();
   ci_LF.joint2_placement.setRandom();
-  ci_LF.corrector.Kp = 10.;
-  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
+  ci_LF.corrector.Kp = KP;
+  ci_LF.corrector.Kd = KD;
   constraint_models.push_back(ci_LF);
   
   Eigen::DenseIndex constraint_dim = 0;
@@ -591,8 +594,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd)
 
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);  
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   constraint_models.push_back(ci_RF); constraint_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -697,8 +700,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_fd_prox)
 
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
   ci_RF.joint1_placement.setRandom();
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);  
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   constraint_models.push_back(ci_RF); constraint_data.push_back(RigidConstraintData(ci_RF));
 
   Eigen::DenseIndex constraint_dim = 0;
@@ -809,8 +812,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_loop_closure_3D_
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data;
 
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LF_id,LOCAL);
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   ci_RF.joint1_placement.setRandom();
   forwardKinematics(model, data, q);
   //data.oMi[LF_id] * ci_RF.joint2_placement = data.oMi[RF_id] * ci_RF.joint1_placement;
@@ -934,8 +937,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
 
   RigidConstraintModel ci_closure (CONTACT_3D, model,  0, SE3::Identity(),
                                 RA_id, SE3::Random(), LOCAL);
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 2. * sqrt(ci_closure.corrector.Kp);  
+  ci_closure.corrector.Kp = KP;
+  ci_closure.corrector.Kd = KD;
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
@@ -1064,8 +1067,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_
 
   RigidConstraintModel ci_closure(CONTACT_6D, model, 0, SE3::Identity(),
                                   RA_id, SE3::Identity(), LOCAL);
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 2. * sqrt(ci_closure.corrector.Kp);  
+  ci_closure.corrector.Kp = KP;
+  ci_closure.corrector.Kd = KD;
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
   constraint_data_fd.push_back(RigidConstraintData(ci_closure));
@@ -1216,8 +1219,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_6D_loop_closure_
   // Add loop closure constraint
   RigidConstraintModel ci_closure(CONTACT_6D, model, LA_id, SE3::Random(),
                                   RA_id, SE3::Random(), LOCAL);
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 2. * sqrt(ci_closure.corrector.Kp);
+  ci_closure.corrector.Kp = KP;
+  ci_closure.corrector.Kd = KD;
   
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
@@ -1371,9 +1374,9 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORL_ALIGNED_6D_
   const Model::JointIndex LA_id = model.getJointId(LA);
 
   RigidConstraintModel ci_closure (CONTACT_6D, model, LA_id, SE3::Random(),
-                                RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 2. * sqrt(ci_closure.corrector.Kp);  
+                                   RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
+  ci_closure.corrector.Kp = 0.;
+  ci_closure.corrector.Kd = 0;
 
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
@@ -1489,8 +1492,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_3D_loop_closure_
 
   RigidConstraintModel ci_closure (CONTACT_3D, model, LA_id, SE3::Random(),
                                    RA_id, SE3::Random(), LOCAL);
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 10.;
+  ci_closure.corrector.Kp = KP;
+  ci_closure.corrector.Kd = KD;
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
   // End of Loopo Closure Constraint
@@ -1604,8 +1607,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D
   RigidConstraintModel ci_closure (CONTACT_3D, model, LA_id, SE3::Random(),
                                 RA_id, SE3::Random(), LOCAL_WORLD_ALIGNED);
 
-  ci_closure.corrector.Kp = 10.;
-  ci_closure.corrector.Kd = 2. * sqrt(ci_closure.corrector.Kp);
+  ci_closure.corrector.Kp = KP;
+  ci_closure.corrector.Kd = KD;
   
   constraint_models.push_back(ci_closure);
   constraint_data.push_back(RigidConstraintData(ci_closure));
@@ -1713,8 +1716,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_6D
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data;
 
   RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
-  ci_LF.corrector.Kp = 10.;
-  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
+  ci_LF.corrector.Kp = KP;
+  ci_LF.corrector.Kd = KD;
   
   ci_LF.joint1_placement.setRandom();
   constraint_models.push_back(ci_LF); constraint_data.push_back(RigidConstraintData(ci_LF));
@@ -1818,8 +1821,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_LOCAL_WORLD_ALIGNED_3D
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data;
 
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL_WORLD_ALIGNED);
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);  
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   ci_RF.joint1_placement.setRandom();
   constraint_models.push_back(ci_RF); constraint_data.push_back(RigidConstraintData(ci_RF));
 
@@ -1926,24 +1929,24 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_mix_fd)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data;
 
   RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL_WORLD_ALIGNED);
-  ci_LF.corrector.Kp = 10.;
-  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);  
+  ci_LF.corrector.Kp = KP;
+  ci_LF.corrector.Kd = KD;
   ci_LF.joint1_placement.setRandom();
   constraint_models.push_back(ci_LF); constraint_data.push_back(RigidConstraintData(ci_LF));
   RigidConstraintModel ci_RF(CONTACT_6D,model,RF_id,LOCAL);
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);  
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   ci_RF.joint1_placement.setRandom();
   constraint_models.push_back(ci_RF); constraint_data.push_back(RigidConstraintData(ci_RF));
   
   RigidConstraintModel ci_LH(CONTACT_3D,model,LH_id,LOCAL_WORLD_ALIGNED);
-  ci_LH.corrector.Kp = 10.;
-  ci_LH.corrector.Kd = 2. * sqrt(ci_LH.corrector.Kp);
+  ci_LH.corrector.Kp = KP;
+  ci_LH.corrector.Kd = KD;
   ci_LH.joint1_placement.setRandom();
   constraint_models.push_back(ci_LH); constraint_data.push_back(RigidConstraintData(ci_LH));
   RigidConstraintModel ci_RH(CONTACT_3D,model,RH_id,LOCAL);
-  ci_RH.corrector.Kp = 10.;
-  ci_RH.corrector.Kd = 2. * sqrt(ci_RH.corrector.Kp);  
+  ci_RH.corrector.Kp = KP;
+  ci_RH.corrector.Kd = KD;
   ci_RH.joint1_placement.setRandom();
   constraint_models.push_back(ci_RH); constraint_data.push_back(RigidConstraintData(ci_RH));
 
@@ -2102,8 +2105,8 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_loop_closure_kinematic
 
   RigidConstraintModel ci_RH(CONTACT_6D,model,RH_id,SE3::Random(),
                              LH_id,SE3::Random(),LOCAL);
-  ci_RH.corrector.Kp = 10.;
-  ci_RH.corrector.Kd = 2. * sqrt(ci_RH.corrector.Kp);  
+  ci_RH.corrector.Kp = KP;
+  ci_RH.corrector.Kd = KD;
   
   constraint_models.push_back(ci_RH); constraint_data.push_back(RigidConstraintData(ci_RH));
 
@@ -2225,10 +2228,10 @@ BOOST_AUTO_TEST_CASE(test_constraint_dynamics_derivatives_dirty_data)
   RigidConstraintModel ci_LF(CONTACT_6D,model,LF_id,LOCAL);
   RigidConstraintModel ci_RF(CONTACT_3D,model,RF_id,LOCAL);
 
-  ci_LF.corrector.Kp = 10.;
-  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
-  ci_RF.corrector.Kp = 10.;
-  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);  
+  ci_LF.corrector.Kp = KP;
+  ci_LF.corrector.Kd = KD;
+  ci_RF.corrector.Kp = KP;
+  ci_RF.corrector.Kd = KD;
   constraint_models.push_back(ci_LF); constraint_data.push_back(RigidConstraintData(ci_LF));
   constraint_models.push_back(ci_RF); constraint_data.push_back(RigidConstraintData(ci_RF));
 
