@@ -713,7 +713,7 @@ namespace pinocchio
       }
       
       // Add the contribution of the corrector
-      if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)))
+      if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)) or check_expression_if_real<Scalar>(cmodel.corrector.Kd != Scalar(0)))
       {
         Jlog6(cdata.c1Mc2.inverse(),Jlog);
         
@@ -726,7 +726,7 @@ namespace pinocchio
             RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
             RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
             const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
-            
+            // contact_dac_dq += cmodel.corrector.Kd * contact_dvc_dq;
             // d./dq
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
@@ -734,7 +734,7 @@ namespace pinocchio
               contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
               contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kp * Jlog * contact_dac_da.col(row_id);
             }
-            
+
             // d./dv
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
