@@ -86,11 +86,20 @@ namespace pinocchio
              "Check whether the current pool is valid.")
         
         .def("asGeometryPool",
-             +[](BroadPhaseManagerPool & self) -> Base & { return static_cast<Base&>(static_cast<Base&>(self)); },
+             downcast,
              bp::arg("self"),
              "Cast the object as GeometryPool (equivalent to a C++ static_cast).",
              bp::return_self<>())
         ;
+      }
+      
+      static PyObject* downcast(BroadPhaseManagerPool & self)
+      {
+        bp::type_info type = bp::type_id<Base>();
+        const bp::converter::registration* registration =
+            bp::converter::registry::query(type);
+        
+        return registration->to_python(static_cast<Base*>(&self));
       }
       
       static void expose()
