@@ -256,8 +256,12 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   GeometryObject clone() const
   {
     GeometryObject res(*this);
+    
+#ifdef PINOCCHIO_WITH_HPP_FCL
     if(geometry)
       res.geometry = CollisionGeometryPtr(geometry->clone());
+#endif
+    
     return res;
   }
   

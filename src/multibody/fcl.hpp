@@ -80,16 +80,16 @@ namespace pinocchio
 
   }
 
+#else
+
+  namespace fcl = hpp::fcl;
+
   inline bool operator==(const fcl::CollisionObject & lhs, const fcl::CollisionObject & rhs)
   {
     return lhs.collisionGeometry() == rhs.collisionGeometry()
             && lhs.getAABB().min_ == rhs.getAABB().min_
             && lhs.getAABB().max_ == rhs.getAABB().max_;
   }
-
-#else
-
-  namespace fcl = hpp::fcl;
 
 #endif // PINOCCHIO_WITH_HPP_FCL
 
