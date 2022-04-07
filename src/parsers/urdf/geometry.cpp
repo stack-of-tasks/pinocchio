@@ -221,7 +221,7 @@ namespace pinocchio
         
         if (!geometry)
         {
-          throw std::invalid_argument("The polyhedron retrived is empty");
+          throw std::invalid_argument("The polyhedron retrieved is empty");
         }
 
         return geometry;
@@ -408,7 +408,7 @@ namespace pinocchio
 
       /**
        * @brief      Recursive procedure for reading the URDF tree, looking for geometries
-       *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
+       *             This function fill the geometric model with geometry objects retrieved from the URDF tree
        *
        * @param[in]  tree           The URDF kinematic tree
        * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries
