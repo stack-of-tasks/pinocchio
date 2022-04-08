@@ -4,9 +4,10 @@ channels:
   - nodefaults
 dependencies:
   - eigen
-  - hpp-fcl
+  - hpp-fcl=1.8.0
   - numpy
   - boost
   - eigenpy
   - urdfdom
   - python
+  - mamba
