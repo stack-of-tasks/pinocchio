@@ -165,9 +165,18 @@ namespace pinocchio
           bool convex = tree.isMeshConvex (linkName, geomName);
           if (convex) {
             bvh->buildConvexRepresentation (false);
+#if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh->convex;
-          } else
+#else
+            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
+#endif  // HPP_FCL_MAJOR_VERSION
+          } else {
+#if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh;
+#else
+            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
+#endif  // HPP_FCL_MAJOR_VERSION
+          }
 #else
           geometry = meshLoader->load (meshPath, scale);
 #endif
