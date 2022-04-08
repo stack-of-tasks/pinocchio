@@ -770,11 +770,6 @@ namespace pinocchio
     JointModelHelicalTpl() {}
 
     explicit JointModelHelicalTpl(const Scalar & h) : m_pitch(h) {}
-
-    JointModelHelicalTpl(const JointModelHelicalTpl & other)
-    {
-      m_pitch = other.m_pitch;
-    }
     
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
