@@ -285,6 +285,13 @@ namespace pinocchio
     /// \param[in] other GeometryData to copy
     ///
     GeometryData(const GeometryData & other);
+
+    ///
+    /// \brief Copy operator
+    ///
+    /// \param[in] other GeometryData to copy
+    ///
+    GeometryData& operator=(const GeometryData & other);
     
     /// \brief Empty constructor
     GeometryData() {};

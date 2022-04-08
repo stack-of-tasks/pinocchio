@@ -165,9 +165,18 @@ namespace pinocchio
           bool convex = tree.isMeshConvex (linkName, geomName);
           if (convex) {
             bvh->buildConvexRepresentation (false);
+#if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh->convex;
-          } else
+#else
+            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
+#endif  // HPP_FCL_MAJOR_VERSION
+          } else {
+#if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh;
+#else
+            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
+#endif  // HPP_FCL_MAJOR_VERSION
+          }
 #else
           geometry = meshLoader->load (meshPath, scale);
 #endif
@@ -221,7 +230,7 @@ namespace pinocchio
         
         if (!geometry)
         {
-          throw std::invalid_argument("The polyhedron retrived is empty");
+          throw std::invalid_argument("The polyhedron retrieved is empty");
         }
 
         return geometry;
@@ -408,7 +417,7 @@ namespace pinocchio
 
       /**
        * @brief      Recursive procedure for reading the URDF tree, looking for geometries
-       *             This function fill the geometric model whith geometry objects retrieved from the URDF tree
+       *             This function fill the geometric model with geometry objects retrieved from the URDF tree
        *
        * @param[in]  tree           The URDF kinematic tree
        * @param[in]  meshLoader     The FCL mesh loader to avoid duplications of already loaded geometries

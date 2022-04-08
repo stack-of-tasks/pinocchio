@@ -81,6 +81,28 @@ namespace pinocchio
   , outerObjects (other.outerObjects)
   {}
 
+  inline GeometryData& GeometryData::operator=(const GeometryData & other)
+  {
+    if (this != &other)
+    {
+      oMg = other.oMg;
+      activeCollisionPairs = other.activeCollisionPairs;
+#ifdef PINOCCHIO_WITH_HPP_FCL
+      distanceRequests = other.distanceRequests;
+      distanceResults = other.distanceResults;
+      collisionRequests = other.collisionRequests;
+      collisionResults = other.collisionResults;
+      radius = other.radius;
+      collisionPairIndex = other.collisionPairIndex;
+      collision_functors = other.collision_functors;
+      distance_functors = other.distance_functors;
+#endif // PINOCCHIO_WITH_HPP_FCL
+      innerObjects = other.innerObjects;
+      outerObjects = other.outerObjects;
+    }
+    return *this;
+  }
+
   inline GeometryData::~GeometryData() {}
 
   template<typename S2, int O2, template<typename,int> class JointCollectionTpl>
