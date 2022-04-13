@@ -37,7 +37,9 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   GeometryModel geom_model;
   
   hpp::fcl::CollisionGeometryPtr_t sphere_ptr(new hpp::fcl::Sphere(0.5));
+  sphere_ptr->computeLocalAABB();
   hpp::fcl::CollisionGeometryPtr_t box_ptr(new hpp::fcl::Box(0.5,0.5,0.5));
+  box_ptr->computeLocalAABB();
   
   GeometryObject obj1("obj1",0,SE3::Identity(),sphere_ptr);
   const GeomIndex obj1_index = geom_model.addGeometryObject(obj1);
@@ -54,6 +56,7 @@ BOOST_AUTO_TEST_CASE (test_broadphase)
   BOOST_CHECK(sphere_ptr.get() == go.geometry.get());
   
   hpp::fcl::CollisionGeometryPtr_t sphere_new_ptr(new hpp::fcl::Sphere(5.));
+  sphere_new_ptr->computeLocalAABB();
   go.geometry = sphere_new_ptr;
   BOOST_CHECK(!broadphase_manager.check());
   BOOST_CHECK(sphere_ptr.get() != go.geometry.get());
