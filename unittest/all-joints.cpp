@@ -121,6 +121,21 @@ struct init<pinocchio::JointModelMimic<JointModel_> >
     return jmodel;
   }
 };
+
+template<typename Scalar, int Options>
+struct init<pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> >
+{
+  typedef pinocchio::JointModelHelicalUnalignedTpl<Scalar,Options> JointModel;
+  
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized());
+    
+    jmodel.setIndexes(0,0,0);
+    return jmodel;
+  }
+};
   
 BOOST_AUTO_TEST_SUITE(joint_model_base_test)
 

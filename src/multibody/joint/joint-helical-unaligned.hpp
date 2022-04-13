@@ -590,12 +590,6 @@ internal::comparison_eq(m_v, other.m_v);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
-
-    JointModelHelicalUnalignedTpl(const JointModelHelicalUnalignedTpl & other)
-    {
-      axis = other.axis;
-      m_pitch = other.m_pitch;
-    }
     
     JointDataDerived createData() const { return JointDataDerived(); }
     
