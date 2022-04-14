@@ -1446,8 +1446,8 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
   
-  std::cout << "H_recomposed.topRightCorner(constraint_dim,model.nv):\n" << H_recomposed.topRightCorner(constraint_dim,model.nv) << std::endl;
-  std::cout << "H.topRightCorner(constraint_dim,model.nv):\n" << H  .topRightCorner(constraint_dim,model.nv) << std::endl;
+  //std::cout << "H_recomposed.topRightCorner(constraint_dim,model.nv):\n" << H_recomposed.topRightCorner(constraint_dim,model.nv) << std::endl;
+  //std::cout << "H.topRightCorner(constraint_dim,model.nv):\n" << H  .topRightCorner(constraint_dim,model.nv) << std::endl;
   
   // inverse
   MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
