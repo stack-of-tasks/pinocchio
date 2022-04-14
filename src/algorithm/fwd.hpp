@@ -10,19 +10,19 @@
 namespace pinocchio
 {
   template<typename Scalar> struct ProximalSettingsTpl;
-  typedef ProximalSettingsTpl<double> ProximalSettings;
+  typedef ProximalSettingsTpl<context::Scalar> ProximalSettings;
 
   namespace cholesky
   {
     template<typename Scalar, int Options> struct ContactCholeskyDecompositionTpl;
-    typedef ContactCholeskyDecompositionTpl<double,0> ContactCholeskyDecomposition;
+    typedef ContactCholeskyDecompositionTpl<context::Scalar,context::Options> ContactCholeskyDecomposition;
   }
 
   template<typename Scalar, int Options> struct RigidConstraintModelTpl;
   template<typename Scalar, int Options> struct RigidConstraintDataTpl;
   
-  typedef RigidConstraintModelTpl<double,0> RigidConstraintModel;
-  typedef RigidConstraintDataTpl<double,0> RigidConstraintData;
+  typedef RigidConstraintModelTpl<context::Scalar,context::Options> RigidConstraintModel;
+  typedef RigidConstraintDataTpl<context::Scalar,context::Options> RigidConstraintData;
 }
 
 
