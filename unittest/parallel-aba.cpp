@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_parallel_aba)
   }
   
   ModelPool pool(model);
-  aba(num_threads,pool,q,v,tau,a);
+  abaInParallel(num_threads,pool,q,v,tau,a);
   
   for(Eigen::DenseIndex i = 0; i < batch_size; ++i)
   {
