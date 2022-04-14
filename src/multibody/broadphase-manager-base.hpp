@@ -44,6 +44,7 @@ struct BroadPhaseManagerBase
     model_ptr = other.model_ptr;
     geometry_model_ptr = other.geometry_model_ptr;
     geometry_data_ptr = other.geometry_data_ptr;
+    return *this;
   }
 
   
