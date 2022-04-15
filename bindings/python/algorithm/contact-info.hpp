@@ -85,7 +85,7 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),
                         "Default constructor."))
-        .def(bp::init<ContactType,Model,JointIndex,SE3,JointIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,const Model &,JointIndex,const SE3 &,JointIndex,const SE3 &,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
                bp::arg("model"),
@@ -95,7 +95,7 @@ namespace pinocchio
                bp::arg("joint2_placement"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, joint index and placement for the two joints implied in the constraint."))
-        .def(bp::init<ContactType,Model,JointIndex,SE3,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,const Model &,JointIndex,const SE3 &,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
                bp::arg("model"),
@@ -103,7 +103,7 @@ namespace pinocchio
                bp::arg("joint1_placement"),
                bp::arg("reference_frame")),
               "Contructor from a given ContactType, joint index and placement only for the first joint implied in the constraint."))
-        .def(bp::init<ContactType,Model,JointIndex,bp::optional<ReferenceFrame> >
+        .def(bp::init<ContactType,const Model &,JointIndex,bp::optional<ReferenceFrame> >
              ((bp::arg("self"),
                bp::arg("contact_type"),
                bp::arg("model"),
@@ -176,8 +176,8 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<ContactModel>(bp::args("self","contact_model"),
-                                    "Default constructor."))
+        .def(bp::init<const ContactModel &>(bp::args("self","contact_model"),
+                                            "Default constructor."))
         
         .PINOCCHIO_ADD_PROPERTY(Self,contact_force,
                                 "Constraint force.")

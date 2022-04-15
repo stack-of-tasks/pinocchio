@@ -45,8 +45,8 @@ namespace pinocchio
         bp::class_<JointModel>("JointModel",
                                "Generic Joint Model",
                                bp::no_init)
-        .def(bp::init<JointModel>(bp::arg("self"),"Default constructor"))
-        .def(bp::init<JointModel>(bp::args("self","other"),"Copy constructor"))
+        .def(bp::init<>(bp::arg("self"),"Default constructor"))
+        .def(bp::init<const JointModel &>(bp::args("self","other"),"Copy constructor"))
         .def(JointModelBasePythonVisitor<JointModel>())
         .def(PrintableVisitor<JointModel>())
         .def("extract",ExtractJointModelVariantTypeVisitor<JointModel>::extract,

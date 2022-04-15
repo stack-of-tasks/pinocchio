@@ -33,7 +33,7 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
-        .def(bp::init<GeometryModel>(bp::args("self","other"),"Copy constructor"))
+        .def(bp::init<const GeometryModel &>(bp::args("self","other"),"Copy constructor"))
         
         .add_property("ngeoms", &GeometryModel::ngeoms, "Number of geometries contained in the Geometry Model.")
         .add_property("geometryObjects",

@@ -42,8 +42,8 @@ namespace pinocchio
         cl
         .def(bp::init<const Model &,bp::optional<size_t> >(bp::args("self","model","size"),
                                                            "Default constructor."))
-        .def(bp::init<ModelPool>(bp::args("self","other"),
-                                  "Copy constructor."))
+        .def(bp::init<const ModelPool &>(bp::args("self","other"),
+                                         "Copy constructor."))
         
         .def("getModel",(Model & (ModelPool::*)(const size_t))&ModelPool::getModel,
              bp::args("self","index"),"Return a specific model.",

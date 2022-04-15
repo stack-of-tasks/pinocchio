@@ -55,14 +55,14 @@ namespace pinocchio
         static const Scalar dummy_precision = Eigen::NumTraits<Scalar>::dummy_precision();
         
         cl
-        .def(bp::init<Matrix3,Vector3>
+        .def(bp::init<const Matrix3 &,const Vector3 &>
              ((bp::arg("self"),bp::arg("rotation"),bp::arg("translation")),
               "Initialize from a rotation matrix and a translation vector."))
-        .def(bp::init<Quaternion,Vector3>
+        .def(bp::init<const Quaternion &,const Vector3 &>
              ((bp::arg("self"),bp::arg("quat"),bp::arg("translation")),
               "Initialize from a quaternion and a translation vector."))
         .def(bp::init<int>((bp::arg("self"),bp::arg("int")),"Init to identity."))
-        .def(bp::init<Matrix4>
+        .def(bp::init<const Matrix4 &>
              ((bp::arg("self"),bp::arg("array")),
               "Initialize from an homogeneous matrix."))
         .def(bp::init<const SE3 &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))

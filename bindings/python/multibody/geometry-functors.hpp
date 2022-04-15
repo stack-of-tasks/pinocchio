@@ -36,7 +36,15 @@ namespace pinocchio
         
         .def("getGeometryObject1", &GeometryFunctor::getGeometryObject1,bp::return_value_policy<bp::copy_const_reference>())
         .def("getGeometryObject2", &GeometryFunctor::getGeometryObject2,bp::return_value_policy<bp::copy_const_reference>())
+        
+        .def("print",&print)
         ;
+      }
+      
+      static void print(const GeometryFunctor & self)
+      {
+        std::cout << "address #1: " << &self.getGeometryObject1() << std::endl;
+        std::cout << "address #2: " << &self.getGeometryObject2() << std::endl;
       }
 
     };

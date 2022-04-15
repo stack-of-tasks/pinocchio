@@ -44,8 +44,8 @@ namespace pinocchio
         cl
         .def(bp::init<const Model &, const GeometryModel &,bp::optional<size_t> >(bp::args("self","model","geometry_model","size"),
                                                                                   "Default constructor."))
-        .def(bp::init<GeometryPool>(bp::args("self","other"),
-                                    "Copy constructor."))
+        .def(bp::init<const GeometryPool &>(bp::args("self","other"),
+                                            "Copy constructor."))
         
         .def("getGeometryModel",(GeometryModel & (GeometryPool::*)(const size_t))&GeometryPool::getGeometryModel,
              bp::args("self","index"),"Return a specific geometry model.",

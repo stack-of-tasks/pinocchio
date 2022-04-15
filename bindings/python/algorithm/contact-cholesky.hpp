@@ -43,8 +43,8 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
-        .def(bp::init<Model>(bp::args("self","model"),"Constructor from a model."))
-        .def(bp::init<Model,RigidConstraintModelVector>((bp::arg("self"),bp::arg("model"),bp::arg("contact_models")),
+        .def(bp::init<const Model &>(bp::args("self","model"),"Constructor from a model."))
+        .def(bp::init<const Model &, const RigidConstraintModelVector &>((bp::arg("self"),bp::arg("model"),bp::arg("contact_models")),
                                                      "Constructor from a model and a collection of RigidConstraintModels."))
         
         .PINOCCHIO_ADD_PROPERTY_READONLY_BYVALUE(Self,U,"")

@@ -71,10 +71,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED        
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
-        .def(bp::init<Vector3,Vector3>
+        .def(bp::init<const Vector3 &,const Vector3 &>
              ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
               "Initialize from linear and angular components of a Motion vector (don't mix the order)."))
-        .def(bp::init<Vector6>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
+        .def(bp::init<const Vector6 &>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
         .def(bp::init<const Motion &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         .add_property("linear",

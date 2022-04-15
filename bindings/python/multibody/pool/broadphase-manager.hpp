@@ -67,8 +67,8 @@ namespace pinocchio
         cl
         .def(bp::init<const Model &, const GeometryModel &,bp::optional<size_t> >(bp::args("self","model","geometry_model","size"),
                                                                                   "Default constructor."))
-        .def(bp::init<BroadPhaseManagerPool>(bp::args("self","other"),
-                                             "Copy constructor."))
+        .def(bp::init<const BroadPhaseManagerPool &>(bp::args("self","other"),
+                                                     "Copy constructor."))
         
         .def("getBroadPhaseManager",(BroadPhaseManager & (BroadPhaseManagerPool::*)(const size_t))&BroadPhaseManagerPool::getBroadPhaseManager,
              bp::args("self","index"),"Return a specific broadphase manager.",

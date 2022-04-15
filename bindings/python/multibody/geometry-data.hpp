@@ -68,8 +68,8 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<GeometryModel>(bp::args("self","geometry_model"),
-                                     "Default constructor from a given GeometryModel"))
+        .def(bp::init<const GeometryModel &>(bp::args("self","geometry_model"),
+                                             "Default constructor from a given GeometryModel."))
         
         .def_readwrite("oMg",
                        &GeometryData::oMg,

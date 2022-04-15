@@ -45,7 +45,7 @@ namespace pinocchio
         bp::class_<JointData>("JointData",
                               "Generic Joint Data",
                               bp::no_init)
-        .def(bp::init<typename JointData::JointDataVariant>(bp::args("self","joint_data")))
+        .def(bp::init<const typename JointData::JointDataVariant &>(bp::args("self","joint_data")))
         .def(JointDataBasePythonVisitor<JointData>())
         .def(PrintableVisitor<JointData>())
         .def("extract",ExtractJointDataVariantTypeVisitor<JointData>::extract,

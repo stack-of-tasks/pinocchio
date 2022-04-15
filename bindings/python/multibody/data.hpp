@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -95,7 +95,7 @@ namespace pinocchio
       {
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
-        .def(bp::init<context::Model>(bp::args("self","model"),"Constructs a data structure from a given model."))
+        .def(bp::init<const context::Model &>(bp::args("self","model"),"Constructs a data structure from a given model."))
         
         .ADD_DATA_PROPERTY(joints,"Vector of JointData associated to each JointModel stored in the related model.")
         .ADD_DATA_PROPERTY(a,"Vector of joint accelerations expressed in the local frame of the joint.")

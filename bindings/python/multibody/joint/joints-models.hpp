@@ -35,8 +35,8 @@ namespace pinocchio
       return cl
       .def(bp::init<context::Scalar, context::Scalar, context::Scalar>(bp::args("self","x", "y", "z"),
                                                                        "Init JointModelRevoluteUnaligned from the components x, y, z of the axis"))
-      .def(bp::init<context::Vector3s>(bp::args("self","axis"),
-                                         "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
+      .def(bp::init<const context::Vector3s &>(bp::args("self","axis"),
+                                               "Init JointModelRevoluteUnaligned from an axis with x-y-z components"))
       .def_readwrite("axis",&context::JointModelRevoluteUnaligned::axis,
                      "Rotation axis of the JointModelRevoluteUnaligned.")
       ;
@@ -50,8 +50,8 @@ namespace pinocchio
       return cl
       .def(bp::init<context::Scalar, context::Scalar, context::Scalar> (bp::args("self","x", "y", "z"),
                                                                         "Init JointModelPrismaticUnaligned from the components x, y, z of the axis"))
-      .def(bp::init<context::Vector3s> (bp::args("self","axis"),
-                                          "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
+      .def(bp::init<const context::Vector3s &> (bp::args("self","axis"),
+                                                "Init JointModelPrismaticUnaligned from an axis with x-y-z components"))
       .def_readwrite("axis",&context::JointModelPrismaticUnaligned::axis,
                      "Translation axis of the JointModelPrismaticUnaligned.")
       ;
@@ -65,7 +65,7 @@ namespace pinocchio
       return cl
       .def(bp::init<context::Scalar, context::Scalar, context::Scalar,  context::Scalar> (bp::args("self","x", "y", "z", "pitch"),
                                                                                           "Init JointModelHelicalUnaligned from the components x, y, z of the axis and the pitch"))
-      .def(bp::init<context::Vector3s,  context::Scalar> (bp::args("self","axis", "pitch"),
+      .def(bp::init<const context::Vector3s &,  context::Scalar> (bp::args("self","axis", "pitch"),
                                                           "Init JointModelHelicalUnaligned from an axis with x-y-z components and the pitch"))
       .def_readwrite("axis",&context::JointModelHelicalUnaligned::axis,
                      "Translation axis of the JointModelHelicalUnaligned.")

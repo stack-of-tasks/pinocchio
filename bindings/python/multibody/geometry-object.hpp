@@ -33,27 +33,27 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<std::string,JointIndex,FrameIndex,SE3,CollisionGeometryPtr,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+        .def(bp::init<std::string,JointIndex,FrameIndex,const SE3 &,CollisionGeometryPtr,
+                      bp::optional<std::string,const Eigen::Vector3d &,bool,const Eigen::Vector4d &,std::string> >
              (
              bp::args("self","name","parent_joint","parent_frame","placement","collision_geometry",
                        "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
              "Full constructor of a GeometryObject."))
-        .def(bp::init<std::string,JointIndex,SE3,CollisionGeometryPtr,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+        .def(bp::init<std::string,JointIndex,const SE3 &,CollisionGeometryPtr,
+                      bp::optional<std::string,const Eigen::Vector3d &,bool,const Eigen::Vector4d &,std::string> >
              (
               bp::args("self","name","parent_joint","placement","collision_geometry",
                         "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
               "Reduced constructor of a GeometryObject. This constructor does not require to specify the parent frame index."
               ))
-        .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,SE3,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+        .def(bp::init<std::string,FrameIndex,JointIndex,CollisionGeometryPtr,const SE3 &,
+                      bp::optional<std::string,const Eigen::Vector3d &,bool,const Eigen::Vector4d &,std::string> >
              (
              bp::args("self","name","parent_frame","parent_joint","collision_geometry",
                       "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),
              "Deprecated. Full constructor of a GeometryObject.")[deprecated_function<>()] )
-        .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,SE3,
-                      bp::optional<std::string,Eigen::Vector3d,bool,Eigen::Vector4d,std::string> >
+        .def(bp::init<std::string,JointIndex,CollisionGeometryPtr,const SE3 &,
+                      bp::optional<std::string,const Eigen::Vector3d &,bool,const Eigen::Vector4d &,std::string> >
              (
               bp::args("self","name","parent_joint","collision_geometry",
                        "placement", "mesh_path", "mesh_scale", "override_material", "mesh_color", "mesh_texture_path"),

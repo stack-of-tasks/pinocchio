@@ -404,7 +404,7 @@ namespace pinocchio
           .def(StdVectorPythonVisitor())
           
           .def(bp::init<size_t, const value_type &>(bp::args("self","size","value"),"Constructor from a given size and a given value."))
-          .def(bp::init<vector_type>(bp::args("self","other"),"Copy constructor"))
+          .def(bp::init<const vector_type &>(bp::args("self","other"),"Copy constructor"))
 
           .def("tolist",&FromPythonListConverter::tolist,bp::arg("self"),
                "Returns the std::vector as a Python list.")
