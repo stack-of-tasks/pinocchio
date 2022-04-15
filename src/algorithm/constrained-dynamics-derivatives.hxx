@@ -467,7 +467,7 @@ namespace pinocchio
 
             Eigen::DenseIndex k = colwise_sparsity.size()-1;
             Eigen::DenseIndex col_id;
-            while(true && colwise_sparsity.size() > 0)
+            while(cmodel.reference_frame==LOCAL && colwise_sparsity.size() > 0)
             {
               if(k >= 0)
               {
@@ -713,7 +713,7 @@ namespace pinocchio
       }
       
       // Add the contribution of the corrector
-      if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)))
+      if(check_expression_if_real<Scalar>(cmodel.corrector.Kp != Scalar(0)) or check_expression_if_real<Scalar>(cmodel.corrector.Kd != Scalar(0)))
       {
         Jlog6(cdata.c1Mc2.inverse(),Jlog);
         
@@ -726,20 +726,14 @@ namespace pinocchio
             RowsBlock contact_dac_dq = SizeDepType<6>::middleRows(data.dac_dq,current_row_sol_id);
             RowsBlock contact_dac_dv = SizeDepType<6>::middleRows(data.dac_dv,current_row_sol_id);
             const RowsBlock contact_dac_da = SizeDepType<6>::middleRows(data.dac_da,current_row_sol_id);
-            
+            contact_dac_dq += cmodel.corrector.Kd * contact_dvc_dq;
+            contact_dac_dv += cmodel.corrector.Kd * contact_dac_da;
             // d./dq
             for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
             {
               const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
+              //contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
               contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kp * Jlog * contact_dac_da.col(row_id);
-            }
-            
-            // d./dv
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
-            {
-              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              contact_dac_dv.col(row_id) += cmodel.corrector.Kd * contact_dac_da.col(row_id);
             }
             break;
           }
@@ -750,23 +744,37 @@ namespace pinocchio
             RowsBlock contact_dac_dq = SizeDepType<3>::middleRows(data.dac_dq,current_row_sol_id);
             RowsBlock contact_dac_dv = SizeDepType<3>::middleRows(data.dac_dv,current_row_sol_id);
             const RowsBlock contact_dac_da = SizeDepType<3>::middleRows(data.dac_da,current_row_sol_id);
-            
-            // d./dq
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            if(cmodel.reference_frame ==LOCAL)
             {
-              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              
-              const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
-              contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
-              contact_dac_dq.col(row_id).noalias() -= cmodel.corrector.Kp * (cdata.oMc1.rotation().transpose()*J_col.angular()).cross(cdata.contact_placement_error.linear());
-              contact_dac_dq.col(row_id) += cmodel.corrector.Kp * contact_dac_da.col(row_id);
+              a_tmp.linear() = cmodel.corrector.Kd * cdata.oMc2.rotation() * cdata.contact2_velocity.linear();
+              typename SE3::Matrix3 vc2_cross_in_c1, vc2_cross_in_world;
+              skew(a_tmp.linear(), vc2_cross_in_world);
+              vc2_cross_in_c1.noalias() = cdata.oMc1.rotation().transpose() * vc2_cross_in_world;
+              for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+              {
+                const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+                const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
+                if(joint2_indexes[row_id])
+                {
+                  contact_dac_dq.col(row_id).noalias() += vc2_cross_in_c1 * J_col.angular();
+                }
+                else
+                {
+                  contact_dac_dq.col(row_id).noalias() -= vc2_cross_in_c1 * J_col.angular();
+                }
+              }
+              const int colRef = nv(model.joints[cmodel.joint1_id])+idx_v(model.joints[cmodel.joint1_id])-1;
+              for(Eigen::DenseIndex j=colRef;j>=0;j=data.parents_fromRow[(size_t)j])
+              {
+                typedef typename Data::Matrix6x::ColXpr ColType;
+                const MotionRef<ColType> J_col(data.J.col(j));
+                a_tmp.angular() = cdata.oMc1.rotation().transpose() * J_col.angular();
+                contact_dac_dq.col(j).noalias() += cmodel.corrector.Kp * cdata.contact_placement_error.linear().cross(a_tmp.angular());
+              }
             }
-            // d./dv
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
-            {
-              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
-              contact_dac_dv.col(row_id).noalias() += cmodel.corrector.Kd * contact_dac_da.col(row_id);
-            }
+            contact_dac_dq.noalias() += cmodel.corrector.Kd * contact_dvc_dq;
+            contact_dac_dq.noalias() += cmodel.corrector.Kp * contact_dac_da;
+            contact_dac_dv.noalias() += cmodel.corrector.Kd * contact_dac_da;
             break;
           }
           default:
