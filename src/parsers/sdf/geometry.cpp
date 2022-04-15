@@ -20,7 +20,7 @@ namespace pinocchio
     namespace details
     {
 
-      void recursiveParseGraphForGeom(const SdfGraph& graph,
+      void addLinkGeometryToGeomModel(const SdfGraph& graph,
                                       ::hpp::fcl::MeshLoaderPtr& meshLoader,
                                       const ::sdf::ElementPtr link,
                                       GeometryModel & geomModel,
@@ -32,36 +32,19 @@ namespace pinocchio
         {
           case COLLISION:
             addLinkGeometryToGeomModel< ::pinocchio::COLLISION >(graph, meshLoader, link,
-                                                            geomModel, package_dirs);
+                                                                 geomModel, package_dirs);
             break;
           case VISUAL:
             addLinkGeometryToGeomModel< ::pinocchio::VISUAL >(graph, meshLoader, link,
-                                                         geomModel, package_dirs);
+                                                              geomModel, package_dirs);
             break;
           default:
             break;
         }
-        const std::vector<std::string>& childrenOfLink =
-          graph.childrenOfLinks.find(linkName)->second;
-
-        for(std::vector<std::string>::const_iterator childOfChild =
-              std::begin(childrenOfLink);
-            childOfChild != std::end(childrenOfLink); ++childOfChild)
-        {
-          const ::sdf::ElementPtr childJointElement =
-            graph.mapOfJoints.find(*childOfChild)->second;
-
-          const std::string childLinkName =
-            childJointElement->GetElement("child")->template Get<std::string>();
-          const ::sdf::ElementPtr childLinkElement =
-            graph.mapOfLinks.find(childLinkName)->second;
-          recursiveParseGraphForGeom(graph, meshLoader, childLinkElement,
-                                     geomModel, package_dirs,type);
-          
-        }
       }
       
-      void parseTreeForGeom(const SdfGraph& graph,
+      void parseTreeForGeom(const Model& model,
+                            const SdfGraph& graph,
                             GeometryModel & geomModel,
                             const std::string& rootLinkName,
                             const GeometryType type,
@@ -76,9 +59,28 @@ namespace pinocchio
         if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
 
         const ::sdf::ElementPtr rootElement = graph.mapOfLinks.find(rootLinkName)->second;
-        recursiveParseGraphForGeom(graph, meshLoader, rootElement,
+
+        addLinkGeometryToGeomModel(graph, meshLoader, rootElement,
                                    geomModel, hint_directories, type);
         
+        for(std::vector<std::string>::const_iterator joint_name =
+              std::begin(model.names);
+            joint_name != std::end(model.names); ++joint_name)
+        {
+          if (graph.mapOfJoints.find(*joint_name) == graph.mapOfJoints.end())
+          {
+            continue;
+          }
+          const ::sdf::ElementPtr childJointElement =
+            graph.mapOfJoints.find(*joint_name)->second;
+          const std::string childLinkName =
+            childJointElement->GetElement("child")->template Get<std::string>();
+          const ::sdf::ElementPtr childLinkElement =
+            graph.mapOfLinks.find(childLinkName)->second;
+
+          addLinkGeometryToGeomModel(graph, meshLoader, childLinkElement,
+                                     geomModel, hint_directories,type);
+        }        
       }
     } // namespace details    
   } // namespace sdf

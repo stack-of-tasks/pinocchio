@@ -68,7 +68,7 @@ namespace pinocchio
 	  if (geomElement->Get<std::string>("name") != "__default__") {
 	    geometry_array.push_back(geomElement);
 	  }
-	    geomElement = geomElement->GetNextElement("collision");
+          geomElement = geomElement->GetNextElement("collision");
         }
         return geometry_array;
       }
@@ -308,14 +308,15 @@ namespace pinocchio
        * @param[in]  type           The type of objects that must be loaded ( can be VISUAL or COLLISION)
        *
        */
-      PINOCCHIO_DLLAPI void recursiveParseGraphForGeom(const SdfGraph& graph,
-                                         ::hpp::fcl::MeshLoaderPtr& meshLoader,
-                                         const ::sdf::ElementPtr link,
-                                         GeometryModel & geomModel,
-                                         const std::vector<std::string> & package_dirs,
-                                         const GeometryType type);
+      PINOCCHIO_DLLAPI void addLinkGeometryToGeomModel(const SdfGraph& graph,
+                                                       ::hpp::fcl::MeshLoaderPtr& meshLoader,
+                                                       const ::sdf::ElementPtr link,
+                                                       GeometryModel & geomModel,
+                                                       const std::vector<std::string> & package_dirs,
+                                                       const GeometryType type);
 
-      PINOCCHIO_DLLAPI void parseTreeForGeom(const SdfGraph& graph,
+      PINOCCHIO_DLLAPI void parseTreeForGeom(const Model& model,
+                                             const SdfGraph& graph,
                                              GeometryModel & geomModel,
                                              const std::string& rootLinkName,
                                              const GeometryType type,
@@ -346,7 +347,7 @@ namespace pinocchio
         const_cast<std::string&>(rootLinkName) = details::findRootLink(graph);
       }
       
-      details::parseTreeForGeom (graph, geomModel, rootLinkName, type,
+      details::parseTreeForGeom (model, graph, geomModel, rootLinkName, type,
                                  package_dirs, meshLoader);
       return geomModel;
     }
