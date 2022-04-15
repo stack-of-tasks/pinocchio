@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2021 CNRS INRIA
+// Copyright (c) 2017-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_geometry_object_hpp__
@@ -8,9 +8,11 @@
 #include <boost/python.hpp>
 #include <eigenpy/memory.hpp>
 #include <eigenpy/eigen-to-python.hpp>
+
+#include "pinocchio/bindings/python/utils/address.hpp"
+#include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/registration.hpp"
 #include "pinocchio/bindings/python/utils/deprecation.hpp"
-
 
 #include "pinocchio/multibody/geometry.hpp"
 
@@ -123,6 +125,8 @@ namespace pinocchio
                                      bp::no_init
                                      )
           .def(GeometryObjectPythonVisitor())
+          .def(CopyableVisitor<GeometryObject>())
+          .def(AddressVisitor<GeometryObject>())
           ;
         }
         
