@@ -52,13 +52,13 @@ int main(int argc, const char ** argv)
       pinocchio::urdf::buildModel(filename,model);
   
   const std::string RA = "RARM_LINK6";
-  const JointIndex RA_id = model.frames[model.getFrameId(RA)].parent;
+  const JointIndex RA_id = model.frames[model.getFrameId(RA)].parentJoint;
   const std::string LA = "LARM_LINK6";
-  const JointIndex LA_id = model.frames[model.getFrameId(LA)].parent;
+  const JointIndex LA_id = model.frames[model.getFrameId(LA)].parentJoint;
   const std::string RF = "RLEG_LINK6";
-  const JointIndex RF_id = model.frames[model.getFrameId(RF)].parent;
+  const JointIndex RF_id = model.frames[model.getFrameId(RF)].parentJoint;
   const std::string LF = "LLEG_LINK6";
-  const JointIndex LF_id = model.frames[model.getFrameId(LF)].parent;
+  const JointIndex LF_id = model.frames[model.getFrameId(LF)].parentJoint;
   
   RigidConstraintModel ci_RF_6D(CONTACT_6D,model,RF_id,LOCAL);
   RigidConstraintData cd_RF_6D(ci_RF_6D);

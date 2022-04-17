@@ -304,7 +304,6 @@ BOOST_AUTO_TEST_CASE (compare_model_in_version_1_6)
   double mass_link_B = 5.;
   double length_link_B = .6;
 
-  pinocchio::Inertia inertia_link_A = pinocchio::Inertia::FromBox(mass_link_A,length_link_A,width,height);
   pinocchio::Inertia inertia_link_A_2 = pinocchio::Inertia::FromBox(mass_link_A/2,length_link_A,width,height);
   
   pinocchio::SE3 placement_center_link_A = pinocchio::SE3::Identity();

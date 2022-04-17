@@ -149,7 +149,6 @@ namespace CppAD
     using ::pinocchio::internal::LT;
     return if_then_else(LT, x, y, y, x);
   }
-  
 } // namespace CppAD
 
 #include "pinocchio/utils/static-if.hpp"
@@ -177,6 +176,6 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
 #include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 #include "pinocchio/autodiff/cppad/algorithm/aba.hpp"
-
+#include "pinocchio/autodiff/cppad/multibody/joint/joint-helical.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_cppad_hpp__

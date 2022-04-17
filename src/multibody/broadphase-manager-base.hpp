@@ -38,6 +38,15 @@ struct BroadPhaseManagerBase
   , geometry_model_ptr(other.geometry_model_ptr)
   , geometry_data_ptr(other.geometry_data_ptr)
   {}
+
+  BroadPhaseManagerBase& operator=(const BroadPhaseManagerBase & other)  // Copy assignment operator
+  {
+    model_ptr = other.model_ptr;
+    geometry_model_ptr = other.geometry_model_ptr;
+    geometry_data_ptr = other.geometry_data_ptr;
+    return *this;
+  }
+
   
   Derived & derived() { return static_cast<Derived &>(*this); }
   const Derived & derived() const { return static_cast<const Derived &>(*this); }

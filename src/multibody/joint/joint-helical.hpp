@@ -830,17 +830,17 @@ namespace pinocchio
     
   }; // struct JointModelHelicalTpl
 
-  typedef JointHelicalTpl<double,0,0> JointHX;
-  typedef JointDataHelicalTpl<double,0,0> JointDataHX;
-  typedef JointModelHelicalTpl<double,0,0> JointModelHX;
+  typedef JointHelicalTpl<context::Scalar,context::Options,0> JointHX;
+  typedef JointDataHelicalTpl<context::Scalar,context::Options,0> JointDataHX;
+  typedef JointModelHelicalTpl<context::Scalar,context::Options,0> JointModelHX;
 
-  typedef JointHelicalTpl<double,0,1> JointHY;
-  typedef JointDataHelicalTpl<double,0,1> JointDataHY;
-  typedef JointModelHelicalTpl<double,0,1> JointModelHY;
+  typedef JointHelicalTpl<context::Scalar,context::Options,1> JointHY;
+  typedef JointDataHelicalTpl<context::Scalar,context::Options,1> JointDataHY;
+  typedef JointModelHelicalTpl<context::Scalar,context::Options,1> JointModelHY;
 
-  typedef JointHelicalTpl<double,0,2> JointHZ;
-  typedef JointDataHelicalTpl<double,0,2> JointDataHZ;
-  typedef JointModelHelicalTpl<double,0,2> JointModelHZ;
+  typedef JointHelicalTpl<context::Scalar,context::Options,2> JointHZ;
+  typedef JointDataHelicalTpl<context::Scalar,context::Options,2> JointDataHZ;
+  typedef JointModelHelicalTpl<context::Scalar,context::Options,2> JointModelHZ;
 
 } //namespace pinocchio
 

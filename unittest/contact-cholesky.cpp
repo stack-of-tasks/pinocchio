@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     BOOST_CHECK(iosim.isApprox(JMinvJt));
     BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
     
-    const MatrixXd rhs = MatrixXd::Random(12, 20);
+    const MatrixXd rhs = MatrixXd::Random(12, 1);
     const MatrixXd res = contact_chol_decomposition.getDelassusExpression() * rhs;
     const MatrixXd res_ref = iosim * rhs;
     
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     BOOST_CHECK(iosim_mu.isApprox(JMinvJt_mu));
     BOOST_CHECK(osim_mu.isApprox(JMinvJt_mu.inverse()));
     
-    const MatrixXd rhs = MatrixXd::Random(12, 20);
+    const MatrixXd rhs = MatrixXd::Random(12, 1);
     const MatrixXd res = contact_chol_decomposition_mu.getDelassusExpression() * rhs;
     const MatrixXd res_ref = iosim_mu * rhs;
     
@@ -1446,8 +1446,8 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
   BOOST_CHECK(H_recomposed.isApprox(H));
   
-  std::cout << "H_recomposed.topRightCorner(constraint_dim,model.nv):\n" << H_recomposed.topRightCorner(constraint_dim,model.nv) << std::endl;
-  std::cout << "H.topRightCorner(constraint_dim,model.nv):\n" << H  .topRightCorner(constraint_dim,model.nv) << std::endl;
+  //std::cout << "H_recomposed.topRightCorner(constraint_dim,model.nv):\n" << H_recomposed.topRightCorner(constraint_dim,model.nv) << std::endl;
+  //std::cout << "H.topRightCorner(constraint_dim,model.nv):\n" << H  .topRightCorner(constraint_dim,model.nv) << std::endl;
   
   // inverse
   MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
