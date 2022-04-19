@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 CNRS
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/parsers/sdf.hpp"
@@ -27,7 +27,6 @@ namespace pinocchio
                                       const std::vector<std::string> & package_dirs,
                                       const GeometryType type)
       {
-        const std::string& linkName = link->Get<std::string>("name");
         switch(type)
         {
           case COLLISION:
@@ -42,7 +41,7 @@ namespace pinocchio
             break;
         }
       }
-      
+
       void parseTreeForGeom(const Model& model,
                             const SdfGraph& graph,
                             GeometryModel & geomModel,
@@ -55,14 +54,14 @@ namespace pinocchio
         std::vector<std::string> ros_pkg_paths = rosPaths();
         hint_directories.insert(hint_directories.end(), ros_pkg_paths.begin(),
                                 ros_pkg_paths.end());
-        
+
         if (!meshLoader) meshLoader = fcl::MeshLoaderPtr(new fcl::MeshLoader);
 
         const ::sdf::ElementPtr rootElement = graph.mapOfLinks.find(rootLinkName)->second;
 
         addLinkGeometryToGeomModel(graph, meshLoader, rootElement,
                                    geomModel, hint_directories, type);
-        
+
         for(std::vector<std::string>::const_iterator joint_name =
               std::begin(model.names);
             joint_name != std::end(model.names); ++joint_name)
@@ -80,8 +79,8 @@ namespace pinocchio
 
           addLinkGeometryToGeomModel(graph, meshLoader, childLinkElement,
                                      geomModel, hint_directories,type);
-        }        
+        }
       }
-    } // namespace details    
+    } // namespace details
   } // namespace sdf
 } // namespace pinocchio
