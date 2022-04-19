@@ -35,13 +35,18 @@ namespace pinocchio
   /// \return All the results are stored in data. Please refer to the specific algorithm for further details.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const Eigen::MatrixBase<ConfigVectorType> & q,
-                              const Eigen::MatrixBase<TangentVectorType> & v);
+  void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const Eigen::MatrixBase<TangentVectorType> & v);
 
 } // namespace pinocchio
 
 #include "pinocchio/algorithm/compute-all-terms.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/compute-all-terms.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 
 #endif // ifndef __pinocchio_compute_all_terms_hpp__

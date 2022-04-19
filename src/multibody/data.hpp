@@ -451,5 +451,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/data.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/multibody/data.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_multibody_data_hpp__
 

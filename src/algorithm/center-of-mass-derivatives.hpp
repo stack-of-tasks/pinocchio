@@ -25,14 +25,18 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename Matrix3xOut>
-  inline void getCenterOfMassVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                 const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq);
+  void getCenterOfMassVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq);
 
 
 
 } // namespace pinocchio 
 
 #include "pinocchio/algorithm/center-of-mass-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/center-of-mass-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_center_of_mass_derivatives_hpp__

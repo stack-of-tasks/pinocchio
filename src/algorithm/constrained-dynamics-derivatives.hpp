@@ -72,4 +72,8 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/constrained-dynamics-derivatives.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/constrained-dynamics-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_algorithm_constrained_dynamics_derivatives_hpp__

@@ -6,6 +6,8 @@
 #define __pinocchio_algorithm_proximal_hpp__
 
 #include <Eigen/Core>
+#include "pinocchio/multibody/model.hpp"
+#include "pinocchio/multibody/data.hpp"
 
 namespace pinocchio
 {
@@ -103,6 +105,10 @@ namespace pinocchio
   typedef ProximalSettingsTpl<double> ProximalSettings;
   
 }
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/proximal.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_proximal_hpp__
 

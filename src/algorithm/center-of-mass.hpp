@@ -33,8 +33,8 @@ namespace pinocchio
   /// \return Total mass of the model.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 DataTpl<Scalar,Options,JointCollectionTpl> & data);
+  Scalar computeTotalMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief Compute the mass of each kinematic subtree and store it in data.mass. The element mass[0] corresponds to the total mass of the model.
@@ -45,8 +45,8 @@ namespace pinocchio
   /// \note If you are only interested in knowing the total mass of the model, computeTotalMass will probably be slightly faster.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                   DataTpl<Scalar,Options,JointCollectionTpl> & data);
+  void computeSubtreeMasses(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief Computes the center of mass position of a given model according to a particular joint configuration.
@@ -63,7 +63,7 @@ namespace pinocchio
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -87,7 +87,7 @@ namespace pinocchio
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -114,7 +114,7 @@ namespace pinocchio
   /// \return The center of mass position of the full rigid body system expressed in the world frame.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                DataTpl<Scalar,Options,JointCollectionTpl> & data,
                const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -143,10 +143,10 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   PINOCCHIO_DEPRECATED
-  inline void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           int kinematic_level,
-                           const bool computeSubtreeComs = true)
+  void centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                    int kinematic_level,
+                    const bool computeSubtreeComs = true)
   {
     centerOfMass(model,data,static_cast<KinematicLevel>(kinematic_level),computeSubtreeComs);
   }
@@ -185,7 +185,7 @@ namespace pinocchio
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
   jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -207,7 +207,7 @@ namespace pinocchio
   /// \return The jacobian of center of mass position of the rigid body system expressed in the world frame (matrix 3 x model.nv).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
   jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const bool computeSubtreeComs = true);
@@ -227,7 +227,7 @@ namespace pinocchio
   /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
-  inline void
+  void
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -247,7 +247,7 @@ namespace pinocchio
   /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
-  inline void
+  void
   jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
                               const JointIndex & rootSubtreeId,
@@ -266,12 +266,11 @@ namespace pinocchio
   /// \param[out] res The Jacobian matrix where the results will be stored in (dim 3 x model.nv). You must first fill J with zero elements, e.g. J.setZero().
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
-  inline void
+  void
   getJacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                  const JointIndex & rootSubtreeId,
                                  const Eigen::MatrixBase<Matrix3xLike> & res);
-
 
   /* If the CRBA has been run, then both COM and Jcom are easily available from
    * the joint space mass matrix (data.M).
@@ -290,7 +289,7 @@ namespace pinocchio
   /// \return The center of mass position of the rigid body system expressed in the world frame (vector 3).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Vector3 &
   getComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                  DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -308,15 +307,19 @@ namespace pinocchio
   /// \remarks This extraction of inertial quantities is only valid for free-floating base systems.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
   getJacobianComFromCrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
-
+  
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/center-of-mass.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/center-of-mass.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_center_of_mass_hpp__

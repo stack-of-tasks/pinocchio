@@ -45,7 +45,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
            typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
-  inline void
+  void
   computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -79,7 +79,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename Matrix6xLike0,typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
-  inline void
+  void
   getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                    const Eigen::MatrixBase<Matrix6xLike1> & dh_dq,
@@ -92,5 +92,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/centroidal-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_centroidal_derivatives_hpp__

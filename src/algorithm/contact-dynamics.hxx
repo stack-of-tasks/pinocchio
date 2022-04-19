@@ -189,10 +189,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConstraintMatrixType, typename KKTMatrixType>
-  inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                                                const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv)
+  void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                         const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                         const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv)
   {
     assert(model.check(data));
     PINOCCHIO_CHECK_ARGUMENT_SIZE(KKTMatrix_inv.cols(), data.JMinvJt.cols() + model.nv);

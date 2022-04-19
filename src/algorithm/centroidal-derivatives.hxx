@@ -13,7 +13,7 @@
 /// @cond DEV
 
 namespace pinocchio
-{
+{ namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct CentroidalDynDerivativesForwardStep
@@ -177,7 +177,7 @@ namespace pinocchio
       motionSet::inertiaAction<ADDTO>(data.oYcrb[i], dVdq_cols, dHdq_cols);
     }
   }; // struct CentroidalDynDerivativesBackwardStep
-  
+} // namespace impl  
   namespace
   {
     // TODO: should be moved to ForceSet
@@ -218,11 +218,11 @@ namespace pinocchio
       }
     }
   } // internal namespace
-  
+namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
-  inline void
+  void
   computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -363,7 +363,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
-  inline void
+  void
   getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                    const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
@@ -436,7 +436,42 @@ namespace pinocchio
     translateForceSet(data.dFda,com,data.Ag);
     dhdot_da.const_cast_derived() = data.Ag;
   }
-  
+} // namespace impl
+
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+          typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+void
+computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                                      const Eigen::MatrixBase<TangentVectorType1> & v,
+                                      const Eigen::MatrixBase<TangentVectorType2> & a,
+                                      const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
+                                      const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
+                                      const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
+                                      const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
+{
+  impl::computeCentroidalDynamicsDerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),
+                                             make_ref2(dh_dq),make_ref2(dhdot_dq),make_ref2(dhdot_dv),
+                                             make_ref2(dhdot_da));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
+void
+getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                  const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
+                                  const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
+                                  const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
+                                  const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
+{
+  impl::getCentroidalDynamicsDerivatives(model,data,make_ref2(dh_dq),make_ref2(dhdot_dq),
+                                         make_ref2(dhdot_dv),make_ref2(dhdot_da));
+}    
+
 } // namespace pinocchio
 
 /// @endcond

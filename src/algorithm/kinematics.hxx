@@ -12,7 +12,7 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  void updateGlobalPlacements(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
     assert(model.check(data) && "data is not consistent with model.");
@@ -30,7 +30,7 @@ namespace pinocchio
     }
   }
   
-  
+  namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ForwardKinematicZeroStep
   : fusion::JointUnaryVisitorBase< ForwardKinematicZeroStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
@@ -66,9 +66,9 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const Eigen::MatrixBase<ConfigVectorType> & q)
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     assert(model.check(data) && "data is not consistent with model.");
@@ -127,10 +127,10 @@ namespace pinocchio
 
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const Eigen::MatrixBase<ConfigVectorType> & q,
-                                const Eigen::MatrixBase<TangentVectorType> & v)
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType> & v)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
@@ -195,11 +195,11 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                const Eigen::MatrixBase<ConfigVectorType> & q,
-                                const Eigen::MatrixBase<TangentVectorType1> & v,
-                                const Eigen::MatrixBase<TangentVectorType2> & a)
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
@@ -218,9 +218,9 @@ namespace pinocchio
                 typename Algo::ArgsType(model,data,q.derived(),v.derived(),a.derived()));
     }
   }
-
+  } // namespace impl
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline MotionTpl<Scalar, Options>
+  MotionTpl<Scalar, Options>
   getVelocity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
               const JointIndex jointId,
@@ -242,7 +242,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline MotionTpl<Scalar, Options>
+  MotionTpl<Scalar, Options>
   getAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const JointIndex jointId,
@@ -264,7 +264,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline MotionTpl<Scalar, Options>
+  MotionTpl<Scalar, Options>
   getClassicalAcceleration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const JointIndex jointId,
@@ -279,6 +279,33 @@ namespace pinocchio
     acc.linear() += vel.angular().cross(vel.linear());
 
     return acc;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    impl::forwardKinematics(model,data,make_ref(q));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    impl::forwardKinematics(model,data,make_ref(q),make_ref(v));
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void forwardKinematics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    impl::forwardKinematics(model,data,make_ref(q),make_ref(v),make_ref(a));
   }
 } // namespace pinocchio
 

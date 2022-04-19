@@ -12,7 +12,7 @@
 
 namespace pinocchio
 {
-  
+  namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   struct ForwardKinematicsDerivativesForwardStep
   : public fusion::JointUnaryVisitorBase< ForwardKinematicsDerivativesForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType1,TangentVectorType2> >
@@ -78,11 +78,11 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                                                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                                                  const Eigen::MatrixBase<TangentVectorType2> & a)
+  void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                                           const Eigen::MatrixBase<TangentVectorType1> & v,
+                                           const Eigen::MatrixBase<TangentVectorType2> & a)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The velocity vector is not of right size");
@@ -198,12 +198,12 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
-  inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                          const Model::JointIndex jointId,
-                                          const ReferenceFrame rf,
-                                          const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                          const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
+  void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex jointId,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                   const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut2,Data::Matrix6x);
@@ -391,14 +391,14 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
-  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                              const Model::JointIndex jointId,
-                                              const ReferenceFrame rf,
-                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
   {
     
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix6xOut1,Data::Matrix6x);
@@ -434,22 +434,22 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
-  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                              const Model::JointIndex jointId,
-                                              const ReferenceFrame rf,
-                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
   {
-    getJointAccelerationDerivatives(model,data,
-                                    jointId,rf,
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_dv),
-                                    PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
+    impl::getJointAccelerationDerivatives(model,data,
+                                          jointId,rf,
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut1,v_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_dv),
+                                          PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
     
     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
   }
@@ -541,13 +541,13 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
-  inline void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                          const Model::JointIndex joint_id,
-                                          const SE3Tpl<Scalar,Options> & placement,
-                                          const ReferenceFrame rf,
-                                          const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                          const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv)
+  void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex joint_id,
+                                   const SE3Tpl<Scalar,Options> & placement,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                   const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut1,Data::Matrix3x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
@@ -737,15 +737,15 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
-  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                     const Model::JointIndex joint_id,
-                                                     const SE3Tpl<Scalar,Options> & placement,
-                                                     const ReferenceFrame rf,
-                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da)
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut1,Data::Matrix3x);
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
@@ -792,30 +792,31 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
-  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                     const Model::JointIndex joint_id,
-                                                     const SE3Tpl<Scalar,Options> & placement,
-                                                     const ReferenceFrame rf,
-                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut2,Data::Matrix3x);
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v_point_partial_dv.cols(), model.nv);
-    getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,
-                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1,v_point_partial_dq),
-                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut3,a_point_partial_dq),
-                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut4,a_point_partial_dv),
-                                           PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut5,a_point_partial_da));
+    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,
+                                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut1,v_point_partial_dq),
+                                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut3,a_point_partial_dq),
+                                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut4,a_point_partial_dv),
+                                                 PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut5,a_point_partial_da));
     
     PINOCCHIO_EIGEN_CONST_CAST(Matrix3xOut2,v_point_partial_dv) = a_point_partial_da;
   }
 
+  } // namespace impl
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void
+  void
   computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -922,7 +923,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void
+  void
   getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const JointIndex joint_id,
@@ -1136,6 +1137,99 @@ namespace pinocchio
         break;
     }
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                                           const Eigen::MatrixBase<TangentVectorType1> & v,
+                                           const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    impl::computeForwardKinematicsDerivatives(model,data,make_ref(q),make_ref(v),make_ref(a));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
+  void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex jointId,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                   const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
+  {
+    impl::getJointVelocityDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(v_partial_dv));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
+  {
+    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(a_partial_dq),
+                                          make_ref2(a_partial_dv),make_ref2(a_partial_da));
+  }  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
+  {
+    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(v_partial_dv),make_ref2(a_partial_dq),
+                                          make_ref2(a_partial_dv),make_ref2(a_partial_da));
+  }  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
+  void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex joint_id,
+                                   const SE3Tpl<Scalar,Options> & placement,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                   const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv)
+  {
+    impl::getPointVelocityDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(v_point_partial_dv));
+  }  
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da)
+  {
+    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(a_point_partial_dq),
+                                                 make_ref2(a_point_partial_dv),make_ref2(a_point_partial_da));
+  }  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
+  {
+    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(v_point_partial_dv),make_ref2(a_point_partial_dq),
+                                                 make_ref2(a_point_partial_dv),make_ref2(a_point_partial_da));
+  }  
 
 } // namespace pinocchio
 

@@ -38,14 +38,14 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
            typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                             const Eigen::MatrixBase<TangentVectorType1> & v,
+                             const Eigen::MatrixBase<TangentVectorType2> & tau,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
   ///
   /// \brief The derivatives of the Articulated-Body algorithm with external forces.
   ///
@@ -73,15 +73,15 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                             const Eigen::MatrixBase<TangentVectorType1> & v,
+                             const Eigen::MatrixBase<TangentVectorType2> & tau,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
   
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
@@ -104,16 +104,12 @@ namespace pinocchio
   /// \sa pinocchio::aba and \sa pinocchio::computeABADerivatives.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline typename std::enable_if<ConfigVectorType::IsVectorAtCompileTime || TangentVectorType1::IsVectorAtCompileTime || TangentVectorType2::IsVectorAtCompileTime,void>::type
+  typename std::enable_if<ConfigVectorType::IsVectorAtCompileTime || TangentVectorType1::IsVectorAtCompileTime || TangentVectorType2::IsVectorAtCompileTime,void>::type
   computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType1> & v,
-                        const Eigen::MatrixBase<TangentVectorType2> & tau)
-  {
-    computeABADerivatives(model,data,q,v,tau,
-                          data.ddq_dq,data.ddq_dv,data.Minv);
-  }
+                        const Eigen::MatrixBase<TangentVectorType2> & tau);
   
   ///
   /// \brief The derivatives of the Articulated-Body algorithm with external forces.
@@ -137,16 +133,12 @@ namespace pinocchio
   /// \sa pinocchio::aba and \sa pinocchio::computeABADerivatives.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
-  {
-    computeABADerivatives(model,data,q,v,tau,fext,
-                          data.ddq_dq,data.ddq_dv,data.Minv);
-  }
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                             const Eigen::MatrixBase<TangentVectorType1> & v,
+                             const Eigen::MatrixBase<TangentVectorType2> & tau,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
 
   ///
   /// \brief The derivatives of the Articulated-Body algorithm.
@@ -169,7 +161,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
+  typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
   computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
@@ -188,12 +180,8 @@ namespace pinocchio
   /// \sa pinocchio::aba
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data)
-  {
-    computeABADerivatives(model,data,
-                          data.ddq_dq,data.ddq_dv,data.Minv);
-  }
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
   /// \brief The derivatives of the Articulated-Body algorithm with external forces.
@@ -217,12 +205,12 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau);
 
   ///
   /// \brief The derivatives of the Articulated-Body algorithm with external forces.
@@ -239,17 +227,17 @@ namespace pinocchio
   /// \sa pinocchio::aba
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
-  {
-    computeABADerivatives(model,data,fext,
-                          data.ddq_dq,data.ddq_dv,data.Minv);
-  }
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
 
 } // namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/aba-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_aba_derivatives_hpp__

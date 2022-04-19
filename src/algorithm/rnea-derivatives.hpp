@@ -31,7 +31,7 @@ namespace pinocchio
   /// \sa pinocchio::computeGeneralizedGravity
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
-  inline void
+  void
   computeGeneralizedGravityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -56,7 +56,7 @@ namespace pinocchio
   /// \sa pinocchio::computeGeneralizedTorque
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
-  inline void
+  void
   computeStaticTorqueDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                  const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -91,7 +91,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -130,7 +130,7 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -163,16 +163,12 @@ namespace pinocchio
   /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
-                         const Eigen::MatrixBase<TangentVectorType2> & a)
-  {
-    computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),
-                           data.dtau_dq, data.dtau_dv, data.M);
-  }
+                         const Eigen::MatrixBase<TangentVectorType2> & a);
   
   ///
   /// \brief Computes the derivatives of the Recursive Newton Euler Algorithms
@@ -197,21 +193,20 @@ namespace pinocchio
   /// \sa pinocchio::rnea, pinocchio::crba, pinocchio::cholesky::decompose
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a,
-                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
-  {
-    computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),fext,
-                           data.dtau_dq, data.dtau_dv, data.M);
-  }
-
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
 
 } // namespace pinocchio 
 
 #include "pinocchio/algorithm/rnea-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/rnea-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_rnea_derivatives_hpp__

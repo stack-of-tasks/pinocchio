@@ -11,7 +11,7 @@
 
 namespace pinocchio
 {
-  
+namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct ComputeABADerivativesForwardStep1
   : public fusion::JointUnaryVisitorBase< ComputeABADerivativesForwardStep1<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
@@ -111,7 +111,7 @@ namespace pinocchio
       
       jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
       
-      internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+      ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
       jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
       
       MatrixType & Minv_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,Minv);
@@ -327,14 +327,14 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                             const Eigen::MatrixBase<TangentVectorType1> & v,
+                             const Eigen::MatrixBase<TangentVectorType2> & tau,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
@@ -396,15 +396,15 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const Eigen::MatrixBase<ConfigVectorType> & q,
-                                    const Eigen::MatrixBase<TangentVectorType1> & v,
-                                    const Eigen::MatrixBase<TangentVectorType2> & tau,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const Eigen::MatrixBase<ConfigVectorType> & q,
+                             const Eigen::MatrixBase<TangentVectorType1> & v,
+                             const Eigen::MatrixBase<TangentVectorType2> & tau,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The joint configuration vector is not of right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(v.size(), model.nv, "The joint velocity vector is not of right size");
@@ -534,7 +534,7 @@ namespace pinocchio
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       
-      typedef ::pinocchio::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> SimilarBase;
+      typedef ::pinocchio::impl::ComputeABADerivativesForwardStep2<Scalar,Options,JointCollectionTpl,MatrixType> SimilarBase;
       
       typedef boost::fusion::vector<const Model &,
                                     Data &,
@@ -606,7 +606,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
+  typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
   computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
@@ -659,12 +659,12 @@ namespace pinocchio
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                    const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                                    const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                                    const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                                    const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+  void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                             const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(fext.size() == (size_t)model.njoints, "The size of the external forces is not of right size");
     PINOCCHIO_CHECK_INPUT_ARGUMENT(aba_partial_dq.cols() == model.nv);
@@ -715,6 +715,142 @@ namespace pinocchio
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType1,aba_partial_dq).noalias() = -Minv_*data.dtau_dq;
     PINOCCHIO_EIGEN_CONST_CAST(MatrixType2,aba_partial_dv).noalias() = -Minv_*data.dtau_dv;
   }
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+typename std::enable_if<ConfigVectorType::IsVectorAtCompileTime || TangentVectorType1::IsVectorAtCompileTime || TangentVectorType2::IsVectorAtCompileTime,void>::type
+computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVectorType1> & v,
+                      const Eigen::MatrixBase<TangentVectorType2> & tau)
+{
+  ::pinocchio::impl::computeABADerivatives(model,data,q,v,tau,
+                                           data.ddq_dq,data.ddq_dv,data.Minv);
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                           const Eigen::MatrixBase<TangentVectorType1> & v,
+                           const Eigen::MatrixBase<TangentVectorType2> & tau,
+                           const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+{
+  ::pinocchio::impl::computeABADerivatives(model,data,q,v,tau,fext,
+                                           data.ddq_dq,data.ddq_dv,data.Minv);
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data)
+{
+  ::pinocchio::impl::computeABADerivatives(model,data,
+                                           data.ddq_dq,data.ddq_dv,data.Minv);
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+{
+  ::pinocchio::impl::computeABADerivatives(model,data,fext,
+                                           data.ddq_dq,data.ddq_dv,data.Minv);
+}
+
+} // namespace impl
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+          typename MatrixType1, typename MatrixType2, typename MatrixType3>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType1> & v,
+                            const Eigen::MatrixBase<TangentVectorType2> & tau,
+                            const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                            const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                            const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+{
+  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),
+                              make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+typename MatrixType1, typename MatrixType2, typename MatrixType3>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType1> & v,
+                            const Eigen::MatrixBase<TangentVectorType2> & tau,
+                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                            const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                            const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                            const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+{
+  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),fext,
+                              make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+} 
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+typename std::enable_if<ConfigVectorType::IsVectorAtCompileTime || TangentVectorType1::IsVectorAtCompileTime || TangentVectorType2::IsVectorAtCompileTime,void>::type
+computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVectorType1> & v,
+                      const Eigen::MatrixBase<TangentVectorType2> & tau)
+{
+  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType1> & v,
+                            const Eigen::MatrixBase<TangentVectorType2> & tau,
+                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+{
+  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename MatrixType1, typename MatrixType2, typename MatrixType3>
+typename std::enable_if<!(MatrixType1::IsVectorAtCompileTime || MatrixType2::IsVectorAtCompileTime || MatrixType3::IsVectorAtCompileTime),void>::type
+computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                      const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                      const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+{
+  impl::computeABADerivatives(model,data,make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data)
+{
+  impl::computeABADerivatives(model,data,make_ref2(data.ddq_dq),make_ref2(data.ddq_dv),make_ref2(data.Minv));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename MatrixType1, typename MatrixType2, typename MatrixType3>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                            const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                            const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                            const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+{
+  impl::computeABADerivatives(model,data,fext,make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+{
+  impl::computeABADerivatives(model,data,fext,
+                              make_ref2(data.ddq_dq),make_ref2(data.ddq_dv),make_ref2(data.Minv));
+}
 
 } // namespace pinocchio
 

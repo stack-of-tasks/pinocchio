@@ -173,7 +173,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline FrameIndex
+  FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addJointFrame(const JointIndex & joint_index,
                 int previous_frame_index)
@@ -358,7 +358,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void ModelTpl<Scalar,Options,JointCollectionTpl>::
+  void ModelTpl<Scalar,Options,JointCollectionTpl>::
   appendBodyToJoint(const typename ModelTpl::JointIndex joint_index,
                     const Inertia & Y,
                     const SE3 & body_placement)
@@ -369,7 +369,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addBodyFrame(const std::string & body_name,
                const JointIndex  & parentJoint,
@@ -444,7 +444,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
+  typename ModelTpl<Scalar,Options,JointCollectionTpl>::FrameIndex
   ModelTpl<Scalar,Options,JointCollectionTpl>::
   addFrame(const Frame & frame, const bool append_inertia)
   {
@@ -469,7 +469,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void ModelTpl<Scalar,Options,JointCollectionTpl>::
+  void ModelTpl<Scalar,Options,JointCollectionTpl>::
   addJointIndexToParentSubtrees(const JointIndex joint_id)
   {
     for(JointIndex parent = parents[joint_id]; parent>0; parent = parents[parent])

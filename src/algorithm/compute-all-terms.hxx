@@ -12,7 +12,7 @@
 #include "pinocchio/algorithm/check.hpp"
 
 namespace pinocchio
-{
+{ namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   struct CATForwardStep
   : public fusion::JointUnaryVisitorBase< CATForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> >
@@ -134,10 +134,10 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                              DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                              const Eigen::MatrixBase<ConfigVectorType> & q,
-                              const Eigen::MatrixBase<TangentVectorType> & v)
+  void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const Eigen::MatrixBase<TangentVectorType> & v)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
@@ -202,8 +202,18 @@ namespace pinocchio
     data.g.noalias() = -data.Ag.template middleRows<3>(Force::LINEAR).transpose() * model.gravity.linear();
     
     // Energy
-    computeMechanicalEnergy(model, data);
+    ::pinocchio::computeMechanicalEnergy(model, data);
   }
+} // namespace impl
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const Eigen::MatrixBase<TangentVectorType> & v)
+{
+  pinocchio::impl::computeAllTerms(model,data,make_ref(q),make_ref(v));
+}
 
 } // namespace pinocchio
 

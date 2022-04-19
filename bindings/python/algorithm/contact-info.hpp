@@ -149,7 +149,7 @@ namespace pinocchio
                                       bp::no_init)
         .def(RigidConstraintModelPythonVisitor())
         .def(CastVisitor<Model>())
-        .def(ExposeConstructorByCastVisitor<RigidConstraintModel,::pinocchio::RigidConstraintModel>())
+        .def(ExposeConstructorByCastVisitor<RigidConstraintModel,::pinocchio::context::RigidConstraintModel>())
         ;
         
         BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters>::expose();

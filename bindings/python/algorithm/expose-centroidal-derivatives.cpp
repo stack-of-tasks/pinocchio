@@ -40,7 +40,7 @@ namespace pinocchio
       Matrix6x partial_dv(Matrix6x::Zero(6,model.nv));
       Matrix6x partial_da(Matrix6x::Zero(6,model.nv));
 
-      getCentroidalDynamicsDerivatives(model,data, partialh_dq, partial_dq, partial_dv, partial_da);
+      impl::getCentroidalDynamicsDerivatives(model,data, partialh_dq, partial_dq, partial_dv, partial_da);
       return bp::make_tuple(partialh_dq,partial_dq,partial_dv,partial_da);
     }
 

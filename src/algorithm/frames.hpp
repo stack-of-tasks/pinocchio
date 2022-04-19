@@ -478,4 +478,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/frames.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/frames.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
+
 #endif // ifndef __pinocchio_algorithm_frames_hpp__

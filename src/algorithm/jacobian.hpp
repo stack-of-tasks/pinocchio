@@ -27,7 +27,7 @@ namespace pinocchio
   /// \return The full model Jacobian (matrix 6 x model.nv).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -46,10 +46,10 @@ namespace pinocchio
   /// \return The full model Jacobian (matrix 6 x model.nv).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data);
-  
+
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
@@ -64,11 +64,11 @@ namespace pinocchio
   /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
-  inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const JointIndex joint_id,
-                               const ReferenceFrame reference_frame,
-                               const Eigen::MatrixBase<Matrix6Like> & J);
+  void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const JointIndex joint_id,
+                        const ReferenceFrame reference_frame,
+                        const Eigen::MatrixBase<Matrix6Like> & J);
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
@@ -115,12 +115,11 @@ namespace pinocchio
   ///         to call computeJointJacobians(model,data,q) followed by getJointJacobian(model,data,jointId,LOCAL,J) for each Jacobian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
-  inline void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                   const Eigen::MatrixBase<ConfigVectorType> & q,
-                                   const JointIndex joint_id,
-                                   const Eigen::MatrixBase<Matrix6Like> & J);
-  
+  void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const JointIndex joint_id,
+                            const Eigen::MatrixBase<Matrix6Like> & J);
   ///
   /// \brief This function is now deprecated and has been renamed into computeJointJacobian. It will be removed in future releases of Pinocchio.
   ///
@@ -128,11 +127,11 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
   PINOCCHIO_DEPRECATED
-  inline void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const JointIndex jointId,
-                            const Eigen::MatrixBase<Matrix6Like> & J)
+  void jointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const JointIndex jointId,
+                     const Eigen::MatrixBase<Matrix6Like> & J)
   {
     computeJointJacobian(model,data,q,jointId,PINOCCHIO_EIGEN_CONST_CAST(Matrix6Like,J));
   }
@@ -153,7 +152,7 @@ namespace pinocchio
   /// \return The full model Jacobian (matrix 6 x model.nv).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobiansTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -173,11 +172,11 @@ namespace pinocchio
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
-  inline void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                            const JointIndex joint_id,
-                                            const ReferenceFrame reference_frame,
-                                            const Eigen::MatrixBase<Matrix6Like> & dJ);
+  void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const JointIndex joint_id,
+                                     const ReferenceFrame reference_frame,
+                                     const Eigen::MatrixBase<Matrix6Like> & dJ);
   
 } // namespace pinocchio 
 
@@ -186,5 +185,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 
 #include "pinocchio/algorithm/jacobian.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/jacobian.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_jacobian_hpp__

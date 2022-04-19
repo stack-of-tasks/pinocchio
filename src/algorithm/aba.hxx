@@ -12,7 +12,7 @@
 /// @cond DEV
 
 namespace pinocchio
-{
+{ namespace impl {
   namespace internal
   {
 
@@ -169,7 +169,7 @@ namespace pinocchio
         // Account for the rotor inertia contribution
         jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
         
-        internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+        ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
         jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
         
         if(parent > 0)
@@ -225,7 +225,7 @@ namespace pinocchio
   } // namespace optimized
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
       DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -274,7 +274,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
       DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -436,7 +436,7 @@ namespace pinocchio
     };
   
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
     aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -486,7 +486,7 @@ namespace pinocchio
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
     aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -615,7 +615,7 @@ namespace pinocchio
       // Account for the rotor inertia contribution
       jdata.StU().diagonal() += jmodel.jointVelocitySelector(model.armature);
       
-      internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
+      ::pinocchio::internal::PerformStYSInversion<Scalar>::run(jdata.StU(),jdata.Dinv());
       jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
 
       Minv.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),jmodel.nv()) = jdata.Dinv();
@@ -741,7 +741,7 @@ namespace pinocchio
   };
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -776,9 +776,10 @@ namespace pinocchio
 
     return data.Minv;
   }
+} // namespace impl
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                 DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -788,14 +789,14 @@ namespace pinocchio
     data.Minv.template triangularView<Eigen::Upper>().setZero();
 
     data.Fcrb[0].setZero();
-    typedef optimized::ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
+    typedef impl::optimized::ComputeMinverseBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
     for(JointIndex i=(JointIndex)model.njoints-1; i>0; --i)
     {
       Pass2::run(model.joints[i],data.joints[i],
                  typename Pass2::ArgsType(model,data));
     }
 
-    typedef ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
+    typedef impl::ComputeMinverseForwardStep2<Scalar,Options,JointCollectionTpl> Pass3;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       Pass3::run(model.joints[i],data.joints[i],
@@ -825,6 +826,63 @@ namespace pinocchio
         return false;
     return true;
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau)
+  {
+    return impl::aba(model,data,make_ref(q),make_ref(v),make_ref(tau));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType1> & v,
+      const Eigen::MatrixBase<TangentVectorType2> & tau,
+      const container::aligned_vector<ForceDerived> & fext)
+  {
+    return impl::aba(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+  }
+
+  namespace minimal { 
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType1> & v,
+        const Eigen::MatrixBase<TangentVectorType2> & tau)
+    {
+      return impl::minimal::aba(model,data,make_ref(q),make_ref(v),make_ref(tau));
+    }
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+        DataTpl<Scalar,Options,JointCollectionTpl> & data,
+        const Eigen::MatrixBase<ConfigVectorType> & q,
+        const Eigen::MatrixBase<TangentVectorType1> & v,
+        const Eigen::MatrixBase<TangentVectorType2> & tau,
+        const container::aligned_vector<ForceDerived> & fext)
+    {
+      return impl::minimal::aba(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+    }
+  } // namespace minimal
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                const Eigen::MatrixBase<ConfigVectorType> & q)
+{
+  return impl::computeMinverse(model,data,make_ref(q));
+}                
 
 } // namespace pinocchio
 

@@ -40,14 +40,12 @@ namespace pinocchio
   template<typename Derived> class MotionBase;
   template<typename Derived> class MotionDense;
   template<typename Vector6ArgType> class MotionRef;
-  template<typename Scalar, int Options=context::Options> class MotionTpl;
   template<typename Scalar, int Options=context::Options> struct MotionZeroTpl;
   template<typename Scalar, int Options=context::Options> struct PINOCCHIO_DEPRECATED BiasZeroTpl;
   
   template<typename Derived> class ForceBase;
   template<typename Derived> class ForceDense;
   template<typename Vector6ArgType> class ForceRef;
-  template<typename Scalar, int Options=context::Options> class ForceTpl;
   
   template<typename Scalar, int Options=context::Options> struct InertiaTpl;
   template<typename Scalar, int Options=context::Options> class Symmetric3Tpl;

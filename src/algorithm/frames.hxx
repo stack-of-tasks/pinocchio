@@ -188,7 +188,7 @@ namespace pinocchio
       case WORLD:
       case LOCAL_WORLD_ALIGNED:
       {
-        typedef JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> Pass;
+        typedef impl::JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> Pass;
         for(size_t k = 1; k < joint_support.size(); k++)
         {
           JointIndex parent = joint_support[k];
@@ -219,7 +219,7 @@ namespace pinocchio
       {
         data.iMf[joint_id] = frame.placement;
         
-        typedef JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> Pass;
+        typedef impl::JointJacobianForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> Pass;
         for(JointIndex i=joint_id; i>0; i=model.parents[i])
         {
           Pass::run(model.joints[i],data.joints[i],

@@ -133,7 +133,7 @@ namespace pinocchio
         }
         default:
         {
-          assert(false && "must nerver happened");
+          assert(false && "must never happened");
           break;
         }
       }
@@ -195,7 +195,7 @@ namespace pinocchio
         }
         default:
         {
-          assert(false && "must nerver happened");
+          assert(false && "must never happened");
           break;
         }
       }

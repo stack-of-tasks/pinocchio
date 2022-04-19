@@ -58,9 +58,9 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename Matrix3xOut>
-  inline void getCenterOfMassVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                 const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq)
+  void getCenterOfMassVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                          const Eigen::MatrixBase<Matrix3xOut> & vcom_partial_dq)
   {
     EIGEN_STATIC_ASSERT_SAME_MATRIX_SIZE(Matrix3xOut,Data::Matrix3x);
     

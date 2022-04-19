@@ -10,7 +10,7 @@
 
 namespace pinocchio
 {
-  
+namespace impl {  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct ComputeGeneralizedGravityDerivativeForwardStep
   : public fusion::JointUnaryVisitorBase< ComputeGeneralizedGravityDerivativeForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
@@ -115,7 +115,7 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
-  inline void
+  void
   computeGeneralizedGravityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -148,7 +148,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
-  inline void
+  void
   computeStaticTorqueDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                  const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -382,7 +382,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -443,7 +443,7 @@ namespace pinocchio
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
   typename MatrixType1, typename MatrixType2, typename MatrixType3>
-  inline void
+  void
   computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -502,7 +502,112 @@ namespace pinocchio
     data.tau.array() += model.armature.array() * a.array(); // TODO: check if there is memory allocation
     data.M.diagonal() += model.armature;
   }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const Eigen::MatrixBase<ConfigVectorType> & q,
+                          const Eigen::MatrixBase<TangentVectorType1> & v,
+                          const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    impl::computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),
+                                 data.dtau_dq, data.dtau_dv, data.M);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const Eigen::MatrixBase<ConfigVectorType> & q,
+                          const Eigen::MatrixBase<TangentVectorType1> & v,
+                          const Eigen::MatrixBase<TangentVectorType2> & a,
+                          const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+  {
+    impl::computeRNEADerivatives(model,data,q.derived(),v.derived(),a.derived(),fext,
+                                 data.dtau_dq, data.dtau_dv, data.M);
+  }
   
+} // namespace impl
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
+  void
+  computeGeneralizedGravityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                                       const Eigen::MatrixBase<ReturnMatrixType> & gravity_partial_dq)
+  {
+    impl::computeGeneralizedGravityDerivatives(model,data,make_ref(q),make_ref2(gravity_partial_dq));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename ReturnMatrixType>
+  void
+  computeStaticTorqueDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                                 const Eigen::MatrixBase<ReturnMatrixType> & static_torque_partial_dq)
+  {
+    impl::computeStaticTorqueDerivatives(model,data,make_ref(q),fext,make_ref2(static_torque_partial_dq));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
+  {
+    impl::computeRNEADerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),make_ref2(rnea_partial_dq),
+                                 make_ref2(rnea_partial_dv),make_ref2(rnea_partial_da));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
+  typename MatrixType1, typename MatrixType2, typename MatrixType3>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                         const Eigen::MatrixBase<MatrixType1> & rnea_partial_dq,
+                         const Eigen::MatrixBase<MatrixType2> & rnea_partial_dv,
+                         const Eigen::MatrixBase<MatrixType3> & rnea_partial_da)
+  {
+    impl::computeRNEADerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),fext,make_ref2(rnea_partial_dq),
+                                 make_ref2(rnea_partial_dv),make_ref2(rnea_partial_da));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    impl::computeRNEADerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),
+                                 make_ref2(data.dtau_dq),make_ref2(data.dtau_dv),make_ref2(data.M));
+  }
+  
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  void
+  computeRNEADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                         const Eigen::MatrixBase<TangentVectorType2> & a,
+                         const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+  {
+    impl::computeRNEADerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),fext,
+                                 make_ref2(data.dtau_dq),make_ref2(data.dtau_dv),make_ref2(data.M));
+  }
 
 } // namespace pinocchio
 
