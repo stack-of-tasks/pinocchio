@@ -405,7 +405,7 @@ computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       const Eigen::MatrixBase<ConfigVectorType> & q)
 {
-  return impl::computeJointJacobians(model,data,make_ref(q));
+  return impl::computeJointJacobians(model,data,make_const_ref(q));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
@@ -415,7 +415,7 @@ void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const ReferenceFrame reference_frame,
                       const Eigen::MatrixBase<Matrix6Like> & J)
 {
-  impl::getJointJacobian(model,data,joint_id,reference_frame,make_ref2(J));
+  impl::getJointJacobian(model,data,joint_id,reference_frame,make_ref(J));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
@@ -425,7 +425,7 @@ void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & mo
                           const JointIndex joint_id,
                           const Eigen::MatrixBase<Matrix6Like> & J)
 {
-  impl::computeJointJacobian(model,data,make_ref(q),joint_id,make_ref2(J));
+  impl::computeJointJacobian(model,data,make_const_ref(q),joint_id,make_ref(J));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -436,7 +436,7 @@ computeJointJacobiansTimeVariation(const ModelTpl<Scalar,Options,JointCollection
                                    const Eigen::MatrixBase<TangentVectorType> & v)
 
 {
-  return impl::computeJointJacobiansTimeVariation(model,data,make_ref(q),make_ref(v));
+  return impl::computeJointJacobiansTimeVariation(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
@@ -446,7 +446,7 @@ void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollection
                                    const ReferenceFrame reference_frame,
                                    const Eigen::MatrixBase<Matrix6Like> & dJ)
 {
-  impl::getJointJacobianTimeVariation(model,data,joint_id,reference_frame,make_ref2(dJ));
+  impl::getJointJacobianTimeVariation(model,data,joint_id,reference_frame,make_ref(dJ));
 }
 
 } // namespace pinocchio

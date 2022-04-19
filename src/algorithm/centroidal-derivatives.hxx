@@ -444,32 +444,32 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
 void
 computeCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                      const Eigen::MatrixBase<ConfigVectorType> & q,
-                                      const Eigen::MatrixBase<TangentVectorType1> & v,
-                                      const Eigen::MatrixBase<TangentVectorType2> & a,
-                                      const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
-                                      const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
-                                      const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
-                                      const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
+                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                                     const Eigen::MatrixBase<TangentVectorType1> & v,
+                                     const Eigen::MatrixBase<TangentVectorType2> & a,
+                                     const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
+                                     const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
+                                     const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
+                                     const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
 {
-  impl::computeCentroidalDynamicsDerivatives(model,data,make_ref(q),make_ref(v),make_ref(a),
-                                             make_ref2(dh_dq),make_ref2(dhdot_dq),make_ref2(dhdot_dv),
-                                             make_ref2(dhdot_da));
+  impl::computeCentroidalDynamicsDerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a),
+                                             make_ref(dh_dq),make_ref(dhdot_dq),make_ref(dhdot_dv),
+                                             make_ref(dhdot_da));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename Matrix6xLike0, typename Matrix6xLike1, typename Matrix6xLike2, typename Matrix6xLike3>
 void
 getCentroidalDynamicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                  const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
-                                  const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
-                                  const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
-                                  const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<Matrix6xLike0> & dh_dq,
+                                 const Eigen::MatrixBase<Matrix6xLike1> & dhdot_dq,
+                                 const Eigen::MatrixBase<Matrix6xLike2> & dhdot_dv,
+                                 const Eigen::MatrixBase<Matrix6xLike3> & dhdot_da)
 {
-  impl::getCentroidalDynamicsDerivatives(model,data,make_ref2(dh_dq),make_ref2(dhdot_dq),
-                                         make_ref2(dhdot_dv),make_ref2(dhdot_da));
+  impl::getCentroidalDynamicsDerivatives(model,data,make_ref(dh_dq),make_ref(dhdot_dq),
+                                         make_ref(dhdot_dv),make_ref(dhdot_da));
 }    
 
 } // namespace pinocchio

@@ -286,7 +286,7 @@ namespace pinocchio
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    impl::forwardKinematics(model,data,make_ref(q));
+    impl::forwardKinematics(model,data,make_const_ref(q));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -295,7 +295,7 @@ namespace pinocchio
                          const Eigen::MatrixBase<ConfigVectorType> & q,
                          const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    impl::forwardKinematics(model,data,make_ref(q),make_ref(v));
+    impl::forwardKinematics(model,data,make_const_ref(q),make_const_ref(v));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -305,7 +305,7 @@ namespace pinocchio
                          const Eigen::MatrixBase<TangentVectorType1> & v,
                          const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    impl::forwardKinematics(model,data,make_ref(q),make_ref(v),make_ref(a));
+    impl::forwardKinematics(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a));
   }
 } // namespace pinocchio
 

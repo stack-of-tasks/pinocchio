@@ -770,8 +770,8 @@ void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & m
                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
 {
-  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),
-                              make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+  impl::computeABADerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau),
+                              make_ref(aba_partial_dq),make_ref(aba_partial_dv),make_ref(aba_partial_dtau));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2,
@@ -786,8 +786,8 @@ void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & m
                             const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                             const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
 {
-  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),fext,
-                              make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+  impl::computeABADerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau),fext,
+                              make_ref(aba_partial_dq),make_ref(aba_partial_dv),make_ref(aba_partial_dtau));
 } 
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -798,7 +798,7 @@ computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<TangentVectorType1> & v,
                       const Eigen::MatrixBase<TangentVectorType2> & tau)
 {
-  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau));
+  impl::computeABADerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -809,7 +809,7 @@ void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & m
                             const Eigen::MatrixBase<TangentVectorType2> & tau,
                             const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
 {
-  impl::computeABADerivatives(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+  impl::computeABADerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau),fext);
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
@@ -821,35 +821,35 @@ computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
                       const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
 {
-  impl::computeABADerivatives(model,data,make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+  impl::computeABADerivatives(model,data,make_ref(aba_partial_dq),make_ref(aba_partial_dv),make_ref(aba_partial_dtau));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
 void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data)
 {
-  impl::computeABADerivatives(model,data,make_ref2(data.ddq_dq),make_ref2(data.ddq_dv),make_ref2(data.Minv));
+  impl::computeABADerivatives(model,data,make_ref(data.ddq_dq),make_ref(data.ddq_dv),make_ref(data.Minv));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename MatrixType1, typename MatrixType2, typename MatrixType3>
 void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
-                            const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
-                            const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
-                            const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const container::aligned_vector< ForceTpl<Scalar,Options> > & fext,
+                           const Eigen::MatrixBase<MatrixType1> & aba_partial_dq,
+                           const Eigen::MatrixBase<MatrixType2> & aba_partial_dv,
+                           const Eigen::MatrixBase<MatrixType3> & aba_partial_dtau)
 {
-  impl::computeABADerivatives(model,data,fext,make_ref2(aba_partial_dq),make_ref2(aba_partial_dv),make_ref2(aba_partial_dtau));
+  impl::computeABADerivatives(model,data,fext,make_ref(aba_partial_dq),make_ref(aba_partial_dv),make_ref(aba_partial_dtau));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
 void computeABADerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                            const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
+                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                           const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
 {
   impl::computeABADerivatives(model,data,fext,
-                              make_ref2(data.ddq_dq),make_ref2(data.ddq_dv),make_ref2(data.Minv));
+                              make_ref(data.ddq_dq),make_ref(data.ddq_dv),make_ref(data.Minv));
 }
 
 } // namespace pinocchio

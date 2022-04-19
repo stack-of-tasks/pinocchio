@@ -411,7 +411,7 @@ computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & mo
                           const Eigen::MatrixBase<ConfigVectorType> & q,
                           const Eigen::MatrixBase<TangentVectorType> & v)
 {
-  return impl::computeCentroidalMomentum(model,data,make_ref(q),make_ref(v));
+  return impl::computeCentroidalMomentum(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
@@ -423,7 +423,7 @@ computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollec
                                        const Eigen::MatrixBase<TangentVectorType1> & v,
                                        const Eigen::MatrixBase<TangentVectorType2> & a)
 {
-  return impl::computeCentroidalMomentumTimeVariation(model,data,make_ref(q),make_ref(v),make_ref(a));
+  return impl::computeCentroidalMomentumTimeVariation(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a));
 }                                       
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -433,7 +433,7 @@ ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
       const Eigen::MatrixBase<ConfigVectorType> & q,
       const Eigen::MatrixBase<TangentVectorType> & v)
 {
-  return impl::ccrba(model,data,make_ref(q),make_ref(v));
+  return impl::ccrba(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -442,7 +442,7 @@ computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                      const Eigen::MatrixBase<ConfigVectorType> & q)
 {
-  return impl::computeCentroidalMap(model,data,make_ref(q));
+  return impl::computeCentroidalMap(model,data,make_const_ref(q));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -452,7 +452,7 @@ dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        const Eigen::MatrixBase<ConfigVectorType> & q,
        const Eigen::MatrixBase<TangentVectorType> & v)
 {
-  return impl::dccrba(model,data,make_ref(q),make_ref(v));
+  return impl::dccrba(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -462,7 +462,7 @@ computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionT
                                   const Eigen::MatrixBase<ConfigVectorType> & q,
                                   const Eigen::MatrixBase<TangentVectorType> & v)
 {
-  return impl::computeCentroidalMapTimeVariation(model,data,make_ref(q),make_ref(v));
+  return impl::computeCentroidalMapTimeVariation(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 } // namespace pinocchio

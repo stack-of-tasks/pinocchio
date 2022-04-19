@@ -153,7 +153,7 @@ namespace impl {
                        const Eigen::MatrixBase<ConfigVectorType> & q,
                        const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return impl::computeKineticEnergy(model,data,make_ref(q),make_ref(v));
+    return impl::computeKineticEnergy(model,data,make_const_ref(q),make_const_ref(v));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -162,7 +162,7 @@ namespace impl {
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                          const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    return impl::computePotentialEnergy(model,data,make_ref(q));
+    return impl::computePotentialEnergy(model,data,make_const_ref(q));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -171,7 +171,7 @@ namespace impl {
                                  const Eigen::MatrixBase<ConfigVectorType> & q,
                                  const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return impl::computeMechanicalEnergy(model,data,make_ref(q),make_ref(v));
+    return impl::computeMechanicalEnergy(model,data,make_const_ref(q),make_const_ref(v));
   }
 
 } // namespace pinocchio

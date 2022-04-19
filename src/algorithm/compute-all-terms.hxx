@@ -208,11 +208,11 @@ namespace pinocchio
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
 void computeAllTerms(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                      const Eigen::MatrixBase<ConfigVectorType> & q,
-                      const Eigen::MatrixBase<TangentVectorType> & v)
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q,
+                     const Eigen::MatrixBase<TangentVectorType> & v)
 {
-  pinocchio::impl::computeAllTerms(model,data,make_ref(q),make_ref(v));
+  pinocchio::impl::computeAllTerms(model,data,make_const_ref(q),make_const_ref(v));
 }
 
 } // namespace pinocchio

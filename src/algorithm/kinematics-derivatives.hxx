@@ -1145,7 +1145,7 @@ namespace pinocchio
                                            const Eigen::MatrixBase<TangentVectorType1> & v,
                                            const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    impl::computeForwardKinematicsDerivatives(model,data,make_ref(q),make_ref(v),make_ref(a));
+    impl::computeForwardKinematicsDerivatives(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
@@ -1156,7 +1156,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
                                    const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv)
   {
-    impl::getJointVelocityDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(v_partial_dv));
+    impl::getJointVelocityDerivatives(model,data,jointId,rf,make_ref(v_partial_dq),make_ref(v_partial_dv));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
@@ -1169,8 +1169,8 @@ namespace pinocchio
                                        const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
                                        const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da)
   {
-    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(a_partial_dq),
-                                          make_ref2(a_partial_dv),make_ref2(a_partial_da));
+    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref(v_partial_dq),make_ref(a_partial_dq),
+                                          make_ref(a_partial_dv),make_ref(a_partial_da));
   }  
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
@@ -1184,8 +1184,8 @@ namespace pinocchio
                                        const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
                                        const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da)
   {
-    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref2(v_partial_dq),make_ref2(v_partial_dv),make_ref2(a_partial_dq),
-                                          make_ref2(a_partial_dv),make_ref2(a_partial_da));
+    impl::getJointAccelerationDerivatives(model,data,jointId,rf,make_ref(v_partial_dq),make_ref(v_partial_dv),make_ref(a_partial_dq),
+                                          make_ref(a_partial_dv),make_ref(a_partial_da));
   }  
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
@@ -1197,7 +1197,7 @@ namespace pinocchio
                                    const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
                                    const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv)
   {
-    impl::getPointVelocityDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(v_point_partial_dv));
+    impl::getPointVelocityDerivatives(model,data,joint_id,placement,rf,make_ref(v_point_partial_dq),make_ref(v_point_partial_dv));
   }  
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
@@ -1211,8 +1211,8 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
                                               const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da)
   {
-    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(a_point_partial_dq),
-                                                 make_ref2(a_point_partial_dv),make_ref2(a_point_partial_da));
+    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref(v_point_partial_dq),make_ref(a_point_partial_dq),
+                                                 make_ref(a_point_partial_dv),make_ref(a_point_partial_da));
   }  
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
@@ -1227,8 +1227,8 @@ namespace pinocchio
                                               const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
                                               const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da)
   {
-    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref2(v_point_partial_dq),make_ref2(v_point_partial_dv),make_ref2(a_point_partial_dq),
-                                                 make_ref2(a_point_partial_dv),make_ref2(a_point_partial_da));
+    impl::getPointClassicAccelerationDerivatives(model,data,joint_id,placement,rf,make_ref(v_point_partial_dq),make_ref(v_point_partial_dv),make_ref(a_point_partial_dq),
+                                                 make_ref(a_point_partial_dv),make_ref(a_point_partial_da));
   }  
 
 } // namespace pinocchio

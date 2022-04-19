@@ -502,7 +502,7 @@ centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorType> & q,
              const bool computeSubtreeComs)
 {
-  return impl::centerOfMass(model,data,make_ref(q),computeSubtreeComs);
+  return impl::centerOfMass(model,data,make_const_ref(q),computeSubtreeComs);
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -513,7 +513,7 @@ centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<TangentVectorType> & v,
              const bool computeSubtreeComs)
 {
-  return impl::centerOfMass(model,data,make_ref(q),make_ref(v),computeSubtreeComs);
+  return impl::centerOfMass(model,data,make_const_ref(q),make_const_ref(v),computeSubtreeComs);
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
@@ -525,7 +525,7 @@ centerOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<TangentVectorType2> & a,
              const bool computeSubtreeComs)  
 {
-  return impl::centerOfMass(model,data,make_ref(q),make_ref(v),make_ref(a),computeSubtreeComs);
+  return impl::centerOfMass(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a),computeSubtreeComs);
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -535,7 +535,7 @@ jacobianCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      const Eigen::MatrixBase<ConfigVectorType> & q,
                      const bool computeSubtreeComs)
 {
-  return impl::jacobianCenterOfMass(model,data,make_ref(q),computeSubtreeComs);
+  return impl::jacobianCenterOfMass(model,data,make_const_ref(q),computeSubtreeComs);
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix3xLike>
@@ -546,7 +546,7 @@ jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & 
                             const JointIndex & rootSubtreeId,
                             const Eigen::MatrixBase<Matrix3xLike> & res)
 {
-  impl::jacobianSubtreeCenterOfMass(model,data,make_ref(q),rootSubtreeId,make_ref2(res));
+  impl::jacobianSubtreeCenterOfMass(model,data,make_const_ref(q),rootSubtreeId,make_ref(res));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
@@ -556,7 +556,7 @@ jacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl> & 
                             const JointIndex & rootSubtreeId,
                             const Eigen::MatrixBase<Matrix3xLike> & res)
 {
-  impl::jacobianSubtreeCenterOfMass(model,data,rootSubtreeId,make_ref2(res));
+  impl::jacobianSubtreeCenterOfMass(model,data,rootSubtreeId,make_ref(res));
 }
 
 template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xLike>
@@ -566,7 +566,7 @@ getJacobianSubtreeCenterOfMass(const ModelTpl<Scalar,Options,JointCollectionTpl>
                                const JointIndex & rootSubtreeId,
                                const Eigen::MatrixBase<Matrix3xLike> & res)
 {
-  impl::getJacobianSubtreeCenterOfMass(model,data,rootSubtreeId,make_ref2(res));
+  impl::getJacobianSubtreeCenterOfMass(model,data,rootSubtreeId,make_ref(res));
 }
 
 } // namespace pinocchio

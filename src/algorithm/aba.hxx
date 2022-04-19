@@ -835,7 +835,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType1> & v,
       const Eigen::MatrixBase<TangentVectorType2> & tau)
   {
-    return impl::aba(model,data,make_ref(q),make_ref(v),make_ref(tau));
+    return impl::aba(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
@@ -847,7 +847,7 @@ namespace pinocchio
       const Eigen::MatrixBase<TangentVectorType2> & tau,
       const container::aligned_vector<ForceDerived> & fext)
   {
-    return impl::aba(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+    return impl::aba(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau),fext);
   }
 
   namespace minimal { 
@@ -859,7 +859,7 @@ namespace pinocchio
         const Eigen::MatrixBase<TangentVectorType1> & v,
         const Eigen::MatrixBase<TangentVectorType2> & tau)
     {
-      return impl::minimal::aba(model,data,make_ref(q),make_ref(v),make_ref(tau));
+      return impl::minimal::aba(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau));
     }
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
@@ -871,7 +871,7 @@ namespace pinocchio
         const Eigen::MatrixBase<TangentVectorType2> & tau,
         const container::aligned_vector<ForceDerived> & fext)
     {
-      return impl::minimal::aba(model,data,make_ref(q),make_ref(v),make_ref(tau),fext);
+      return impl::minimal::aba(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(tau),fext);
     }
   } // namespace minimal
 
@@ -881,7 +881,7 @@ computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<ConfigVectorType> & q)
 {
-  return impl::computeMinverse(model,data,make_ref(q));
+  return impl::computeMinverse(model,data,make_const_ref(q));
 }                
 
 } // namespace pinocchio

@@ -624,7 +624,7 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType1> & v,
        const Eigen::MatrixBase<TangentVectorType2> & a)
   {
-    return impl::rnea(model,data,make_ref(q),make_ref(v),make_ref(a));
+    return impl::rnea(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
@@ -636,7 +636,7 @@ namespace pinocchio
        const Eigen::MatrixBase<TangentVectorType2> & a,
        const container::aligned_vector<ForceDerived> & fext)
   {
-    return impl::rnea(model,data,make_ref(q),make_ref(v),make_ref(a),fext);
+    return impl::rnea(model,data,make_const_ref(q),make_const_ref(v),make_const_ref(a),fext);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -646,7 +646,7 @@ namespace pinocchio
                    const Eigen::MatrixBase<ConfigVectorType> & q,
                    const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return impl::nonLinearEffects(model,data,make_ref(q),make_ref(v));
+    return impl::nonLinearEffects(model,data,make_const_ref(q),make_const_ref(v));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -655,7 +655,7 @@ namespace pinocchio
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    return impl::computeGeneralizedGravity(model,data,make_ref(q));
+    return impl::computeGeneralizedGravity(model,data,make_const_ref(q));
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
@@ -665,7 +665,7 @@ namespace pinocchio
                       const Eigen::MatrixBase<ConfigVectorType> & q,
                       const container::aligned_vector< ForceTpl<Scalar,Options> > & fext)
   {
-    return impl::computeStaticTorque(model,data,make_ref(q),fext);
+    return impl::computeStaticTorque(model,data,make_const_ref(q),fext);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
@@ -675,7 +675,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<ConfigVectorType> & q,
                         const Eigen::MatrixBase<TangentVectorType> & v)
   {
-    return impl::computeCoriolisMatrix(model,data,make_ref(q),make_ref(v));
+    return impl::computeCoriolisMatrix(model,data,make_const_ref(q),make_const_ref(v));
   }
 } // namespace pinocchio
 

@@ -52,13 +52,13 @@ namespace pinocchio {
 
 // Read and write
 template <typename Derived>
-Eigen::Ref<typename Derived::PlainObject> make_ref2(const Eigen::MatrixBase<Derived> & x){
+Eigen::Ref<typename Derived::PlainObject> make_ref(const Eigen::MatrixBase<Derived> & x){
     return Eigen::Ref<typename Derived::PlainObject>(x.const_cast_derived());
 }
 
 // Read-only
 template <typename M>
-auto make_ref(Eigen::MatrixBase<M> const & m)
+auto make_const_ref(Eigen::MatrixBase<M> const & m)
     -> Eigen::Ref<typename M::PlainObject const> {
     return m;
 }

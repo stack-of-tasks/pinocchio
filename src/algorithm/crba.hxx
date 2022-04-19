@@ -293,7 +293,7 @@ namespace minimal {
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q)
   {
-    return ::pinocchio::impl::minimal::crba(model,data,make_ref(q));
+    return ::pinocchio::impl::minimal::crba(model,data,make_const_ref(q));
   }
 } // namespace minimal
 
@@ -303,7 +303,7 @@ crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
      DataTpl<Scalar,Options,JointCollectionTpl> & data,
      const Eigen::MatrixBase<ConfigVectorType> & q)
 {
-  return ::pinocchio::impl::crba(model,data,make_ref(q));
+  return ::pinocchio::impl::crba(model,data,make_const_ref(q));
 }
 
 } // namespace pinocchio
