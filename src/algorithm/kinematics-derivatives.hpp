@@ -31,11 +31,11 @@ namespace pinocchio
   ///          In addition, it computes the spatial velocity of the joint expressed in the world frame (see data.ov).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                  const Eigen::MatrixBase<ConfigVectorType> & q,
-                                                  const Eigen::MatrixBase<TangentVectorType1> & v,
-                                                  const Eigen::MatrixBase<TangentVectorType2> & a);
+  void computeForwardKinematicsDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                           const Eigen::MatrixBase<ConfigVectorType> & q,
+                                           const Eigen::MatrixBase<TangentVectorType1> & v,
+                                           const Eigen::MatrixBase<TangentVectorType2> & a);
   
   ///
   /// \brief Computes the partial derivaties of the spatial velocity of a given with respect to
@@ -53,12 +53,12 @@ namespace pinocchio
   /// \param[out] v_partial_dv Partial derivative of the joint velociy w.r.t. \f$ v \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2>
-  inline void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                          const Model::JointIndex jointId,
-                                          const ReferenceFrame rf,
-                                          const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                          const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv);
+  void getJointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex jointId,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                   const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv);
   
   ///
   /// \brief Computes the partial derivaties of the spatial acceleration of a given with respect to
@@ -82,14 +82,14 @@ namespace pinocchio
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4>
-  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                              const Model::JointIndex jointId,
-                                              const ReferenceFrame rf,
-                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da);
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_da);
   
   ///
   /// \brief Computes the partial derivaties of the spatial acceleration of a given with respect to
@@ -115,15 +115,15 @@ namespace pinocchio
   /// \param[out] a_partial_dq Partial derivative of the joint spatial acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xOut1, typename Matrix6xOut2, typename Matrix6xOut3, typename Matrix6xOut4, typename Matrix6xOut5>
-  inline void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                              const Model::JointIndex jointId,
-                                              const ReferenceFrame rf,
-                                              const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
-                                              const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
-                                              const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
+  void getJointAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Model::JointIndex jointId,
+                                       const ReferenceFrame rf,
+                                       const Eigen::MatrixBase<Matrix6xOut1> & v_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut2> & v_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut3> & a_partial_dq,
+                                       const Eigen::MatrixBase<Matrix6xOut4> & a_partial_dv,
+                                       const Eigen::MatrixBase<Matrix6xOut5> & a_partial_da);
 
   ///
   /// \brief Computes the partial derivatives of the velocity of a point given by its placement information w.r.t. the joint frame.
@@ -141,14 +141,14 @@ namespace pinocchio
   /// \param[out] v_point_partial_dq Partial derivative of the point velocity w.r.t. \f$ q \f$.
   /// \param[out] v_point_partial_dv Partial derivative of the point velociy w.r.t. \f$ v \f$.
   ///
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
-  inline void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                          const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                          const Model::JointIndex joint_id,
-                                          const SE3Tpl<Scalar,Options> & placement,
-                                          const ReferenceFrame rf,
-                                          const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                          const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv);
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2>
+  void getPointVelocityDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Model::JointIndex joint_id,
+                                   const SE3Tpl<Scalar,Options> & placement,
+                                   const ReferenceFrame rf,
+                                   const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                   const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv);
 
   ///
   /// \brief Computes the partial derivatives of the classic acceleration of a point given by its placement information w.r.t. the joint frame.
@@ -173,15 +173,15 @@ namespace pinocchio
   /// \param[out] a_point_partial_da Partial derivative of the point classic acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4>
-  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                     const Model::JointIndex joint_id,
-                                                     const SE3Tpl<Scalar,Options> & placement,
-                                                     const ReferenceFrame rf,
-                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da);
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_da);
 
   ///
   /// \brief Computes the partial derivaties of the classic acceleration of a point given by its placement information w.r.t. to the joint frame.
@@ -207,16 +207,16 @@ namespace pinocchio
   /// \param[out] a_point_partial_da Partial derivative of the point classic acceleration w.r.t. \f$ \dot{v} \f$.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix3xOut1, typename Matrix3xOut2, typename Matrix3xOut3, typename Matrix3xOut4, typename Matrix3xOut5>
-  inline void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                     const Model::JointIndex joint_id,
-                                                     const SE3Tpl<Scalar,Options> & placement,
-                                                     const ReferenceFrame rf,
-                                                     const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
-                                                     const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
-                                                     const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da);
+  void getPointClassicAccelerationDerivatives(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                              const Model::JointIndex joint_id,
+                                              const SE3Tpl<Scalar,Options> & placement,
+                                              const ReferenceFrame rf,
+                                              const Eigen::MatrixBase<Matrix3xOut1> & v_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut2> & v_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut3> & a_point_partial_dq,
+                                              const Eigen::MatrixBase<Matrix3xOut4> & a_point_partial_dv,
+                                              const Eigen::MatrixBase<Matrix3xOut5> & a_point_partial_da);
 
   ///
   /// \brief Computes all the terms required to compute the second order derivatives of the placement information, also know as the
@@ -233,7 +233,7 @@ namespace pinocchio
   /// \remarks This function is also related to \see getJointKinematicHessian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void
+  void
   computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -253,7 +253,7 @@ namespace pinocchio
   /// \remarks This function is also related to \see getJointKinematicHessian.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline void
+  void
   computeJointKinematicHessians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                 const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -283,7 +283,7 @@ namespace pinocchio
   ///          for the first time and there is no dynamic memory allocation.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline void
+  void
   getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Model::JointIndex joint_id,
@@ -312,7 +312,7 @@ namespace pinocchio
   ///          Please refer to getJointKinematicHessian for a version without dynamic memory allocation.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Tensor<Scalar,3,Options>
+  Tensor<Scalar,3,Options>
   getJointKinematicHessian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Model::JointIndex joint_id,
@@ -327,5 +327,10 @@ namespace pinocchio
 } // namespace pinocchio 
 
 #include "pinocchio/algorithm/kinematics-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/kinematics-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 
 #endif // ifndef __pinocchio_algorithm_kinematics_derivatives_hpp__

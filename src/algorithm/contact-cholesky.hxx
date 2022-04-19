@@ -5,7 +5,6 @@
 #ifndef __pinocchio_algorithm_contact_cholesky_hxx__
 #define __pinocchio_algorithm_contact_cholesky_hxx__
 
-#include "pinocchio/algorithm/contact-cholesky.hpp"
 #include "pinocchio/algorithm/check.hpp"
 
 #include <algorithm>

@@ -12,7 +12,7 @@
 
 namespace pinocchio
 {
-  
+namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
   struct JointJacobiansForwardStep
   : public fusion::JointUnaryVisitorBase< JointJacobiansForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,Matrix6xLike> >
@@ -51,7 +51,7 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -97,9 +97,9 @@ namespace pinocchio
     }
     
   };
-  
+} // namespace impl  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -108,7 +108,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
     
-    typedef JointJacobiansForwardStep2<Scalar,Options,JointCollectionTpl> Pass;
+    typedef impl::JointJacobiansForwardStep2<Scalar,Options,JointCollectionTpl> Pass;
     for(JointIndex i=1; i< (JointIndex)model.njoints; ++i)
     {
       Pass::run(model.joints[i],data.joints[i],
@@ -229,21 +229,21 @@ namespace pinocchio
       translateJointJacobian(model,data,joint_id,rf,oMjoint,Jin,Jout);
     }
   } // namespace details
-
+namespace impl {
   /* Return the jacobian of the output frame attached to joint <jointId> in the
    world frame or in the local frame depending on the template argument. The
    function computeJacobians should have been called first. */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
-  inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                               const JointIndex joint_id,
-                               const ReferenceFrame reference_frame,
-                               const Eigen::MatrixBase<Matrix6xLike> & J)
+  void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                        const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                        const JointIndex joint_id,
+                        const ReferenceFrame reference_frame,
+                        const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
-    details::translateJointJacobian(model,data,joint_id,reference_frame,
-                                    data.J,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
+    ::pinocchio::details::translateJointJacobian(model,data,joint_id,reference_frame,
+                                                 data.J,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,J));
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
@@ -283,11 +283,11 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6xLike>
-  inline void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                   const Eigen::MatrixBase<ConfigVectorType> & q,
-                                   const JointIndex jointId,
-                                   const Eigen::MatrixBase<Matrix6xLike> & J)
+  void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const JointIndex jointId,
+                            const Eigen::MatrixBase<Matrix6xLike> & J)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
@@ -364,7 +364,7 @@ namespace pinocchio
   };
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeJointJacobiansTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -388,16 +388,67 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6xLike>
-  inline void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                            const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                            const JointIndex jointId,
-                                            const ReferenceFrame rf,
-                                            const Eigen::MatrixBase<Matrix6xLike> & dJ)
+  void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                     const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                     const JointIndex jointId,
+                                     const ReferenceFrame rf,
+                                     const Eigen::MatrixBase<Matrix6xLike> & dJ)
   {
-    details::translateJointJacobian(model,data,jointId,rf,
-                                    data.dJ,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));
+    ::pinocchio::details::translateJointJacobian(model,data,jointId,rf,
+                                                 data.dJ,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));
   }
-  
+} // namespace impl  
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+computeJointJacobians(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q)
+{
+  return impl::computeJointJacobians(model,data,make_ref(q));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const JointIndex joint_id,
+                      const ReferenceFrame reference_frame,
+                      const Eigen::MatrixBase<Matrix6Like> & J)
+{
+  impl::getJointJacobian(model,data,joint_id,reference_frame,make_ref2(J));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename Matrix6Like>
+void computeJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const Eigen::MatrixBase<ConfigVectorType> & q,
+                          const JointIndex joint_id,
+                          const Eigen::MatrixBase<Matrix6Like> & J)
+{
+  impl::computeJointJacobian(model,data,make_ref(q),joint_id,make_ref2(J));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+computeJointJacobiansTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const Eigen::MatrixBase<ConfigVectorType> & q,
+                                   const Eigen::MatrixBase<TangentVectorType> & v)
+
+{
+  return impl::computeJointJacobiansTimeVariation(model,data,make_ref(q),make_ref(v));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
+void getJointJacobianTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                   const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                   const JointIndex joint_id,
+                                   const ReferenceFrame reference_frame,
+                                   const Eigen::MatrixBase<Matrix6Like> & dJ)
+{
+  impl::getJointJacobianTimeVariation(model,data,joint_id,reference_frame,make_ref2(dJ));
+}
+
 } // namespace pinocchio
 
 /// @endcond

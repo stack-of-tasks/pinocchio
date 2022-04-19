@@ -35,7 +35,7 @@ namespace pinocchio
   };
    
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computeKineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -57,7 +57,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -82,7 +82,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                           DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -112,5 +112,67 @@ namespace pinocchio
     
     return data.mechanical_energy;
   }
+
+namespace impl {
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  Scalar
+  computeKineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    pinocchio::impl::forwardKinematics(model,data,q.derived(),v.derived());
+    return pinocchio::computeKineticEnergy(model,data);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  Scalar
+  computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    pinocchio::impl::forwardKinematics(model,data,q);
+    return pinocchio::computePotentialEnergy(model,data);
+  }
+
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  Scalar computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    pinocchio::impl::forwardKinematics(model,data,q,v);
+    return pinocchio::computeMechanicalEnergy(model,data);
+  }
 }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  Scalar
+  computeKineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                       const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    return impl::computeKineticEnergy(model,data,make_ref(q),make_ref(v));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  Scalar
+  computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                         const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    return impl::computePotentialEnergy(model,data,make_ref(q));
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+  Scalar computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    return impl::computeMechanicalEnergy(model,data,make_ref(q),make_ref(v));
+  }
+
+} // namespace pinocchio
 #endif // __pinocchio_algorithm_energy_hxx__

@@ -428,11 +428,11 @@ namespace pinocchio
     /// \return true if the Model is valid, false otherwise.
     ///
     template<typename D>
-    inline bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
+    bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
     { return checker.checkModel(*this); }
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
-    inline bool check() const;
+    bool check() const;
     
     ///
     /// \brief Run checkData on data and current model.
@@ -441,7 +441,7 @@ namespace pinocchio
     ///
     /// \return true if the data is valid, false otherwise.
     ///
-    inline bool check(const Data & data) const;
+    bool check(const Data & data) const;
 
   protected:
     
@@ -459,5 +459,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------- */
 #include "pinocchio/multibody/model.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/multibody/model.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_multibody_model_hpp__

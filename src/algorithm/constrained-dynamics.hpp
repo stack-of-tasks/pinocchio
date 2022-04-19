@@ -132,4 +132,9 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/constrained-dynamics.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/constrained-dynamics.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
+
 #endif // ifndef __pinocchio_algorithm_constrained_dynamics_hpp__

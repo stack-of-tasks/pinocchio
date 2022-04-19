@@ -16,7 +16,7 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -58,7 +58,7 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                          DataTpl<Scalar,Options,JointCollectionTpl> & data)
   {
@@ -106,7 +106,7 @@ namespace pinocchio
     
     return data.dhg;
   }
-  
+namespace impl {  
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   struct CcrbaBackwardStep
   : public fusion::JointUnaryVisitorBase< CcrbaBackwardStep<Scalar,Options,JointCollectionTpl> >
@@ -141,7 +141,7 @@ namespace pinocchio
   }; // struct CcrbaBackwardStep
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -155,7 +155,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
-    forwardKinematics(model, data, q);
+    ::pinocchio::impl::forwardKinematics(model, data, q);
     data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
@@ -186,10 +186,10 @@ namespace pinocchio
   }
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                           const Eigen::MatrixBase<ConfigVectorType> & q)
+                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                       const Eigen::MatrixBase<ConfigVectorType> & q)
   {
     assert(model.check(data) && "data is not consistent with model.");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of right size");
@@ -198,7 +198,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
-    forwardKinematics(model, data, q);
+    ::pinocchio::impl::forwardKinematics(model, data, q);
     data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
       data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
@@ -271,7 +271,7 @@ namespace pinocchio
   }; // struct DCcrbaBackwardStep
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
          DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -285,7 +285,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
-    forwardKinematics(model,data,q,v);
+    ::pinocchio::impl::forwardKinematics(model,data,q,v);
     data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
@@ -327,7 +327,7 @@ namespace pinocchio
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -341,7 +341,7 @@ namespace pinocchio
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::JointIndex JointIndex;
     
-    forwardKinematics(model,data,q,v);
+    ::pinocchio::impl::forwardKinematics(model,data,q,v);
     data.oYcrb[0].setZero();
     for(JointIndex i=1; i<(JointIndex)(model.njoints); ++i)
     {
@@ -375,7 +375,96 @@ namespace pinocchio
     
     return data.dAg;
   }
-  
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType>
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                            const Eigen::MatrixBase<ConfigVectorType> & q,
+                            const Eigen::MatrixBase<TangentVectorType> & v)
+  {
+    ::pinocchio::impl::forwardKinematics(model,data,q.derived(),v.derived());
+    return ::pinocchio::computeCentroidalMomentum(model,data);
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+          typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                         const Eigen::MatrixBase<ConfigVectorType> & q,
+                                         const Eigen::MatrixBase<TangentVectorType1> & v,
+                                         const Eigen::MatrixBase<TangentVectorType2> & a)
+  {
+    ::pinocchio::impl::forwardKinematics(model,data,q,v,a);
+    return computeCentroidalMomentumTimeVariation(model,data);
+  }
+} // namespace impl
+
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+        typename ConfigVectorType, typename TangentVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                          const Eigen::MatrixBase<ConfigVectorType> & q,
+                          const Eigen::MatrixBase<TangentVectorType> & v)
+{
+  return impl::computeCentroidalMomentum(model,data,make_ref(q),make_ref(v));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
+        typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                       const Eigen::MatrixBase<ConfigVectorType> & q,
+                                       const Eigen::MatrixBase<TangentVectorType1> & v,
+                                       const Eigen::MatrixBase<TangentVectorType2> & a)
+{
+  return impl::computeCentroidalMomentumTimeVariation(model,data,make_ref(q),make_ref(v),make_ref(a));
+}                                       
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+      const Eigen::MatrixBase<ConfigVectorType> & q,
+      const Eigen::MatrixBase<TangentVectorType> & v)
+{
+  return impl::ccrba(model,data,make_ref(q),make_ref(v));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                     const Eigen::MatrixBase<ConfigVectorType> & q)
+{
+  return impl::computeCentroidalMap(model,data,make_ref(q));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+       const Eigen::MatrixBase<ConfigVectorType> & q,
+       const Eigen::MatrixBase<TangentVectorType> & v)
+{
+  return impl::dccrba(model,data,make_ref(q),make_ref(v));
+}
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                  DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                  const Eigen::MatrixBase<ConfigVectorType> & q,
+                                  const Eigen::MatrixBase<TangentVectorType> & v)
+{
+  return impl::computeCentroidalMapTimeVariation(model,data,make_ref(q),make_ref(v));
+}
+
 } // namespace pinocchio
 
 /// @endcond

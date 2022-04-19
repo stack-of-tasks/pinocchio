@@ -10,7 +10,7 @@
 
 namespace pinocchio
 {
-  
+
   /**
    * @brief      Computes the partial derivatives of the spatial velocity of a frame given by its relative placement, with respect to q and v.
    *             You must first call pinocchio::computeForwardKinematicsDerivatives to compute all the required quantities.
@@ -67,7 +67,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::Frame Frame;
-    
+
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
     oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
@@ -146,7 +146,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::Frame Frame;
-    
+
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
     oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
@@ -199,7 +199,7 @@ namespace pinocchio
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut3,a_partial_dq),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut4,a_partial_dv),
                                     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut5,a_partial_da));
-    
+
     PINOCCHIO_EIGEN_CONST_CAST(Matrix6xOut2,v_partial_dv) = a_partial_da;
   }
 
@@ -243,7 +243,7 @@ namespace pinocchio
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
     typedef typename Model::Frame Frame;
-    
+
     const Frame & frame = model.frames[frame_id];
     typename Data::SE3 & oMframe = data.oMf[frame_id];
     oMframe = data.oMi[frame.parentJoint] * frame.placement; // for backward compatibility
@@ -257,5 +257,10 @@ namespace pinocchio
 }
 
 #include "pinocchio/algorithm/frames-derivatives.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/frames-derivatives.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 
 #endif // ifndef __pinocchio_algorithm_frames_derivatives_hpp__

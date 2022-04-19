@@ -14,7 +14,7 @@
 
 namespace pinocchio 
 {
-  
+namespace impl {
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   struct CrbaForwardStep
   : public fusion::JointUnaryVisitorBase< CrbaForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType> >
@@ -170,7 +170,7 @@ namespace pinocchio
     };
   
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
     crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
          DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -202,7 +202,7 @@ namespace pinocchio
   } // namespace minimal
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
   crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q)
@@ -245,7 +245,7 @@ namespace pinocchio
     
     return data.M;
   }
-  
+} // namespace impl
   // --- CHECKER ---------------------------------------------------------------
   // --- CHECKER ---------------------------------------------------------------
   // --- CHECKER ---------------------------------------------------------------
@@ -286,6 +286,25 @@ namespace pinocchio
     return true;
   }
 
+namespace minimal {
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+       DataTpl<Scalar,Options,JointCollectionTpl> & data,
+       const Eigen::MatrixBase<ConfigVectorType> & q)
+  {
+    return ::pinocchio::impl::minimal::crba(model,data,make_ref(q));
+  }
+} // namespace minimal
+
+template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
+const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+     DataTpl<Scalar,Options,JointCollectionTpl> & data,
+     const Eigen::MatrixBase<ConfigVectorType> & q)
+{
+  return ::pinocchio::impl::crba(model,data,make_ref(q));
+}
 
 } // namespace pinocchio
 

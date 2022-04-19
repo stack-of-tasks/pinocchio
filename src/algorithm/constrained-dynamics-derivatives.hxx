@@ -63,7 +63,7 @@ namespace pinocchio
           
         // computes variation of inertias
         data.doYcrb[i] = data.oinertias[i].variation(ov);
-        typedef ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,typename Data::ConfigVectorType,typename Data::TangentVectorType,typename Data::TangentVectorType> RNEAForwardStepType;
+        typedef impl::ComputeRNEADerivativesForwardStep<Scalar,Options,JointCollectionTpl,typename Data::ConfigVectorType,typename Data::TangentVectorType,typename Data::TangentVectorType> RNEAForwardStepType;
         RNEAForwardStepType::addForceCrossMatrix(data.oh[i],data.doYcrb[i]);
         Motion & oa = data.oa[i];
         Motion & oa_gf = data.oa_gf[i];

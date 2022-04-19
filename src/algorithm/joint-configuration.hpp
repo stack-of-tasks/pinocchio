@@ -71,7 +71,7 @@ namespace pinocchio
    * @param[out] qout    The interpolated configuration (q0 if u = 0, q1 if u = 1)
    *
    */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2, typename ReturnType>
   void
   interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
@@ -539,7 +539,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline Scalar
+  Scalar
   squaredDistanceSum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                      const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                      const Eigen::MatrixBase<ConfigVectorIn2> & q1)
@@ -575,7 +575,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline Scalar
+  Scalar
   distance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
            const Eigen::MatrixBase<ConfigVectorIn1> & q0,
            const Eigen::MatrixBase<ConfigVectorIn2> & q1)
@@ -592,8 +592,8 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                        const Eigen::MatrixBase<ConfigVectorType> & qout);
+  void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                 const Eigen::MatrixBase<ConfigVectorType> & qout);
 
   /**
    *
@@ -604,8 +604,8 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                        const Eigen::MatrixBase<ConfigVectorType> & qout)
+  void normalize(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                 const Eigen::MatrixBase<ConfigVectorType> & qout)
   {
     normalize<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,PINOCCHIO_EIGEN_CONST_CAST(ConfigVectorType,qout));
   }
@@ -621,9 +621,9 @@ namespace pinocchio
    * @return     Whether the configuration is normalized or not, within the given precision.
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision());
+  bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                    const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision());
 
   /**
    *
@@ -636,9 +636,9 @@ namespace pinocchio
    * @return     Whether the configuration is normalized or not, within the given precision.
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                           const Eigen::MatrixBase<ConfigVectorType> & q,
-                           const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision())
+  bool isNormalized(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                    const Eigen::MatrixBase<ConfigVectorType> & q,
+                    const Scalar& prec = Eigen::NumTraits<Scalar>::dummy_precision())
   {
     return isNormalized<LieGroupMap,Scalar,Options,JointCollectionTpl,ConfigVectorType>(model,q,prec);
   }
@@ -657,7 +657,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline bool
+  bool
   isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
@@ -677,7 +677,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline bool
+  bool
   isSameConfiguration(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       const Eigen::MatrixBase<ConfigVectorIn1> & q1,
                       const Eigen::MatrixBase<ConfigVectorIn2> & q2,
@@ -698,7 +698,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector, typename JacobianMatrix>
-  inline void
+  void
   integrateCoeffWiseJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian);
@@ -715,7 +715,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVector, typename JacobianMatrix>
-  inline void
+  void
   integrateCoeffWiseJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                              const Eigen::MatrixBase<ConfigVector> & q,
                              const Eigen::MatrixBase<JacobianMatrix> & jacobian)
@@ -740,7 +740,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
   integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v);
@@ -757,7 +757,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorType)
   integrate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
             const Eigen::MatrixBase<ConfigVectorType> & q,
             const Eigen::MatrixBase<TangentVectorType> & v)
@@ -777,8 +777,8 @@ namespace pinocchio
    * @return     The interpolated configuration (q0 if u = 0, q1 if u = 1)
    *
    */
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
@@ -797,7 +797,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   interpolate(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const Eigen::MatrixBase<ConfigVectorIn1> & q0,
               const Eigen::MatrixBase<ConfigVectorIn2> & q1,
@@ -818,7 +818,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1);
@@ -835,7 +835,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   difference(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
              const Eigen::MatrixBase<ConfigVectorIn1> & q0,
              const Eigen::MatrixBase<ConfigVectorIn2> & q1)
@@ -855,7 +855,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1);
@@ -872,7 +872,7 @@ namespace pinocchio
    *
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorIn1, typename ConfigVectorIn2>
-  inline typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
+  typename PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigVectorIn1)
   squaredDistance(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   const Eigen::MatrixBase<ConfigVectorIn1> & q0,
                   const Eigen::MatrixBase<ConfigVectorIn2> & q1)
@@ -974,7 +974,7 @@ namespace pinocchio
    *
    */
   template<typename LieGroup_t, typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model);
 
   /**
@@ -985,7 +985,7 @@ namespace pinocchio
    * @return        The neutral configuration element (size model.nq).
    */
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
+  Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options>
   neutral(const ModelTpl<Scalar,Options,JointCollectionTpl> & model)
   {
     return neutral<LieGroupMap,Scalar,Options,JointCollectionTpl>(model);
@@ -997,5 +997,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/joint-configuration.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/joint-configuration.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_joint_configuration_hpp__

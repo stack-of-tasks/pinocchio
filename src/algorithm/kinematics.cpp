@@ -1,34 +1,36 @@
+//
+// Copyright (c) 2022 INRIA
+//
+
 #include "pinocchio/algorithm/kinematics.hpp"
 
-#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 namespace pinocchio {
   
   template void updateGlobalPlacements
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
-  (const Model &, Data & data);
+  (const context::Model &, context::Data &);
+namespace impl {
+  template void forwardKinematics
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>>
+  (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs> > &);
 
   template void forwardKinematics
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs>
-  (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &);
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>, Eigen::Ref<const context::VectorXs>>
+  (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
 
   template void forwardKinematics
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs>
-  (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &);
-
-  template void forwardKinematics
-    <context::Scalar, context::Options, JointCollectionDefaultTpl, context::VectorXs, context::VectorXs, context::VectorXs>
-    (const Model &, Data &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &, const Eigen::MatrixBase<context::VectorXs> &);
-
+    <context::Scalar, context::Options, JointCollectionDefaultTpl, Eigen::Ref<const context::VectorXs>, Eigen::Ref<const context::VectorXs>, Eigen::Ref<const context::VectorXs>>
+    (const context::Model &, context::Data &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &, const Eigen::MatrixBase<Eigen::Ref<const context::VectorXs>> &);
+} // namespace impl
   template MotionTpl<context::Scalar, context::Options> getVelocity
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame);
+    (const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame);
 
   template MotionTpl<context::Scalar, context::Options> getAcceleration
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame);
+    (const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame);
 
   template MotionTpl<context::Scalar, context::Options> getClassicalAcceleration
     <context::Scalar, context::Options, JointCollectionDefaultTpl>
-    (const Model &, const Data &, const JointIndex, const ReferenceFrame);
+    (const context::Model &, const context::Data &, const JointIndex, const ReferenceFrame);
 } // namespace pinocchio 
-#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION

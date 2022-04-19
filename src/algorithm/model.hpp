@@ -193,4 +193,9 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/model.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/model.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
+
 #endif // ifndef __pinocchio_algorithm_model_hpp__

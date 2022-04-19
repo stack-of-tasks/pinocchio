@@ -186,6 +186,8 @@ namespace pinocchio
     ///
     /// \return A reference to the result of \f$ M^{-1}v \f$ stored in v.
     ///
+
+    // TODO Clearify, it seems it is exactly the same as solve in l. 54
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Mat>
     Mat & solve(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -233,5 +235,9 @@ namespace pinocchio
 /* --- Details -------------------------------------------------------------------- */
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/cholesky.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/cholesky.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_cholesky_hpp__

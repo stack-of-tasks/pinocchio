@@ -32,11 +32,11 @@ namespace pinocchio
     /// \return The joint space inertia matrix with only the upper triangular part computed.
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
     crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
          DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q);
-  }
+  } // namespace minimal
   
   ///
   /// \brief Computes the upper triangular part of the joint space inertia matrix M by
@@ -63,7 +63,7 @@ namespace pinocchio
   /// \return The joint space inertia matrix with only the upper triangular part computed.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
   crba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -74,5 +74,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/crba.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/crba.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_crba_hpp__

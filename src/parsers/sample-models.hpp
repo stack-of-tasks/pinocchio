@@ -83,4 +83,8 @@ namespace pinocchio
 
 #include "pinocchio/parsers/sample-models.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/parsers/sample-models.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_sample_models_hpp__

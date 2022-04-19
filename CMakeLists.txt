@@ -306,12 +306,70 @@ MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/autodiff/cppad/m
 
 IF(ENABLE_TEMPLATE_INSTANTIATION)
   LIST(APPEND ${PROJECT_NAME}_TEMPLATE_SOURCES
-    algorithm/kinematics.cpp
+    algorithm/aba-derivatives.cpp
+    algorithm/aba.cpp
+    algorithm/center-of-mass-derivatives.cpp
+    algorithm/center-of-mass.cpp
+    algorithm/centroidal-derivatives.cpp
+    algorithm/centroidal.cpp
+    algorithm/cholesky.cpp
+    algorithm/compute-all-terms.cpp
+    algorithm/constrained-dynamics-derivatives.cpp
+    algorithm/constrained-dynamics.cpp
+    algorithm/crba.cpp
+    algorithm/energy.cpp
+    algorithm/frames-derivatives.cpp
+    algorithm/frames.cpp
+    algorithm/geometry.cpp
     algorithm/jacobian.cpp
+    algorithm/joint-configuration.cpp
+    algorithm/kinematics-derivatives.cpp
+    algorithm/kinematics.cpp
+    algorithm/model.cpp
+    algorithm/regressor.cpp
+    algorithm/rnea-derivatives.cpp
+    algorithm/rnea.cpp
+    algorithm/proximal.cpp
+    algorithm/contact-dynamics.cpp
+    algorithm/contact-cholesky.cpp
+    algorithm/contact-jacobian.cpp
+    algorithm/impulse-dynamics.cpp
+    parsers/sample-models.cpp
+    multibody/data.cpp
+    multibody/model.cpp
     )
   LIST(APPEND ${PROJECT_NAME}_TEMPLATE_DECLARATIONS
-    algorithm/kinematics.txx
+    algorithm/aba-derivatives.txx
+    algorithm/aba.txx
+    algorithm/center-of-mass-derivatives.txx
+    algorithm/center-of-mass.txx
+    algorithm/centroidal-derivatives.txx
+    algorithm/centroidal.txx
+    algorithm/cholesky.txx
+    algorithm/compute-all-terms.txx
+    algorithm/constrained-dynamics-derivatives.txx
+    algorithm/constrained-dynamics.txx
+    algorithm/crba.txx
+    algorithm/energy.txx
+    algorithm/frames-derivatives.txx
+    algorithm/frames.txx
+    algorithm/geometry.txx
     algorithm/jacobian.txx
+    algorithm/joint-configuration.txx
+    algorithm/kinematics-derivatives.txx
+    algorithm/kinematics.txx
+    algorithm/model.txx
+    algorithm/regressor.txx
+    algorithm/rnea-derivatives.txx
+    algorithm/rnea.txx
+    algorithm/proximal.txx
+    algorithm/contact-dynamics.txx
+    algorithm/contact-cholesky.txx
+    algorithm/contact-jacobian.txx
+    algorithm/impulse-dynamics.txx
+    parsers/sample-models.txx
+    multibody/data.txx
+    multibody/model.txx
     )
   SET_SOURCE_FILES_PROPERTIES(${${PROJECT_NAME}_TEMPLATE_DECLARATIONS} PROPERTIES LANGUAGE CXX)
   SET_SOURCE_FILES_PROPERTIES(${${PROJECT_NAME}_TEMPLATE_SOURCES} PROPERTIES LANGUAGE CXX)

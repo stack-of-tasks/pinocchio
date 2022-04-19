@@ -482,4 +482,10 @@ namespace pinocchio
     
 }
 
+#include "pinocchio/algorithm/contact-cholesky.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/contact-cholesky.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_algorithm_contact_cholesky_hpp__

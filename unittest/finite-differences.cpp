@@ -262,11 +262,11 @@ BOOST_AUTO_TEST_CASE (test_jacobian_vs_finit_diff)
   
   getJointJacobian(model,data,idx,WORLD,Jrh);
   Data::Matrix6x Jrh_finite_diff = finiteDiffJacobian<false>(model,data,q,idx);
-  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,1e-8*1e1));
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,sqrt(1e-8)));
   
   getJointJacobian(model,data,idx,LOCAL,Jrh);
   Jrh_finite_diff = finiteDiffJacobian<true>(model,data,q,idx);
-  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,1e-8*1e1));
+  BOOST_CHECK(Jrh_finite_diff.isApprox(Jrh,sqrt(1e-8)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

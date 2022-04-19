@@ -17,7 +17,7 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline DataTpl<Scalar,Options,JointCollectionTpl>::
+  DataTpl<Scalar,Options,JointCollectionTpl>::
   DataTpl(const Model & model)
   : joints(0)
   , a((std::size_t)model.njoints,Motion::Zero())

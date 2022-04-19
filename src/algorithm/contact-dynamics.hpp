@@ -189,10 +189,10 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
            typename ConstraintMatrixType, typename KKTMatrixType>
   PINOCCHIO_DEPRECATED
-  inline void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                                const DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                                const Eigen::MatrixBase<ConstraintMatrixType> & J,
-                                                const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv);
+  void getKKTContactDynamicMatrixInverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                         const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                         const Eigen::MatrixBase<ConstraintMatrixType> & J,
+                                         const Eigen::MatrixBase<KKTMatrixType> & KKTMatrix_inv);
   
   ///
   /// \brief Compute the impulse dynamics with contact constraints. Internally, pinocchio::crba is called.
@@ -311,5 +311,9 @@ namespace pinocchio
 } // namespace pinocchio
 
 #include "pinocchio/algorithm/contact-dynamics.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/contact-dynamics.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_contact_dynamics_hpp__

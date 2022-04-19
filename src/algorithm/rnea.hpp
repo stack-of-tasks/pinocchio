@@ -27,7 +27,7 @@ namespace pinocchio
   /// \return The desired joint torques stored in data.tau.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -53,7 +53,7 @@ namespace pinocchio
   /// \return The desired joint torques stored in data.tau.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   rnea(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
        DataTpl<Scalar,Options,JointCollectionTpl> & data,
        const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -79,7 +79,7 @@ namespace pinocchio
   /// \return The bias terms stored in data.nle.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   nonLinearEffects(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                    DataTpl<Scalar,Options,JointCollectionTpl> & data,
                    const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -101,7 +101,7 @@ namespace pinocchio
   /// \return The generalized gravity torque stored in data.g.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeGeneralizedGravity(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -124,11 +124,11 @@ namespace pinocchio
   /// \return The generalized static torque stored in data.tau.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   computeStaticTorque(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                 const Eigen::MatrixBase<ConfigVectorType> & q,
-                                 const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const Eigen::MatrixBase<ConfigVectorType> & q,
+                      const container::aligned_vector< ForceTpl<Scalar,Options> > & fext);
   
   ///
   /// \brief Computes the Coriolis Matrix \f$ C(q,\dot{q}) \f$ of the Lagrangian dynamics:
@@ -148,7 +148,7 @@ namespace pinocchio
   /// \return The Coriolis matrix stored in data.C.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
   computeCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                         DataTpl<Scalar,Options,JointCollectionTpl> & data,
                         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -169,7 +169,7 @@ namespace pinocchio
   /// \return The Coriolis matrix stored in data.C.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::MatrixXs &
   getCoriolisMatrix(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                     DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -177,5 +177,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/rnea.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/rnea.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_rnea_hpp__

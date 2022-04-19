@@ -29,7 +29,7 @@ namespace pinocchio
   /// \return The current joint acceleration stored in data.ddq.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
       DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -54,7 +54,7 @@ namespace pinocchio
   /// \return The current joint acceleration stored in data.ddq.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
       DataTpl<Scalar,Options,JointCollectionTpl> & data,
       const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -85,7 +85,7 @@ namespace pinocchio
     /// \return The current joint acceleration stored in data.ddq.
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
     aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -114,7 +114,7 @@ namespace pinocchio
     /// \return The current joint acceleration stored in data.ddq.
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2, typename ForceDerived>
-    inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+    const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
     aba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -138,7 +138,7 @@ namespace pinocchio
   /// \return The inverse of the joint space inertia matrix stored in data.Minv.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -156,7 +156,7 @@ namespace pinocchio
   /// \return The inverse of the joint space inertia matrix stored in data.ddq.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::RowMatrixXs &
   computeMinverse(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -166,5 +166,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/aba.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/aba.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_aba_hpp__

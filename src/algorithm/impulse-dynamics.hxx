@@ -13,7 +13,7 @@ namespace pinocchio
 {
   
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType1, class ConstraintModelAllocator, class ConstraintDataAllocator>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::TangentVectorType &
   impulseDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,

@@ -21,11 +21,6 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   template<typename Scalar, int Options=context::Options> struct FrameTpl;
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
 
-  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
-  struct ModelTpl;
-  template<typename Scalar, int Options = context::Options, template<typename S, int O> class JointCollectionTpl = JointCollectionDefaultTpl>
-  struct DataTpl;
-
   typedef std::size_t Index;
   typedef Index JointIndex;
   typedef Index GeomIndex;

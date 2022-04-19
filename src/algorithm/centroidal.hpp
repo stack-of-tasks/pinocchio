@@ -26,7 +26,7 @@ namespace pinocchio
   /// \returns The centroidal momenta (stored in data.hg), center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
@@ -49,16 +49,12 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentum(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
-                            const Eigen::MatrixBase<TangentVectorType> & v)
-  {
-    forwardKinematics(model,data,q.derived(),v.derived());
-    return computeCentroidalMomentum(model,data);
-  }
-  
+                            const Eigen::MatrixBase<TangentVectorType> & v);
+
   /// \copydoc pinocchio::computeCentroidalMomentum
   ///
   /// \deprecated This function has been renamed into \ref computeCentroidalMomentum. This signature will be removed in a future release of Pinocchio.
@@ -66,7 +62,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
   typename ConfigVectorType, typename TangentVectorType>
   PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -90,7 +86,7 @@ namespace pinocchio
   ///          center of mass (stored in data.com[0]) and velocity of center of mass (stored in data.vcom[0])
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -116,16 +112,12 @@ namespace pinocchio
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalMomentumTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                          const Eigen::MatrixBase<ConfigVectorType> & q,
                                          const Eigen::MatrixBase<TangentVectorType1> & v,
-                                         const Eigen::MatrixBase<TangentVectorType2> & a)
-  {
-    forwardKinematics(model,data,q,v,a);
-    return computeCentroidalMomentumTimeVariation(model,data);
-  }
+                                         const Eigen::MatrixBase<TangentVectorType2> & a);
 
   /// \copydoc pinocchio::computeCentroidalMomentumTimeVariation
   ///
@@ -134,7 +126,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1, typename TangentVectorType2>
   PINOCCHIO_DEPRECATED
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Force &
   computeCentroidalDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
                             const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -162,14 +154,14 @@ namespace pinocchio
   /// \remarks As another output, this algorithm also computes the Joint Jacobian matrix (accessible via data.J).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   ccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
         DataTpl<Scalar,Options,JointCollectionTpl> & data,
         const Eigen::MatrixBase<ConfigVectorType> & q,
         const Eigen::MatrixBase<TangentVectorType> & v);
 
   ///
-  /// \brief Computes the Centroidal Momentum Matrix,.
+  /// \brief Computes the Centroidal Momentum Matrix.
   ///
   /// \tparam JointCollection Collection of Joint types.
   /// \tparam ConfigVectorType Type of the joint configuration vector.
@@ -183,7 +175,7 @@ namespace pinocchio
   /// \remarks As another output, this algorithm also computes the Joint Jacobian matrix (accessible via data.J).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMap(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q);
@@ -207,7 +199,7 @@ namespace pinocchio
   /// \remarks As another output, this algorithm also computes the Centroidal Momentum Matrix Ag (accessible via data.Ag), the Joint Jacobian matrix (accessible via data.J) and the time derivatibe of the Joint Jacobian matrix (accessible via data.dJ).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   dccrba(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
          DataTpl<Scalar,Options,JointCollectionTpl> & data,
          const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -230,7 +222,7 @@ namespace pinocchio
   /// \remarks As another output, this algorithm also computes the Centroidal Momentum Matrix Ag (accessible via data.Ag), the Joint Jacobian matrix (accessible via data.J) and the time derivatibe of the Joint Jacobian matrix (accessible via data.dJ).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
+  const typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix6x &
   computeCentroidalMapTimeVariation(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                     DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                     const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -240,5 +232,9 @@ namespace pinocchio
 
 /* --- Details -------------------------------------------------------------------- */
 #include "pinocchio/algorithm/centroidal.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/centroidal.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // ifndef __pinocchio_algorithm_centroidal_hpp__

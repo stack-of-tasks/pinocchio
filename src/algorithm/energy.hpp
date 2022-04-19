@@ -24,7 +24,7 @@ namespace pinocchio {
   /// \return The kinetic energy of the system in [J].
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computeKineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -44,15 +44,11 @@ namespace pinocchio {
   /// \return The kinetic energy of the system in [J].
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline Scalar
+  Scalar
   computeKineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
                        const Eigen::MatrixBase<ConfigVectorType> & q,
-                       const Eigen::MatrixBase<TangentVectorType> & v)
-  {
-    forwardKinematics(model,data,q.derived(),v.derived());
-    return computeKineticEnergy(model,data);
-  }
+                       const Eigen::MatrixBase<TangentVectorType> & v);
 
   ///
   /// \brief Computes the kinetic energy of the system.
@@ -72,7 +68,7 @@ namespace pinocchio {
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
   PINOCCHIO_DEPRECATED
-  inline Scalar
+  Scalar
   kineticEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
                 const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -104,7 +100,7 @@ namespace pinocchio {
   /// \return The potential energy of the system expressed in [J].
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data);
   
@@ -127,15 +123,11 @@ namespace pinocchio {
   /// \return The potential energy of the system expressed in [J].
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-  inline Scalar
+  Scalar
   computePotentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                          DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                         const Eigen::MatrixBase<ConfigVectorType> & q)
-  {
-    forwardKinematics(model,data,q);
-    return computePotentialEnergy(model,data);
-  }
-  
+                         const Eigen::MatrixBase<ConfigVectorType> & q);
+
   ///
   /// \brief Computes the potential energy of the system, i.e. the potential energy linked to the gravity field.
   ///        The result is accessible through data.potential_energy.
@@ -152,7 +144,7 @@ namespace pinocchio {
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
   PINOCCHIO_DEPRECATED
-  inline Scalar
+  Scalar
   potentialEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                   DataTpl<Scalar,Options,JointCollectionTpl> & data,
                   const Eigen::MatrixBase<ConfigVectorType> & q,
@@ -176,7 +168,7 @@ namespace pinocchio {
   /// \return The total mechanal energy of the system in [J].
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  inline Scalar
+  Scalar
   computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                           DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
@@ -197,16 +189,17 @@ namespace pinocchio {
   ///         The fonctions also computes the data.kinetic_energy and data.potential_energy.
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType, typename TangentVectorType>
-  inline Scalar computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                        DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                        const Eigen::MatrixBase<ConfigVectorType> & q,
-                                        const Eigen::MatrixBase<TangentVectorType> & v)
-  {
-    forwardKinematics(model,data,q,v);
-    return computeMechanicalEnergy(model,data);
-  }
-}
+  Scalar computeMechanicalEnergy(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const Eigen::MatrixBase<ConfigVectorType> & q,
+                                 const Eigen::MatrixBase<TangentVectorType> & v);
+
+} // namespace pinocchio
 
 #include "pinocchio/algorithm/energy.hxx"
+
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/energy.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
 
 #endif // __pinocchio_algorithm_energy_hpp__

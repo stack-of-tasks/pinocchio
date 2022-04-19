@@ -48,4 +48,8 @@ namespace pinocchio
 
 #include "pinocchio/algorithm/contact-jacobian.hxx"
 
+#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+#include "pinocchio/algorithm/contact-jacobian.txx"
+#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
+
 #endif // ifndef __pinocchio_algorithm_contact_jacobian_hpp__
