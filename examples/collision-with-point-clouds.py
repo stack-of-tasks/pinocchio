@@ -101,7 +101,7 @@ collision_data = collision_model.createData()
 while not is_collision:
     q = pin.randomConfiguration(model)
 
-    is_collision = pin.computeCollisions(model, data, collision_model, collision_data, q)
+    is_collision = pin.computeCollisions(model, data, collision_model, collision_data, q, True)
 
 print("Found a configuration in collision:",q)
 viz.display(q)
