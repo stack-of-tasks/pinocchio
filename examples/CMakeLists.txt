@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2022 CNRS INRIA
 #
 
 FUNCTION(ADD_PINOCCHIO_CPP_EXAMPLE EXAMPLE)
@@ -68,7 +68,7 @@ IF(BUILD_PYTHON_INTERFACE)
     )
 
   IF(BUILD_WITH_URDF_SUPPORT)
-    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       overview-urdf
       gepetto-viewer
       build-reduced-model
@@ -80,20 +80,21 @@ IF(BUILD_PYTHON_INTERFACE)
   ENDIF(BUILD_WITH_URDF_SUPPORT)
 
   IF(hpp-fcl_FOUND)
-    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       sample-model-viewer
       display-shapes
       simulation-pendulum
       )
     IF(BUILD_WITH_URDF_SUPPORT)
-      LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+      LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
         collisions
+        collision-with-point-clouds
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(hpp-fcl_FOUND)
-  
+
   IF(BUILD_WITH_OPENMP_SUPPORT)
-    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       run-algo-in-parallel
       )
   ENDIF(BUILD_WITH_OPENMP_SUPPORT)
