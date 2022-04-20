@@ -6,7 +6,6 @@ import pinocchio as pin
 import hppfcl as fcl
 import numpy as np
 import sys
-import os
 from os.path import dirname, join, abspath
 
 from pinocchio.visualize import MeshcatVisualizer
@@ -35,7 +34,7 @@ Z = points[2,:]
 nx = 20
 x_grid = np.linspace(0.,1.,nx)
 x_half_pad = 0.5*(x_grid[1] - x_grid[0])
-x_bins = np.digitize(X, x_grid + x_half_pad) 
+x_bins = np.digitize(X, x_grid + x_half_pad)
 x_dim = x_grid[-1] - x_grid[0]
 
 ny = 20
@@ -56,20 +55,20 @@ height_field = fcl.HeightFieldOBBRSS(x_dim, y_dim, heights, min(Z))
 height_field_placement = point_cloud_placement * pin.SE3(np.eye(3), 0.5*np.array([x_grid[0] + x_grid[-1], y_grid[0] + y_grid[-1], 0.]))
 
 go_point_cloud = pin.GeometryObject("point_cloud",0,point_cloud,point_cloud_placement)
-go_point_cloud.meshColor = np.ones((4)) 
+go_point_cloud.meshColor = np.ones((4))
 collision_model.addGeometryObject(go_point_cloud)
 visual_model.addGeometryObject(go_point_cloud)
 
 go_height_field = pin.GeometryObject("height_field",0,height_field,height_field_placement)
-go_height_field.meshColor = np.ones((4)) 
+go_height_field.meshColor = np.ones((4))
 height_field_collision_id = collision_model.addGeometryObject(go_height_field)
 visual_model.addGeometryObject(go_height_field)
 
 # Add colllision pair between the height field and the panda_hand geometry
-panda_hand_collision_id = collision_model.getGeometryId("panda_hand_0") 
+panda_hand_collision_id = collision_model.getGeometryId("panda_hand_0")
 go_panda_hand = collision_model.geometryObjects[panda_hand_collision_id]
 go_panda_hand.geometry.buildConvexRepresentation(False)
-go_panda_hand.geometry = go_panda_hand.geometry.convex # We need to work with the convex hull of the real mesh 
+go_panda_hand.geometry = go_panda_hand.geometry.convex # We need to work with the convex hull of the real mesh
 
 collision_pair = pin.CollisionPair(height_field_collision_id, panda_hand_collision_id)
 collision_model.addCollisionPair(collision_pair)
