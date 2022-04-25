@@ -83,6 +83,7 @@ namespace pinocchio
           .staticmethod("CreateCapsule")
 #endif // PINOCCHIO_WITH_HPP_FCL
         ;
+        bp::register_ptr_to_python<CollisionGeometryPtr>();
       }
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
