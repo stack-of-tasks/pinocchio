@@ -36,7 +36,7 @@ class TestGeometryObjectUrdfBindings(unittest.TestCase):
         import pickle
 
         model_dir = os.path.abspath(os.path.join(self.current_file, "../../models/example-robot-data/robots"))
-        model_path = os.path.abspath(os.path.join(model_dir, "ur_description/urdf/ur5_robot.urdf")) 
+        model_path = os.path.abspath(os.path.join(model_dir, "ur_description/urdf/ur5_robot.urdf"))
 
         model = pin.buildModelFromUrdf(model_path)
         filename = "model.pickle"
