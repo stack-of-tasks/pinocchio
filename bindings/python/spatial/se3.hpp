@@ -195,6 +195,8 @@ namespace pinocchio
         boost::python::tuple
         getinitargs(const SE3 & M)
         { return bp::make_tuple((Matrix3)M.rotation(),(Vector3)M.translation()); }
+        
+        static bool getstate_manages_dict() { return true; }
       };  
       
       static void setIdentity(SE3 & self) { self.setIdentity(); }

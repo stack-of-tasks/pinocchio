@@ -155,6 +155,8 @@ namespace pinocchio
         boost::python::tuple
         getinitargs(const Force & f)
         { return bp::make_tuple((Vector3)f.linear(),(Vector3)f.angular()); }
+        
+        static bool getstate_manages_dict() { return true; }
       };
       
       static RefVector3 getLinear(Force & self ) { return self.linear(); }
@@ -166,6 +168,7 @@ namespace pinocchio
       static void setRandom(Force & self) { self.setRandom(); }
       
       static void setVector(Force & self, const Vector6 & f) { self = f; }
+      
     };
     
   } // namespace python

@@ -226,6 +226,8 @@ namespace pinocchio
         boost::python::tuple
         getinitargs(const Inertia & I)
         { return bp::make_tuple(I.mass(),(Vector3)I.lever(),I.inertia().matrix()); }
+        
+        static bool getstate_manages_dict() { return true; }
       };
       
 
