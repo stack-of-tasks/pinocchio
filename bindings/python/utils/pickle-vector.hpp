@@ -42,6 +42,8 @@ namespace pinocchio
           }
         }
       }
+      
+      static bool getstate_manages_dict() { return true; }
     };
   }
 }

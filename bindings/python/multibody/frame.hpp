@@ -87,6 +87,8 @@ namespace pinocchio
           if(bp::len(tup) > 5)
             f.inertia = bp::extract<Inertia&>(tup[5]);
         }
+        
+        static bool getstate_manages_dict() { return true; }
       };
     };
     
