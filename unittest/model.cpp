@@ -185,6 +185,19 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
         ++humanoid.frames.begin(), addHumanoidPrefix);
 
     BOOST_TEST_MESSAGE(humanoid);
+
+
+    typename Model::ConfigVectorType humanoid_config_vector(humanoid.nq);
+    typename Model::ConfigVectorType manipulator_config_vector(manipulator.nq);
+    humanoid_config_vector = randomConfiguration(humanoid);
+    manipulator_config_vector = randomConfiguration(manipulator);
+    humanoid.referenceConfigurations.insert(std::make_pair("common_key", humanoid_config_vector));
+    manipulator.referenceConfigurations.insert(std::make_pair("common_key", manipulator_config_vector));
+    
+    humanoid_config_vector = randomConfiguration(humanoid);
+    manipulator_config_vector = randomConfiguration(manipulator);
+    humanoid.referenceConfigurations.insert(std::make_pair("humanoid_key", humanoid_config_vector));
+    manipulator.referenceConfigurations.insert(std::make_pair("manipulator_key", manipulator_config_vector));
     
     //TODO fix inertia of the base
     manipulator.inertias[0].setRandom();
@@ -196,6 +209,42 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
     FrameIndex fid = 0;
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model1, geomModel1);
+    typedef typename Model::ConfigVectorMap ConfigVectorMap;
+
+    typename Model::ConfigVectorType neutral_config_vector(model1.nq);
+    neutral(model1, neutral_config_vector);
+      
+    BOOST_CHECK(model1.referenceConfigurations.size() == 3);
+    for(typename ConfigVectorMap::const_iterator config_it = model1.referenceConfigurations.begin();
+        config_it != model1.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & config_vector = config_it->second;
+      
+      typename ConfigVectorMap::const_iterator humanoid_config = humanoid.referenceConfigurations.find(config_name);
+      typename ConfigVectorMap::const_iterator manipulator_config = manipulator.referenceConfigurations.find(config_name);
+      for(JointIndex joint_id = 1;
+          joint_id < model1.joints.size();
+          ++joint_id)
+      {
+        const JointModel & joint_model1 = model1.joints[joint_id];
+        if (humanoid_config != humanoid.referenceConfigurations.end() and humanoid.existJointName(model1.names[joint_id])) { //key and joint exists in humanoid
+          const JointModel & joint_model_humanoid = humanoid.joints[humanoid.getJointId(model1.names[joint_id])];
+          BOOST_CHECK(joint_model_humanoid.jointConfigSelector(humanoid_config->second) == joint_model1.jointConfigSelector(config_vector));
+          //std::cerr<<"humanoid "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
+        }
+        else if (manipulator_config != manipulator.referenceConfigurations.end() and manipulator.existJointName(model1.names[joint_id])) { //key and joint exists in manipulator.
+          const JointModel & joint_model_manipulator = manipulator.joints[manipulator.getJointId(model1.names[joint_id])];
+          BOOST_CHECK(joint_model_manipulator.jointConfigSelector(manipulator_config->second) == joint_model1.jointConfigSelector(config_vector));
+          //std::cerr<<"manipulator "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
+        }
+        else { // joint and key combo not found, should with neutral
+          BOOST_CHECK(joint_model1.jointConfigSelector(neutral_config_vector) == joint_model1.jointConfigSelector(config_vector));
+          //std::cerr<<"neutral "<<config_name<<" "<<model1.names[joint_id]<<std::endl;
+        }
+      }
+      
+    }
     
     {
       Model model2 = appendModel(humanoid, manipulator, fid, SE3::Identity());
@@ -222,6 +271,44 @@ BOOST_AUTO_TEST_SUITE ( BOOST_TEST_MODULE )
 
     appendModel (humanoid, manipulator, geomHumanoid, geomManipulator, fid,
         SE3::Identity(), model, geomModel);
+
+
+    neutral_config_vector.resize(model.nq);
+    neutral(model, neutral_config_vector);
+    
+    BOOST_CHECK(model.referenceConfigurations.size() == 3);
+    for(typename ConfigVectorMap::const_iterator config_it = model.referenceConfigurations.begin();
+        config_it != model.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & config_vector = config_it->second;
+      
+      typename ConfigVectorMap::const_iterator humanoid_config = humanoid.referenceConfigurations.find(config_name);
+      typename ConfigVectorMap::const_iterator manipulator_config = manipulator.referenceConfigurations.find(config_name);
+      for(JointIndex joint_id = 1;
+          joint_id < model.joints.size();
+          ++joint_id)
+      {
+        const JointModel & joint_model = model.joints[joint_id];
+        if (humanoid_config != humanoid.referenceConfigurations.end() and humanoid.existJointName(model.names[joint_id])) { //key and joint exists in humanoid
+          const JointModel & joint_model_humanoid = humanoid.joints[humanoid.getJointId(model.names[joint_id])];
+          BOOST_CHECK(joint_model_humanoid.jointConfigSelector(humanoid_config->second) == joint_model.jointConfigSelector(config_vector));
+          //std::cerr<<"humanoid "<<config_name<<" "<<model.names[joint_id]<<std::endl;
+        }
+        else if (manipulator_config != manipulator.referenceConfigurations.end() and manipulator.existJointName(model.names[joint_id])) { //key and joint exists in manipulator.
+          const JointModel & joint_model_manipulator = manipulator.joints[manipulator.getJointId(model.names[joint_id])];
+          BOOST_CHECK(joint_model_manipulator.jointConfigSelector(manipulator_config->second) == joint_model.jointConfigSelector(config_vector));
+          //std::cerr<<"manipulator "<<config_name<<" "<<model.names[joint_id]<<std::endl;
+        }
+        else { // joint and key combo not found, should with neutral
+          BOOST_CHECK(joint_model.jointConfigSelector(neutral_config_vector) == joint_model.jointConfigSelector(config_vector));
+          //std::cerr<<"neutral "<<config_name<<" "<<model.names[joint_id]<<std::endl;
+        }
+      }
+      
+    }
+
+
     
     {
       Model model2 = appendModel(humanoid, manipulator, fid, SE3::Identity());
