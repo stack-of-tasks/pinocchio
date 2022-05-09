@@ -6,6 +6,7 @@
 #define __pinocchio_algorithm_model_hxx__
 
 #include <algorithm>
+#include "pinocchio/algorithm/joint-configuration.hpp"
 
 namespace pinocchio
 {
@@ -246,6 +247,59 @@ namespace pinocchio
       AppendJointOfModelAlgo::run (modelA.joints[jid], args);
     }
 
+    // Retrieve and set the reference configurations
+    typedef typename Model::ConfigVectorMap ConfigVectorMap;
+    typename Model::ConfigVectorType neutral_config_vector(model.nq);
+    // Get neutral configuration
+    neutral(model, neutral_config_vector);
+
+    // Get all reference keys from ModelA
+    for(typename ConfigVectorMap::const_iterator config_it = modelA.referenceConfigurations.begin();
+        config_it != modelA.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & config_vectorA = config_it->second;
+
+      typename Model::ConfigVectorType config_vector(neutral_config_vector);
+      for(JointIndex joint_idA = 1;
+          joint_idA < modelA.joints.size();
+          ++joint_idA)
+      {
+        const JointIndex joint_id = model.getJointId(modelA.names[joint_idA]);
+        const JointModel & joint_model = model.joints[joint_id];
+        const JointModel & joint_modelA = modelA.joints[joint_idA];
+
+        joint_model.jointConfigSelector(config_vector) = joint_modelA.jointConfigSelector(config_vectorA);
+      }
+
+      model.referenceConfigurations.insert(std::make_pair(config_name, config_vector));
+    }
+
+    // Get all reference keys from ModelB
+    for(typename ConfigVectorMap::const_iterator config_it = modelB.referenceConfigurations.begin();
+        config_it != modelB.referenceConfigurations.end(); ++config_it)
+    {
+      const std::string & config_name = config_it->first;
+      const typename Model::ConfigVectorType & config_vectorB = config_it->second;
+
+      if (model.referenceConfigurations.find(config_name) == model.referenceConfigurations.end() ) {
+        //not found
+        model.referenceConfigurations.insert(std::make_pair(config_name, neutral_config_vector));
+      }
+
+      typename Model::ConfigVectorType & config_vector = model.referenceConfigurations.find(config_name)->second;
+      for(JointIndex joint_idB = 1;
+          joint_idB < modelB.joints.size();
+          ++joint_idB)
+      {
+        const JointIndex joint_id = model.getJointId(modelB.names[joint_idB]);
+        const JointModel & joint_model = model.joints[joint_id];
+        const JointModel & joint_modelB = modelB.joints[joint_idB];
+
+        joint_model.jointConfigSelector(config_vector) = joint_modelB.jointConfigSelector(config_vectorB);
+      }
+    }
+    
 #ifdef PINOCCHIO_WITH_HPP_FCL
     // Add collision pairs of geomModelA and geomModelB
     geomModel.collisionPairs.reserve(geomModelA.collisionPairs.size()

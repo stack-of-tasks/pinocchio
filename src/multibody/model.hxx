@@ -285,13 +285,13 @@ namespace pinocchio
     typename ConfigVectorMap::const_iterator it = referenceConfigurations.begin();
     typename ConfigVectorMap::const_iterator it_other = other.referenceConfigurations.begin();
     for(long k = 0; k < (long)referenceConfigurations.size(); ++k)
-    {
-      std::advance(it,k); std::advance(it_other,k);
-      
+    {      
       if(it->second.size() != it_other->second.size())
         return false;
       if(it->second != it_other->second)
         return false;
+      std::advance(it,1); std::advance(it_other,1);
+      
     }
     if(other.armature.size() != armature.size())
       return false;
