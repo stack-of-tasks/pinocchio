@@ -37,6 +37,13 @@ namespace boost
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 
+          template <class T, T v>
+          static inline ADScalar get(const std::integral_constant<T,v> & n)
+          {
+            return ADScalar(constant_pi<Scalar>::get(n));
+          }
+
+          
         };
       }
     }
@@ -176,6 +183,6 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
 #include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 #include "pinocchio/autodiff/cppad/algorithm/aba.hpp"
-#include "pinocchio/autodiff/cppad/multibody/joint/joint-helical.hpp"
+//#include "pinocchio/autodiff/cppad/multibody/joint/joint-helical.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_cppad_hpp__

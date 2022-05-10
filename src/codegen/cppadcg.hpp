@@ -36,6 +36,13 @@ namespace boost
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
+
+          template <class T, T v>
+          static inline CGScalar get(const std::integral_constant<T,v> & n)
+          {
+            return CGScalar(constant_pi<Scalar>::get(n));
+          }
+          
         };
       }
     }
