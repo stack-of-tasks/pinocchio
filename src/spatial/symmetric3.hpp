@@ -83,7 +83,7 @@ namespace pinocchio
       m_data << a, b, c, d, e, f;
     }
     
-    static Symmetric3Tpl Identity() { return Symmetric3Tpl(1, 0, 1, 0, 0, 1);  }
+    static Symmetric3Tpl Identity() { return Symmetric3Tpl(Scalar(1), Scalar(0), Scalar(1), Scalar(0), Scalar(0), Scalar(1));  }
     void setIdentity() { m_data << Scalar(1), Scalar(0), Scalar(1), Scalar(0), Scalar(0), Scalar(1); }
     
     template<typename Vector3Like>
