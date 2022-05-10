@@ -344,6 +344,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
     MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
     MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+    Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(constraint_dim, model.nv));
+    contact_chol_decomposition.getJMinv(JMinv_test);
+    MatrixXd JMinv_ref = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse();
+    BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
     
     BOOST_CHECK(iosim.isApprox(JMinvJt));
     BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
@@ -721,6 +725,11 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(9, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
+
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
@@ -801,6 +810,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
   MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
   MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
   MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(12, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
   
   BOOST_CHECK(iosim.isApprox(JMinvJt));
   BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
@@ -898,6 +911,12 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   data_ref.Minv = data_ref.M.inverse();
   Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
+
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(12, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
+
   
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
@@ -1095,6 +1114,12 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(24, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<24>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
+
+
 }
 
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
@@ -1202,6 +1227,12 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(15, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<15>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
+
+
 }
 
 BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
@@ -1333,6 +1364,12 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(18, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<18>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
+
+
 }
 
 BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
@@ -1472,6 +1509,10 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(9, model.nv));
+  contact_chol_decomposition.getJMinv(JMinv_test);
+  MatrixXd JMinv_ref = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse();
+  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
