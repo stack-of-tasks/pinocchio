@@ -235,6 +235,19 @@ namespace pinocchio
         res.noalias() = Minv_tmp * U4inv;
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
+
+      template<typename MatrixType>
+      void getJMinv(const Eigen::MatrixBase<MatrixType> & res_) const
+      {
+        MatrixType& res = PINOCCHIO_EIGEN_CONST_CAST(MatrixType,res_);
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType ConstBlockXpr;
+        const Eigen::TriangularView<ConstBlockXpr,Eigen::UnitUpper> U4
+          = U.bottomRightCorner(nv,nv).template triangularView<Eigen::UnitUpper>();
+        ConstBlockXpr U2 = U.topRightCorner(constraintDim(),nv);
+        PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+        U4inv.setIdentity(); U4.solveInPlace(U4inv); // TODO: implement Sparse Inverse
+        res.noalias() = U2 * U4inv;
+      }
       
       ///
       /// \brief Computes the Cholesky decompostion of the augmented matrix containing the KKT matrix
