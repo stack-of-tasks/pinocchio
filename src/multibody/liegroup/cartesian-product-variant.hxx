@@ -335,7 +335,7 @@ CartesianProductOperationVariantTpl<_Scalar,_Options,LieGroupCollectionTpl>::
 squaredDistance_impl(const Eigen::MatrixBase<ConfigL_t> & q0,
                      const Eigen::MatrixBase<ConfigR_t> & q1) const
 {
-  Scalar d2 = 0;
+  Scalar d2 = Scalar(0);
   Index id_q = 0;
   for(size_t k = 0; k < liegroups.size(); ++k)
   {
