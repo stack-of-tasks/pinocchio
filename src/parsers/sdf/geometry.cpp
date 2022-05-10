@@ -62,16 +62,16 @@ namespace pinocchio
         addLinkGeometryToGeomModel(graph, meshLoader, rootElement,
                                    geomModel, hint_directories, type);
 
-        for(std::vector<std::string>::const_iterator joint_name =
-              std::begin(model.names);
-            joint_name != std::end(model.names); ++joint_name)
+        for(pinocchio::Model::FrameVector::const_iterator fm =
+              std::begin(model.frames);
+            fm != std::end(model.frames); ++fm)
         {
-          if (graph.mapOfJoints.find(*joint_name) == graph.mapOfJoints.end())
+          if ((fm->type != FIXED_JOINT and fm->type != JOINT) or (graph.mapOfJoints.find(fm->name) == graph.mapOfJoints.end()))
           {
             continue;
           }
           const ::sdf::ElementPtr childJointElement =
-            graph.mapOfJoints.find(*joint_name)->second;
+            graph.mapOfJoints.find(fm->name)->second;
           const std::string childLinkName =
             childJointElement->GetElement("child")->template Get<std::string>();
           const ::sdf::ElementPtr childLinkElement =
