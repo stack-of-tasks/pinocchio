@@ -58,6 +58,21 @@ namespace Eigen
         return x.getValue();
       }
     };
+
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl< CppAD::AD<CppAD::cg::CG<Scalar> >,Scalar>
+    {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+      EIGEN_DEVICE_FUNC
+#endif
+      static inline Scalar run(const CppAD::AD<CppAD::cg::CG<Scalar> > & x)
+      {
+        return CppAD::Value(x).getValue();
+      }
+    };
+
+    
   }
 } // namespace Eigen
 
