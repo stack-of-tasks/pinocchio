@@ -181,6 +181,15 @@ namespace pinocchio
     }
 
   };
+
+  template<typename Scalar>
+  struct ScalarCast< Scalar, CppAD::AD<Scalar> >
+  {
+    static Scalar cast(const CppAD::AD<Scalar> & value)
+    {
+      return ::CppAD::Value(value);
+    }
+  };
   
 } // namespace pinocchio
 
@@ -189,6 +198,5 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
 #include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 #include "pinocchio/autodiff/cppad/algorithm/aba.hpp"
-#include "pinocchio/autodiff/cppad/multibody/joint/joint-helical.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_cppad_hpp__
