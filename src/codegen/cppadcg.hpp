@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -114,6 +114,16 @@ namespace pinocchio
     }
 
   };
+
+  template<typename Scalar>
+  struct ScalarCast< Scalar, CppAD::cg::CG<Scalar> >
+  {
+    static Scalar cast(const CppAD::cg::CG<Scalar> & cg_value)
+    {
+      return cg_value.getValue();
+    }
+  };
+
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_codegen_ccpadcg_hpp__

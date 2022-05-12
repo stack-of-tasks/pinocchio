@@ -92,6 +92,12 @@ namespace pinocchio
     }
   };
 
+  template<typename To, typename From>
+  To scalar_cast(const From & value)
+  {
+    return ScalarCast<To,From>::cast(value);
+  }
+
   /// \brief Argument position.
   ///        Used as template parameter to refer to an argument.
   enum ArgumentPosition

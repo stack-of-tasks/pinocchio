@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_autodiff_cppad_hpp__
@@ -182,12 +182,12 @@ namespace pinocchio
 
   };
 
-  template<typename Scalar>
-  struct ScalarCast< Scalar, CppAD::AD<Scalar> >
+  template<typename Scalar, typename ADScalar>
+  struct ScalarCast< Scalar, CppAD::AD<ADScalar> >
   {
-    static Scalar cast(const CppAD::AD<Scalar> & value)
+    static Scalar cast(const CppAD::AD<ADScalar> & value)
     {
-      return ::CppAD::Value(value);
+      return scalar_cast<Scalar>(CppAD::Value(value));
     }
   };
   
