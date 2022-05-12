@@ -821,7 +821,7 @@ namespace pinocchio
     JointModelHelicalTpl<NewScalar,Options,axis> cast() const
     {
       typedef JointModelHelicalTpl<NewScalar,Options,axis> ReturnType;
-      ReturnType res(static_cast<NewScalar>(m_pitch));
+      ReturnType res(ScalarCast<NewScalar,Scalar>::cast(m_pitch));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
