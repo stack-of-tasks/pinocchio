@@ -649,7 +649,7 @@ internal::comparison_eq(m_v, other.m_v);
     JointModelHelicalUnalignedTpl<NewScalar,Options> cast() const
     {
       typedef JointModelHelicalUnalignedTpl<NewScalar,Options> ReturnType;
-      ReturnType res(axis.template cast<NewScalar>(), static_cast<NewScalar>(m_pitch));
+      ReturnType res(axis.template cast<NewScalar>(), ScalarCast<NewScalar,Scalar>::cast(m_pitch));
       res.setIndexes(id(),idx_q(),idx_v());
       return res;
     }
