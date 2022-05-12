@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2021 INRIA
+# Copyright (c) 2022 INRIA
 #
 from ..pinocchio_pywrap_cppadcg import *
 
