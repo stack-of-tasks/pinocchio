@@ -157,7 +157,7 @@ namespace pinocchio
         .staticmethod("Identity")
         .def("Random",&SE3::Random,"Returns a random transformation.")
         .staticmethod("Random")
-        .def("Interpolate",&SE3::template Interpolate<double>,
+          .def("Interpolate",&SE3::template Interpolate<Scalar>,
              bp::args("A","B","alpha"),
              "Linear interpolation on the SE3 manifold.\n\n"
              "This method computes the linear interpolation between A and B, such that the result C = A + (B-A)*t if it would be applied on classic Euclidian space.\n"

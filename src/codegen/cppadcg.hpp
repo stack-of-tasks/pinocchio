@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -36,6 +36,20 @@ namespace boost
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
+
+          template <class T, T v>
+          static inline CGScalar get(const std::integral_constant<T,v> & n)
+          {
+            return CGScalar(constant_pi<Scalar>::get(n));
+          }
+
+          template <class T, T v>
+          static inline CGScalar get(const boost::integral_constant<T,v> & n)
+          {
+            return CGScalar(constant_pi<Scalar>::get(n));
+          }
+
+          
         };
       }
     }
@@ -58,6 +72,21 @@ namespace Eigen
         return x.getValue();
       }
     };
+
+    // Specialization of Eigen::internal::cast_impl for CppAD input types
+    template<typename Scalar>
+    struct cast_impl< CppAD::AD<CppAD::cg::CG<Scalar> >,Scalar>
+    {
+#if EIGEN_VERSION_AT_LEAST(3,2,90)
+      EIGEN_DEVICE_FUNC
+#endif
+      static inline Scalar run(const CppAD::AD<CppAD::cg::CG<Scalar> > & x)
+      {
+        return CppAD::Value(x).getValue();
+      }
+    };
+
+    
   }
 } // namespace Eigen
 
@@ -85,6 +114,16 @@ namespace pinocchio
     }
 
   };
+
+  template<typename Scalar>
+  struct ScalarCast< Scalar, CppAD::cg::CG<Scalar> >
+  {
+    static Scalar cast(const CppAD::cg::CG<Scalar> & cg_value)
+    {
+      return cg_value.getValue();
+    }
+  };
+
 } // namespace pinocchio
 
 #endif // #ifndef __pinocchio_codegen_ccpadcg_hpp__

@@ -17,7 +17,7 @@ namespace pinocchio
                                                          const context::VectorXs & tau,
                                                          const context::MatrixXs & J,
                                                          const context::VectorXs & gamma,
-                                                         const context::Scalar inv_damping = 0.0)
+                                                         const context::Scalar inv_damping = context::Scalar(0.0))
     {
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
@@ -31,7 +31,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
                                                               const context::VectorXs & tau,
                                                               const context::MatrixXs & J,
                                                               const context::VectorXs & gamma,
-                                                              const context::Scalar inv_damping = 0.0)
+                                                              const context::Scalar inv_damping = context::Scalar(0.0))
     {
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
@@ -46,8 +46,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
                                                          const context::VectorXs & q,
                                                          const context::VectorXs & v_before,
                                                          const context::MatrixXs & J,
-                                                         const context::Scalar r_coeff = 0.,
-                                                         const context::Scalar inv_damping = 0.)
+                                                         const context::Scalar r_coeff = context::Scalar(0.),
+                                                         const context::Scalar inv_damping = context::Scalar(0.))
     {
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
@@ -61,8 +61,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
                                                               context::Data & data,
                                                               const context::VectorXs & v_before,
                                                               const context::MatrixXs & J,
-                                                              const context::Scalar r_coeff = 0.,
-                                                              const context::Scalar inv_damping = 0.)
+                                                              const context::Scalar r_coeff = context::Scalar(0.),
+                                                              const context::Scalar inv_damping = context::Scalar(0.))
     {
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
@@ -76,7 +76,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
                                                                          context::Data & data,
                                                                          const context::VectorXs & q,
                                                                          const context::MatrixXs & J,
-                                                                         const context::Scalar mu = 0)
+                                                                         const context::Scalar mu = context::Scalar(0))
     {
       context::MatrixXs KKTMatrix_inv(model.nv+J.rows(), model.nv+J.rows());
       computeKKTContactDynamicMatrixInverse(model, data, q, J, KKTMatrix_inv, mu);

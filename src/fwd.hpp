@@ -80,6 +80,24 @@ namespace pinocchio
   ///
   template<typename NewScalar, class C> struct CastType;
 
+  ///
+  /// \brief Cast scalar type from type FROM to type TO.
+  ///
+  template<typename To, typename From>
+  struct ScalarCast
+  {
+    static To cast(const From & value)
+    {
+      return static_cast<To>(value);
+    }
+  };
+
+  template<typename To, typename From>
+  To scalar_cast(const From & value)
+  {
+    return ScalarCast<To,From>::cast(value);
+  }
+
   /// \brief Argument position.
   ///        Used as template parameter to refer to an argument.
   enum ArgumentPosition

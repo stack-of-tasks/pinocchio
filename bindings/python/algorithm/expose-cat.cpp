@@ -14,7 +14,7 @@ namespace pinocchio
                                       const context::VectorXs & q,
                                       const context::VectorXs & v)
     {
-      data.M.fill(0);
+      data.M.fill(context::Scalar(0));
       computeAllTerms(model,data,q,v);
       data.M.triangularView<Eigen::StrictlyLower>()
       = data.M.transpose().triangularView<Eigen::StrictlyLower>();

@@ -15,7 +15,7 @@ namespace pinocchio
                                         context::Data & data,
                                         const context::VectorXs & q)
     {
-      data.M.fill(0);
+      data.M.fill(context::Scalar(0));
       crba(model,data,q);
       make_symmetric(data.M);
       return data.M;
@@ -27,7 +27,7 @@ namespace pinocchio
                                           context::Data & data,
                                           const context::VectorXs & q)
       {
-        data.M.fill(0);
+        data.M.fill(context::Scalar(0));
         ::pinocchio::minimal::crba(model,data,q);
         make_symmetric(data.M);
         return data.M;

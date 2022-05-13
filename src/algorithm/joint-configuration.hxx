@@ -253,7 +253,7 @@ namespace pinocchio
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
-    typename ConfigVectorIn1::Scalar squaredDistance = 0.0;
+    typename ConfigVectorIn1::Scalar squaredDistance = Scalar(0.0);
 
     typedef SquaredDistanceSumStep<LieGroup_t,ConfigVectorIn1,ConfigVectorIn2,Scalar> Algo;
     for(JointIndex i=1; i<(JointIndex) model.njoints; ++i)

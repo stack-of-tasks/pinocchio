@@ -34,7 +34,7 @@ struct LieGroupWrapperTpl
   static ConfigVector_t interpolate(const LieGroupType& lg,
       const ConfigVector_t& q0,
       const ConfigVector_t& q1,
-      const double& u)
+      const context::Scalar& u)
   {
     return lg.interpolate(q0,q1,u);
   }
@@ -192,7 +192,6 @@ public:
     .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv2)
     .def("dIntegrate_dv", LieGroupWrapper::dIntegrate_dv3)
     .def("dIntegrateTransport", LieGroupWrapper::dIntegrateTransport_proxy)
-
     .def("difference", LieGroupWrapper::difference)
     .def("dDifference", LieGroupWrapper::dDifference1)
     .def("dDifference", LieGroupWrapper::dDifference2)

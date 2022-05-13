@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_autodiff_cppad_hpp__
@@ -37,6 +37,19 @@ namespace boost
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 
+          template <class T, T v>
+          static inline ADScalar get(const std::integral_constant<T,v> & n)
+          {
+            return ADScalar(constant_pi<Scalar>::get(n));
+          }
+
+          template <class T, T v>
+          static inline ADScalar get(const boost::integral_constant<T,v> & n)
+          {
+            return ADScalar(constant_pi<Scalar>::get(n));
+          }
+          
+          
         };
       }
     }
@@ -168,6 +181,15 @@ namespace pinocchio
     }
 
   };
+
+  template<typename Scalar, typename ADScalar>
+  struct ScalarCast< Scalar, CppAD::AD<ADScalar> >
+  {
+    static Scalar cast(const CppAD::AD<ADScalar> & value)
+    {
+      return scalar_cast<Scalar>(CppAD::Value(value));
+    }
+  };
   
 } // namespace pinocchio
 
@@ -176,6 +198,5 @@ namespace pinocchio
 #include "pinocchio/autodiff/cppad/utils/static-if.hpp"
 #include "pinocchio/autodiff/cppad/math/quaternion.hpp"
 #include "pinocchio/autodiff/cppad/algorithm/aba.hpp"
-#include "pinocchio/autodiff/cppad/multibody/joint/joint-helical.hpp"
 
 #endif // #ifndef __pinocchio_autodiff_cppad_hpp__

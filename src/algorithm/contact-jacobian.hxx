@@ -65,7 +65,7 @@ namespace pinocchio
           {
             case WORLD:
             {
-              Jcol_out.noalias() = Jcol_motion_in.linear() * sign;
+              Jcol_out.noalias() = Jcol_motion_in.linear() * Scalar(sign);
               break;
             }
             case LOCAL:
@@ -119,7 +119,7 @@ namespace pinocchio
             }
             case LOCAL:
             {
-              Jcol_motion_out = sign * oMc1.actInv(Jcol_motion_in);
+              Jcol_motion_out = Scalar(sign) * oMc1.actInv(Jcol_motion_in);
               break;
             }
             case LOCAL_WORLD_ALIGNED:
@@ -127,7 +127,7 @@ namespace pinocchio
               Motion Jcol_local_world_aligned(Jcol_motion_in);
               Jcol_local_world_aligned.linear()
               -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
-              Jcol_motion_out = sign * Jcol_local_world_aligned;
+              Jcol_motion_out = Scalar(sign) * Jcol_local_world_aligned;
               break;
             }
           }
