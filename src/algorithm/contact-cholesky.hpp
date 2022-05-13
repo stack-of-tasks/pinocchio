@@ -247,6 +247,7 @@ namespace pinocchio
         PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
         U4inv.setIdentity(); U4.solveInPlace(U4inv); // TODO: implement Sparse Inverse
         res.noalias() = U2 * U4inv;
+        PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
       
       ///
