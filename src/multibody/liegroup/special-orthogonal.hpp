@@ -163,8 +163,8 @@ namespace pinocchio
     {
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
-      const Scalar & ca = q(0);
-      const Scalar & sa = q(1);
+      const Scalar ca = q(0);
+      const Scalar sa = q(1);
       const Scalar & omega = v(0);
 
       Scalar cosOmega,sinOmega; SINCOS(omega, &sinOmega, &cosOmega);
@@ -176,6 +176,7 @@ namespace pinocchio
       // See quaternion::firstOrderNormalize for equations.
       const Scalar norm2 = out.squaredNorm();
       out *= (3 - norm2) / 2;
+      assert (isNormalized(out));
     }
     
     template <class Config_t, class Jacobian_t>
