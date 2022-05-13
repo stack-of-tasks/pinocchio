@@ -45,6 +45,7 @@ INCLUDE(CMakeDependentOption)
 
 # If needed, set CMake policy for APPLE systems
 APPLY_DEFAULT_APPLE_CONFIGURATION()
+CMAKE_POLICY(SET CMP0074 NEW)
 
 IF(WIN32)
   SET(LINK copy_if_different)
