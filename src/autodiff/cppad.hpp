@@ -164,6 +164,12 @@ namespace CppAD
   }
 } // namespace CppAD
 
+namespace CppAD
+{
+  template <class Scalar>
+  bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
+}
+
 #include "pinocchio/utils/static-if.hpp"
 
 namespace pinocchio
