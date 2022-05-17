@@ -96,6 +96,13 @@ namespace CppAD
   bool isfinite(const cg::CG<Scalar> & x) { return std::isfinite(x.getValue()); }
 }
 
+namespace CppAD { namespace cg {
+
+template <class Scalar>
+bool isfinite(const CG<Scalar> & x) { return ::CppAD::isfinite(x); }
+
+}}
+
 namespace pinocchio
 {
   template<typename Scalar>
