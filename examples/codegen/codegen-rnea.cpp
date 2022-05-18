@@ -1,8 +1,9 @@
+#include "pinocchio/codegen/cppadcg.hpp"
+
 #include <iosfwd>
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/parsers/sample-models.hpp>
 #include <pinocchio/algorithm/rnea.hpp>
-#include <cppad/cg.hpp>
 
 using namespace CppAD;
 using namespace CppAD::cg;
