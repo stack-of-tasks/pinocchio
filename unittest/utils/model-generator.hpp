@@ -37,9 +37,11 @@ namespace pinocchio
     addJointAndBody(model,JointModelPlanar(),model.getJointId("spherical_joint"),SE3::Identity(),"planar",Inertia::Random());
     addJointAndBody(model,JointModelRX(),model.getJointId("planar_joint"),SE3::Identity(),"rx",Inertia::Random());
     addJointAndBody(model,JointModelPX(),model.getJointId("rx_joint"),SE3::Identity(),"px",Inertia::Random());
-    addJointAndBody(model,JointModelPrismaticUnaligned(SE3::Vector3(1,0,0)),model.getJointId("px_joint"),SE3::Identity(),"pu",Inertia::Random());
+    addJointAndBody(model,JointModelHX(1.0),model.getJointId("px_joint"),SE3::Identity(),"hx",Inertia::Random());
+    addJointAndBody(model,JointModelPrismaticUnaligned(SE3::Vector3(1,0,0)),model.getJointId("hx_joint"),SE3::Identity(),"pu",Inertia::Random());
     addJointAndBody(model,JointModelRevoluteUnaligned(SE3::Vector3(0,0,1)),model.getJointId("pu_joint"),SE3::Identity(),"ru",Inertia::Random());
-    addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("ru_joint"),SE3::Identity(),"sphericalZYX",Inertia::Random());
+    addJointAndBody(model,JointModelHelicalUnaligned(SE3::Vector3(0,0,1), 1.0),model.getJointId("ru_joint"),SE3::Identity(),"hu",Inertia::Random());
+    addJointAndBody(model,JointModelSphericalZYX(),model.getJointId("hu_joint"),SE3::Identity(),"sphericalZYX",Inertia::Random());
     addJointAndBody(model,JointModelTranslation(),model.getJointId("sphericalZYX_joint"),SE3::Identity(),"translation",Inertia::Random());
   }
 
