@@ -14,10 +14,7 @@ x = np.array([ADCG(CG(0.))]*(nq+nv+nv))
 x[:nq] = cgpin.neutral(model)
 Independent(x)
 
-y = np.array([ADCG(CG(0.))]*(nv))
-
-cgpin.rnea(model, data, x[:nq], x[nq:nq+nv], x[nq+nv:])
-y[:] = data.tau
+y = cgpin.rnea(model, data, x[:nq], x[nq:nq+nv], x[nq+nv:])
 
 fun = ADCGFun(x, y)
 
