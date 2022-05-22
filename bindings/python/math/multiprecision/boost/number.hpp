@@ -120,6 +120,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         IMPLICITLY_CONVERTIBLE(float,BoostNumber);
         IMPLICITLY_CONVERTIBLE(long int,BoostNumber);
         IMPLICITLY_CONVERTIBLE(int,BoostNumber);
+        IMPLICITLY_CONVERTIBLE(long,BoostNumber);
         IMPLICITLY_CONVERTIBLE(unsigned int,BoostNumber);
         IMPLICITLY_CONVERTIBLE(unsigned long int,BoostNumber);
         IMPLICITLY_CONVERTIBLE(bool,BoostNumber);
@@ -130,6 +131,10 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         eigenpy::registerCast<double,BoostNumber>(true);
         eigenpy::registerCast<BoostNumber,float>(false);
         eigenpy::registerCast<float,BoostNumber>(true);
+        eigenpy::registerCast<BoostNumber,long>(false);
+        eigenpy::registerCast<long,BoostNumber>(true);
+        eigenpy::registerCast<BoostNumber,int>(false);
+        eigenpy::registerCast<int,BoostNumber>(true);;
         eigenpy::registerCast<BoostNumber,int64_t>(false);
         eigenpy::registerCast<int64_t,BoostNumber>(true);
       }
