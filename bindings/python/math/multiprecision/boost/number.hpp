@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_python_math_multiprecision_boost_number_hpp__
@@ -12,6 +12,49 @@
 #include <eigenpy/user-type.hpp>
 #include <eigenpy/ufunc.hpp>
 #include <sstream>
+
+namespace
+{
+
+  template<class Backend>
+  struct get_backend_precision {};
+
+  template <unsigned Digits10, ::boost::multiprecision::mpfr_allocation_type AllocateType>
+  struct get_backend_precision<::boost::multiprecision::mpfr_float_backend<Digits10,AllocateType>>
+  {
+    enum { value = Digits10 };
+  };
+
+}
+
+namespace eigenpy
+{
+  namespace internal
+  {
+    template <class Backend, ::boost::multiprecision::expression_template_option ExpressionTemplates>
+    struct getitem<::boost::multiprecision::number<Backend,ExpressionTemplates>>
+    {
+      
+      typedef ::boost::multiprecision::number<Backend,ExpressionTemplates> Scalar;
+
+      static PyObject* run(void* data, void* /* arr */) {
+        Scalar & mpfr_scalar = *static_cast<Scalar*>(data);
+        Backend & backend = mpfr_scalar.backend();
+       
+        if(backend.data()[0]._mpfr_d == 0) // If the mpfr_scalar is not initialized, we have to init it.
+        {
+          mpfr_scalar = Scalar(0);
+//          unsigned int precision = get_backend_precision<Backend>::value ? get_backend_precision<Backend>::value : backend.default_precision();
+//          mpfr_init2(backend.data(), ::boost::multiprecision::detail::digits10_2_2(precision));
+        }
+        bp::object m(boost::ref(mpfr_scalar));
+        Py_INCREF(m.ptr());
+        return m.ptr();
+      }
+    };
+  }
+
+}
 
 namespace pinocchio
 {
