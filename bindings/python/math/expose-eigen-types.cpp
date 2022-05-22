@@ -16,7 +16,6 @@
 #include <eigenpy/quaternion.hpp>
 #include <eigenpy/angle-axis.hpp>
 
-#include <iostream>
 #include <eigenpy/user-type.hpp>
 #include <eigenpy/ufunc.hpp>
 
