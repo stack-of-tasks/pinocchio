@@ -85,12 +85,12 @@ namespace pinocchio
     CppAD::cg::ModelCSourceGen<Scalar> & codeGenerator()
     { return *cgen_ptr; }
     
-    void compileLib(const std::string & compile_options_ = "-Ofast")
+    void compileLib(const std::string & compile_options = "-Ofast")
     {
       CppAD::cg::GccCompiler<Scalar> compiler;
-      std::vector<std::string> compile_options = compiler.getCompileFlags();
-      compile_options[0] = compile_options_;
-      compiler.setCompileFlags(compile_options);
+      std::vector<std::string> compile_flags = compiler.getCompileFlags();
+      compile_flags[0] = compile_options;
+      compiler.setCompileFlags(compile_flags);
       dynamicLibManager_ptr->createDynamicLibrary(compiler,false);
     }
     
