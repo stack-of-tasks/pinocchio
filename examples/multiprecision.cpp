@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
   Data data(model);
   
   // Define Model and Data for multiprecision types
-  typedef boost::multiprecision::cpp_dec_float_100 float_100;
+  typedef ::boost::multiprecision::number< ::boost::multiprecision::cpp_dec_float<100>, ::boost::multiprecision::et_off> float_100;
   typedef ModelTpl<float_100> ModelMulti;
   typedef DataTpl<float_100> DataMulti;
   

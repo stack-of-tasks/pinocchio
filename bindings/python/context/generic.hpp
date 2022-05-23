@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_python_context_generic_hpp__
@@ -18,6 +18,10 @@
 
 namespace pinocchio {
 namespace python {
+
+// Forward declaration
+boost::python::object getScalarType();
+void exposeSpecificTypeFeatures();
 
 namespace context {
 
