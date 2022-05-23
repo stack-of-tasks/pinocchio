@@ -300,6 +300,8 @@ BOOST_AUTO_TEST_CASE ( neutral_configuration_test )
               0,
               0,
               0,
+              0,
+              0,
               0,0,0,
               0,0,0;
 
