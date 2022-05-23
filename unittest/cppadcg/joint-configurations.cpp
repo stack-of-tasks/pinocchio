@@ -14,6 +14,8 @@
 
 using namespace pinocchio;
 
+bool DELETE_CODEGEN_LIBS_AFTER_TEST = false;
+
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
 BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
@@ -79,6 +81,12 @@ BOOST_AUTO_TEST_CASE(test_joint_configuration_code_generation)
   //ARG1
   cg_dDifference.evalFunction(q1,q1,results_J[0],pinocchio::ARG1);
   BOOST_CHECK(results_J[0].isIdentity());
+
+  if (DELETE_CODEGEN_LIBS_AFTER_TEST){
+    std::remove("cg_integrate_eval_.dylib");
+    std::remove("cg_difference_eval_.dylib");
+    std::remove("cg_dDifference_eval_.dylib");
+  }
   
 }
 
