@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -182,6 +182,9 @@ namespace pinocchio
     
     /// \brief Left variation of the inertia matrix
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) Ivx;
+    
+    /// \brief Combined variations of the inertia matrix \f$ B_i =  \frac{1}{2} [(v_i\times∗)I_i + (I_i v_i)\times^{∗} − I_i(v_i\times)] \f$  consistent with Christoffel symbols.
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) B;
     
     /// \brief Rigid Body Inertia supported by the joint expressed in the world frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) oinertias;
