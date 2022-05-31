@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_python_multibody_data_hpp__
@@ -135,6 +135,10 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(J,"Jacobian of joint placement")
         .ADD_DATA_PROPERTY(dJ,"Time variation of the Jacobian of joint placement (data.J).")
         .ADD_DATA_PROPERTY(iMf,"Body placement wrt to algorithm end effector.")
+        
+        .ADD_DATA_PROPERTY(Ivx,"Right variation of the inertia matrix.")
+        .ADD_DATA_PROPERTY(vxI,"Left variation of the inertia matrix.")
+        .ADD_DATA_PROPERTY(B,"Combined variations of the inertia matrix consistent with Christoffel symbols.")
         
         .ADD_DATA_PROPERTY(Ag,
                            "Centroidal matrix which maps from joint velocity to the centroidal momentum.")
