@@ -4,7 +4,8 @@ from ..utils import npToTuple
 from . import BaseVisualizer
 
 import warnings
-import time
+
+from python_qt_binding.QtTest import QTest
 
 try:
     import hppfcl
@@ -243,22 +244,8 @@ class RVizVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not"""
         self.visual_Display.setEnabled(visibility)
 
-    def play(self, q_trajectory, dt, capture=False):
-        """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
-        from python_qt_binding.QtTest import QTest
-        imgs = []
-        for k in range(q_trajectory.shape[1]):
-            t0 = time.time()
-            self.display(q_trajectory[:, k])
-            if capture:
-                img_arr = self.captureImage()
-                imgs.append(img_arr)
-            t1 = time.time()
-            elapsed_time = t1 - t0
-            if elapsed_time < dt:
-                QTest.qWait(1e3*(dt-elapsed_time))
-        if capture:
-            return imgs
+    def sleep(self, dt):
+        QTest.qWait(1e3*dt)
 
 
 __all__ = ['RVizVisualizer']
