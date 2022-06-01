@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_rnea_hxx__
@@ -438,6 +438,7 @@ namespace pinocchio
       data.v[i] = jdata.v();
       if(parent>0) data.v[i] += data.liMi[i].actInv(data.v[parent]);
       data.ov[i] = data.oMi[i].act(data.v[i]);
+      data.oh[i] = data.oYcrb[i] * data.ov[i];
       
       // computes S expressed at the world frame
       typedef typename SizeDepType<JointModel::NV>::template ColsReturn<typename Data::Matrix6x>::Type ColsBlock;
@@ -447,10 +448,19 @@ namespace pinocchio
       // computes vxS expressed at the world frame
       ColsBlock dJcols = jmodel.jointCols(data.dJ);
       motionSet::motionAction(data.ov[i],Jcols,dJcols);
-
-      // computes vxI
-      typedef typename Data::Inertia Inertia;
-      Inertia::vxi(data.ov[i],data.oYcrb[i],data.vxI[i]);
+      
+      data.B[i] = data.oYcrb[i].variation(0.5*data.ov[i]);
+      addForceCrossMatrix(0.5*data.oh[i],data.B[i]);
+    }
+    
+    template<typename ForceDerived, typename M6>
+    static void addForceCrossMatrix(const ForceDense<ForceDerived> & f,
+                                    const Eigen::MatrixBase<M6> & mout)
+    {
+      M6 & mout_ = PINOCCHIO_EIGEN_CONST_CAST(M6,mout);
+      addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::LINEAR,ForceDerived::ANGULAR));
+      addSkew(-f.linear(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::LINEAR));
+      addSkew(-f.angular(),mout_.template block<3,3>(ForceDerived::ANGULAR,ForceDerived::ANGULAR));
     }
 
   };
@@ -482,7 +492,7 @@ namespace pinocchio
       ColsBlock Jcols = jmodel.jointCols(data.J);
       
       motionSet::inertiaAction(data.oYcrb[i],dJcols,jmodel.jointCols(data.dFdv));
-      jmodel.jointCols(data.dFdv) += data.vxI[i] * Jcols;
+      jmodel.jointCols(data.dFdv) += data.B[i] * Jcols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = Jcols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -491,14 +501,14 @@ namespace pinocchio
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
 
-      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.vxI[i];
+      M6tmpR.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.B[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
 
       if(parent>0)
       {
         data.oYcrb[parent] += data.oYcrb[i];
-        data.vxI[parent] += data.vxI[i];
+        data.B[parent] += data.B[i];
       }
       
     }
@@ -574,7 +584,7 @@ namespace pinocchio
       ColsBlock dFdv_cols = jmodel.jointCols(dFdv);
       
       motionSet::inertiaAction(data.oYcrb[i],dJ_cols,dFdv_cols);
-      dFdv_cols.noalias() += data.vxI[i] * J_cols;
+      dFdv_cols.noalias() += data.B[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose() * dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -583,15 +593,13 @@ namespace pinocchio
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = M6tmpR.topRows(jmodel.nv()) * data.dJ.col(j);
 
-      M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.vxI[i];
+      M6tmpR.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.B[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += M6tmpR.topRows(jmodel.nv()) * data.J.col(j);
       
       if(parent>0)
-      {
-        data.vxI[parent] += data.vxI[i];
-      }
-      
+        data.B[parent] += data.B[i];
+
     }
   };
 
@@ -604,10 +612,16 @@ namespace pinocchio
     
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
+    typedef typename Model::ConfigVectorType ConfigVectorType;
+    typedef typename Model::TangentVectorType TangentVectorType;
     
+    typedef CoriolisMatrixForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
-      Inertia::vxi(data.ov[i],data.oinertias[i],data.vxI[i]);
+      typedef typename Data::Inertia Inertia;
+      const Inertia oY = data.oMi[i].act(model.inertias[i]);
+      data.B[i] = oY.variation(0.5*data.ov[i]);
+      Pass1::addForceCrossMatrix(0.5*data.oh[i],data.B[i]);
     }
     
     typedef GetCoriolisMatrixBackwardStep<Scalar,Options,JointCollectionTpl> Pass2;
