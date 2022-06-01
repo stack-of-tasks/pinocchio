@@ -5,8 +5,6 @@ from . import BaseVisualizer
 
 import warnings
 
-from python_qt_binding.QtTest import QTest
-
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
@@ -245,6 +243,7 @@ class RVizVisualizer(BaseVisualizer):
         self.visual_Display.setEnabled(visibility)
 
     def sleep(self, dt):
+        from python_qt_binding.QtTest import QTest
         QTest.qWait(1e3*dt)
 
 
