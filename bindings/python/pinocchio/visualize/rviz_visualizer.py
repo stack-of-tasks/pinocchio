@@ -242,4 +242,9 @@ class RVizVisualizer(BaseVisualizer):
         """Set whether to display visual objects or not"""
         self.visual_Display.setEnabled(visibility)
 
+    def sleep(self, dt):
+        from python_qt_binding.QtTest import QTest
+        QTest.qWait(1e3*dt)
+
+
 __all__ = ['RVizVisualizer']
