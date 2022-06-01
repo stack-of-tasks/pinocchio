@@ -5,6 +5,9 @@ from . import BaseVisualizer
 
 import warnings
 
+from python_qt_binding.QtTest import QTest
+import time
+
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
@@ -241,5 +244,22 @@ class RVizVisualizer(BaseVisualizer):
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not"""
         self.visual_Display.setEnabled(visibility)
+
+    def play(self, q_trajectory, dt, capture=False):
+        """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
+        imgs = []
+        for k in range(q_trajectory.shape[1]):
+            t0 = time.time()
+            self.display(q_trajectory[:, k])
+            if capture:
+                img_arr = self.captureImage()
+                imgs.append(img_arr)
+            t1 = time.time()
+            elapsed_time = t1 - t0
+            if elapsed_time < dt:
+                QTest.qWait(1e3*(dt-elapsed_time))
+        if capture:
+            return imgs
+
 
 __all__ = ['RVizVisualizer']
