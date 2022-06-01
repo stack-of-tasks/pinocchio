@@ -4,8 +4,6 @@ from ..utils import npToTuple
 from . import BaseVisualizer
 
 import warnings
-
-from python_qt_binding.QtTest import QTest
 import time
 
 try:
@@ -247,6 +245,7 @@ class RVizVisualizer(BaseVisualizer):
 
     def play(self, q_trajectory, dt, capture=False):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
+        from python_qt_binding.QtTest import QTest
         imgs = []
         for k in range(q_trajectory.shape[1]):
             t0 = time.time()
