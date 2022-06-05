@@ -11,17 +11,21 @@ jobs:
       matrix:
         os: [ubuntu-22.04,ubuntu-20.04,ubuntu-18.04]
 
+    env:
+      CCACHE_DIR: /github/home/.ccache
+
     steps:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
         submodules: recursive
 
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
+    - name: Setup ccache
+      uses: actions/cache@v2
       with:
-        key: ${{ matrix.os }}-${{ matrix.type }}
-        max-size: 1G
+        key: ${{ matrix.os }}
+        path: ${{ env.CCACHE_DIR }}
+        max-size: 5G
 
     # extract branch name
     - name: Get branch name (merge)
