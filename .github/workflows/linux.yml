@@ -64,6 +64,7 @@ jobs:
         git clone https://github.com/casadi/casadi.git -b 3.5.0 --depth 1
         cd casadi
         mkdir build && cd build
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake .. -DCMAKE_BUILD_TYPE=Release -DWITH_EXAMPLES=OFF
         sudo make install
         cd ../..
