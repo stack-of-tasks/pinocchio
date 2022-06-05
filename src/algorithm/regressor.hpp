@@ -172,7 +172,7 @@ namespace pinocchio
     /// \deprecated This function is now in the main pinocchio namespace
     ///
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename ConfigVectorType>
-    inline PINOCCHIO_DEPRECATED typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
+    PINOCCHIO_DEPRECATED typename DataTpl<Scalar,Options,JointCollectionTpl>::Matrix3x &
     computeStaticRegressor(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                            DataTpl<Scalar,Options,JointCollectionTpl> & data,
                            const Eigen::MatrixBase<ConfigVectorType> & q)
