@@ -28,7 +28,7 @@ jobs:
       AFTER_RUN_TARGET_TEST: 'source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run
