@@ -138,16 +138,17 @@ namespace pinocchio
       typedef typename Data::Force Force;
 
       const JointIndex & i = jmodel.id();
-      const JointIndex & parent  = model.parents[i];
+      const JointIndex & parent = model.parents[i];
       typename Inertia::Matrix6 & Ia = data.Yaba[i];
 
-      jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose()*data.f[i];
+      jmodel.jointVelocitySelector(data.u) -= jdata.S().transpose() * data.f[i];
       jmodel.calc_aba(jdata.derived(), Ia, parent > 0);
 
       if (parent > 0)
       {
         Force & pa = data.f[i];
-        pa.toVector() += Ia * data.a_gf[i].toVector() + jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
+        pa.toVector().noalias() += Ia * data.a_gf[i].toVector();
+        pa.toVector().noalias() += jdata.UDinv() * jmodel.jointVelocitySelector(data.u);
         data.Yaba[parent] += internal::SE3actOn<Scalar>::run(data.liMi[i], Ia);
         data.f[parent] += data.liMi[i].act(pa);
       }
@@ -179,8 +180,8 @@ namespace pinocchio
       const JointIndex & parent = model.parents[i];
 
       data.a_gf[i] += data.liMi[i].actInv(data.a_gf[parent]);
-      jmodel.jointVelocitySelector(data.ddq).noalias() =
-      jdata.Dinv() * jmodel.jointVelocitySelector(data.u) - jdata.UDinv().transpose() * data.a_gf[i].toVector();
+      jmodel.jointVelocitySelector(data.ddq).noalias() = jdata.Dinv() * jmodel.jointVelocitySelector(data.u);
+      jmodel.jointVelocitySelector(data.ddq).noalias() -= jdata.UDinv().transpose() * data.a_gf[i].toVector();
       data.a_gf[i] += jdata.S() * jmodel.jointVelocitySelector(data.ddq);
     }
 
@@ -336,7 +337,7 @@ namespace pinocchio
       typedef typename Data::Inertia Inertia;
 
       const JointIndex & i = jmodel.id();
-      const JointIndex & parent  = model.parents[i];
+      const JointIndex & parent = model.parents[i];
 
       typename Inertia::Matrix6 & Ia = data.Yaba[i];
       typename Data::RowMatrixXs & Minv = data.Minv;
