@@ -14,6 +14,7 @@ jobs:
         env:
           - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic}
+          - {ROS_DISTRO: rolling}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
       # The following is a work-around for ROS tooling in conjunction with jrl-cmakemodules:
