@@ -1,9 +1,11 @@
 //
-// Copyright (c) 2017-2021 CNRS INRIA
+// Copyright (c) 2017-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_macros_hpp__
 #define __pinocchio_macros_hpp__
+
+#include <sstream>
 
 // On Windows, __cplusplus is not necessarily set to the C++ version being used.
 // See https://docs.microsoft.com/fr-fr/cpp/build/reference/zc-cplusplus?view=vs-2019 for further information.
@@ -112,12 +114,29 @@ namespace pinocchio
 PINOCCHIO_COMPILER_DIAGNOSTIC_PUSH
 PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_VARIADIC_MACROS
 
+#if WIN32
+#define PINOCCHIO_PRETTY_FUNCTION __FUNCSIG__
+#else
+#define PINOCCHIO_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
 /// \brief Generic macro to throw an exception in Pinocchio if the condition is not met with a given input message.
 #if !defined(PINOCCHIO_NO_THROW)
   #define PINOCCHIO_THROW(condition,exception_type,message) \
     if (!(condition)) { throw exception_type(message); }
+
+  #define PINOCCHIO_THROW_PRETTY(exception, message)              \
+  {                                                           \
+    std::stringstream ss;                                     \
+    ss << "From file: " << __FILE__ << "\n";                  \
+    ss << "in function: " << PINOCCHIO_PRETTY_FUNCTION << "\n"; \
+    ss << "at line: " << __LINE__ << "\n";                    \
+    ss << "message: " << message << "\n";                     \
+    throw exception(ss.str());                                \
+  }
 #else
   #define PINOCCHIO_THROW(condition,exception_type,message)
+  #define PINOCCHIO_THROW_PRETTY(exception, message)
 #endif
 
 #define _PINOCCHIO_EXPAND(x) x
