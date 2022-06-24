@@ -422,10 +422,13 @@ namespace pinocchio
     /// \param[in] geom_model Geometry model associated to the data.
     /// \param[in] security_margin_map Associative map related the security margin of a given input collision pair (i,j).
     /// \param[in] upper Wheter the security_margin_map is an upper or lower triangular filled array.
+    /// \param[in] sync_distance_upper_bound Wheter distance_upper_bound have fields to be updated with the security margin value.
     ///
     void setSecurityMargins(const GeometryModel & geom_model,
                             const MatrixXs & security_margin_map,
-                            const bool upper = true);
+                            const bool upper = true,
+                            const bool sync_distance_upper_bound = false);
+    
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
 
     friend std::ostream & operator<<(std::ostream & os, const GeometryData & geomData);

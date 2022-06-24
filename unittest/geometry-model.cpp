@@ -120,10 +120,11 @@ BOOST_AUTO_TEST_CASE(manage_collision_pairs)
     GeometryData::MatrixXs security_margin_map_upper(security_margin_map);
     security_margin_map_upper.triangularView<Eigen::Lower>().fill(0.);
     
-    geom_data_upper.setSecurityMargins(geom_model, security_margin_map);
+    geom_data_upper.setSecurityMargins(geom_model, security_margin_map, true, true);
     for(size_t k = 0; k < geom_data_upper.collisionRequests.size(); ++k)
     {
       BOOST_CHECK(geom_data_upper.collisionRequests[k].security_margin == 1.);
+      BOOST_CHECK(geom_data_upper.collisionRequests[k].security_margin == geom_data_upper.collisionRequests[k].distance_upper_bound);
     }
     
     geom_data_lower.setSecurityMargins(geom_model, security_margin_map, false);

@@ -429,7 +429,8 @@ namespace pinocchio
 #ifdef PINOCCHIO_WITH_HPP_FCL
   inline void GeometryData::setSecurityMargins(const GeometryModel & geom_model,
                                                const MatrixXs & security_margin_map,
-                                               const bool upper)
+                                               const bool upper,
+                                               const bool sync_distance_upper_bound)
   {
     const Eigen::DenseIndex ngeoms = (Eigen::DenseIndex)geom_model.ngeoms;
     PINOCCHIO_CHECK_ARGUMENT_SIZE(security_margin_map.rows(),ngeoms,"Input map does not have the correct number of rows.");
@@ -453,6 +454,8 @@ namespace pinocchio
       }
       
       collisionRequests[k].security_margin = security_margin_map(i,j);
+      if(sync_distance_upper_bound)
+        collisionRequests[k].distance_upper_bound = collisionRequests[k].security_margin;
     }
   }
 #endif // ifdef PINOCCHIO_WITH_HPP_FCL
