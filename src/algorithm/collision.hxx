@@ -17,7 +17,8 @@ namespace pinocchio
 
   inline bool computeCollision(const GeometryModel & geom_model,
                                GeometryData & geom_data,
-                               const PairIndex pair_id)
+                               const PairIndex pair_id,
+                               fcl::CollisionRequest & collision_request)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT( geom_model.collisionPairs.size() == geom_data.collisionResults.size() );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
@@ -27,8 +28,6 @@ namespace pinocchio
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.first  < geom_model.ngeoms );
     PINOCCHIO_CHECK_INPUT_ARGUMENT( pair.second < geom_model.ngeoms );
 
-    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
-    
     collision_request.distance_upper_bound = collision_request.security_margin + 1e-6; // TODO: change the margin
     
     fcl::CollisionResult & collision_result = geom_data.collisionResults[pair_id];
@@ -51,6 +50,16 @@ namespace pinocchio
     }
     
     return collision_result.isCollision();
+  }
+
+  inline bool computeCollision(const GeometryModel & geom_model,
+                               GeometryData & geom_data,
+                               const PairIndex pair_id)
+  {
+    PINOCCHIO_CHECK_INPUT_ARGUMENT( pair_id < geom_model.collisionPairs.size() );
+    fcl::CollisionRequest & collision_request = geom_data.collisionRequests[pair_id];
+    
+    return computeCollision(geom_model, geom_data, pair_id, collision_request);
   }
 
   inline bool computeCollisions(const GeometryModel & geom_model,

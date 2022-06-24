@@ -28,7 +28,15 @@ namespace pinocchio
               );
 
 #ifdef PINOCCHIO_WITH_HPP_FCL       
-      bp::def("computeCollision",computeCollision,
+      bp::def("computeCollision",
+              static_cast<bool (*)(const GeometryModel &,GeometryData &, const PairIndex, fcl::CollisionRequest &)>(computeCollision),
+              bp::args("geometry_model", "geometry_data", "pair_index", "collision_request"),
+              "Check if the collision objects of a collision pair for a given Geometry Model and Data are in collision.\n"
+              "The collision pair is given by the two index of the collision objects."
+              );
+      
+      bp::def("computeCollision",
+              static_cast<bool (*)(const GeometryModel &,GeometryData &, const PairIndex)>(computeCollision),
               bp::args("geometry_model", "geometry_data", "pair_index"),
               "Check if the collision objects of a collision pair for a given Geometry Model and Data are in collision.\n"
               "The collision pair is given by the two index of the collision objects."
