@@ -111,7 +111,7 @@ struct CollisionCallBackDefault : CollisionCallBackBase
     
     fcl::CollisionRequest collision_request(geometry_data_ptr->collisionRequests[pair_index]);
     collision_request.gjk_variant = fcl::GJKVariant::NesterovAcceleration;
-//    collision_request.gjk_initial_guess = fcl::GJKInitialGuess::BoundingVolumeGuess;
+    collision_request.gjk_initial_guess = fcl::GJKInitialGuess::BoundingVolumeGuess;
     
     const bool res = computeCollision(*geometry_model_ptr, *geometry_data_ptr, (PairIndex)pair_index, collision_request);
     
