@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 CNRS INRIA
+// Copyright (c) 2019-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_algorithm_model_hxx__
@@ -11,6 +11,40 @@ namespace pinocchio
 {
   namespace details
   {
+    
+    // Retrieve the joint id in model_out, given the info of model_in.
+    // If the user change all the joint names, the universe name won't correspond to the first joint in the tree when searching by name.
+    // We thus need to retrieve it with other means, e.g. checking the index of the joints.
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    JointIndex getJointId(const ModelTpl<Scalar,Options,JointCollectionTpl> & model_in,
+                          const ModelTpl<Scalar,Options,JointCollectionTpl> & model_out,
+                          const std::string & joint_name_in_model_in)
+    {
+      const JointIndex joint_id = model_in.getJointId(joint_name_in_model_in);
+      assert(joint_id != model_in.joints.size());
+      if(joint_id == 0 && model_in.parents[0] == 0) // This is the universe, maybe renamed.
+        return model_out.getJointId(model_out.names[0]);
+      else
+        return model_out.getJointId(joint_name_in_model_in);
+    }
+  
+    // Retrieve the frame id in model_out, given the info of model_in.
+    // If the user change all the frame names, the universe name won't correspond to the first frame in the tree when searching by name.
+    // We thus need to retrieve it with other means, e.g. checking the fields of the frames.
+    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+    FrameIndex getFrameId(const ModelTpl<Scalar,Options,JointCollectionTpl> & model_in,
+                          const ModelTpl<Scalar,Options,JointCollectionTpl> & model_out,
+                          const std::string & frame_name_in_model_in,
+                          const FrameType & type)
+    {
+      const FrameIndex frame_id = model_in.getFrameId(frame_name_in_model_in);
+      assert(frame_id != model_in.frames.size());
+      if(frame_id == 0 && model_in.frames[0].previousFrame == 0 && model_in.frames[0].parent == 0) // This is the universe, maybe renamed.
+        return model_out.getFrameId(model_out.frames[0].name,type);
+      else
+        return model_out.getFrameId(frame_name_in_model_in,type);
+    }
+  
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     void appendUniverseToModel(const ModelTpl<Scalar,Options,JointCollectionTpl> & modelAB,
                                const GeometryModel & geomModelAB,
@@ -21,6 +55,10 @@ namespace pinocchio
     {
       typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef typename Model::Frame Frame;
+      
+      PINOCCHIO_THROW(parentFrame < model.frames.size(),
+                      std::invalid_argument,
+                      "parentFrame is greater than the size of the frames vector.");
 
       const Frame & pframe = model.frames[parentFrame];
       JointIndex jid = pframe.parent;
@@ -42,9 +80,8 @@ namespace pinocchio
           frame.parent = jid;
           if (frame.previousFrame != 0)
           {
-            frame.previousFrame = model.getFrameId (
-                modelAB.frames[frame.previousFrame].name,
-                modelAB.frames[frame.previousFrame].type);
+            frame.previousFrame = getFrameId(modelAB,model,modelAB.frames[frame.previousFrame].name,
+                                             modelAB.frames[frame.previousFrame].type);
           }
           else
           {
@@ -66,9 +103,8 @@ namespace pinocchio
           go.parentJoint = jid;
           if (go.parentFrame != 0)
           {
-            go.parentFrame = model.getFrameId (
-                modelAB.frames[go.parentFrame].name,
-                modelAB.frames[go.parentFrame].type);
+            go.parentFrame = getFrameId(modelAB,model,modelAB.frames[go.parentFrame].name,
+                                        modelAB.frames[go.parentFrame].type);
           }
           else
           {
@@ -109,7 +145,7 @@ namespace pinocchio
         // otherwise, get the parent from modelAB.
         const JointIndex joint_id_in = jmodel_in.id();
         if (modelAB.parents[joint_id_in] > 0)
-          parent_id = model.getJointId(modelAB.names[modelAB.parents[joint_id_in]]);
+          parent_id = getJointId(modelAB,model,modelAB.names[modelAB.parents[joint_id_in]]);
         
         PINOCCHIO_CHECK_INPUT_ARGUMENT(!model.existJointName(modelAB.names[joint_id_in]),
                                        "The two models have conflicting joint names.");
@@ -145,8 +181,7 @@ namespace pinocchio
             assert (frame.previousFrame > 0 || frame.type == JOINT);
             if (frame.previousFrame != 0)
             {
-              frame.previousFrame = model.getFrameId(modelAB.frames[frame.previousFrame].name,
-                                                     modelAB.frames[frame.previousFrame].type);
+              frame.previousFrame = getFrameId(modelAB,model,modelAB.frames[frame.previousFrame].name,modelAB.frames[frame.previousFrame].type);
             }
             
             model.addFrame(frame);
@@ -162,15 +197,15 @@ namespace pinocchio
             assert(go.parentFrame > 0);
             if(go.parentFrame != 0)
             {
-              go.parentFrame = model.getFrameId(modelAB.frames[go.parentFrame].name,
-                                                modelAB.frames[go.parentFrame].type);
+              go.parentFrame = getFrameId(modelAB,model,modelAB.frames[go.parentFrame].name,modelAB.frames[go.parentFrame].type);
             }
             geomModel.addGeometryObject(go);
           }
         }
       }
     };
-  }
+  
+  } // namespace details
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   void
@@ -231,7 +266,7 @@ namespace pinocchio
 
     // Copy modelB joints
     details::appendUniverseToModel (modelB, geomModelB,
-        model.getFrameId (frame.name, frame.type), aMb, model, geomModel);
+                                    details::getFrameId(modelA,model,frame.name,frame.type), aMb, model, geomModel);
     for (JointIndex jid = 1; jid < modelB.joints.size(); ++jid)
     {
       SE3 pMi = (jid == 1 ? frame.placement * aMb : id);
