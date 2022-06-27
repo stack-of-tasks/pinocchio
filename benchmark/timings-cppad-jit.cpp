@@ -1,8 +1,9 @@
 //
 // Copyright (c) 2022 INRIA
 //
-
-#include "pinocchio/autodiff/cppad.hpp"
+#include "pinocchio/codegen/cppadcg.hpp"
+#include "pinocchio/codegen/code-generator-algo.hpp"
+#include "pinocchio/container/aligned-vector.hpp"
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -70,14 +71,14 @@ int main()
   typedef ADModel::ConfigVectorType ADConfigVectorType;
   typedef ADModel::TangentVectorType ADTangentVectorType;
   
-  ADConfigVectorType ad_q = q.cast<ADScalar>();
-  ADTangentVectorType ad_v = v.cast<ADScalar>();
-  ADTangentVectorType ad_a = a.cast<ADScalar>();
-  
-  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXAD;
 
   {
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+    ADTangentVectorType ad_v = v.cast<ADScalar>();
+    ADTangentVectorType ad_a = a.cast<ADScalar>();
+    
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXAD;
     CppAD::Independent(ad_a);
     pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
@@ -143,10 +144,16 @@ int main()
     {
       ad_fun_ptr(nx, x.data(), ndtau_da_, dtau_da_jit.data(), &compare_change);   
     }
-    std::cout << "Calculate JSIM with cppad using jit  = \t"; timer.toc(std::cout,NBT);
+    std::cout << "Calculate dtau_da (JSIM) as rnea jacobian with cppad using jit  = \t\t"; timer.toc(std::cout,NBT);
   }
 
   {
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+    ADTangentVectorType ad_v = v.cast<ADScalar>();
+    ADTangentVectorType ad_a = a.cast<ADScalar>();
+    
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
+
     CppAD::Independent(ad_a);
     pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
@@ -162,7 +169,7 @@ int main()
     {
       CPPAD_TESTVECTOR(Scalar) dtau_da = ad_fun.Jacobian(x);
     }
-    std::cout << "Calculate JSIM with cppad = \t"; timer.toc(std::cout,NBT);
+    std::cout << "Calculate dtau_da (JSIM) as rnea jacobian with cppad = \t\t"; timer.toc(std::cout,NBT);
   }
 
   {
@@ -170,9 +177,110 @@ int main()
     timer.tic();
     SMOOTH(NBT)
     {
-      pinocchio::rnea(model,data,q,v,a);
+      pinocchio::crba(model,data,q);
     }
-    std::cout << "Calculate JSIM with rnea = \t"; timer.toc(std::cout,NBT);
+    std::cout << "Calculate data.M (JSIM) with crba (just upper triangle part) = \t\t"; timer.toc(std::cout,NBT);
+  }
+
+  {
+    typedef double Scalar;
+    enum { Options = 0 };
+    typedef CppAD::cg::CG<Scalar> CGScalar;
+    typedef CppAD::AD<CGScalar> ADScalar;
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1,Options> ADVectorXs;
+    typedef pinocchio::ModelTpl<ADScalar> ADModel;
+    typedef ADModel::Data ADData;
+
+    ADVectorXs ad_Y(model.nv);
+
+    Model model;
+    pinocchio::buildModels::humanoidRandom(model);
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill(1.);
+
+    ADModel ad_model(model.template cast<ADScalar>());
+    ADData ad_data(ad_model);
+
+    typedef Model::ConfigVectorType ConfigVectorType;
+    typedef Model::TangentVectorType TangentVectorType;
+    ConfigVectorType q(model.nq);
+    q = pinocchio::randomConfiguration(model);
+
+    TangentVectorType v(TangentVectorType::Random(model.nv));
+    TangentVectorType a(TangentVectorType::Random(model.nv));
+
+    typedef ADModel::ConfigVectorType ADConfigVectorType;
+    typedef ADModel::TangentVectorType ADTangentVectorType;
+
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+    ADTangentVectorType ad_v = v.cast<ADScalar>();
+    ADTangentVectorType ad_a = a.cast<ADScalar>();
+
+    ad_q = q.cast<ADScalar>();
+    ad_v = v.cast<ADScalar>();
+    ad_a = a.cast<ADScalar>();
+
+    typedef CppAD::ADFun<CGScalar> ADFun;
+    ADFun ad_fun;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXs;
+    RowMatrixXs jac;
+
+    std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> > cgen_ptr;
+    std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> > libcgen_ptr;
+    std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar> > dynamicLibManager_ptr;
+    std::unique_ptr<CppAD::cg::DynamicLib<Scalar> > dynamicLib_ptr;
+    std::unique_ptr<CppAD::cg::GenericModel<Scalar> > generatedFun_ptr;
+
+    const std::string & function_name = "rnea";
+    const std::string & library_name = "cg_rnea_eval";
+    const std::string & compile_options = "-Ofast";
+
+    CppAD::Independent(ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    ad_Y = ad_data.tau;    
+    ad_fun.Dependent(ad_a,ad_Y);
+    ad_fun.optimize("no_compare_op");
+    jac = RowMatrixXs(ad_Y.size(),ad_a.size());
+
+    // generates source code
+    cgen_ptr = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun, function_name));
+    cgen_ptr->setCreateForwardZero(true);
+    cgen_ptr->setCreateJacobian(true);
+    libcgen_ptr = std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> >(new CppAD::cg::ModelLibraryCSourceGen<Scalar>(*cgen_ptr));
+    
+    dynamicLibManager_ptr
+    = std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar> >(new CppAD::cg::DynamicModelLibraryProcessor<Scalar>(*libcgen_ptr,library_name));
+  
+    CppAD::cg::GccCompiler<Scalar> compiler;
+    std::vector<std::string> compile_flags = compiler.getCompileFlags();
+    compile_flags[0] = compile_options;
+    compiler.setCompileFlags(compile_flags);
+    dynamicLibManager_ptr->createDynamicLibrary(compiler,false);
+
+    const auto it = dynamicLibManager_ptr->getOptions().find("dlOpenMode");
+    if (it == dynamicLibManager_ptr->getOptions().end())
+    {
+      dynamicLib_ptr.reset(new CppAD::cg::LinuxDynamicLib<Scalar>(dynamicLibManager_ptr->getLibraryName() +  CppAD::cg::system::SystemInfo<>::DYNAMIC_LIB_EXTENSION));
+    }
+    else
+    {
+      int dlOpenMode = std::stoi(it->second);
+      dynamicLib_ptr.reset(new CppAD::cg::LinuxDynamicLib<Scalar>(dynamicLibManager_ptr->getLibraryName() +  CppAD::cg::system::SystemInfo<>::DYNAMIC_LIB_EXTENSION, dlOpenMode));
+    }
+      
+    generatedFun_ptr = dynamicLib_ptr->model(function_name.c_str());
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = a;
+    CppAD::cg::ArrayView<const Scalar> x_(x.data(),(size_t)x.size());
+    CppAD::cg::ArrayView<Scalar> jac_(jac.data(),(size_t)jac.size());
+
+    timer.tic();
+    SMOOTH(NBT)
+    {
+      generatedFun_ptr->Jacobian(x_,jac_);
+    }
+    std::cout << "Calculate dtau_da (JSIM) as rnea jacobian with cppad code gen = \t\t"; timer.toc(std::cout,NBT);
   }
 
   std::cout << "--" << std::endl;
