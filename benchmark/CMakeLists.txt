@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021 CNRS INRIA
+# Copyright (c) 2015-2022 CNRS INRIA
 #
 
 # ----------------------------------------------------
@@ -64,7 +64,10 @@ ADD_BENCH(timings-cholesky TRUE)
  
 ADD_BENCH(timings-derivatives TRUE)
 IF(CPPAD_FOUND)
+  # timings-cppad-jit
+  ADD_BENCH(timings-cppad-jit TRUE)
   TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC ${cppad_LIBRARY})
+  TARGET_LINK_LIBRARIES(timings-cppad-jit PUBLIC ${cppad_LIBRARY})
 ENDIF(CPPAD_FOUND)
 IF(cppadcg_FOUND)
   SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
