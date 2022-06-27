@@ -83,7 +83,7 @@ namespace pinocchio
       
       bp::def("appendModel",
               &appendModel_proxy<double,0,JointCollectionDefaultTpl>,
-              bp::args("modelA","modelB","frame_in_modelA","aMb"),
+              bp::args("modelA","modelB","geomModelA", "geomModelB","frame_in_modelA","aMb"),
               "Append a child (geometry) model into a parent (geometry) model, after a specific frame given by its index.\n\n"
               "Parameters:\n"
               "\tmodelA: the parent model\n"
