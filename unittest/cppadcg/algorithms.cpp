@@ -110,4 +110,105 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     BOOST_CHECK(M_map.isApprox(data.M));
   }
 
+  BOOST_AUTO_TEST_CASE(test_crba_code_generation_pointer)
+  {
+    typedef double Scalar;
+    typedef CppAD::cg::CG<Scalar> CGScalar;
+    typedef CppAD::AD<CGScalar> ADScalar;
+    typedef CppAD::ADFun<CGScalar> ADCGFun;
+    
+    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVector;
+    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXs;
+    
+    typedef pinocchio::ModelTpl<Scalar> Model;
+    typedef Model::Data Data;
+    
+    typedef pinocchio::ModelTpl<ADScalar> ADModel;
+    typedef ADModel::Data ADData;
+
+    
+    Model model;
+    pinocchio::buildModels::humanoidRandom(model);
+    model.lowerPositionLimit.head<3>().fill(-1.);
+    model.upperPositionLimit.head<3>().fill(1.);
+    Data data(model);
+    
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+    
+    // Sample random configuration
+    typedef Model::ConfigVectorType ConfigVectorType;
+    typedef Model::TangentVectorType TangentVectorType;
+    ConfigVectorType q(model.nq);
+    q = pinocchio::randomConfiguration(model);
+    
+    TangentVectorType v(TangentVectorType::Random(model.nv));
+    TangentVectorType a(TangentVectorType::Random(model.nv));
+    
+    typedef ADModel::ConfigVectorType ADConfigVectorType;
+    typedef ADModel::TangentVectorType ADTangentVectorType;
+    
+    ADConfigVectorType ad_q = q.cast<ADScalar>();
+    ADTangentVectorType ad_v = v.cast<ADScalar>();
+    ADTangentVectorType ad_a = a.cast<ADScalar>();
+
+    ADCGFun ad_fun;
+    std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> > cgen_ptr;
+    std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> > libcgen_ptr;
+    std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar> > dynamicLibManager_ptr;
+    std::unique_ptr<CppAD::cg::DynamicLib<Scalar> > dynamicLib_ptr;
+    std::unique_ptr<CppAD::cg::GenericModel<Scalar> > generatedFun_ptr;
+
+    const std::string & function_name = "rnea";
+    const std::string & library_name = "cg_rnea_eval";
+    const std::string & compile_options = "-Ofast";
+
+    CppAD::Independent(ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    ADVector ad_Y = ad_data.tau;    
+    ad_fun.Dependent(ad_a,ad_Y);
+    ad_fun.optimize("no_compare_op");
+    RowMatrixXs jac = RowMatrixXs::Zero(ad_Y.size(),ad_a.size());
+
+    // generates source code
+    cgen_ptr = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun, function_name));
+    cgen_ptr->setCreateForwardZero(true);
+    cgen_ptr->setCreateJacobian(true);
+    libcgen_ptr = std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> >(new CppAD::cg::ModelLibraryCSourceGen<Scalar>(*cgen_ptr));
+    
+    dynamicLibManager_ptr
+    = std::unique_ptr<CppAD::cg::DynamicModelLibraryProcessor<Scalar> >(new CppAD::cg::DynamicModelLibraryProcessor<Scalar>(*libcgen_ptr,library_name));
+  
+    CppAD::cg::GccCompiler<Scalar> compiler;
+    std::vector<std::string> compile_flags = compiler.getCompileFlags();
+    compile_flags[0] = compile_options;
+    compiler.setCompileFlags(compile_flags);
+    dynamicLibManager_ptr->createDynamicLibrary(compiler,false);
+
+    const auto it = dynamicLibManager_ptr->getOptions().find("dlOpenMode");
+    if (it == dynamicLibManager_ptr->getOptions().end())
+    {
+      dynamicLib_ptr.reset(new CppAD::cg::LinuxDynamicLib<Scalar>(dynamicLibManager_ptr->getLibraryName() +  CppAD::cg::system::SystemInfo<>::DYNAMIC_LIB_EXTENSION));
+    }
+    else
+    {
+      int dlOpenMode = std::stoi(it->second);
+      dynamicLib_ptr.reset(new CppAD::cg::LinuxDynamicLib<Scalar>(dynamicLibManager_ptr->getLibraryName() +  CppAD::cg::system::SystemInfo<>::DYNAMIC_LIB_EXTENSION, dlOpenMode));
+    }
+      
+    generatedFun_ptr = dynamicLib_ptr->model(function_name.c_str());
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = a;
+    CppAD::cg::ArrayView<const Scalar> x_(x.data(),(size_t)x.size());
+    CppAD::cg::ArrayView<Scalar> jac_(jac.data(),(size_t)jac.size());
+    generatedFun_ptr->Jacobian(x_,jac_);
+
+    pinocchio::crba(model,data,q);
+    data.M.triangularView<Eigen::StrictlyLower>()
+    = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+    BOOST_CHECK(jac.isApprox(data.M));
+  }
+
 BOOST_AUTO_TEST_SUITE_END()
