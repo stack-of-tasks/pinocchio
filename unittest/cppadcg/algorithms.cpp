@@ -129,6 +129,7 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     
     Model model;
     pinocchio::buildModels::humanoidRandom(model);
+    int nq = model.nq; int nv = model.nv;
     model.lowerPositionLimit.head<3>().fill(-1.);
     model.upperPositionLimit.head<3>().fill(1.);
     Data data(model);
@@ -139,11 +140,11 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     // Sample random configuration
     typedef Model::ConfigVectorType ConfigVectorType;
     typedef Model::TangentVectorType TangentVectorType;
-    ConfigVectorType q(model.nq);
+    ConfigVectorType q(nq);
     q = pinocchio::randomConfiguration(model);
     
-    TangentVectorType v(TangentVectorType::Random(model.nv));
-    TangentVectorType a(TangentVectorType::Random(model.nv));
+    TangentVectorType v(TangentVectorType::Random(nv));
+    TangentVectorType a(TangentVectorType::Random(nv));
     
     typedef ADModel::ConfigVectorType ADConfigVectorType;
     typedef ADModel::TangentVectorType ADTangentVectorType;
@@ -151,6 +152,12 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     ADConfigVectorType ad_q = q.cast<ADScalar>();
     ADTangentVectorType ad_v = v.cast<ADScalar>();
     ADTangentVectorType ad_a = a.cast<ADScalar>();
+
+    ADConfigVectorType ad_X = ADConfigVectorType::Zero(nq+2*nv);
+    Eigen::DenseIndex i = 0;
+    ad_X.segment(i,nq) = ad_q; i += nq;
+    ad_X.segment(i,nv) = ad_v; i += nv;
+    ad_X.segment(i,nv) = ad_a; i += nv;
 
     ADCGFun ad_fun;
     std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> > cgen_ptr;
@@ -163,12 +170,12 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
     const std::string & library_name = "cg_rnea_eval";
     const std::string & compile_options = "-Ofast";
 
-    CppAD::Independent(ad_a);
-    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+    CppAD::Independent(ad_X);
+    pinocchio::rnea(ad_model,ad_data,ad_X.segment(0,nq),ad_X.segment(nq,nv),ad_X.segment(nq+nv,nv));
     ADVector ad_Y = ad_data.tau;    
-    ad_fun.Dependent(ad_a,ad_Y);
+    ad_fun.Dependent(ad_X,ad_Y);
     ad_fun.optimize("no_compare_op");
-    RowMatrixXs jac = RowMatrixXs::Zero(ad_Y.size(),ad_a.size());
+    RowMatrixXs jac = RowMatrixXs::Zero(ad_Y.size(),ad_X.size());
 
     // generates source code
     cgen_ptr = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun, function_name));
@@ -198,17 +205,28 @@ BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
       
     generatedFun_ptr = dynamicLib_ptr->model(function_name.c_str());
 
-    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
-    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = a;
-    CppAD::cg::ArrayView<const Scalar> x_(x.data(),(size_t)x.size());
     CppAD::cg::ArrayView<Scalar> jac_(jac.data(),(size_t)jac.size());
-    generatedFun_ptr->Jacobian(x_,jac_);
+    for(size_t it=0;it<3;++it)
+    {
+      std::cout << "test " << it << std::endl;
+      ConfigVectorType q = pinocchio::randomConfiguration(model);
+      TangentVectorType v(TangentVectorType::Random(nv));
+      TangentVectorType a(TangentVectorType::Random(nv));
 
-    pinocchio::crba(model,data,q);
-    data.M.triangularView<Eigen::StrictlyLower>()
-    = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+      ConfigVectorType x = ConfigVectorType::Zero(nq+2*nv);
+      i = 0;
+      x.segment(i,nq) = q; i += nq;
+      x.segment(i,nv) = v; i += nv;
+      x.segment(i,nv) = a; i += nv;
 
-    BOOST_CHECK(jac.isApprox(data.M));
+      CppAD::cg::ArrayView<const Scalar> x_(x.data(),(size_t)x.size());
+      generatedFun_ptr->Jacobian(x_,jac_);
+
+      pinocchio::crba(model,data,q);
+      data.M.triangularView<Eigen::StrictlyLower>()
+      = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+      BOOST_CHECK(jac.middleCols(nq+nv,nv).isApprox(data.M));
+    }
   }
 
 BOOST_AUTO_TEST_SUITE_END()
