@@ -26,6 +26,7 @@
 
 #include "pinocchio/utils/timer.hpp"
 
+bool DELETE_GENERATED_LIBS_AFTER_TEST = true;
 
 int main()
 {
@@ -43,34 +44,45 @@ int main()
   using CppAD::AD;
   using CppAD::NearEqual;
   
+  enum { Options = 0 };
   typedef double Scalar;
   typedef AD<Scalar> ADScalar;
-  
+  typedef CppAD::cg::CG<Scalar> CGScalar;
+  typedef CppAD::AD<CGScalar> ADCGScalar;
+  typedef CppAD::ADFun<CGScalar> ADCGFun;
+
+  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> ADVectorXs;
+  typedef Eigen::Matrix<ADCGScalar,Eigen::Dynamic,1,Options> ADCGVectorXs;
+  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic> ADMatrixXs;
+
   typedef pinocchio::ModelTpl<Scalar> Model;
   typedef Model::Data Data;
 
   typedef pinocchio::ModelTpl<ADScalar> ADModel;
   typedef ADModel::Data ADData;
+
+  typedef pinocchio::ModelTpl<ADCGScalar> ADCGModel;
+  typedef ADCGModel::Data ADCGData;
   
+  typedef Model::ConfigVectorType ConfigVectorType;
+  typedef Model::TangentVectorType TangentVectorType;
+
+  typedef ADModel::ConfigVectorType ADConfigVectorType;
+  typedef ADModel::TangentVectorType ADTangentVectorType;
+
+  typedef ADCGModel::ConfigVectorType ADCGConfigVectorType;
+  typedef ADCGModel::TangentVectorType ADCGTangentVectorType;
+
   Model model;
   pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
   
-  ADModel ad_model = model.cast<ADScalar>();
-  ADData ad_data(ad_model);
-  
-  typedef Model::ConfigVectorType ConfigVectorType;
-  typedef Model::TangentVectorType TangentVectorType;
   ConfigVectorType q(model.nq);
   q = pinocchio::randomConfiguration(model);
-
   TangentVectorType v(TangentVectorType::Random(model.nv));
   TangentVectorType a(TangentVectorType::Random(model.nv));
   
-  typedef ADModel::ConfigVectorType ADConfigVectorType;
-  typedef ADModel::TangentVectorType ADTangentVectorType;
-
   {
     Data data(model);
     timer.tic();
@@ -84,16 +96,17 @@ int main()
   }
   
   {
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
     
     ADConfigVectorType ad_q = q.cast<ADScalar>();
     
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
     CppAD::Independent(ad_q);
     pinocchio::crba(ad_model,ad_data,ad_q);
     ad_data.M.triangularView<Eigen::StrictlyLower>()
     = ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
-    VectorXAD M_vector = Eigen::Map<VectorXAD>(ad_data.M.data(), ad_data.M.cols()*ad_data.M.rows());
+    ADVectorXs M_vector = Eigen::Map<ADVectorXs>(ad_data.M.data(), ad_data.M.cols()*ad_data.M.rows());
 
     CppAD::ADFun<Scalar> ad_fun(ad_q, M_vector);
     ad_fun.function_name_set("ad_fun_crba");
@@ -138,50 +151,23 @@ int main()
     CPPAD_TESTVECTOR(Scalar) x((size_t)model.nq);
     Eigen::Map<Data::TangentVectorType>(x.data(),model.nq,1) = q;
 
-    size_t compare_change = 0, nx = (size_t)model.nq, ndtau_da_ = (size_t)model.nv*(size_t)model.nv;
-    std::vector<double> dtau_da_jit(ndtau_da_);
+    size_t compare_change = 0, nx = (size_t)model.nq, nM_vector = (size_t)model.nv*(size_t)model.nv;
+    CPPAD_TESTVECTOR(Scalar) M_vector_jit(nM_vector);
     
     timer.tic();
     SMOOTH(NBT)
     {
-      ad_fun_ptr(nx, x.data(), ndtau_da_, dtau_da_jit.data(), &compare_change);   
+      ad_fun_ptr(nx, x.data(), nM_vector, M_vector_jit.data(), &compare_change);   
     }
     std::cout << "Calculate data.M (JSIM) with crba using cppad-jit = \t\t"; timer.toc(std::cout,NBT);
   }
 
   {
-    typedef double Scalar;
-    enum { Options = 0 };
-    typedef CppAD::cg::CG<Scalar> CGScalar;
-    typedef CppAD::AD<CGScalar> ADScalar;
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1,Options> ADVectorXs;
-    typedef pinocchio::ModelTpl<ADScalar> ADModel;
-    typedef ADModel::Data ADData;
+    ADCGModel ad_model(model.template cast<ADCGScalar>());
+    ADCGData ad_data(ad_model);
 
-    ADVectorXs ad_Y(model.nv);
-
-    Model model;
-    pinocchio::buildModels::humanoidRandom(model);
-    model.lowerPositionLimit.head<3>().fill(-1.);
-    model.upperPositionLimit.head<3>().fill(1.);
-
-    ADModel ad_model(model.template cast<ADScalar>());
-    ADData ad_data(ad_model);
-
-    typedef Model::ConfigVectorType ConfigVectorType;
-    typedef Model::TangentVectorType TangentVectorType;
-    ConfigVectorType q(model.nq);
-    q = pinocchio::randomConfiguration(model);
-
-    typedef ADModel::ConfigVectorType ADConfigVectorType;
-
-    ADConfigVectorType ad_q = q.cast<ADScalar>();
-    ad_q = q.cast<ADScalar>();
-
-    typedef CppAD::ADFun<CGScalar> ADFun;
-    ADFun ad_fun;
-    typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXs;
-    RowMatrixXs jac;
+    ADCGConfigVectorType ad_q = q.cast<ADCGScalar>();
+    ad_q = q.cast<ADCGScalar>();
 
     std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> > cgen_ptr;
     std::unique_ptr<CppAD::cg::ModelLibraryCSourceGen<Scalar> > libcgen_ptr;
@@ -198,11 +184,11 @@ int main()
     ad_data.M.triangularView<Eigen::StrictlyLower>()
     = ad_data.M.transpose().triangularView<Eigen::StrictlyLower>();
 
-    ADVectorXs M_vector = Eigen::Map<ADVectorXs>(ad_data.M.data(), ad_data.M.cols()*ad_data.M.rows());
+    ADCGVectorXs M_vector = Eigen::Map<ADCGVectorXs>(ad_data.M.data(), ad_data.M.cols()*ad_data.M.rows());
 
+    ADCGFun ad_fun;
     ad_fun.Dependent(ad_q,M_vector);
     ad_fun.optimize("no_compare_op");
-    // jac = RowMatrixXs(ad_Y.size(),ad_a.size());
 
     // generates source code
     cgen_ptr = std::unique_ptr<CppAD::cg::ModelCSourceGen<Scalar> >(new CppAD::cg::ModelCSourceGen<Scalar>(ad_fun, function_name));
@@ -245,25 +231,26 @@ int main()
   }
 
   {
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+
     ADConfigVectorType ad_q = q.cast<ADScalar>();
     ADTangentVectorType ad_v = v.cast<ADScalar>();
     ADTangentVectorType ad_a = a.cast<ADScalar>();
     
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXAD;
     CppAD::Independent(ad_a);
     pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
-    VectorXAD Y(model.nv);
-    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
+    ADVectorXs ad_Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(ad_Y.data(),model.nv,1) = ad_data.tau;
 
-    CppAD::ADFun<Scalar> f(ad_a,Y);
+    CppAD::ADFun<Scalar> f(ad_a,ad_Y);
     CppAD::ADFun<ADScalar,Scalar > af = f.base2ad();
 
     CppAD::Independent(ad_a);
-    MatrixXAD dtau_da = af.Jacobian(ad_a);
-    VectorXAD dtau_da_vector(model.nv*model.nv);
-    dtau_da_vector = Eigen::Map<VectorXAD>(dtau_da.data(), dtau_da.cols()*dtau_da.rows());
+    ADMatrixXs dtau_da = af.Jacobian(ad_a);
+    ADVectorXs dtau_da_vector(model.nv*model.nv);
+    dtau_da_vector = Eigen::Map<ADVectorXs>(dtau_da.data(), dtau_da.cols()*dtau_da.rows());
     CppAD::ADFun<double> ad_fun(ad_a, dtau_da_vector);
 
     ad_fun.function_name_set("ad_fun");
@@ -320,19 +307,20 @@ int main()
   }
 
   {
+    ADModel ad_model = model.cast<ADScalar>();
+    ADData ad_data(ad_model);
+
     ADConfigVectorType ad_q = q.cast<ADScalar>();
     ADTangentVectorType ad_v = v.cast<ADScalar>();
     ADTangentVectorType ad_a = a.cast<ADScalar>();
     
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
-
     CppAD::Independent(ad_a);
     pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
 
-    VectorXAD Y(model.nv);
-    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
+    ADVectorXs ad_Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(ad_Y.data(),model.nv,1) = ad_data.tau;
 
-    CppAD::ADFun<Scalar> ad_fun(ad_a,Y);
+    CppAD::ADFun<Scalar> ad_fun(ad_a,ad_Y);
 
     CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
     Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = a;
@@ -345,45 +333,20 @@ int main()
   }
 
   {
-    typedef double Scalar;
-    enum { Options = 0 };
-    typedef CppAD::cg::CG<Scalar> CGScalar;
-    typedef CppAD::AD<CGScalar> ADScalar;
-    typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1,Options> ADVectorXs;
-    typedef pinocchio::ModelTpl<ADScalar> ADModel;
-    typedef ADModel::Data ADData;
+    ADCGModel ad_model(model.template cast<ADCGScalar>());
+    ADCGData ad_data(ad_model);
 
-    ADVectorXs ad_Y(model.nv);
+    ADCGVectorXs ad_Y(model.nv);
 
-    Model model;
-    pinocchio::buildModels::humanoidRandom(model);
-    model.lowerPositionLimit.head<3>().fill(-1.);
-    model.upperPositionLimit.head<3>().fill(1.);
+    ADCGConfigVectorType ad_q = q.cast<ADCGScalar>();
+    ADCGTangentVectorType ad_v = v.cast<ADCGScalar>();
+    ADCGTangentVectorType ad_a = a.cast<ADCGScalar>();
 
-    ADModel ad_model(model.template cast<ADScalar>());
-    ADData ad_data(ad_model);
+    ad_q = q.cast<ADCGScalar>();
+    ad_v = v.cast<ADCGScalar>();
+    ad_a = a.cast<ADCGScalar>();
 
-    typedef Model::ConfigVectorType ConfigVectorType;
-    typedef Model::TangentVectorType TangentVectorType;
-    ConfigVectorType q(model.nq);
-    q = pinocchio::randomConfiguration(model);
-
-    TangentVectorType v(TangentVectorType::Random(model.nv));
-    TangentVectorType a(TangentVectorType::Random(model.nv));
-
-    typedef ADModel::ConfigVectorType ADConfigVectorType;
-    typedef ADModel::TangentVectorType ADTangentVectorType;
-
-    ADConfigVectorType ad_q = q.cast<ADScalar>();
-    ADTangentVectorType ad_v = v.cast<ADScalar>();
-    ADTangentVectorType ad_a = a.cast<ADScalar>();
-
-    ad_q = q.cast<ADScalar>();
-    ad_v = v.cast<ADScalar>();
-    ad_a = a.cast<ADScalar>();
-
-    typedef CppAD::ADFun<CGScalar> ADFun;
-    ADFun ad_fun;
+    ADCGFun ad_fun;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> RowMatrixXs;
     RowMatrixXs jac;
 
@@ -443,6 +406,15 @@ int main()
       generatedFun_ptr->Jacobian(x_,jac_);
     }
     std::cout << "Calculate dtau_da (JSIM) as rnea jacobian with cppad code gen = \t\t"; timer.toc(std::cout,NBT);
+  }
+
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+  if (DELETE_GENERATED_LIBS_AFTER_TEST){
+    std::remove("cg_rnea_eval.dylib");
+    std::remove("jit_JSIM.c");
+    std::remove("jit_JSIM.so");
+    std::remove("jit_JSIM_crba.c");
+    std::remove("jit_JSIM_crba.so");
   }
 
   std::cout << "--" << std::endl;

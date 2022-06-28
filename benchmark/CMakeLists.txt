@@ -67,7 +67,7 @@ IF(CPPAD_FOUND)
   # timings-cppad-jit
   ADD_BENCH(timings-cppad-jit TRUE)
   TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC ${cppad_LIBRARY})
-  TARGET_LINK_LIBRARIES(timings-cppad-jit PUBLIC ${cppad_LIBRARY})
+  TARGET_LINK_LIBRARIES(timings-cppad-jit PUBLIC ${cppad_LIBRARY} ${CMAKE_DL_LIBS})
 ENDIF(CPPAD_FOUND)
 IF(cppadcg_FOUND)
   SET_PROPERTY(TARGET timings-derivatives PROPERTY CXX_STANDARD 11)
