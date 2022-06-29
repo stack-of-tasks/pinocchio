@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -190,7 +190,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                  const std::string & meshPath = "",
                  const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                  const bool overrideMaterial = false,
-                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                 const Eigen::Vector4d & meshColor = Eigen::Vector4d(0,0,0,1),
                  const std::string & meshTexturePath = "")
   : Base(name, parent_joint, parent_frame, placement)
   , geometry(collision_geometry)
