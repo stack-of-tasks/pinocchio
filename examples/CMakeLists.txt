@@ -89,6 +89,7 @@ IF(BUILD_PYTHON_INTERFACE)
       LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
         collisions
         collision-with-point-clouds
+        append-urdf-model-with-another-model
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(hpp-fcl_FOUND)

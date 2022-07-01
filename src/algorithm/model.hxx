@@ -21,7 +21,7 @@ namespace pinocchio
                           const std::string & joint_name_in_model_in)
     {
       const JointIndex joint_id = model_in.getJointId(joint_name_in_model_in);
-      assert(joint_id != model_in.joints.size());
+      assert(joint_id < model_in.joints.size());
       if(joint_id == 0 && model_in.parents[0] == 0) // This is the universe, maybe renamed.
         return model_out.getJointId(model_out.names[0]);
       else
@@ -38,7 +38,7 @@ namespace pinocchio
                           const FrameType & type)
     {
       const FrameIndex frame_id = model_in.getFrameId(frame_name_in_model_in);
-      assert(frame_id != model_in.frames.size());
+      assert(frame_id < model_in.frames.size());
       if(frame_id == 0 && model_in.frames[0].previousFrame == 0 && model_in.frames[0].parent == 0) // This is the universe, maybe renamed.
         return model_out.getFrameId(model_out.frames[0].name,type);
       else
@@ -195,7 +195,7 @@ namespace pinocchio
           {
             go.parentJoint = joint_id_out;
             assert(go.parentFrame > 0);
-            if(go.parentFrame != 0)
+            if(go.parentFrame != 0 && go.parentFrame < modelAB.frames.size())
             {
               go.parentFrame = getFrameId(modelAB,model,modelAB.frames[go.parentFrame].name,modelAB.frames[go.parentFrame].type);
             }
