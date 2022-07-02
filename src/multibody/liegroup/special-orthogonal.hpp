@@ -383,7 +383,7 @@ namespace pinocchio
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
       PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log3((quat0.matrix().transpose() * quat1.matrix()).eval());
+        = log3((quat0.conjugate() * quat1).matrix().eval());
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -398,7 +398,7 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      const Matrix3 R = quat0.matrix().transpose() * quat1.matrix(); // TODO: perform first the Quaternion multiplications and then return a Rotation Matrix
+      const Matrix3 R = (quat0.conjugate() * quat1).matrix();
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
