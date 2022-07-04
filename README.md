@@ -111,7 +111,7 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 
 ## Documentation
 
-The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
+The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](./doc/pinocchio_cheat_sheet.pdf).
 
 ## Examples
 
@@ -191,6 +191,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): RViz viewer support
 -   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
+-   [Fabian Schramm](https://github.com/fabinsch) (Inria): main developper
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
