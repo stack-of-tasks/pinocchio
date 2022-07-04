@@ -1,0 +1,444 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pinocchio Cheat Sheet
+%
+% Edited by Aurélie Bonnefoy
+% Available at https://www.overleaf.com/project/5e66106889524e000114b5df
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%% TODOs %%%%%%%%%%%%%
+% - purpose of the cheat sheet ? overview for beginners vs. completeness and adv. algos
+% - add derivatives
+% - add missing algorithms
+% - restructure main algorithm section
+% - think about common abbreviations to avoid too many 2liners
+% - add links to overview / pinocchio doc / more detailed explanations, featherstone book
+% - adapt design, maybe not all cols need to be the same lengths, algos need much more space
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[10.5pt]{article}
+\usepackage[landscape,a3paper]{geometry}
+\usepackage{url}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathmorphing}
+\usepackage{amsmath,amssymb}
+
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{mathtools}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+
+\title{Pinocchio Cheat Sheet}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+
+\usepackage{minted}
+\usemintedstyle{vs}
+\usepackage{xcolor}
+
+
+\advance\topmargin-3cm
+\advance\textheight3in
+\advance\textwidth5in
+\advance\oddsidemargin-6cm
+%\advance\evensidemargin-1.5in
+\parindent0pt
+\parskip2pt
+\newcommand{\hr}{\centerline{\rule{3.5in}{1pt}}}
+%\colorbox[HTML]{e4e4e4}{\makebox[\textwidth-2\fboxsep][l]{texto}
+\begin{document}
+
+\begin{center}{\huge{\textbf{Pinocchio Cheat Sheet}}}
+\end{center}
+\begin{multicols*}{3}
+\vspace{-1cm}
+
+\tikzstyle{mybox} = [draw=black, fill=white, very thick,
+    rectangle, rounded corners, inner sep=10pt, inner ysep=10pt]
+\tikzstyle{fancytitle} =[fill=black, text=white, font=\bfseries]
+
+%------------ Begin Get started ---------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            import & \texttt{import pinocchio as pin}\\
+            & \texttt{from pinocchio.utils import *} \\
+            get documentation & \texttt{pin.Model?} \\
+        \end{tabular}
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Get started};
+\end{tikzpicture}
+%------------ End Get started ---------------------
+
+%------------ Begin Spatial quantities ---------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+
+        \centerline{\textbf{Transforms}}\vspace{0.1cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            SE3 & \texttt{aMb = pin.SE3(aRb,apb)} \\ \hline
+            \quad unit transformation & \texttt{M = pin.SE3(1)} \\ 
+            \quad rotation matrix & \texttt{M.rotation} \\
+            \quad translation vector & \texttt{M.translation} \\ \hline
+            SE3 inverse & \texttt{bMa = aMb.inverse()} \\
+            SE3 action & \texttt{aMc = aMb * bMc} \\
+            action matrix & \texttt{aXb = aMb.action} \\
+            homegeneous matrix & \texttt{aHb = aMb.homogeneous} \\
+        \end{tabular} \newline
+
+        \centerline{\textbf{Spatial Velocity}}\vspace{0.1cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Motion & \texttt{m = pin.Motion(v,w)} \\ \hline
+            \quad linear acceleration & \texttt{m.linear} \\
+            \quad angular acceleration & \texttt{m.angular} \\ \hline
+            SE3 action & \texttt{v\_a = aMb * v\_b} \\
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Spatial Acceleration}}\vspace{0.1cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            is used in algorithms  & \texttt{a = ($\dot{\omega}$,$\dot{v}_O$)} \\ 
+            Get classical acceleration & \texttt{a' = a + $(0, \omega \times v_O)$} \\
+                          & \texttt{pin.classicAcceleration(v,a, [aMb])} \\
+        \end{tabular} \newline
+
+        \centerline{\textbf{Spatial Force}}\vspace{0.1cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Force & \texttt{f = pin.Force(l,n)} \\ \hline
+            \quad linear force & \texttt{f.linear} \\
+            \quad torque & \texttt{f.angular} \\ \hline
+            SE3 action & \texttt{f\_a = aMb * f\_b} \\
+        \end{tabular} \newline
+
+        \centerline{\textbf{Spatial Inertia}}\vspace{0.1cm}
+       \begin{tabular}{p{4cm} | p{7cm}}	
+            Inertia & \texttt{Y = pin.Inertia(mass,com,I)} \\ \hline
+            \quad mass & \texttt{Y.mass} \\
+            \quad center of mass pos. & \texttt{Y.lever} \\
+            \quad rotational inertia & \texttt{Y.inertia} \\
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Geometry}}\vspace{0.1cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Quaternion & \texttt{quat = pin.Quaternion(R)} \\
+            Angle Axis & \texttt{aa = pin.AngleAxis(angle,axis)} \\ 
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Useful converters}} 
+        \vspace{0.2cm}
+        \begin{tabular}{p{4cm} | p{7cm}}
+        	  SE3 $\rightarrow$ (x,y,z,quat) & \texttt{pin.se3ToXYZQUAT(M)} \\
+        	  (x,y,z,quat) $\rightarrow$ SE3 & \texttt{pin.XYZQUATToSE3(vec)} \\
+        \end{tabular}
+
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Spatial quantities};
+\end{tikzpicture}
+%------------ End Spatial quantities ---------------------
+
+%------------ Begin Model --------------------------------
+% Some items in this box here seems kind of self-explanatory, good idea to make award of the different attributes and methods but maybe not to best representation (model name - model.name) , others are quite useful.
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Model & \texttt{model = pin.Model()} \\ \hline
+            \quad model name & \texttt{model.name} \\
+            \quad joint names & \texttt{model.names} \\
+            \quad joint models & \texttt{model.joints} \\
+            \quad joint placements & \texttt{model.placements} \\
+            \quad link inertias & \texttt{model.inertias} \\
+            \quad frames & \texttt{model.frames} \\ 
+            Methods &  \\ \hline
+            % Inputs missing, but there are a lot. maybe enough like this and doc should be ask. maybe another hint to the doc ?
+            \quad add joint & \texttt{model.addJoint} \\
+            \quad append body & \texttt{model.appendBodyToJoint} \\
+            \quad add frame & \texttt{model.addFrame} \\
+            \quad append child into parent model & \texttt{model.appendModel} \\
+            \quad build reduced body & \texttt{model.buildReducedModel} \\
+            % findCommonAncestor
+        \end{tabular} 
+
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Model};
+\end{tikzpicture}
+%------------ End Model --------------------------------
+
+%------------ Begin Parsers ----------------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        
+         \begin{tabular}{p{3cm} | p{8cm}}
+            load an URDF file & \texttt{pin.buildModelFromUrdf(filename,[root\_joint])} \\
+            load a SDF file & \texttt{pin.buildModelFromSdf(filename,[root\_joint]} \\
+             & \texttt{root\_link\_name,parent\_guidance)} \\
+        \end{tabular} 
+        
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Parsers};
+\end{tikzpicture}
+%------------ End Parsers --------------------------------
+
+%------------ Begin Data ---------------------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Data & \texttt{data = pin.Data(model)} \\ 
+             & \texttt{data = model.createData()} \\ \hline
+            \hspace{0.5em} joint data & \texttt{data.joints} \\
+            \hspace{0.5em} joint placements & \texttt{data.oMi} \\
+            \hspace{0.5em} joint velocities & \texttt{data.v} \\
+            \hspace{0.5em} joint accelerations & \texttt{data.a} \\
+            \hspace{0.5em} joint forces & \texttt{data.f} \\
+            \hspace{0.5em} mass matrix & \texttt{data.M} \\
+            \hspace{0.5em} non linear effects & \texttt{data.nle} \\
+            \hspace{0.5em} centroidal momentum & \texttt{data.hg} \\
+            \hspace{0.5em} centroidal matrix & \texttt{data.Ag} \\
+            \hspace{0.5em} centroidal inertia & \texttt{data.Ig} \\ \hline
+            Reference frames &  \\
+            LOCAL & local coordinate system of the joint \\
+            LOCAL\_WORLD\_ALIGNED & local coordinate system aligned with WORLD axis \\
+            WORLD & world coordinate system \\
+        \end{tabular} 
+        
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Data};
+\end{tikzpicture}
+%------------ End Data ---------------------------------
+
+
+%------------ Begin Main Algorithms---------------------
+
+% List the missing algorithms and decide which to include
+% - joint : dIntegrate, interpolate, difference
+% - contact-jacobian: getConstraintJacobian
+% - contact-dynamics: forwardDynamics, impulseDynamics, computeKKTContactDynamicMatrixInverse
+% - constrained-dynamics: initConstraintDynamics, constraintDynamics
+% - constrained-dynamics-derivatives: computeConstraintDynamicsDerivatives
+% - collision / broadphase: computeCollisions
+% - kinematic regressor
+% - regressor: computeStaticRegressor, bodyRegressor, jointBodyRegressor, computeJointTorqueRegressor
+% - cholesky: decompose, solve, computeMinv
+% - impulse dynamics
+
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+
+        \centerline{\textbf{Configuration}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            placement collision obj & \texttt{pin.updateGeometryPlacements(model, data, robot.collision\_model, robot.collision\_data, q)} \\ 
+            collisions detection & \texttt{pin.computeCollisions(robot.collision\_model, robot.collision\_data, False)} \\
+            distance from collision & \texttt{pin.computeDistances(robot.collision\_model, robot.collision\_data)} \\
+            integrate configuration & \texttt{pin.integrate(model, q, v)} \\ 
+        \end{tabular} \newline
+
+        \centerline{\textbf{Kinematics}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            forward kinematics & \texttt{pin.forwardKinematics(model, data, q, [v, [ a] ])} \\
+            forward kinematics derivatives & \texttt{pin.computeForwardKinematicsDerivatives( \newline model,data,q,v,a)} \\
+            dv\_dq,dv\_dv = & \texttt{pin.getJointVelocityDerivatives(model,data, \newline joint\_id,pin.ReferenceFrame.WORLD)}   \\
+            dv\_dq\_local,da\_dq\_\newline local,da\_dv\_local,\newline da\_da\_local = & \texttt{ pin.getJointAccelerationDerivatives(model,data,\newline joint\_id,pin.ReferenceFrame.LOCAL)} \\ 
+            frames placement & \texttt{pin.framesForwardKinematics(model, data, q)} \\
+            frame jacobian & \texttt{pin.computeFrameJacobian(model, data, q, frame\_id, ref\_frame)} \\ 
+            % getVelocity, getAcceleration, getClassicalAcceleration
+        \end{tabular} \newline
+
+        \centerline{\textbf{Jacobian}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            full model Jacobian data.J & \texttt{pin.computeJointJacobians(model, data, [q])} \\
+            joint Jacobian & \texttt{pin.getJointJacobian(model, data, joint\_id, ref\_frame)} \\
+            full model dJ/dt & \texttt{pin.computeJointJacobiansTimeVariation(model, data, q, v)} \\
+            joint dJ/dt & \texttt{pin.getJointJacobianTimeVariation(model, data, joint\_id, ref\_frame)} \\
+        \end{tabular} \newline
+
+        \centerline{\textbf{Forward Dynamics}}
+        \begin{tabular}{p{3cm} | p{8cm}}mmmm
+            Articulated-Body Algorithm $\ddot{q}$ & \texttt{pin.aba(model, data, q, v, tau, [f\_ext]) } \\
+            Joint Space Inertia Matrix Inv & \texttt{pin.computeMinverse(model, data, [q]) } \\ \hline
+            Composite Rigid-Body Algorithm & \texttt{pin.crba(model, data, q)}
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Inverse Dynamics}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            Recursive Newton-Euler Algorithm & \texttt{pin.rnea(model, data, q, v, a, [f\_ext]) } \\
+            dtau\_dq, dtau\_dv, dtau\_da & \texttt{pin.computeRNEADerivatives(model, data, q, v, a, [f\_ext]) } \\
+        % nonLinearEffects, computeGeneralizedGravity, computeStaticTorque, computeCoriolisMatrix
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Centroidal}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            Centroidal momentum & \texttt{pin.computeCentroidalMomentum(model, data, [q, v]) } \\
+            Centroidal momentum + time derivatives & \texttt{pin.computeCentroidalMomentumTimeVariation(model, data, [q, v, a]) } \\
+        % also mention ccrba, dccrba, computeCentroidalMap, computeCentroidalMapTimeVariation?
+        \end{tabular} \newline
+        
+        \centerline{\textbf{Energy}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            forward kinematics and kin. E & \texttt{pin.computeKineticEnergy(model, data, [q, v]) } \\
+            forward kinematics and pot. E & \texttt{pin.computePotentialEnergy(model, data, [q, v]) } \\
+            forward kinematics and mech. E & \texttt{pin.computeMechanicalEnergy(model, data, [q, v]) } \\
+        % also mention ccrba, dccrba, computeCentroidalMap, computeCentroidalMapTimeVariation?
+        \end{tabular} \newline
+        
+        \centerline{\textbf{General}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            all terms, check doc & \texttt{pin.computeAllTerms(model, data, q, v) } \\
+        \end{tabular} \newline
+
+
+    \end{minipage}
+};
+
+\node[fancytitle, right=10pt] at (box.north west) {Main algorithms};
+\end{tikzpicture}
+%------------ End Main Algorithms------------------
+
+%------------ Begin COM ---------------------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            Total mass of model & \texttt{pin.computeTotalMass(model, [data])} \\ 
+            Mass of each subtree & \texttt{pin.computeSubtreeMasses(model, data)} \\ 
+            Center of mass & \texttt{pin.centerOfMass(model, data, q, [v, a],[compute\_subtree\_com])} \\ 
+            Jacobian center of mass & \texttt{pin.jacobianCenterOfMass(model, data, [q],[compute\_subtree\_com])} \\ 
+        \end{tabular} 
+        
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {COM};
+\end{tikzpicture}
+%------------ End COM ---------------------------------
+
+%------------ Begin Frames ---------------------------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+        \begin{tabular}{p{4cm} | p{7cm}}
+            placement of all operational frames & \texttt{pin.updateFramePlacements(model, data)} \\ 
+            frame veloctiy & \texttt{pin.getFrameVelocity(model, data, frame\_id, reference\_frame)} \\ 
+            frame acceleration & \texttt{pin.getFrameAcceleration(model, data, frame\_id, reference\_frame)} \\
+            frame acceleration & \texttt{pin.getFrameClassicalAcceleration(model, data, frame\_id, reference\_frame)} \\
+            frames placement & \texttt{pin.framesForwardKinematics(model, data, q)} \\
+            frame jacobian & \texttt{pin.computeFrameJacobian(model, data, q, frame\_id, ref\_frame)} \\ 
+            frame jacobian time variation & \texttt{pin.frameJacobianTimeVariation(model, data, q, v, frame\_id, ref\_frame)} \\ 
+        \end{tabular} 
+        
+    \end{minipage}
+};
+
+\node[fancytitle] at (box.north) {Frames};
+\end{tikzpicture}
+%------------ End Frames ---------------------------------
+
+
+%%------------ Optimization ---------------------
+%\begin{tikzpicture}
+%\node [mybox] (box){%
+%    \begin{minipage}{0.9\linewidth}
+%
+%
+%        \begin{tabular}{p{3cm} | p{8cm}}
+%            initialization & \texttt{from scipy.optimize import fmin\_bfgs} \\
+%            & \texttt{from scipy.optimize import fmin\_slsqp} \\ \hline
+%            BFGS optimization & \texttt{fmin\_bfgs(cost, x0, callback)} \\ \hline
+%            SLSQP optimization & \texttt{fmin\_slsqp(cost, x0, callback, f\_eqcons) }
+%        \end{tabular}
+%
+%
+%    \end{minipage}
+%};
+%%------------ Title ---------------------
+%\node[fancytitle, right=10pt] at (box.north west) {Optimization};
+%\end{tikzpicture}
+
+
+%------------ Begin Robot Wrapper ---------------
+% TODO explain usage / utility of robot wrapper in a sentence
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+
+        \begin{tabular}{p{3cm} | p{8cm}}
+            import & \texttt{from pinocchio.robot\_wrapper import RobotWrapper} \\ \hline
+            reference initial position & \texttt{robot.q0} \\ \hline
+            display & \texttt{robot.display(q)} \\ \hline
+            return joint index & \texttt{robot.index('joint name')} \\ \hline
+            model constants & \texttt{model = robot.model} \\
+            \quad names & \texttt{model.names} \\
+            \quad frames & \texttt{model.frames} \\ \hline
+            model data & \texttt{data = robot.data} \\ \hline
+            joint placement & \texttt{robot.placement(idx)} \\
+            \quad translation & \texttt{robot.placement(idx).translation} \\
+            \quad rotation & \texttt{robot.placement(idx).rotation} \\ \hline
+            frame placement & \texttt{robot.framePlacement(idx)} \\
+        \end{tabular} \newline
+
+    \end{minipage}
+};
+
+\node[fancytitle, right=10pt] at (box.north west) {Robot Wrapper class };
+\end{tikzpicture}
+%------------ End Robot Wrapper ---------------
+
+
+%------------ Begin Gepetto Viewer --------------
+\begin{tikzpicture}
+\node [mybox] (box){%
+    \begin{minipage}{0.9\linewidth}
+
+        \centerline{\textbf{Get started}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            open from terminal & \texttt{gepetto-gui} \\ \hline
+            import & \texttt{import gviewserver}\\ \hline
+            initialization & \texttt{gv = gviewserver.GepettoViewerServer()} \\
+            \quad or & \texttt{gv=robot.viewer.gui}
+        \end{tabular} \newline
+
+        \centerline{\textbf{Add basic shapes}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            sphere & \texttt{gv.addSphere('world/Sphere', radius, color=[r,g,b,a])} \\ \hline
+            capsule & \texttt{gv.addCapsule('world/Capsule', radis, length, color)} \\ \hline
+            box & \texttt{gv.addBox('world/Box', depth(x), length(y), height(z), color)}\\ \hline
+            axis & \texttt{gv.addXYZaxis('world/Frame', color, radius, size)}
+        \end{tabular} \newline
+
+        \centerline{\textbf{Display}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            configuration & \texttt{gv.applyConfiguration('path/to/the/shape', [x,y,z,quaternion])} \\ \hline
+            refresh & \texttt{gv.refresh()}
+        \end{tabular} \newline
+
+        \centerline{\textbf{Clean scene}}
+        \begin{tabular}{p{3cm} | p{8cm}}
+            erase world & \texttt{gv.deleteNode('world',True)}
+        \end{tabular}
+
+    \end{minipage}
+};
+
+\node[fancytitle, right=10pt] at (box.north west) {Gepetto Viewer};
+\end{tikzpicture}
+%------------ End Gepetto Viewer --------------
+
+\end{multicols*}
+\end{document}
