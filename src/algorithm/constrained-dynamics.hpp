@@ -12,7 +12,6 @@
 
 namespace pinocchio
 {
-
   ///
   /// \brief Init the forward dynamics data according to the contact information contained in contact_models.
   ///
@@ -31,6 +30,26 @@ namespace pinocchio
   initConstraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                       DataTpl<Scalar,Options,JointCollectionTpl> & data,
                       const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models);
+
+  ///
+  /// \brief Init the forward dynamics data according to the contact information contained in contact_models.
+  ///
+  /// \tparam JointCollection Collection of Joint types.
+  /// \tparam ConfigVectorType Type of the joint configuration vector.
+  /// \tparam TangentVectorType1 Type of the joint velocity vector.
+  /// \tparam TangentVectorType2 Type of the joint torque vector.
+  /// \tparam Allocator Allocator class for the std::vector.
+  ///
+  /// \param[in] model The model structure of the rigid body system.
+  /// \param[in] data The data structure of the rigid body system.
+  /// \param[in] contact_models Vector of contact information related to the problem.
+  ///
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
+  inline void
+  initConstraintDynamics(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,ContactModelAllocator> & contact_models,
+                      const std::vector<RigidConstraintDataTpl<Scalar,Options>,ContactDataAllocator> & contact_datas);
   
   ///
   /// \brief Computes the forward dynamics with contact constraints according to a given list of Contact information.
