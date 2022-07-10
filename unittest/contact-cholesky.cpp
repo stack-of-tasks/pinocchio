@@ -1363,8 +1363,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_with_inactive_contacts)
   contact_datas.push_back(RigidConstraintData(ci_LA));
 
   // contacts in RF and LA are inactive
-  contact_datas[0] = false;
-  contact_datas[3] = false;
+  contact_datas[0].is_active = false;
+  contact_datas[3].is_active = false;
   
   Data data(model); crba(model,data,q);
   ContactCholeskyDecomposition contact_chol_decomposition;
