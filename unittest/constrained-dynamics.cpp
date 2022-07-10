@@ -1419,5 +1419,90 @@ BOOST_AUTO_TEST_CASE(test_diagonal_inertia)
   BOOST_CHECK(I3_translate.isApprox(I3_ref));
 }
 
+BOOST_AUTO_TEST_CASE(test_with_inactive_contacts)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data(model), data_ref(model);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+  
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  const std::string RA = "rarm6_joint";
+  const std::string LA = "larm6_joint";
+  const JointIndex RF_id = model.getJointId(RF);
+  const JointIndex LF_id = model.getJointId(LF);
+  const JointIndex RA_id = model.getJointId(RA);
+  const JointIndex LA_id = model.getJointId(LA);
+
+  // Contact models and data including inactive contacts
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+
+  RigidConstraintModel ci_RF(CONTACT_3D,0,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  ci_RF.joint1_placement.setRandom();
+  ci_RF.joint2_placement.setRandom();
+  ci_RF.corrector.Kp = 10.;
+  ci_RF.corrector.Kd = 2. * sqrt(ci_RF.corrector.Kp);
+  contact_models.push_back(ci_RF);
+  
+  RigidConstraintModel ci_LF(CONTACT_3D,0,model.getJointId(LF),LOCAL);
+  ci_LF.joint1_placement.setRandom();
+  ci_LF.joint2_placement.setRandom();
+  ci_LF.corrector.Kp = 10.;
+  ci_LF.corrector.Kd = 2. * sqrt(ci_LF.corrector.Kp);
+  contact_models.push_back(ci_LF);
+  
+  RigidConstraintModel ci_RA(CONTACT_6D,0,model.getJointId(RA),LOCAL);
+  ci_RA.joint1_placement.setRandom();
+  ci_RA.joint2_placement.setRandom();
+  ci_RA.corrector.Kp = 10.;
+  ci_RA.corrector.Kd = 2. * sqrt(ci_RA.corrector.Kp);
+  contact_models.push_back(ci_RA);
+
+  RigidConstraintModel ci_LA(CONTACT_6D,0,model.getJointId(LA),LOCAL_WORLD_ALIGNED);
+  ci_LA.joint1_placement.setRandom();
+  ci_LA.joint2_placement.setRandom();
+  ci_LA.corrector.Kp = 10.;
+  ci_LA.corrector.Kd = 2. * sqrt(ci_LA.corrector.Kp);
+  contact_models.push_back(ci_LA);
+
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas = createData(contact_models);
+  contact_datas[0].is_active = true;  // ci_RF is active
+  contact_datas[1].is_active = false; // ci_LF is inactive
+  contact_datas[2].is_active = true;  // ci_RA is active
+  contact_datas[3].is_active = false; // ci_RA is inactive
+
+  initConstraintDynamics(model,data,contact_models,contact_datas);
+  constraintDynamics(model,data,q,v,tau,contact_models,contact_datas);
+
+  // Contact models and datas only composed of active contacts
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_ref;
+
+  contact_models_ref.push_back(ci_RF);
+  contact_models_ref.push_back(ci_RA);
+
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_ref = createData(contact_models_ref);
+
+  initConstraintDynamics(model,data_ref,contact_models_ref);
+  constraintDynamics(model,data_ref,q,v,tau,contact_models_ref,contact_datas_ref);
+  
+  BOOST_CHECK(data.ddq.isApprox(data_ref.ddq));
+  BOOST_CHECK(data.lambda_c.isApprox(data_ref.lambda_c));
+  BOOST_CHECK(data.contact_chol.matrix() == data_ref.contact_chol.matrix());
+  BOOST_CHECK(contact_datas[0] == contact_datas_ref[0]);
+  BOOST_CHECK(contact_datas[2] == contact_datas_ref[1]);
+  BOOST_CHECK(contact_datas[1].contact_force.isZero());
+  BOOST_CHECK(contact_datas[3].contact_force.isZero());
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
