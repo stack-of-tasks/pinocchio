@@ -335,22 +335,22 @@ namespace pinocchio
         const RigidConstraintModel & cmodel = contact_models[ee_id];
         RigidConstraintData & cdata = contact_datas[ee_id];
 
-        if (cdata.is_active) {
-          const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-          if(joint1_id > 0)
-            cdata.oMc1 = data.oMi[joint1_id] * cmodel.joint1_placement;
-          else
-            cdata.oMc1 = cmodel.joint1_placement;
+        if(!cdata.is_active) continue;
 
-          const typename Model::JointIndex joint2_id = cmodel.joint2_id;
-          if(joint2_id > 0)
-            cdata.oMc2 = data.oMi[joint2_id] * cmodel.joint2_placement;
-          else
-            cdata.oMc2 = cmodel.joint2_placement;
-          
-          // Compute relative placement
-          cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
-        }
+        const typename Model::JointIndex joint1_id = cmodel.joint1_id;
+        if(joint1_id > 0)
+          cdata.oMc1 = data.oMi[joint1_id] * cmodel.joint1_placement;
+        else
+          cdata.oMc1 = cmodel.joint1_placement;
+
+        const typename Model::JointIndex joint2_id = cmodel.joint2_id;
+        if(joint2_id > 0)
+          cdata.oMc2 = data.oMi[joint2_id] * cmodel.joint2_placement;
+        else
+          cdata.oMc2 = cmodel.joint2_placement;
+        
+        // Compute relative placement
+        cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
       }
 
       // Core
@@ -391,173 +391,174 @@ namespace pinocchio
           const RigidConstraintModel & cmodel = contact_models[ee_id];
           const RigidConstraintData & cdata = contact_datas[ee_id];
 
-          if (cdata.is_active) {
-            const Eigen::DenseIndex constraint_dim = cmodel.size();
-            const SE3 & oMc1 = cdata.oMc1;
-            const SE3 & oMc2 = cdata.oMc2;
-            const SE3 & c1Mc2 = cdata.c1Mc2;
-    
-            if(joint1_indexes_ee[jj] || joint2_indexes_ee[jj])
-            {
-              const int sign =
-              joint1_indexes_ee[jj] != joint2_indexes_ee[jj]
-              ? joint1_indexes_ee[jj] ? +1:-1
-              : 0; // specific case for CONTACT_3D
+          if(!cdata.is_active) continue;
 
-              typedef typename Data::Matrix6x::ColXpr ColXpr;
-              const ColXpr Jcol = data.J.col(j);
-              const MotionRef<const ColXpr> Jcol_motion(Jcol);
-              
-              switch(cmodel.type)
+          const Eigen::DenseIndex constraint_dim = cmodel.size();
+          const SE3 & oMc1 = cdata.oMc1;
+          const SE3 & oMc2 = cdata.oMc2;
+          const SE3 & c1Mc2 = cdata.c1Mc2;
+  
+          if(joint1_indexes_ee[jj] || joint2_indexes_ee[jj])
+          {
+            const int sign =
+            joint1_indexes_ee[jj] != joint2_indexes_ee[jj]
+            ? joint1_indexes_ee[jj] ? +1:-1
+            : 0; // specific case for CONTACT_3D
+
+            typedef typename Data::Matrix6x::ColXpr ColXpr;
+            const ColXpr Jcol = data.J.col(j);
+            const MotionRef<const ColXpr> Jcol_motion(Jcol);
+            
+            switch(cmodel.type)
+            {
+              case CONTACT_3D:
               {
-                case CONTACT_3D:
+                switch(cmodel.reference_frame)
                 {
-                  switch(cmodel.reference_frame)
+                  case WORLD:
                   {
-                    case WORLD:
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                     {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_motion.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
+                                - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                  }
+                  case LOCAL:
+                  {
+                    if(sign == 0)
+                    {
+                      const Motion Jcol_local1(oMc1.actInv(Jcol_motion)); // TODO: simplify computations
+                      const Motion Jcol_local2(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
+                      const typename Motion::Vector3 Jdiff_linear = Jcol_local1.linear() - c1Mc2.rotation()*Jcol_local2.linear();
                       for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                       {
                         const Eigen::DenseIndex _ii = current_row - _i;
-                        U(_ii,jj) = (Jcol_motion.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
+                        U(_ii,jj) = (Jdiff_linear[contact_dim<CONTACT_3D>::value-_i-1]
                                   - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                       }
                       break;
                     }
-                    case LOCAL:
-                    {
-                      if(sign == 0)
-                      {
-                        const Motion Jcol_local1(oMc1.actInv(Jcol_motion)); // TODO: simplify computations
-                        const Motion Jcol_local2(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
-                        const typename Motion::Vector3 Jdiff_linear = Jcol_local1.linear() - c1Mc2.rotation()*Jcol_local2.linear();
-                        for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                        {
-                          const Eigen::DenseIndex _ii = current_row - _i;
-                          U(_ii,jj) = (Jdiff_linear[contact_dim<CONTACT_3D>::value-_i-1]
-                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                        }
-                        break;
-                      }
-                      else if(sign == 1)
-                      {
-                        const Motion Jcol_local(oMc1.actInv(Jcol_motion));
-                        for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                        {
-                          const Eigen::DenseIndex _ii = current_row - _i;
-                          U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
-                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                        }
-                        break;
-                      }
-                      else // sign == -1
-                      {
-                        Motion Jcol_local(oMc2.actInv(Jcol_motion));
-                        Jcol_local.linear() = c1Mc2.rotation()*Jcol_local.linear();
-                        for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                        {
-                          const Eigen::DenseIndex _ii = current_row - _i;
-                          U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
-                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                        }
-                        break;
-                      }
-                    }
-                    case LOCAL_WORLD_ALIGNED:
-                    {
-                      if(sign == 0)
-                      {
-                        const typename Motion::Vector3 Jdiff_linear = (oMc2.translation() - oMc1.translation()).cross(Jcol_motion.angular());
-                        for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                        {
-                          const Eigen::DenseIndex _ii = current_row - _i;
-                          U(_ii,jj) = (Jdiff_linear[contact_dim<CONTACT_3D>::value-_i-1]
-                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                        }
-                        break;
-                      }
-                      else
-                      {
-                        typename Motion::Vector3 Jcol_local_world_aligned_linear(Jcol_motion.linear());
-                        if(sign == 1)
-                          Jcol_local_world_aligned_linear
-                          -= oMc1.translation().cross(Jcol_motion.angular());
-                        else
-                          Jcol_local_world_aligned_linear
-                          -= oMc2.translation().cross(Jcol_motion.angular());
-                        for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                        {
-                          const Eigen::DenseIndex _ii = current_row - _i;
-                          U(_ii,jj) = (Jcol_local_world_aligned_linear[contact_dim<CONTACT_3D>::value-_i-1] * sign
-                                      - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                        }
-                        break;
-                      }
-                    }
-                  }
-                  break;
-                }
-                  
-                case CONTACT_6D:
-                {
-                  assert(check_expression_if_real<Scalar>(sign != 0) && "sign should be equal to +1 or -1.");
-                  switch(cmodel.reference_frame)
-                  {
-                    case WORLD:
-                    {
-                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
-                      {
-                        const Eigen::DenseIndex _ii = current_row - _i;
-                        U(_ii,jj) = (Jcol_motion.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
-                                  - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                      }
-                      break;
-                    }
-                    case LOCAL:
+                    else if(sign == 1)
                     {
                       const Motion Jcol_local(oMc1.actInv(Jcol_motion));
-                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                       {
                         const Eigen::DenseIndex _ii = current_row - _i;
-                        U(_ii,jj) = (Jcol_local.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
-                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                        U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
+                                  - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                       }
                       break;
                     }
-                    case LOCAL_WORLD_ALIGNED:
+                    else // sign == -1
                     {
-                      Motion Jcol_local_world_aligned(Jcol_motion);
-                      Jcol_local_world_aligned.linear()
-                      -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
-                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                      Motion Jcol_local(oMc2.actInv(Jcol_motion));
+                      Jcol_local.linear() = c1Mc2.rotation()*Jcol_local.linear();
+                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
                       {
                         const Eigen::DenseIndex _ii = current_row - _i;
-                        U(_ii,jj) = (Jcol_local_world_aligned.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
+                        U(_ii,jj) = (Jcol_local.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
                                   - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
                       }
                       break;
                     }
                   }
-                  break;
+                  case LOCAL_WORLD_ALIGNED:
+                  {
+                    if(sign == 0)
+                    {
+                      const typename Motion::Vector3 Jdiff_linear = (oMc2.translation() - oMc1.translation()).cross(Jcol_motion.angular());
+                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
+                      {
+                        const Eigen::DenseIndex _ii = current_row - _i;
+                        U(_ii,jj) = (Jdiff_linear[contact_dim<CONTACT_3D>::value-_i-1]
+                                  - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      }
+                      break;
+                    }
+                    else
+                    {
+                      typename Motion::Vector3 Jcol_local_world_aligned_linear(Jcol_motion.linear());
+                      if(sign == 1)
+                        Jcol_local_world_aligned_linear
+                        -= oMc1.translation().cross(Jcol_motion.angular());
+                      else
+                        Jcol_local_world_aligned_linear
+                        -= oMc2.translation().cross(Jcol_motion.angular());
+                      for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
+                      {
+                        const Eigen::DenseIndex _ii = current_row - _i;
+                        U(_ii,jj) = (Jcol_local_world_aligned_linear[contact_dim<CONTACT_3D>::value-_i-1] * sign
+                                    - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                      }
+                      break;
+                    }
+                  }
                 }
-                  
-                default:
-                  assert(false && "must never happened");
-                  break;
+                break;
               }
-
-            }
-            else if((joint1_indexes_ee[jj] == false) && (joint2_indexes_ee[jj] == false))
-            {
-              for(Eigen::DenseIndex _i = 0; _i < constraint_dim; _i++)
+                
+              case CONTACT_6D:
               {
-                const Eigen::DenseIndex _ii = current_row - _i;
-                U(_ii,jj) = -U.row(_ii).segment(jj+1,NVT).dot(DUt_partial) * Dinv[jj];
+                assert(check_expression_if_real<Scalar>(sign != 0) && "sign should be equal to +1 or -1.");
+                switch(cmodel.reference_frame)
+                {
+                  case WORLD:
+                  {
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_motion.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
+                                - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                  }
+                  case LOCAL:
+                  {
+                    const Motion Jcol_local(oMc1.actInv(Jcol_motion));
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
+                                  - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                  }
+                  case LOCAL_WORLD_ALIGNED:
+                  {
+                    Motion Jcol_local_world_aligned(Jcol_motion);
+                    Jcol_local_world_aligned.linear()
+                    -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
+                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
+                    {
+                      const Eigen::DenseIndex _ii = current_row - _i;
+                      U(_ii,jj) = (Jcol_local_world_aligned.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
+                                - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
+                    }
+                    break;
+                  }
+                }
+                break;
               }
+                
+              default:
+                assert(false && "must never happened");
+                break;
             }
-            current_row -= constraint_dim;
+
           }
-        } // if (cdata.is_active)
+          else if((joint1_indexes_ee[jj] == false) && (joint2_indexes_ee[jj] == false))
+          {
+            for(Eigen::DenseIndex _i = 0; _i < constraint_dim; _i++)
+            {
+              const Eigen::DenseIndex _ii = current_row - _i;
+              U(_ii,jj) = -U.row(_ii).segment(jj+1,NVT).dot(DUt_partial) * Dinv[jj];
+            }
+          }
+          current_row -= constraint_dim;
+
+        } 
 
       }
 

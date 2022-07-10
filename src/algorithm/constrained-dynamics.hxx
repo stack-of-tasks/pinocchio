@@ -267,143 +267,142 @@ namespace pinocchio
       const RigidConstraintModel & contact_model = contact_models[contact_id];
       RigidConstraintData & contact_data = contact_datas[contact_id];
 
-      if (contact_data.is_active) 
+      if(!contact_data.is_active) continue;
+
+      const int contact_dim = contact_model.size();
+      
+      const typename RigidConstraintModel::BaumgarteCorrectorParameters & corrector = contact_model.corrector;
+      const typename RigidConstraintData::Motion & contact_acceleration_desired = contact_data.contact_acceleration_desired;
+      typename RigidConstraintData::Motion & contact_acceleration_error = contact_data.contact_acceleration_error;
+        
+      const typename Model::JointIndex joint1_id = contact_model.joint1_id;
+      typename RigidConstraintData::SE3 & oMc1 = contact_data.oMc1;
+      typename RigidConstraintData::Motion & vc1 = contact_data.contact1_velocity;
+      typename RigidConstraintData::Motion & coriolis_centrifugal_acc1 = contact_data.contact1_acceleration_drift;
+      
+      const typename Model::JointIndex joint2_id = contact_model.joint2_id;
+      typename RigidConstraintData::SE3 & oMc2 = contact_data.oMc2;
+      typename RigidConstraintData::Motion & vc2 = contact_data.contact2_velocity;
+      typename RigidConstraintData::Motion & coriolis_centrifugal_acc2 = contact_data.contact2_acceleration_drift;
+      
+      const typename RigidConstraintData::SE3 & c1Mc2 = contact_data.c1Mc2;
+      
+      // Compute contact placement and velocities
+      if(joint1_id > 0)
+        vc1 = oMc1.actInv(data.ov[joint1_id]);
+      else
+        vc1.setZero();
+      if(joint2_id > 0)
+        vc2 = oMc2.actInv(data.ov[joint2_id]);
+      else
+        vc2.setZero();
+      
+      // Compute placement and velocity errors
+      if(contact_model.type == CONTACT_6D)
       {
-        const int contact_dim = contact_model.size();
+        contact_data.contact_placement_error = -log6(c1Mc2);
+        contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
+      }
+      else
+      {
+        contact_data.contact_placement_error.linear() = -c1Mc2.translation();
+        contact_data.contact_placement_error.angular().setZero();
         
-        const typename RigidConstraintModel::BaumgarteCorrectorParameters & corrector = contact_model.corrector;
-        const typename RigidConstraintData::Motion & contact_acceleration_desired = contact_data.contact_acceleration_desired;
-        typename RigidConstraintData::Motion & contact_acceleration_error = contact_data.contact_acceleration_error;
-          
-        const typename Model::JointIndex joint1_id = contact_model.joint1_id;
-        typename RigidConstraintData::SE3 & oMc1 = contact_data.oMc1;
-        typename RigidConstraintData::Motion & vc1 = contact_data.contact1_velocity;
-        typename RigidConstraintData::Motion & coriolis_centrifugal_acc1 = contact_data.contact1_acceleration_drift;
-        
-        const typename Model::JointIndex joint2_id = contact_model.joint2_id;
-        typename RigidConstraintData::SE3 & oMc2 = contact_data.oMc2;
-        typename RigidConstraintData::Motion & vc2 = contact_data.contact2_velocity;
-        typename RigidConstraintData::Motion & coriolis_centrifugal_acc2 = contact_data.contact2_acceleration_drift;
-        
-        const typename RigidConstraintData::SE3 & c1Mc2 = contact_data.c1Mc2;
-        
-        // Compute contact placement and velocities
-        if(joint1_id > 0)
-          vc1 = oMc1.actInv(data.ov[joint1_id]);
-        else
-          vc1.setZero();
-        if(joint2_id > 0)
-          vc2 = oMc2.actInv(data.ov[joint2_id]);
-        else
-          vc2.setZero();
-        
-        // Compute placement and velocity errors
+        contact_data.contact_velocity_error.linear() = vc1.linear() - c1Mc2.rotation()*vc2.linear();
+        contact_data.contact_velocity_error.angular().setZero();
+      }
+      
+      if(check_expression_if_real<Scalar,false>(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0)))
+      {
+        contact_acceleration_error.setZero();
+      }
+      else
+      {
         if(contact_model.type == CONTACT_6D)
-        {
-          contact_data.contact_placement_error = -log6(c1Mc2);
-          contact_data.contact_velocity_error.toVector() = (vc1 - c1Mc2.act(vc2)).toVector();
-        }
+          contact_acceleration_error.toVector().noalias() =
+          - corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
+          - corrector.Kd * contact_data.contact_velocity_error.toVector();
         else
         {
-          contact_data.contact_placement_error.linear() = -c1Mc2.translation();
-          contact_data.contact_placement_error.angular().setZero();
+          contact_acceleration_error.linear().noalias() =
+          - corrector.Kp * contact_data.contact_placement_error.linear()
+          - corrector.Kd * contact_data.contact_velocity_error.linear();
+          contact_acceleration_error.angular().setZero();
+        }
+      }
+      
+      switch(contact_model.reference_frame)
+      {
+        case LOCAL_WORLD_ALIGNED:
+        {
+          // LINEAR
+          coriolis_centrifugal_acc1.linear().noalias()
+          = data.oa[joint1_id].linear() + data.oa[joint1_id].angular().cross(oMc1.translation());
+          if(contact_model.type == CONTACT_3D)
+            coriolis_centrifugal_acc1.linear() += data.ov[joint1_id].angular().cross(data.ov[joint1_id].linear() + data.ov[joint1_id].angular().cross(oMc1.translation()));
+          // ANGULAR
+          coriolis_centrifugal_acc1.angular() = data.oa[joint1_id].angular();
           
-          contact_data.contact_velocity_error.linear() = vc1.linear() - c1Mc2.rotation()*vc2.linear();
-          contact_data.contact_velocity_error.angular().setZero();
-        }
-        
-        if(check_expression_if_real<Scalar,false>(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0)))
-        {
-          contact_acceleration_error.setZero();
-        }
-        else
-        {
-          if(contact_model.type == CONTACT_6D)
-            contact_acceleration_error.toVector().noalias() =
-            - corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
-            - corrector.Kd * contact_data.contact_velocity_error.toVector();
+          // LINEAR
+          if(contact_model.type == CONTACT_3D)
+          {
+            coriolis_centrifugal_acc2.linear().noalias()
+            = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
+            + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation()));
+            coriolis_centrifugal_acc2.angular().setZero();
+          }
           else
           {
-            contact_acceleration_error.linear().noalias() =
-            - corrector.Kp * contact_data.contact_placement_error.linear()
-            - corrector.Kd * contact_data.contact_velocity_error.linear();
-            contact_acceleration_error.angular().setZero();
+            coriolis_centrifugal_acc2.linear() = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc1.translation());
+            coriolis_centrifugal_acc2.angular() = data.oa[joint2_id].angular();
           }
+          
+          contact_acceleration_error.linear() = oMc1.rotation() * contact_acceleration_error.linear();
+          contact_acceleration_error.angular() = oMc1.rotation() * contact_acceleration_error.angular();
+          break;
         }
-        
-        switch(contact_model.reference_frame)
+        case LOCAL:
         {
-          case LOCAL_WORLD_ALIGNED:
+          coriolis_centrifugal_acc1 = oMc1.actInv(data.oa[joint1_id]);
+          if(contact_model.type == CONTACT_3D)
           {
-            // LINEAR
-            coriolis_centrifugal_acc1.linear().noalias()
-            = data.oa[joint1_id].linear() + data.oa[joint1_id].angular().cross(oMc1.translation());
-            if(contact_model.type == CONTACT_3D)
-              coriolis_centrifugal_acc1.linear() += data.ov[joint1_id].angular().cross(data.ov[joint1_id].linear() + data.ov[joint1_id].angular().cross(oMc1.translation()));
-            // ANGULAR
-            coriolis_centrifugal_acc1.angular() = data.oa[joint1_id].angular();
-            
-            // LINEAR
-            if(contact_model.type == CONTACT_3D)
-            {
-              coriolis_centrifugal_acc2.linear().noalias()
-              = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
-              + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation()));
-              coriolis_centrifugal_acc2.angular().setZero();
-            }
-            else
-            {
-              coriolis_centrifugal_acc2.linear() = data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc1.translation());
-              coriolis_centrifugal_acc2.angular() = data.oa[joint2_id].angular();
-            }
-            
-            contact_acceleration_error.linear() = oMc1.rotation() * contact_acceleration_error.linear();
-            contact_acceleration_error.angular() = oMc1.rotation() * contact_acceleration_error.angular();
-            break;
+            coriolis_centrifugal_acc1.linear() += vc1.angular().cross(vc1.linear());
+            coriolis_centrifugal_acc1.angular().setZero();
           }
-          case LOCAL:
+          
+          if(contact_model.type == CONTACT_3D)
           {
-            coriolis_centrifugal_acc1 = oMc1.actInv(data.oa[joint1_id]);
-            if(contact_model.type == CONTACT_3D)
-            {
-              coriolis_centrifugal_acc1.linear() += vc1.angular().cross(vc1.linear());
-              coriolis_centrifugal_acc1.angular().setZero();
-            }
-            
-            if(contact_model.type == CONTACT_3D)
-            {
-              coriolis_centrifugal_acc2.linear().noalias()
-              = oMc1.rotation().transpose()*(data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
-              + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation())));
-              coriolis_centrifugal_acc2.angular().setZero();
-            }
-            else
-              coriolis_centrifugal_acc2 = oMc1.actInv(data.oa[joint2_id]);
-            break;
+            coriolis_centrifugal_acc2.linear().noalias()
+            = oMc1.rotation().transpose()*(data.oa[joint2_id].linear() + data.oa[joint2_id].angular().cross(oMc2.translation())
+            + data.ov[joint2_id].angular().cross(data.ov[joint2_id].linear() + data.ov[joint2_id].angular().cross(oMc2.translation())));
+            coriolis_centrifugal_acc2.angular().setZero();
           }
-          default:
-            assert(false && "must never happened");
-            break;
+          else
+            coriolis_centrifugal_acc2 = oMc1.actInv(data.oa[joint2_id]);
+          break;
         }
-        
-        contact_data.contact_acceleration = coriolis_centrifugal_acc2;
-        switch(contact_model.type)
-        {
-          case CONTACT_3D:
-            primal_rhs_contact.segment(current_row_id,contact_dim)
-            = -coriolis_centrifugal_acc1.linear() + coriolis_centrifugal_acc2.linear() + contact_acceleration_error.linear() + contact_acceleration_desired.linear();
-            break;
-          case CONTACT_6D:
-            primal_rhs_contact.segment(current_row_id,contact_dim)
-            = -coriolis_centrifugal_acc1.toVector() + coriolis_centrifugal_acc2.toVector() + contact_acceleration_error.toVector() + contact_acceleration_desired.toVector();
-            break;
-          default:
-            assert(false && "must never happened");
-            break;
-        }
+        default:
+          assert(false && "must never happened");
+          break;
+      }
+      
+      contact_data.contact_acceleration = coriolis_centrifugal_acc2;
+      switch(contact_model.type)
+      {
+        case CONTACT_3D:
+          primal_rhs_contact.segment(current_row_id,contact_dim)
+          = -coriolis_centrifugal_acc1.linear() + coriolis_centrifugal_acc2.linear() + contact_acceleration_error.linear() + contact_acceleration_desired.linear();
+          break;
+        case CONTACT_6D:
+          primal_rhs_contact.segment(current_row_id,contact_dim)
+          = -coriolis_centrifugal_acc1.toVector() + coriolis_centrifugal_acc2.toVector() + contact_acceleration_error.toVector() + contact_acceleration_desired.toVector();
+          break;
+        default:
+          assert(false && "must never happened");
+          break;
+      }
 
-        current_row_id += contact_dim;
-      } // if (contact_data.is_active) 
+      current_row_id += contact_dim;
     }
     
     // Solve the system
@@ -432,33 +431,33 @@ namespace pinocchio
     {
       const RigidConstraintModel & contact_model = contact_models[contact_id];
       RigidConstraintData & contact_data = contact_datas[contact_id];
-      if(contact_data.is_active) 
+
+      if(!contact_data.is_active) continue;
+
+      typename RigidConstraintData::Force & fext = contact_data.contact_force;
+      const int contact_dim = contact_model.size();
+      
+      switch(contact_model.type)
       {
-        typename RigidConstraintData::Force & fext = contact_data.contact_force;
-        const int contact_dim = contact_model.size();
-        
-        switch(contact_model.type)
+        case CONTACT_3D:
         {
-          case CONTACT_3D:
-          {
-            fext.linear() = -primal_dual_contact_solution.template segment<3>(current_row_sol_id);
-            fext.angular().setZero();
-            break;
-          }
-          case CONTACT_6D:
-          {
-            typedef typename Data::VectorXs::template FixedSegmentReturnType<6>::Type Segment6d;
-            const ForceRef<Segment6d> f_sol(primal_dual_contact_solution.template segment<6>(current_row_sol_id));
-            fext = -f_sol;
-            break;
-          }
-          default:
-            assert(false && "must never happened");
-            break;
+          fext.linear() = -primal_dual_contact_solution.template segment<3>(current_row_sol_id);
+          fext.angular().setZero();
+          break;
         }
-        
-        current_row_sol_id += contact_dim;
-      } // if(contact_data.is_active) 
+        case CONTACT_6D:
+        {
+          typedef typename Data::VectorXs::template FixedSegmentReturnType<6>::Type Segment6d;
+          const ForceRef<Segment6d> f_sol(primal_dual_contact_solution.template segment<6>(current_row_sol_id));
+          fext = -f_sol;
+          break;
+        }
+        default:
+          assert(false && "must never happened");
+          break;
+      }
+      
+      current_row_sol_id += contact_dim;
     }
     
     return a;
