@@ -1329,4 +1329,66 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   BOOST_CHECK(H_inv_ref.isApprox(H_inv));
 }
 
+BOOST_AUTO_TEST_CASE(contact_cholesky_with_inactive_contacts)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  using namespace pinocchio::cholesky;
+  
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+  
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+  const std::string RA = "rarm6_joint";
+  const std::string LA = "larm6_joint";
+  
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model.getJointId(LF),WORLD);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+  RigidConstraintModel ci_RA(CONTACT_3D,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
+  contact_models.push_back(ci_RA);
+  contact_datas.push_back(RigidConstraintData(ci_RA));
+  RigidConstraintModel ci_LA(CONTACT_3D,model.getJointId(LA),LOCAL);
+  contact_models.push_back(ci_LA);
+  contact_datas.push_back(RigidConstraintData(ci_LA));
+
+  // contacts in RF and LA are inactive
+  contact_datas[0] = false;
+  contact_datas[3] = false;
+  
+  Data data(model); crba(model,data,q);
+  ContactCholeskyDecomposition contact_chol_decomposition;
+  contact_chol_decomposition.allocate(model,contact_models,contact_datas);
+  BOOST_CHECK_EQUAL(contact_chol_decomposition.numContactCandidates(), contact_models.size());
+  BOOST_CHECK_EQUAL(contact_chol_decomposition.numContacts(), 2);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
+
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models_ref;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas_ref;
+  contact_models_ref.push_back(ci_LF);
+  contact_datas_ref.push_back(RigidConstraintData(ci_LF));
+  contact_models_ref.push_back(ci_RA);
+  contact_datas_ref.push_back(RigidConstraintData(ci_RA));
+
+  Data data_ref(model); crba(model,data_ref,q);
+  ContactCholeskyDecomposition contact_chol_decomposition_ref;
+  contact_chol_decomposition_ref.allocate(model, contact_models_ref);
+  contact_chol_decomposition_ref.compute(model,data_ref,contact_models_ref,contact_datas_ref);
+
+  BOOST_CHECK(contact_chol_decomposition.D.isApprox(contact_chol_decomposition_ref.D));
+  BOOST_CHECK(contact_chol_decomposition.Dinv.isApprox(contact_chol_decomposition_ref.Dinv));
+  BOOST_CHECK(contact_chol_decomposition.U.isApprox(contact_chol_decomposition_ref.U));
+  BOOST_CHECK(contact_chol_decomposition.matrix().isApprox(contact_chol_decomposition_ref.matrix()));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

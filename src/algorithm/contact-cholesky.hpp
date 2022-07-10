@@ -124,6 +124,31 @@ namespace pinocchio
       template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
       void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
                     const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models);
+
+      ///
+      /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U according to active contacts.
+      ///
+      /// \param[in] model Model of the kinematic tree
+      /// \param[in] contact_models Vector containing the contact models (which frame is in contact and the type of contact: ponctual, 6D rigid, etc.)
+      /// \param[in] contact_datas Vector containing the contact data related to the contact_models.
+      ///
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class ContactModelAllocator, class ContactDataAllocator>
+      void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
+                    const std::vector<RigidConstraintModelTpl<S1,O1>,ContactModelAllocator> & contact_models,
+                    const std::vector<RigidConstraintDataTpl<S1,O1>,ContactDataAllocator> & contact_datas);
+
+      ///
+      /// \brief Memory allocation of the vectors D, Dinv, and the upper triangular matrix U according to active contacts.
+      ///
+      /// \param[in] model Model of the kinematic tree
+      /// \param[in] contact_models Vector containing the contact models (which frame is in contact and the type of contact: ponctual, 6D rigid, etc.)
+      /// \param[in] contact_datas Vector containing the contact data related to the contact_models.
+      /// \param[in] is_contact_active Vector containing the contact state of each element of the contact_models.
+      ///
+      template<typename S1, int O1, template<typename,int> class JointCollectionTpl, class Allocator>
+      void allocate(const ModelTpl<S1,O1,JointCollectionTpl> & model,
+                    const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models,
+                    const std::vector<bool> & is_contact_active);
       
       ///
       /// \brief Returns the Inverse of the Operational Space Inertia Matrix resulting from the decomposition.
@@ -220,10 +245,13 @@ namespace pinocchio
       {
         return size() - nv;
       }
+
+      /// \brief Returns the number of contact candidate associated to this decomposition.
+      Eigen::DenseIndex numContactCandidates() const { return num_contact_candidates; }
       
       /// \brief Returns the number of contacts associated to this decomposition.
       Eigen::DenseIndex numContacts() const { return num_contacts; }
-      
+
       ///
       /// \brief Computes the solution of \f$ A x = b \f$ where *this is the Cholesky decomposition of A.
       ///        "in-place" version of ContactCholeskyDecompositionTpl::solve(b) where the result is written in b.
@@ -312,7 +340,7 @@ namespace pinocchio
       {
         bool is_same = true;
         
-        if(nv != other.nv || num_contacts != other.num_contacts)
+        if(nv != other.nv || num_contact_candidates != other.num_contact_candidates || num_contacts != other.num_contacts)
           return false;
         
         if(   D.size() != other.D.size()
@@ -389,8 +417,11 @@ namespace pinocchio
       /// \brief Dimension of the tangent of the configuration space of the model
       Eigen::DenseIndex nv;
       
-      /// \brief Number of contacts.
-      Eigen::DenseIndex num_contacts;
+      /// \brief Number of contact candidates.
+      Eigen::DenseIndex num_contact_candidates; 
+
+      /// \brief Number of active contacts.
+      Eigen::DenseIndex num_contacts; 
       
       VectorOfSliceVector rowise_sparsity_pattern;
       
@@ -400,9 +431,9 @@ namespace pinocchio
       mutable Matrix U4inv;
       
     private:
-      
+
       mutable RowMatrix OSIMinv_tmp, Minv_tmp;
-      
+
     };
     
   } // namespace cholesky

@@ -380,6 +380,9 @@ namespace pinocchio
     
     /// \brief Contact deviation from the reference acceleration (a.k.a the error)
     Motion contact_acceleration_deviation;
+
+    /// \brief If this contact is active or not.
+    bool is_active;
     
     RigidConstraintDataTpl(const ContactModel & /*contact_model*/)
     : contact_force(Force::Zero())
@@ -393,6 +396,7 @@ namespace pinocchio
     , contact1_acceleration_drift(Motion::Zero())
     , contact2_acceleration_drift(Motion::Zero())
     , contact_acceleration_deviation(Motion::Zero())
+    , is_active(true)
     {}
     
     bool operator==(const RigidConstraintDataTpl & other) const
@@ -412,6 +416,7 @@ namespace pinocchio
       && contact1_acceleration_drift == other.contact1_acceleration_drift
       && contact2_acceleration_drift == other.contact2_acceleration_drift
       && contact_acceleration_deviation == other.contact_acceleration_deviation
+      && is_active == other.is_active
       ;
     }
     
