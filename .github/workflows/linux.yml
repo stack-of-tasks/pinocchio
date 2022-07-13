@@ -123,6 +123,12 @@ jobs:
         make
         ./run_rnea
         ./load_urdf
+        cd ../../pinocchio_header
+        mkdir build
+        cd build
+        cmake ..
+        make
+        ./run_fk
 
 
     - name: Uninstall project
