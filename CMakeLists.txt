@@ -112,8 +112,8 @@ ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 SET(CFLAGS_DEPENDENCIES)
 
 IF(BUILD_WITH_URDF_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(urdfdom_headers)
-  ADD_PROJECT_DEPENDENCY(urdfdom PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
+  ADD_PROJECT_DEPENDENCY(urdfdom_headers REQUIRED)
+  ADD_PROJECT_DEPENDENCY(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
   SET(urdfdom_VERSION ${urdfdom_headers_VERSION})
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_URDFDOM)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
@@ -150,21 +150,34 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
+  set(PYTHON_COMPONENTS Interpreter)
+  if(CMAKE_VERSION VERSION_LESS "3.18")
+    # Development.Module only require headers, so it's best for our module
+    # But it's not available before CMake 3.18
+    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
+  else()
+    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development.Module)
+  endif()
+  if(NOT CMAKE_VERSION VERSION_LESS "3.14")
+    # NumPy provides a standard CMake imported target,
+    # But it's not available before CMake 3.14
+    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} NumPy)
+  endif()
   FINDPYTHON(REQUIRED)
   SEARCH_FOR_BOOST_PYTHON(REQUIRED)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.6.2 REQUIRED)
-  
+
   # Check wether this a PyPy Python
   EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
     OUTPUT_VARIABLE _python_implementation_value
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET)
-  
+
   MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
   IF(_python_implementation_value MATCHES "PyPy")
     SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
   ENDIF()
-  
+
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -196,16 +209,13 @@ ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
-# Path to boost headers
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
-
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-FILE(GLOB_RECURSE HEADERS 
-     ${PROJECT_SOURCE_DIR}/src/*.hpp 
-     ${PROJECT_SOURCE_DIR}/src/*.hxx 
-     ) 
+FILE(GLOB_RECURSE HEADERS
+     ${PROJECT_SOURCE_DIR}/src/*.hpp
+     ${PROJECT_SOURCE_DIR}/src/*.hxx
+     )
 
 IF(NOT BUILD_WITH_URDF_SUPPORT)
   LIST(REMOVE_ITEM HEADERS
@@ -218,7 +228,7 @@ IF(NOT BUILD_WITH_URDF_SUPPORT)
 ENDIF(NOT BUILD_WITH_URDF_SUPPORT)
 
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS 
+  LIST(REMOVE_ITEM HEADERS
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
     )
 ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)

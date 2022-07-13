@@ -26,7 +26,7 @@ MACRO(ADD_BENCH bench_name)
       TARGET_LINK_LIBRARIES(${bench_name} PUBLIC ${PROJECT_NAME})
     ENDIF(link_to_main_lib)
   ENDIF()
-  
+
   ADD_DEPENDENCIES(bench ${bench_name})
 ENDMACRO(ADD_BENCH)
 
@@ -43,7 +43,7 @@ IF(CPPADCG_FOUND)
 ENDIF(CPPADCG_FOUND)
 
 # timings
-# 
+#
 ADD_BENCH(timings TRUE)
 IF(CPPADCG_FOUND)
   ADD_BENCH(timings-cg TRUE)
@@ -57,11 +57,11 @@ IF(BUILD_WITH_OPENMP_SUPPORT)
 ENDIF(BUILD_WITH_OPENMP_SUPPORT)
 
 # timings
-# 
+#
 ADD_BENCH(timings-cholesky TRUE)
 
 # timings derivatives
- 
+
 ADD_BENCH(timings-derivatives TRUE)
 IF(CPPAD_FOUND)
   TARGET_LINK_LIBRARIES(timings-derivatives PUBLIC ${cppad_LIBRARY})
@@ -71,12 +71,16 @@ IF(CPPADCG_FOUND)
 ENDIF(CPPADCG_FOUND)
 
 # timings-eigen
-# 
+#
 ADD_BENCH(timings-eigen)
-TARGET_INCLUDE_DIRECTORIES(timings-eigen PUBLIC ${EIGEN3_INCLUDE_DIR})
+IF(TARGET Eigen3::Eigen)
+  TARGET_LINK_LIBRARIES(timings-eigen PUBLIC Eigen3::Eigen)
+ELSE()
+  TARGET_INCLUDE_DIRECTORIES(timings-eigen PUBLIC ${EIGEN3_INCLUDE_DIR})
+ENDIF()
 
 # timings-geometry
-# 
+#
 IF(URDFDOM_FOUND AND hpp-fcl_FOUND)
   ADD_BENCH(timings-geometry TRUE)
 ENDIF(URDFDOM_FOUND AND hpp-fcl_FOUND)
