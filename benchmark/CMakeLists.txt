@@ -73,11 +73,7 @@ ENDIF(CPPADCG_FOUND)
 # timings-eigen
 #
 ADD_BENCH(timings-eigen)
-IF(TARGET Eigen3::Eigen)
-  TARGET_LINK_LIBRARIES(timings-eigen PUBLIC Eigen3::Eigen)
-ELSE()
-  TARGET_INCLUDE_DIRECTORIES(timings-eigen PUBLIC ${EIGEN3_INCLUDE_DIR})
-ENDIF()
+MODERNIZE_LINK(timings-eigen SCOPE PUBLIC TARGETS Eigen3::Eigen INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 
 # timings-geometry
 #

@@ -150,19 +150,7 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
-  set(PYTHON_COMPONENTS Interpreter)
-  if(CMAKE_VERSION VERSION_LESS "3.18")
-    # Development.Module only require headers, so it's best for our module
-    # But it's not available before CMake 3.18
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
-  else()
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development.Module)
-  endif()
-  if(NOT CMAKE_VERSION VERSION_LESS "3.14")
-    # NumPy provides a standard CMake imported target,
-    # But it's not available before CMake 3.14
-    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} NumPy)
-  endif()
+  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
   FINDPYTHON(REQUIRED)
   SEARCH_FOR_BOOST_PYTHON(REQUIRED)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.6.2 REQUIRED)
