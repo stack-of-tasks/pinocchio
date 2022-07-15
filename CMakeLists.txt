@@ -77,7 +77,10 @@ OPTION(BUILD_WITH_AUTODIFF_SUPPORT "Build the library with the automatic differe
 OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" OFF)
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
-cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
+cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENMP "Link OpenMP to the Python interface" ON
+  "BUILD_PYTHON_INTERFACE;BUILD_WITH_OPENMP_SUPPORT" OFF)
+cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
+  "BUILD_PYTHON_INTERFACE" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 
@@ -112,8 +115,8 @@ ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 SET(CFLAGS_DEPENDENCIES)
 
 IF(BUILD_WITH_URDF_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(urdfdom_headers)
-  ADD_PROJECT_DEPENDENCY(urdfdom PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
+  ADD_PROJECT_DEPENDENCY(urdfdom_headers REQUIRED)
+  ADD_PROJECT_DEPENDENCY(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
   SET(urdfdom_VERSION ${urdfdom_headers_VERSION})
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_URDFDOM)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
@@ -150,21 +153,27 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
+
+  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
+  IF(BUILD_WITH_LIBPYTHON)
+    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
+
+    # Check wether this a PyPy Python
+    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
+      OUTPUT_VARIABLE _python_implementation_value
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
+
+    MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
+    IF(_python_implementation_value MATCHES "PyPy" )
+      MESSAGE(FATAL_ERROR "PyPy detected, therefore libpython is not available. Please set BUILD_WITH_LIBPYTHON to OFF.")
+    ENDIF()
+  ENDIF()
+
   FINDPYTHON(REQUIRED)
   SEARCH_FOR_BOOST_PYTHON(REQUIRED)
   ADD_PROJECT_DEPENDENCY(eigenpy 2.6.2 REQUIRED)
-  
-  # Check wether this a PyPy Python
-  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
-    OUTPUT_VARIABLE _python_implementation_value
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET)
-  
-  MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
-  IF(_python_implementation_value MATCHES "PyPy")
-    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
-  ENDIF()
-  
+
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -196,16 +205,13 @@ ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
 
-# Path to boost headers
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
-
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-FILE(GLOB_RECURSE HEADERS 
-     ${PROJECT_SOURCE_DIR}/src/*.hpp 
-     ${PROJECT_SOURCE_DIR}/src/*.hxx 
-     ) 
+FILE(GLOB_RECURSE HEADERS
+     ${PROJECT_SOURCE_DIR}/src/*.hpp
+     ${PROJECT_SOURCE_DIR}/src/*.hxx
+     )
 
 IF(NOT BUILD_WITH_URDF_SUPPORT)
   LIST(REMOVE_ITEM HEADERS
@@ -218,7 +224,7 @@ IF(NOT BUILD_WITH_URDF_SUPPORT)
 ENDIF(NOT BUILD_WITH_URDF_SUPPORT)
 
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS 
+  LIST(REMOVE_ITEM HEADERS
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
     )
 ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
