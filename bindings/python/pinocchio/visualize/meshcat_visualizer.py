@@ -29,25 +29,25 @@ def isMesh(geometry_object):
 def loadMesh(mesh):
     import meshcat.geometry as mg
 
-    if isinstance(mesh,hppfcl.HeightFieldOBBRSS):
+    if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
         heights = mesh.getHeights()
-        x_grid = mesh.getXGrid()    
-        y_grid = mesh.getYGrid()   
+        x_grid = mesh.getXGrid()
+        y_grid = mesh.getYGrid()
         min_height = mesh.getMinHeight()
 
-        X, Y = np.meshgrid(x_grid,y_grid) 
+        X, Y = np.meshgrid(x_grid,y_grid)
 
         nx = len(x_grid)-1
         ny = len(y_grid)-1
 
         num_cells = (nx) * (ny) * 2 + (nx+ny)*4 + 2
 
-        num_vertices = X.size 
-        num_tris = num_cells 
+        num_vertices = X.size
+        num_tris = num_cells
 
         faces = np.empty((num_tris,3),dtype=int)
         vertices = np.vstack((np.stack((X.reshape(num_vertices),Y.reshape(num_vertices),heights.reshape(num_vertices)),axis=1),
-                              np.stack((X.reshape(num_vertices),Y.reshape(num_vertices),np.full(num_vertices,min_height)),axis=1))) 
+                              np.stack((X.reshape(num_vertices),Y.reshape(num_vertices),np.full(num_vertices,min_height)),axis=1)))
 
         face_id = 0
         for y_id in range(ny):
@@ -98,7 +98,7 @@ def loadMesh(mesh):
                     faces[face_id] = np.array([p1,p1_low,p2_low])
                     face_id += 1
 
-        # Last face  
+        # Last face
         p0 = num_vertices
         p1 = p0 + nx
         p2 = 2*num_vertices-1
@@ -281,7 +281,7 @@ class MeshcatVisualizer(BaseVisualizer):
             elif isMesh(geometry_object):
                 obj = self.loadMesh(geometry_object)
                 is_mesh = True
-            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS)):
+            elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS,hppfcl.HeightFieldAABB)):
                 obj = loadMesh(geometry_object.geometry)
             else:
                 msg = "The geometry object named " + geometry_object.name + " is not supported by Pinocchio/MeshCat for vizualization."
@@ -379,7 +379,7 @@ class MeshcatVisualizer(BaseVisualizer):
         else:
             geom_model = self.collision_model
             geom_data = self.collision_data
-        
+
         pin.updateGeometryPlacements(self.model, self.data, geom_model, geom_data)
         for visual in geom_model.geometryObjects:
             visual_name = self.getViewerNodeName(visual,geometry_type)
