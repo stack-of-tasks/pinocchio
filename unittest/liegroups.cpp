@@ -73,8 +73,8 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   q2 = LieGroupType().integrate(q1,q1_dot);
   jmodel.calc(jdata,q2);
   SE3 M2 = jdata.M;
-  
-  SE3 M2_exp = M1*exp6(v1);
+
+  const SE3 M2_exp = M1*exp6(v1);
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {
@@ -90,12 +90,21 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   LieGroupType().integrate(qTest, qTest_dot, qTest);
   BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
     std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
-  jmodel.calc(jdata, qTest);
-  SE3 MTest = jdata.M;
-  jmodel.calc(jdata, qResult);
-  SE3 MResult = jdata.M;
+  
+  SE3 MTest, MResult;
+  {
+    typename T::JointDataDerived jdata = jmodel.createData();
+    jmodel.calc(jdata, qTest);
+    MTest = jdata.M;
+  }
+  {
+    typename T::JointDataDerived jdata = jmodel.createData();
+    jmodel.calc(jdata, qResult);
+    MResult = jdata.M;
+  }
+  
   BOOST_CHECK_MESSAGE(MTest.isApprox(MResult),
-    std::string("Inconsistent Value when integrating with same input and output " + jmodel.shortname()));
+    std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
 
   // Check the reversability of integrate
   ConfigVector_t q3 = LieGroupType().integrate(q2,-q1_dot);
