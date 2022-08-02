@@ -12,7 +12,7 @@
   #define PINOCCHIO_WITH_CXX17_SUPPORT
 #endif
 
-#if (__cplusplus >= 201403L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201403))
+#if (__cplusplus >= 201402L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201403))
   #define PINOCCHIO_WITH_CXX14_SUPPORT
 #endif
 
