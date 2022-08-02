@@ -102,14 +102,14 @@ jobs:
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/usr/local
-        cmake ..
+        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
         make
         ./run_rnea
         ./load_urdf
         cd ../../pkgconfig
         mkdir build
         cd build
-        cmake ..
+        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
         make
         ./run_rnea
         cd ../../external
@@ -119,14 +119,14 @@ jobs:
         git tag $PINOCCHIO_GIT_TAG
         mkdir build
         cd build
-        cmake ..
+        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
         make
         ./run_rnea
         ./load_urdf
         cd ../../pinocchio_header
         mkdir build
         cd build
-        cmake ..
+        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
         make
         ./run_fk
 

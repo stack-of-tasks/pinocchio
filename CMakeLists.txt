@@ -35,7 +35,6 @@ COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
 IF(APPLE) # Use the handmade approach
@@ -157,7 +156,11 @@ IF(BUILD_PYTHON_INTERFACE)
   set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
   IF(BUILD_WITH_LIBPYTHON)
     set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
+  ENDIF()
 
+  ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED)
+
+  IF(BUILD_WITH_LIBPYTHON)
     # Check wether this a PyPy Python
     EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
       OUTPUT_VARIABLE _python_implementation_value
@@ -169,11 +172,6 @@ IF(BUILD_PYTHON_INTERFACE)
       MESSAGE(FATAL_ERROR "PyPy detected, therefore libpython is not available. Please set BUILD_WITH_LIBPYTHON to OFF.")
     ENDIF()
   ENDIF()
-
-  FINDPYTHON(REQUIRED)
-  SEARCH_FOR_BOOST_PYTHON(REQUIRED)
-  ADD_PROJECT_DEPENDENCY(eigenpy 2.6.2 REQUIRED)
-
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
