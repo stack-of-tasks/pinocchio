@@ -232,6 +232,8 @@ namespace pinocchio
     
     MotionDense() {};
     
+    MotionDense(const MotionDense &) = delete;
+    
   }; // class MotionDense
   
   /// Basic operations specialization

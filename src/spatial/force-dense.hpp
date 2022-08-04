@@ -190,10 +190,12 @@ namespace pinocchio
     
     /// \returns a ForceRef on this.
     ForceRefType ref() { return derived().ref(); }
-
+    
   protected:
-      
+    
     ForceDense() {};
+    
+    ForceDense(const ForceDense &) = delete;
     
   }; // class ForceDense
   
