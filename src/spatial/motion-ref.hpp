@@ -219,6 +219,11 @@ namespace pinocchio
       assert(v_like.size() == 6);
     }
     
+    /// \brief Copy constructor from another MotionRef.
+    MotionRef(const MotionRef & other)
+    : m_ref(other.m_ref)
+    {}
+    
     ToVectorConstReturnType toVector_impl() const { return m_ref; }
     
     // Getters
