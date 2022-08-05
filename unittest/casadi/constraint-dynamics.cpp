@@ -30,12 +30,12 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamics_casadi_algo)
   typedef typename Model::TangentVectorType TangentVector;
 
   const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
-  
+
   Model model;
   pinocchio::buildModels::humanoidRandom(model);
   model.lowerPositionLimit.head<3>().fill(-1.);
   model.upperPositionLimit.head<3>().fill(1.);
-  pinocchio::Data data(model);
+  Data data(model);
 
   const std::string RF = "rleg6_joint";  const Model::JointIndex RF_id = model.getJointId(RF);
   const std::string LF = "lleg6_joint";  const Model::JointIndex LF_id = model.getJointId(LF);
@@ -59,16 +59,16 @@ BOOST_AUTO_TEST_CASE(test_constraintDynamics_casadi_algo)
 
   pinocchio::initConstraintDynamics(model,data,contact_models);
   pinocchio::constraintDynamics(model,data,q,v,tau,contact_models,contact_data);
-  pinocchio::computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data); 
+  pinocchio::computeConstraintDynamicsDerivatives(model, data, contact_models, contact_data);
   pinocchio::casadi::AutoDiffConstraintDynamics<Scalar> ad_casadi(model, contact_models);
   ad_casadi.initLib();
   ad_casadi.loadLib();
-    
+
   ad_casadi.evalFunction(q,v,tau);
   BOOST_CHECK(ad_casadi.ddq.isApprox(data.ddq,1e2*prec));
   BOOST_CHECK(ad_casadi.lambda_c.isApprox(data.lambda_c,1e2*prec));
   ad_casadi.evalJacobian(q,v,tau);
-  
+
   BOOST_CHECK(ad_casadi.ddq_dq.isApprox(data.ddq_dq,1e2*prec));
   BOOST_CHECK(ad_casadi.ddq_dv.isApprox(data.ddq_dv,1e2*prec));
   BOOST_CHECK(ad_casadi.ddq_dtau.isApprox(data.ddq_dtau,1e2*prec));
