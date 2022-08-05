@@ -1,5 +1,6 @@
 from __future__ import print_function
-import pinocchio as pin, hppfcl
+import pinocchio as pin
+import hppfcl as fcl
 
 import os
 from os.path import dirname, join, abspath
@@ -15,7 +16,7 @@ urdf_model_path = join(join(model_path,"romeo_description/urdf"),urdf_filename)
 model = pin.buildModelFromUrdf(urdf_model_path,pin.JointModelFreeFlyer())
 
 # Load collision geometries
-geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,mesh_dir,pin.GeometryType.COLLISION)
+geom_model = pin.buildGeomFromUrdf(model,urdf_model_path,pin.GeometryType.COLLISION,mesh_dir)
 
 # Add collisition pairs
 geom_model.addAllCollisionPairs()
@@ -38,11 +39,12 @@ q = model.referenceConfigurations["half_sitting"]
 data = model.createData()
 geom_data = pin.GeometryData(geom_model)
 
+
 # Compute all the collisions
 pin.computeCollisions(model,data,geom_model,geom_data,q,False)
 
 # Print the status of collision for all collision pairs
-for k in range(len(geom_model.collisionPairs)): 
+for k in range(len(geom_model.collisionPairs)):
   cr = geom_data.collisionResults[k]
   cp = geom_model.collisionPairs[k]
   print("collision pair:",cp.first,",",cp.second,"- collision:","Yes" if cr.isCollision() else "No")
