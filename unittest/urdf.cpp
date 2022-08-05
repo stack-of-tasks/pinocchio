@@ -241,8 +241,6 @@ BOOST_AUTO_TEST_CASE(test_geometry_parsing)
 {
   typedef pinocchio::Model Model;
   typedef pinocchio::GeometryModel GeometryModel;
-  typedef pinocchio::Data Data;
-  typedef pinocchio::GeometryData GeometryData;
 
   std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");
   std::vector < std::string > packageDirs;

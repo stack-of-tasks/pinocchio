@@ -133,10 +133,6 @@ BOOST_AUTO_TEST_CASE(spatial)
   typedef TransformHelicalTpl<double,0,1> TransformY;
   typedef TransformHelicalTpl<double,0,2> TransformZ;
 
-  typedef TransformPrismaticTpl<double,0,0> TransformPX;
-  typedef TransformRevoluteTpl<double,0,0> TransformRX;
-
-  
   typedef SE3::Vector3 Vector3;
   
   const double alpha = 0.2, h = 0.1;
