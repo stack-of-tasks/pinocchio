@@ -68,8 +68,11 @@ namespace pinocchio
           throw eigenpy::Exception("Pickle was not able to reconstruct the model from the loaded data.\n"
                                    "The entry is not a string.");
         }
-
+        
       }
+      
+      static bool getstate_manages_dict() { return true; }
+      
     };
     
     template<typename Model>

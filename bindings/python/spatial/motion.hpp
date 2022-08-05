@@ -188,6 +188,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         boost::python::tuple
         getinitargs(const Motion & m)
         { return bp::make_tuple((Vector3)m.linear(),(Vector3)m.angular()); }
+        
+        static bool getstate_manages_dict() { return true; }
       };
       
       static RefVector3 getLinear(Motion & self) { return self.linear(); }
@@ -199,7 +201,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       
       static void setZero(Motion & self) { self.setZero(); }
       static void setRandom(Motion & self) { self.setRandom(); }
-
+      
     };
     
   }} // namespace pinocchio::python

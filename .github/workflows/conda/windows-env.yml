@@ -10,3 +10,4 @@ dependencies:
   - eigenpy
   - urdfdom
   - python
+  - mamba
