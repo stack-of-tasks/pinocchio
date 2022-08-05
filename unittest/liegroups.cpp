@@ -90,7 +90,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   LieGroupType().integrate(qTest, qTest_dot, qTest);
   BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
     std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
-  
+
   SE3 MTest, MResult;
   {
     typename T::JointDataDerived jdata = jmodel.createData();

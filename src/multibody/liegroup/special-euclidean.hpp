@@ -603,17 +603,14 @@ namespace pinocchio
 
       typedef typename ConfigOut_t::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigOut_t)::Options };
-      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
 
       Eigen::Matrix<Scalar,7,1,Options> expv;
       quaternion::exp6(v, expv);
-      
+
+      out.template head<3>() = (quat * expv.template head<3>()) + q.derived().template head<3>();
+
       ConstQuaternionMap_t quat1(expv.template tail<4>().data());
       res_quat = quat*quat1;
-
-      Vector3 t = q.derived().template head<3>();
-      Vector3 t1 = expv.template head<3>();
-      out.template head<3>() = (quat * t1) + t;
 
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
