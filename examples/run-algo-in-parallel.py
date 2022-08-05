@@ -27,5 +27,5 @@ res_rnea2 = pin.rneaInParallel(num_threads,pool,q,v,a) # With allocation
 
 # Call ABA
 res_aba = np.empty((model.nv,batch_size))
-pin.aba(num_threads,pool,q,v,tau,res_aba) # Without allocation
-res_aba2 = pin.aba(num_threads,pool,q,v,tau) # With allocation
+pin.abaInParallel(num_threads,pool,q,v,tau,res_aba) # Without allocation
+res_aba2 = pin.abaInParallel(num_threads,pool,q,v,tau) # With allocation
