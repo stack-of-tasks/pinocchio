@@ -87,7 +87,7 @@ OPTION(GENERATE_PYTHON_STUBS "Generate the Python stubs associated to the Python
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
 
-OPTION(ENABLE_TEMPLATE_INSTANTIATION "Instantiate templates with default type for library build" ON)
+OPTION(ENABLE_TEMPLATE_INSTANTIATION "Template instantiation of the main library" ON)
 
 IF(BUILD_WITH_COLLISION_SUPPORT)
   SET(BUILD_WITH_HPP_FCL_SUPPORT TRUE)
@@ -112,7 +112,7 @@ IF(CHECK_RUNTIME_MALLOC)
 ENDIF(CHECK_RUNTIME_MALLOC)
 
 IF(ENABLE_TEMPLATE_INSTANTIATION)
-  MESSAGE(STATUS "Instantiate templates with default types for each scalar")
+  MESSAGE(STATUS "Template instantiation of the main library")
   ADD_DEFINITIONS(-DPINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION)
 ENDIF(ENABLE_TEMPLATE_INSTANTIATION)
 
