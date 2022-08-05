@@ -109,11 +109,11 @@ struct CollisionCallBackDefault : CollisionCallBackBase
     
     count++;
     
-    fcl::CollisionRequest collision_request(geometry_data_ptr->collisionRequests[pair_index]);
+    fcl::CollisionRequest collision_request(geometry_data_ptr->collisionRequests[size_t(pair_index)]);
     collision_request.gjk_variant = fcl::GJKVariant::NesterovAcceleration;
     
-    if(co1.collisionGeometry().get() != geometry_model.geometryObjects[go1_index].geometry.get() ||
-       co2.collisionGeometry().get() != geometry_model.geometryObjects[go2_index].geometry.get())
+    if(co1.collisionGeometry().get() != geometry_model.geometryObjects[size_t(go1_index)].geometry.get() ||
+       co2.collisionGeometry().get() != geometry_model.geometryObjects[size_t(go2_index)].geometry.get())
       PINOCCHIO_THROW_PRETTY(std::logic_error,
                              "go1: " << go1_index << " or go2: " << go2_index << " have not been updated and have missmatching pointers.");
 //    if(!(co1.collisionGeometry()->aabb_local.volume() < 0 || co2.collisionGeometry()->aabb_local.volume() <0))
