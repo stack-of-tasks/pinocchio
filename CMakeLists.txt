@@ -466,3 +466,6 @@ ENDFOREACH(cflags ${CFLAGS_DEPENDENCIES})
 
 # Install catkin package.xml
 INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
+# Allows Colcon to find non-Ament packages when using workspace underlays
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)

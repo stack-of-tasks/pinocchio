@@ -17,7 +17,6 @@
   <doc_depend>texlive-latex-base</doc_depend>
   <!-- The following tags are recommended by REP-136 -->
   <exec_depend condition="$ROS_VERSION == 1">catkin</exec_depend>
-  <exec_depend condition="$ROS_VERSION == 2">ament_cmake</exec_depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python</depend>
   <depend condition="$ROS_PYTHON_VERSION == 3">python3</depend>
   <depend condition="$ROS_PYTHON_VERSION == 2">python-numpy</depend>
@@ -26,9 +25,10 @@
   <depend>eigen</depend>
   <depend>boost</depend>
   <depend>eigenpy</depend>
-  <!-- The ROS-released HPP-FCL is not yet ready for use with Pinocchio out of the box (old version).
-  Additionally, as BUILD_WITH_COLLISION_SUPPORT is default OFF, the ROS buildfarm would not configure it proper either way. -->
-  <!-- <depend>hpp-fcl</depend> -->
+  <depend>hpp-fcl</depend>
+
+  <!-- Compiling Pinocchio with clang reduces build time, required memory, and results in faster runtime. Note: This only specifies the build dependency, it does not auto-select the compiler - this needs to be specified manually -->
+  <buildtool_depend>clang</buildtool_depend>
 
   <buildtool_depend>cmake</buildtool_depend>
   <export>
