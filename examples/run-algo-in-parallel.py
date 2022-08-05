@@ -22,8 +22,8 @@ print("batch_size: {}".format(batch_size))
 
 # Call RNEA
 res_rnea = np.empty((model.nv,batch_size))
-pin.rnea(num_threads,pool,q,v,a,res_rnea) # Without allocation
-res_rnea2 = pin.rnea(num_threads,pool,q,v,a) # With allocation
+pin.rneaInParallel(num_threads,pool,q,v,a,res_rnea) # Without allocation
+res_rnea2 = pin.rneaInParallel(num_threads,pool,q,v,a) # With allocation
 
 # Call ABA
 res_aba = np.empty((model.nv,batch_size))
