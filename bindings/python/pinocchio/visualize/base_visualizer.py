@@ -79,6 +79,9 @@ class BaseVisualizer(object):
         """Captures an image from the viewer and returns an RGB array."""
         pass
 
+    def sleep(self, dt):
+        time.sleep(dt)
+
     def play(self, q_trajectory, dt, capture=False):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
         imgs = []
@@ -91,7 +94,7 @@ class BaseVisualizer(object):
             t1 = time.time()
             elapsed_time = t1 - t0
             if elapsed_time < dt:
-                time.sleep(dt - elapsed_time)
+                self.sleep(dt - elapsed_time)
         if capture:
             return imgs
 

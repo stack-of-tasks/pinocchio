@@ -80,7 +80,23 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   {
     BOOST_CHECK_MESSAGE(M2.isApprox(M2_exp), std::string("Error when integrating1 " + jmodel.shortname()));
   }
-  
+
+  // Check integrate when the same vector is passed as input and output
+  ConfigVector_t  qTest(ConfigVector_t::Random (jmodel.nq()));
+  TangentVector_t qTest_dot(TangentVector_t::Random (jmodel.nv()));
+  ConfigVector_t  qResult(ConfigVector_t::Random (jmodel.nq()));
+  qTest = LieGroupType().randomConfiguration(-Ones, Ones);
+  qResult = LieGroupType().integrate(qTest, qTest_dot);
+  LieGroupType().integrate(qTest, qTest_dot, qTest);
+  BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
+    std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
+  jmodel.calc(jdata, qTest);
+  SE3 MTest = jdata.M;
+  jmodel.calc(jdata, qResult);
+  SE3 MResult = jdata.M;
+  BOOST_CHECK_MESSAGE(MTest.isApprox(MResult),
+    std::string("Inconsistent Value when integrating with same input and output " + jmodel.shortname()));
+
   // Check the reversability of integrate
   ConfigVector_t q3 = LieGroupType().integrate(q2,-q1_dot);
   jmodel.calc(jdata,q3);

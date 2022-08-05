@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(test_get_coriolis)
   BOOST_CHECK(data.Ag.isApprox(data_ref.Ag));
   for(JointIndex k = 1; k < model.joints.size(); ++k)
   {
-    BOOST_CHECK(data.vxI[k].isApprox(data_ref.vxI[k]));
+    BOOST_CHECK(data.B[k].isApprox(data_ref.B[k]));
     BOOST_CHECK(data.oYcrb[k].isApprox(data_ref.oYcrb[k]));
   }
   
