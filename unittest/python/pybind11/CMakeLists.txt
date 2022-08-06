@@ -2,7 +2,7 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
   include(FetchContent)
   FetchContent_Declare(pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11
-    GIT_TAG v2.8.0)
+    GIT_TAG v2.10.0)
   FetchContent_GetProperties(pybind11)
   if(NOT pybind11_POPULATED)
     FetchContent_Populate(pybind11)
