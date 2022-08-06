@@ -1,9 +1,8 @@
 #
-# Copyright (c) 2016-2019 CNRS INRIA
+# Copyright (c) 2016-2022 CNRS INRIA
 #
 
 import pinocchio as pin
-pin.switchToNumpyMatrix()
 from math import pi
 from pinocchio.utils import np, rotate
 
