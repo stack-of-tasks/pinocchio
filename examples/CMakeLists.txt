@@ -66,14 +66,13 @@ IF(BUILD_PYTHON_INTERFACE)
       overview-urdf
       gepetto-viewer
       build-reduced-model
-      meshcat-viewer
       meshcat-viewer-dae
       robot-wrapper-viewer
       geometry-models
       )
   ENDIF(BUILD_WITH_URDF_SUPPORT)
 
-  IF(hpp-fcl_FOUND)
+  IF(BUILD_WITH_COLLISION_SUPPORT)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       sample-model-viewer
       display-shapes
@@ -82,11 +81,12 @@ IF(BUILD_PYTHON_INTERFACE)
       )
     IF(BUILD_WITH_URDF_SUPPORT)
       LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
+        meshcat-viewer
         collisions
         collision-with-point-clouds
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
-  ENDIF(hpp-fcl_FOUND)
+  ENDIF(BUILD_WITH_COLLISION_SUPPORT)
 
   IF(BUILD_WITH_OPENMP_SUPPORT)
     LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
@@ -95,7 +95,7 @@ IF(BUILD_PYTHON_INTERFACE)
   ENDIF(BUILD_WITH_OPENMP_SUPPORT)
 
   IF(BUILD_WITH_CASADI_SUPPORT)
-    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES 
+    LIST(APPEND ${PROJECT_NAME}_PYTHON_EXAMPLES
       casadi-quadrotor-ocp
       )
   ENDIF()
