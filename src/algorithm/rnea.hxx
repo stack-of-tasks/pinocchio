@@ -498,7 +498,7 @@ namespace pinocchio
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
       
       motionSet::inertiaAction(data.oYcrb[i],dJ_cols,jmodel.jointCols(data.dFdv));
-      jmodel.jointCols(data.dFdv) += data.B[i] * J_cols;
+      jmodel.jointCols(data.dFdv).noalias() += data.B[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
       = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
@@ -507,7 +507,7 @@ namespace pinocchio
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() = Ag_cols.transpose() * data.dJ.col(j);
 
-      Mat_tmp.topRows(jmodel.nv()).noalias() = Jcols.transpose() * data.B[i];
+      Mat_tmp.topRows(jmodel.nv()).noalias() = J_cols.transpose() * data.B[i];
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
         data.C.middleRows(jmodel.idx_v(),jmodel.nv()).col(j).noalias() += Mat_tmp * data.J.col(j);
 
@@ -579,12 +579,14 @@ namespace pinocchio
       ColsBlock dJ_cols = jmodel.jointCols(data.dJ);
       ColsBlock J_cols = jmodel.jointCols(data.J);
       ColsBlock Ag_cols = jmodel.jointCols(data.Ag);
+      typename Data::Matrix6x & dFdv = data.Fcrb[0];
+      ColsBlock dFdv_cols = jmodel.jointCols(dFdv);
       
       motionSet::inertiaAction(data.oYcrb[i],dJ_cols,dFdv_cols);
       dFdv_cols.noalias() += data.B[i] * J_cols;
 
       data.C.block(jmodel.idx_v(),jmodel.idx_v(),jmodel.nv(),data.nvSubtree[i]).noalias()
-      = J_cols.transpose()*data.dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
+      = J_cols.transpose() * dFdv.middleCols(jmodel.idx_v(),data.nvSubtree[i]);
       
       motionSet::inertiaAction(data.oYcrb[i],J_cols,Ag_cols);
       for(int j = data.parents_fromRow[(JointIndex)jmodel.idx_v()];j >= 0; j = data.parents_fromRow[(JointIndex)j])
@@ -613,7 +615,7 @@ namespace pinocchio
     typedef typename Model::ConfigVectorType ConfigVectorType;
     typedef typename Model::TangentVectorType TangentVectorType;
     
-    typedef CoriolisMatrixForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
+    typedef impl::CoriolisMatrixForwardStep<Scalar,Options,JointCollectionTpl,ConfigVectorType,TangentVectorType> Pass1;
     for(JointIndex i=1; i<(JointIndex)model.njoints; ++i)
     {
       typedef typename Data::Inertia Inertia;
