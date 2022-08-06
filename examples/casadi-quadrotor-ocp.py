@@ -272,7 +272,7 @@ def main():
     for idx, ax in enumerate(axs1):
         ax.plot(us[:, idx])
 
-    plt.show()
+    plt.show(block=False)
 
 
 if __name__ == '__main__':
