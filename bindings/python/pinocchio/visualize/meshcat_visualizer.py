@@ -30,7 +30,7 @@ def getColor(color):
     return color.clip(0., 1.)
 
 
-def isMesh(geometry_object):
+def hasMeshFileInfo(geometry_object):
     """ Check whether the geometry object contains a Mesh supported by MeshCat """
     if geometry_object.meshPath == "":
         return False
@@ -325,9 +325,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         return obj
 
-    def loadMesh(self, geometry_object):
-
-        import meshcat.geometry
+    def loadMeshFromFile(self, geometry_object):
 
         # Mesh path is empty if Pinocchio is built without HPP-FCL bindings
         if geometry_object.meshPath == "":
@@ -468,7 +466,7 @@ class MeshcatVisualizer(BaseVisualizer):
             # Get mesh pose.
             M = geom_data.oMg[geom_model.getGeometryId(visual.name)]
             # Manage scaling: force scaling even if this should be normally handled by MeshCat (but there is a bug here)
-            if isMesh(visual):
+            if hasMeshFileInfo(visual):
                 scale = np.asarray(visual.meshScale).flatten()
                 S = np.diag(np.concatenate((scale,[1.0])))
                 T = np.array(M.homogeneous).dot(S)
