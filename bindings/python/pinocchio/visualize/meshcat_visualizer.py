@@ -12,6 +12,15 @@ from typing import List
 
 import meshcat
 import meshcat.geometry as mg
+
+# DaeMeshGeometry
+import xml.etree.ElementTree as Et
+import base64
+
+from typing import Optional, Any, Dict, Union, Type, Set
+
+MsgType = Dict[str, Union[str, bytes, bool, float, 'MsgType']]
+
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
@@ -42,6 +51,103 @@ def hasMeshFileInfo(geometry_object):
         return True
 
     return False
+
+# Code adapted from Jiminy
+class Cone(mg.Geometry):
+    """A cone of the given height and radius. By Three.js convention, the axis
+    of rotational symmetry is aligned with the y-axis.
+    """
+    def __init__(self, height: float, radius: float, radialSegments: float = 32, openEnded: bool = False):
+        super().__init__()
+        self.radius = radius
+        self.height = height
+        self.radialSegments = radialSegments
+        self.openEnded = openEnded
+
+    def lower(self, object_data: Any) -> MsgType:
+        return {
+            u"uuid": self.uuid,
+            u"type": u"ConeGeometry",
+            u"radius": self.radius,
+            u"height": self.height,
+            u"radialSegments": self.radialSegments,
+            u"openEnded": self.openEnded,
+        }
+
+class DaeMeshGeometry(mg.ReferenceSceneElement):
+    def __init__(self,
+                 dae_path: str,
+                 cache: Optional[Set[str]] = None) -> None:
+        """Load Collada files with texture images.
+        Inspired from
+        https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
+        """
+        # Init base class
+        super().__init__()
+
+        # Attributes to be specified by the user
+        self.path = None
+        self.material = None
+
+        # Raw file content
+        dae_dir = os.path.dirname(dae_path)
+        with open(dae_path, 'r') as text_file:
+            self.dae_raw = text_file.read()
+
+        # Parse the image resource in Collada file
+        img_resource_paths = []
+        img_lib_element = Et.parse(dae_path).find(
+            "{http://www.collada.org/2005/11/COLLADASchema}library_images")
+        if img_lib_element:
+            img_resource_paths = [
+                e.text for e in img_lib_element.iter()
+                if e.tag.count('init_from')]
+
+        # Convert textures to data URL for Three.js ColladaLoader to load them
+        self.img_resources = {}
+        for img_path in img_resource_paths:
+            # Return empty string if already in cache
+            if cache is not None:
+                if img_path in cache:
+                    self.img_resources[img_path] = ""
+                    continue
+                cache.add(img_path)
+
+            # Encode texture in base64
+            img_path_abs = img_path
+            if not os.path.isabs(img_path):
+                img_path_abs = os.path.normpath(
+                    os.path.join(dae_dir, img_path_abs))
+            if not os.path.isfile(img_path_abs):
+                raise UserWarning(f"Texture '{img_path}' not found.")
+            with open(img_path_abs, 'rb') as img_file:
+                img_data = base64.b64encode(img_file.read())
+            img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
+            self.img_resources[img_path] = img_uri
+
+    def lower(self) -> Dict[str, Any]:
+        """Pack data into a dictionary of the format that must be passed to
+        `Visualizer.window.send`.
+        """
+        data = {
+            'type': 'set_object',
+            'path': self.path.lower() if self.path is not None else "",
+            'object': {
+                'metadata': {'version': 4.5, 'type': 'Object'},
+                'geometries': [],
+                'materials': [],
+                'object': {
+                    'uuid': self.uuid,
+                    'type': '_meshfile_object',
+                    'format': 'dae',
+                    'data': self.dae_raw,
+                    'resources': self.img_resources
+                }
+            }
+        }
+        if self.material is not None:
+            self.material.lower_in_object(data)
+        return data
 
 def loadMesh(mesh):
 
@@ -289,11 +395,14 @@ class MeshcatVisualizer(BaseVisualizer):
         import meshcat.geometry as mg
 
         # Cylinders need to be rotated
-        R = np.array([[1.,  0.,  0.,  0.],
+        transform = np.array([[1.,  0.,  0.,  0.],
                       [0.,  0., -1.,  0.],
                       [0.,  1.,  0.,  0.],
                       [0.,  0.,  0.,  1.]])
-        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: R })
+        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: transform })
+
+        # Cones need to be rotated
+        RotatedCone = type("RotatedCone", (Cone,), {"intrinsic_transform": lambda self: transform })
 
         geom: hppfcl.ShapeBase = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
@@ -303,6 +412,8 @@ class MeshcatVisualizer(BaseVisualizer):
                 obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
+        elif isinstance(geom, hppfcl.Cone):
+            obj = RotatedCone(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Box):
             obj = mg.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
@@ -334,7 +445,7 @@ class MeshcatVisualizer(BaseVisualizer):
         # Get file type from filename extension.
         _, file_extension = os.path.splitext(geometry_object.meshPath)
         if file_extension.lower() == ".dae":
-            obj = meshcat.geometry.DaeMeshGeometry.from_file(geometry_object.meshPath)
+            obj = DaeMeshGeometry(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
             obj = mg.ObjMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".stl":
@@ -354,8 +465,8 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
-            elif isMesh(geometry_object):
-                obj = self.loadMesh(geometry_object)
+            elif hasMeshFileInfo(geometry_object):
+                obj = self.loadMeshFromFile(geometry_object)
                 is_mesh = True
             elif WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, (hppfcl.BVHModelBase,hppfcl.HeightFieldOBBRSS,hppfcl.HeightFieldAABB)):
                 obj = loadMesh(geometry_object.geometry)
@@ -385,7 +496,14 @@ class MeshcatVisualizer(BaseVisualizer):
             if float(meshColor[3]) != 1.0:
                 material.transparent = True
                 material.opacity = float(meshColor[3])
-            self.viewer[viewer_name].set_object(obj, material)
+
+            if isinstance(obj, DaeMeshGeometry):
+                obj.path = meshcat_node.path
+                if geometry_object.overrideMaterial:
+                    obj.material = material
+                meshcat_node.window.send(obj)
+            else:
+                meshcat_node.set_object(obj, material)
 
         if is_mesh: # Apply the scaling
             scale = list(np.asarray(geometry_object.meshScale).flatten())
