@@ -149,6 +149,28 @@ class DaeMeshGeometry(mg.ReferenceSceneElement):
             self.material.lower_in_object(data)
         return data
 
+# end code adapted from Jiminy
+
+class Plane(mg.Geometry):
+    """A plane of the given width and height. 
+    """
+    def __init__(self, width: float, height: float, widthSegments: float = 1, heightSegments: float = 1):
+        super().__init__()
+        self.width = width
+        self.height = height
+        self.widthSegments = widthSegments
+        self.heightSegments = heightSegments
+
+    def lower(self, object_data: Any) -> MsgType:
+        return {
+            u"uuid": self.uuid,
+            u"type": u"PlaneGeometry",
+            u"width": self.width,
+            u"height": self.height,
+            u"widthSegments": self.widthSegments,
+            u"heightSegments": self.heightSegments,
+        }
+
 def loadMesh(mesh):
 
     if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
@@ -395,14 +417,13 @@ class MeshcatVisualizer(BaseVisualizer):
         import meshcat.geometry as mg
 
         # Cylinders need to be rotated
-        transform = np.array([[1.,  0.,  0.,  0.],
+        basic_three_js_transform = np.array([[1.,  0.,  0.,  0.],
                       [0.,  0., -1.,  0.],
                       [0.,  1.,  0.,  0.],
                       [0.,  0.,  0.,  1.]])
-        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: transform })
+        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: basic_three_js_transform })
 
         # Cones need to be rotated
-        RotatedCone = type("RotatedCone", (Cone,), {"intrinsic_transform": lambda self: transform })
 
         geom: hppfcl.ShapeBase = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
@@ -413,6 +434,7 @@ class MeshcatVisualizer(BaseVisualizer):
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cone):
+            RotatedCone = type("RotatedCone", (Cone,), {"intrinsic_transform": lambda self: basic_three_js_transform })
             obj = RotatedCone(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Box):
             obj = mg.Box(npToTuple(2. * geom.halfSide))
@@ -425,6 +447,12 @@ class MeshcatVisualizer(BaseVisualizer):
             obj = TranslatedPlane(-10, 10)
         elif isinstance(geom, hppfcl.Ellipsoid):
             obj = mg.Ellipsoid(geom.radii)
+        elif isinstance(geom, (hppfcl.Plane,hppfcl.Halfspace)):
+            plane_transform : pin.SE3 = pin.SE3.Identity()
+            # plane_transform.translation[:] = geom.d # Does not work
+            plane_transform.rotation = pin.Quaternion.FromTwoVectors(pin.ZAxis,geom.n).toRotationMatrix()
+            TransformedPlane = type("TransformedPlane", (Plane,), {"intrinsic_transform": lambda self: plane_transform.homogeneous })
+            obj = TransformedPlane(1000,1000)
         elif isinstance(geom, hppfcl.ConvexBase):
             obj = loadMesh(geom)
         else:
@@ -586,7 +614,13 @@ class MeshcatVisualizer(BaseVisualizer):
                 S = np.diag(np.concatenate((scale,[1.0])))
                 T = np.array(M.homogeneous).dot(S)
             else:
-                T = M.homogeneous
+                geom = visual.geometry
+                if isinstance(geom,(hppfcl.Plane, hppfcl.Halfspace)):
+                    T = M
+                    T.translation += M.rotation @ (geom.d * geom.n)
+                    T = T.homogeneous
+                else:
+                    T = M.homogeneous
 
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
