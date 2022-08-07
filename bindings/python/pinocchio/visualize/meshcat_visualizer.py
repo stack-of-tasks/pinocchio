@@ -10,6 +10,8 @@ import numpy as np
 from distutils.version import LooseVersion
 from typing import List
 
+import meshcat
+import meshcat.geometry as mg
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
@@ -42,7 +44,6 @@ def hasMeshFileInfo(geometry_object):
     return False
 
 def loadMesh(mesh):
-    import meshcat.geometry as mg
 
     if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
         heights = mesh.getHeights()
@@ -197,8 +198,7 @@ def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
             indexes[index + 4 + i * 4 + 2] = np.array([j_next * stride + nbv[1] + i + 1, j_next * stride + nbv[1] + i, j * stride + nbv[1] + i])
             indexes[index + 4 + i * 4 + 3] = np.array([j_next * stride + nbv[1] + i + 1, j * stride + nbv[1] + i, j * stride + nbv[1] + i + 1])
         index += 4 * (nbv[1] - 1) + 4
-    import meshcat.geometry
-    return meshcat.geometry.TriangularMeshGeometry(vertices, indexes)
+    return mg.TriangularMeshGeometry(vertices, indexes)
 
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
@@ -235,8 +235,6 @@ class MeshcatVisualizer(BaseVisualizer):
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
         """
-
-        import meshcat
 
         self.viewer = meshcat.Visualizer() if viewer is None else viewer
 
@@ -338,9 +336,9 @@ class MeshcatVisualizer(BaseVisualizer):
         if file_extension.lower() == ".dae":
             obj = meshcat.geometry.DaeMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".obj":
-            obj = meshcat.geometry.ObjMeshGeometry.from_file(geometry_object.meshPath)
+            obj = mg.ObjMeshGeometry.from_file(geometry_object.meshPath)
         elif file_extension.lower() == ".stl":
-            obj = meshcat.geometry.StlMeshGeometry.from_file(geometry_object.meshPath)
+            obj = mg.StlMeshGeometry.from_file(geometry_object.meshPath)
         else:
             msg = "Unknown mesh file format: {}.".format(geometry_object.meshPath)
             warnings.warn(msg, category=UserWarning, stacklevel=2)
@@ -350,8 +348,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-        import meshcat.geometry
-
         viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
 
         is_mesh = False
@@ -374,10 +370,11 @@ class MeshcatVisualizer(BaseVisualizer):
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
 
-        if isinstance(obj, meshcat.geometry.Object):
-            self.viewer[viewer_name].set_object(obj)
-        elif isinstance(obj, meshcat.geometry.Geometry):
-            material = meshcat.geometry.MeshPhongMaterial()
+        meshcat_node = self.viewer[viewer_name]
+        if isinstance(obj, mg.Object):
+            meshcat_node.set_object(obj)
+        elif isinstance(obj, (mg.Geometry, mg.ReferenceSceneElement)):
+            material = mg.MeshPhongMaterial()
             # Set material color from URDF, converting for triplet of doubles to a single int.
             if color is None:
                 meshColor = geometry_object.meshColor
@@ -392,7 +389,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if is_mesh: # Apply the scaling
             scale = list(np.asarray(geometry_object.meshScale).flatten())
-            self.viewer[viewer_name].set_property("scale",scale)
+            meshcat_node.set_property("scale",scale)
 
     def loadViewerModel(self, rootNodeName="pinocchio", color = None):
         """Load the robot in a MeshCat viewer.
