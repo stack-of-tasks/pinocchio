@@ -92,9 +92,14 @@ namespace pinocchio
              "the vector of RigidConstraintModel named contact_models. The decomposition is regularized with a factor mu.")
         
         .def("updateDamping",
+             (void (Self::*)(const Scalar &))&Self::updateDamping,
+             bp::args("self","mu"),
+             "Update the damping term on the upper left block part of the KKT matrix. The damping term should be positive.")
+
+        .def("updateDamping",
              &Self::template updateDamping<Vector>,
              bp::args("self","mus"),
-             "Update the damping term on the upper left block part of the KKT matrix. The damping terms should be all positives.")
+             "Update the damping terms on the upper left block part of the KKT matrix. The damping terms should be all positives.")
         
         .def("getInverseOperationalSpaceInertiaMatrix",
              (Matrix (Self::*)(void) const)&Self::getInverseOperationalSpaceInertiaMatrix,

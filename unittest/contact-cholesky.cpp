@@ -1516,4 +1516,48 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
+BOOST_AUTO_TEST_CASE(contact_cholesky_updateDamping)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+  using namespace pinocchio::cholesky;
+
+  pinocchio::Model model;
+  pinocchio::buildModels::humanoidRandom(model,true);
+  pinocchio::Data data_ref(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  VectorXd q = randomConfiguration(model);
+
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
+  contact_models.push_back(ci_RF);
+  contact_datas.push_back(RigidConstraintData(ci_RF));
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
+  contact_models.push_back(ci_LF);
+  contact_datas.push_back(RigidConstraintData(ci_LF));
+
+  Data data(model); crba(model,data,q);
+
+  const double mu1 = 1e-2, mu2 = 1e-10;
+
+  ContactCholeskyDecomposition contact_chol_decomposition;
+  contact_chol_decomposition.allocate(model, contact_models);
+  contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu1);
+  contact_chol_decomposition.updateDamping(mu2);
+
+  ContactCholeskyDecomposition contact_chol_decomposition_ref;
+  contact_chol_decomposition_ref.allocate(model, contact_models);
+  contact_chol_decomposition_ref.compute(model,data,contact_models,contact_datas,mu2);
+
+  BOOST_CHECK(contact_chol_decomposition.D.isApprox(contact_chol_decomposition_ref.D));
+  BOOST_CHECK(contact_chol_decomposition.Dinv.isApprox(contact_chol_decomposition_ref.Dinv));
+  BOOST_CHECK(contact_chol_decomposition.U.isApprox(contact_chol_decomposition_ref.U));
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -275,9 +275,11 @@ namespace pinocchio
       
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
-                                     "The number of contacts inside contact_models and the one during allocation do not match.");
+                                     "The number of contacts inside contact_models and the one during allocation do not match.\n"
+                                     "Please call first ContactCholeskyDecompositionTpl::allocate method.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_datas.size() == num_contacts,
-                                     "The number of contacts inside contact_datas and the one during allocation do not match.");
+                                     "The number of contacts inside contact_datas and the one during allocation do not match.\n"
+                                     "Please call first ContactCholeskyDecompositionTpl::allocate method.");
       PINOCCHIO_UNUSED_VARIABLE(model);
       
       const Eigen::DenseIndex total_dim = size();
@@ -545,6 +547,17 @@ namespace pinocchio
           U(_i,j) = -U.row(_i).segment(j+1,slice_dim).dot(DUt_partial) * Dinv[j];
         }
       }
+    }
+
+    template<typename Scalar, int Options>
+    void ContactCholeskyDecompositionTpl<Scalar,Options>::
+    updateDamping(const Scalar & mu)
+    {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0), "mu should be positive.");
+
+      const Eigen::DenseIndex total_dim = size();
+      const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
+      updateDamping(Vector::Constant(total_constraints_dim,mu));
     }
     
     template<typename Scalar, int Options>

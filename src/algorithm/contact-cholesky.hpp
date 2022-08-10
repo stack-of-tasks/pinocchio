@@ -294,12 +294,19 @@ namespace pinocchio
                    const Eigen::MatrixBase<VectorLike> & mus);
       
       ///
-      /// \brief Update the damping term on the upper left block part of the KKT matrix. The damping terms should be all positives.
+      /// \brief Update the damping terms on the upper left block part of the KKT matrix. The damping terms should be all positives.
       ///
       /// \param[in] mus Vector of positive regularization factor allowing to enforce the definite property of the KKT matrix.
       ///
       template<typename VectorLike>
       void updateDamping(const Eigen::MatrixBase<VectorLike> & mus);
+
+      ///
+      /// \brief Update the damping term on the upper left block part of the KKT matrix. The damping terms should be all positives.
+      ///
+      /// \param[in] mu Regularization factor allowing to enforce the definite property of the KKT matrix.
+      ///
+      void updateDamping(const Scalar & mu);
 
       /// \brief Size of the decomposition
       Eigen::DenseIndex size() const { return D.size(); }
