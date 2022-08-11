@@ -405,7 +405,7 @@ namespace pinocchio
       contact_chol.solveInPlace(primal_dual_contact_solution);
       
       // Use data.lambda_c as tmp variable for computing the constraint residual
-      contact_chol.getDelassusExpression().applyOnTheRight(primal_dual_contact_solution.head(constraint_dim),data.lambda_c);
+      contact_chol.getDelassusCholeskyExpression().applyOnTheRight(primal_dual_contact_solution.head(constraint_dim),data.lambda_c);
       data.lambda_c -= mu * primal_dual_contact_solution.head(constraint_dim) + primal_rhs_contact.head(constraint_dim);
 
       settings.absolute_residual = data.lambda_c.template lpNorm<Eigen::Infinity>();

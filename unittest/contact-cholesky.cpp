@@ -353,10 +353,15 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
     
     const MatrixXd rhs = MatrixXd::Random(12, 1);
-    const MatrixXd res = contact_chol_decomposition.getDelassusExpression() * rhs;
-    const MatrixXd res_ref = iosim * rhs;
-    
-    BOOST_CHECK(res_ref.isApprox(res));
+    const MatrixXd res_delassus = contact_chol_decomposition.getDelassusCholeskyExpression() * rhs;
+    const MatrixXd res_delassus_ref = iosim * rhs;
+
+    BOOST_CHECK(res_delassus_ref.isApprox(res_delassus));
+
+    const MatrixXd res_delassus_inverse = contact_chol_decomposition.getDelassusInverseCholeskyExpression() * rhs;
+    const MatrixXd res_delassus_inverse_ref = osim * rhs;
+
+    BOOST_CHECK(res_delassus_inverse_ref.isApprox(res_delassus_inverse));
   }
   
   // test Mass matrix cholesky
@@ -389,13 +394,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     BOOST_CHECK(osim_mu.isApprox(JMinvJt_mu.inverse()));
     
     const MatrixXd rhs = MatrixXd::Random(12, 1);
-    const MatrixXd res = contact_chol_decomposition_mu.getDelassusExpression() * rhs;
+    const MatrixXd res = contact_chol_decomposition_mu.getDelassusCholeskyExpression() * rhs;
     const MatrixXd res_ref = iosim_mu * rhs;
     
     BOOST_CHECK(res_ref.isApprox(res));
 
-    const MatrixXd res_no_mu = contact_chol_decomposition_mu.getDelassusExpression() * rhs - mu * rhs;
-    const MatrixXd res_no_mu_ref = contact_chol_decomposition.getDelassusExpression() * rhs;
+    const MatrixXd res_no_mu = contact_chol_decomposition_mu.getDelassusCholeskyExpression() * rhs - mu * rhs;
+    const MatrixXd res_no_mu_ref = contact_chol_decomposition.getDelassusCholeskyExpression() * rhs;
     
     BOOST_CHECK(res_no_mu.isApprox(res_no_mu_ref));
   }
