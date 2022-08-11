@@ -9,7 +9,12 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
     add_subdirectory(${pybind11_SOURCE_DIR} ${pybind11_BINARY_DIR})
 
     #pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp) # BUG: might not work out of the box on OSX with conda: https://github.com/pybind/pybind11/issues/3081
-    add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
+    if(NOT BUILD_TESTING)
+      add_library(cpp2pybind11 MODULE EXCLUDE_FROM_ALL cpp2pybind11.cpp)
+    else()
+      add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
+    endif()
+    add_dependencies(build_tests cpp2pybind11)
     target_link_libraries(cpp2pybind11 PRIVATE pinocchio_pywrap_default pybind11::module)
     TARGET_INCLUDE_DIRECTORIES(cpp2pybind11 SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
     SET_TARGET_PROPERTIES(cpp2pybind11
