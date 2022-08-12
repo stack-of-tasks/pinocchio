@@ -36,8 +36,6 @@ namespace pinocchio
       typedef pinocchio::python::context::Model Model;
       typedef pinocchio::python::context::Data Data;
 
-    public:
-      
       template<class PyClass>
       void visit(PyClass& cl) const
       {
@@ -128,6 +126,11 @@ namespace pinocchio
              &Self::template getMassMatrixChoeslkyDecomposition<Scalar,0,JointCollectionDefaultTpl>,
              bp::arg("self"),
              "Retrieves the Cholesky decomposition of the Mass Matrix contained in the current decomposition.")
+
+        .def("getDelassusCholeskyExpression",
+             &Self::getDelassusCholeskyExpression,
+             bp::arg("self"),"Returns the Cholesky decomposition expression associated to the underlying Delassus matrix.",
+             bp::with_custodian_and_ward_postcall<0,1>())
         
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
@@ -140,7 +143,22 @@ namespace pinocchio
                                                  bp::no_init)
         .def(ContactCholeskyDecompositionPythonVisitor<ContactCholeskyDecomposition>())
         ;
-        
+
+        {
+          typedef typename ContactCholeskyDecomposition::DelassusCholeskyExpression DelassusCholeskyExpression;
+
+          bp::class_<DelassusCholeskyExpression>("DelassusCholeskyExpression",
+                                                 "Delassus Cholesky expression associated to a given ContactCholeskyDecomposition object.",
+                                                 bp::no_init)
+          .def(bp::init<const ContactCholeskyDecomposition &>(bp::arg("cholesky_decomposition"),"Build from a given ContactCholeskyDecomposition object.")[bp::with_custodian_and_ward<1,2>()])
+          .def(bp::self * bp::other<Vector>())
+          .def("cholesky",
+               +[](const DelassusCholeskyExpression & self) -> ContactCholeskyDecomposition & { return const_cast<ContactCholeskyDecomposition &>(self.cholesky()); },
+               bp::arg("self"),
+               "Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.",
+               bp::return_internal_reference<>())
+          ;
+        }
       }
       
       template<typename MatrixType>
