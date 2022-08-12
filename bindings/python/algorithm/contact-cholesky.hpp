@@ -151,7 +151,9 @@ namespace pinocchio
                                                  "Delassus Cholesky expression associated to a given ContactCholeskyDecomposition object.",
                                                  bp::no_init)
           .def(bp::init<const ContactCholeskyDecomposition &>(bp::arg("cholesky_decomposition"),"Build from a given ContactCholeskyDecomposition object.")[bp::with_custodian_and_ward<1,2>()])
-          .def(bp::self * bp::other<Vector>())
+          .def(bp::self * bp::other<Matrix>())
+          .def("solve",&Self::template solve<Matrix>,bp::args("self","mat"),
+               "Returns the solution x of Delassus * x = mat using the current decomposition of the Delassus matrix.")
           .def("cholesky",
                +[](const DelassusCholeskyExpression & self) -> ContactCholeskyDecomposition & { return const_cast<ContactCholeskyDecomposition &>(self.cholesky()); },
                bp::arg("self"),
