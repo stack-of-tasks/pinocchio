@@ -352,13 +352,13 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
     BOOST_CHECK(iosim.isApprox(JMinvJt));
     BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
     
-    const MatrixXd rhs = MatrixXd::Random(12, 1);
+    const MatrixXd rhs = MatrixXd::Random(12, 12);
     const MatrixXd res_delassus = contact_chol_decomposition.getDelassusCholeskyExpression() * rhs;
     const MatrixXd res_delassus_ref = iosim * rhs;
 
     BOOST_CHECK(res_delassus_ref.isApprox(res_delassus));
 
-    const MatrixXd res_delassus_inverse = contact_chol_decomposition.getDelassusInverseCholeskyExpression() * rhs;
+    const MatrixXd res_delassus_inverse = contact_chol_decomposition.getDelassusCholeskyExpression().solve(rhs);
     const MatrixXd res_delassus_inverse_ref = osim * rhs;
 
     BOOST_CHECK(res_delassus_inverse_ref.isApprox(res_delassus_inverse));

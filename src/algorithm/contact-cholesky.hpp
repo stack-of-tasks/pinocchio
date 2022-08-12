@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/math/matrix-block.hpp"
+#include "pinocchio/math/triangular-matrix.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
 namespace pinocchio
@@ -81,12 +82,10 @@ namespace pinocchio
         Eigen::DenseIndex size;
       };
 
-      struct DelassusInverseCholeskyExpression;
-
       struct DelassusCholeskyExpression
       {
+        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
         typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
-        typedef typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<Vector>::Type VectorSegmentXpr;
 
         explicit DelassusCholeskyExpression(const ContactCholeskyDecompositionTpl & self)
         : self(self)
@@ -98,88 +97,88 @@ namespace pinocchio
         {
           PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
           PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(),self.constraintDim());
+          PINOCCHIO_CHECK_ARGUMENT_SIZE(res.cols(),x.cols());
 
           PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
           const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
           = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
-          VectorSegmentXpr vec_tmp = const_cast<ContactCholeskyDecompositionTpl&>(self).DUt.head(self.constraintDim());
 
-          vec_tmp.noalias() = U1.transpose() * (-x);
-          vec_tmp.array() *= self.D.head(self.constraintDim()).array();
-          res.const_cast_derived().noalias() = U1 * vec_tmp;
+          if(x.cols() <= self.constraintDim())
+          {
+            RowMatrixBlockXpr tmp_mat = const_cast<ContactCholeskyDecompositionTpl&>(self).OSIMinv_tmp.topLeftCorner(self.constraintDim(),x.cols());
+//            tmp_mat.noalias() = U1.adjoint() * x;
+            triangularMatrixMatrixProduct(U1.adjoint(), x.derived(), tmp_mat);
+            tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
+//            res.const_cast_derived().noalias() = U1 * tmp_mat;
+            triangularMatrixMatrixProduct(U1, tmp_mat, res.const_cast_derived());
+          }
+          else // do memory allocation
+          {
+            RowMatrix tmp_mat(x.rows(),x.cols());
+//            tmp_mat.noalias() = U1.adjoint() * x;
+            triangularMatrixMatrixProduct(U1.adjoint(), x.derived(), tmp_mat);
+            tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
+//            res.const_cast_derived().noalias() = U1 * tmp_mat;
+            triangularMatrixMatrixProduct(U1, tmp_mat, res.const_cast_derived());
+          }
 
           PINOCCHIO_EIGEN_MALLOC_ALLOWED();
         }
         
         template<typename MatrixDerived>
-        Vector operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
+        typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
+        operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
         {
-          Vector res(self.constraintDim());
-          applyOnTheRight(x,res);
+          typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
+          ReturnType res(self.constraintDim(), x.cols());
+          applyOnTheRight(x.derived(),res);
+          return res;
+        }
+
+        template<typename MatrixDerived>
+        void solveInPlace(const Eigen::MatrixBase<MatrixDerived> & x) const
+        {
+          PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
+
+          const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
+          = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
+
+          PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
+          U1.solveInPlace(x.const_cast_derived());
+          x.const_cast_derived().array().colwise() *= -self.Dinv.head(self.constraintDim()).array();
+          U1.adjoint().solveInPlace(x);
+          PINOCCHIO_EIGEN_MALLOC_ALLOWED();
+        }
+
+        template<typename MatrixDerivedIn, typename MatrixDerivedOut>
+        void solve(const Eigen::MatrixBase<MatrixDerivedIn> & x,
+                   const Eigen::MatrixBase<MatrixDerivedOut> & res)
+        {
+          res.const_cast_derived() = x;
+          solveInPlace(res.const_cast_derived());
+        }
+
+        template<typename MatrixDerived>
+        typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
+        solve(const Eigen::MatrixBase<MatrixDerived> & x)
+        {
+          typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
+          ReturnType res(self.constraintDim(), x.cols());
+          solve(x.derived(),res);
           return res;
         }
 
         /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.
         const ContactCholeskyDecompositionTpl & cholesky() const { return self; }
 
-        /// \brief Returns the inverse Delassus Cholesky expression of this..
-        DelassusInverseCholeskyExpression inverse() const { return DelassusInverseCholeskyExpression(self); }
-
       protected:
 
         const ContactCholeskyDecompositionTpl & self;
       }; // DelassusCholeskyExpression
-
-      struct DelassusInverseCholeskyExpression
-      {
-        typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
-        typedef typename SizeDepType<Eigen::Dynamic>::template SegmentReturn<Vector>::Type VectorSegmentXpr;
-
-        explicit DelassusInverseCholeskyExpression(const ContactCholeskyDecompositionTpl & self)
-        : self(self)
-        {}
-
-        template<typename MatrixIn, typename MatrixOut>
-        void applyOnTheRight(const Eigen::MatrixBase<MatrixIn> & x,
-                             const Eigen::MatrixBase<MatrixOut> & res) const
-        {
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(x.rows(),self.constraintDim());
-          PINOCCHIO_CHECK_ARGUMENT_SIZE(res.rows(),self.constraintDim());
-
-          const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
-          = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
-
-          PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
-          res.const_cast_derived() = -x;
-          U1.solveInPlace(res.const_cast_derived());
-          res.const_cast_derived().array() *= self.Dinv.head(self.constraintDim()).array();
-          U1.adjoint().solveInPlace(res);
-          PINOCCHIO_EIGEN_MALLOC_ALLOWED();
-        }
-
-        template<typename MatrixDerived>
-        Vector operator*(const Eigen::MatrixBase<MatrixDerived> & x) const
-        {
-          Vector res(self.constraintDim());
-          applyOnTheRight(x,res);
-          return res;
-        }
-
-        /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusInverseCholeskyExpression.
-        const ContactCholeskyDecompositionTpl & cholesky() const { return self; }
-
-        /// \brief Returns the Delassus Cholesky expression of this..
-        DelassusCholeskyExpression inverse() const { return DelassusCholeskyExpression(self); }
-
-      protected:
-
-        const ContactCholeskyDecompositionTpl & self;
-      }; // DelassusInverseCholeskyExpression
       
       friend struct DelassusCholeskyExpression;
-      friend struct DelassusInverseCholeskyExpression;
-      
+
       typedef std::vector<Slice> SliceVector;
       typedef std::vector<SliceVector> VectorOfSliceVector;
       ///@}
@@ -248,15 +247,11 @@ namespace pinocchio
         res_.noalias() = -U1 * OSIMinv_tmp;
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
-      
+
+      /// \brief Returns the Cholesky decomposition expression associated to the underlying Delassus matrix.
       DelassusCholeskyExpression getDelassusCholeskyExpression() const
       {
         return DelassusCholeskyExpression(*this);
-      }
-
-      DelassusInverseCholeskyExpression getDelassusInverseCholeskyExpression() const
-      {
-        return DelassusInverseCholeskyExpression(*this);
       }
       
       ///
@@ -557,8 +552,6 @@ namespace pinocchio
       mutable Matrix U1inv;
       /// \brief Inverse of the bottom right block of U
       mutable Matrix U4inv;
-      
-    private:
       
       mutable RowMatrix OSIMinv_tmp, Minv_tmp;
       
