@@ -59,7 +59,7 @@ frame_id_end_effector = model1.getFrameId("tool0")
 model, visual_model = pin.appendModel(
     model1, model2, visual_model1, visual_model2, frame_id_end_effector, pin.SE3.Identity())
 
-print(f"Check the joints of the appended model:\n {model} \n ->Notice the spherical joint at the end.")
+print("Check the joints of the appended model:\n %s \n ->Notice the spherical joint at the end." % model)
 viz = Visualizer(model, visual_model, visual_model)
 
 try:
