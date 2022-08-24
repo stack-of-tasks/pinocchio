@@ -48,6 +48,10 @@ namespace pinocchio
              "Parameters\n"
              "\tgeometry_object : a GeometryObject\n"
              "\tmodel : a Model of the system\n")
+         .def("removeGeometryObject",
+             &GeometryModel::removeGeometryObject,
+             bp::args("self","name"),
+             "Remove a GeometryObject. Remove also the collision pairs that contain the object.")
         .def("getGeometryId",
              &GeometryModel::getGeometryId,
              bp::args("self","name"),
