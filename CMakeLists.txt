@@ -72,6 +72,8 @@ OPTION(BUILD_WITH_CASADI_SUPPORT "Build the library with the support of CASADI" 
 OPTION(BUILD_WITH_CODEGEN_SUPPORT "Build the library with the support of code generation (via CppADCodeGen)" OFF)
 OPTION(BUILD_WITH_OPENMP_SUPPORT "Build the library with the OpenMP support" OFF)
 cmake_dependent_option(LINK_PYTHON_INTERFACE_TO_OPENM "Link OpenMP to the Python interface" ON BUILD_WITH_OPENMP_SUPPORT OFF)
+cmake_dependent_option(BUILD_WITH_LIBPYTHON "Link to libpython to embed an interpreter for the python_parser feature" ON
+  "BUILD_PYTHON_INTERFACE" OFF)
 
 OPTION(INITIALIZE_WITH_NAN "Initialize Eigen entries with NaN" OFF)
 OPTION(CHECK_RUNTIME_MALLOC "Check if some memory allocations are performed at runtime" OFF)
@@ -128,7 +130,7 @@ IF(BUILD_WITH_SDF_SUPPORT)
   INCLUDE_DIRECTORIES(${SDFormat_INCLUDE_DIRS})
   LINK_DIRECTORIES(${SDFormat_LIBRARY_DIRS})
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_SDF)
-  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDF")  
+  LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_SDF")
 ENDIF(BUILD_WITH_SDF_SUPPORT)
 
 
@@ -158,27 +160,32 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
-  FINDPYTHON(REQUIRED)
-  SEARCH_FOR_BOOST_PYTHON(REQUIRED)
-  ADD_PROJECT_DEPENDENCY(eigenpy 2.6.7 REQUIRED)
+
+  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
+  IF(BUILD_WITH_LIBPYTHON)
+    set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
+  ENDIF()
+
+  ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED)
 
   IF(BUILD_WITH_AUTODIFF_SUPPORT)
     ADD_PROJECT_DEPENDENCY(pycppad 1.1.0 REQUIRED)
     ADD_DEFINITIONS(-DPYCPPAD_EXCLUDE_EIGEN_NUMTRAITS_SPECIALIZATION)
   ENDIF(BUILD_WITH_AUTODIFF_SUPPORT)
-  
-  
-  # Check wether this a PyPy Python
-  EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
-    OUTPUT_VARIABLE _python_implementation_value
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET)
-  
-  MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
-  IF(_python_implementation_value MATCHES "PyPy")
-    SET(BUILD_PYTHON_INTERFACE_WITH_PYPY TRUE)
+
+  IF(BUILD_WITH_LIBPYTHON)
+    # Check wether this a PyPy Python
+    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import platform; print(platform.python_implementation())"
+      OUTPUT_VARIABLE _python_implementation_value
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET)
+
+    MESSAGE(STATUS "Python compiler: ${_python_implementation_value}")
+    IF(_python_implementation_value MATCHES "PyPy" )
+      MESSAGE(FATAL_ERROR "PyPy detected, therefore libpython is not available. Please set BUILD_WITH_LIBPYTHON to OFF.")
+    ENDIF()
   ENDIF()
-  
+
 ELSE(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "Pinocchio won't be compiled with its Python bindings. If you want to enable this feature, please set the option BUILD_PYTHON_INTERFACE to ON.")
 ENDIF(BUILD_PYTHON_INTERFACE)
@@ -218,10 +225,10 @@ INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
-FILE(GLOB_RECURSE HEADERS 
-     ${PROJECT_SOURCE_DIR}/src/*.hpp 
-     ${PROJECT_SOURCE_DIR}/src/*.hxx 
-     ) 
+FILE(GLOB_RECURSE HEADERS
+     ${PROJECT_SOURCE_DIR}/src/*.hpp
+     ${PROJECT_SOURCE_DIR}/src/*.hxx
+     )
 
 IF(NOT BUILD_WITH_URDF_SUPPORT)
   LIST(REMOVE_ITEM HEADERS
@@ -243,7 +250,7 @@ ENDIF(NOT BUILD_WITH_SDF_SUPPORT)
 
 
 IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-  LIST(REMOVE_ITEM HEADERS 
+  LIST(REMOVE_ITEM HEADERS
     ${PROJECT_SOURCE_DIR}/src/spatial/fcl-pinocchio-conversions.hpp
     )
 ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
