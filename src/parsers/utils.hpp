@@ -67,6 +67,7 @@ namespace pinocchio
 
     const std::string separator("://");
     const std::size_t pos_separator = string.find(separator);
+    bf::path string_path(string);
 
     if (pos_separator != std::string::npos)
     {
@@ -99,7 +100,7 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
-    else if (string.substr(0,2).compare("./") == 0)
+    else if (string_path.is_relative())
     {
       // handle the case where a relative mesh path is specified without using //package
       for (std::size_t i = 0; i < package_dirs.size(); ++i)
