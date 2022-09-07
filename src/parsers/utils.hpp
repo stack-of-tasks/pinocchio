@@ -99,6 +99,18 @@ namespace pinocchio
         throw std::invalid_argument(exception_message);
       }
     }
+    else if (string.substr(0,2).compare("./") == 0)
+    {
+      // handle the case where a relative mesh path is specified without using //package
+      for (std::size_t i = 0; i < package_dirs.size(); ++i)
+        {
+          if ( bf::exists( bf::path(package_dirs[i] + "/" + string.substr(2))))
+          {
+            result_path = std::string( package_dirs[i] + "/" + string.substr(2));
+            break;
+          }
+        }
+    }
     else // return the entry string
     {
       result_path = string;
