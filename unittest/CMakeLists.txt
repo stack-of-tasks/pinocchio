@@ -193,6 +193,7 @@ ADD_PINOCCHIO_UNIT_TEST(version)
 ADD_PINOCCHIO_UNIT_TEST(copy)
 ADD_PINOCCHIO_UNIT_TEST(contact-cholesky)
 ADD_PINOCCHIO_UNIT_TEST(classic-acceleration)
+ADD_PINOCCHIO_UNIT_TEST(coulomb-friction-cone)
 
 # Serialization
 MAKE_DIRECTORY("${CMAKE_CURRENT_BINARY_DIR}/serialization-data")
