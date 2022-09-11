@@ -6,6 +6,7 @@
 #include "pinocchio/bindings/python/utils/namespace.hpp"
 
 #include "pinocchio/math/matrix.hpp"
+#include "pinocchio/math/eigenvalues.hpp"
 
 namespace pinocchio
 {
@@ -28,6 +29,15 @@ namespace pinocchio
       {
         // using the rpy scope
         bp::scope current_scope = getOrCreatePythonNamespace("linalg");
+
+        bp::def("computeLargestEigenvector",
+                (context::VectorXs (*)(const context::MatrixXs &, const int, const context::Scalar))&computeLargestEigenvector<context::MatrixXs>,
+                (bp::arg("mat"),bp::arg("max_it") = 10, bp::arg("rel_tol") = 1e-8),
+                "Compute the lagest eigenvector of a given matrix according to a given eigenvector estimate.");
+
+        bp::def("retrieveLargestEigenvalue",&retrieveLargestEigenvalue<context::MatrixXs>,
+                bp::arg("eigenvector"),
+                "Compute the lagest eigenvalue of a given matrix. This is taking the eigenvector computed by the function computeLargestEigenvector.");
 
         bp::def("inv",&inv<context::MatrixXs>,"Computes the inverse of a matrix.");
 #ifdef PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE
