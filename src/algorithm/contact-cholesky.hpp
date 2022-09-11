@@ -84,6 +84,7 @@ namespace pinocchio
 
       struct DelassusCholeskyExpression
       {
+        typedef _Scalar Scalar;
         typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::Type RowMatrixBlockXpr;
         typedef typename SizeDepType<Eigen::Dynamic>::template BlockReturn<RowMatrix>::ConstType RowMatrixConstBlockXpr;
 
@@ -153,7 +154,7 @@ namespace pinocchio
 
         template<typename MatrixDerivedIn, typename MatrixDerivedOut>
         void solve(const Eigen::MatrixBase<MatrixDerivedIn> & x,
-                   const Eigen::MatrixBase<MatrixDerivedOut> & res)
+                   const Eigen::MatrixBase<MatrixDerivedOut> & res) const
         {
           res.const_cast_derived() = x;
           solveInPlace(res.const_cast_derived());
@@ -161,7 +162,7 @@ namespace pinocchio
 
         template<typename MatrixDerived>
         typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived)
-        solve(const Eigen::MatrixBase<MatrixDerived> & x)
+        solve(const Eigen::MatrixBase<MatrixDerived> & x) const
         {
           typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(MatrixDerived) ReturnType;
           ReturnType res(self.constraintDim(), x.cols());
