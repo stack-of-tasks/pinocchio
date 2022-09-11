@@ -10,6 +10,8 @@
 #include "pinocchio/math/triangular-matrix.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
+#include "pinocchio/math/eigenvalues.hpp"
+
 namespace pinocchio
 {
   
@@ -172,6 +174,39 @@ namespace pinocchio
 
         /// \brief Returns the Constraint Cholesky decomposition associated to this DelassusCholeskyExpression.
         const ContactCholeskyDecompositionTpl & cholesky() const { return self; }
+
+        template<typename VectorLike>
+        Scalar computeLargestEigenValue(const Eigen::PlainObjectBase<VectorLike> & eigenvector_est,
+                                        const int max_it = 10,
+                                        const Scalar rel_tol = 1e-8) const
+        {
+          PINOCCHIO_CHECK_ARGUMENT_SIZE(eigenvector_est.size(),size());
+          computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
+          return retrieveLargestEigenvalue(eigenvector_est);
+        }
+
+        /// \brief Compute the largest eigen value associated to the underlying Delassus matrix
+        Scalar computeLargestEigenValue(const int max_it = 10,
+                                        const Scalar rel_tol = 1e-8) const
+        {
+          Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/math::sqrt(size())));
+          computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
+          return retrieveLargestEigenvalue(eigenvector_est);
+        }
+
+        Matrix matrix() const
+        {
+          return self.getInverseOperationalSpaceInertiaMatrix();
+        }
+
+        Matrix inverse() const
+        {
+          return self.getOperationalSpaceInertiaMatrix();
+        }
+
+        Eigen::DenseIndex size() const { return self.constraintDim(); }
+        Eigen::DenseIndex rows() const { return size(); }
+        Eigen::DenseIndex cols() const { return size(); }
 
       protected:
 
