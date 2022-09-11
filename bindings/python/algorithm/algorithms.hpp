@@ -43,6 +43,8 @@ namespace pinocchio
     void exposeFramesDerivatives();
     void exposeCentroidalDerivatives();
     void exposeImpulseDynamicsDerivatives();
+
+    void exposeCones();
     
     void exposeAlgorithms();
     

@@ -9,6 +9,7 @@
 #include "pinocchio/spatial/fwd.hpp"
 #include "pinocchio/multibody/fwd.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
+#include "pinocchio/algorithm/constraints/fwd.hpp"
 
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
   #include "pinocchio/multibody/pool/fwd.hpp"
@@ -125,6 +126,9 @@ typedef cholesky::ContactCholeskyDecompositionTpl<Scalar,Options> ContactCholesk
 
 typedef RigidConstraintModelTpl<Scalar,Options> RigidConstraintModel;
 typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
+
+typedef CoulombFrictionConeTpl<context::Scalar> CoulombFrictionCone;
+typedef DualCoulombFrictionConeTpl<context::Scalar> DualCoulombFrictionCone;
 
 // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP

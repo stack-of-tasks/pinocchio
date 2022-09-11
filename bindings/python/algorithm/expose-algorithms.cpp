@@ -43,6 +43,8 @@ namespace pinocchio
       exposeFramesDerivatives();
       exposeCentroidalDerivatives();
       exposeImpulseDynamicsDerivatives();
+
+      exposeCones();
     }
     
   } // namespace python
