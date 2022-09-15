@@ -105,9 +105,9 @@ namespace pinocchio
       // handle the case where a relative mesh path is specified without using //package
       for (std::size_t i = 0; i < package_dirs.size(); ++i)
         {
-          if ( bf::exists( bf::path(package_dirs[i] + "/" + string.substr(2))))
+          if ( bf::exists( bf::path(package_dirs[i] + "/" + string)))
           {
-            result_path = std::string( package_dirs[i] + "/" + string.substr(2));
+            result_path = std::string( package_dirs[i] + "/" + string);
             break;
           }
         }
