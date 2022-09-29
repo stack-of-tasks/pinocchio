@@ -97,6 +97,11 @@ namespace pinocchio
     parents        .push_back(parent);
     jointPlacements.push_back(joint_placement);
     names          .push_back(joint_name);
+
+    const std::vector<bool> & cf_limits = jmodel.hasConfigurationLimit();
+    configurationLimit.insert(configurationLimit.end(),
+                               cf_limits.begin(),
+                               cf_limits.end());
     
     nq += joint_nq; nqs.push_back(joint_nq); idx_qs.push_back(joint_idx_q);
     nv += joint_nv; nvs.push_back(joint_nv); idx_vs.push_back(joint_idx_v);

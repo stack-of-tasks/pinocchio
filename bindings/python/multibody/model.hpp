@@ -125,6 +125,7 @@ namespace pinocchio
         .add_property("nvs",&Model::nvs)          
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
+        .add_property("configurationLimit",&Model::configurationLimit)
         .def_readwrite("name",&Model::name)
         .def_readwrite("referenceConfigurations", &Model::referenceConfigurations)
         
