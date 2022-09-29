@@ -107,6 +107,11 @@ namespace pinocchio
     using Base::setIndexes;
     
     JointDataDerived createData() const { return JointDataDerived(); }
+
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {false, false};
+    }
     
     template<typename ConfigVector>
     void calc(JointDataDerived & data,

@@ -33,6 +33,8 @@ namespace pinocchio
         .add_property("idx_v",&get_idx_v)
         .add_property("nq",&get_nq)
         .add_property("nv",&get_nv)
+        .add_property("configuration_limit", &JointModelDerived::hasConfigurationLimit,
+             "Return vector of boolean if joint has configuration limits.")
         .def("setIndexes",
              &JointModelDerived::setIndexes,
              bp::args("self","id","idx_q","idx_v"))

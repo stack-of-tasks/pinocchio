@@ -103,6 +103,18 @@ namespace pinocchio
 
   
   /**
+   * @brief      Visit a JointModelTpl through JointconfigurationLimitVisitor
+   *             to get the configurations limits
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The bool with configurations limits of the joint
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline const std::vector<bool> hasConfigurationLimit(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
+
+
+  /**
    * @brief      Visit a JointModelTpl through JointIdxQVisitor to get the index in the full model configuration
    *             space corresponding to the first degree of freedom of the Joint
    *

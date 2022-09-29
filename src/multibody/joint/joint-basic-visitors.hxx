@@ -179,6 +179,25 @@ namespace pinocchio
   { return JointNqVisitor::run(jmodel); }
 
   /**
+   * @brief      JointconfigurationLimitVisitor visitor
+   */
+  struct JointconfigurationLimitVisitor
+  : boost::static_visitor<std::vector<bool>>
+  {
+    template<typename JointModelDerived>
+    const std::vector<bool> operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    { return jmodel.hasConfigurationLimit(); }
+    
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static const std::vector<bool> run( const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+    { return boost::apply_visitor(JointconfigurationLimitVisitor(),jmodel); }
+  };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline const std::vector<bool> hasConfigurationLimit(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+  { return JointconfigurationLimitVisitor::run(jmodel); }
+
+  /**
    * @brief      JointIdxQVisitor visitor
    */
   struct JointIdxQVisitor

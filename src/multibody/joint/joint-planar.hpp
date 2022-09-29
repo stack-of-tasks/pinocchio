@@ -478,6 +478,11 @@ namespace pinocchio
 
     JointDataDerived createData() const { return JointDataDerived(); }
     
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true, true, false, false};
+    }
+
     template<typename ConfigVector>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVector> & q_joint) const
     {
