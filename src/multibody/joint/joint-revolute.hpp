@@ -689,7 +689,12 @@ namespace pinocchio
     {
       return {true};
     }
-    
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true};
+    }
+
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,

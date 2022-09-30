@@ -483,6 +483,11 @@ namespace pinocchio
       return {true, true, false, false};
     }
 
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true, true, false};
+    }
+
     template<typename ConfigVector>
     inline void forwardKinematics(Transformation_t & M, const Eigen::MatrixBase<ConfigVector> & q_joint) const
     {

@@ -103,7 +103,7 @@ namespace pinocchio
 
   
   /**
-   * @brief      Visit a JointModelTpl through JointconfigurationLimitVisitor
+   * @brief      Visit a JointModelTpl through JointConfigurationLimitVisitor
    *             to get the configurations limits
    *
    * @param[in]  jmodel  The JointModelVariant
@@ -112,6 +112,18 @@ namespace pinocchio
    */
   template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
   inline const std::vector<bool> hasConfigurationLimit(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
+
+  
+  /**
+   * @brief      Visit a JointModelTpl through JointConfigurationLimitInTangentVisitor
+   *             to get the configurations limits in tangent space
+   *
+   * @param[in]  jmodel  The JointModelVariant
+   *
+   * @return     The bool with configurations limits in tangent space of the joint
+   */
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline const std::vector<bool> hasConfigurationLimitInTangent(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel);
 
 
   /**

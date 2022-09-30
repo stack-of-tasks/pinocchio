@@ -518,6 +518,11 @@ namespace pinocchio
     {
       return {true};
     }
+    
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true};
+    }
 
     using Base::isEqual;
     bool isEqual(const JointModelPrismaticUnalignedTpl & other) const

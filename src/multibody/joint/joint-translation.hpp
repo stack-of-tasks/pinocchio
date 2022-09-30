@@ -497,6 +497,11 @@ namespace pinocchio
       return {true, true, true};
     }
 
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true, true, true};
+    }
+
     template<typename ConfigVector>
     void calc(JointDataDerived & data,
               const typename Eigen::MatrixBase<ConfigVector> & qs) const

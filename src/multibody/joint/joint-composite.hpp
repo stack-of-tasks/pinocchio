@@ -273,6 +273,19 @@ namespace pinocchio
       return vec;
     }
 
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      std::vector<bool> vec;
+      for (size_t i = 0; i < joints.size(); ++i)
+        {
+          const std::vector<bool> & joint_cf_limit = joints[i].hasConfigurationLimitInTangent();
+          vec.insert(vec.end(),
+                    joint_cf_limit.begin(),
+                    joint_cf_limit.end());
+        }
+      return vec;
+    }
+
     template<typename, int, template<typename S, int O> class, typename>
     friend struct JointCompositeCalcZeroOrderStep;
     
