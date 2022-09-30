@@ -50,7 +50,7 @@ namespace boost
       ar & make_nvp("velocityLimit",model.velocityLimit);
       ar & make_nvp("lowerPositionLimit",model.lowerPositionLimit);
       ar & make_nvp("upperPositionLimit",model.upperPositionLimit);
-      ar & make_nvp("configurationLimit",model.configurationLimit);
+      ar & make_nvp("hasConfigurationLimit",model.hasConfigurationLimit);
       
       ar & make_nvp("inertias",model.inertias);
       ar & make_nvp("jointPlacements",model.jointPlacements);

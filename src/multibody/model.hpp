@@ -142,7 +142,7 @@ namespace pinocchio
     ConfigVectorType upperPositionLimit;
 
     /// \brief Bool if joint has configuration limit
-    std::vector<bool> configurationLimit;
+    std::vector<bool> hasConfigurationLimit;
 
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
@@ -182,7 +182,7 @@ namespace pinocchio
     , nvs(1,0)
     , parents(1, 0)
     , names(1)
-    , configurationLimit()
+    , hasConfigurationLimit()
     , supports(1,IndexVector(1,0))
     , subtrees(1)
     , gravity(gravity981,Vector3::Zero())
@@ -216,7 +216,7 @@ namespace pinocchio
       res.nqs = nqs;
       res.idx_vs = idx_vs;
       res.nvs = nvs;
-      res.configurationLimit = configurationLimit;
+      res.hasConfigurationLimit = hasConfigurationLimit;
       
       // Eigen Vectors
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
