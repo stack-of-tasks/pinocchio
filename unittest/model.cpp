@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
   BOOST_CHECK(cf_limits_prismatic == expected_cf_limits_prismatic);
   BOOST_CHECK(cf_limits_tangent_prismatic == expected_cf_limits_tangent_prismatic);
 
-  // Test model.hasConfigurationLimit vector
+  // Test model.hasConfigurationLimit() function
   Model model;
   JointIndex jointId = 0;
 
@@ -587,7 +587,16 @@ BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
                                               false, false, false, false,  // rotation of FF
                                               true,  // roational joint
                                               false, false});  // unbounded rotational joint
-  BOOST_CHECK((model.hasConfigurationLimit == expected_cf_limits_model));
+  std::vector<bool> model_cf_limits =  model.hasConfigurationLimit();
+  BOOST_CHECK((model_cf_limits == expected_cf_limits_model));
+
+// Test model.hasConfigurationLimitInTangent() function
+  std::vector<bool> expected_cf_limits_tangent_model({true, true, true, // translation of FF
+                                                      false, false, false, // rotation of FF
+                                                      true,  // roational joint
+                                                      false });  // unbounded rotational joint
+  std::vector<bool> model_cf_limits_tangent =  model.hasConfigurationLimitInTangent();
+  BOOST_CHECK((model_cf_limits_tangent == expected_cf_limits_tangent_model));
 }
 
 

@@ -125,7 +125,6 @@ namespace pinocchio
         .add_property("nvs",&Model::nvs)          
         .add_property("parents",&Model::parents)
         .add_property("names",&Model::names)
-        .add_property("hasConfigurationLimit",&Model::hasConfigurationLimit)
         .def_readwrite("name",&Model::name)
         .def_readwrite("referenceConfigurations", &Model::referenceConfigurations)
         
@@ -206,6 +205,8 @@ namespace pinocchio
         
         .def("check",(bool (Model::*)(const Data &) const) &Model::check,bp::args("self","data"),
              "Check consistency of data wrt model.")
+        .def("hasConfigurationLimit",&Model::hasConfigurationLimit, bp::args("self"), "Returns list of boolean if joints have configuration limit.")
+        .def("hasConfigurationLimitInTangent",&Model::hasConfigurationLimitInTangent, bp::args("self"), "Returns list of boolean if joints have configuration limit in tangent space  .")
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)

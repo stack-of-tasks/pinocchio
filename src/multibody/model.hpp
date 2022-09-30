@@ -141,9 +141,6 @@ namespace pinocchio
     /// \brief Upper joint configuration limit
     ConfigVectorType upperPositionLimit;
 
-    /// \brief Bool if joint has configuration limit
-    std::vector<bool> hasConfigurationLimit;
-
     /// \brief Vector of operational frames registered on the model.
     FrameVector frames;
     
@@ -182,7 +179,6 @@ namespace pinocchio
     , nvs(1,0)
     , parents(1, 0)
     , names(1)
-    , hasConfigurationLimit()
     , supports(1,IndexVector(1,0))
     , subtrees(1)
     , gravity(gravity981,Vector3::Zero())
@@ -216,7 +212,6 @@ namespace pinocchio
       res.nqs = nqs;
       res.idx_vs = idx_vs;
       res.nvs = nvs;
-      res.hasConfigurationLimit = hasConfigurationLimit;
       
       // Eigen Vectors
       res.rotorInertia = rotorInertia.template cast<NewScalar>();
@@ -554,6 +549,20 @@ namespace pinocchio
     template<typename D>
     inline bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
     { return checker.checkModel(*this); }
+
+    ///
+    /// \brief Check if joints have configuration limits
+    ///
+    /// \return Returns list of boolean of size model.nq.
+    ///
+    std::vector<bool> hasConfigurationLimit();
+
+    ///
+    /// \brief Check if joints have configuration limits
+    ///
+    /// \return Returns list of boolean of size model.nq.
+    ///
+    std::vector<bool> hasConfigurationLimitInTangent();
 
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     inline bool check() const;
