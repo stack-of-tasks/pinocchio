@@ -31,7 +31,7 @@ namespace pinocchio
         .add_property("idx_v",&getIdx_v)
         .add_property("nq",&getNq)
         .add_property("nv",&getNv)
-        .def("configuration_limit", &JointModel::hasConfigurationLimit,
+        .def("has_configuration_limit", &JointModel::hasConfigurationLimit,
              "Return vector of boolean if joint has configuration limits.")
         .def("setIndexes",
              &JointModel::setIndexes,
