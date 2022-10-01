@@ -104,7 +104,7 @@ namespace pinocchio
     ///
     template<typename Vector3Like>
     typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)
-    complementaryShift(const Eigen::MatrixBase<Vector3Like> & v) const
+    computeNormalCorrection(const Eigen::MatrixBase<Vector3Like> & v) const
     {
       EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
       typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3Plain;

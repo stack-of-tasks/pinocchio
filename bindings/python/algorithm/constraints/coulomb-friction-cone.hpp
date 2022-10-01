@@ -36,12 +36,13 @@ namespace pinocchio
              "Check whether a vector x lies within the cone.")
 
         .def("project",&Self::template project<context::Vector3s>,bp::args("self","f"),
-             "Project a vector f onto the cone.")
-        .def("complementaryShift",&Self::template complementaryShift<context::Vector3s>,
-             bp::args("self","v"),"Compute the complementary shift associted to the Coulomb friction cone for complementarity satisfaction in complementary problems")
+             "Normal projection of a vector f onto the cone.")
+        .def("computeNormalCorrection",&Self::template computeNormalCorrection<context::Vector3s>,
+             bp::args("self","v"),"Compute the complementary shift associted to the Coulomb friction cone for complementarity satisfaction in complementary problems.")
+        .def("computeRadialProjection",&Self::template computeRadialProjection<context::Vector3s>,
+             bp::args("self","f"),"Compute the radial projection associted to the Coulomb friction cone.")
         
         .def("dual",&Self::dual,bp::arg("self"),"Returns the dual cone associated to this")
-
 
         .def("dim",Self::dim,"Returns the dimension of the cone.")
         .staticmethod("dim")
@@ -83,13 +84,13 @@ namespace pinocchio
 
         .def_readwrite("mu", &Self::mu, "Friction coefficient.")
 
-        .def("isInside",&Self::template isInside<context::Vector3s>,bp::args("self","f"),
+        .def("isInside",&Self::template isInside<context::Vector3s>,bp::args("self","v"),
              "Check whether a vector x lies within the cone.")
 
-        .def("project",&Self::template project<context::Vector3s>,bp::args("self","f"),
-             "Project a vector f onto the cone.")
+        .def("project",&Self::template project<context::Vector3s>,bp::args("self","v"),
+             "Project a vector v onto the cone.")
 
-        .def("dual",&Self::dual,bp::arg("self"),"Returns the dual cone associated to this")
+        .def("dual",&Self::dual,bp::arg("self"),"Returns the dual cone associated to this.")
 
         .def("dim",Self::dim,"Returns the dimension of the cone.")
         .staticmethod("dim")
