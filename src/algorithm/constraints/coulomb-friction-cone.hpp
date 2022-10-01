@@ -6,6 +6,8 @@
 #define __pinocchio_algorithm_constraints_coulomb_friction_cone_hpp__
 
 #include "pinocchio/algorithm/constraints/fwd.hpp"
+#include "pinocchio/math/fwd.hpp"
+#include "pinocchio/math/comparison-operators.hpp"
 
 namespace pinocchio
 {
@@ -110,6 +112,33 @@ namespace pinocchio
       Vector3Plain res;
       res.template head<2>().setZero();
       res[2] = mu * v.template head<2>().norm();
+
+      return res;
+    }
+
+    /// \brief Compute the radial projection associted to the Coulomb friction cone.
+    ///
+    /// \param[in] f a force vector.
+    ///
+    template<typename Vector3Like>
+    typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like)
+    computeRadialProjection(const Eigen::MatrixBase<Vector3Like> & f) const
+    {
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Vector3Like,3);
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like) Vector3Plain;
+
+      Vector3Plain res;
+      const auto & ft = f.template head<2>();
+      const Scalar ft_norm = ft.norm();
+
+      res[2] = math::max(Scalar(0),f[2]);
+      const Scalar mu_fz = mu * res[2];
+      if(ft_norm > mu_fz)
+      {
+        res.template head<2>() = Scalar(mu_fz/ft_norm) * ft;
+      }
+      else
+        res.template head<2>() = f.template head<2>();
 
       return res;
     }
