@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2019 CNRS INRIA
+// Copyright (c) 2018-2022 CNRS INRIA
 //
 
 #include "pinocchio/autodiff/cppad.hpp"
@@ -20,6 +20,12 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#ifdef _WIN32
+  #define DLL_EXT ".dll"
+#else
+  #define DLL_EXT ".so"
+#endif
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
@@ -282,6 +288,119 @@ BOOST_AUTO_TEST_CASE(test_kinematics_jacobian)
 
     BOOST_CHECK(ad_dv_da.isZero());
     BOOST_CHECK(ad_J_local.isApprox(J_local));
+  }
+}
+
+BOOST_AUTO_TEST_CASE(test_JSIM_jit)
+{
+  using CppAD::AD;
+  using CppAD::NearEqual;
+  
+  typedef double Scalar;
+  typedef AD<Scalar> ADScalar;
+  
+  typedef pinocchio::ModelTpl<Scalar> Model;
+  typedef Model::Data Data;
+
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
+  typedef ADModel::Data ADData;
+  
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+  Data data(model);
+  
+  ADModel ad_model = model.cast<ADScalar>();
+  ADData ad_data(ad_model);
+  
+  // Sample random configuration
+  typedef Model::ConfigVectorType ConfigVectorType;
+  typedef Model::TangentVectorType TangentVectorType;
+  ConfigVectorType q(model.nq);
+  q = pinocchio::randomConfiguration(model);
+
+  TangentVectorType v(TangentVectorType::Random(model.nv));
+  TangentVectorType a(TangentVectorType::Random(model.nv));
+  
+  typedef ADModel::ConfigVectorType ADConfigVectorType;
+  typedef ADModel::TangentVectorType ADTangentVectorType;
+  
+  ADConfigVectorType ad_q = q.cast<ADScalar>();
+  ADTangentVectorType ad_v = v.cast<ADScalar>();
+  ADTangentVectorType ad_a = a.cast<ADScalar>();
+  
+  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,1> VectorXAD;
+  typedef Eigen::Matrix<ADScalar,Eigen::Dynamic,Eigen::Dynamic> MatrixXAD;
+  pinocchio::crba(model,data,q);
+  data.M.triangularView<Eigen::StrictlyLower>()
+  = data.M.transpose().triangularView<Eigen::StrictlyLower>();
+
+  pinocchio::rnea(model,data,q,v,a);
+  {
+    CppAD::Independent(ad_a);
+    pinocchio::rnea(ad_model,ad_data,ad_q,ad_v,ad_a);
+
+    VectorXAD Y(model.nv);
+    Eigen::Map<ADData::TangentVectorType>(Y.data(),model.nv,1) = ad_data.tau;
+
+    CppAD::ADFun<Scalar> f(ad_a,Y);
+    CppAD::ADFun<ADScalar,Scalar > af = f.base2ad();
+
+    CppAD::Independent(ad_a);
+    MatrixXAD dtau_da = af.Jacobian(ad_a);
+    VectorXAD dtau_da_vector(model.nv*model.nv);
+    dtau_da_vector = Eigen::Map<VectorXAD>(dtau_da.data(), dtau_da.cols()*dtau_da.rows());
+    CppAD::ADFun<double> ad_fun(ad_a, dtau_da_vector);
+
+    ad_fun.function_name_set("ad_fun");
+
+    // create csrc_file
+    std::string c_type    =  "double";
+    std::string csrc_file = "jit_JSIM.c";
+    std::ofstream ofs;
+    ofs.open(csrc_file , std::ofstream::out);
+    ad_fun.to_csrc(ofs, c_type);
+    ofs.close();
+
+    // create dll_file
+    std::string dll_file = "jit_JSIM" DLL_EXT;
+    CPPAD_TESTVECTOR( std::string) csrc_files(1);
+    csrc_files[0] = csrc_file;
+    std::map< std::string, std::string > options;
+    std::string err_msg = CppAD::create_dll_lib(dll_file, csrc_files, options);
+    if( err_msg != "" )
+    {   
+      std::cerr << "jit_JSIM: err_msg = " << err_msg << "\n";
+    }
+
+    // dll_linker
+    CppAD::link_dll_lib dll_linker(dll_file, err_msg);
+    if( err_msg != "" )
+    {   
+      std::cerr << "jit_JSIM: err_msg = " << err_msg << "\n";
+    }
+
+    std::string function_name = "cppad_jit_ad_fun";
+    void* void_ptr = dll_linker(function_name, err_msg);
+    if( err_msg != "" )
+    {   
+      std::cerr << "jit_JSIM: err_msg = " << err_msg << "\n";
+    }
+
+    using CppAD::jit_double;
+    jit_double ad_fun_ptr =
+        reinterpret_cast<jit_double>(void_ptr);
+
+    CPPAD_TESTVECTOR(Scalar) x((size_t)model.nv);
+    Eigen::Map<Data::TangentVectorType>(x.data(),model.nv,1) = a;
+
+    size_t compare_change = 0, nx = (size_t)model.nv, ndtau_da_ = (size_t)model.nv*(size_t)model.nv;
+    std::vector<double> dtau_da_jit(ndtau_da_);
+    ad_fun_ptr(nx, x.data(), ndtau_da_, dtau_da_jit.data(), &compare_change);
+
+    Data::MatrixXs M = Eigen::Map<PINOCCHIO_EIGEN_PLAIN_ROW_MAJOR_TYPE(Data::MatrixXs)>(dtau_da_jit.data(),model.nv,model.nv);    
+    BOOST_CHECK(M.isApprox(data.M));
   }
 }
 
