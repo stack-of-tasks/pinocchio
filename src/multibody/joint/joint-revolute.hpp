@@ -684,7 +684,17 @@ namespace pinocchio
     JointDataDerived createData() const { return JointDataDerived(); }
     
     JointModelRevoluteTpl() {}
-    
+
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true};
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true};
+    }
+
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,

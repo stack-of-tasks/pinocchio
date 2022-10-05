@@ -514,6 +514,16 @@ namespace pinocchio
 
     JointDataDerived createData() const { return JointDataDerived(axis); }
     
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true};
+    }
+    
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true};
+    }
+
     using Base::isEqual;
     bool isEqual(const JointModelPrismaticUnalignedTpl & other) const
     {

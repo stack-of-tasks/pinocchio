@@ -76,6 +76,16 @@ namespace pinocchio
 
     JointDataDerived createData() const { return derived().createData(); }
     
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return derived().hasConfigurationLimit();
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return derived().hasConfigurationLimitInTangent();
+    }
+
     template<typename ConfigVectorType>
     void calc(JointDataDerived & data,
               const Eigen::MatrixBase<ConfigVectorType> & qs) const

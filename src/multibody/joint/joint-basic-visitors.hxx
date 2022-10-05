@@ -179,6 +179,44 @@ namespace pinocchio
   { return JointNqVisitor::run(jmodel); }
 
   /**
+   * @brief      JointConfigurationLimitVisitor visitor
+   */
+  struct JointConfigurationLimitVisitor
+  : boost::static_visitor<std::vector<bool>>
+  {
+    template<typename JointModelDerived>
+    const std::vector<bool> operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    { return jmodel.hasConfigurationLimit(); }
+    
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static const std::vector<bool> run( const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+    { return boost::apply_visitor(JointConfigurationLimitVisitor(),jmodel); }
+  };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline const std::vector<bool> hasConfigurationLimit(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+  { return JointConfigurationLimitVisitor::run(jmodel); }
+
+  /**
+   * @brief      JointConfigurationLimitInTangentVisitor visitor
+   */
+  struct JointConfigurationLimitInTangentVisitor
+  : boost::static_visitor<std::vector<bool>>
+  {
+    template<typename JointModelDerived>
+    const std::vector<bool> operator()(const JointModelBase<JointModelDerived> & jmodel) const
+    { return jmodel.hasConfigurationLimitInTangent(); }
+    
+    template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+    static const std::vector<bool> run( const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+    { return boost::apply_visitor(JointConfigurationLimitInTangentVisitor(),jmodel); }
+  };
+  
+  template<typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
+  inline const std::vector<bool> hasConfigurationLimitInTangent(const JointModelTpl<Scalar,Options,JointCollectionTpl> & jmodel)
+  { return JointConfigurationLimitInTangentVisitor::run(jmodel); }
+
+  /**
    * @brief      JointIdxQVisitor visitor
    */
   struct JointIdxQVisitor

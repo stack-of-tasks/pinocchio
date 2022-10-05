@@ -448,6 +448,16 @@ namespace pinocchio
       return JointDataDerived(m_jmodel_ref.createData(),scaling());
     }
     
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return m_jmodel_ref.hasConfigurationLimit();
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return m_jmodel_ref.hasConfigurationLimitInTangent();
+    }
+
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & jdata,

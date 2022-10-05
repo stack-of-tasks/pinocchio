@@ -185,6 +185,16 @@ namespace pinocchio
     {
     }
     
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return ::pinocchio::hasConfigurationLimit(*this);
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return ::pinocchio::hasConfigurationLimitInTangent(*this);
+    }
+
     template<typename JointModelDerived>
     JointModelTpl(const JointModelBase<JointModelDerived> & jmodel)
     : JointModelVariant((JointModelVariant)jmodel.derived())

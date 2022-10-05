@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2019 CNRS INRIA
+// Copyright (c) 2016-2022 CNRS INRIA
 //
 
 #include "pinocchio/multibody/data.hpp"
@@ -545,5 +545,59 @@ BOOST_AUTO_TEST_CASE(test_buildReducedModel_with_geom)
   BOOST_CHECK(reduced_geometry_models[2] == reduced_humanoid_geometry);
 }
 #endif // PINOCCHIO_WITH_HPP_FCL
+
+BOOST_AUTO_TEST_CASE(test_has_configuration_limit)
+{
+  using namespace Eigen;
+
+  // Test joint specific function hasConfigurationLimit
+  JointModelFreeFlyer test_joint_ff = JointModelFreeFlyer();
+  std::vector<bool> cf_limits_ff = test_joint_ff.hasConfigurationLimit();
+  std::vector<bool> cf_limits_tangent_ff = test_joint_ff.hasConfigurationLimitInTangent();
+  std::vector<bool> expected_cf_limits_ff({true, true, true, false, false, false, false});
+  std::vector<bool> expected_cf_limits_tangent_ff({true, true, true, false, false, false});
+  BOOST_CHECK(cf_limits_ff == expected_cf_limits_ff);
+  BOOST_CHECK(cf_limits_tangent_ff == expected_cf_limits_tangent_ff);
+
+  JointModelPlanar test_joint_planar = JointModelPlanar();
+  std::vector<bool> cf_limits_planar = test_joint_planar.hasConfigurationLimit();
+  std::vector<bool> cf_limits_tangent_planar = test_joint_planar.hasConfigurationLimitInTangent();
+  std::vector<bool> expected_cf_limits_planar({true, true, false, false});
+  std::vector<bool> expected_cf_limits_tangent_planar({true, true, false});
+  BOOST_CHECK(cf_limits_planar == expected_cf_limits_planar);
+  BOOST_CHECK(cf_limits_tangent_planar == expected_cf_limits_tangent_planar);
+
+  JointModelPX test_joint_p = JointModelPX();
+  std::vector<bool> cf_limits_prismatic = test_joint_p.hasConfigurationLimit();
+  std::vector<bool> cf_limits_tangent_prismatic = test_joint_p.hasConfigurationLimitInTangent();
+  std::vector<bool> expected_cf_limits_prismatic({true});
+  std::vector<bool> expected_cf_limits_tangent_prismatic({true});
+  BOOST_CHECK(cf_limits_prismatic == expected_cf_limits_prismatic);
+  BOOST_CHECK(cf_limits_tangent_prismatic == expected_cf_limits_tangent_prismatic);
+
+  // Test model.hasConfigurationLimit() function
+  Model model;
+  JointIndex jointId = 0;
+
+  jointId = model.addJoint(jointId, JointModelFreeFlyer(), SE3::Identity(), "Joint0");
+  jointId = model.addJoint(jointId, JointModelRZ(), SE3::Identity(), "Joint1");
+  jointId = model.addJoint(jointId, JointModelRUBZ(), SE3(Matrix3d::Identity(), Vector3d(1.0, 0.0, 0.0)), "Joint2");
+  
+  std::vector<bool> expected_cf_limits_model({true, true, true, // translation of FF
+                                              false, false, false, false,  // rotation of FF
+                                              true,  // roational joint
+                                              false, false});  // unbounded rotational joint
+  std::vector<bool> model_cf_limits =  model.hasConfigurationLimit();
+  BOOST_CHECK((model_cf_limits == expected_cf_limits_model));
+
+// Test model.hasConfigurationLimitInTangent() function
+  std::vector<bool> expected_cf_limits_tangent_model({true, true, true, // translation of FF
+                                                      false, false, false, // rotation of FF
+                                                      true,  // roational joint
+                                                      false });  // unbounded rotational joint
+  std::vector<bool> model_cf_limits_tangent =  model.hasConfigurationLimitInTangent();
+  BOOST_CHECK((model_cf_limits_tangent == expected_cf_limits_tangent_model));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
