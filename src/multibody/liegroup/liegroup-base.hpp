@@ -634,6 +634,11 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
     ///
     /// Prevent the copy of derived class.
     LieGroupBase( const LieGroupBase & /*clone*/) {}
+    void operator=(const LieGroupBase & /*x*/) {}
+
+    // C++11
+    // LieGroupBase(const LieGroupBase &) = delete;
+    // void operator=(const LieGroupBase & /*x*/) = delete;
   }; // struct LieGroupBase
 
 } // namespace pinocchio
