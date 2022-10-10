@@ -48,6 +48,13 @@ namespace pinocchio
       assert(size_.value() >= 0);
     }
 
+    VectorSpaceOperationTpl& operator=(const VectorSpaceOperationTpl& other)
+    {
+      size_.setValue(other.size_.value());
+      assert(size_.value() >= 0);
+      return *this;
+    }
+
     Index nq () const
     {
       return size_.value();
