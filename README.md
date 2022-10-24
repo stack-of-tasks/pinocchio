@@ -206,13 +206,13 @@ If you have taken part to the development of **Pinocchio**, feel free to add you
 
 ## Open-source projects relying on Pinocchio
 
- * [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
- * [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
- * [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
- * [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
- * [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
- * [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
- * [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics.
+-   [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
+-   [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
+-   [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
+-   [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
+-   [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
+-   [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
+-   [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics.
 
 ## Acknowledgments
 
