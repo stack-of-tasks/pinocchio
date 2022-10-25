@@ -72,7 +72,6 @@ IF(BUILD_PYTHON_INTERFACE)
       overview-urdf
       gepetto-viewer
       build-reduced-model
-      meshcat-viewer
       meshcat-viewer-dae
       robot-wrapper-viewer
       geometry-models
@@ -90,6 +89,7 @@ IF(BUILD_PYTHON_INTERFACE)
         collisions
         collision-with-point-clouds
         append-urdf-model-with-another-model
+        meshcat-viewer
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(hpp-fcl_FOUND)
