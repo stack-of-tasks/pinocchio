@@ -11,6 +11,7 @@ if(CMAKE_VERSION VERSION_GREATER 3.11)
     #pybind11_add_module(cpp2pybind11 cpp2pybind11.cpp) # BUG: might not work out of the box on OSX with conda: https://github.com/pybind/pybind11/issues/3081
     if(NOT BUILD_TESTING)
       add_library(cpp2pybind11 EXCLUDE_FROM_ALL MODULE cpp2pybind11.cpp)
+      add_dependencies(ctest_build_tests cpp2pybind11)
     else(NOT BUILD_TESTING)
       add_library(cpp2pybind11 MODULE cpp2pybind11.cpp)
     endif(NOT BUILD_TESTING)
