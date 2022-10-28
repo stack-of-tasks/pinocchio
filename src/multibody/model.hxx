@@ -261,9 +261,8 @@ namespace pinocchio
     = std::find_if(frames.begin()
                    ,frames.end()
                    ,details::FilterFrame(name, type));
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(((it == frames.end()) ||
-            (std::find_if( boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))
-        && "Several frames match the filter - please specify the FrameType");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(((it == frames.end() || (std::find_if(boost::next(it), frames.end(), details::FilterFrame(name, type)) == frames.end()))),
+                                   "Several frames match the filter - please specify the FrameType");
     return FrameIndex(it - frames.begin());
   }
   
