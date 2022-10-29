@@ -38,6 +38,7 @@ jobs:
         conda activate pinocchio
         conda install cmake -c main
         mamba install llvm-openmp compilers -c conda-forge
+        conda list
 
     - name: Build Pinocchio
       shell: bash -l {0}
