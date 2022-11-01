@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<!--
+This URDF reproduces a test case which previously triggered an assertion when
+performing `getFrameId()` due to a joint and a link having the same name. This
+results in two frames with the same name - one from the body and one from the
+joint.
+-->
+<robot name="test_link_and_joint_with_identical_name">
+  <link name="base"/>
+  <joint name="base" type="fixed">
+    <parent link="base"/>
+    <child link="trunk"/>
+  </joint>
+  <link name="trunk"/>
+</robot>

@@ -257,4 +257,19 @@ BOOST_AUTO_TEST_CASE(check_specific_models)
   pinocchio::urdf::buildModel(filename, model);
 }
 
+BOOST_AUTO_TEST_CASE(test_getFrameId_identical_link_and_joint_name)
+{
+    // This test checks whether the input argument of getFrameId raises an exception when multiple frames with identical names are found.
+    // Note, a model that contains a link and a joint with the same name is valid, but the look-up for e.g. getFrameId requires the explicit
+    // specification of the FrameType in order to be valid.
+    // It resolved https://github.com/stack-of-tasks/pinocchio/issues/1771
+    pinocchio::Model model;
+    const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/../unittest/models/link_and_joint_identical_name.urdf");
+    pinocchio::urdf::buildModel(filename,model);
+
+    BOOST_CHECK_THROW(model.getFrameId("base"), std::invalid_argument);
+    BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::BODY) == 2);
+    BOOST_CHECK(model.getFrameId("base", pinocchio::FrameType::FIXED_JOINT) == 3);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
