@@ -45,6 +45,8 @@ namespace pinocchio
       exposeImpulseDynamicsDerivatives();
 
       exposeCones();
+
+      exposeContactSolvers();
     }
     
   } // namespace python
