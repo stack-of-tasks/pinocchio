@@ -17,13 +17,13 @@ namespace pinocchio
     void exposeCones()
     {
       CoulombFrictionConePythonVisitor<context::CoulombFrictionCone>::expose();
-      StdAlignedVectorPythonVisitor<context::CoulombFrictionCone>::expose("StdVec_CoulombFrictionCone");
+      StdVectorPythonVisitor<context::CoulombFrictionConeVector>::expose("StdVec_CoulombFrictionCone");
 //#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
 //      serialize<StdAlignedVectorPythonVisitor<context::CoulombFrictionCone>::vector_type>();
 //#endif
 
       DualCoulombFrictionConePythonVisitor<context::DualCoulombFrictionCone>::expose();
-      StdAlignedVectorPythonVisitor<context::DualCoulombFrictionCone>::expose("StdVec_DualCoulombFrictionCone");
+      StdVectorPythonVisitor<context::DualCoulombFrictionConeVector>::expose("StdVec_DualCoulombFrictionCone");
 //#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
 //      serialize<StdAlignedVectorPythonVisitor<context::DualCoulombFrictionCone>::vector_type>();
 //#endif
