@@ -22,24 +22,24 @@ namespace pinocchio
       typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(context::RigidConstraintData) RigidConstraintDataVector;
     
       static const context::VectorXs constraintDynamics_proxy(const context::Model & model,
-                                                           context::Data & data,
-                                                           const context::VectorXs & q,
-                                                           const context::VectorXs & v,
-                                                           const context::VectorXs & tau,
-                                                           const RigidConstraintModelVector & contact_models,
-                                                           RigidConstraintDataVector & contact_datas,
-                                                           context::ProximalSettings & prox_settings)
+                                                              context::Data & data,
+                                                              const context::VectorXs & q,
+                                                              const context::VectorXs & v,
+                                                              const context::VectorXs & tau,
+                                                              const RigidConstraintModelVector & contact_models,
+                                                              RigidConstraintDataVector & contact_datas,
+                                                              context::ProximalSettings & prox_settings)
       {
         return constraintDynamics(model, data, q, v, tau, contact_models, contact_datas, prox_settings);
       }
     
       static const context::VectorXs constraintDynamics_proxy_default(const context::Model & model,
-                                                                   context::Data & data,
-                                                                   const context::VectorXs & q,
-                                                                   const context::VectorXs & v,
-                                                                   const context::VectorXs & tau,
-                                                                   const RigidConstraintModelVector & contact_models,
-                                                                   RigidConstraintDataVector & contact_datas)
+                                                                      context::Data & data,
+                                                                      const context::VectorXs & q,
+                                                                      const context::VectorXs & v,
+                                                                      const context::VectorXs & tau,
+                                                                      const RigidConstraintModelVector & contact_models,
+                                                                      RigidConstraintDataVector & contact_datas)
     {
         return constraintDynamics(model, data, q, v, tau, contact_models, contact_datas);
     }
