@@ -45,6 +45,8 @@ namespace pinocchio
     void exposeImpulseDynamicsDerivatives();
 
     void exposeCones();
+
+    void exposeContactSolvers();
     
     void exposeAlgorithms();
     
