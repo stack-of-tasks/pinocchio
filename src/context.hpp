@@ -8,7 +8,6 @@
 #include <Eigen/Core>
 #include "pinocchio/container/aligned-vector.hpp"
 
-
 namespace pinocchio {
 
   template<typename _Scalar, int _Options> struct JointCollectionDefaultTpl;
@@ -51,5 +50,7 @@ namespace pinocchio {
   } //namespace context
 
 } //namespace pinocchio
+
+#include "pinocchio/algorithm/context.hpp"
 
 #endif // #ifndef __pinocchio_context_hpp__
