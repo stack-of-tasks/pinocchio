@@ -116,11 +116,22 @@ namespace pinocchio
     RMTO
   };
 
-  
-  
   /// \brief Return type undefined
   ///        This is an helper structure to help internal diagnosis.
   struct ReturnTypeNotDefined;
+
+  // Read and write
+  template <typename Derived>
+  Eigen::Ref<typename Derived::PlainObject> make_ref(const Eigen::MatrixBase<Derived> & x){
+      return Eigen::Ref<typename Derived::PlainObject>(x.const_cast_derived());
+  }
+
+  // Read-only
+  template <typename M>
+  auto make_const_ref(Eigen::MatrixBase<M> const & m)
+      -> Eigen::Ref<typename M::PlainObject const> {
+      return m;
+  }
 }
 
 #include "pinocchio/context.hpp"

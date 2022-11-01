@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 CNRS INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
 #ifndef __pinocchio_context_hpp__
@@ -49,19 +49,6 @@ namespace pinocchio {
     typedef ForceTpl<Scalar,Options> Force;
 
   } //namespace context
-
-// Read and write
-template <typename Derived>
-Eigen::Ref<typename Derived::PlainObject> make_ref(const Eigen::MatrixBase<Derived> & x){
-    return Eigen::Ref<typename Derived::PlainObject>(x.const_cast_derived());
-}
-
-// Read-only
-template <typename M>
-auto make_const_ref(Eigen::MatrixBase<M> const & m)
-    -> Eigen::Ref<typename M::PlainObject const> {
-    return m;
-}
 
 } //namespace pinocchio
 
