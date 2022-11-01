@@ -553,7 +553,7 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     updateDamping(const Scalar & mu)
     {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0), "mu should be positive.");
+//      PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= 0), "mu should be positive.");
 
       const Eigen::DenseIndex total_dim = size();
       const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
