@@ -189,7 +189,7 @@ namespace pinocchio
         Scalar computeLargestEigenValue(const int max_it = 10,
                                         const Scalar rel_tol = 1e-8) const
         {
-          Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/math::sqrt(size())));
+          Vector eigenvector_est(Vector::Constant(size(),Scalar(1)/Scalar(math::sqrt(size()))));
           computeLargestEigenvector(*this,eigenvector_est.const_cast_derived(),max_it,rel_tol);
           return retrieveLargestEigenvalue(eigenvector_est);
         }
