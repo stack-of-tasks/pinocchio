@@ -130,6 +130,9 @@ typedef RigidConstraintDataTpl<Scalar,Options> RigidConstraintData;
 typedef CoulombFrictionConeTpl<context::Scalar> CoulombFrictionCone;
 typedef DualCoulombFrictionConeTpl<context::Scalar> DualCoulombFrictionCone;
 
+typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(CoulombFrictionCone) CoulombFrictionConeVector;
+typedef PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(DualCoulombFrictionCone) DualCoulombFrictionConeVector;
+
 // Pool
 #ifdef PINOCCHIO_PYTHON_INTERFACE_WITH_OPENMP
 typedef ModelPoolTpl<Scalar> ModelPool;
