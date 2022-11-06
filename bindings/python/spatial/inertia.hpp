@@ -66,9 +66,9 @@ namespace pinocchio
         .def("__init__",
              bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
                                   bp::default_call_policies(),
-                                  (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
+                                  bp::args("mass","lever","inertia")),
              "Initialize from mass, lever and 3d inertia.")
-        .def(bp::init<Inertia>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
+        .def(bp::init<Inertia>(bp::args("self","other"),"Copy constructor."))
         
         .add_property("mass",
                       &InertiaPythonVisitor::getMass,

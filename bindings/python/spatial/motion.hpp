@@ -69,7 +69,7 @@ namespace pinocchio
         cl
         .def(bp::init<>(bp::arg("self"),"Default constructor"))
         .def(bp::init<Vector3,Vector3>
-             ((bp::arg("self"),bp::arg("linear"),bp::arg("angular")),
+             (bp::args("self","linear","angular"),
               "Initialize from linear and angular components of a Motion vector (don't mix the order)."))
         .def(bp::init<Vector6>((bp::arg("self"),bp::arg("array")),"Init from a vector 6 [linear velocity, angular velocity]"))
         .def(bp::init<Motion>((bp::arg("self"),bp::arg("other")),"Copy constructor."))
