@@ -62,15 +62,15 @@ namespace pinocchio
       {
         cl
         .def(bp::init<Matrix3,Vector3>
-             ((bp::arg("self"),bp::arg("rotation"),bp::arg("translation")),
+             (bp::args("self","rotation","translation"),
               "Initialize from a rotation matrix and a translation vector."))
         .def(bp::init<Quaternion,Vector3>
-             ((bp::arg("self"),bp::arg("quat"),bp::arg("translation")),
+             (bp::args("self","quat","translation"),
               "Initialize from a quaternion and a translation vector."))
-        .def(bp::init<int>((bp::arg("self"),bp::arg("int")),"Init to identity."))
-        .def(bp::init<SE3>((bp::arg("self"),bp::arg("other")), "Copy constructor."))
+        .def(bp::init<int>(bp::args("self","int"),"Init to identity."))
+        .def(bp::init<SE3>(bp::args("self","other"), "Copy constructor."))
         .def(bp::init<Matrix4>
-             ((bp::arg("self"),bp::arg("array")),
+             (bp::args("self","array"),
               "Initialize from an homogeneous matrix."))
 
         .add_property("rotation",
