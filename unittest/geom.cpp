@@ -434,6 +434,15 @@ BOOST_AUTO_TEST_CASE ( test_append_geom_models )
   
   appendGeometryModel(geom_model2,geom_model1);
   BOOST_CHECK(geom_model2.ngeoms == 2*geom_model1.ngeoms);
+
+  // Check that collision pairs between geoms on the same joint are discarded.
+  for (pinocchio::Index i = 0; i < geom_model2.collisionPairs.size(); ++i) {
+    pinocchio::CollisionPair cp = geom_model2.collisionPairs[i];
+    BOOST_CHECK_NE(
+        geom_model2.geometryObjects[cp.first].parentJoint,
+        geom_model2.geometryObjects[cp.second].parentJoint
+    );
+  }
   
   {
     GeometryModel geom_model_empty;
