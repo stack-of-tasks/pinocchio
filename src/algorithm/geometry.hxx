@@ -297,8 +297,10 @@ namespace pinocchio
 
     /// 2. add the collision pairs between geom_model1 and geom_model2.
     for (Index i = 0; i < nGeom1; ++i) {
-      for (Index j = 0; j < nGeom2; ++j) {
-        geom_model1.collisionPairs.push_back(CollisionPair(i, nGeom1 + j));
+      Index parent_i = geom_model1.geometryObjects[i].parentJoint;
+      for (Index j = nGeom1; j < nGeom1 + nGeom2; ++j) {
+        if (parent_i != geom_model1.geometryObjects[j].parentJoint)
+          geom_model1.collisionPairs.push_back(CollisionPair(i, j));
       }
     }
   }
