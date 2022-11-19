@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017-2021 CNRS INRIA
+// Copyright (c) 2017-2022 CNRS INRIA
 //
 
 #ifndef __pinocchio_serialization_archive_hpp__
@@ -19,7 +19,24 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
+#if BOOST_VERSION / 100 % 1000 == 78 && __APPLE__
+// See https://github.com/qcscine/utilities/issues/5#issuecomment-1246897049 for further details
+
+#ifndef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+#define DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+#define BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+#endif
+
 #include <boost/asio/streambuf.hpp>
+
+#ifdef DEFINE_BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+#undef BOOST_ASIO_DISABLE_STD_ALIGNED_ALLOC
+#endif
+
+#else
+#include <boost/asio/streambuf.hpp>
+#endif
+
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/stream_buffer.hpp>
