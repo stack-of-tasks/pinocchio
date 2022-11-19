@@ -1,8 +1,8 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2022 INRIA
 //
 
-#include <boost/asio/streambuf.hpp>
+#include "pinocchio/serialization/archive.hpp"
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/namespace.hpp"
