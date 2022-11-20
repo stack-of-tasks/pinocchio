@@ -2,7 +2,7 @@ import pinocchio as pin
 import numpy as np
 import hppfcl as fcl
 
-from pinocchio.visualize import GepettoVisualizer
+from pinocchio.visualize import MeshcatVisualizer
 # Perform the simulation of a four-bar linkages mechanism
 
 height = 0.1
@@ -38,7 +38,7 @@ RED_COLOR = np.array([1.,0.,0.,1.])
 WHITE_COLOR = np.array([1.,1.,1.,1.])
 
 base_joint_id = 0
-geom_obj0 = pin.GeometryObject("link_A1",base_joint_id,shape_link_A,pin.SE3(pin.Quaternion.FromTwoVectors(pin.ZAxis,pin.XAxis).matrix(),np.zeros((3))))
+geom_obj0 = pin.GeometryObject("link_A1",base_joint_id,pin.SE3(pin.Quaternion.FromTwoVectors(pin.ZAxis,pin.XAxis).matrix(),np.zeros((3))),shape_link_A)
 geom_obj0.meshColor = WHITE_COLOR
 collision_model.addGeometryObject(geom_obj0)
 
@@ -46,7 +46,7 @@ joint1_placement = pin.SE3.Identity()
 joint1_placement.translation = pin.XAxis * length_link_A/2. 
 joint1_id = model.addJoint(base_joint_id,pin.JointModelRY(),joint1_placement,"link_B1")
 model.appendBodyToJoint(joint1_id,inertia_link_B,placement_center_link_B)
-geom_obj1 = pin.GeometryObject("link_B1",joint1_id,shape_link_B,placement_shape_B)
+geom_obj1 = pin.GeometryObject("link_B1",joint1_id,placement_shape_B,shape_link_B)
 geom_obj1.meshColor = RED_COLOR
 collision_model.addGeometryObject(geom_obj1)
 
@@ -54,7 +54,7 @@ joint2_placement = pin.SE3.Identity()
 joint2_placement.translation = pin.XAxis * length_link_B
 joint2_id = model.addJoint(joint1_id,pin.JointModelRY(),joint2_placement,"link_A2")
 model.appendBodyToJoint(joint2_id,inertia_link_A,placement_center_link_A)
-geom_obj2 = pin.GeometryObject("link_A2",joint2_id,shape_link_A,placement_shape_A)
+geom_obj2 = pin.GeometryObject("link_A2",joint2_id,placement_shape_A,shape_link_A)
 geom_obj2.meshColor = WHITE_COLOR
 collision_model.addGeometryObject(geom_obj2)
 
@@ -62,25 +62,14 @@ joint3_placement = pin.SE3.Identity()
 joint3_placement.translation = pin.XAxis * length_link_A
 joint3_id = model.addJoint(joint2_id,pin.JointModelRY(),joint3_placement,"link_B2")
 model.appendBodyToJoint(joint3_id,inertia_link_B,placement_center_link_B)
-geom_obj3 = pin.GeometryObject("link_B2",joint3_id,shape_link_B,placement_shape_B)
+geom_obj3 = pin.GeometryObject("link_B2",joint3_id,placement_shape_B,shape_link_B)
 geom_obj3.meshColor = RED_COLOR
 collision_model.addGeometryObject(geom_obj3)
 
 visual_model = collision_model
-viz = GepettoVisualizer(model, collision_model, visual_model)
-viz.initViewer()
-viz.loadViewerModel("pinocchio")
-gui = viz.viewer.gui
-window_id = viz.viewer.gui.getWindowID('python-pinocchio')
-
-viz.viewer.gui.setBackgroundColor1(window_id, [1., 1., 1., 1.])
-viz.viewer.gui.setBackgroundColor2(window_id, [1., 1., 1., 1.])
-#viz.viewer.gui.addFloor('hpp-gui/floor')
-
-#viz.viewer.gui.setScale('hpp-gui/floor', [0.5, 0.5, 0.5])
-#viz.viewer.gui.setColor('hpp-gui/floor', [0.7, 0.7, 0.7, 1.])
-#viz.viewer.gui.setLightingMode('hpp-gui/floor', 'OFF')
-
+viz = MeshcatVisualizer(model, collision_model, visual_model)
+viz.initViewer(open=True)
+viz.loadViewerModel()
 
 q0 = pin.neutral(model)
 viz.display(q0)
@@ -95,7 +84,7 @@ constraint1_joint1_placement.translation = pin.XAxis * length_link_B
 constraint1_joint2_placement = pin.SE3.Identity()
 constraint1_joint2_placement.translation = - pin.XAxis * length_link_A/2.  
 
-constraint_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_3D,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
+constraint_model = pin.RigidConstraintModel(pin.ContactType.CONTACT_3D,model,joint3_id,constraint1_joint1_placement,base_joint_id,constraint1_joint2_placement)
 constraint_data = constraint_model.createData()
 constraint_dim = constraint_model.size() 
 
@@ -148,9 +137,10 @@ mu_sim = 1e-10
 constraint_model.corrector.Kp = 10
 constraint_model.corrector.Kd = 2. * np.sqrt(constraint_model.corrector.Kp)
 pin.initConstraintDynamics(model,data,[constraint_model])
+prox_settings = pin.ProximalSettings(1e-8,mu_sim,10)
 import time
 while t <= T_sim:
-    a = pin.constraintDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],mu_sim)
+    a = pin.constraintDynamics(model,data,q,v,tau,[constraint_model],[constraint_data],prox_settings)
     v += a*dt
     q = pin.integrate(model,q,v*dt)
     viz.display(q)
