@@ -651,18 +651,18 @@ BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
   forwardKinematics(model_fix, data_fix, q_fix, v_fix, a_fix);
   crba(model_ff, data_ff, q_ff);
 
-  Inertia inertia_fix = computeFrameSupportedInertiaInBody(model_fix, frame_id);
+  Inertia inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, false);
   Inertia inertia_ff(model_ff.inertias[joint_id]);
   BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
 
-  inertia_fix = computeFrameSupportedInertiaWithSubtree(model_fix, data_fix, frame_id);
+  inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, true);
   inertia_ff = data_ff.Ycrb[joint_id];
   BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
 
                        rnea(model_fix, data_fix, q_fix, v_fix, a_fix);
   const VectorXd tau = rnea(model_ff,  data_ff,  q_ff,  v_ff,  a_ff);
 
-  Force force_fix = computeFrameSupportedForce(model_fix, data_fix, frame_id);
+  Force force_fix = computeSupportedForceByFrame(model_fix, data_fix, frame_id);
   Force force_ff(tau.segment(head_v, 6));
   BOOST_CHECK(force_fix.isApprox(force_ff));
 }

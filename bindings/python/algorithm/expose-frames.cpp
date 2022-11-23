@@ -145,21 +145,15 @@ namespace pinocchio
               "Returns the Jacobian time variation of the frame given by its frame_id either in the reference frame provided by reference_frame.\n"
               "You have to call computeJointJacobiansTimeVariation(model,data,q,v) and updateFramePlacements(model,data) first.");
 
-      bp::def("computeFrameSupportedInertiaInBody",
-              &computeFrameSupportedInertiaInBody<double,0,JointCollectionDefaultTpl>,
-              bp::args("model","frame_id"),
-              "Computes the supported inertia in the current rigid body of the frame (given by frame_id) and returns it.\n"
-              "The supported inertia in the body corresponds to the sum of the inertias of all the frames that belongs to the same parent joint, and that come after the given frame.\n");
-
-        bp::def("computeFrameSupportedInertiaWithSubtree",
-              &computeFrameSupportedInertiaWithSubtree<double,0,JointCollectionDefaultTpl>,
-              bp::args("model", "data", "frame_id"),
-              "Computes the total supported inertia in the current rigid body of the frame (given by frame_id) and returns it.\n"
-              "The supported inertia corresponds to the sum of the supported inertia in body plus all the inertias of the child joints.\n"
+      bp::def("computeSupportedInertiaByFrame",
+              &computeSupportedInertiaByFrame<double,0,JointCollectionDefaultTpl>,
+              bp::args("model", "data", "frame_id", "with_subtree"),
+              "Computes the supported inertia by the frame (given by frame_id) and returns it.\n"
+              "The supported inertia corresponds to the sum of the inertias of all the child frames (that belongs to the same joint body) and the child joints, if with_subtree=True.\n"
               "You must first call pinocchio::forwardKinematics to update placement values in data structure.");
 
-      bp::def("computeFrameSupportedForce",
-              &computeFrameSupportedForce<double,0,JointCollectionDefaultTpl>,
+      bp::def("computeSupportedForceByFrame",
+              &computeSupportedForceByFrame<double,0,JointCollectionDefaultTpl>,
               bp::args("model","data","frame_id"),
               "Computes the supported force of the frame (given by frame_id) and returns it.\n"
               "The supported force corresponds to the sum of all the forces experienced after the given frame.\n"

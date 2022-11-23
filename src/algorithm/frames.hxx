@@ -261,38 +261,13 @@ namespace pinocchio
                                     data.dJ,PINOCCHIO_EIGEN_CONST_CAST(Matrix6xLike,dJ));
   }
 
-  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-  InertiaTpl<Scalar, Options>
-  computeFrameSupportedInertiaInBody(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                     const FrameIndex frame_id)
-  {
-    typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
-    typedef InertiaTpl<Scalar, Options> Inertia;
-
-    const Frame & frame = model.frames[frame_id];
-    const JointIndex & joint_id = frame.parent;
-
-    // Add all the inertia of child frames (i.e that are part of the same joint but comes after the given frame)
-    std::vector<typename Model::JointIndex> child_frames = {frame_id};
-    Inertia jI = frame.placement.act(frame.inertia); // Express the inertia in the parent joint frame
-    for(FrameIndex i=frame_id; i < (FrameIndex) model.nframes; ++i)
-    {
-      if(model.frames[i].parent != joint_id)
-        continue;
-      if(std::find(child_frames.begin(), child_frames.end(), model.frames[i].previousFrame) == child_frames.end())
-        continue;
-      child_frames.push_back(i);
-      jI += model.frames[i].placement.act(model.frames[i].inertia);
-    }
-
-    return frame.placement.actInv(jI);
-  }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   InertiaTpl<Scalar, Options>
-  computeFrameSupportedInertiaWithSubtree(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+  computeSupportedInertiaByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
                                           DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                                          const FrameIndex frame_id)
+                                          const FrameIndex frame_id,
+                                          bool with_subtree)
   {
     assert(model.check(data) && "data is not consistent with model.");
 
@@ -303,26 +278,43 @@ namespace pinocchio
     const Frame & frame = model.frames[frame_id];
     const JointIndex & joint_id = frame.parent;
 
-    // Frame supported inertia in body
-    const SE3 oMf = updateFramePlacement(model, data, frame_id);
-    Inertia oI = oMf.act(computeFrameSupportedInertiaInBody(model, frame_id)); // Express the inertia in the origin frame.
+    // Add all the inertia of child frames (i.e that are part of the same joint but comes after the given frame)
+    std::vector<typename Model::JointIndex> child_frames = {frame_id};
+    Inertia I = frame.placement.act(frame.inertia); // Express the inertia in the parent joint frame
+    for(FrameIndex i=frame_id; i < (FrameIndex) model.nframes; ++i)
+    {
+      if(model.frames[i].parent != joint_id)
+        continue;
+      if(std::find(child_frames.begin(), child_frames.end(), model.frames[i].previousFrame) == child_frames.end())
+        continue;
+      child_frames.push_back(i);
+      I += model.frames[i].placement.act(model.frames[i].inertia);
+    }
+
+    if(!with_subtree)
+    {
+      return frame.placement.actInv(I);
+    }
+
+    // Express the inertia in the origin frame for simplicity.
+    I = data.oMi[joint_id].act(I);
 
     // Add inertia of child joints
     const std::vector<typename Model::JointIndex> & subtree = model.subtrees[joint_id];
     for(size_t k=1; k < subtree.size(); ++k) // Skip the first joint as it is the one before the frame
     {
         const typename Model::JointIndex j_id = subtree[k];
-        oI += data.oMi[j_id].act(model.inertias[j_id]);
+        I += data.oMi[j_id].act(model.inertias[j_id]);
     }
 
-    return oMf.actInv(oI);
+    return updateFramePlacement(model, data, frame_id).actInv(I);
   }
 
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   ForceTpl<Scalar, Options>
-  computeFrameSupportedForce(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                             const FrameIndex frame_id)
+  computeSupportedForceByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const FrameIndex frame_id)
   {
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef InertiaTpl<Scalar, Options> Inertia;
@@ -330,7 +322,7 @@ namespace pinocchio
     typedef ForceTpl<Scalar, Options> Force;
 
     // Compute 'in body' forces
-    const Inertia fI = computeFrameSupportedInertiaInBody(model, frame_id);
+    const Inertia fI = computeSupportedInertiaByFrame(model, data, frame_id, false);
     pinocchio::SE3 oMf = updateFramePlacement(model, data, frame_id);
     Motion v = getFrameVelocity(model, data, frame_id, LOCAL);
     Motion a = getFrameAcceleration(model, data, frame_id, LOCAL);
