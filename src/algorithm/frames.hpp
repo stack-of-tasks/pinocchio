@@ -242,7 +242,7 @@ namespace pinocchio
   }
   
   ///
-  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the WORLD frame (rf = WORLD) or in the LOCAL frame (rf = LOCAL) or in the LOCAL_WORLD_ALIGNED frame (rf = LOCAL_WORLD_ALIGNED).
+  /// \brief Computes the Jacobian time variation of a specific frame (given by frame_id) expressed either in the LOCAL frame.
   ///
   /// \note This jacobian is extracted from data.dJ. You have to run pinocchio::computeJointJacobiansTimeVariation before calling it.
   ///
@@ -252,7 +252,6 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] frameId The index of the frame.
-  /// \param[in] rf Reference frame in which the Jacobian is expressed.
   ///
   /// \param[out] dJ A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill dJ with zero elements, e.g. dJ.fill(0.).
   ///
@@ -262,6 +261,71 @@ namespace pinocchio
                                      const FrameIndex frame_id,
                                      const ReferenceFrame rf,
                                      const Eigen::MatrixBase<Matrix6xLike> & dJ);
+
+/**
+  * @brief Compute the inertia supported by a specific frame (given by frame_id) expressed in the LOCAL frame.
+  *        The total supported inertia corresponds to the sum of all the inertia after the given frame, i.e :
+  *         * The frame inertia
+  *         * The child frames inertia ('Child frames' refers to frames that share the same parent joint and are placed after the given frame)
+  *         * The child joints inertia (if with_subtree == true)
+  *        You must first call pinocchio::forwardKinematics to update placement values in data structure.
+  *
+  * @note Physically speaking, if the robot were to be cut in two parts at that given frame, this supported inertia would represents the inertia of the part that was after the frame.
+  *       with_subtree determines if the childs joints must be taken into consideration (if true) or only the current joint (if false).
+  *
+  * @note The equivalent function for a joint would be :
+  *       * to read `data.Ycrb[joint_id]`, after having called pinocchio::crba (if with_subtree == true).
+  *       * to read `model.inertia[joint_id]` (if with_subtree == false).
+  *
+  * @tparam JointCollection Collection of Joint types.
+  *
+  * @param[in] model The model structure of the rigid body system.
+  * @param[in] data The data structure of the rigid body system.
+  * @param[in] frameId The index of the frame.
+  * @param[in] with_subtree If false, compute the inertia only inside the frame parent joint if false. If true, include child joints inertia.
+  *
+  * @return The computed inertia.
+  *
+  * @warning forwardKinematics should have been called first
+  */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  InertiaTpl<Scalar, Options>
+  computeSupportedInertiaByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const FrameIndex frame_id,
+                                 bool with_subtree);
+
+/**
+  * @brief Computes the force supported by a specific frame (given by frame_id) expressed in the LOCAL frame.
+  *        The supported force corresponds to the sum of all the forces experienced after the given frame, i.e :
+  *         * The inertial forces and gravity (applied on the supported inertia in body)
+  *         * The forces applied by child joints
+  *         * (The external forces)
+  *        You must first call pinocchio::rnea to update placements, velocities and efforts values in data structure.
+  *
+  * @note If an external force is applied to the frame parent joint (during rnea), it won't be taken in consideration in this function
+  *       (it will be considered to be applied before the frame in the joint and not after. However external forces applied to child joints will be taken into account).
+  *
+  * @note Physically speaking, if the robot were to be separated in two parts glued together at that given frame, the supported force represents the internal forces applide from the part after the cut/frame to the part before.
+  *       This compute what a force-torque sensor would measures if it would be placed at that frame.
+  *
+  * @note The equivalent function for a joint would be to read `data.f[joint_id]`, after having call pinocchio::rnea.
+  *
+  * @tparam JointCollection Collection of Joint types.
+  *
+  * @param[in] model The model structure of the rigid body system.
+  * @param[in] data The data structure of the rigid body system.
+  * @param[in] frameId The index of the frame.
+  *
+  * @return The computed force.
+  *
+  * @warning pinocchio::rnea should have been called first
+  */
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  ForceTpl<Scalar, Options>
+  computeSupportedForceByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const FrameIndex frame_id);
 
 } // namespace pinocchio
 

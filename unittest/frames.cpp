@@ -7,13 +7,16 @@
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
 
+#include <urdf_parser/urdf_parser.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -587,6 +590,80 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     BOOST_CHECK(dJ_local_world_aligned.isApprox(dJ_ref_local_world_aligned,sqrt(alpha)));
   }
 }
-             
-BOOST_AUTO_TEST_SUITE_END ()
 
+BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_full_v2.urdf");
+  ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
+
+  // Working frame
+  const std::string joint_name = "wrist_left_ft_joint";
+
+  // Create a model containing a fixed joint
+  pinocchio::Model model_fix;
+  pinocchio::urdf::buildModel(urdfTree, model_fix);
+  Data data_fix(model_fix);
+  const FrameIndex frame_id = model_fix.getFrameId(joint_name);
+
+  // Modify the urdf to have a floating joint instead
+  std::shared_ptr<::urdf::Joint> p_joint = urdfTree->joints_.find(joint_name)->second;
+  BOOST_CHECK(p_joint);
+  p_joint->type = ::urdf::Joint::FLOATING;
+
+  // Create a model with the floating joint
+  pinocchio::Model model_ff;
+  pinocchio::urdf::buildModel(urdfTree, model_ff);
+  Data data_ff(model_ff);
+
+  // Const variable to convert q, v from model to another
+  const JointIndex joint_id = model_ff.getJointId(joint_name);
+  const int head_q(model_ff.joints[joint_id].idx_q());
+  const int head_v(model_ff.joints[joint_id].idx_v());
+  const int tail_q(model_ff.nq - model_ff.joints[joint_id].nq() - head_q);
+  const int tail_v(model_ff.nv - model_ff.joints[joint_id].nv() - head_v);
+
+  // Joint value will be kept to 0. Limits are set to allow for randomConfiguration
+  model_ff.lowerPositionLimit.segment(head_q, 3) << Vector3d::Constant(-1);
+  model_ff.upperPositionLimit.segment(head_q, 3) << Vector3d::Constant( 1);
+
+  // Pick random q, v, a
+  VectorXd q_ff = randomConfiguration(model_ff);
+  VectorXd v_ff(VectorXd::Random(model_ff.nv));
+  VectorXd a_ff(VectorXd::Random(model_ff.nv));
+
+  // Set free-flyer joint to q, v, a = 0 to mimic fixed joint
+  q_ff.segment(head_q, 7) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0), 1; // Unit quaternion
+  v_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
+  a_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
+
+  // Adapt configuration for fixed joint model
+  VectorXd q_fix(model_fix.nq);
+  q_fix << q_ff.head(head_q), q_ff.tail(tail_q);
+  VectorXd v_fix(model_fix.nv);
+  v_fix << v_ff.head(head_v), v_ff.tail(tail_v);
+  VectorXd a_fix(model_fix.nv);
+  a_fix << a_ff.head(head_v), a_ff.tail(tail_v);
+
+  // Compute inertia/force for both models differently
+  forwardKinematics(model_fix, data_fix, q_fix, v_fix, a_fix);
+  crba(model_ff, data_ff, q_ff);
+
+  Inertia inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, false);
+  Inertia inertia_ff(model_ff.inertias[joint_id]);
+  BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
+
+  inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, true);
+  inertia_ff = data_ff.Ycrb[joint_id];
+  BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
+
+                       rnea(model_fix, data_fix, q_fix, v_fix, a_fix);
+  const VectorXd tau = rnea(model_ff,  data_ff,  q_ff,  v_ff,  a_ff);
+
+  Force force_fix = computeSupportedForceByFrame(model_fix, data_fix, frame_id);
+  Force force_ff(tau.segment(head_v, 6));
+  BOOST_CHECK(force_fix.isApprox(force_ff));
+}
+BOOST_AUTO_TEST_SUITE_END ()
