@@ -291,7 +291,7 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   InertiaTpl<Scalar, Options>
   computeSupportedInertiaByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                                 DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                                 const DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                  const FrameIndex frame_id,
                                  bool with_subtree);
 
@@ -324,8 +324,8 @@ namespace pinocchio
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
   ForceTpl<Scalar, Options>
   computeSupportedForceByFrame(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-                             DataTpl<Scalar,Options,JointCollectionTpl> & data,
-                             const FrameIndex frame_id);
+                               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                               const FrameIndex frame_id);
 
 } // namespace pinocchio
 
