@@ -635,9 +635,9 @@ BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
   VectorXd a_ff(VectorXd::Random(model_ff.nv));
 
   // Set free-flyer joint to q, v, a = 0 to mimic fixed joint
-  q_ff.segment(head_q, 7) <<  Vector<double, 6>::Constant(0), 1; // Unit quaternion
-  v_ff.segment(head_v, 6) <<  Vector<double, 6>::Constant(0);
-  a_ff.segment(head_v, 6) <<  Vector<double, 6>::Constant(0);
+  q_ff.segment(head_q, 7) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0), 1; // Unit quaternion
+  v_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
+  a_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
 
   // Adapt configuration for fixed joint model
   VectorXd q_fix(model_fix.nq);
