@@ -299,7 +299,7 @@ namespace pinocchio
   * @brief Computes the force supported by a specific frame (given by frame_id) expressed in the LOCAL frame.
   *        The supported force corresponds to the sum of all the forces experienced after the given frame, i.e :
   *         * The inertial forces and gravity (applied on the supported inertia in body)
-  *         * The forces applied by child joint
+  *         * The forces applied by child joints
   *         * (The external forces)
   *        You must first call pinocchio::rnea to update placements, velocities and efforts values in data structure.
   *
