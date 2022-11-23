@@ -329,7 +329,7 @@ namespace pinocchio
     const pinocchio::SE3 oMf = data.oMi[joint_id]*frame.placement;
     const Motion v = getFrameVelocity(model, data, frame_id, LOCAL);
     const Motion a = getFrameAcceleration(model, data, frame_id, LOCAL);
-    Force f = fI.vxiv(v) + fI * a - fI * oMf.actInv(model.gravity);
+    Force f = fI.vxiv(v) + fI * (a - oMf.actInv(model.gravity));
 
     // Add child joints forces
     f = frame.placement.act(f); // Express force in parent joint frame
