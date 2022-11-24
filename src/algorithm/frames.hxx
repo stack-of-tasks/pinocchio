@@ -280,7 +280,7 @@ namespace pinocchio
     // Add all the inertia of child frames (i.e that are part of the same joint but comes after the given frame)
     std::vector<typename Model::JointIndex> child_frames = {frame_id};
     Inertia I = frame.placement.act(frame.inertia); // Express the inertia in the parent joint frame
-    for(FrameIndex i=frame_id; i < (FrameIndex) model.nframes; ++i)
+    for(FrameIndex i=frame_id+1; i < (FrameIndex) model.nframes; ++i)
     {
       if(model.frames[i].parent != joint_id)
         continue;
