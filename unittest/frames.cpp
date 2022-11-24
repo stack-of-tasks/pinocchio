@@ -4,6 +4,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -16,7 +17,6 @@
 
 #include <iostream>
 
-#include <urdf_parser/urdf_parser.h>
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
 
@@ -596,74 +596,63 @@ BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
   using namespace Eigen;
   using namespace pinocchio;
 
-  const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/robots/talos_full_v2.urdf");
-  ::urdf::ModelInterfaceSharedPtr urdfTree = ::urdf::parseURDFFile(filename);
+  // Create a humanoid robot
+  Model model_free;
+  pinocchio::buildModels::humanoid(model_free, true);
+  Data data_free(model_free);
 
-  // Working frame
-  const std::string joint_name = "wrist_left_ft_joint";
+  // Set freeflyer limits to allow for randomConfiguration
+  model_free.lowerPositionLimit.segment(0, 3) << Vector3d::Constant(-1);
+  model_free.upperPositionLimit.segment(0, 3) << Vector3d::Constant( 1);
 
-  // Create a model containing a fixed joint
-  pinocchio::Model model_fix;
-  pinocchio::urdf::buildModel(urdfTree, model_fix);
+  // Joint of interest (that will be converted to frame)
+  const std::string joint_name = "chest2_joint";
+  const JointIndex joint_id = model_free.getJointId(joint_name);
+
+  // Duplicate of the model with the joint of interest fixed (to make a frame)
+  pinocchio::Model model_fix = buildReducedModel(model_free, {joint_id}, neutral(model_free));
   Data data_fix(model_fix);
   const FrameIndex frame_id = model_fix.getFrameId(joint_name);
 
-  // Modify the urdf to have a floating joint instead
-  std::shared_ptr<::urdf::Joint> p_joint = urdfTree->joints_.find(joint_name)->second;
-  BOOST_CHECK(p_joint);
-  p_joint->type = ::urdf::Joint::FLOATING;
-
-  // Create a model with the floating joint
-  pinocchio::Model model_ff;
-  pinocchio::urdf::buildModel(urdfTree, model_ff);
-  Data data_ff(model_ff);
-
-  // Const variable to convert q, v from model to another
-  const JointIndex joint_id = model_ff.getJointId(joint_name);
-  const int head_q(model_ff.joints[joint_id].idx_q());
-  const int head_v(model_ff.joints[joint_id].idx_v());
-  const int tail_q(model_ff.nq - model_ff.joints[joint_id].nq() - head_q);
-  const int tail_v(model_ff.nv - model_ff.joints[joint_id].nv() - head_v);
-
-  // Joint value will be kept to 0. Limits are set to allow for randomConfiguration
-  model_ff.lowerPositionLimit.segment(head_q, 3) << Vector3d::Constant(-1);
-  model_ff.upperPositionLimit.segment(head_q, 3) << Vector3d::Constant( 1);
+  // Const variable to help convert q, v, a from one model to another
+  const int joint_idx_q(model_free.joints[joint_id].idx_q());
+  const int joint_idx_v(model_free.joints[joint_id].idx_v());
 
   // Pick random q, v, a
-  VectorXd q_ff = randomConfiguration(model_ff);
-  VectorXd v_ff(VectorXd::Random(model_ff.nv));
-  VectorXd a_ff(VectorXd::Random(model_ff.nv));
+  VectorXd q_free = randomConfiguration(model_free);
+  VectorXd v_free(VectorXd::Random(model_free.nv));
+  VectorXd a_free(VectorXd::Random(model_free.nv));
 
-  // Set free-flyer joint to q, v, a = 0 to mimic fixed joint
-  q_ff.segment(head_q, 7) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0), 1; // Unit quaternion
-  v_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
-  a_ff.segment(head_v, 6) <<  Eigen::Matrix<double, 6, 1, 0>::Constant(0);
+  // Set joint of interest to q, v, a = 0 to mimic the fixed joint
+  q_free[joint_idx_q] =  0;
+  v_free[joint_idx_v] =  0;
+  a_free[joint_idx_v] =  0;
 
   // Adapt configuration for fixed joint model
   VectorXd q_fix(model_fix.nq);
-  q_fix << q_ff.head(head_q), q_ff.tail(tail_q);
+  q_fix << q_free.head(joint_idx_q), q_free.tail(model_free.nq - joint_idx_q - 1);
   VectorXd v_fix(model_fix.nv);
-  v_fix << v_ff.head(head_v), v_ff.tail(tail_v);
+  v_fix << v_free.head(joint_idx_v), v_free.tail(model_free.nv - joint_idx_v - 1);
   VectorXd a_fix(model_fix.nv);
-  a_fix << a_ff.head(head_v), a_ff.tail(tail_v);
+  a_fix << a_free.head(joint_idx_v), a_free.tail(model_free.nv - joint_idx_v - 1);
 
   // Compute inertia/force for both models differently
   forwardKinematics(model_fix, data_fix, q_fix, v_fix, a_fix);
-  crba(model_ff, data_ff, q_ff);
+  crba(model_free, data_free, q_free);
 
   Inertia inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, false);
-  Inertia inertia_ff(model_ff.inertias[joint_id]);
-  BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
+  Inertia inertia_free(model_free.inertias[joint_id]);
+  BOOST_CHECK(inertia_fix.isApprox(inertia_free));
 
   inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, true);
-  inertia_ff = data_ff.Ycrb[joint_id];
-  BOOST_CHECK(inertia_fix.isApprox(inertia_ff));
+  inertia_free = data_free.Ycrb[joint_id];
+  BOOST_CHECK(inertia_fix.isApprox(inertia_free));
 
-                       rnea(model_fix, data_fix, q_fix, v_fix, a_fix);
-  const VectorXd tau = rnea(model_ff,  data_ff,  q_ff,  v_ff,  a_ff);
+  rnea(model_fix, data_fix, q_fix, v_fix, a_fix);
+  rnea(model_free,  data_free,  q_free,  v_free,  a_free);
 
   Force force_fix = computeSupportedForceByFrame(model_fix, data_fix, frame_id);
-  Force force_ff(tau.segment(head_v, 6));
-  BOOST_CHECK(force_fix.isApprox(force_ff));
+  Force force_free(data_free.f[joint_id]);
+  BOOST_CHECK(force_fix.isApprox(force_free));
 }
 BOOST_AUTO_TEST_SUITE_END ()
