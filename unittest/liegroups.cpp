@@ -91,19 +91,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
     std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
   
-  SE3 MTest, MResult;
-  {
-    typename T::JointDataDerived jdata = jmodel.createData();
-    jmodel.calc(jdata, qTest);
-    MTest = jdata.M;
-  }
-  {
-    typename T::JointDataDerived jdata = jmodel.createData();
-    jmodel.calc(jdata, qResult);
-    MResult = jdata.M;
-  }
-  
-  BOOST_CHECK_MESSAGE(MTest.isApprox(MResult),
+  BOOST_CHECK_MESSAGE(qTest.isApprox(qResult),
     std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
 
   // Check the reversability of integrate
@@ -127,7 +115,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     SE3 M_interpolate = jdata.M;
     
     SE3 M_interpolate_expected = M1*exp6(u*v1);
-    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e2*prec), std::string("Error when interpolating " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e4*prec), std::string("Error when interpolating " + jmodel.shortname()));
   }
 
   // Check that difference between two equal configuration is exactly 0
@@ -138,12 +126,12 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 
   // Check difference
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
-  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e2*prec), std::string("Error when differentiating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e4*prec), std::string("Error when differentiating " + jmodel.shortname()));
   
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 10*prec);
+  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 1e4*prec);
   
   std::string error_prefix("LieGroup");
   error_prefix += " on joint " + jmodel.shortname();
@@ -192,7 +180,10 @@ struct TestJoint{
     jmodel.setIndexes(0,0,0);
     typename T::JointDataDerived jdata = jmodel.createData();
 
-    test_lie_group_methods(jmodel, jdata);    
+    for (int i = 0; i <= 50; ++i)
+    {
+      test_lie_group_methods(jmodel, jdata);
+    }
   }
 
   void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
