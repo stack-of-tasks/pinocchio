@@ -15,6 +15,10 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+DEFAULT_COLOR_PROFILES = {"gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8])}
+COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
+
+
 def isMesh(geometry_object):
     """ Check whether the geometry object contains a Mesh supported by MeshCat """
     if geometry_object.meshPath == "":
@@ -188,6 +192,25 @@ def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
+    FORCE_SCALE = 0.06
+    CAMERA_PRESETS = {
+        "preset0": [
+            np.zeros(3),  # target
+            [3.0, 0.0, 1.0],  # anchor point (x, z, -y) lhs coords
+        ],
+        "preset1": [np.zeros(3), [1.0, 1.0, 1.0]],
+        "preset2": [[0.0, 0.0, 0.6], [0.8, 1.0, 1.2]],
+        "acrobot": [[0.0, 0.1, 0.0], [0.5, 0.0, 0.2]],
+        "cam_ur": [[0.4, 0.6, -0.2], [1.0, 0.4, 1.2]],
+        "cam_ur2": [[0.4, 0.3, 0.0], [0.5, 0.1, 1.4]],
+        "cam_ur3": [[0.4, 0.3, 0.0], [0.6, 1.3, 0.3]],
+        "cam_ur4": [[-1.0, 0.3, 0.0], [1.3, 0.1, 1.2]],  # x>0 to x<0
+        "cam_ur5": [[-1.0, 0.3, 0.0], [-0.05, 1.5, 1.2]],
+        "talos": [[0.0, 1.2, 0.0], [1.5, 0.3, 1.5]],
+        "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
+    }
+
+
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
         if geometry_type is pin.GeometryType.VISUAL:
@@ -210,6 +233,27 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if loadModel:
             self.loadViewerModel()
+
+    def setBackgroundColor(self, preset_name: str = "gray"):
+        """Set the background."""
+        assert preset_name in COLOR_PRESETS.keys()
+        col_top, col_bot = COLOR_PRESETS[preset_name]
+        viewer = self.viewer
+        viewer["/Background"].set_property("top_color", col_top)
+        viewer["/Background"].set_property("bottom_color", col_bot)
+
+    def setCameraTarget(self, target: np.ndarray):
+        self.viewer.set_cam_target(target)
+
+    def setCameraPosition(self, position: np.ndarray):
+        self.viewer.set_cam_pos(position)
+
+    def setCameraPreset(self, preset_key: str):
+        """Set the camera angle and position using a given preset."""
+        assert preset_key in self.CAMERA_PRESETS
+        cam_val = self.CAMERA_PRESETS[preset_key]
+        self.setCameraTarget(cam_val[0])
+        self.setCameraPosition(cam_val[1])
 
     def loadPrimitive(self, geometry_object):
 
@@ -398,10 +442,10 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
-    def captureImage(self):
+    def captureImage(self, w=None, h=None):
         """Capture an image from the Meshcat viewer and return an RGB array."""
         try:
-            img = self.viewer.get_image()
+            img = self.viewer.get_image(w, h)
             img_arr = np.asarray(img)
             return img_arr
         except AttributeError:

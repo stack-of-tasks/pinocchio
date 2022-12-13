@@ -69,15 +69,24 @@ class BaseVisualizer(object):
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not."""
-        pass
+        raise NotImplementedError()
  
     def displayVisuals(self,visibility):
         """Set whether to display visual objects or not."""
-        pass
+        raise NotImplementedError()
+    
+    def setBackgroundColor(self):
+        raise NotImplementedError()
 
-    def captureImage(self):
+    def setCameraTarget(self, target):
+        raise NotImplementedError()
+
+    def setCameraPosition(self, position: np.ndarray):
+        raise NotImplementedError()
+
+    def captureImage(self, w=None, h=None):
         """Captures an image from the viewer and returns an RGB array."""
-        pass
+        raise NotImplementedError()
 
     def sleep(self, dt):
         time.sleep(dt)
