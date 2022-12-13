@@ -2,6 +2,7 @@ from .. import pinocchio_pywrap as pin
 from ..shortcuts import buildModelsFromUrdf, createDatas
 
 import time
+import numpy as np
 
 class BaseVisualizer(object):
     """Pinocchio visualizers are employed to easily display a model at a given configuration.
@@ -75,9 +76,29 @@ class BaseVisualizer(object):
         """Set whether to display visual objects or not."""
         pass
 
-    def captureImage(self):
+    def setCameraTarget(self, target):
+        raise NotImplementedError()
+
+    def setCameraPosition(self, position: np.ndarray):
+        raise NotImplementedError()
+
+    def setCameraZoom(self, zoom: float):
+        """Set camera zoom value."""
+        raise NotImplementedError()
+
+    def setCameraPose(self, pose: np.ndarray = np.eye(4)):
+        """Set camera pose using a 4x4 matrix."""
+        raise NotImplementedError()
+
+    def captureImage(self, w=None, h=None):
         """Captures an image from the viewer and returns an RGB array."""
         pass
+
+    def disableCameraControl(self):
+        raise NotImplementedError()
+
+    def enableCameraControl(self):
+        raise NotImplementedError()
 
     def sleep(self, dt):
         time.sleep(dt)

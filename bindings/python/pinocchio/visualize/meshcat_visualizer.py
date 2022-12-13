@@ -14,6 +14,20 @@ try:
 except:
     WITH_HPP_FCL_BINDINGS = False
 
+DEFAULT_COLOR_PROFILES = {
+    "gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8]),
+    "white": (np.ones(3), )
+}
+COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
+
+
+def getColor(color):
+    assert color is not None
+    color = np.asarray(color)
+    assert color.shape == (3,)
+    return color.clip(0., 1.)
+
+
 def isMesh(geometry_object):
     """ Check whether the geometry object contains a Mesh supported by MeshCat """
     if geometry_object.meshPath == "":
@@ -204,11 +218,48 @@ class MeshcatVisualizer(BaseVisualizer):
 
         self.viewer = meshcat.Visualizer() if viewer is None else viewer
 
+        self._node_default_cam = self.viewer["/Cameras/default"]
+        self._node_background = self.viewer["/Background"]
+        self._rot_cam_key = "rotated/object"
+
         if open:
             self.viewer.open()
 
         if loadModel:
             self.loadViewerModel()
+
+    def setBackgroundColor(self, preset_name: str = "gray"):
+        """Set the background."""
+        assert preset_name in COLOR_PRESETS.keys()
+        col_top, col_bot = COLOR_PRESETS[preset_name]
+        self._node_background.set_property("top_color", col_top)
+        self._node_background.set_property("bottom_color", col_bot)
+
+    def setCameraTarget(self, target: np.ndarray):
+        self.viewer.set_cam_target(target)
+
+    def setCameraPosition(self, position: np.ndarray):
+        self.viewer.set_cam_pos(position)
+
+    def setCameraPreset(self, preset_key: str):
+        """Set the camera angle and position using a given preset."""
+        assert preset_key in self.CAMERA_PRESETS
+        cam_val = self.CAMERA_PRESETS[preset_key]
+        self.setCameraTarget(cam_val[0])
+        self.setCameraPosition(cam_val[1])
+
+    def setCameraZoom(self, zoom: float):
+        elt = self._node_default_cam[self._rot_cam_key]
+        elt.set_property("zoom", zoom)
+
+    def setCameraPose(self, pose):
+        self._node_default_cam.set_transform(pose)
+
+    def disableCameraControl(self):
+        self.setCameraPosition([0, 0, 0])
+
+    def enableCameraControl(self):
+        self.setCameraPosition([3, 0, 1])
 
     def loadPrimitive(self, geometry_object):
 
