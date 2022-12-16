@@ -134,7 +134,7 @@ struct GeometryObject : public ModelItem<GeometryObject>
 
   typedef SE3Tpl<Scalar,Options> SE3;
   
-  typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
+  typedef std::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
 
   using Base::name;
   using Base::parentFrame;
@@ -352,7 +352,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   : ::hpp::fcl::ComputeCollision
   {
     typedef ::hpp::fcl::ComputeCollision Base;
-    typedef boost::shared_ptr<const fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    typedef std::shared_ptr<const fcl::CollisionGeometry> ConstCollisionGeometryPtr;
     
     ComputeCollision(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
@@ -380,7 +380,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   : ::hpp::fcl::ComputeDistance
   {
     typedef ::hpp::fcl::ComputeDistance Base;
-    typedef boost::shared_ptr<fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    typedef std::shared_ptr<fcl::CollisionGeometry> ConstCollisionGeometryPtr;
     
     ComputeDistance(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
