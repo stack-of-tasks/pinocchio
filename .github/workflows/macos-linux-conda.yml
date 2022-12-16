@@ -30,7 +30,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pinocchio-linux
-        conda install cmake -c main
+        conda install cmake -c conda-forge
         conda install llvm-openmp libcxx=11 -c conda-forge
     
     - name: Build Pinocchio
