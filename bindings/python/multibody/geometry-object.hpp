@@ -103,7 +103,7 @@ namespace pinocchio
       {
         return GeometryObject("",JointIndex(0),FrameIndex(0),
                               SE3::Identity(),
-                              boost::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
+                              std::shared_ptr<fcl::CollisionGeometry>(new fcl::Capsule(radius, length)));
 
       }
 #endif // PINOCCHIO_WITH_HPP_FCL
