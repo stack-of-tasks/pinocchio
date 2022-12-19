@@ -37,7 +37,7 @@ namespace pinocchio
 
       eigenvalue_est = eigenvector_est.norm();
 
-      if(std::fabs(eigenvalue_est_prev - eigenvalue_est) < rel_tol)
+      if(math::fabs(eigenvalue_est_prev - eigenvalue_est) < rel_tol)
         break;
     }
   }
