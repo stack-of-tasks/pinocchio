@@ -299,7 +299,7 @@ namespace pinocchio
                const Scalar& prec)
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q.size(), model.nq, "The configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision should be positive");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((check_expression_if_real<Scalar,true>(prec >= 0)), "The precision should be positive");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
@@ -326,7 +326,7 @@ namespace pinocchio
   {
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q1.size(), model.nq, "The first configuration vector is not of the right size");
     PINOCCHIO_CHECK_ARGUMENT_SIZE(q2.size(), model.nq, "The second configuration vector is not of the right size");
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(prec >= 0, "The precision should be positive");
+    PINOCCHIO_CHECK_INPUT_ARGUMENT((check_expression_if_real<Scalar,true>(prec >= 0)), "The precision should be positive");
 
     typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
     typedef typename Model::JointIndex JointIndex;
