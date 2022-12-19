@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 CNRS
+// Copyright (c) 2021-2022 INRIA
 //
 
 #include "pinocchio/math/matrix.hpp"
