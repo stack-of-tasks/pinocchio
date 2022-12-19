@@ -55,7 +55,7 @@ namespace pinocchio
       static inline bool run(const CasadiType & lhs_value,
 			     const CasadiType & rhs_value)
       {
-	return (lhs_value == rhs_value).is_zero();
+        return (lhs_value == rhs_value).is_zero();
       }
     };
 
