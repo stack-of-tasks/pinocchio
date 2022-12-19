@@ -234,6 +234,8 @@ class MeshcatVisualizer(BaseVisualizer):
             obj = meshcat.geometry.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
             obj = meshcat.geometry.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.Ellispoid):
+            obj = meshcat.geometry.Ellipsoid(geom.radii)
         elif isinstance(geom, hppfcl.ConvexBase):
             obj = loadMesh(geom)
         else:
