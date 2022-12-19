@@ -40,7 +40,7 @@ namespace pinocchio
       {
         switch(op)
         {
-	case EQ:
+          case EQ:
             if(lhs_value == rhs_value)
               return then_value;
             else
