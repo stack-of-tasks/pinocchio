@@ -1,8 +1,8 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2022 CNRS INRIA
 #
 
-from __future__ import print_function
+from __future__ import print_function, division
 
 import sys
 
@@ -82,7 +82,7 @@ def mprint(M, name="ans",eps=1e-15):
     '''
     if isinstance(M, pin.SE3):
         M = M.homogeneous
-    if len(M.shape==1):
+    if len(M.shape) == 1:
         M = np.expand_dims(M, axis=0)
     ncol = M.shape[1]
     NC = 6
@@ -96,7 +96,7 @@ def mprint(M, name="ans",eps=1e-15):
 
     fmt = "% 10.3e" if Mm < 1e-5 or MM > 1e6 or MM / Mm > 1e3 else "% 1.5f"
 
-    for i in range((ncol - 1) / NC + 1):
+    for i in range((ncol - 1) // NC + 1):
         cmin = i * 6
         cmax = (i + 1) * 6
         cmax = ncol if ncol < cmax else cmax
