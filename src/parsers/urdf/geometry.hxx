@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_parsers_urdf_geometry_hxx__
@@ -10,7 +10,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <boost/shared_ptr.hpp>
 
 #ifdef PINOCCHIO_WITH_HPP_FCL
   #include <hpp/fcl/mesh_loader/loader.h>

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2022 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_fcl_hpp__
@@ -46,12 +46,21 @@
 #include <utility>
 #include <limits>
 #include <assert.h>
+#ifdef PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
+#include <memory>
+#else
+#include <boost/shared_ptr.hpp>
+#endif
 
 #include <boost/foreach.hpp>
-#include <boost/shared_ptr.hpp>
 
 namespace pinocchio
 {
+#ifdef PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
+  using std::shared_ptr;
+#else
+  using boost::shared_ptr;
+#endif
   struct CollisionPair
   : public std::pair<GeomIndex, GeomIndex>
   {
@@ -119,7 +128,7 @@ struct GeometryObject
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
-  typedef boost::shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
+  typedef shared_ptr<fcl::CollisionGeometry> CollisionGeometryPtr;
   
   /// \brief Name of the geometry object
   std::string name;
@@ -278,7 +287,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   : ::hpp::fcl::ComputeCollision
   {
     typedef ::hpp::fcl::ComputeCollision Base;
-    typedef boost::shared_ptr<const fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    typedef shared_ptr<const fcl::CollisionGeometry> ConstCollisionGeometryPtr;
     
     ComputeCollision(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
@@ -306,7 +315,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   : ::hpp::fcl::ComputeDistance
   {
     typedef ::hpp::fcl::ComputeDistance Base;
-    typedef boost::shared_ptr<fcl::CollisionGeometry> ConstCollisionGeometryPtr;
+    typedef shared_ptr<fcl::CollisionGeometry> ConstCollisionGeometryPtr;
     
     ComputeDistance(const GeometryObject & o1, const GeometryObject & o2)
     : Base(o1.geometry.get(),o2.geometry.get())
