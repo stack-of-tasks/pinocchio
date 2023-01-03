@@ -1,12 +1,11 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2023 CNRS INRIA
 //
 
 #include "pinocchio/parsers/python.hpp"
 
 #include <iostream>
 #include <Python.h>
-#include <boost/shared_ptr.hpp>
 #include <boost/version.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 

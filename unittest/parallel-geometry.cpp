@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2023 INRIA
 //
 
 #include <iostream>
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(test_pool)
   Data data(model);
   
   const std::string package_path = PINOCCHIO_MODEL_DIR;
-  hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
+  hpp::fcl::MeshLoaderPtr mesh_loader = make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(test_talos)
   Data data(model), data_ref(model);
   
   const std::string package_path = PINOCCHIO_MODEL_DIR;
-  hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
+  hpp::fcl::MeshLoaderPtr mesh_loader = make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(test_pool_talos)
   Data data_ref(model);
   
   const std::string package_path = PINOCCHIO_MODEL_DIR;
-  hpp::fcl::MeshLoaderPtr mesh_loader = boost::make_shared<hpp::fcl::CachedMeshLoader>();
+  hpp::fcl::MeshLoaderPtr mesh_loader = make_shared<hpp::fcl::CachedMeshLoader>();
   const std::string srdf_filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/talos_data/srdf/talos.srdf");
   std::vector<std::string> package_paths(1,package_path);
   pinocchio::GeometryModel geometry_model;

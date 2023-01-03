@@ -127,7 +127,7 @@ namespace pinocchio
        *
        * @return     A shared pointer on the geometry converted as a fcl::CollisionGeometry
        */
-      boost::shared_ptr<fcl::CollisionGeometry>
+      shared_ptr<fcl::CollisionGeometry>
       inline retrieveCollisionGeometry(const UrdfTree& tree,
                                        fcl::MeshLoaderPtr& meshLoader,
                                        const std::string& linkName,
@@ -137,7 +137,7 @@ namespace pinocchio
                                        std::string & meshPath,
                                        Eigen::Vector3d & meshScale)
       {
-        boost::shared_ptr<fcl::CollisionGeometry> geometry;
+        shared_ptr<fcl::CollisionGeometry> geometry;
 
         // Handle the case where collision geometry is a mesh
         if (urdf_geometry->type == ::urdf::Geometry::MESH)
@@ -168,13 +168,13 @@ namespace pinocchio
 #if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh->convex;
 #else
-            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
+            geometry = shared_ptr<fcl::CollisionGeometry>(bvh->convex.get(), [bvh](...) mutable { bvh->convex.reset(); });
 #endif  // HPP_FCL_MAJOR_VERSION
           } else {
 #if HPP_FCL_MAJOR_VERSION < 2
             geometry = bvh;
 #else
-            geometry = boost::shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
+            geometry = shared_ptr<fcl::CollisionGeometry>(bvh.get(), [bvh](...) mutable { bvh.reset(); });
 #endif  // HPP_FCL_MAJOR_VERSION
           }
 #else
@@ -196,10 +196,10 @@ namespace pinocchio
           // Create fcl capsule geometry.
           if (is_capsule) {
             meshPath = "CAPSULE";
-            geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
+            geometry = shared_ptr < fcl::CollisionGeometry >(new fcl::Capsule (radius, length));
           } else {
             meshPath = "CYLINDER";
-            geometry = boost::shared_ptr < fcl::CollisionGeometry >(new fcl::Cylinder (radius, length));
+            geometry = shared_ptr < fcl::CollisionGeometry >(new fcl::Cylinder (radius, length));
           }
         }
         // Handle the case where collision geometry is a box.
@@ -213,7 +213,7 @@ namespace pinocchio
           double y = collisionGeometry->dim.y;
           double z = collisionGeometry->dim.z;
           
-          geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Box (x, y, z));
+          geometry = shared_ptr < fcl::CollisionGeometry > (new fcl::Box (x, y, z));
         }
         // Handle the case where collision geometry is a sphere.
         else if (urdf_geometry->type == ::urdf::Geometry::SPHERE)
@@ -224,7 +224,7 @@ namespace pinocchio
           
           double radius = collisionGeometry->radius;
           
-          geometry = boost::shared_ptr < fcl::CollisionGeometry > (new fcl::Sphere (radius));
+          geometry = shared_ptr < fcl::CollisionGeometry > (new fcl::Sphere (radius));
         }
         else throw std::invalid_argument("Unknown geometry type :");
         
@@ -393,7 +393,7 @@ namespace pinocchio
               retrieveMeshScale(urdf_mesh, meshScale);
             }
 
-            const boost::shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
+            const shared_ptr<fcl::CollisionGeometry> geometry(new fcl::CollisionGeometry());
 #endif // PINOCCHIO_WITH_HPP_FCL
 
             Eigen::Vector4d meshColor;
