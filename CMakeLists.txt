@@ -186,7 +186,7 @@ ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
 
-  set(PYTHON_COMPONENTS Interpreter Development.Module NumPy)
+  set(PYTHON_COMPONENTS Interpreter Development NumPy)
   IF(BUILD_WITH_LIBPYTHON)
     set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
   ENDIF()
