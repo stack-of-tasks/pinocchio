@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_liegroup_special_euclidean_operation_hpp__
@@ -75,11 +75,11 @@ namespace pinocchio
         vcross -= -v(1)*R.col(0) + v(0)*R.col(1);
         vcross /= omega;
         Scalar omega_abs = math::fabs(omega);
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14),
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(0) = if_then_else(internal::GT, omega_abs , Scalar(1e-14), // TODO: change hard coded value
                                                                              vcross.coeff(0),
                                                                              v.coeff(0));
         
-        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14),
+        PINOCCHIO_EIGEN_CONST_CAST(Vector2Like,t).coeffRef(1) = if_then_else(internal::GT, omega_abs, Scalar(1e-14), // TODO: change hard coded value
                                                                              vcross.coeff(1),
                                                                              v.coeff(1));
       }
@@ -145,9 +145,9 @@ namespace pinocchio
       const Scalar1 t2 = t*t;
       Scalar1 st,ct; SINCOS(tabs, &st, &ct);
       Scalar1 alpha;
-      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                     1 - t2/12 - t2*t2/720,
-                                     tabs*st/(2*(1-ct)));
+      alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4), // TODO: change hard coded value
+                                     static_cast<Scalar>(1 - t2/12 - t2*t2/720),
+                                     static_cast<Scalar>(tabs*st/(2*(1-ct))));
 
       vout.template head<2>().noalias() = alpha * p;
       vout(0) += t/2 * p(1);
@@ -176,11 +176,11 @@ namespace pinocchio
       Scalar1 inv_2_1_ct = 0.5 / (1-ct);
         
       alpha = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                     1 - t2/12,
-                                     t*st*inv_2_1_ct);
+                                     static_cast<Scalar>(1 - t2/12),
+                                     static_cast<Scalar>(t*st*inv_2_1_ct));
       alpha_dot = internal::if_then_else(internal::LT, tabs, Scalar(1e-4),
-                                         - t / 6 - t2*t / 180,
-                                         (st-t) * inv_2_1_ct);
+                                         static_cast<Scalar>(- t / 6 - t2*t / 180),
+                                         static_cast<Scalar>((st-t) * inv_2_1_ct));
 
       typename PINOCCHIO_EIGEN_PLAIN_TYPE(Matrix2Like) V;
       V(0,0) = V(1,1) = alpha;
@@ -540,14 +540,16 @@ namespace pinocchio
                                 const Eigen::MatrixBase<ConfigR_t> & q1,
                                 const Eigen::MatrixBase<Tangent_t> & d)
     {
+      typedef typename Tangent_t::Scalar Scalar;
       ConstQuaternionMap_t quat0 (q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat0,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       ConstQuaternionMap_t quat1 (q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log6(  SE3(quat0.matrix(), q0.derived().template head<3>()).inverse()
-               * SE3(quat1.matrix(), q1.derived().template head<3>())).toVector();
+      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Tangent_t)::Options> Vector3; 
+      const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
+      const Vector3 dv = quat0.conjugate() * dv_pre;
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d).noalias() = log6(quat0.conjugate()*quat1, dv).toVector();
     }
 
     /// \cheatsheet \f$ \frac{\partial\ominus}{\partial q_1} {}^1X_0 = - \frac{\partial\ominus}{\partial q_0} \f$
@@ -557,27 +559,27 @@ namespace pinocchio
                            const Eigen::MatrixBase<JacobianOut_t> & J) const
     {
       typedef typename SE3::Vector3 Vector3;
-      typedef typename SE3::Matrix3 Matrix3;
 
       ConstQuaternionMap_t quat0 (q0.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat0,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       ConstQuaternionMap_t quat1 (q1.derived().template tail<4>().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      Matrix3 R0(quat0.matrix()), R1 (quat1.matrix());
-      assert(isUnitary(R0)); assert(isUnitary(R1));
-      
-      const SE3 M (  SE3(R0, q0.template head<3>()).inverse()
-                   * SE3(R1, q1.template head<3>()));
+      const Vector3 dv_pre = q1.derived().template head<3>() - q0.derived().template head<3>();
+      const Vector3 trans = quat0.conjugate() * dv_pre;
+
+      const Quaternion_t quat_diff = quat0.conjugate() * quat1;
+
+      const SE3 M(quat_diff, trans);
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
         Jlog6 (M, J1);
 
-        const Vector3 p1_p0 = R1.transpose()*(q1.template head<3>() - q0.template head<3>());
+        const Vector3 p1_p0 = quat1.conjugate()*dv_pre;
 
         JacobianOut_t & J0 = PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J);
-        J0.template bottomRightCorner<3,3> ().noalias() = J0.template topLeftCorner <3,3> ().noalias() = - M.rotation().transpose();
+        J0.template bottomRightCorner<3,3> () = J0.template topLeftCorner <3,3> () = - M.rotation().transpose();
         J0.template topRightCorner<3,3> ().noalias() = skew(p1_p0) * M.rotation().transpose(); // = R1.T * skew(q1_t - q0_t) * R0;
         J0.template bottomLeftCorner<3,3> ().setZero();
         J0.applyOnTheLeft(J1);
@@ -599,18 +601,23 @@ namespace pinocchio
       
       using internal::if_then_else;
 
-      SE3 M0 (quat.matrix(), q.derived().template head<3>());
-      MotionRef<const Velocity_t> mref_v(v.derived());
-      SE3 M1 (M0 * exp6(mref_v));
+      typedef typename ConfigOut_t::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(ConfigOut_t)::Options };
 
-      out.template head<3>() = M1.translation();
-      quaternion::assignQuaternion(res_quat,M1.rotation()); // required by CasADi
+      Eigen::Matrix<Scalar,7,1,Options> expv;
+      quaternion::exp6(v, expv);
+
+      out.template head<3>() = (quat * expv.template head<3>()) + q.derived().template head<3>();
+
+      ConstQuaternionMap_t quat1(expv.template tail<4>().data());
+      res_quat = quat*quat1;
+
       const Scalar dot_product = res_quat.dot(quat);
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
       {
         res_quat.coeffs().coeffRef(k) = if_then_else(internal::LT, dot_product, Scalar(0),
-                                                     -res_quat.coeffs().coeff(k),
-                                                      res_quat.coeffs().coeff(k));
+                                                     static_cast<Scalar>(-res_quat.coeffs().coeff(k)),
+                                                     res_quat.coeffs().coeff(k));
       }
     
       // Norm of qs might be epsilon-different to 1, so M1.rotation might be epsilon-different to a rotation matrix.

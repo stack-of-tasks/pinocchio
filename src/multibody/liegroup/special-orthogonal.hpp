@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2020 CNRS INRIA
+// Copyright (c) 2016-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_liegroup_special_orthogonal_operation_hpp__
@@ -70,12 +70,12 @@ namespace pinocchio
                    Scalar(0), // then
                    if_then_else(internal::LT, tr, Scalar(-2),
                                 if_then_else(internal::GE, R (1, 0), Scalar(0),
-                                             PI_value, -PI_value), // then
-                                if_then_else(internal::GT, tr, Scalar(2) - 1e-2,
-                                             asin((R(1,0) - R(0,1)) / Scalar(2)), // then
+                                             PI_value, static_cast<Scalar>(-PI_value)), // then
+                                if_then_else(internal::GT, tr, static_cast<Scalar>(Scalar(2) - 1e-2), // TODO: change value
+                                             static_cast<Scalar>(asin((R(1,0) - R(0,1)) / Scalar(2))), // then
                                              if_then_else(internal::GE, R (1, 0), Scalar(0),
-                                                          acos(tr/Scalar(2)), // then
-                                                          -acos(tr/Scalar(2))
+                                                          static_cast<Scalar>(acos(tr/Scalar(2))), // then
+                                                          static_cast<Scalar>(-acos(tr/Scalar(2)))
                                                           )
                                              )
                                 )
@@ -163,8 +163,8 @@ namespace pinocchio
     {
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
 
-      const Scalar & ca = q(0);
-      const Scalar & sa = q(1);
+      const Scalar ca = q(0);
+      const Scalar sa = q(1);
       const Scalar & omega = v(0);
 
       Scalar cosOmega,sinOmega; SINCOS(omega, &sinOmega, &cosOmega);
@@ -176,6 +176,7 @@ namespace pinocchio
       // See quaternion::firstOrderNormalize for equations.
       const Scalar norm2 = out.squaredNorm();
       out *= (3 - norm2) / 2;
+      assert (isNormalized(out));
     }
     
     template <class Config_t, class Jacobian_t>
@@ -287,16 +288,16 @@ namespace pinocchio
 //      const Scalar theta0 = atan2(q0(1), q0(0));
       const Scalar abs_theta = fabs(theta);
       out[0] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
-                            (Scalar(1)-u) * q0[0] + u * q1[0], // then
+                            static_cast<Scalar>((Scalar(1)-u) * q0[0] + u * q1[0]), // then
                             if_then_else(LT,abs_theta,PI_value_lower, // else
-                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[0] + (sin(   u *theta)/sinTheta) * q1[0], // then
+                                         static_cast<Scalar>((sin((Scalar(1)-u)*theta)/sinTheta) * q0[0] + (sin(   u *theta)/sinTheta) * q1[0]), // then
                                          q0(0) // cos(theta0) // else
                                          ));
       
       out[1] = if_then_else(LT,abs_theta,static_cast<Scalar>(1e-6),
-                            (Scalar(1)-u) * q0[1] + u * q1[1], // then
+                            static_cast<Scalar>((Scalar(1)-u) * q0[1] + u * q1[1]), // then
                             if_then_else(LT,abs_theta,PI_value_lower, // else
-                                         (sin((Scalar(1)-u)*theta)/sinTheta) * q0[1] + (sin(   u *theta)/sinTheta) * q1[1], // then
+                                         static_cast<Scalar>((sin((Scalar(1)-u)*theta)/sinTheta) * q0[1] + (sin(   u *theta)/sinTheta) * q1[1]), // then
                                          q0(1) // sin(theta0) // else
                                          ));
     }
@@ -383,8 +384,7 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
-        = log3((quat0.matrix().transpose() * quat1.matrix()).eval());
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) = quaternion::log3(quat0.conjugate()*quat1);
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -399,7 +399,8 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      const Matrix3 R = quat0.matrix().transpose() * quat1.matrix(); // TODO: perform first the Quaternion multiplications and then return a Rotation Matrix
+      const Quaternion_t q = quat0.conjugate() * quat1;
+      const Matrix3 R = q.matrix();
 
       if (arg == ARG0) {
         JacobianMatrix_t J1;
@@ -565,8 +566,9 @@ namespace pinocchio
       
       QuaternionMap_t quat_res(PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout).data());
 
-      quaternion::slerp(u,quat0,quat1,quat_res);
-//      quat_res = quat0.slerp(u, quat1);
+      TangentVector_t w;
+      difference_impl(q0, q1, w);
+      integrate_impl(q0, u * w, qout);
       assert(quaternion::isNormalized(quat_res,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
     }
 
