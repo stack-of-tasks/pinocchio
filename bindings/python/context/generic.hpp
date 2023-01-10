@@ -1,3 +1,7 @@
+//
+// Copyright (c) 2021-2022 INRIA
+//
+
 #ifndef __pinocchio_python_context_generic_hpp__
 #define __pinocchio_python_context_generic_hpp__
 
@@ -11,6 +15,10 @@
 namespace pinocchio {
 namespace python {
 
+// Forward declaration
+boost::python::object getScalarType();
+void exposeSpecificTypeFeatures();
+
 namespace context {
 
 typedef PINOCCHIO_PYTHON_SCALAR_TYPE Scalar;
@@ -19,6 +27,7 @@ enum { Options = 0 };
 // Eigen
 EIGENPY_MAKE_TYPEDEFS_ALL_SIZES(Scalar,Options,s);
 typedef Eigen::Matrix<Scalar,1,1,Options,1,1> Matrix1s;
+typedef Eigen::Matrix<Scalar,7,1,Options> Vector7s;
 typedef Eigen::Quaternion<Scalar,Options> Quaternion;
 typedef Eigen::AngleAxis<Scalar> AngleAxis;
 
@@ -35,6 +44,7 @@ typedef DataTpl<Scalar,Options> Data;
 
 typedef JointCollectionDefaultTpl<Scalar,Options> JointCollectionDefault;
 
+// Joints
 typedef JointModelTpl<Scalar,Options> JointModel;
 typedef JointDataTpl<Scalar,Options> JointData;
 
