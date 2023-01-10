@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019 INRIA
+// Copyright (c) 2019-2021 INRIA
 //
 
 #include "pinocchio/autodiff/casadi.hpp"
@@ -11,11 +11,14 @@
 #include "pinocchio/algorithm/rnea.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
+#include "pinocchio/algorithm/energy.hpp"
 
 #include "pinocchio/parsers/sample-models.hpp"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/utility/binary.hpp>
+
+#include "casadi-utils.hpp"
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
@@ -419,5 +422,258 @@ BOOST_AUTO_TEST_CASE(test_crba)
 
     BOOST_CHECK(ddq_mat.isApprox(data.ddq));
   }
+
+void test_interp_for_model(const pinocchio::ModelTpl<double>& model)
+{
+  using casadi::SX;
+  using casadi::SXVector;
+  using casadi::DMVector;
+  typedef SX ADScalar;
+  typedef pinocchio::ModelTpl<double> Model;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
+  std::cout << model;
+
+  ADModel ad_model = model.cast<ADScalar>();
+  int nq = model.nq;
+  int nv = model.nv;
+
+  SX cs_q0 = SX::sym("q0", nq);
+  SX cs_q1 = SX::sym("q1", nq);
+  SX cs_dq0 = SX::sym("dq0", nv);
+  SX cs_dq1 = SX::sym("dq0", nv);
+  SX zero_vec(SX::zeros(2 * nv));
+
+  typedef ADModel::ConfigVectorType cConfig_t;
+  typedef ADModel::TangentVectorType cTangent_t;
+
+  cConfig_t cq0(nq), cq1(nq);
+  cTangent_t cdq0(nv), cdq1(nv);
+  pinocchio::casadi::copy(cs_q0, cq0);
+  pinocchio::casadi::copy(cs_q1, cq1);
+  pinocchio::casadi::copy(cs_dq0, cdq0);
+  pinocchio::casadi::copy(cs_dq1, cdq1);
+  ADScalar cs_dqall = vertcat(cs_dq0, cs_dq1); 
+
+  auto cq0_i = pinocchio::integrate(ad_model, cq0, cdq0);
+  auto cq1_i = pinocchio::integrate(ad_model, cq1, cdq1);
+
+  ADScalar alpha(0.5);
+
+  cConfig_t qinterp = pinocchio::interpolate(ad_model, cq0_i, cq1_i, alpha);
+  cConfig_t qneutral = pinocchio::neutral(ad_model);
+  cTangent_t log_interp = pinocchio::difference(ad_model, qinterp, qneutral);
+
+  auto norm_interp = log_interp.dot(log_interp);
+  auto Jnorm_interp = jacobian(norm_interp, cs_dqall);
+
+  casadi::Function Jnorm_eval("Jnorm", SXVector {cs_q0, cs_q1},
+                              SXVector {substitute(Jnorm_interp, cs_dqall, zero_vec)});
+  std::cout << Jnorm_eval << '\n';
+
+  const auto q0 = pinocchio::neutral(model);
+  const auto q1 = pinocchio::randomConfiguration(model);
+  const auto q2 = pinocchio::randomConfiguration(model);
+
+  typedef Eigen::Map<Model::ConfigVectorType> ConfigMap_t;
+  std::vector<double> q0_vec((size_t)nq);
+  std::vector<double> q1_vec((size_t)nq);
+  std::vector<double> q2_vec((size_t)nq);
+  ConfigMap_t(q0_vec.data(), nq, 1) = q0;
+  ConfigMap_t(q1_vec.data(), nq, 1) = q1;
+  ConfigMap_t(q2_vec.data(), nq, 1) = q2;
+
+  std::cout << Jnorm_eval(DMVector{q0_vec, q0_vec})[0] << '\n';
+  std::cout << Jnorm_eval(DMVector{q0_vec, q1_vec})[0] << '\n';
+  std::cout << Jnorm_eval(DMVector{q1_vec, q1_vec})[0] << '\n';
+  std::cout << Jnorm_eval(DMVector{q2_vec, q2_vec})[0] << '\n';
+}
+
+BOOST_AUTO_TEST_CASE(test_interp)
+{
+  typedef pinocchio::ModelTpl<double> Model;
+  Model model;
+  pinocchio::buildModels::humanoidRandom(model, true);
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+
+  test_interp_for_model(model);
+
+  Model model2;
+  typedef pinocchio::SE3Tpl<double> SE3;
+  size_t baseId = model2.addJoint(0, pinocchio::JointModelSpherical(), SE3::Identity(), "base");
+  model2.addJoint(baseId, pinocchio::JointModelRX(), SE3::Random(), "pole");
+  model2.lowerPositionLimit.tail<1>().fill(-4.);
+  model2.upperPositionLimit.tail<1>().fill(4.);
+
+  test_interp_for_model(model2);
+}
+
+BOOST_AUTO_TEST_CASE(test_kinetic_energy)
+{
+  using casadi::SX;
+  using casadi::SXVector;
+  using casadi::DMVector;
+  typedef SX ADScalar;
+  typedef pinocchio::ModelTpl<double> Model;
+  typedef pinocchio::ModelTpl<ADScalar> ADModel;
+  typedef ADModel::Data ADData;
+
+  Model model;
+  // pinocchio::buildModels::humanoidRandom(model, true);
+  model.addJoint(0, pinocchio::JointModelSpherical(), pinocchio::SE3::Identity(), "base");
+  model.appendBodyToJoint(1, pinocchio::Inertia::Identity());
+  std::cout << model;
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill(1.);
+
+  ADModel ad_model = model.cast<ADScalar>();
+  ADData ad_data(ad_model);
+  int nq = model.nq;
+  int nv = model.nv;
+
+  SX cs_q0 = SX::sym("q0", nq);
+  SX cs_q1 = SX::sym("q1", nq);
+  SX cs_dq0 = SX::sym("dq0", nv);
+  SX cs_dq1 = SX::sym("dq0", nv);
+  SX zero_vec(SX::zeros(2 * nv));
+
+  typedef ADModel::ConfigVectorType cConfig_t;
+  typedef ADModel::TangentVectorType cTangent_t;
+
+  cConfig_t cq0(nq), cq1(nq);
+  cTangent_t cdq0(nv), cdq1(nv);
+  pinocchio::casadi::copy(cs_q0, cq0);
+  pinocchio::casadi::copy(cs_q1, cq1);
+  pinocchio::casadi::copy(cs_dq0, cdq0);
+  pinocchio::casadi::copy(cs_dq1, cdq1);
+  ADScalar cs_dqall = vertcat(cs_dq0, cs_dq1); 
+
+  cConfig_t cq0_i = pinocchio::integrate(ad_model, cq0, cdq0);
+  cConfig_t cq1_i = pinocchio::integrate(ad_model, cq1, cdq1);
+
+  const double dt(0.05);
+
+  cTangent_t cv = pinocchio::difference(ad_model, cq0_i, cq1_i) / dt;
+  pinocchio::computeKineticEnergy(ad_model, ad_data, cq0_i, cv);
+  const auto KE_expr = ad_data.kinetic_energy;
+  const auto gKE_expr = jacobian(KE_expr, cs_dqall);
+  const auto HKE_expr = jacobian(gKE_expr, cs_dqall);
+
+  casadi::Function KE_eval("KE", SXVector{cs_q0, cs_q1}, SXVector{substitute(KE_expr, cs_dqall, zero_vec)});
+  casadi::Function gKE_eval("gKE", SXVector{cs_q0, cs_q1}, SXVector{substitute(gKE_expr, cs_dqall, zero_vec)});
+  casadi::Function HKE_eval("HKE", SXVector{cs_q0, cs_q1}, SXVector{substitute(HKE_expr, cs_dqall, zero_vec)});
+  std::cout << HKE_eval << std::endl;
+
+  auto q0 = pinocchio::neutral(model);
+  auto q1 = pinocchio::randomConfiguration(model);
+  auto q2 = pinocchio::randomConfiguration(model);
+  casadi::DM q0d(nq); pinocchio::casadi::copy(q0, q0d);
+  casadi::DM q1d(nq); pinocchio::casadi::copy(q1, q1d);
+  casadi::DM q2d(nq); pinocchio::casadi::copy(q2, q2d);
+  
+  const static double eps = 1e-8;
+  
+  auto fd_grad_lambda = [&](const Model::ConfigVectorType q0_, const Model::ConfigVectorType& q1_)
+  {
+    auto nv = model.nv;
+    // finite differencing
+    Model::TangentVectorType dq0(nv), dq1(nv); dq0.setZero(); dq1.setZero();
+    Eigen::VectorXd jac_fd(2 * nv);
+    
+    const casadi::DM dm = KE_eval(DMVector{eigenToDM(q0_), eigenToDM(q1_)})[0];
+    for (int i = 0; i < nv; i++)
+    {
+      dq0[i] = eps;
+      dq1[i] = eps;
+
+      Model::ConfigVectorType q0_i = pinocchio::integrate(model, q0_, dq0);
+//      std::cout << "\nq0_i: " << q0_i.transpose() << std::endl;
+      casadi::DM dp1 = KE_eval(DMVector{eigenToDM(q0_i), eigenToDM(q1_)})[0];
+//      std::cout << "dp1: " << dp1 << std::endl;
+      casadi::DM diff1 = (dp1- dm) / eps;
+      
+      Model::ConfigVectorType q1_i = pinocchio::integrate(model, q1_, dq1);
+      casadi::DM dp2 = KE_eval(DMVector{eigenToDM(q0_), eigenToDM(q1_i)})[0];
+//      std::cout << "dp2: " << dp2 << std::endl;
+      casadi::DM diff2 = (dp2 - dm) / eps;
+
+      jac_fd[i] = static_cast<double>(diff1);
+      jac_fd[i+nv] = static_cast<double>(diff2);
+
+      dq0[i] = 0.;
+      dq1[i] = 0.;
+    }
+    return jac_fd;
+  };
+
+  std::cout << "eval: {q0d,q0d}: " << KE_eval(DMVector{q0d,q0d}) << std::endl;
+  std::cout << "grad: {q0d,q0d}: " << gKE_eval(DMVector{q0d,q0d}) << std::endl;
+  std::cout << "FD grad: {q0d,q0d}:" << fd_grad_lambda(q0, q0).transpose() << std::endl;
+  std::cout << "---" << std::endl;
+  
+  std::cout << "eval: {q1d,q1d}: " << KE_eval(DMVector{q1d,q1d}) << std::endl;
+  std::cout << "grad: {q1d,q1d}: " << gKE_eval(DMVector{q1d,q1d}) << std::endl;
+  std::cout << "FD grad: {q1d,q1d}:" << fd_grad_lambda(q1, q1).transpose() << std::endl;
+  std::cout << "---" << std::endl;
+  
+  std::cout << "eval: {q1d,q2d}: " << KE_eval(DMVector{q1d,q2d}) << std::endl;
+  std::cout << "grad: {q1d,q2d}: " << gKE_eval(DMVector{q1d,q2d}) << std::endl;
+  std::cout << "FD grad: {q1d,q2d}:" << fd_grad_lambda(q1, q2).transpose() << std::endl;
+  std::cout << "---" << std::endl;
+  
+  std::cout << "eval: {q2d,q2d}: " << KE_eval(DMVector{q2d,q2d}) << std::endl;
+  std::cout << "grad: {q2d,q2d}: " << gKE_eval(DMVector{q2d,q2d}) << std::endl;
+  std::cout << "FD grad: {q2d,q2d}:" << fd_grad_lambda(q2, q2).transpose() << std::endl;
+  std::cout << "---" << std::endl;
+  std::cout << '\n';
+
+  auto fd_hess_ambda = [&](const Model::ConfigVectorType& q0_, const Model::ConfigVectorType& q1_) 
+  {
+    auto nv = model.nv;
+    // finite differencing
+    Model::TangentVectorType dq0(nv), dq1(nv);
+    Eigen::MatrixXd jac_fd(2 * nv, 2 * nv);
+    for (int i = 0; i < nv; i++)
+    {
+      dq0(i, 0) = eps;
+      dq1(i, 0) = eps;
+
+      Model::ConfigVectorType q0_i = pinocchio::integrate(model, q0_, dq0);
+      auto dp = gKE_eval(DMVector{eigenToDM(q0_i), eigenToDM(q1_)});
+      auto dm = gKE_eval(DMVector{eigenToDM(q0_), eigenToDM(q1_)});
+      auto diff1 = (dp[0] - dm[0]) / eps;
+      
+      Model::ConfigVectorType q1_i = pinocchio::integrate(model, q1_, dq1);
+      dp = gKE_eval(DMVector{eigenToDM(q0_), eigenToDM(q1_i)});
+      auto diff2 = (dp[0] - dm[0]) / eps;
+
+      for (int j = 0; j < jac_fd.rows(); j++)
+      {
+        jac_fd(j, i) = static_cast<double>(diff1(j));
+        jac_fd(j, i + nv) = static_cast<double>(diff2(j));
+      }
+
+      dq0(i, 0) = 0.;
+      dq1(i, 0) = 0.;
+    }
+    return jac_fd;
+  };
+
+  std::cout << HKE_eval(DMVector{q0d,q0d})[0] << '\n';
+  auto jac_fd = fd_hess_ambda(q0, q0);
+  std::cout << jac_fd << '\n';
+
+  std::cout << HKE_eval(DMVector{q1d,q2d})[0] << '\n';
+  jac_fd = fd_hess_ambda(q1, q2);
+  std::cout << jac_fd << '\n';
+
+  std::cout << HKE_eval(DMVector{q0d,q2d})[0] << '\n';
+  jac_fd = fd_hess_ambda(q0, q2);
+  std::cout << jac_fd << '\n';
+
+  std::cout << HKE_eval(DMVector{q2d,q2d})[0] << '\n';
+  jac_fd = fd_hess_ambda(q2, q2);
+  std::cout << jac_fd << '\n';
+}
 
 BOOST_AUTO_TEST_SUITE_END()
