@@ -37,6 +37,12 @@ BOOST_AUTO_TEST_CASE(exp)
   
   BOOST_CHECK(R.isApprox(M.rotation()));
   
+  Eigen::Matrix<double,7,1> q0;
+  q0 << 0., 0., 0., 0., 0., 0., 1.;
+  Eigen::Matrix<double,7,1> q = quaternion::exp6(v);
+  Eigen::Quaterniond quat0(q.tail<4>());
+  BOOST_CHECK(R.isApprox(quat0.matrix()));
+
   // check the NAN case
   #ifdef NDEBUG
     Motion::Vector6 vec6_nan(Motion::Vector6::Constant(NAN));
@@ -61,6 +67,30 @@ BOOST_AUTO_TEST_CASE(exp)
   Eigen::QuaternionMapd quat_map(vec4.data());
   quaternion::exp3(v.angular(),quat_map);
   BOOST_CHECK(quat_map.toRotationMatrix().isApprox(M.rotation()));
+}
+
+BOOST_AUTO_TEST_CASE(renorm_rotation)
+{
+  SE3 M0, M1;
+  SE3::Matrix3 R0, R1;
+  SE3::Matrix3 R_normed;
+  SE3::Matrix3 Id(SE3::Matrix3::Identity());
+  SE3::Vector3 vals;
+  double tr0, tr;
+  const size_t num_tries = 20;
+
+  for (size_t i = 0; i < num_tries; i++)
+  {
+    M0.setRandom();
+    M1 = M0.actInv(M0);
+    R1 = M1.rotation();
+    R_normed = pinocchio::renormalize_rotation_matrix(R1);
+    BOOST_CHECK((R_normed.transpose() * R_normed).isApprox(Id));
+    tr0 = R1.trace();
+
+    tr = R_normed.trace();
+    vals = 2. * R_normed.diagonal().array() - tr + 1.;
+  }
 }
 
 BOOST_AUTO_TEST_CASE(log)
@@ -113,7 +143,6 @@ BOOST_AUTO_TEST_CASE(log)
     
     BOOST_CHECK(omega.isApprox(omega_ref));
   }
-
 
   // Check QuaternionMap
   Eigen::Vector4d vec4;
@@ -194,12 +223,14 @@ BOOST_AUTO_TEST_CASE(Jexp3_fd)
   Jexp3(v, Jexp);
 
   Motion::Vector3 dv; dv.setZero();
-  const double eps = 1e-8;
+  const double eps = 1e-3;
   for (int i = 0; i < 3; ++i)
   {
     dv[i] = eps;
     SE3::Matrix3 R_next = exp3(v+dv);
-    Jexp_fd.col(i) = log3(R.transpose()*R_next) / eps;
+    SE3::Matrix3 R_prev = exp3(v-dv);
+    SE3::Matrix3 Rpn = R_prev.transpose() * R_next;
+    Jexp_fd.col(i) = log3(Rpn) / (2.*eps);
     dv[i] = 0;
   }
   BOOST_CHECK(Jexp_fd.isApprox(Jexp, std::sqrt(eps)));
@@ -363,6 +394,28 @@ BOOST_AUTO_TEST_CASE(Jlog6_fd)
   BOOST_CHECK(Jlog2.isApprox(Jlog));
 }
 
+BOOST_AUTO_TEST_CASE(Jlog6_singular)
+{
+  for (size_t i = 0; i < 15; i++)
+  {
+    SE3 M0;
+    if (i == 0) {
+      M0 = SE3::Identity();
+    }
+    else {
+      M0 = SE3::Random();
+    }
+    SE3 dM (M0.actInv(M0));
+
+    BOOST_CHECK(dM.isApprox(SE3::Identity()));
+    SE3::Matrix6 J0(SE3::Matrix6::Identity());
+
+    SE3::Matrix6 J_val = Jlog6(dM);
+    BOOST_CHECK(J0.isApprox(J_val));
+  }
+
+}
+
 BOOST_AUTO_TEST_CASE(Jexp6_fd)
 {
   SE3 M(SE3::Random());
@@ -389,6 +442,32 @@ BOOST_AUTO_TEST_CASE(Jexp6_fd)
   
   SE3::Matrix6 Jexp2 = Jexp6(v);
   BOOST_CHECK(Jexp2.isApprox(Jexp));
+}
+
+BOOST_AUTO_TEST_CASE(Jlog6_of_product_fd)
+{
+  SE3 Ma(SE3::Random());
+  SE3 Mb(SE3::Random());
+
+  SE3::Matrix6 Jlog, Ja, Jb, Jfda, Jfdb;
+  Jlog6 (Ma.inverse() * Mb, Jlog);
+  Ja = - Jlog * (Ma.inverse() * Mb).toActionMatrixInverse();
+  Jb = Jlog;
+  Jfda.setZero();
+  Jfdb.setZero();
+
+  Motion dM; dM.setZero();
+  double step = 1e-8;
+  for (int i = 0; i < 6; ++i)
+  {
+    dM.toVector()[i] = step;
+    Jfda.col(i) = (log6((Ma*exp6(dM)).inverse()*Mb).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
+    Jfdb.col(i) = (log6(Ma.inverse()*Mb*exp6(dM)).toVector() - log6(Ma.inverse()*Mb).toVector()) / step;
+    dM.toVector()[i] = 0;
+  }
+
+  BOOST_CHECK(Jfda.isApprox(Ja, sqrt(step)));
+  BOOST_CHECK(Jfdb.isApprox(Jb, sqrt(step)));
 }
 
 BOOST_AUTO_TEST_CASE(Jexplog6)
@@ -503,6 +582,18 @@ BOOST_AUTO_TEST_CASE(test_SE3_interpolate)
   SE3 C = SE3::Interpolate(A,B,0.5);
   SE3 D = SE3::Interpolate(B,A,0.5);
   BOOST_CHECK(D.isApprox(C));
+}
+
+BOOST_AUTO_TEST_CASE(test_Jlog6_robustness)
+{
+  const int num_tests = 1e1;
+  for(int k = 0; k < num_tests; ++k)
+  {
+    const SE3 M = SE3::Random();
+    SE3::Matrix6 res = Jlog6(M.actInv(M));
+    
+    BOOST_CHECK(res.isIdentity());
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

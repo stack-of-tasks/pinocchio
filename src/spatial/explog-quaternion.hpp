@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2021 CNRS INRIA
 //
 
 #ifndef __pinocchio_spatial_explog_quaternion_hpp__
@@ -17,10 +17,10 @@ namespace pinocchio
     ///
     /// \brief Exp: so3 -> SO3 (quaternion)
     ///
-    /// \returns the integral of the velocity vector as a queternion.
+    /// \returns the integral of the velocity vector as a quaternion.
     ///
     /// \param[in] v The angular velocity vector.
-    /// \param[out] qout The quanternion where the result is stored.
+    /// \param[out] qout The quaternion where the result is stored.
     ///
     template<typename Vector3Like, typename QuaternionLike>
     void exp3(const Eigen::MatrixBase<Vector3Like> & v,
@@ -32,18 +32,21 @@ namespace pinocchio
       typedef typename Vector3Like::Scalar Scalar;
       enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Coefficients)::Options };
       typedef Eigen::Quaternion<typename QuaternionLike::Scalar,Options> QuaternionPlain;
+      const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
       
       const Scalar t2 = v.squaredNorm();
-      const Scalar t = math::sqrt(t2);
+      const Scalar t = math::sqrt(t2 + eps * eps);
       
-      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon()); // Precision for the Taylor series expansion.
+      static const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<3>(); // Precision for the Taylor series expansion.
     
       Eigen::AngleAxis<Scalar> aa(t,v/t);
       QuaternionPlain quat_then(aa);
       
+      // order 4 Taylor expansion in theta / (order 2 in t2)
       QuaternionPlain quat_else;
-      quat_else.vec() = (Scalar(1)/Scalar(2) - t2/48) * v;
-      quat_else.w() = Scalar(1) - t2/8;
+      const Scalar t2_2 = t2 / 4;  // theta/2 squared
+      quat_else.vec() = Scalar(0.5) * (Scalar(1) - t2_2 / Scalar(6) + t2_2*t2_2 / Scalar(120)) * v;
+      quat_else.w() = Scalar(1) - t2_2/2 + t2_2*t2_2 / 24;
       
       using ::pinocchio::internal::if_then_else;
       for(Eigen::DenseIndex k = 0; k < 4; ++k)
@@ -55,10 +58,9 @@ namespace pinocchio
       
     }
     
-    ///
     /// \brief Exp: so3 -> SO3 (quaternion)
     ///
-    /// \returns the integral of the velocity vector as a queternion.
+    /// \returns the integral of the velocity vector as a quaternion.
     ///
     /// \param[in] v The angular velocity vector.
     ///
@@ -71,7 +73,106 @@ namespace pinocchio
       return res;
     }
     
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
     ///
+    /// \returns the integral of the twist motion over unit time.
+    ///
+    /// \param[in] motion the spatial motion.
+    /// \param[out] q the output transform in \f$\mathbb{R}^3 x S^3\f$.
+    template<typename MotionDerived, typename Config_t>
+    void exp6(const MotionDense<MotionDerived>& motion,
+              Eigen::MatrixBase<Config_t>& qout)
+    {
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Config_t)::Options };
+      typedef typename Config_t::Scalar Scalar;
+      typedef typename MotionDerived::Vector3 Vector3;
+      typedef Eigen::Quaternion<Scalar,Options> Quaternion_t;
+      const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+
+      const typename MotionDerived::ConstAngularType & w = motion.angular();
+      const typename MotionDerived::ConstLinearType & v = motion.linear();
+
+      const Scalar t2 = w.squaredNorm() + eps * eps;
+      const Scalar t = math::sqrt(t2);
+
+      Scalar ct, st; SINCOS(t, &st, &ct);
+
+      const Scalar inv_t2 = Scalar(1) / t2;
+      const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<3>();  // Taylor expansion precision
+
+      using ::pinocchio::internal::LT;
+      using ::pinocchio::internal::if_then_else;
+
+      const Scalar alpha_wxv = if_then_else(LT, t, ts_prec,
+                                            Scalar(0.5) - t2/Scalar(24),  // then: use Taylor expansion
+                                            (Scalar(1) - ct)*inv_t2  // else
+                                            );
+
+      const Scalar alpha_w2 = if_then_else(LT, t, ts_prec,
+                                           Scalar(1)/Scalar(6) - t2/Scalar(120),
+                                           (t - st)*inv_t2 / t
+                                           );
+
+      // linear part
+      Eigen::Map<Vector3> trans_(qout.derived().template head<3>().data());
+      trans_.noalias() = v + alpha_wxv * w.cross(v) + alpha_w2 * w.cross(w.cross(v));
+
+      // quaternion part
+      typedef Eigen::Map<Quaternion_t> QuaternionMap_t;
+      QuaternionMap_t quat_(qout.derived().template tail<4>().data());
+      exp3(w, quat_);
+    }
+
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the twist motion over unit time.
+    ///
+    /// \param[in] motion the spatial motion.
+    template<typename MotionDerived>
+    Eigen::Matrix<typename MotionDerived::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options>
+    exp6(const MotionDense<MotionDerived>& motion)
+    {
+      typedef typename MotionDerived::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename MotionDerived::Vector3)::Options };
+      typedef Eigen::Matrix<Scalar,7,1,Options> ReturnType;
+
+      ReturnType qout;
+      exp6(motion, qout);
+      return qout;
+    }
+    
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the spatial velocity over unit time.
+    ///
+    /// \param[in] vec6 the vector representing the spatial velocity.
+    /// \param[out] qout the output transform in R^3 x S^3.
+    template<typename Vector6Like, typename Config_t>
+    void exp6(const Eigen::MatrixBase<Vector6Like>& vec6,
+              Eigen::MatrixBase<Config_t>& qout)
+    {
+      MotionRef<const Vector6Like> nu(vec6.derived());
+      ::pinocchio::quaternion::exp6(nu, qout);
+    }
+
+    /// \brief The se3 -> SE3 exponential map, using quaternions to represent the output rotation.
+    ///
+    /// \returns the integral of the spatial velocity over unit time.
+    ///
+    /// \param[in] vec6 the vector representing the spatial velocity.
+    template<typename Vector6Like>
+    Eigen::Matrix<typename Vector6Like::Scalar,7,1,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
+    exp6(const Eigen::MatrixBase<Vector6Like>& vec6)
+    {
+      typedef typename Vector6Like::Scalar Scalar;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options };
+      typedef Eigen::Matrix<Scalar,7,1,Options> ReturnType;
+
+      ReturnType qout;
+      ::pinocchio::quaternion::exp6(vec6, qout);
+      return qout;
+    }
+
     /// \brief Same as \ref log3 but with a unit quaternion as input.
     ///
     /// \param[in] quat the unit quaternion.
@@ -85,36 +186,47 @@ namespace pinocchio
          typename QuaternionLike::Scalar & theta)
     {
       typedef typename QuaternionLike::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options };
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
       
       Vector3 res;
       const Scalar norm_squared = quat.vec().squaredNorm();
-      const Scalar norm = math::sqrt(norm_squared);
-      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
 
-      const Scalar y_x = norm / quat.w();
-      static const Scalar PI_value = PI<Scalar>();
+      static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+      static const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<2>();
+      const Scalar norm = math::sqrt(norm_squared + eps * eps);
+
       using ::pinocchio::internal::if_then_else;
       using ::pinocchio::internal::GE;
       using ::pinocchio::internal::LT;
-        
-      const Scalar theta_2 = if_then_else(GE, quat.w(), Scalar(0),
-                                          math::atan2(norm,quat.w()),
-                                          PI_value - math::atan2(norm,quat.w()));
 
       const Scalar pos_neg = if_then_else(GE, quat.w(), Scalar(0),
                                           Scalar(+1),
                                           Scalar(-1));
+        
+      Eigen::Quaternion<Scalar, Options> quat_pos;
+      quat_pos.w() = pos_neg * quat.w();
+      quat_pos.vec() = pos_neg * quat.vec();
 
-      
+      const Scalar theta_2 = math::atan2(norm,quat_pos.w());  // in [0,pi]
+      const Scalar y_x = norm / quat_pos.w();  // nonnegative
+      const Scalar y_x_sq = norm_squared / (quat_pos.w() * quat_pos.w());
+
       theta = if_then_else(LT, norm_squared, ts_prec,
-                           (Scalar(1) - y_x * y_x / Scalar(3)) * y_x,
+                           Scalar(2.)*(Scalar(1) - y_x_sq / Scalar(3)) * y_x,
                            Scalar(2.)*theta_2);
+
+      const Scalar th2_2 = theta * theta / Scalar(4);
+      const Scalar inv_sinc = if_then_else(LT, norm_squared, ts_prec,
+                                           Scalar(2) * (Scalar(1) + th2_2 / Scalar(6) + Scalar(7)/Scalar(360) * th2_2*th2_2),
+                                           theta / math::sin(theta_2));
+
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
-        res[k] = if_then_else(LT, norm_squared, ts_prec,
-                              (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k],
-                              pos_neg*(theta / math::sin(theta_2)) * quat.vec()[k]);
+        // res[k] = if_then_else(LT, norm_squared, ts_prec,
+        //                       Scalar(2) * (Scalar(1) + y_x_sq / Scalar(6) - y_x_sq*y_x_sq / Scalar(9)) * pos_neg * quat.vec()[k],
+        //                       inv_sinc * pos_neg * quat.vec()[k]);
+        res[k] = inv_sinc * quat_pos.vec()[k];
       }
       return res;
     }
