@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2022 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -34,7 +34,6 @@ BOOST_PYTHON_MODULE(PINOCCHIO_PYTHON_MODULE_NAME)
   // Enable warnings
   bp::import("warnings");
   
-  eigenpy::enableEigenPy();
   exposeEigenTypes();
   exposeSpecificTypeFeatures();
   
