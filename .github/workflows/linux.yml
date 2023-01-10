@@ -1,9 +1,14 @@
-name: Test Pinocchio on Linux
+name: CI - Linux via APT
 
 on: [push,pull_request]
 
 jobs:
   build:
+    on:
+      pull_request:
+        # ignore this job on pinocchio3-preview due hpp-fcl version from robotpkg
+        branches-ignore:
+          - pinocchio3-preview
 
     runs-on: ${{ matrix.os }}
 
