@@ -53,7 +53,7 @@ namespace pinocchio
   {
     typedef Eigen::Matrix<typename MatrixLike::Scalar, MatrixLike::RowsAtCompileTime, 1> Vector;
     typedef typename MatrixLike::Scalar Scalar;
-    const Scalar constant_value = Scalar(1)/math::sqrt(mat.rows());
+    const Scalar constant_value = Scalar(1)/math::sqrt(Scalar(mat.rows()));
     Vector eigenvector_est(Vector::Constant(mat.rows(),constant_value));
 
     computeLargestEigenvector(mat, eigenvector_est, max_it, rel_tol);
