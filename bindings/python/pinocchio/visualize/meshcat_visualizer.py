@@ -243,6 +243,8 @@ class MeshcatVisualizer(BaseVisualizer):
         self._node_background = self.viewer["/Background"]
         self._rot_cam_key = "rotated/object"
 
+        self._check_meshcat_has_get_image()
+
         if open:
             self.viewer.open()
 
@@ -469,15 +471,16 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
-    def captureImage(self, w=None, h=None):
-        """Capture an image from the Meshcat viewer and return an RGB array."""
-        try:
-            img = self.viewer.get_image(w, h)
-            img_arr = np.asarray(img)
-            return img_arr
-        except AttributeError:
+    def _check_meshcat_has_get_image(self):
+        if not hasattr(self.viewer, "get_image"):
             warnings.warn("meshcat.Visualizer does not have the get_image() method."
                           " You need meshcat >= 0.2.0 to get this feature.")
+
+    def captureImage(self, w=None, h=None):
+        """Capture an image from the Meshcat viewer and return an RGB array."""
+        img = self.viewer.get_image(w, h)
+        img_arr = np.asarray(img)
+        return img_arr
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not."""
