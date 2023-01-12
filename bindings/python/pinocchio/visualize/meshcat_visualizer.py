@@ -284,7 +284,7 @@ class MeshcatVisualizer(BaseVisualizer):
     def enableCameraControl(self):
         self.setCameraPosition([3, 0, 1])
 
-    def loadPrimitive(self, geometry_object):
+    def loadPrimitive(self, geometry_object: pin.GeometryObject):
 
         import meshcat.geometry as mg
 
@@ -470,6 +470,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
+
+    def addGeometryObject(self, obj: pin.GeometryObject, color=None):
+        """Add a visual GeometryObject to the viewer, with an optional color."""
+        self.loadViewerGeometryObject(obj, pin.GeometryType.VISUAL, color)
 
     def _check_meshcat_has_get_image(self):
         if not hasattr(self.viewer, "get_image"):
