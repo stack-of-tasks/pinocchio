@@ -63,26 +63,29 @@ class BaseVisualizer(object):
         """ Delete all the objects from the whole scene """
         pass
 
-    def display(self, q = None):
+    def display(self, q=None):
         """Display the robot at configuration q or refresh the rendering
         from the current placements contained in data by placing all the bodies in the viewer."""
         pass
 
-    def displayCollisions(self,visibility):
+    def displayCollisions(self, visibility):
         """Set whether to display collision objects or not."""
         raise NotImplementedError()
  
-    def displayVisuals(self,visibility):
+    def displayVisuals(self, visibility):
         """Set whether to display visual objects or not."""
         raise NotImplementedError()
     
     def setBackgroundColor(self):
+        """Set the visualizer background color."""
         raise NotImplementedError()
 
     def setCameraTarget(self, target):
+        """Set the camera target."""
         raise NotImplementedError()
 
     def setCameraPosition(self, position: np.ndarray):
+        """Set the camera's 3D position."""
         raise NotImplementedError()
 
     def setCameraZoom(self, zoom: float):
@@ -90,7 +93,7 @@ class BaseVisualizer(object):
         raise NotImplementedError()
 
     def setCameraPose(self, pose: np.ndarray = np.eye(4)):
-        """Set camera pose using a 4x4 matrix."""
+        """Set camera 6D pose using a 4x4 matrix."""
         raise NotImplementedError()
 
     def captureImage(self, w=None, h=None):
@@ -101,6 +104,10 @@ class BaseVisualizer(object):
         raise NotImplementedError()
 
     def enableCameraControl(self):
+        raise NotImplementedError()
+
+    def drawFrameVelocities(self, *args):
+        """Draw current frame velocities."""
         raise NotImplementedError()
 
     def sleep(self, dt):
@@ -121,5 +128,11 @@ class BaseVisualizer(object):
                 self.sleep(dt - elapsed_time)
         if capture:
             return imgs
+
+
+class VideoContext:
+    def __init__(self, viz: BaseVisualizer, fps: int, filename: str, **kwargs):
+        self.viz = viz
+        self.vid_writer
 
 __all__ = ['BaseVisualizer']
