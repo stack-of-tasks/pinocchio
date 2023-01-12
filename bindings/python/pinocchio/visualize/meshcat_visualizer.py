@@ -11,7 +11,7 @@ from distutils.version import LooseVersion
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
-except:
+except ImportError:
     WITH_HPP_FCL_BINDINGS = False
 
 DEFAULT_COLOR_PROFILES = {
@@ -201,6 +201,26 @@ def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
+    FORCE_SCALE = 0.06
+    FRAME_VEL_COLOR = 0x00FF00
+    CAMERA_PRESETS = {
+        "preset0": [
+            np.zeros(3),  # target
+            [3.0, 0.0, 1.0],  # anchor point (x, z, -y) lhs coords
+        ],
+        "preset1": [np.zeros(3), [1.0, 1.0, 1.0]],
+        "preset2": [[0.0, 0.0, 0.6], [0.8, 1.0, 1.2]],
+        "acrobot": [[0.0, 0.1, 0.0], [0.5, 0.0, 0.2]],
+        "cam_ur": [[0.4, 0.6, -0.2], [1.0, 0.4, 1.2]],
+        "cam_ur2": [[0.4, 0.3, 0.0], [0.5, 0.1, 1.4]],
+        "cam_ur3": [[0.4, 0.3, 0.0], [0.6, 1.3, 0.3]],
+        "cam_ur4": [[-1.0, 0.3, 0.0], [1.3, 0.1, 1.2]],  # x>0 to x<0
+        "cam_ur5": [[-1.0, 0.3, 0.0], [-0.05, 1.5, 1.2]],
+        "talos": [[0.0, 1.2, 0.0], [1.5, 0.3, 1.5]],
+        "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
+    }
+
+
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
         if geometry_type is pin.GeometryType.VISUAL:
@@ -263,18 +283,18 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadPrimitive(self, geometry_object):
 
-        import meshcat.geometry
+        import meshcat.geometry as mg
 
         # Cylinders need to be rotated
         R = np.array([[1.,  0.,  0.,  0.],
                       [0.,  0., -1.,  0.],
                       [0.,  1.,  0.,  0.],
                       [0.,  0.,  0.,  1.]])
-        RotatedCylinder = type("RotatedCylinder", (meshcat.geometry.Cylinder,), {"intrinsic_transform": lambda self: R })
+        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: R })
 
-        geom = geometry_object.geometry
+        geom: hppfcl.ShapeBase = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
-            if hasattr(meshcat.geometry, 'TriangularMeshGeometry'):
+            if hasattr(mg, 'TriangularMeshGeometry'):
                 obj = createCapsule(2. * geom.halfLength, geom.radius)
             else:
                 obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
@@ -283,9 +303,9 @@ class MeshcatVisualizer(BaseVisualizer):
         elif isinstance(geom, hppfcl.Cone):
             obj = RotatedCylinder(2. * geom.halfLength, 0, geom.radius, 0)
         elif isinstance(geom, hppfcl.Box):
-            obj = meshcat.geometry.Box(npToTuple(2. * geom.halfSide))
+            obj = mg.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
-            obj = meshcat.geometry.Sphere(geom.radius)
+            obj = mg.Sphere(geom.radius)
         elif isinstance(geom, hppfcl.ConvexBase):
             obj = loadMesh(geom)
         else:
@@ -479,5 +499,27 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if visibility:
             self.updatePlacements(pin.GeometryType.VISUAL)
+
+    def drawFrameVelocities(self, frame_id: int, v_scale=0.2):
+        pin.updateFramePlacement(self.model, self.data, frame_id)
+        vFr = pin.getFrameVelocity(
+            self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
+        )
+        self._draw_vectors_from_frame([v_scale * vFr.linear], [frame_id], [f"ee_v/{frame_id}"], [self.FRAME_VEL_COLOR])
+ 
+    def _draw_vectors_from_frame(self, vecs: list[np.ndarray], frame_ids: list[int], vec_names: list[str], colors: list[int]):
+        """Draw vectors extending from given frames."""
+        import meshcat.geometry as mg
+        assert len(vecs) == len(frame_ids), "Different number of vectors and frame_ids"
+        assert len(vecs) == len(vec_names), "Different number of vectors and names"
+        for i, (fid, v) in enumerate(zip(frame_ids, vecs)):
+            frame_pos = self.data.oMf[fid].translation
+            vertices = np.array([frame_pos, frame_pos + v]).astype(np.float32).T
+            name = vec_names[i]
+            geometry = mg.PointsGeometry(position=vertices)
+            geom_object = mg.LineSegments(geometry, mg.LineBasicMaterial(color=colors[i]))
+            prefix = f"lines/{name!r}"
+            self.viewer[prefix].set_object(geom_object)
+            
 
 __all__ = ['MeshcatVisualizer']
