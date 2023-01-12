@@ -16,8 +16,10 @@ pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))),"models")
 
 model_path = join(pinocchio_model_dir,"example-robot-data/robots")
 mesh_dir = pinocchio_model_dir
-urdf_filename = "talos_reduced.urdf"
-urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
+# urdf_filename = "talos_reduced.urdf"
+# urdf_model_path = join(join(model_path,"talos_data/robots"),urdf_filename)
+urdf_filename = "solo.urdf"
+urdf_model_path = join(join(model_path,"solo_description/robots"),urdf_filename)
 
 model, collision_model, visual_model = pin.buildModelsFromUrdf(urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 
@@ -75,3 +77,34 @@ q = q0.copy()
 q[1] = 1.0
 viz2.display(q)
 
+# standing config
+q1 = np.array([ 0.   ,  0.   ,  0.235,  0.   ,  0.   ,  0.   ,  1.   ,  0.8  ,
+       -1.6  ,  0.8  , -1.6  , -0.8  ,  1.6  , -0.8  ,  1.6  ])
+
+v0 = np.random.randn(model.nv) * 2
+data = viz.data
+pin.forwardKinematics(model, data, q1, v0)
+frame_id = model.getFrameId("HR_FOOT")
+viz.display()
+viz.drawFrameVelocities(frame_id=frame_id)
+
+model.gravity.linear[:] = 0.
+
+def sim_loop():
+    dt = 0.01
+    qs = [q1]
+    vs = [v0]
+    tau0 = np.zeros(model.nv)
+    nsteps = 100
+    for i in range(nsteps):
+        q = qs[i]
+        v = vs[i]
+        a1 = pin.aba(model, data, q, v, tau0)
+        vnext = v + dt * a1
+        qnext = pin.integrate(model, q, dt * vnext)
+        qs.append(qnext)
+        vs.append(vnext)
+        viz.display(qnext)
+        viz.drawFrameVelocities(frame_id=frame_id)
+
+sim_loop()
