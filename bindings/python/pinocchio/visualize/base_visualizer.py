@@ -3,12 +3,14 @@ from ..shortcuts import buildModelsFromUrdf, createDatas
 
 import time
 import numpy as np
+from pathlib import Path
 
 class BaseVisualizer(object):
     """Pinocchio visualizers are employed to easily display a model at a given configuration.
     BaseVisualizer is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
     New visualizers should extend this class and override its methods as neeeded.
     """
+    _video_writer = None
 
     def __init__(self, model = pin.Model(), collision_model = None, visual_model = None, copy_models = False, data = None, collision_data = None, visual_data = None):
         """Construct a display from the given model, collision model, and visual model.
@@ -113,26 +115,49 @@ class BaseVisualizer(object):
     def sleep(self, dt):
         time.sleep(dt)
 
-    def play(self, q_trajectory, dt, capture=False):
+    def play(self, qs, dt=None, callback=None, **kwargs):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
-        imgs = []
-        for k in range(q_trajectory.shape[1]):
+        nsteps = len(qs)
+        capture = self._video_writer is not None
+        for i in range(nsteps):
             t0 = time.time()
-            self.display(q_trajectory[:, k])
+            self.display(qs[i])
+            if callback is not None:
+                callback(i, **kwargs)
             if capture:
                 img_arr = self.captureImage()
-                imgs.append(img_arr)
+                self._video_writer.append_data(img_arr)
             t1 = time.time()
             elapsed_time = t1 - t0
-            if elapsed_time < dt:
+            if dt is not None and elapsed_time < dt:
                 self.sleep(dt - elapsed_time)
-        if capture:
-            return imgs
 
+    def create_video_ctx(self, filename: str = None, fps=30, directory=None, **kwargs):
+        """Create a video recording context, generating the output filename if necessary.
+
+        Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
+        """
+        if filename is None:
+            if directory is None:
+                from tempfile import gettempdir
+                directory = gettempdir()
+            f_fmt = "%Y%m%d_%H%M%S"
+            ext = "mp4"
+            filename = Path(directory).joinpath(time.strftime(f"{f_fmt}.{ext}"))
+        return VideoContext(self, fps, filename)
 
 class VideoContext:
     def __init__(self, viz: BaseVisualizer, fps: int, filename: str, **kwargs):
+        import imageio
         self.viz = viz
-        self.vid_writer
+        self.vid_writer = imageio.get_writer(filename, fps=fps, **kwargs)
+
+    def __enter__(self):
+        print("[Entering video recording context]")
+        self.viz._video_writer = self.vid_writer
+
+    def __exit__(self, *args):
+        self.vid_writer.close()
+        self.viz._video_writer = None
 
 __all__ = ['BaseVisualizer']

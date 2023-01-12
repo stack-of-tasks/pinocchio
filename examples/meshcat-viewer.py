@@ -78,12 +78,12 @@ viz.display()
 viz.drawFrameVelocities(frame_id=frame_id)
 
 model.gravity.linear[:] = 0.
+dt = 0.01
 
 def sim_loop():
-    dt = 0.01
+    tau0 = np.zeros(model.nv)
     qs = [q1]
     vs = [v0]
-    tau0 = np.zeros(model.nv)
     nsteps = 100
     for i in range(nsteps):
         q = qs[i]
@@ -95,5 +95,15 @@ def sim_loop():
         vs.append(vnext)
         viz.display(qnext)
         viz.drawFrameVelocities(frame_id=frame_id)
+    return qs, vs
 
-sim_loop()
+qs, vs = sim_loop()
+
+fid2 = model.getFrameId("FL_FOOT")
+
+def my_callback(i, *args):
+    viz.drawFrameVelocities(frame_id)
+    viz.drawFrameVelocities(fid2)
+    
+with viz.create_video_ctx("../leap.mp4"):
+    viz.play(qs, dt, callback=my_callback)
