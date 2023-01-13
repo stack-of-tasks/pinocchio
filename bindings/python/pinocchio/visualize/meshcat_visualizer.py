@@ -7,6 +7,7 @@ import os
 import warnings
 import numpy as np
 from distutils.version import LooseVersion
+from typing import List
 
 try:
     import hppfcl
@@ -514,7 +515,7 @@ class MeshcatVisualizer(BaseVisualizer):
         )
         self._draw_vectors_from_frame([v_scale * vFr.linear], [frame_id], [f"ee_v/{frame_id}"], [self.FRAME_VEL_COLOR])
  
-    def _draw_vectors_from_frame(self, vecs: list[np.ndarray], frame_ids: list[int], vec_names: list[str], colors: list[int]):
+    def _draw_vectors_from_frame(self, vecs: List[np.ndarray], frame_ids: List[int], vec_names: List[str], colors: List[int]):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg
         assert len(vecs) == len(frame_ids), "Different number of vectors and frame_ids"
