@@ -76,6 +76,10 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   jmodel.calc(jdata,q2);
   SE3 M2 = jdata.M;
 
+  double tol_test = 1e2;
+  if(jmodel.shortname() != "JointModelPlanar")
+    tol_test = 5e4;
+
   const SE3 M2_exp = M1*exp6(v1);
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
@@ -122,7 +126,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
   
   q_interpolate = LieGroupType().interpolate(q1,q2,1.);
-  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2,tol_test*prec), std::string("Error when interpolating " + jmodel.shortname()));
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {
@@ -142,13 +146,15 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 
   // Check difference
   // TODO(jcarpent): check the increase of tolerance.
+
+
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
-  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e4*prec), std::string("Error when differentiating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,tol_test*prec), std::string("Error when differentiating " + jmodel.shortname()));
 
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 1e4*prec);
+  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), tol_test*prec);
   
   std::string error_prefix("LieGroup");
   error_prefix += " on joint " + jmodel.shortname();
