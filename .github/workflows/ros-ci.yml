@@ -27,6 +27,7 @@ jobs:
       # Note, this does not affect projects that do not have pure CMake projects in their upstream_ws.
       BUILDER: catkin_tools
       AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
+      CTEST_OUTPUT_ON_FAILURE: 1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

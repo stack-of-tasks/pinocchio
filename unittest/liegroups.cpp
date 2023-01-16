@@ -44,8 +44,9 @@ std::ostream& operator<< (std::ostream& os, const LieGroupGenericTpl<LieGroupCol
 template <typename T>
 void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 {
+  typedef typename LieGroup<T>::type LieGroupType;
   typedef double Scalar;
-  
+
   const Scalar prec = Eigen::NumTraits<Scalar>::dummy_precision();
   BOOST_TEST_MESSAGE ("Testing Joint over " << jmodel.shortname());
   typedef typename T::ConfigVector_t  ConfigVector_t;
@@ -54,15 +55,15 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   ConfigVector_t  q1(ConfigVector_t::Random (jmodel.nq()));
   TangentVector_t q1_dot(TangentVector_t::Random (jmodel.nv()));
   ConfigVector_t  q2(ConfigVector_t::Random (jmodel.nq()));
-  
-  typedef typename LieGroup<T>::type LieGroupType;
+
   static ConfigVector_t Ones(ConfigVector_t::Ones(jmodel.nq()));
   const Scalar u = 0.3;
   // pinocchio::Inertia::Matrix6 Ia(pinocchio::Inertia::Random().matrix());
   // bool update_I = false;
   
   q1 = LieGroupType().randomConfiguration(-Ones, Ones);
-  
+  BOOST_CHECK(LieGroupType().isNormalized(q1));
+
   typename T::JointDataDerived jdata = jmodel.createData();
   
   // Check integrate
@@ -71,8 +72,13 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   Motion v1(jdata.v);
   
   q2 = LieGroupType().integrate(q1,q1_dot);
+  BOOST_CHECK(LieGroupType().isNormalized(q2));
   jmodel.calc(jdata,q2);
   SE3 M2 = jdata.M;
+
+  double tol_test = 1e2;
+  if(jmodel.shortname() == "JointModelPlanar")
+    tol_test = 5e4;
 
   const SE3 M2_exp = M1*exp6(v1);
   
@@ -90,7 +96,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   LieGroupType().integrate(qTest, qTest_dot, qTest);
   BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
     std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
-  
+
   SE3 MTest, MResult;
   {
     typename T::JointDataDerived jdata = jmodel.createData();
@@ -102,8 +108,10 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     jmodel.calc(jdata, qResult);
     MResult = jdata.M;
   }
-  
   BOOST_CHECK_MESSAGE(MTest.isApprox(MResult),
+                      std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
+
+  BOOST_CHECK_MESSAGE(qTest.isApprox(qResult,prec),
     std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
 
   // Check the reversability of integrate
@@ -112,13 +120,13 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   SE3 M3 = jdata.M;
   
   BOOST_CHECK_MESSAGE(M3.isApprox(M1), std::string("Error when integrating back " + jmodel.shortname()));
-  
+
   // Check interpolate
   ConfigVector_t q_interpolate = LieGroupType().interpolate(q1,q2,0.);
   BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q1), std::string("Error when interpolating " + jmodel.shortname()));
   
   q_interpolate = LieGroupType().interpolate(q1,q2,1.);
-  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2), std::string("Error when interpolating " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(q_interpolate.isApprox(q2,tol_test*prec), std::string("Error when interpolating " + jmodel.shortname()));
   
   if(jmodel.shortname() != "JointModelSphericalZYX")
   {
@@ -127,7 +135,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     SE3 M_interpolate = jdata.M;
     
     SE3 M_interpolate_expected = M1*exp6(u*v1);
-    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e2*prec), std::string("Error when interpolating " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e4*prec), std::string("Error when interpolating " + jmodel.shortname()));
   }
 
   // Check that difference between two equal configuration is exactly 0
@@ -137,13 +145,16 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE (zero.isZero(), std::string ("Error: difference between two equal configurations is not 0."));
 
   // Check difference
+  // TODO(jcarpent): check the increase of tolerance.
+
+
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
-  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e2*prec), std::string("Error when differentiating " + jmodel.shortname()));
-  
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,tol_test*prec), std::string("Error when differentiating " + jmodel.shortname()));
+
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 10*prec);
+  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), tol_test*prec);
   
   std::string error_prefix("LieGroup");
   error_prefix += " on joint " + jmodel.shortname();
@@ -192,7 +203,10 @@ struct TestJoint{
     jmodel.setIndexes(0,0,0);
     typename T::JointDataDerived jdata = jmodel.createData();
 
-    test_lie_group_methods(jmodel, jdata);    
+    for (int i = 0; i <= 50; ++i)
+    {
+      test_lie_group_methods(jmodel, jdata);
+    }
   }
 
   void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const

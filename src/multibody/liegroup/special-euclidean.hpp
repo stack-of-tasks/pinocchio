@@ -592,7 +592,7 @@ namespace pinocchio
                                const Eigen::MatrixBase<ConfigOut_t> & qout)
     {
       ConfigOut_t & out = PINOCCHIO_EIGEN_CONST_CAST(ConfigOut_t,qout);
-      ConstQuaternionMap_t quat(q.derived().template tail<4>().data());
+      Quaternion_t const quat(q.derived().template tail<4>());
       assert(quaternion::isNormalized(quat,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       QuaternionMap_t res_quat (out.template tail<4>().data());
       
