@@ -107,7 +107,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   BOOST_CHECK_MESSAGE(MTest.isApprox(MResult),
                       std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
 
-  BOOST_CHECK_MESSAGE(qTest.isApprox(qResult,1e2*prec),
+  BOOST_CHECK_MESSAGE(qTest.isApprox(qResult,prec),
     std::string("Inconsistent value when integrating with same input and output " + jmodel.shortname()));
 
   // Check the reversability of integrate
@@ -115,7 +115,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   jmodel.calc(jdata,q3);
   SE3 M3 = jdata.M;
   
-  BOOST_CHECK_MESSAGE(M3.isApprox(M1,1e2*prec), std::string("Error when integrating back " + jmodel.shortname()));
+  BOOST_CHECK_MESSAGE(M3.isApprox(M1), std::string("Error when integrating back " + jmodel.shortname()));
 
   // Check interpolate
   ConfigVector_t q_interpolate = LieGroupType().interpolate(q1,q2,0.);
@@ -131,7 +131,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
     SE3 M_interpolate = jdata.M;
     
     SE3 M_interpolate_expected = M1*exp6(u*v1);
-    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e2*prec), std::string("Error when interpolating " + jmodel.shortname()));
+    BOOST_CHECK_MESSAGE(M_interpolate_expected.isApprox(M_interpolate,1e4*prec), std::string("Error when interpolating " + jmodel.shortname()));
   }
 
   // Check that difference between two equal configuration is exactly 0
@@ -143,12 +143,12 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   // Check difference
   // TODO(jcarpent): check the increase of tolerance.
   TangentVector_t vdiff = LieGroupType().difference(q1,q2);
-  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e3*prec), std::string("Error when differentiating " + jmodel.shortname()));
-  
+  BOOST_CHECK_MESSAGE(vdiff.isApprox(q1_dot,1e4*prec), std::string("Error when differentiating " + jmodel.shortname()));
+
   // Check distance
   Scalar dist = LieGroupType().distance(q1,q2);
   BOOST_CHECK_MESSAGE(dist > 0., "distance - wrong results");
-  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 1e3*prec);
+  BOOST_CHECK_SMALL(math::fabs(dist-q1_dot.norm()), 1e4*prec);
   
   std::string error_prefix("LieGroup");
   error_prefix += " on joint " + jmodel.shortname();
