@@ -52,6 +52,11 @@ namespace pinocchio
   
   ///
   /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
+  ///
+  /// For the world frame W, the Jacobian \f${}^0 J_{0j}$ from the joint frame \f$j$ to the world frame $0$ is such that \f${}^0 v_{0j} = {}^0 J_{0j} \dot{q}$,
+  /// where \f${}^0 v_{0j}$ is the spatial velocity of the joint frame. (When serialized to a 6D vector, the three linear coordinates are followed by the three
+  /// angular coordinates).
+  ///
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
@@ -61,7 +66,7 @@ namespace pinocchio
   /// \param[in] model The model structure of the rigid body system.
   /// \param[in] data The data structure of the rigid body system.
   /// \param[in] jointId The id of the joint.
-  /// \param[out] J A reference on the Jacobian matrix where the results will be stored in (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
+  /// \param[out] J A reference to the Jacobian matrix where the results will be stored (dim 6 x model.nv). You must fill J with zero elements, e.g. J.fill(0.).
   ///
   template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl, typename Matrix6Like>
   inline void getJointJacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
