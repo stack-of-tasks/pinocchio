@@ -1,0 +1,721 @@
+<?xml version="1.0"?>
+<robot name="reachy">
+
+<!-- Torso Link -->
+
+<link name="pedestal"/>
+
+<link name="torso">
+    <inertial>
+        <origin xyz="0.0 0.019 -0.009" rpy="0.0 0.0 0.0"/>
+        <mass value="0.527"/>
+        <inertia ixx="2.89598e-3" ixy="-1.16791e-6" ixz="-8.28749e-6" iyy="4.491e-3" iyz="2.343e-4" izz="3.995e-3"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/torso.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0 0 -0.1" rpy="0 0.05 0" />
+        <geometry>
+            <box size="0.11 0.2 0.32" />
+        </geometry>
+    </collision>
+</link>
+
+<!-- Head Links -->
+
+<link name="head">
+    <inertial>
+        <origin xyz="-0.009 -0.002 0.059" rpy="0.0 0.0 0.0"/>
+        <mass value="0.237"/>
+        <inertia ixx="1.676e-3" ixy="3.068e-6" ixz="1.2449e-4" iyy="1.368e-3" iyz="3.360e-5" izz="8.425e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/head.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="-0.009 -0.002 0.059" rpy="1.57 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.15" radius="0.06" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_antenna">
+    <inertial>
+        <origin xyz="-0.001 0.0 0.008" rpy="0.0 0.0 0.0"/>
+        <mass value="0.004"/>
+        <inertia ixx="1.794e-7" ixy="-1.240e-5" ixz="1.91701e-8" iyy="1.5e-7" iyz="3.169e-6" izz="1.933e-7"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/antenna.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.1 0.0 0.1" rpy="0.0 0 0.0"/>
+        <geometry>
+            <cylinder length="0.0" radius="0.0" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_antenna">
+    <inertial>
+        <origin xyz="-0.001 0.0 0.008" rpy="0.0 0.0 0.0"/>
+        <mass value="0.004"/>
+        <inertia ixx="1.794e-7" ixy="-1.240e-5" ixz="1.91701e-8" iyy="1.5e-7" iyz="3.169e-6" izz="1.933e-7"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/antenna.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.0" radius="0.0" />
+        </geometry>
+    </collision>
+</link>
+
+<!-- Right Arm Links -->
+
+<link name="r_shoulder">
+    <inertial>
+        <origin xyz="-0.016 0.036 0.0" rpy="1.57 1.57 0.0"/>
+        <mass value="0.053"/>
+        <inertia ixx="3.308e-4" ixy="9.972e-8" ixz="-2.037e-9" iyy="4.650e-5" iyz="2.113e-6" izz="3.545e-5"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.04 0.0" rpy="1.57 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/shoulder.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.04 0.0" rpy="1.57 1.57 0.0"/>
+        <geometry>
+            <cylinder length="0.09" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_shoulder_x">
+    <inertial>
+        <origin xyz="-0.0 0.0 -0.019" rpy="0.0 0.0 0.0"/>
+        <mass value="0.158"/>
+        <inertia ixx="6.887e+4" ixy="5.393e+0" ixz="-9.155e+2" iyy="7.895e+4" iyz="4.512e-1" izz="4.235e+4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/shoulder_x.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0 0 -0.02" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.04" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_upper_arm">
+    <inertial>
+        <origin xyz="-0.004 0.0 -0.1426" rpy="0.0 0.0 0.0"/>
+        <mass value="0.430"/>
+        <inertia ixx="3.264e-3" ixy="-4.027e-8" ixz="1.395e-4" iyy="3.345e-3" iyz="1.885e-6" izz="2.616e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 -0.0526" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/upper_arm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.16" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.25" radius="0.04" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_forearm">
+    <inertial>
+        <origin xyz="-0.008 0.0 -0.058" rpy="0.0 0.0 0.0"/>
+        <mass value="0.162"/>
+        <inertia ixx="2.532e-4" ixy="-2.999e-8" ixz="1.448e-5" iyy="2.538e-4" iyz="-4.323e-8" izz="1.234e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/forearm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.058" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.09" radius="0.04" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_wrist">
+    <inertial>
+        <origin xyz="0.0 0.0 -0.193" rpy="0.0 0.0 0.0"/>
+        <mass value="0.197"/>
+        <inertia ixx="6.157e-4" ixy="5.706e-8" ixz="-1.045e-5" iyy="6.280e-4" iyz="4.862e-7" izz="1.050e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 -0.100" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/wrist.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.18" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.14" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_wrist2hand">
+    <inertial>
+        <origin xyz="0.0 0.0 0.014" rpy="0.0 0.0 0.0"/>
+        <mass value="0.01"/>
+        <inertia ixx="6.750e-6" ixy="3.732e-11" ixz="-1.581e-11" iyy="6.060e-6" iyz="-1.746e-12" izz="5.774e-6"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/wrist2hand.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.03" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.06" radius="0.03" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_gripper_thumb">
+    <inertial>
+        <origin xyz="0.032 -0.008 0.0" rpy="0.0 1.57 0.0"/>
+        <mass value="0.173"/>
+        <inertia ixx="1.083e-4" ixy="-3.476e-5" ixz="1.331e-6" iyy="1.421e-4" iyz="6.730e-7" izz="2.112e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/r_gripper_thumb.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.02 -0.06" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <box size="0.1 0.012 0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="r_gripper_finger">
+    <inertial>
+        <origin xyz="-0.005 -0.043 -0.0" rpy="0.0 1.57 0.0"/>
+        <mass value="0.035"/>
+        <inertia ixx="9.166e-5" ixy="-6.559e-6" ixz="-3.952e-8" iyy="1.062e-5" iyz="5.276e-9" izz="8.704e-5"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/r_gripper_finger.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 -0.01 -0.02" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <box size="0.1 0.012 0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="right_tip"/>
+
+
+<!-- Left Arm Links -->
+
+<link name="l_shoulder">
+    <inertial>
+        <origin xyz="-0.016 0.044 0.0" rpy="-1.57 1.57 0.0"/>
+        <mass value="0.053"/>
+        <inertia ixx="3.308e-4" ixy="9.972e-8" ixz="-2.037e-9" iyy="4.650e-5" iyz="2.113e-6" izz="3.545e-5"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 -0.04 0.0" rpy="-1.57 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/shoulder.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 -0.04 0.0" rpy="-1.57 1.57 0.0"/>
+        <geometry>
+            <cylinder length="0.09" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_shoulder_x">
+    <inertial>
+        <origin xyz="0.0 0.0 -0.019" rpy="0.0 0.0 0.0"/>
+        <mass value="0.158"/>
+        <inertia ixx="6.887e+4" ixy="5.393e+0" ixz="-9.155e+2" iyy="7.895e+4" iyz="4.512e-1" izz="4.235e+4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/shoulder_x.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0 0 -0.02" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.04" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_upper_arm">
+    <inertial>
+        <origin xyz="-0.004 0.0 -0.1426" rpy="0.0 0.0 0.0"/>
+        <mass value="0.430"/>
+        <inertia ixx="3.264e-3" ixy="-4.027e-8" ixz="1.395e-4" iyy="3.345e-3" iyz="1.885e-6" izz="2.616e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 -0.0526" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/upper_arm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.16" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.25" radius="0.04" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_forearm">
+    <inertial>
+        <origin xyz="-0.008 0.0 -0.058" rpy="0.0 0.0 0.0"/>
+        <mass value="0.162"/>
+        <inertia ixx="2.532e-4" ixy="-2.999e-8" ixz="1.448e-5" iyy="2.538e-4" iyz="-4.323e-8" izz="1.234e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/forearm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.058" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.09" radius="0.04" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_wrist">
+    <inertial>
+        <origin xyz="0.0 0.0 -0.193" rpy="0.0 0.0 0.0"/>
+        <mass value="0.197"/>
+        <inertia ixx="6.157e-4" ixy="5.706e-8" ixz="-1.045e-5" iyy="6.280e-4" iyz="4.862e-7" izz="1.050e-4"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 -0.1" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/wrist.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.18" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.14" radius="0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_wrist2hand">
+    <inertial>
+        <origin xyz="0.0 0.0 0.014" rpy="0.0 0.0 0.0"/>
+        <mass value="0.01"/>
+        <inertia ixx="6.750e-6" ixy="3.732e-11" ixz="-1.581e-11" iyy="6.060e-6" iyz="-1.746e-12" izz="5.774e-6"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/wrist2hand.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 -0.03" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.06" radius="0.03" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_gripper_thumb">
+    <inertial>
+        <origin xyz="0.032 0.008 0.0" rpy="0.0 1.57 0.0"/>
+        <mass value="0.173"/>
+        <inertia ixx="1.088e+5" ixy="3.479e+4" ixz="1.357e+3" iyy="1.422e+5" iyz="-7.930e+2" izz="2.116e+5"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/l_gripper_thumb.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 -0.02 -0.06" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <box size="0.1 0.012 0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="l_gripper_finger">
+    <inertial>
+        <origin xyz="0.005 -0.043 0.0" rpy="0.0 1.57 0.0"/>
+        <mass value="0.035"/>
+        <inertia ixx="9.165e-5" ixy="6.559e-6" ixz="3.609e-10" iyy="1.062e-5" iyz="4.666e-9" izz="8.705e-5"/>
+    </inertial>
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/l_gripper_finger.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.01 -0.02" rpy="0.0 1.57 0.0"/>
+        <geometry>
+            <box size="0.1 0.012 0.035" />
+        </geometry>
+    </collision>
+</link>
+
+<link name="left_tip"/>
+
+<!-- Head and Torso joints -->
+
+<joint name="pedestal" type="fixed">
+    <origin xyz="0 0 1" rpy="0 0 0" />
+    <parent link="pedestal" />
+    <child link="torso" />
+</joint>
+
+<joint name="r_antenna" type="revolute">
+    <origin xyz="-0.052 -0.057 0.086" rpy="-0.166 -1.054 1.11"/>
+    <parent link="head"/> 
+    <child link="r_antenna"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-2.618" upper="2.618" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_antenna" type="revolute">
+    <origin xyz="-0.052 0.057 0.086" rpy="0.166 -1.054 -1.11"/>
+    <parent link="head"/> 
+    <child link="l_antenna"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-2.618" upper="2.618" effort="10." velocity="0.0"/>
+</joint>
+
+
+<!-- Right Arm joint -->
+
+<joint name="r_shoulder_pitch" type="revolute">
+    <origin xyz="0.0 -0.19 0.0" rpy="0.0 0.0 0.0"/>
+    <parent link="torso"/> 
+    <child link="r_shoulder"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-2.618" upper="1.57" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_shoulder_roll" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="r_shoulder"/>
+    <child link="r_shoulder_x"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-3.14" upper="0.174" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_arm_yaw" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="r_shoulder_x"/>
+    <child link="r_upper_arm"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-1.57" upper="1.57" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_elbow_pitch" type="revolute">
+    <origin xyz="0 0 -0.28" rpy="0.0 0.0 0.0"/>
+    <parent link="r_upper_arm"/>
+    <child link="r_forearm"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-2.182" upper="0" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_forearm_yaw" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="r_forearm"/>
+    <child link="r_wrist"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-1.745" upper="1.745" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_wrist_pitch" type="revolute">
+    <origin xyz="0 0 -0.25" rpy="0.0 0.0 0.0"/>
+    <parent link="r_wrist"/>
+    <child link="r_wrist2hand"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-0.785" upper="0.785" effort="10." velocity="0.0"/>
+</joint>
+
+
+<joint name="r_wrist_roll" type="revolute">
+    <origin xyz="0 0 -0.0325" rpy="0.0 0.0 0.0"/>
+    <parent link="r_wrist2hand"/>
+    <child link="r_gripper_thumb"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-0.785" upper="0.785" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_gripper" type="revolute">
+    <origin xyz="0.0 -0.037 -0.03998" rpy="0.0 0.0 0.0"/>
+    <parent link="r_gripper_thumb"/>
+    <child link="r_gripper_finger"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-1.2" upper="0.35" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="r_tip" type="fixed">
+    <origin xyz="0 -0.012 -0.085" rpy="0 0 0" />
+    <parent link="r_gripper_thumb" />
+    <child link="right_tip" />
+</joint>
+
+<!-- Left arm joints -->
+<joint name="l_shoulder_pitch" type="revolute">
+    <origin xyz="0.0 0.19 0.0" rpy="0.0 0.0 0.0"/>
+    <parent link="torso"/>
+    <child link="l_shoulder"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-2.618" upper="1.57" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_shoulder_roll" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="l_shoulder"/>
+    <child link="l_shoulder_x"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-0.174" upper="3.14" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_arm_yaw" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="l_shoulder_x"/>
+    <child link="l_upper_arm"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-1.57" upper="1.57" effort="10." velocity="0.0"/> 
+</joint>
+
+<joint name="l_elbow_pitch" type="revolute">
+    <origin xyz="0 0 -0.28" rpy="0.0 0.0 0.0"/>
+    <parent link="l_upper_arm"/>
+    <child link="l_forearm"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-2.182" upper="0" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_forearm_yaw" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/> 
+    <parent link="l_forearm"/>
+    <child link="l_wrist"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-1.745" upper="1.745" effort="10." velocity="0.0"/>
+</joint>
+
+
+<joint name="l_wrist_pitch" type="revolute">
+    <origin xyz="0 0 -0.25" rpy="0.0 0.0 0.0"/>
+    <parent link="l_wrist"/>
+    <child link="l_wrist2hand"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-0.785" upper="0.785" effort="10." velocity="0.0"/>
+</joint>
+
+
+<joint name="l_wrist_roll" type="revolute">
+    <origin xyz="0 0 -0.0325" rpy="0.0 0.0 0.0"/>
+    <parent link="l_wrist2hand"/>
+    <child link="l_gripper_thumb"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-0.785" upper="0.785" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_gripper" type="revolute">
+    <origin xyz="0.0 0.037 -0.03998" rpy="0.0 0.0 0.0"/>
+    <parent link="l_gripper_thumb"/>
+    <child link="l_gripper_finger"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-0.35" upper="1.2" effort="10." velocity="0.0"/>
+</joint>
+
+<joint name="l_tip" type="fixed">
+    <origin xyz="0 0.012 -0.085" rpy="0 0 0" />
+    <parent link="l_gripper_thumb" />
+    <child link="left_tip" />
+</joint>
+
+<!-- Head joint... -->
+
+<!-- ...with a fixed joint -->
+<!--
+<joint name="torso2head" type="fixed">
+    <origin xyz="0.015 0.0 0.095" rpy="0 0.174 0" />
+    <parent link="torso" />
+    <child link="head" />
+</joint>
+-->
+
+<!-- ...with a ball orbita joint -->
+<joint name="orbita_roll" type="revolute">
+    <origin xyz="0.015 0.0 0.095" rpy="0 0.174 0" />
+    <parent link="torso"/>
+    <child link="head_x"/>
+    <axis xyz="1 0 0"/>
+   <limit lower="-0.8" upper="0.8" effort="10." velocity="0.0"/>
+</joint>
+
+<link name="head_x" />
+
+<joint name="orbita_pitch" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="head_x"/>
+    <child link="head_y"/>
+    <axis xyz="0 1 0"/>
+   <limit lower="-0.8" upper="1.13" effort="10." velocity="0.0"/>
+</joint>
+
+<link name="head_y" />
+
+<joint name="orbita_yaw" type="revolute">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="head_y"/>
+    <child link="head_z"/>
+    <axis xyz="0 0 1"/>
+   <limit lower="-2.79" upper="2.79" effort="10." velocity="0.0"/>
+</joint>
+
+<link name="head_z" />
+
+<joint name="orbita_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    <parent link="head_z" />
+    <child link="head" />
+</joint>
+
+<!-- Fixed Orbita Arms Visuals -->
+
+<joint name="orbita_top" type="fixed">
+    <origin xyz="0.0067 0.0 0.0478" rpy="0 0.174 0"/>
+    <parent link="torso"/>
+    <child link="top_orbita_arm"/>
+</joint>
+
+<link name="top_orbita_arm">
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.5236"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/orbita_arm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.0" radius="0.0" />
+        </geometry>
+    </collision>
+</link>
+
+<joint name="orbita_middle" type="fixed">
+    <origin xyz="0.0067 0.0 0.0478" rpy="0 0.174 0"/>
+    <parent link="torso"/>
+    <child link="middle_orbita_arm"/>
+</joint>
+
+<link name="middle_orbita_arm">
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 2.618"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/orbita_arm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.0" radius="0.0" />
+        </geometry>
+    </collision>
+</link>
+
+<joint name="orbita_bottom" type="fixed">
+    <origin xyz="0.0067 0.0 0.0478" rpy="0 0.174 0"/>
+    <parent link="torso"/>
+    <child link="bottom_orbita_arm"/>
+</joint>
+
+<link name="bottom_orbita_arm">
+    <visual name="">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 -1.57"/>
+        <geometry>
+            <mesh filename="package://reachy_description/meshes/orbita_arm.dae"/>
+        </geometry>
+    </visual>
+    <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <geometry>
+            <cylinder length="0.0" radius="0.0" />
+        </geometry>
+    </collision>
+</link>
+
+<!-- Cameras -->
+
+<joint name="left_cam_fixed" type="fixed">
+    <origin xyz="0.0033 0.03625 0.061" rpy="0.0 0.0 0.0"/>
+    <parent link="head" />
+    <child link="left_camera" />
+</joint>
+
+<link name="left_camera" />
+
+<joint name="right_cam_fixed" type="fixed">
+    <origin xyz="0.0033 -0.03625 0.061" rpy="0.0 0.0 0.0"/>
+    <parent link="head" />
+    <child link="right_camera" />
+</joint>
+
+<link name="right_camera" />
+
+</robot>

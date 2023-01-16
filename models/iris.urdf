@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+<robot name="iris">
+  <joint name="iris__/imu_joint" type="fixed">
+    <parent link="iris__base_link"/>
+    <child link="iris__/imu_link"/>
+    <origin rpy="0  0  0" xyz="0  0  0"/>
+    <axis xyz="1  0  0"/>
+    <limit effort="0.0" lower="0.0" upper="0.0" velocity="0.0"/>
+  </joint>
+  <joint name="iris__rotor_0_joint" type="revolute">
+    <parent link="iris__base_link"/>
+    <child link="iris__rotor_0"/>
+    <origin rpy="0  0  0" xyz="0.13  -0.22   0.023"/>
+    <axis xyz="0  0  1"/>
+    <limit effort="0.0" lower="-1e+16" upper="1e+16" velocity="0.0"/>
+  </joint>
+  <joint name="iris__rotor_1_joint" type="revolute">
+    <parent link="iris__base_link"/>
+    <child link="iris__rotor_1"/>
+    <origin rpy="0  0  0" xyz="-0.13   0.2    0.023"/>
+    <axis xyz="0  0  1"/>
+    <limit effort="0.0" lower="-1e+16" upper="1e+16" velocity="0.0"/>
+  </joint>
+  <joint name="iris__rotor_2_joint" type="revolute">
+    <parent link="iris__base_link"/>
+    <child link="iris__rotor_2"/>
+    <origin rpy="0  0  0" xyz="0.13   0.22   0.023"/>
+    <axis xyz="0  0  1"/>
+    <limit effort="0.0" lower="-1e+16" upper="1e+16" velocity="0.0"/>
+  </joint>
+  <joint name="iris__rotor_3_joint" type="revolute">
+    <parent link="iris__base_link"/>
+    <child link="iris__rotor_3"/>
+    <origin rpy="0  0  0" xyz="-0.13  -0.2    0.023"/>
+    <axis xyz="0  0  1"/>
+    <limit effort="0.0" lower="-1e+16" upper="1e+16" velocity="0.0"/>
+  </joint>
+  <link name="iris__base_link">
+    <inertial>
+      <mass value="1.5"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="0.029125" ixy="0" ixz="0" iyy="0.029125" iyz="0" izz="0.055225"/>
+    </inertial>
+    <collision name="iris__base_link_inertia_collision">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <box size="0.47 0.47 0.11"/>
+      </geometry>
+    </collision>
+    <visual name="iris__base_link_inertia_visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/iris_description/meshes/iris.stl" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="iris__/imu_link">
+    <inertial>
+      <mass value="0.015"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="1e-05"/>
+    </inertial>
+  </link>
+  <link name="iris__rotor_0">
+    <inertial>
+      <mass value="0.005"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="9.75e-07" ixy="0" ixz="0" iyy="0.000273104" iyz="0" izz="0.000274004"/>
+    </inertial>
+    <collision name="iris__rotor_0_collision">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.128"/>
+      </geometry>
+    </collision>
+    <visual name="iris__rotor_0_visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/iris_description/meshes/iris_prop_ccw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="iris__rotor_1">
+    <inertial>
+      <mass value="0.005"/>
+      <origin rpy="0  0  0" xyz="0 0 0"/>
+      <inertia ixx="9.75e-07" ixy="0" ixz="0" iyy="0.000273104" iyz="0" izz="0.000274004"/>
+    </inertial>
+    <collision name="iris__rotor_1_collision">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.128"/>
+      </geometry>
+    </collision>
+    <visual name="iris__rotor_1_visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/iris_description/meshes/iris_prop_ccw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="iris__rotor_2">
+    <inertial>
+      <mass value="0.005"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="9.75e-07" ixy="0" ixz="0" iyy="0.000273104" iyz="0" izz="0.000274004"/>
+    </inertial>
+    <collision name="iris__rotor_2_collision">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.128"/>
+      </geometry>
+    </collision>
+    <visual name="iris__rotor_2_visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/iris_description/meshes/iris_prop_cw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="iris__rotor_3">
+    <inertial>
+      <mass value="0.005"/>
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <inertia ixx="9.75e-07" ixy="0" ixz="0" iyy="0.000273104" iyz="0" izz="0.000274004"/>
+    </inertial>
+    <collision name="iris__rotor_3_collision">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <cylinder length="0.005" radius="0.128"/>
+      </geometry>
+    </collision>
+    <visual name="iris__rotor_3_visual">
+      <origin rpy="0  0  0" xyz="0  0  0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/iris_description/meshes/iris_prop_cw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
