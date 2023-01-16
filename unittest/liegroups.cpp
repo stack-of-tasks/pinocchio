@@ -77,7 +77,7 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   SE3 M2 = jdata.M;
 
   double tol_test = 1e2;
-  if(jmodel.shortname() != "JointModelPlanar")
+  if(jmodel.shortname() == "JointModelPlanar")
     tol_test = 5e4;
 
   const SE3 M2_exp = M1*exp6(v1);
