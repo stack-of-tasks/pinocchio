@@ -1,0 +1,1656 @@
+<?xml version="1.0" ?>
+<!-- This file comes from Aldebaran romeo.urdf file with slight modifications:               -->
+<!--             - rename joint_base by waist (joint base name in sot is already joint_base) -->
+<!--             - waist joint goes from base_link to body (and not torso)                   -->
+<!--             - inverse trunkYaw joint direction (now from body to torso)                 -->
+<!-- Aldebaran file comes from                                                               -->
+<!-- https://github.com/ros-aldebaran/romeo_robot/blob/master/romeo_description/urdf/romeoV1_generated_urdf/romeo.urdf -->
+<robot name="romeo" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <joint name="NeckYaw" type="revolute">
+    <parent link="torso"/>
+    <child link="NeckYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0.0835"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="3.662" lower="-1.5708" upper="1.5708" velocity="4.0"/>
+  </joint>
+  <link name="NeckYawLink">
+    <inertial>
+      <mass value="0.51016"/>
+      <inertia ixx="0.00122159" ixy="-8.014e-08" ixz="1.145e-08" iyy="0.00124608" iyz="-1.84095e-06" izz="0.000187965"/>
+      <origin rpy="0 0 0" xyz="0 0 -0.03074"/>
+    </inertial>
+  </link>
+  <joint name="NeckPitch" type="revolute">
+    <parent link="NeckYawLink"/>
+    <child link="NeckPitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="2.978" lower="-0.349066" upper="0.698132" velocity="2.2"/>
+  </joint>
+  <link name="NeckPitchLink">
+    <inertial>
+      <mass value="0.23875"/>
+      <inertia ixx="0.000866022" ixy="-1.57263e-06" ixz="6.13825e-05" iyy="0.000818287" iyz="9.69515e-06" izz="0.000238919"/>
+      <origin rpy="0 0 0" xyz="-0.00472 0 0.04432"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/NeckPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/NeckPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="HeadPitch" type="revolute">
+    <parent link="NeckPitchLink"/>
+    <child link="HeadPitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0.09511"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="2.57" lower="-0.349066" upper="0.279253" velocity="1.9"/>
+  </joint>
+  <link name="HeadPitchLink">
+    <inertial>
+      <mass value="0.13981"/>
+      <inertia ixx="3.89601e-05" ixy="-3.814e-08" ixz="-2.29622e-06" iyy="7.25465e-05" iyz="-6.46e-09" izz="5.3765e-05"/>
+      <origin rpy="0 0 0" xyz="0.00137 0 -0.00641"/>
+    </inertial>
+  </link>
+  <joint name="HeadRoll" type="revolute">
+    <parent link="HeadPitchLink"/>
+    <child link="HeadRollLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="0.9" lower="-0.349066" upper="0.349066" velocity="1.5"/>
+  </joint>
+  <link name="HeadRollLink">
+    <inertial>
+      <mass value="1.41282"/>
+      <inertia ixx="0.0149087" ixy="-5.14209e-05" ixz="-0.000684893" iyy="0.0173189" iyz="-0.000191527" izz="0.00735475"/>
+      <origin rpy="0 0 0" xyz="0.01617 0 0.00757"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/HeadRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/HeadRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="gaze_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="gaze"/>
+    <origin rpy="0 0 0" xyz="0.11017 0 0.05426"/>
+  </joint>
+  <link name="gaze">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="LHipYaw" type="revolute">
+    <parent link="body"/>
+    <child link="LHipYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0.096 -0.20004"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="9.2" lower="-0.261799" upper="0.261799" velocity="0.32"/>
+  </joint>
+  <link name="LHipYawLink">
+    <inertial>
+      <mass value="0.49477"/>
+      <inertia ixx="0.00303668" ixy="0" ixz="0" iyy="0.00347998" iyz="0" izz="0.000622773"/>
+      <origin rpy="0 0 0" xyz="-0.00871 -0.00022 0.06319"/>
+    </inertial>
+  </link>
+  <joint name="LHipRoll" type="revolute">
+    <parent link="LHipYawLink"/>
+    <child link="LHipRollLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="46.6" lower="-0.261799" upper="0.523599" velocity="2.09"/>
+  </joint>
+  <link name="LHipRollLink">
+    <inertial>
+      <mass value="0.6607"/>
+      <inertia ixx="0.00089862" ixy="0" ixz="0" iyy="0.000509559" iyz="0" izz="0.000935392"/>
+      <origin rpy="0 0 0" xyz="0.00293 -0.00027 0.00011"/>
+    </inertial>
+  </link>
+  <joint name="LHipPitch" type="revolute">
+    <parent link="LHipRollLink"/>
+    <child link="LHipPitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="46.6" lower="-1.71042" upper="0.401426" velocity="2.09"/>
+  </joint>
+  <link name="LHipPitchLink">
+    <inertial>
+      <mass value="4.33935"/>
+      <inertia ixx="0.132895" ixy="0" ixz="0" iyy="0.133977" iyz="0" izz="0.0121687"/>
+      <origin rpy="0 0 0" xyz="-0.00971 0.00135 -0.15083"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LHipPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LHipPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LKneePitch" type="revolute">
+    <parent link="LHipPitchLink"/>
+    <child link="LKneePitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.32"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="38.17" lower="0" upper="2.00713" velocity="6.0"/>
+  </joint>
+  <link name="LKneePitchLink">
+    <inertial>
+      <mass value="2.61063"/>
+      <inertia ixx="0.054913" ixy="0" ixz="0" iyy="0.0549663" iyz="0" izz="0.00398482"/>
+      <origin rpy="0 0 0" xyz="-0.00532 -0.00075 -0.12258"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LKneePitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LKneePitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LAnklePitch" type="revolute">
+    <parent link="LKneePitchLink"/>
+    <child link="LAnklePitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.29"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="25.76" lower="-0.523599" upper="0.785398" velocity="2.1"/>
+  </joint>
+  <link name="LAnklePitchLink">
+    <inertial>
+      <mass value="0.5008"/>
+      <inertia ixx="0.000429952" ixy="0" ixz="0" iyy="0.000281451" iyz="0" izz="0.000527665"/>
+      <origin rpy="0 0 0" xyz="0.00059 0.00051 0.00038"/>
+    </inertial>
+  </link>
+  <joint name="LAnkleRoll" type="revolute">
+    <parent link="LAnklePitchLink"/>
+    <child link="l_ankle"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="25.76" lower="-0.349066" upper="0.349066" velocity="2.1"/>
+  </joint>
+  <link name="l_ankle">
+    <inertial>
+      <mass value="1.07155"/>
+      <inertia ixx="0.00350696" ixy="0" ixz="0" iyy="0.0162129" iyz="0" izz="0.0147353"/>
+      <origin rpy="0 0 0" xyz="0.07856 -0.00603 -0.04513"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LAnkleRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LAnkleRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="l_sole_joint" type="fixed">
+    <parent link="l_ankle"/>
+    <child link="l_sole"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.0684"/>
+  </joint>
+  <link name="l_sole">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="RHipYaw" type="revolute">
+    <parent link="body"/>
+    <child link="RHipYawLink"/>
+    <origin rpy="0 0 0" xyz="0 -0.096 -0.20004"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="9.2" lower="-0.261799" upper="0.261799" velocity="0.32"/>
+  </joint>
+  <link name="RHipYawLink">
+    <inertial>
+      <mass value="0.49477"/>
+      <inertia ixx="0.00303668" ixy="0" ixz="0" iyy="0.00347998" iyz="0" izz="0.000622773"/>
+      <origin rpy="0 0 0" xyz="-0.00871 0.00022 0.06319"/>
+    </inertial>
+  </link>
+  <joint name="RHipRoll" type="revolute">
+    <parent link="RHipYawLink"/>
+    <child link="RHipRollLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="46.6" lower="-0.523599" upper="0.261799" velocity="2.09"/>
+  </joint>
+  <link name="RHipRollLink">
+    <inertial>
+      <mass value="0.6607"/>
+      <inertia ixx="0.00089862" ixy="0" ixz="0" iyy="0.000509559" iyz="0" izz="0.000935392"/>
+      <origin rpy="0 0 0" xyz="0.00293 0.00027 0.00011"/>
+    </inertial>
+  </link>
+  <joint name="RHipPitch" type="revolute">
+    <parent link="RHipRollLink"/>
+    <child link="RHipPitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="46.6" lower="-1.71042" upper="0.401426" velocity="2.09"/>
+  </joint>
+  <link name="RHipPitchLink">
+    <inertial>
+      <mass value="4.33935"/>
+      <inertia ixx="0.132895" ixy="0" ixz="0" iyy="0.133977" iyz="0" izz="0.0121687"/>
+      <origin rpy="0 0 0" xyz="-0.00971 -0.00135 -0.15083"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RHipPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RHipPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RKneePitch" type="revolute">
+    <parent link="RHipPitchLink"/>
+    <child link="RKneePitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.32"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="38.17" lower="0" upper="2.00713" velocity="6.0"/>
+  </joint>
+  <link name="RKneePitchLink">
+    <inertial>
+      <mass value="2.61063"/>
+      <inertia ixx="0.054913" ixy="0" ixz="0" iyy="0.0549663" iyz="0" izz="0.00398482"/>
+      <origin rpy="0 0 0" xyz="-0.00532 0.00075 -0.12258"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RKneePitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RKneePitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RAnklePitch" type="revolute">
+    <parent link="RKneePitchLink"/>
+    <child link="RAnklePitchLink"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.29"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="25.76" lower="-0.523599" upper="0.785398" velocity="2.1"/>
+  </joint>
+  <link name="RAnklePitchLink">
+    <inertial>
+      <mass value="0.5008"/>
+      <inertia ixx="0.000429952" ixy="0" ixz="0" iyy="0.000281451" iyz="0" izz="0.000527665"/>
+      <origin rpy="0 0 0" xyz="0.00059 -0.00051 0.00038"/>
+    </inertial>
+  </link>
+  <joint name="RAnkleRoll" type="revolute">
+    <parent link="RAnklePitchLink"/>
+    <child link="r_ankle"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="25.76" lower="-0.349066" upper="0.349066" velocity="2.1"/>
+  </joint>
+  <link name="r_ankle">
+    <inertial>
+      <mass value="1.07155"/>
+      <inertia ixx="0.00350696" ixy="0" ixz="0" iyy="0.0162129" iyz="0" izz="0.0147353"/>
+      <origin rpy="0 0 0" xyz="0.07856 0.00603 -0.04513"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RAnkleRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RAnkleRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="r_sole_joint" type="fixed">
+    <parent link="r_ankle"/>
+    <child link="r_sole"/>
+    <origin rpy="0 0 0" xyz="0 0 -0.0684"/>
+  </joint>
+  <link name="r_sole">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <link name="base_link">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="waist" type="fixed">
+    <parent link="base_link"/>
+    <child link="body"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <link name="torso">
+    <inertial>
+      <mass value="9.9216"/>
+      <inertia ixx="0.129332" ixy="-0.000359651" ixz="0.00283888" iyy="0.126831" iyz="-0.00200843" izz="0.110627"/>
+      <origin rpy="0 0 0" xyz="0.0023 0 -0.04854"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Torso.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Torso.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="TrunkYaw" type="revolute">
+    <parent link="body"/>
+    <child link="torso"/>
+    <origin rpy="0 0 0" xyz="0 0 0.2"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="80.902" lower="-0.785398" upper="0.785398" velocity="1.5"/>
+  </joint>
+  <link name="body">
+    <inertial>
+      <mass value="4.16277"/>
+      <inertia ixx="0.241879" ixy="-6.88963e-05" ixz="0.00282915" iyy="0.238168" iyz="0.000306252" izz="0.0214739"/>
+      <origin rpy="0 0 0" xyz="0.00932 0 -0.2119"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/TrunkYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/TrunkYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LShoulderPitch" type="revolute">
+    <parent link="torso"/>
+    <child link="LShoulderPitchLink"/>
+    <origin rpy="-0.158879 -0.0725189 -0.424682" xyz="0.005 0.19 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="19.095" lower="-1.44478" upper="2.22041" velocity="2.2"/>
+  </joint>
+  <link name="LShoulderPitchLink">
+    <inertial>
+      <mass value="0.69402"/>
+      <inertia ixx="0.00201004" ixy="2.37595e-06" ixz="-2.16793e-06" iyy="0.000570626" iyz="8.27832e-06" izz="0.00194068"/>
+      <origin rpy="0 0 0" xyz="0.00149 -0.03299 0.00018"/>
+    </inertial>
+  </link>
+  <joint name="LShoulderYaw" type="revolute">
+    <parent link="LShoulderPitchLink"/>
+    <child link="LShoulderYawLink"/>
+    <origin rpy="0 0 0.430457" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="9.031" lower="-0.430472" upper="1.14032" velocity="4.0"/>
+  </joint>
+  <link name="LShoulderYawLink">
+    <inertial>
+      <mass value="0.57151"/>
+      <inertia ixx="0.000742818" ixy="-0.000617675" ixz="-7.28438e-05" iyy="0.00650202" iyz="-1.25157e-05" izz="0.00664434"/>
+      <origin rpy="0 0 0" xyz="0.09367 0.01373 0.00103"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LShoulderYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LShoulderYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LElbowRoll" type="revolute">
+    <parent link="LShoulderYawLink"/>
+    <child link="LElbowRollLink"/>
+    <origin rpy="0.17452 0 0" xyz="0.205 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="7.404" lower="-2.0944" upper="2.0944" velocity="3.7"/>
+  </joint>
+  <link name="LElbowRollLink">
+    <inertial>
+      <mass value="0.39848"/>
+      <inertia ixx="0.000179003" ixy="-2.25555e-06" ixz="1.376e-08" iyy="0.000804322" iyz="8.007e-08" izz="0.00077956"/>
+      <origin rpy="0 0 0" xyz="-0.02231 -0.0024 0"/>
+    </inertial>
+  </link>
+  <joint name="LElbowYaw" type="revolute">
+    <parent link="LElbowRollLink"/>
+    <child link="LElbowYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="6.02" lower="-1.5708" upper="0" velocity="4.0"/>
+  </joint>
+  <link name="LElbowYawLink">
+    <inertial>
+      <mass value="0.31265"/>
+      <inertia ixx="0.000375096" ixy="-0.000225283" ixz="2.58073e-06" iyy="0.00209728" iyz="2.74613e-06" izz="0.00211065"/>
+      <origin rpy="0 0 0" xyz="0.06738 0.01043 -0.00031"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LElbowYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LElbowYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LWristRoll" type="revolute">
+    <parent link="LElbowYawLink"/>
+    <child link="LWristRollLink"/>
+    <origin rpy="0 0 0" xyz="0.1823 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="2.177" lower="-3.66519" upper="0.523599" velocity="1.1"/>
+  </joint>
+  <link name="LWristRollLink">
+    <inertial>
+      <mass value="0.17563"/>
+      <inertia ixx="6.72145e-05" ixy="-6.373e-07" ixz="-1.35809e-05" iyy="0.000851196" iyz="-2.443e-08" izz="0.000840348"/>
+      <origin rpy="0 0 0" xyz="-0.0593 -5e-05 -0.00069"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LWristRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LWristRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LWristYaw" type="revolute">
+    <parent link="LWristRollLink"/>
+    <child link="LWristYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="0.862" lower="-0.436332" upper="0.436332" velocity="2.26"/>
+  </joint>
+  <link name="LWristYawLink">
+    <inertial>
+      <mass value="0.07595"/>
+      <inertia ixx="1.45402e-05" ixy="-4.157e-08" ixz="7.674e-08" iyy="3.91907e-05" iyz="3.08e-09" izz="3.81787e-05"/>
+      <origin rpy="0 0 0" xyz="-0.00746 -0.00016 -0.00022"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LWristYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LWristYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LWristPitch" type="revolute">
+    <parent link="LWristYawLink"/>
+    <child link="l_wrist"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="0.6" lower="-0.977384" upper="0.977384" velocity="3.75"/>
+  </joint>
+  <link name="l_wrist">
+    <inertial>
+      <mass value="0.16569"/>
+      <inertia ixx="0.000112529" ixy="4.72583e-05" ixz="1.70404e-05" iyy="0.00107982" iyz="-1.54761e-05" izz="0.00115367"/>
+      <origin rpy="0 0 0" xyz="0.06987 -0.00381 -0.00165"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LWristPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LWristPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RShoulderPitch" type="revolute">
+    <parent link="torso"/>
+    <child link="RShoulderPitchLink"/>
+    <origin rpy="0.158879 -0.0725189 0.424682" xyz="0.005 -0.19 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="19.095" lower="-1.44478" upper="2.22041" velocity="2.2"/>
+  </joint>
+  <link name="RShoulderPitchLink">
+    <inertial>
+      <mass value="0.69402"/>
+      <inertia ixx="0.00201004" ixy="-2.37595e-06" ixz="2.16793e-06" iyy="0.000570626" iyz="8.27832e-06" izz="0.00194068"/>
+      <origin rpy="0 0 0" xyz="0.00149 0.03299 0.00018"/>
+    </inertial>
+  </link>
+  <joint name="RShoulderYaw" type="revolute">
+    <parent link="RShoulderPitchLink"/>
+    <child link="RShoulderYawLink"/>
+    <origin rpy="0 0 -0.430457" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="9.031" lower="-1.14032" upper="0.430472" velocity="4.0"/>
+  </joint>
+  <link name="RShoulderYawLink">
+    <inertial>
+      <mass value="0.57151"/>
+      <inertia ixx="0.000742356" ixy="0.000617202" ixz="5.98521e-06" iyy="0.00649989" iyz="-1.07417e-06" izz="0.000664209"/>
+      <origin rpy="0 0 0" xyz="0.09367 -0.01373 0.00103"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RShoulderYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RShoulderYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RElbowRoll" type="revolute">
+    <parent link="RShoulderYawLink"/>
+    <child link="RElbowRollLink"/>
+    <origin rpy="-0.17452 0 0" xyz="0.205 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="7.404" lower="-2.0944" upper="2.0944" velocity="3.7"/>
+  </joint>
+  <link name="RElbowRollLink">
+    <inertial>
+      <mass value="0.39848"/>
+      <inertia ixx="0.000179003" ixy="-2.25555e-06" ixz="1.376e-08" iyy="0.000804322" iyz="8.007e-08" izz="0.00077956"/>
+      <origin rpy="0 0 0" xyz="-0.02231 0.0024 0"/>
+    </inertial>
+  </link>
+  <joint name="RElbowYaw" type="revolute">
+    <parent link="RElbowRollLink"/>
+    <child link="RElbowYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="6.02" lower="0" upper="1.5708" velocity="4.0"/>
+  </joint>
+  <link name="RElbowYawLink">
+    <inertial>
+      <mass value="0.31265"/>
+      <inertia ixx="0.000366728" ixy="0.000185631" ixz="-5.37905e-07" iyy="0.00211104" iyz="3.1932e-07" izz="0.000211493"/>
+      <origin rpy="0 0 0" xyz="0.06738 -0.01043 -0.00031"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RElbowYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RElbowYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RWristRoll" type="revolute">
+    <parent link="RElbowYawLink"/>
+    <child link="RWristRollLink"/>
+    <origin rpy="0 0 0" xyz="0.1823 0 0"/>
+    <axis xyz="1.0 0 0"/>
+    <limit effort="2.177" lower="-0.523599" upper="3.66519" velocity="1.1"/>
+  </joint>
+  <link name="RWristRollLink">
+    <inertial>
+      <mass value="0.17563"/>
+      <inertia ixx="6.72145e-05" ixy="-6.373e-07" ixz="-1.35809e-05" iyy="0.000851196" iyz="-2.443e-08" izz="0.000840348"/>
+      <origin rpy="0 0 0" xyz="-0.0593 5e-05 -0.00069"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RWristRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RWristRoll.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RWristYaw" type="revolute">
+    <parent link="RWristRollLink"/>
+    <child link="RWristYawLink"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 0 1.0"/>
+    <limit effort="0.862" lower="-0.436332" upper="0.436332" velocity="2.26"/>
+  </joint>
+  <link name="RWristYawLink">
+    <inertial>
+      <mass value="0.07595"/>
+      <inertia ixx="1.45402e-05" ixy="-4.157e-08" ixz="7.674e-08" iyy="3.91907e-05" iyz="3.08e-09" izz="3.81787e-05"/>
+      <origin rpy="0 0 0" xyz="-0.00746 0.00016 -0.00022"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RWristYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RWristYaw.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="RWristPitch" type="revolute">
+    <parent link="RWristYawLink"/>
+    <child link="r_wrist"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <axis xyz="0 1.0 0"/>
+    <limit effort="0.6" lower="-0.977384" upper="0.977384" velocity="3.75"/>
+  </joint>
+  <link name="r_wrist">
+    <inertial>
+      <mass value="0.16569"/>
+      <inertia ixx="0.000112529" ixy="0" ixz="0" iyy="0.00107982" iyz="0" izz="0.00115367"/>
+      <origin rpy="0 0 0" xyz="0.06987 0.00381 -0.00165"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RWristPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RWristPitch.dae" scale="1 1 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="ImuTorsoGyrometer_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="ImuTorsoGyrometer_joint" type="fixed">
+    <parent link="body"/>
+    <child link="ImuTorsoGyrometer_frame"/>
+    <origin rpy="0 0 0" xyz="0.06185 0.0087 -0.1582"/>
+  </joint>
+  <link name="RFsrRCenter_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="RFsrRCenter_joint" type="fixed">
+    <parent link="r_ankle"/>
+    <child link="RFsrRCenter_frame"/>
+    <origin rpy="0 0 0" xyz="-0.04 0 -0.0646"/>
+  </joint>
+  <link name="LFsrRCenter_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="LFsrRCenter_joint" type="fixed">
+    <parent link="l_ankle"/>
+    <child link="LFsrRCenter_frame"/>
+    <origin rpy="0 0 0" xyz="-0.04 0 -0.0646"/>
+  </joint>
+  <link name="RFsrFR_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="RFsrFR_joint" type="fixed">
+    <parent link="r_ankle"/>
+    <child link="RFsrFR_frame"/>
+    <origin rpy="0 0 0" xyz="0.13 -0.0337 -0.0646"/>
+  </joint>
+  <link name="CameraLeftEye_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="CameraLeftEye_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="CameraLeftEye_frame"/>
+    <origin rpy="0 0 0" xyz="0.11017 0.03192 0.05426"/>
+  </joint>
+  <link name="CameraRight_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="CameraRight_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="CameraRight_frame"/>
+    <origin rpy="0 0 0" xyz="0.11999 -0.04 0.09938"/>
+  </joint>
+  <link name="ImuHeadGyrometer_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="ImuHeadGyrometer_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="ImuHeadGyrometer_frame"/>
+    <origin rpy="0 0 1.57079632679" xyz="-0.01135 -0.04225 0.16011"/>
+  </joint>
+  <link name="ImuHeadAccelerometer_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="ImuHeadAccelerometer_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="ImuHeadAccelerometer_frame"/>
+    <origin rpy="0 0 1.57079632679" xyz="-0.01135 -0.04225 0.16011"/>
+  </joint>
+  <link name="HeadTouchMiddle_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="HeadTouchMiddle_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="HeadTouchMiddle_frame"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0.001 0 0.1099"/>
+  </joint>
+  <link name="CameraLeft_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="CameraLeft_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="CameraLeft_frame"/>
+    <origin rpy="0 0 0" xyz="0.11999 0.04 0.09938"/>
+  </joint>
+  <link name="RFsrCenter_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="RFsrCenter_joint" type="fixed">
+    <parent link="r_ankle"/>
+    <child link="RFsrCenter_frame"/>
+    <origin rpy="0 0 0" xyz="0.073 0.02 -0.0646"/>
+  </joint>
+  <link name="LFsrCenter_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="LFsrCenter_joint" type="fixed">
+    <parent link="l_ankle"/>
+    <child link="LFsrCenter_frame"/>
+    <origin rpy="0 0 0" xyz="0.073 0.02 -0.0646"/>
+  </joint>
+  <link name="CameraDepth_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="CameraDepth_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="CameraDepth_frame"/>
+    <origin rpy="2.0043951 0 1.57079632679" xyz="0.1403 -0.04708 0.14655"/>
+  </joint>
+  <link name="ImuTorsoAccelerometer_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="ImuTorsoAccelerometer_joint" type="fixed">
+    <parent link="body"/>
+    <child link="ImuTorsoAccelerometer_frame"/>
+    <origin rpy="0 0 0" xyz="0.06185 0.0087 -0.1582"/>
+  </joint>
+  <link name="RFsrFL_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="RFsrFL_joint" type="fixed">
+    <parent link="r_ankle"/>
+    <child link="RFsrFL_frame"/>
+    <origin rpy="0 0 0" xyz="0.13 0.0337 -0.0646"/>
+  </joint>
+  <link name="LFsrFL_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="LFsrFL_joint" type="fixed">
+    <parent link="l_ankle"/>
+    <child link="LFsrFL_frame"/>
+    <origin rpy="0 0 0" xyz="0.13 0.0337 -0.0646"/>
+  </joint>
+  <link name="CameraRightEye_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="CameraRightEye_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="CameraRightEye_frame"/>
+    <origin rpy="0 0 0" xyz="0.11017 -0.03192 0.05426"/>
+  </joint>
+  <link name="HeadTouchFront_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="HeadTouchFront_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="HeadTouchFront_frame"/>
+    <origin rpy="0 -1.186099535 0" xyz="0.0312 0 0.1014"/>
+  </joint>
+  <link name="LFsrFR_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="LFsrFR_joint" type="fixed">
+    <parent link="l_ankle"/>
+    <child link="LFsrFR_frame"/>
+    <origin rpy="0 0 0" xyz="0.13 -0.0337 -0.0646"/>
+  </joint>
+  <link name="HeadTouchRear_frame">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <joint name="HeadTouchRear_joint" type="fixed">
+    <parent link="HeadRollLink"/>
+    <child link="HeadTouchRear_frame"/>
+    <origin rpy="3.14159265359 -1.333192995 3.14159265359" xyz="-0.0257 0 0.1045"/>
+  </joint>
+  <joint name="l_gripper_joint" type="fixed">
+    <parent link="l_wrist"/>
+    <child link="l_gripper"/>
+    <origin rpy="-1.57079633 0 0" xyz="0.09 0 -0.02"/>
+  </joint>
+  <link name="l_gripper">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+  <joint name="r_gripper_joint" type="fixed">
+    <parent link="r_wrist"/>
+    <child link="r_gripper"/>
+    <origin rpy="-1.57079633 0 0" xyz="0.09 0 -0.02"/>
+  </joint>
+  <link name="r_gripper">
+    <inertial>
+      <mass value="0.0"/>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+    </inertial>
+  </link>
+
+  <link name="LFinger11Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger12Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger13Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger21Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger22Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger23Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger31Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger32Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LFinger33Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LThumb1Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/LThumb.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/LThumb.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LThumb2Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="LThumb3Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger11Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger12Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger13Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger21Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger22Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger23Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger31Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger32Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RFinger33Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RThumb1Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/RThumb.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/RThumb.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RThumb2Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/Phalax.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/Phalax.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="RThumb3Link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0"/>
+      <inertia ixx="0" ixy="0" ixz="0" iyy="0" iyz="0" izz="0"/>
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/visual/PhalaxEnd.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://example-robot-data/robots/romeo_description/meshes/V1/collision/PhalaxEnd.dae"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="LHand" type="revolute">
+    <origin rpy="2.98023e-08 1.06465 0.122173" xyz="0.10937 0.02468 0.00329"/>
+    <axis xyz="0.121869 -0.992546 -4.37114e-08"/>
+    <parent link="l_wrist"/>
+    <child link="LFinger11Link"/>
+    <!--      <limit effort="0" lower="-4.266806" upper="0.0" velocity="0" /> -->
+    <limit effort="0" lower="0.0" upper="1.0" velocity="0"/>
+  </joint>
+  <joint name="RHand" type="revolute">
+    <origin rpy="3.72529e-08 1.06465 -0.122173" xyz="0.10937 -0.02468 0.00329"/>
+    <axis xyz="-0.121869 -0.992546 -4.37114e-08"/>
+    <parent link="r_wrist"/>
+    <child link="RFinger11Link"/>
+    <limit effort="0" lower="0.0" upper="1.0" velocity="0"/>
+  </joint>
+  <joint name="LFinger12" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger11Link"/>
+    <child link="LFinger12Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger13" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger12Link"/>
+    <child link="LFinger13Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger21" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.11525 0 0.00329"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="l_wrist"/>
+    <child link="LFinger21Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger22" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger21Link"/>
+    <child link="LFinger22Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger23" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger22Link"/>
+    <child link="LFinger23Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger31" type="revolute">
+    <origin rpy="3.72529e-08 1.06465 -0.122173" xyz="0.09936 -0.02478 0.00329"/>
+    <axis xyz="-0.121869 -0.992546 -4.37114e-08"/>
+    <parent link="l_wrist"/>
+    <child link="LFinger31Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger32" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger31Link"/>
+    <child link="LFinger32Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LFinger33" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LFinger32Link"/>
+    <child link="LFinger33Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LThumb1" type="revolute">
+    <origin rpy="-4.76837e-07 1.37881 -2.53073" xyz="0.07115 -0.02465 -0.01233"/>
+    <axis xyz="-0.573576 0.819152 1.05097e-07"/>
+    <parent link="l_wrist"/>
+    <child link="LThumb1Link"/>
+    <limit effort="0" lower="-1.06465082555556" upper="0" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="-1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="-1" offset="0"/>
+  </joint>
+  <joint name="LThumb2" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LThumb1Link"/>
+    <child link="LThumb2Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="LThumb3" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="LThumb2Link"/>
+    <child link="LThumb3Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="LFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="LHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger12" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger11Link"/>
+    <child link="RFinger12Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger13" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger12Link"/>
+    <child link="RFinger13Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger21" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.11525 0 0.00329"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="r_wrist"/>
+    <child link="RFinger21Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger22" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger21Link"/>
+    <child link="RFinger22Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger23" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger22Link"/>
+    <child link="RFinger23Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger31" type="revolute">
+    <origin rpy="2.98023e-08 1.06465 0.122173" xyz="0.09936 0.02478 0.00329"/>
+    <axis xyz="0.121869 -0.992546 -4.37114e-08"/>
+    <parent link="r_wrist"/>
+    <child link="RFinger31Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger32" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger31Link"/>
+    <child link="RFinger32Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RFinger33" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RFinger32Link"/>
+    <child link="RFinger33Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RThumb1" type="revolute">
+    <origin rpy="-2.68221e-07 1.37881 2.53073" xyz="0.07115 0.02465 -0.01233"/>
+    <axis xyz="0.573576 0.819152 1.05097e-07"/>
+    <parent link="r_wrist"/>
+    <child link="RThumb1Link"/>
+    <limit effort="0" lower="-1.06465082555556" upper="0" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="-1" offset="0"/>-->
+    <mimic joint="RHand" multiplier="-1" offset="0"/>
+  </joint>
+  <joint name="RThumb2" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RThumb1Link"/>
+    <child link="RThumb2Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+  <joint name="RThumb3" type="revolute">
+    <origin rpy="4.64506e-08 1.06465 7.88574e-08" xyz="0.01818 0 0"/>
+    <axis xyz="0 -1 -4.37114e-08"/>
+    <parent link="RThumb2Link"/>
+    <child link="RThumb3Link"/>
+    <limit effort="0" lower="0" upper="1.06465082555556" velocity="0"/>
+    <!--    <mimic joint="RFinger11" multiplier="1" offset="0"/> -->
+    <mimic joint="RHand" multiplier="1" offset="0"/>
+  </joint>
+</robot>
