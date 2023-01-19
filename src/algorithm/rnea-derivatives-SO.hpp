@@ -60,7 +60,7 @@ namespace pinocchio {
 /// the rows, while elements of q vary along the columns and pages of the
 /// tensor. For d2tau_dqdv, the elements of generalized torque varies along the
 /// rows, while elements of v vary along the columns and elements of q along the
-/// pages of the tensor. Hence, d2tau_dqdv is essentially d (d tau/dv)/dq, with
+/// pages of the tensor. Hence, d2tau_dqdv is essentially d (d tau/dq)/dv, with
 /// outer-most derivative representing the third dimension (pages) of the
 /// tensor.  The tensor d2tau_dadq reduces down to dM/dq, and hence the elements
 /// of q vary along the pages of the tensor. In other words, this tensor
@@ -112,7 +112,7 @@ inline void computeRNEADerivativesSO(
 /// the rows, while elements of q vary along the columns and pages of the
 /// tensor. For d2tau_dqdv, the elements of generalized torque varies along the
 /// rows, while elements of v vary along the columns and elements of q along the
-/// pages of the tensor. Hence, d2tau_dqdv is essentially d (d tau/dv)/dq, with
+/// pages of the tensor. Hence, d2tau_dqdv is essentially d (d tau/dq)/dv, with
 /// outer-most derivative representing the third dimension (pages) of the
 /// tensor.  The tensor d2tau_dadq reduces down to dM/dq, and hence the elements
 /// of q vary along the pages of the tensor. In other words, this tensor

@@ -71,6 +71,10 @@ inline DataTpl<Scalar, Options, JointCollectionTpl>::DataTpl(const Model &model)
       dtau_dv(MatrixXs::Zero(model.nv, model.nv)),
       ddq_dq(MatrixXs::Zero(model.nv, model.nv)),
       ddq_dv(MatrixXs::Zero(model.nv, model.nv)),
+      d2tau_dq(Tensor3x(model.nv, model.nv, model.nv)),
+      d2tau_dv(Tensor3x(model.nv, model.nv, model.nv)),
+      d2tau_dqdv(Tensor3x(model.nv, model.nv, model.nv)),
+      d2tau_dadq(Tensor3x(model.nv, model.nv, model.nv)),
       iMf((std::size_t)model.njoints, SE3::Identity()),
       com((std::size_t)model.njoints, Vector3::Zero()),
       vcom((std::size_t)model.njoints, Vector3::Zero()),
@@ -242,7 +246,10 @@ bool operator==(const DataTpl<Scalar, Options, JointCollectionTpl> &data1,
       data1.dVdq == data2.dVdq && data1.dAdq == data2.dAdq &&
       data1.dAdv == data2.dAdv && data1.dtau_dq == data2.dtau_dq &&
       data1.dtau_dv == data2.dtau_dv && data1.ddq_dq == data2.ddq_dq &&
-      data1.ddq_dv == data2.ddq_dv && data1.iMf == data2.iMf &&
+      data1.ddq_dv == data2.ddq_dv && data1.d2tau_dq == data2.d2tau_dq &&
+      data1.d2tau_dv == data2.d2tau_dv &&
+      data1.d2tau_dqdv == data2.d2tau_dqdv &&
+      data1.d2tau_dadq == data2.d2tau_dadq && data1.iMf == data2.iMf &&
       data1.com == data2.com && data1.vcom == data2.vcom &&
       data1.acom == data2.acom && data1.mass == data2.mass &&
       data1.Jcom == data2.Jcom &&
