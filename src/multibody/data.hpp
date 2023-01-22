@@ -59,9 +59,8 @@ struct DataTpl : serialization::Serializable<
       MatrixXs;
   typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1, Options> VectorXs;
   typedef Eigen::Matrix<Scalar, 3, 1, Options> Vector3;
-  typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6c; // added new- SS
-  typedef Eigen::Matrix<Scalar, 1, 6, Eigen::RowMajor | Options>
-      Vector6r; // added new- SS
+  typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6c;
+  typedef Eigen::Matrix<Scalar, 1, 6, Eigen::RowMajor | Options> Vector6r;
 
   /// \brief Dense vectorized version of a joint configuration vector.
   typedef VectorXs ConfigVectorType;

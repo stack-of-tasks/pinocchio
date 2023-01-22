@@ -246,10 +246,7 @@ bool operator==(const DataTpl<Scalar, Options, JointCollectionTpl> &data1,
       data1.dVdq == data2.dVdq && data1.dAdq == data2.dAdq &&
       data1.dAdv == data2.dAdv && data1.dtau_dq == data2.dtau_dq &&
       data1.dtau_dv == data2.dtau_dv && data1.ddq_dq == data2.ddq_dq &&
-      data1.ddq_dv == data2.ddq_dv && data1.d2tau_dq == data2.d2tau_dq &&
-      data1.d2tau_dv == data2.d2tau_dv &&
-      data1.d2tau_dqdv == data2.d2tau_dqdv &&
-      data1.d2tau_dadq == data2.d2tau_dadq && data1.iMf == data2.iMf &&
+      data1.ddq_dv == data2.ddq_dv && data1.iMf == data2.iMf &&
       data1.com == data2.com && data1.vcom == data2.vcom &&
       data1.acom == data2.acom && data1.mass == data2.mass &&
       data1.Jcom == data2.Jcom &&
@@ -271,6 +268,14 @@ bool operator==(const DataTpl<Scalar, Options, JointCollectionTpl> &data1,
            MapVectorXs(data2.kinematic_hessians.data(),
                        data2.kinematic_hessians.size());
 
+  value &= MapVectorXs(data1.d2tau_dq.data(), data1.d2tau_dq.size()) ==
+           MapVectorXs(data2.d2tau_dq.data(), data2.d2tau_dq.size());
+  value &= MapVectorXs(data1.d2tau_dv.data(), data1.d2tau_dv.size()) ==
+           MapVectorXs(data2.d2tau_dv.data(), data2.d2tau_dv.size());
+  value &= MapVectorXs(data1.d2tau_dqdv.data(), data1.d2tau_dqdv.size()) ==
+           MapVectorXs(data2.d2tau_dqdv.data(), data2.d2tau_dqdv.size());
+  value &= MapVectorXs(data1.d2tau_dadq.data(), data1.d2tau_dadq.size()) ==
+           MapVectorXs(data2.d2tau_dadq.data(), data2.d2tau_dadq.size());
   return value;
 }
 

@@ -57,7 +57,7 @@ ENDIF(WIN32)
 # --- OPTIONS ----------------------------------------
 OPTION(BUILD_BENCHMARK "Build the benchmarks" OFF)
 OPTION(BUILD_UTILS "Build the utils" OFF)
-OPTION(BUILD_PYTHON_INTERFACE "Build the Python bindings" OFF) # originally ON
+OPTION(BUILD_PYTHON_INTERFACE "Build the Python bindings" ON) 
 OPTION(BUILD_WITH_COMMIT_VERSION "Build libraries by setting specific commit version" OFF)
 
 IF(DEFINED BUILD_UNIT_TESTS)
@@ -158,7 +158,7 @@ IF(BUILD_PYTHON_INTERFACE)
     set(PYTHON_COMPONENTS ${PYTHON_COMPONENTS} Development)
   ENDIF()
 
-  #ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED) # originally used
+  ADD_PROJECT_DEPENDENCY(eigenpy 2.7.10 REQUIRED)
 
   IF(BUILD_WITH_LIBPYTHON)
     # Check wether this a PyPy Python
@@ -288,10 +288,10 @@ ADD_SUBDIRECTORY(bindings)
 ADD_SUBDIRECTORY(utils)
 
 # --- UNIT TESTS ---------------------------------------------------------------
-#ADD_SUBDIRECTORY(unittest) # originally used
+ADD_SUBDIRECTORY(unittest) 
 
 # --- CHECK EXAMPLES -----------------------------------------------------------
-#ADD_SUBDIRECTORY(examples) # originally used
+ADD_SUBDIRECTORY(examples) 
 
 # --- BENCHMARKS ---------------------------------------------------------------
 ADD_SUBDIRECTORY(benchmark)

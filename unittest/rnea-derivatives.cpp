@@ -308,8 +308,6 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives) {
 BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   using namespace Eigen;
   using namespace pinocchio;
-  typedef Model::ConfigVectorType ConfigVector;
-  typedef Model::TangentVectorType TangentVector;
 
   Model model;
   buildModels::humanoidRandom(model);
@@ -366,7 +364,6 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
                          rnea_partial_dv, rnea_partial_da);
 
   const double alpha = 1e-7;
-  const double eps = 1e-6;
 
   for (int k = 0; k < model.nv; ++k) {
     v_eps[k] += alpha;
