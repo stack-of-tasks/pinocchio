@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -504,8 +504,8 @@ namespace pinocchio
 
   /** \brief Derivative of log6
    *
-   * This function is the right derivative of @ref log6, that is, for $M \in
-   * SE(3)$ and $\xi in \mathfrak{se}(3)$, it provides the linear
+   * This function is the right derivative of @ref log6, that is, for \f$M \in
+   * SE(3)\f$ and \f$\xi in \mathfrak{se}(3)\f$, it provides the linear
    * approximation:
    *
    * \f[
@@ -518,9 +518,9 @@ namespace pinocchio
    * \text{Jlog6}(M) = \frac{\partial \log_6(M)}{\partial M}
    * \f]
    *
-   * Note that this is a right Jacobian: \f$\text{Jlog6}(M) : T_{M} SE(3) \to T_{\log_6(M)} \mathfrak{se}(3)\f$.
+   * Note that this is the right Jacobian: \f$\text{Jlog6}(M) : T_{M} SE(3) \to T_{\log_6(M)} \mathfrak{se}(3)\f$.
    * (By convention, calculations in Pinocchio always perform right differentiation,
-   * i.e., Jacobians are in local coordinates unless otherwise specified.)
+   * i.e., Jacobians are in local coordinates (also known as body coordinates), unless otherwise specified.)
    *
    * Internally, it is calculated using the following formulas:
    *
