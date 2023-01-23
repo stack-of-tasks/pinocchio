@@ -550,10 +550,14 @@ namespace pinocchio
    *  \f[ \beta(x)=\left(\frac{1}{x^2} - \frac{\sin x}{2x(1-\cos x)}\right) \f]
    *
    *
-   * \cheatsheet For \f$(A,B) \in SE(3)^2\f$, let \f$m_1 = log_6(A B) \f$ and
-   * \f$ m_2 = log_6(A^{-1}) \f$. Then, we have: \n
+   * \cheatsheet For \f$(A,B) \in SE(3)^2\f$, let \f$M_1(A, B) = A B\f$ and
+   * \f$m_1 = \log_6(M_1) \f$. Then, we have the following partial (right)
+   * Jacobians: \n
    *  - \f$ \frac{\partial m_1}{\partial A} = Jlog_6(M_1) Ad_B^{-1} \f$,
-   *  - \f$ \frac{\partial m_1}{\partial B} = Jlog_6(M_1) \f$,
+   *  - \f$ \frac{\partial m_1}{\partial B} = Jlog_6(M_1) \f$.
+   *
+   * \cheatsheet Let \f$A \in SE(3)\f$, \f$M_2(A) = A^{-1}\f$ and \f$m_2 =
+   * \log_6(M_2)\f$. Then, we have the following partial (right) Jacobian: \n
    *  - \f$ \frac{\partial m_2}{\partial A} = - Jlog_6(M_2) Ad_A \f$.
    */
   template<typename Scalar, int Options, typename Matrix6Like>
