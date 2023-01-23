@@ -518,7 +518,7 @@ namespace pinocchio
    * \text{Jlog6}(M) = \frac{\partial \log_6(M)}{\partial M}
    * \f]
    *
-   * Note that this is a right Jacobian, so that \f$\text{Jlog6}(M) \in T_{M} SE(3)\f$.
+   * Note that this is a right Jacobian: \f$\text{Jlog6}(M) : T_{M} SE(3) \to T_{\log_6(M)} \mathfrak{se}(3)\f$.
    * (By convention, calculations in Pinocchio always perform right differentiation,
    * i.e., Jacobians are in local coordinates unless otherwise specified.)
    *
