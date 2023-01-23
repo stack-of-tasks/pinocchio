@@ -59,7 +59,9 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    
+    typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6c;
+    typedef Eigen::Matrix<Scalar, 1, 6, Eigen::RowMajor | Options> Vector6r;
+
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
     
@@ -202,7 +204,45 @@ namespace pinocchio
     Matrix6 M6tmp;
     RowMatrix6 M6tmpR;
     RowMatrix6 M6tmpR2;
-    
+      
+    /// \brief Temporary for RNEA SO derivative algorithms
+    Motion S_dm;
+    Motion psid_dm;
+    Motion psidd_dm;
+    Motion phid_dm;
+    typename Inertia::Matrix6 tmpoBicphiiIn;
+    typename Inertia::Matrix6 tmpoBicpsidotIn;
+    Matrix6x Jcols_j;
+    Matrix6x psid_cols_j;
+    Matrix6x psidd_cols_j;
+    Matrix6x dJ_cols_j;
+    Matrix6x Jcols_k;
+    Matrix6x psid_cols_k;
+    Matrix6x psidd_cols_k;
+    Matrix6x dJ_cols_k;
+    Matrix6 tmpmr0;
+    Matrix6 tmpr1In;
+    Matrix6 tmpr2In;
+    Matrix6 tmpr3In;
+    Matrix6 tmpr4In;
+    Matrix6 tmpr5In;
+    Matrix6 tmpr6In;
+    Matrix6 tmpr7In;
+    Force ftmp;
+    Vector6r tmpv1;
+    Vector6r vecu1;
+    Vector6r vecu2;
+    Vector6c vecu3;
+    Vector6c vecu4;
+    Vector6c vecu5;
+    Vector6c vecu6;
+    Vector6c vecu7;
+    Vector6c vecu8;
+    Vector6c vecu9;
+    Vector6c vecu10;
+    Vector6r vecu11;
+    Vector6r vecu12;
+    Vector6c vecu13;
     /// \brief The joint accelerations computed from ABA
     TangentVectorType ddq;
     
@@ -282,7 +322,18 @@ namespace pinocchio
     
     /// \brief Derivative of the Jacobian with respect to the time.
     Matrix6x dJ;
-    
+
+      /// \brief Second derivative of the Jacobian with respect to the time.
+    Matrix6x ddJ;
+
+    /// \brief psidot Derivative of Jacobian w.r.t to the parent body moving
+    /// v(p(j)) x Sj
+    Matrix6x psid;
+
+    /// \brief psiddot Second Derivative of Jacobian w.r.t to the parent body
+    /// moving a(p(j)) x Sj + v(p(j)) x psidj
+    Matrix6x psidd;
+
     /// \brief Variation of the spatial velocity set with respect to the joint configuration.
     Matrix6x dVdq;
     
@@ -304,6 +355,24 @@ namespace pinocchio
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
     MatrixXs ddq_dv;
     
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint configuration.
+    Tensor3x d2tau_dq;
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint velocity.
+    Tensor3x d2tau_dv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint configuration/velocity.
+    Tensor3x d2tau_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint acceleration/configuration. This also equals to the
+    /// First Order partial derivative of the Mass Matrix w.r.t joint
+    /// configuration
+    Tensor3x d2tau_dadq;
+
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;
 

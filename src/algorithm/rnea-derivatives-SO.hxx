@@ -40,7 +40,7 @@ struct ComputeRNEADerivativesSOForwardStep
     const JointIndex &parent = model.parents[i];
     Motion &ov = data.ov[i];
     Motion &oa = data.oa[i];
-    Motion &vJ = data.vJ[i];
+    Motion &vJ = data.v[i];
 
     jmodel.calc(jdata.derived(), q.derived(), v.derived());
 
