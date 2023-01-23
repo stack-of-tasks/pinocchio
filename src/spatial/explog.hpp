@@ -348,7 +348,7 @@ namespace pinocchio
   ///
   /// \param[in] v The twist represented by a vector.
   ///
-  /// \return The rigid transformation associated to the integration of the twist vector during time 1..
+  /// \return The rigid transformation associated to the integration of the twist vector during time 1.
   ///
   template<typename Vector6Like>
   SE3Tpl<typename Vector6Like::Scalar,PINOCCHIO_EIGEN_PLAIN_TYPE(Vector6Like)::Options>
