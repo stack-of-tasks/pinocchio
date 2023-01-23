@@ -76,6 +76,9 @@ namespace pinocchio
   , nvSubtree_fromRow((std::size_t)model.nv,-1)
   , J(Matrix6x::Zero(6,model.nv))
   , dJ(Matrix6x::Zero(6,model.nv))
+  , ddJ(Matrix6x::Zero(6, model.nv))
+  , psid(Matrix6x::Zero(6, model.nv))
+  , psidd(Matrix6x::Zero(6, model.nv))
   , dVdq(Matrix6x::Zero(6,model.nv))
   , dAdq(Matrix6x::Zero(6,model.nv))
   , dAdv(Matrix6x::Zero(6,model.nv))
@@ -83,6 +86,10 @@ namespace pinocchio
   , dtau_dv(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dq(MatrixXs::Zero(model.nv,model.nv))
   , ddq_dv(MatrixXs::Zero(model.nv,model.nv))
+  , d2tau_dq(Tensor3x(model.nv, model.nv, model.nv))
+  , d2tau_dv(Tensor3x(model.nv, model.nv, model.nv))
+  , d2tau_dqdv(Tensor3x(model.nv, model.nv, model.nv))
+  , d2tau_dadq(Tensor3x(model.nv, model.nv, model.nv))
   , iMf((std::size_t)model.njoints,SE3::Identity())
   , com((std::size_t)model.njoints,Vector3::Zero())
   , vcom((std::size_t)model.njoints,Vector3::Zero())
@@ -271,6 +278,9 @@ namespace pinocchio
     && data1.nvSubtree_fromRow == data2.nvSubtree_fromRow
     && data1.J == data2.J
     && data1.dJ == data2.dJ
+    && data1.ddJ == data2.ddJ
+    && data1.psid == data2.psid
+    && data1.psidd == data2.psidd
     && data1.dVdq == data2.dVdq
     && data1.dAdq == data2.dAdq
     && data1.dAdv == data2.dAdv
@@ -302,6 +312,15 @@ namespace pinocchio
     value &=
        MapVectorXs(data1.kinematic_hessians.data(),data1.kinematic_hessians.size())
     == MapVectorXs(data2.kinematic_hessians.data(),data2.kinematic_hessians.size());
+
+    value &= MapVectorXs(data1.d2tau_dq.data(), data1.d2tau_dq.size()) ==
+            MapVectorXs(data2.d2tau_dq.data(), data2.d2tau_dq.size());
+    value &= MapVectorXs(data1.d2tau_dv.data(), data1.d2tau_dv.size()) ==
+            MapVectorXs(data2.d2tau_dv.data(), data2.d2tau_dv.size());
+    value &= MapVectorXs(data1.d2tau_dqdv.data(), data1.d2tau_dqdv.size()) ==
+            MapVectorXs(data2.d2tau_dqdv.data(), data2.d2tau_dqdv.size());
+    value &= MapVectorXs(data1.d2tau_dadq.data(), data1.d2tau_dadq.size()) ==
+            MapVectorXs(data2.d2tau_dadq.data(), data2.d2tau_dadq.size());
 
     return value;
   }

@@ -6,6 +6,7 @@
 #include "pinocchio/algorithm/kinematics.hpp"
 #include "pinocchio/algorithm/kinematics-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
+#include "pinocchio/algorithm/rnea-derivatives-SO.hpp"
 #include "pinocchio/algorithm/aba-derivatives.hpp"
 #include "pinocchio/algorithm/aba.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
@@ -171,6 +172,15 @@ int main(int argc, const char ** argv)
   MatrixXd daba_dq(MatrixXd::Zero(model.nv,model.nv));
   MatrixXd daba_dv(MatrixXd::Zero(model.nv,model.nv));
   Data::RowMatrixXs daba_dtau(Data::RowMatrixXs::Zero(model.nv,model.nv));
+
+  Data::Tensor3x dtau2_dq(model.nv, model.nv, model.nv);
+  Data::Tensor3x dtau2_dv(model.nv, model.nv, model.nv);
+  Data::Tensor3x dtau2_dqv(model.nv, model.nv, model.nv);
+  Data::Tensor3x dtau_dadq(model.nv, model.nv, model.nv);
+  dtau2_dq.setZero();
+  dtau2_dv.setZero();
+  dtau2_dqv.setZero();
+  dtau_dadq.setZero();
   
   timer.tic();
   SMOOTH(NBT)
@@ -200,6 +210,15 @@ int main(int argc, const char ** argv)
                            drnea_dq,drnea_dv,drnea_da);
   }
   std::cout << "RNEA derivatives= \t\t"; timer.toc(std::cout,NBT);
+
+  timer.tic();
+  SMOOTH(NBT) {
+    computeRNEADerivativesSO(model, data, qs[_smooth], qdots[_smooth],
+                             qddots[_smooth], dtau2_dq, dtau2_dv, dtau2_dqv,
+                             dtau_dadq);
+  }
+  std::cout << "RNEA derivatives SO= \t\t";
+  timer.toc(std::cout, NBT);
 
   timer.tic();
   SMOOTH(NBT/100)

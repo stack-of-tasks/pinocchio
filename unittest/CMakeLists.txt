@@ -160,6 +160,7 @@ ADD_TEST_CFLAGS(serialization "-DTEST_SERIALIZATION_FOLDER=\\\\\"${CMAKE_CURRENT
 ADD_PINOCCHIO_UNIT_TEST(kinematics-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(frames-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives)
+ADD_PINOCCHIO_UNIT_TEST(rnea-derivatives-SO)
 ADD_PINOCCHIO_UNIT_TEST(aba-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(centroidal-derivatives)
 ADD_PINOCCHIO_UNIT_TEST(center-of-mass-derivatives)
