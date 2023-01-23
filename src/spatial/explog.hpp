@@ -515,7 +515,7 @@ namespace pinocchio
    * Equivalently, \f$\text{Jlog6}$ is the right Jacobian of \f$\log_6\f$:
    *
    * \f[
-   * \text{Jlog6}(M)) = \frac{\partial \log_6(M)}{\partial M}
+   * \text{Jlog6}(M) = \frac{\partial \log_6(M)}{\partial M}
    * \f]
    *
    * Note that this is a right Jacobian, so that \f$\text{Jlog6}(M) \in T_{M} SE(3)\f$.
