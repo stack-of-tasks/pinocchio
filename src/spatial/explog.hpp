@@ -503,7 +503,29 @@ namespace pinocchio
   }
 
   /** \brief Derivative of log6
+   *
+   * This function is the right derivative of @ref log6, that is, for $M \in
+   * SE(3)$ and $\xi in \mathfrak{se}(3)$, it provides the linear
+   * approximation:
+   *
+   * \f[
+   * \log_6(M \oplus \xi) = \log_6(M \exp_6(\xi)) \approx \log_6(M) + \text{Jlog6}(M) \xi
+   * \f]
+   *
+   * Equivalently, \f$\text{Jlog6}$ is the right Jacobian of \f$\log_6\f$:
+   *
+   * \f[
+   * \text{Jlog6}(M)) = \frac{\partial \log_6(M)}{\partial M}
+   * \f]
+   *
+   * Note that this is a right Jacobian, so that \f$\text{Jlog6}(M) \in T_{M} SE(3)\f$.
+   * (By convention, calculations in Pinocchio always perform right differentiation,
+   * i.e., Jacobians are in local coordinates unless otherwise specified.)
+   *
+   * Internally, it is calculated using the following formulas:
+   *
    *  \f[
+   *  \text{Jlog6}(M) =
    *  \left(\begin{array}{cc}
    *  \text{Jlog3}(R) & J * \text{Jlog3}(R) \\
    *            0     &     \text{Jlog3}(R) \\
