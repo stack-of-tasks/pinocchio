@@ -8,12 +8,27 @@ import os
 import warnings
 import numpy as np
 from distutils.version import LooseVersion
+from typing import List
 
 try:
     import hppfcl
     WITH_HPP_FCL_BINDINGS = True
-except:
+except ImportError:
     WITH_HPP_FCL_BINDINGS = False
+
+DEFAULT_COLOR_PROFILES = {
+    "gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8]),
+    "white": (np.ones(3), )
+}
+COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
+
+
+def getColor(color):
+    assert color is not None
+    color = np.asarray(color)
+    assert color.shape == (3,)
+    return color.clip(0., 1.)
+
 
 def isMesh(geometry_object):
     """ Check whether the geometry object contains a Mesh supported by MeshCat """
@@ -188,6 +203,26 @@ def createCapsule(length, radius, radial_resolution = 30, cap_resolution = 10):
 class MeshcatVisualizer(BaseVisualizer):
     """A Pinocchio display using Meshcat"""
 
+    FORCE_SCALE = 0.06
+    FRAME_VEL_COLOR = 0x00FF00
+    CAMERA_PRESETS = {
+        "preset0": [
+            np.zeros(3),  # target
+            [3.0, 0.0, 1.0],  # anchor point (x, z, -y) lhs coords
+        ],
+        "preset1": [np.zeros(3), [1.0, 1.0, 1.0]],
+        "preset2": [[0.0, 0.0, 0.6], [0.8, 1.0, 1.2]],
+        "acrobot": [[0.0, 0.1, 0.0], [0.5, 0.0, 0.2]],
+        "cam_ur": [[0.4, 0.6, -0.2], [1.0, 0.4, 1.2]],
+        "cam_ur2": [[0.4, 0.3, 0.0], [0.5, 0.1, 1.4]],
+        "cam_ur3": [[0.4, 0.3, 0.0], [0.6, 1.3, 0.3]],
+        "cam_ur4": [[-1.0, 0.3, 0.0], [1.3, 0.1, 1.2]],  # x>0 to x<0
+        "cam_ur5": [[-1.0, 0.3, 0.0], [-0.05, 1.5, 1.2]],
+        "talos": [[0.0, 1.2, 0.0], [1.5, 0.3, 1.5]],
+        "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
+    }
+
+
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
         if geometry_type is pin.GeometryType.VISUAL:
@@ -205,37 +240,76 @@ class MeshcatVisualizer(BaseVisualizer):
 
         self.viewer = meshcat.Visualizer() if viewer is None else viewer
 
+        self._node_default_cam = self.viewer["/Cameras/default"]
+        self._node_background = self.viewer["/Background"]
+        self._rot_cam_key = "rotated/object"
+
+        self._check_meshcat_has_get_image()
+
         if open:
             self.viewer.open()
 
         if loadModel:
             self.loadViewerModel()
 
-    def loadPrimitive(self, geometry_object):
+    def setBackgroundColor(self, preset_name: str = "gray"):
+        """Set the background."""
+        assert preset_name in COLOR_PRESETS.keys()
+        col_top, col_bot = COLOR_PRESETS[preset_name]
+        self._node_background.set_property("top_color", col_top)
+        self._node_background.set_property("bottom_color", col_bot)
 
-        import meshcat.geometry
+    def setCameraTarget(self, target: np.ndarray):
+        self.viewer.set_cam_target(target)
+
+    def setCameraPosition(self, position: np.ndarray):
+        self.viewer.set_cam_pos(position)
+
+    def setCameraPreset(self, preset_key: str):
+        """Set the camera angle and position using a given preset."""
+        assert preset_key in self.CAMERA_PRESETS
+        cam_val = self.CAMERA_PRESETS[preset_key]
+        self.setCameraTarget(cam_val[0])
+        self.setCameraPosition(cam_val[1])
+
+    def setCameraZoom(self, zoom: float):
+        elt = self._node_default_cam[self._rot_cam_key]
+        elt.set_property("zoom", zoom)
+
+    def setCameraPose(self, pose):
+        self._node_default_cam.set_transform(pose)
+
+    def disableCameraControl(self):
+        self.setCameraPosition([0, 0, 0])
+
+    def enableCameraControl(self):
+        self.setCameraPosition([3, 0, 1])
+
+    def loadPrimitive(self, geometry_object: pin.GeometryObject):
+
+        import meshcat.geometry as mg
 
         # Cylinders need to be rotated
         R = np.array([[1.,  0.,  0.,  0.],
                       [0.,  0., -1.,  0.],
                       [0.,  1.,  0.,  0.],
                       [0.,  0.,  0.,  1.]])
-        RotatedCylinder = type("RotatedCylinder", (meshcat.geometry.Cylinder,), {"intrinsic_transform": lambda self: R })
+        RotatedCylinder = type("RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: R })
 
-        geom = geometry_object.geometry
+        geom: hppfcl.ShapeBase = geometry_object.geometry
         if isinstance(geom, hppfcl.Capsule):
-            if hasattr(meshcat.geometry, 'TriangularMeshGeometry'):
+            if hasattr(mg, 'TriangularMeshGeometry'):
                 obj = createCapsule(2. * geom.halfLength, geom.radius)
             else:
                 obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Box):
-            obj = meshcat.geometry.Box(npToTuple(2. * geom.halfSide))
+            obj = mg.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
-            obj = meshcat.geometry.Sphere(geom.radius)
-        elif isinstance(geom, hppfcl.Ellispoid):
-            obj = meshcat.geometry.Ellipsoid(geom.radii)
+            obj = mg.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.Ellipsoid):
+            obj = mg.Ellipsoid(geom.radii)
         elif isinstance(geom, hppfcl.ConvexBase):
             obj = loadMesh(geom)
         else:
@@ -398,15 +472,20 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
-    def captureImage(self):
-        """Capture an image from the Meshcat viewer and return an RGB array."""
-        try:
-            img = self.viewer.get_image()
-            img_arr = np.asarray(img)
-            return img_arr
-        except AttributeError:
+    def addGeometryObject(self, obj: pin.GeometryObject, color=None):
+        """Add a visual GeometryObject to the viewer, with an optional color."""
+        self.loadViewerGeometryObject(obj, pin.GeometryType.VISUAL, color)
+
+    def _check_meshcat_has_get_image(self):
+        if not hasattr(self.viewer, "get_image"):
             warnings.warn("meshcat.Visualizer does not have the get_image() method."
                           " You need meshcat >= 0.2.0 to get this feature.")
+
+    def captureImage(self, w=None, h=None):
+        """Capture an image from the Meshcat viewer and return an RGB array."""
+        img = self.viewer.get_image(w, h)
+        img_arr = np.asarray(img)
+        return img_arr
 
     def displayCollisions(self,visibility):
         """Set whether to display collision objects or not."""
@@ -429,5 +508,27 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if visibility:
             self.updatePlacements(pin.GeometryType.VISUAL)
+
+    def drawFrameVelocities(self, frame_id: int, v_scale=0.2):
+        pin.updateFramePlacement(self.model, self.data, frame_id)
+        vFr = pin.getFrameVelocity(
+            self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
+        )
+        self._draw_vectors_from_frame([v_scale * vFr.linear], [frame_id], [f"ee_v/{frame_id}"], [self.FRAME_VEL_COLOR])
+ 
+    def _draw_vectors_from_frame(self, vecs: List[np.ndarray], frame_ids: List[int], vec_names: List[str], colors: List[int]):
+        """Draw vectors extending from given frames."""
+        import meshcat.geometry as mg
+        assert len(vecs) == len(frame_ids), "Different number of vectors and frame_ids"
+        assert len(vecs) == len(vec_names), "Different number of vectors and names"
+        for i, (fid, v) in enumerate(zip(frame_ids, vecs)):
+            frame_pos = self.data.oMf[fid].translation
+            vertices = np.array([frame_pos, frame_pos + v]).astype(np.float32).T
+            name = vec_names[i]
+            geometry = mg.PointsGeometry(position=vertices)
+            geom_object = mg.LineSegments(geometry, mg.LineBasicMaterial(color=colors[i]))
+            prefix = f"lines/{name!r}"
+            self.viewer[prefix].set_object(geom_object)
+            
 
 __all__ = ['MeshcatVisualizer']
