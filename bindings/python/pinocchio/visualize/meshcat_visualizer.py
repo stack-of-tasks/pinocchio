@@ -509,12 +509,13 @@ class MeshcatVisualizer(BaseVisualizer):
         if visibility:
             self.updatePlacements(pin.GeometryType.VISUAL)
 
-    def drawFrameVelocities(self, frame_id: int, v_scale=0.2):
+    def drawFrameVelocities(self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR):
         pin.updateFramePlacement(self.model, self.data, frame_id)
         vFr = pin.getFrameVelocity(
             self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
         )
-        self._draw_vectors_from_frame([v_scale * vFr.linear], [frame_id], [f"ee_v/{frame_id}"], [self.FRAME_VEL_COLOR])
+        line_group_name = f"ee_vel/{frame_id}"
+        self._draw_vectors_from_frame([v_scale * vFr.linear], [frame_id], [line_group_name], [color])
  
     def _draw_vectors_from_frame(self, vecs: List[np.ndarray], frame_ids: List[int], vec_names: List[str], colors: List[int]):
         """Draw vectors extending from given frames."""
@@ -527,7 +528,7 @@ class MeshcatVisualizer(BaseVisualizer):
             name = vec_names[i]
             geometry = mg.PointsGeometry(position=vertices)
             geom_object = mg.LineSegments(geometry, mg.LineBasicMaterial(color=colors[i]))
-            prefix = f"lines/{name!r}"
+            prefix = self.viewerVisualGroupName + '/lines/' + name
             self.viewer[prefix].set_object(geom_object)
             
 
