@@ -355,24 +355,6 @@ namespace pinocchio
     /// \brief Partial derivative of the joint acceleration vector with respect to the joint velocity.
     MatrixXs ddq_dv;
     
-    /// \brief SO Partial derivative of the joint torque vector with respect to
-    /// the joint configuration.
-    Tensor3x d2tau_dq;
-
-    /// \brief SO Partial derivative of the joint torque vector with respect to
-    /// the joint velocity.
-    Tensor3x d2tau_dv;
-
-    /// \brief SO Cross-Partial derivative of the joint torque vector with
-    /// respect to the joint configuration/velocity.
-    Tensor3x d2tau_dqdv;
-
-    /// \brief SO Cross-Partial derivative of the joint torque vector with
-    /// respect to the joint acceleration/configuration. This also equals to the
-    /// First Order partial derivative of the Mass Matrix w.r.t joint
-    /// configuration
-    Tensor3x d2tau_dadq;
-
     /// \brief Vector of joint placements wrt to algorithm end effector.
     PINOCCHIO_ALIGNED_STD_VECTOR(SE3) iMf;
 
@@ -430,9 +412,26 @@ namespace pinocchio
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
     
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint configuration.
+   Tensor3x d2tau_dq;
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint velocity.
+    Tensor3x d2tau_dv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint configuration/velocity.
+    Tensor3x d2tau_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint acceleration/configuration. This also equals to the
+    /// First Order partial derivative of the Mass Matrix w.r.t joint
+    /// configuration
+    Tensor3x d2tau_dadq;
+
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
-    
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///
