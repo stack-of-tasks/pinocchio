@@ -242,6 +242,7 @@ class MeshcatVisualizer(BaseVisualizer):
         self._node_default_cam = self.viewer["/Cameras/default"]
         self._node_background = self.viewer["/Background"]
         self._rot_cam_key = "rotated/object"
+        self.static_objects = []
 
         self._check_meshcat_has_get_image()
 
@@ -471,9 +472,16 @@ class MeshcatVisualizer(BaseVisualizer):
             # Update viewer configuration.
             self.viewer[visual_name].set_transform(T)
 
+        for visual in self.static_objects:
+            visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
+            M: pin.SE3 = visual.placement
+            T = M.homogeneous
+            self.viewer[visual_name].set_transform(T)
+
     def addGeometryObject(self, obj: pin.GeometryObject, color=None):
         """Add a visual GeometryObject to the viewer, with an optional color."""
         self.loadViewerGeometryObject(obj, pin.GeometryType.VISUAL, color)
+        self.static_objects.append(obj)
 
     def _check_meshcat_has_get_image(self):
         if not hasattr(self.viewer, "get_image"):
