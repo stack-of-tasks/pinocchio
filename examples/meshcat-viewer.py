@@ -104,6 +104,6 @@ fid2 = model.getFrameId("FL_FOOT")
 def my_callback(i, *args):
     viz.drawFrameVelocities(frame_id)
     viz.drawFrameVelocities(fid2)
-    
+
 with viz.create_video_ctx("../leap.mp4"):
     viz.play(qs, dt, callback=my_callback)

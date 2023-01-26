@@ -78,7 +78,7 @@ class BaseVisualizer(object):
         """Set whether to display visual objects or not."""
         raise NotImplementedError()
     
-    def setBackgroundColor(self):
+    def setBackgroundColor(self, *args, **kwargs):
         """Set the visualizer background color."""
         raise NotImplementedError()
 
@@ -108,7 +108,7 @@ class BaseVisualizer(object):
     def enableCameraControl(self):
         raise NotImplementedError()
 
-    def drawFrameVelocities(self, *args):
+    def drawFrameVelocities(self, *args, **kwargs):
         """Draw current frame velocities."""
         raise NotImplementedError()
 

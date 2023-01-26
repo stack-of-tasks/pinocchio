@@ -22,13 +22,6 @@ DEFAULT_COLOR_PROFILES = {
 COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
 
 
-def getColor(color):
-    assert color is not None
-    color = np.asarray(color)
-    assert color.shape == (3,)
-    return color.clip(0., 1.)
-
-
 def isMesh(geometry_object):
     """ Check whether the geometry object contains a Mesh supported by MeshCat """
     if geometry_object.meshPath == "":
@@ -254,7 +247,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def setBackgroundColor(self, preset_name: str = "gray"):
         """Set the background."""
-        assert preset_name in COLOR_PRESETS.keys()
         col_top, col_bot = COLOR_PRESETS[preset_name]
         self._node_background.set_property("top_color", col_top)
         self._node_background.set_property("bottom_color", col_bot)
@@ -267,7 +259,6 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def setCameraPreset(self, preset_key: str):
         """Set the camera angle and position using a given preset."""
-        assert preset_key in self.CAMERA_PRESETS
         cam_val = self.CAMERA_PRESETS[preset_key]
         self.setCameraTarget(cam_val[0])
         self.setCameraPosition(cam_val[1])
@@ -276,7 +267,7 @@ class MeshcatVisualizer(BaseVisualizer):
         elt = self._node_default_cam[self._rot_cam_key]
         elt.set_property("zoom", zoom)
 
-    def setCameraPose(self, pose):
+    def setCameraPose(self, pose: np.ndarray = np.eye(4)):
         self._node_default_cam.set_transform(pose)
 
     def disableCameraControl(self):
@@ -527,8 +518,8 @@ class MeshcatVisualizer(BaseVisualizer):
     def _draw_vectors_from_frame(self, vecs: List[np.ndarray], frame_ids: List[int], vec_names: List[str], colors: List[int]):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg
-        assert len(vecs) == len(frame_ids), "Different number of vectors and frame_ids"
-        assert len(vecs) == len(vec_names), "Different number of vectors and names"
+        if len(vecs) != len(frame_ids) or len(vecs) != len(vec_names):
+            return ValueError("Number of vectors and frames IDs or names is inconsistent.")
         for i, (fid, v) in enumerate(zip(frame_ids, vecs)):
             frame_pos = self.data.oMf[fid].translation
             vertices = np.array([frame_pos, frame_pos + v]).astype(np.float32).T
