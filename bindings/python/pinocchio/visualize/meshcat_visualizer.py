@@ -309,6 +309,11 @@ class MeshcatVisualizer(BaseVisualizer):
             obj = mg.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):
             obj = mg.Sphere(geom.radius)
+        elif isinstance(geom, hppfcl.Plane):
+            To = np.eye(4)
+            To[:3, 3] = geom.d * geom.n
+            TranslatedPlane = type("TranslatedPlane", (mg.Plane,), {"intrinsic_transform": lambda self: To})
+            obj = TranslatedPlane(-10, 10)
         elif isinstance(geom, hppfcl.Ellipsoid):
             obj = mg.Ellipsoid(geom.radii)
         elif isinstance(geom, hppfcl.ConvexBase):
