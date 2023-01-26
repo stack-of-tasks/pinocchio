@@ -50,10 +50,10 @@ jobs:
     - name: Set and install dependencies
       run: |
         sudo rm -rf /usr/local/share/boost/1.69.0
-        export PYTHON3_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
+        export PYTHON_VERSION=$(python -c "import sys; print(str(sys.version_info.major)+str(sys.version_info.minor))")
         export APT_DEPENDENCIES="doxygen libboost-system-dev libboost-test-dev libboost-filesystem-dev libboost-program-options-dev libeigen3-dev liburdfdom-dev texlive-font-utils"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py"$PYTHON3_VERSION"-eigenpy python3-numpy"
-        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py"$PYTHON3_VERSION"-hpp-fcl"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" libboost-python-dev robotpkg-py"$PYTHON_VERSION"-eigenpy python*-numpy"
+        export APT_DEPENDENCIES=$APT_DEPENDENCIES" robotpkg-py"$PYTHON_VERSION"-hpp-fcl"
         echo $APT_DEPENDENCIES
         sudo apt-get update -qq
         sudo apt-get install -qq curl cppcheck ${APT_DEPENDENCIES}
@@ -78,15 +78,15 @@ jobs:
       run: |
         git submodule update --init
         export PATH=$PATH:/opt/openrobots/bin
-        export PYTHON3_DOT_VERSION=$(python3 -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
-        export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON3_DOT_VERSION/site-packages
+        export PYTHON_DOT_VERSION=$(python -c "import sys; print(str(sys.version_info.major)+'.'+str(sys.version_info.minor))")
+        export PYTHONPATH=${PYTHONPATH}:/opt/openrobots/lib/python$PYTHON_DOT_VERSION/site-packages
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openrobots/lib:/usr/local/lib:/usr/lib:/usr/lib/x86_64-linux-gnu
         export MAKEFLAGS="-j1"
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
 
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON
+        cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON
         make
         make build_tests
         export CTEST_OUTPUT_ON_FAILURE=1
@@ -102,14 +102,14 @@ jobs:
         mkdir build
         cd build
         export CMAKE_PREFIX_PATH=/usr/local
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
+        cmake ..
         make
         ./run_rnea
         ./load_urdf
         cd ../../pkgconfig
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
+        cmake ..
         make
         ./run_rnea
         cd ../../external
@@ -119,14 +119,14 @@ jobs:
         git tag $PINOCCHIO_GIT_TAG
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
+        cmake ..
         make
         ./run_rnea
         ./load_urdf
         cd ../../pinocchio_header
         mkdir build
         cd build
-        cmake -DPYTHON_EXECUTABLE=$(which python3) ..
+        cmake ..
         make
         ./run_fk
 
