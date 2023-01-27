@@ -1,8 +1,8 @@
 //
-// Copyright (c) 2021 INRIA
+// Copyright (c) 2021-2023 INRIA
 //
 
-#include <boost/asio/streambuf.hpp>
+#include <boost/asio.hpp>
 
 #include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/namespace.hpp"
@@ -24,6 +24,18 @@ namespace pinocchio
     {
       self.prepare(n); return self;
     }
+
+    static PyObject* view(boost::asio::streambuf & self)
+    {
+      boost::asio::streambuf::const_buffers_type bufs = self.data();
+      PyObject* py_buffer = PyMemoryView_FromMemory(const_cast<char*>(static_cast<const char*>(bufs.data())), self.size(), PyBUF_READ);
+      return py_buffer;
+    }
+
+    static PyObject* tobytes(boost::asio::streambuf & self)
+    {
+      return PyBytes_FromObject(view(self));
+    }
     
     void exposeSerialization()
     {
@@ -40,7 +52,9 @@ namespace pinocchio
         //      .def("capacity",&StreamBuffer::capacity,"Get the current capacity of the StreamBuffer.")
         .def("size",&StreamBuffer::size,"Get the size of the input sequence.")
         .def("max_size",&StreamBuffer::max_size,"Get the maximum size of the StreamBuffer.")
-        .def("prepare",prepare_proxy,"Reserve data.",bp::return_internal_reference<>())
+        .def("prepare",prepare_proxy,"Reserve data.",bp::return_self<>())
+        .def("view",view,"Returns the content of *this as a memory view.",bp::with_custodian_and_ward_postcall<0,1>())
+        .def("tobytes",tobytes,"Returns the content of *this as a byte sequence.")
         ;
       }
       
