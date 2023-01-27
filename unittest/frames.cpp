@@ -12,7 +12,6 @@
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
-#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
