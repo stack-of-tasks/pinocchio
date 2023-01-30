@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -12,6 +12,7 @@
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/force.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -136,7 +137,12 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<Force>("Force",
+#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+    typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Force) HolderType;
+#else
+    typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<Force,HolderType>("Force",
                           "Force vectors, in se3* == F^6.\n\n"
                           "Supported operations ...",
                           bp::no_init)
