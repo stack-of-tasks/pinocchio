@@ -6,8 +6,8 @@
 #ifndef __pinocchio_python_spatial_force_hpp__
 #define __pinocchio_python_spatial_force_hpp__
 
+#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
