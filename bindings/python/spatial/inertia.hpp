@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -7,11 +7,12 @@
 #define __pinocchio_python_spatial_inertia_hpp__
 
 #include <eigenpy/exception.hpp>
+#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/inertia.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -207,7 +208,12 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<Inertia>("Inertia",
+#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+    typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Inertia) HolderType;
+#else
+    typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<Inertia,HolderType>("Inertia",
                             "This class represenses a sparse version of a Spatial Inertia and its is defined by its mass, its center of mass location and the rotational inertia expressed around this center of mass.\n\n"
                             "Supported operations ...",
                             bp::init<>(bp::arg("self"),"Default constructor."))

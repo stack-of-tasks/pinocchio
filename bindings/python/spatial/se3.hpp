@@ -1,13 +1,13 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #ifndef __pinocchio_python_spatial_se3_hpp__
 #define __pinocchio_python_spatial_se3_hpp__
 
+#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
@@ -16,6 +16,7 @@
 #include "pinocchio/spatial/inertia.hpp"
 #include "pinocchio/spatial/explog.hpp"
 
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -178,7 +179,12 @@ namespace pinocchio
       
       static void expose()
       {
-        bp::class_<SE3>("SE3",
+#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+    typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(SE3) HolderType;
+#else
+    typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<SE3,HolderType>("SE3",
                         "SE3 transformation defined by a 3d vector and a rotation matrix.",
                         bp::init<>(bp::arg("self"),"Default constructor."))
         .def(SE3PythonVisitor<SE3>())

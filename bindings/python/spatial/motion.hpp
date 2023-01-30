@@ -1,18 +1,19 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #ifndef __pinocchio_python_spatial_motion_hpp__
 #define __pinocchio_python_spatial_motion_hpp__
 
+#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 
 #include "pinocchio/spatial/se3.hpp"
 #include "pinocchio/spatial/motion.hpp"
 #include "pinocchio/spatial/force.hpp"
+#include "pinocchio/bindings/python/fwd.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"
 
@@ -150,7 +151,12 @@ namespace pinocchio
 
       static void expose()
       {
-        bp::class_<Motion>("Motion",
+#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+    typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Motion) HolderType;
+#else
+    typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<Motion,HolderType>("Motion",
                            "Motion vectors, in se3 == M^6.\n\n"
                            "Supported operations ...",
                            bp::no_init)
