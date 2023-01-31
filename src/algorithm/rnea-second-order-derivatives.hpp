@@ -1,8 +1,8 @@
 //
 // Copyright (c) 2017-2019 CNRS INRIA
 
-#ifndef __pinocchio_RNEADerivativesSO_hpp__
-#define __pinocchio_RNEADerivativesSO_hpp__
+#ifndef __pinocchio_algorithm_rnea_second_order_derivatives_hpp__
+#define __pinocchio_algorithm_rnea_second_order_derivatives_hpp__
 
 #include "pinocchio/container/aligned-vector.hpp"
 #include "pinocchio/multibody/data.hpp"
@@ -141,6 +141,6 @@ inline void computeRNEADerivativesSO(
 
 } // namespace pinocchio
 
-#include "pinocchio/algorithm/rnea-derivatives-SO.hxx"
+#include "pinocchio/algorithm/rnea-second-order-derivatives.hxx"
 
-#endif
+#endif // ifndef __pinocchio_algorithm_rnea_second_order_derivatives_hpp__

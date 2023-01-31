@@ -6,7 +6,7 @@
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
-#include "pinocchio/algorithm/rnea-derivatives-SO.hpp"
+#include "pinocchio/algorithm/rnea-second-order-derivatives.hpp"
 #include "pinocchio/algorithm/rnea-derivatives.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 
