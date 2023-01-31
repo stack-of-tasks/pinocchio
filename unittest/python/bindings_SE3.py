@@ -156,6 +156,7 @@ class TestSE3Bindings(unittest.TestCase):
         for _ in range(1000000):
             r = pin.SE3.Random() * pin.SE3.Random()
             s = r.__str__()
+            self.assertTrue(s != '')
 
 if __name__ == '__main__':
     unittest.main()

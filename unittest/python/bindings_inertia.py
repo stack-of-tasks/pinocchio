@@ -106,6 +106,7 @@ class TestInertiaBindings(TestCase):
         for _ in range(1000000):
             i = pin.Inertia.Random() + pin.Inertia.Random()
             s = i.__str__()
+            self.assertTrue(s != '')
 
 if __name__ == '__main__':
     unittest.main()
