@@ -74,5 +74,10 @@ class TestMotionBindings(unittest.TestCase):
 
         self.assertTrue(m_from_array == m)
 
+    def test_several_init(self):
+        for _ in range(1000000):
+            v = pin.Motion.Zero() + pin.Motion.Zero()
+            self.assertTrue(np.allclose(v.vector, zero(6)))
+
 if __name__ == '__main__':
     unittest.main()
