@@ -75,5 +75,10 @@ class TestForceBindings(unittest.TestCase):
 
         self.assertTrue(f_from_array == f)
 
+    def test_several_init(self):
+        for _ in range(1000000):
+            f = pin.Force.Zero() + pin.Force.Zero()
+            self.assertTrue(np.allclose(f.vector, zero(6)))
+
 if __name__ == '__main__':
     unittest.main()
