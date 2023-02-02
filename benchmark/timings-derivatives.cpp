@@ -213,9 +213,9 @@ int main(int argc, const char ** argv)
 
   timer.tic();
   SMOOTH(NBT) {
-    computeRNEADerivativesSO(model, data, qs[_smooth], qdots[_smooth],
-                             qddots[_smooth], dtau2_dq, dtau2_dv, dtau2_dqv,
-                             dtau_dadq);
+    ComputeRNEASecondOrderDerivatives(model, data, qs[_smooth], qdots[_smooth],
+                                      qddots[_smooth], dtau2_dq, dtau2_dv, dtau2_dqv,
+                                      dtau_dadq);
   }
   std::cout << "RNEA derivatives SO= \t\t";
   timer.toc(std::cout, NBT);

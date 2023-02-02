@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
 
-  computeRNEADerivativesSO(model, data, q, VectorXd::Zero(model.nv),
+  ComputeRNEASecondOrderDerivatives(model, data, q, VectorXd::Zero(model.nv),
                            VectorXd::Zero(model.nv), dtau2_dq, dtau2_dv,
                            dtau2_dqdv, dtau2_dadq);
 
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dv.setZero();
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
-  computeRNEADerivativesSO(model, data, q, VectorXd::Zero(model.nv), a,
+  ComputeRNEASecondOrderDerivatives(model, data, q, VectorXd::Zero(model.nv), a,
                            dtau2_dq, dtau2_dv, dtau2_dqdv, dtau2_dadq);
 
   rnea_partial_dq.setZero();
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   dtau2_dv.setZero();
   dtau2_dqdv.setZero();
   dtau2_dadq.setZero();
-  computeRNEADerivativesSO(model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqdv,
+  ComputeRNEASecondOrderDerivatives(model, data, q, v, a, dtau2_dq, dtau2_dv, dtau2_dqdv,
                            dtau2_dadq);
 
   rnea_partial_dq.setZero();
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   BOOST_CHECK(mqv.isApprox(mqv_fd, sqrt(alpha)));
 
   Data data2(model);
-  computeRNEADerivativesSO(model, data2, q, v, a);
+  ComputeRNEASecondOrderDerivatives(model, data2, q, v, a);
 
   Map<VectorXd> mq2(data2.d2tau_dq.data(), (data2.d2tau_dq).size());
   Map<VectorXd> mv2(data2.d2tau_dv.data(), (data2.d2tau_dv).size());

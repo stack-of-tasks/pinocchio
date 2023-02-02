@@ -72,7 +72,7 @@ template <typename Scalar, int Options,
           typename ConfigVectorType, typename TangentVectorType1,
           typename TangentVectorType2, typename tensortype1,
           typename tensortype2, typename tensortype3, typename tensortype4>
-inline void computeRNEADerivativesSO(
+inline void ComputeRNEASecondOrderDerivatives(
     const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
@@ -123,7 +123,7 @@ template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1,
           typename TangentVectorType2>
-inline void computeRNEADerivativesSO(
+inline void ComputeRNEASecondOrderDerivatives(
     const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
@@ -134,7 +134,7 @@ inline void computeRNEADerivativesSO(
   (data.d2tau_dqdv).setZero();
   (data.d2tau_dadq).setZero();
 
-  computeRNEADerivativesSO(model, data, q.derived(), v.derived(), a.derived(),
+  ComputeRNEASecondOrderDerivatives(model, data, q.derived(), v.derived(), a.derived(),
                            data.d2tau_dq, data.d2tau_dv, data.d2tau_dqdv,
                            data.d2tau_dadq);
 }

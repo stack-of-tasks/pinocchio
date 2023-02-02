@@ -13,8 +13,8 @@ template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1,
           typename TangentVectorType2>
-struct ComputeRNEADerivativesSOForwardStep
-    : public fusion::JointUnaryVisitorBase<ComputeRNEADerivativesSOForwardStep<
+struct ComputeRNEASecondOrderDerivativesForwardStep
+    : public fusion::JointUnaryVisitorBase<ComputeRNEASecondOrderDerivativesForwardStep<
           Scalar, Options, JointCollectionTpl, ConfigVectorType,
           TangentVectorType1, TangentVectorType2>> {
   typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -110,8 +110,8 @@ template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
           typename tensortype1, typename tensortype2, typename tensortype3,
           typename tensortype4>
-struct ComputeRNEADerivativesSOBackwardStep
-    : public fusion::JointUnaryVisitorBase<ComputeRNEADerivativesSOBackwardStep<
+struct ComputeRNEASecondOrderDerivativesBackwardStep
+    : public fusion::JointUnaryVisitorBase<ComputeRNEASecondOrderDerivativesBackwardStep<
           Scalar, Options, JointCollectionTpl, tensortype1, tensortype2,
           tensortype3, tensortype4>> {
   typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
@@ -409,7 +409,7 @@ template <typename Scalar, int Options,
           typename ConfigVectorType, typename TangentVectorType1,
           typename TangentVectorType2, typename tensortype1,
           typename tensortype2, typename tensortype3, typename tensortype4>
-inline void computeRNEADerivativesSO(
+inline void ComputeRNEASecondOrderDerivatives(
     const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
@@ -442,7 +442,7 @@ inline void computeRNEADerivativesSO(
   typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
   typedef typename Model::JointIndex JointIndex;
 
-  typedef ComputeRNEADerivativesSOForwardStep<
+  typedef ComputeRNEASecondOrderDerivativesForwardStep<
       Scalar, Options, JointCollectionTpl, ConfigVectorType, TangentVectorType1,
       TangentVectorType2>
       Pass1;
@@ -452,7 +452,7 @@ inline void computeRNEADerivativesSO(
                                         a.derived()));
   }
 
-  typedef ComputeRNEADerivativesSOBackwardStep<
+  typedef ComputeRNEASecondOrderDerivativesBackwardStep<
       Scalar, Options, JointCollectionTpl, tensortype1, tensortype2,
       tensortype3, tensortype4>
       Pass2;
