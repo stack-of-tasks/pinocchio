@@ -227,7 +227,7 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
       psidd_dm = psidd_cols.col(p); // psi_ddot for p DOF
       phid_dm = dJ_cols.col(p);     // phi_dot for p DOF
 
-      Bicphii = oYcrb.variation(S_dm);       // new Bicphii in world frame
+      r1 = Bicphii = oYcrb.variation(S_dm);  // S{i}(p)x*IC{i} - IC{i} S{i}(p)x
       oBicpsidot = oYcrb.variation(psid_dm); // new Bicpsidot in world frame
 
       motionSet::inertiaAction(oYcrb, Sdmv, Ftmpv); // IC{i}S{i}(:,p)
@@ -237,7 +237,6 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
       motionSet::inertiaAction(oYcrb, psid_dmv, Ftmpv); // IC{i}S{i}(:,p)
       addForceCrossMatrix(Ftmp, oBicpsidot); // cmf_bar(IC{i}S{i}(:,p))
 
-      r1 = oYcrb.variation(S_dm); // S{i}(p)x*IC{i} - IC{i} S{i}(p)x
       r2.noalias() = 2 * r0 - Bicphii;
       r3.noalias() =
           oBicpsidot - S_dmAT * oBcrb -
