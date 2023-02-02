@@ -135,10 +135,16 @@ class BaseVisualizer(object):
     def sleep(self, dt):
         time.sleep(dt)
 
-    def play(self, qs, dt=None, callback=None, **kwargs):
+    def has_vid_writer(self):
+        return self._video_writer is not None
+
+    def play(self, qs, dt=None, callback=None, capture=False, **kwargs):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
         nsteps = len(qs)
-        capture = self._video_writer is not None
+        if not capture:
+            capture = self.has_vid_writer()
+
+        imgs = []
         for i in range(nsteps):
             t0 = time.time()
             self.display(qs[i])
@@ -146,17 +152,26 @@ class BaseVisualizer(object):
                 callback(i, **kwargs)
             if capture:
                 img_arr = self.captureImage()
-                self._video_writer.append_data(img_arr)
+                if not self.has_vid_writer():
+                    imgs.append(img_arr)
+                else:
+                    self._video_writer.append_data(img_arr)
             t1 = time.time()
             elapsed_time = t1 - t0
             if dt is not None and elapsed_time < dt:
                 self.sleep(dt - elapsed_time)
+        if capture and not self.has_vid_writer():
+            return imgs
 
     def create_video_ctx(self, filename=None, fps=30, directory=None, **kwargs):
         """Create a video recording context, generating the output filename if necessary.
 
         Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
         """
+        if not IMAGEIO_SUPPORT:
+            import warnings, contextlib
+            warnings.warn("Video context cannot be created because imageio is not available.", UserWarning)
+            return contextlib.nullcontext()
         if filename is None:
             if directory is None:
                 from tempfile import gettempdir
