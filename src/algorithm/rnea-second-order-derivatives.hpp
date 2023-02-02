@@ -18,20 +18,20 @@ namespace pinocchio {
 /// \tparam ConfigVectorType Type of the joint configuration vector.
 /// \tparam TangentVectorType1 Type of the joint velocity vector.
 /// \tparam TangentVectorType2 Type of the joint acceleration vector.
-/// \tparam tensortype1 Type of the 3D-Tensor containing the SO partial
+/// \tparam Tensor1 Type of the 3D-Tensor containing the SO partial
 /// derivative with respect to the joint configuration vector. The elements of
 /// Torque vector are along the 1st dim, and joint config along 2nd,3rd
 /// dimensions.
-/// \tparam tensortype2 Type of the 3D-Tensor containing the
+/// \tparam Tensor2 Type of the 3D-Tensor containing the
 /// Second-Order partial derivative with respect to the joint velocity vector.
 /// The elements of Torque vector are along the 1st dim, and the velocity
 /// along 2nd,3rd dimensions.
-/// \tparam tensortype3 Type of the 3D-Tensor
+/// \tparam Tensor3 Type of the 3D-Tensor
 /// containing the cross Second-Order partial derivative with respect to the
 /// joint configuration and velocty vector. The elements of Torque vector are
 /// along the 1st dim, and the config. vector along 2nd dimension, and velocity
 /// along the third dimension.
-///\tparam tensortype4 Type of the 3D-Tensor containing the cross Second-Order
+///\tparam Tensor4 Type of the 3D-Tensor containing the cross Second-Order
 /// partial derivative with respect to the joint configuration and acceleration
 /// vector. This is also the First-order partial derivative of Mass-Matrix (M)
 /// with respect to configuration vector. The elements of Torque vector are
@@ -70,16 +70,16 @@ namespace pinocchio {
 template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1,
-          typename TangentVectorType2, typename tensortype1,
-          typename tensortype2, typename tensortype3, typename tensortype4>
+          typename TangentVectorType2, typename Tensor1,
+          typename Tensor2, typename Tensor3, typename Tensor4>
 inline void ComputeRNEASecondOrderDerivatives(
     const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
     const Eigen::MatrixBase<TangentVectorType2> &a,
-    const tensortype1 &d2tau_dq2, const tensortype2 &d2tau_dv2,
-    const tensortype3 &d2tau_dqdv, const tensortype4 &d2tau_dadq);
+    const Tensor1 &d2tau_dq2, const Tensor2 &d2tau_dv2,
+    const Tensor3 &d2tau_dqdv, const Tensor4 &d2tau_dadq);
 
 ///
 /// \brief Computes the Second-Order partial derivatives of the Recursive Newton

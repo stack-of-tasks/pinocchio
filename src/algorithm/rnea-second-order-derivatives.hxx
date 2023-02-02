@@ -58,16 +58,16 @@ struct ComputeRNEASecondOrderDerivativesForwardStep
     typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
         typename Data::Matrix6x>::Type ColsBlock;
     ColsBlock J_cols = jmodel.jointCols(
-        data.J); // data.J has all the phi (in ground frame) stacked in columns
+        data.J); // data.J has all the phi (in world frame) stacked in columns
     ColsBlock psid_cols =
-        jmodel.jointCols(data.psid); // psid_cols is the psi_dot in ground frame
+        jmodel.jointCols(data.psid); // psid_cols is the psi_dot in world frame
     ColsBlock psidd_cols = jmodel.jointCols(
-        data.psidd); // psidd_cols is the psi_dotdot in ground frame
+        data.psidd); // psidd_cols is the psi_dotdot in world frame
     ColsBlock dJ_cols =
-        jmodel.jointCols(data.dJ); // This here is phi_dot in ground frame
+        jmodel.jointCols(data.dJ); // This here is phi_dot in world frame
 
     J_cols.noalias() = data.oMi[i].act(
-        jdata.S()); // J_cols is just the phi in ground frame for a joint
+        jdata.S()); // J_cols is just the phi in world frame for a joint
     vJ = data.oMi[i].act(jdata.v());
     motionSet::motionAction(
         ov, J_cols, psid_cols); // This ov here is v(p(i)), psi_dot calcs
@@ -88,7 +88,7 @@ struct ComputeRNEASecondOrderDerivativesForwardStep
     oY = data.oMi[i].act(model.inertias[i]);
     data.oh[i] = oY * ov;
 
-    data.of[i] = oY * oa + oY.vxiv(ov); // f_i in ground frame
+    data.of[i] = oY * oa + oY.vxiv(ov); // f_i in world frame
 
     data.doYcrb[i] = oY.variation(ov);
     addForceCrossMatrix(data.oh[i], data.doYcrb[i]); // BC{i}
@@ -108,25 +108,25 @@ struct ComputeRNEASecondOrderDerivativesForwardStep
 
 template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
-          typename tensortype1, typename tensortype2, typename tensortype3,
-          typename tensortype4>
+          typename Tensor1, typename Tensor2, typename Tensor3,
+          typename Tensor4>
 struct ComputeRNEASecondOrderDerivativesBackwardStep
     : public fusion::JointUnaryVisitorBase<ComputeRNEASecondOrderDerivativesBackwardStep<
-          Scalar, Options, JointCollectionTpl, tensortype1, tensortype2,
-          tensortype3, tensortype4>> {
+          Scalar, Options, JointCollectionTpl, Tensor1, Tensor2,
+          Tensor3, Tensor4>> {
   typedef ModelTpl<Scalar, Options, JointCollectionTpl> Model;
   typedef DataTpl<Scalar, Options, JointCollectionTpl> Data;
 
-  typedef boost::fusion::vector<const Model &, Data &, const tensortype1 &,
-                                const tensortype2 &, const tensortype3 &,
-                                const tensortype4 &>
+  typedef boost::fusion::vector<const Model &, Data &, const Tensor1 &,
+                                const Tensor2 &, const Tensor3 &,
+                                const Tensor4 &>
       ArgsType;
 
   template <typename JointModel>
   static void algo(const JointModelBase<JointModel> &jmodel, const Model &model,
-                   Data &data, const tensortype1 &dtau_dq2,
-                   const tensortype2 &dtau_dv2, const tensortype3 &dtau_dqdv,
-                   const tensortype3 &dtau_dadq) {
+                   Data &data, const Tensor1 &dtau_dq2,
+                   const Tensor2 &dtau_dv2, const Tensor3 &dtau_dqdv,
+                   const Tensor3 &dtau_dadq) {
     typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
     typedef typename Data::Inertia Inertia;
@@ -162,10 +162,10 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
     Inertia &oYcrb = data.oYcrb[i];  // IC{i}
     Matrix6 &oBcrb = data.doYcrb[i]; // BC{i}
 
-    tensortype1 &dtau_dq2_ = const_cast<tensortype1 &>(dtau_dq2);
-    tensortype2 &dtau_dv2_ = const_cast<tensortype2 &>(dtau_dv2);
-    tensortype3 &dtau_dqdv_ = const_cast<tensortype3 &>(dtau_dqdv);
-    tensortype4 &dtau_dadq_ = const_cast<tensortype4 &>(dtau_dadq);
+    Tensor1 &dtau_dq2_ = const_cast<Tensor1 &>(dtau_dq2);
+    Tensor2 &dtau_dv2_ = const_cast<Tensor2 &>(dtau_dv2);
+    Tensor3 &dtau_dqdv_ = const_cast<Tensor3 &>(dtau_dqdv);
+    Tensor4 &dtau_dadq_ = const_cast<Tensor4 &>(dtau_dadq);
 
     Motion &S_dm = data.S_dm;
     Vector6c &Sdmv = S_dm.toVector(); // S{i}(:,p) vector
@@ -227,8 +227,8 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
       psidd_dm = psidd_cols.col(p); // psi_ddot for p DOF
       phid_dm = dJ_cols.col(p);     // phi_dot for p DOF
 
-      Bicphii = oYcrb.variation(S_dm);       // new Bicphii in ground frame
-      oBicpsidot = oYcrb.variation(psid_dm); // new Bicpsidot in ground frame
+      Bicphii = oYcrb.variation(S_dm);       // new Bicphii in world frame
+      oBicpsidot = oYcrb.variation(psid_dm); // new Bicpsidot in world frame
 
       motionSet::inertiaAction(oYcrb, Sdmv, Ftmpv); // IC{i}S{i}(:,p)
       ForceCrossMatrix(Ftmp, r0);                   // cmf_bar(IC{i}S{i}(:,p))
@@ -407,16 +407,16 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
 template <typename Scalar, int Options,
           template <typename, int> class JointCollectionTpl,
           typename ConfigVectorType, typename TangentVectorType1,
-          typename TangentVectorType2, typename tensortype1,
-          typename tensortype2, typename tensortype3, typename tensortype4>
+          typename TangentVectorType2, typename Tensor1,
+          typename Tensor2, typename Tensor3, typename Tensor4>
 inline void ComputeRNEASecondOrderDerivatives(
     const ModelTpl<Scalar, Options, JointCollectionTpl> &model,
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
-    const Eigen::MatrixBase<TangentVectorType2> &a, const tensortype1 &dtau_dq2,
-    const tensortype2 &dtau_dv2, const tensortype3 &dtau_dqdv,
-    const tensortype4 &dtau_dadq) {
+    const Eigen::MatrixBase<TangentVectorType2> &a, const Tensor1 &dtau_dq2,
+    const Tensor2 &dtau_dv2, const Tensor3 &dtau_dqdv,
+    const Tensor4 &dtau_dadq) {
   // Extra safety here
   PINOCCHIO_CHECK_ARGUMENT_SIZE(
       q.size(), model.nq,
@@ -453,16 +453,16 @@ inline void ComputeRNEASecondOrderDerivatives(
   }
 
   typedef ComputeRNEASecondOrderDerivativesBackwardStep<
-      Scalar, Options, JointCollectionTpl, tensortype1, tensortype2,
-      tensortype3, tensortype4>
+      Scalar, Options, JointCollectionTpl, Tensor1, Tensor2,
+      Tensor3, Tensor4>
       Pass2;
   for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i) {
     Pass2::run(model.joints[i],
                typename Pass2::ArgsType(model, data,
-                                        const_cast<tensortype1 &>(dtau_dq2),
-                                        const_cast<tensortype2 &>(dtau_dv2),
-                                        const_cast<tensortype3 &>(dtau_dqdv),
-                                        const_cast<tensortype4 &>(dtau_dadq)));
+                                        const_cast<Tensor1 &>(dtau_dq2),
+                                        const_cast<Tensor2 &>(dtau_dv2),
+                                        const_cast<Tensor3 &>(dtau_dqdv),
+                                        const_cast<Tensor4 &>(dtau_dadq)));
   }
 }
 
