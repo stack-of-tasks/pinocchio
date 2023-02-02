@@ -6,6 +6,13 @@ import numpy as np
 from pathlib import Path
 
 
+try:
+    import imageio
+    IMAGEIO_SUPPORT = True
+except ImportError:
+    IMAGEIO_SUPPORT = False
+
+
 class BaseVisualizer(object):
     """Pinocchio visualizers are employed to easily display a model at a given configuration.
     BaseVisualizer is not meant to be directly employed, but only to provide a uniform interface and a few common methods.
@@ -99,15 +106,15 @@ class BaseVisualizer(object):
         """Set the camera target."""
         raise NotImplementedError()
 
-    def setCameraPosition(self, position: np.ndarray):
+    def setCameraPosition(self, position):
         """Set the camera's 3D position."""
         raise NotImplementedError()
 
-    def setCameraZoom(self, zoom: float):
+    def setCameraZoom(self, zoom):
         """Set camera zoom value."""
         raise NotImplementedError()
 
-    def setCameraPose(self, pose: np.ndarray = np.eye(4)):
+    def setCameraPose(self, pose=np.eye(4)):
         """Set camera 6D pose using a 4x4 matrix."""
         raise NotImplementedError()
 
@@ -145,7 +152,7 @@ class BaseVisualizer(object):
             if dt is not None and elapsed_time < dt:
                 self.sleep(dt - elapsed_time)
 
-    def create_video_ctx(self, filename: str = None, fps=30, directory=None, **kwargs):
+    def create_video_ctx(self, filename=None, fps=30, directory=None, **kwargs):
         """Create a video recording context, generating the output filename if necessary.
 
         Code inspired from https://github.com/petrikvladimir/RoboMeshCat.
@@ -162,7 +169,7 @@ class BaseVisualizer(object):
 
 
 class VideoContext:
-    def __init__(self, viz: BaseVisualizer, fps: int, filename: str, **kwargs):
+    def __init__(self, viz: BaseVisualizer, fps, filename, **kwargs):
         import imageio
 
         self.viz = viz

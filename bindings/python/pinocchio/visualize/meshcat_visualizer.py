@@ -346,30 +346,30 @@ class MeshcatVisualizer(BaseVisualizer):
             self.loadViewerModel()
 
     def setBackgroundColor(
-        self, preset_name: str = "gray"
+        self, preset_name="gray"
     ):  # pylint: disable=arguments-differ
         """Set the background."""
         col_top, col_bot = COLOR_PRESETS[preset_name]
         self._node_background.set_property("top_color", col_top)
         self._node_background.set_property("bottom_color", col_bot)
 
-    def setCameraTarget(self, target: np.ndarray):
+    def setCameraTarget(self, target):
         self.viewer.set_cam_target(target)
 
-    def setCameraPosition(self, position: np.ndarray):
+    def setCameraPosition(self, position):
         self.viewer.set_cam_pos(position)
 
-    def setCameraPreset(self, preset_key: str):
+    def setCameraPreset(self, preset_key):
         """Set the camera angle and position using a given preset."""
         cam_val = self.CAMERA_PRESETS[preset_key]
         self.setCameraTarget(cam_val[0])
         self.setCameraPosition(cam_val[1])
 
-    def setCameraZoom(self, zoom: float):
+    def setCameraZoom(self, zoom):
         elt = self._node_default_cam[self._rot_cam_key]
         elt.set_property("zoom", zoom)
 
-    def setCameraPose(self, pose: np.ndarray = np.eye(4)):
+    def setCameraPose(self, pose=np.eye(4)):
         self._node_default_cam.set_transform(pose)
 
     def disableCameraControl(self):
