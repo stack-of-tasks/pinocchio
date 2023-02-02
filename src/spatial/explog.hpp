@@ -512,7 +512,7 @@ namespace pinocchio
    * \log_6(M \oplus \xi) = \log_6(M \exp_6(\xi)) \approx \log_6(M) + \text{Jlog6}(M) \xi
    * \f]
    *
-   * Equivalently, \f$\text{Jlog6}$ is the right Jacobian of \f$\log_6\f$:
+   * Equivalently, \f$\text{Jlog6}\f$ is the right Jacobian of \f$\log_6\f$:
    *
    * \f[
    * \text{Jlog6}(M) = \frac{\partial \log_6(M)}{\partial M}
