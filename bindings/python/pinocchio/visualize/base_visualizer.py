@@ -138,16 +138,16 @@ class BaseVisualizer(object):
     def has_vid_writer(self):
         return self._video_writer is not None
 
-    def play(self, qs, dt=None, callback=None, capture=False, **kwargs):
+    def play(self, q_trajectory, dt=None, callback=None, capture=False, **kwargs):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
-        nsteps = len(qs)
+        nsteps = len(q_trajectory)
         if not capture:
             capture = self.has_vid_writer()
 
         imgs = []
         for i in range(nsteps):
             t0 = time.time()
-            self.display(qs[i])
+            self.display(q_trajectory[i])
             if callback is not None:
                 callback(i, **kwargs)
             if capture:
