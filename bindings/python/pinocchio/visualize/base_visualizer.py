@@ -186,8 +186,6 @@ class BaseVisualizer(object):
 
 class VideoContext:
     def __init__(self, viz: BaseVisualizer, fps, filename, **kwargs):
-        import imageio
-
         self.viz = viz
         self.vid_writer = imageio.get_writer(filename, fps=fps, **kwargs)
 
