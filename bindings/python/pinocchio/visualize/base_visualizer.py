@@ -135,14 +135,14 @@ class BaseVisualizer(object):
     def sleep(self, dt):
         time.sleep(dt)
 
-    def has_vid_writer(self):
+    def has_video_writer(self):
         return self._video_writer is not None
 
     def play(self, q_trajectory, dt=None, callback=None, capture=False, **kwargs):
         """Play a trajectory with given time step. Optionally capture RGB images and returns them."""
         nsteps = len(q_trajectory)
         if not capture:
-            capture = self.has_vid_writer()
+            capture = self.has_video_writer()
 
         imgs = []
         for i in range(nsteps):
@@ -152,7 +152,7 @@ class BaseVisualizer(object):
                 callback(i, **kwargs)
             if capture:
                 img_arr = self.captureImage()
-                if not self.has_vid_writer():
+                if not self.has_video_writer():
                     imgs.append(img_arr)
                 else:
                     self._video_writer.append_data(img_arr)
@@ -160,7 +160,7 @@ class BaseVisualizer(object):
             elapsed_time = t1 - t0
             if dt is not None and elapsed_time < dt:
                 self.sleep(dt - elapsed_time)
-        if capture and not self.has_vid_writer():
+        if capture and not self.has_video_writer():
             return imgs
 
     def create_video_ctx(self, filename=None, fps=30, directory=None, **kwargs):
