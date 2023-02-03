@@ -7,7 +7,6 @@ import os
 import warnings
 import numpy as np
 from distutils.version import LooseVersion
-from typing import List
 
 try:
     import hppfcl
@@ -177,7 +176,7 @@ def loadMesh(mesh):
     return mesh
 
 
-def loadPrimitive(geometry_object: pin.GeometryObject):
+def loadPrimitive(geometry_object):
 
     import meshcat.geometry as mg
 
@@ -194,7 +193,7 @@ def loadPrimitive(geometry_object: pin.GeometryObject):
         "RotatedCylinder", (mg.Cylinder,), {"intrinsic_transform": lambda self: R}
     )
 
-    geom: hppfcl.ShapeBase = geometry_object.geometry
+    geom = geometry_object.geometry
     if isinstance(geom, hppfcl.Capsule):
         if hasattr(mg, "TriangularMeshGeometry"):
             obj = createCapsule(2.0 * geom.halfLength, geom.radius)
@@ -549,11 +548,11 @@ class MeshcatVisualizer(BaseVisualizer):
 
         for visual in self.static_objects:
             visual_name = self.getViewerNodeName(visual, pin.GeometryType.VISUAL)
-            M: pin.SE3 = visual.placement
+            M = visual.placement
             T = M.homogeneous
             self.viewer[visual_name].set_transform(T)
 
-    def addGeometryObject(self, obj: pin.GeometryObject, color=None):
+    def addGeometryObject(self, obj, color=None):
         """Add a visual GeometryObject to the viewer, with an optional color."""
         self.loadViewerGeometryObject(obj, pin.GeometryType.VISUAL, color)
         self.static_objects.append(obj)
@@ -594,23 +593,23 @@ class MeshcatVisualizer(BaseVisualizer):
             self.updatePlacements(pin.GeometryType.VISUAL)
 
     def drawFrameVelocities(
-        self, frame_id: int, v_scale=0.2, color=FRAME_VEL_COLOR
+        self, frame_id, v_scale=0.2, color=FRAME_VEL_COLOR
     ):  # pylint: disable=arguments-differ
         pin.updateFramePlacement(self.model, self.data, frame_id)
         vFr = pin.getFrameVelocity(
             self.model, self.data, frame_id, pin.LOCAL_WORLD_ALIGNED
         )
-        line_group_name = f"ee_vel/{frame_id}"
+        line_group_name = "ee_vel/{}".format(frame_id)
         self._draw_vectors_from_frame(
             [v_scale * vFr.linear], [frame_id], [line_group_name], [color]
         )
 
     def _draw_vectors_from_frame(
         self,
-        vecs: List[np.ndarray],
-        frame_ids: List[int],
-        vec_names: List[str],
-        colors: List[int],
+        vecs,
+        frame_ids,
+        vec_names,
+        colors,
     ):
         """Draw vectors extending from given frames."""
         import meshcat.geometry as mg

@@ -179,13 +179,13 @@ class BaseVisualizer(object):
                 directory = gettempdir()
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
-            filename = time.strftime(f"{f_fmt}.{ext}")
+            filename = time.strftime("{}.{}".format(f_fmt, ext))
             filename = osp.join(directory, filename)
         return VideoContext(self, fps, filename)
 
 
 class VideoContext:
-    def __init__(self, viz: BaseVisualizer, fps, filename, **kwargs):
+    def __init__(self, viz, fps, filename, **kwargs):
         self.viz = viz
         self.vid_writer = imageio.get_writer(filename, fps=fps, **kwargs)
 
