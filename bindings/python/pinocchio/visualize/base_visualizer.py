@@ -3,7 +3,7 @@ from ..shortcuts import buildModelsFromUrdf, createDatas
 
 import time
 import numpy as np
-from pathlib import Path
+import os.path as osp
 
 
 try:
@@ -179,7 +179,8 @@ class BaseVisualizer(object):
                 directory = gettempdir()
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
-            filename = Path(directory).joinpath(time.strftime(f"{f_fmt}.{ext}"))
+            filename = time.strftime(f"{f_fmt}.{ext}")
+            filename = osp.join(directory, filename)
         return VideoContext(self, fps, filename)
 
 
