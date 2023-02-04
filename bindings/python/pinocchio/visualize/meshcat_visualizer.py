@@ -566,7 +566,11 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def captureImage(self, w=None, h=None):
         """Capture an image from the Meshcat viewer and return an RGB array."""
-        img = self.viewer.get_image(w, h)
+        if w is not None or h is not None:
+            # pass arguments when either is not None
+            img = self.viewer.get_image(w, h)
+        else:
+            img = self.viewer.get_image()
         img_arr = np.asarray(img)
         return img_arr
 
