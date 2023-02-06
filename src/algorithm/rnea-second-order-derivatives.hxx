@@ -36,8 +36,8 @@ struct ComputeRNEASecondOrderDerivativesForwardStep
     typedef typename Data::Motion Motion;
     typedef typename Data::Inertia Inertia;
 
-    const JointIndex &i = jmodel.id();
-    const JointIndex &parent = model.parents[i];
+    const JointIndex i = jmodel.id();
+    const JointIndex parent = model.parents[i];
     Motion &ov = data.ov[i];
     Motion &oa = data.oa[i];
     Motion &vJ = data.v[i];
@@ -124,242 +124,181 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
 
   template <typename JointModel>
   static void algo(const JointModelBase<JointModel> &jmodel, const Model &model,
-                   Data &data, const Tensor1 &dtau_dq2,
-                   const Tensor2 &dtau_dv2, const Tensor3 &dtau_dqdv,
+                   Data &data, const Tensor1 &dtau_dqdq,
+                   const Tensor2 &dtau_dvdv, const Tensor3 &dtau_dqdv,
                    const Tensor3 &dtau_dadq) {
     typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
     typedef typename Data::Inertia Inertia;
     typedef typename Model::JointIndex JointIndex;
     typedef typename Motion::ActionMatrixType ActionMatrixType;
-    typedef typename Data::Matrix6x Matrix6x;
     typedef typename Data::Matrix6 Matrix6;
     typedef typename Data::Vector6r Vector6r;
     typedef typename Data::Vector6c Vector6c;
 
-    const JointIndex &i = jmodel.id();
-    const JointIndex &parent = model.parents[i];
-    JointIndex j, k;
-    Eigen::Index joint_idx_j, joint_dofs_j, joint_idx_k, joint_dofs_k;
+    const JointIndex i = jmodel.id();
+    const JointIndex parent = model.parents[i];
 
-    typedef typename SizeDepType<JointModel::NV>::template ColsReturn<
-        typename Data::Matrix6x>::Type ColsBlock;
+    const Inertia &oYcrb = data.oYcrb[i];  // IC{i}
+    const Matrix6 &oBcrb = data.doYcrb[i]; // BC{i}
 
-    ColsBlock J_cols =
-        jmodel.jointCols(data.J); // gives the phi matrix for this joint S{i}
-    ColsBlock psid_cols = jmodel.jointCols(
-        data.psid); // gives the psi_dot matrix for this joint psi_dot{i}
-    ColsBlock psidd_cols = jmodel.jointCols(
-        data.psidd); // gives the psid_dot matrix for this joint  psi_ddot{i}
-    ColsBlock dJ_cols = jmodel.jointCols(
-        data.dJ); // gives the phi_dot for this joint   phi_dot{i}
-    ActionMatrixType S_dmA, S_dmAT;
-
-    const Eigen::Index joint_idx = (Eigen::Index)jmodel.idx_v();
-    const Eigen::Index joint_dofs =
-        (Eigen::Index)jmodel.nv(); // no of joint DOFs
-
-    Inertia &oYcrb = data.oYcrb[i];  // IC{i}
-    Matrix6 &oBcrb = data.doYcrb[i]; // BC{i}
-
-    Tensor1 &dtau_dq2_ = const_cast<Tensor1 &>(dtau_dq2);
-    Tensor2 &dtau_dv2_ = const_cast<Tensor2 &>(dtau_dv2);
+    Tensor1 &dtau_dqdq_ = const_cast<Tensor1 &>(dtau_dqdq);
+    Tensor2 &dtau_dvdv_ = const_cast<Tensor2 &>(dtau_dvdv);
     Tensor3 &dtau_dqdv_ = const_cast<Tensor3 &>(dtau_dqdv);
     Tensor4 &dtau_dadq_ = const_cast<Tensor4 &>(dtau_dadq);
 
-    Motion &S_dm = data.S_dm;
-    Vector6c &Sdmv = S_dm.toVector(); // S{i}(:,p) vector
-    Motion &psid_dm = data.psid_dm;
-    Vector6c &psid_dmv = psid_dm.toVector(); // psid{i}(:,p) vector
-    Motion &psidd_dm = data.psidd_dm;
-    Vector6c &psidd_dmv = psidd_dm.toVector(); // psidd{i}(:,p) vector
-    Motion &phid_dm = data.phid_dm;
-    Vector6c &phid_dmv = phid_dm.toVector(); // psidm{i}(:,p) vector
-    Force &Ftmp = data.ftmp;
-    Vector6c &Ftmpv = Ftmp.toVector();
+    Vector6r u1;
+    Vector6r u2;
+    Vector6c u3;
+    Vector6c u4;
+    Vector6c u5;
+    Vector6c u6;
+    Vector6c u7;
+    Vector6c u8;
+    Vector6c u9;
+    Vector6c u10;
+    Vector6r u11;
+    Vector6r u12;
+    Vector6c u13;
 
-    Matrix6x &Jcols_j = data.Jcols_j;
-    Matrix6x &psid_cols_j = data.psid_cols_j;
-    Matrix6x &psidd_cols_j = data.psidd_cols_j;
-    Matrix6x &dJ_cols_j = data.dJ_cols_j;
-    Matrix6x &Jcols_k = data.Jcols_k;
-    Matrix6x &psid_cols_k = data.psid_cols_k;
-    Matrix6x &psidd_cols_k = data.psidd_cols_k;
-    Matrix6x &dJ_cols_k = data.dJ_cols_k;
-
-    Vector6r &SdmvT = data.tmpv1;
-    Vector6r &u1 = data.vecu1;
-    Vector6r &u2 = data.vecu2;
-    Vector6c &u3 = data.vecu3;
-    Vector6c &u4 = data.vecu4;
-    Vector6c &u5 = data.vecu5;
-    Vector6c &u6 = data.vecu6;
-    Vector6c &u7 = data.vecu7;
-    Vector6c &u8 = data.vecu8;
-    Vector6c &u9 = data.vecu9;
-    Vector6c &u10 = data.vecu10;
-    Vector6r &u11 = data.vecu11;
-    Vector6r &u12 = data.vecu12;
-    Vector6c &u13 = data.vecu13;
-
-    Matrix6 &Bicphii = data.tmpoBicphiiIn;
-    Matrix6 &oBicpsidot = data.tmpoBicpsidotIn;
+    Matrix6 Bicphii;
+    Matrix6 oBicpsidot;
 
     Scalar p1, p2, p3, p4, p5, p6;
-    Eigen::Index ip, jq, kr;
 
-    Matrix6 &r0 = data.tmpmr0;
-    Matrix6 &r1 = data.tmpr1In;
-    Matrix6 &r2 = data.tmpr2In;
-    Matrix6 &r3 = data.tmpr3In;
-    Matrix6 &r4 = data.tmpr4In;
-    Matrix6 &r5 = data.tmpr5In;
-    Matrix6 &r6 = data.tmpr6In;
-    Matrix6 &r7 = data.tmpr7In;
+    Matrix6 r0, r1, r2, r3, r4, r5, r6, r7;
 
-    for (int p = 0; p < joint_dofs; p++) {
-      ip = joint_idx + p;
+    for (int p = 0; p < model.nvs[i]; p++) {
+      const Eigen::DenseIndex ip = model.idx_vs[i] + p;
 
-      S_dm = J_cols.col(p);          // S{i}(:,p)
-      S_dmA = S_dm.toActionMatrix(); //(S{i}(:,p) )x matrix
-      S_dmAT = S_dmA.transpose();
-      psid_dm = psid_cols.col(p);   // psi_dot for p DOF
-      psidd_dm = psidd_cols.col(p); // psi_ddot for p DOF
-      phid_dm = dJ_cols.col(p);     // phi_dot for p DOF
+      const MotionRef<typename Data::Matrix6x::ColXpr> S_i = data.J.col(ip);          // S{i}(:,p)
+      const ActionMatrixType S_iA = S_i.toActionMatrix(); //(S{i}(:,p) )x matrix
+      const MotionRef<typename Data::Matrix6x::ColXpr> psid_dm = data.psid.col(ip);   // psi_dot for p DOF
+      const MotionRef<typename Data::Matrix6x::ColXpr> psidd_dm = data.psidd.col(ip); // psi_ddot for p DOF
+      const MotionRef<typename Data::Matrix6x::ColXpr> phid_dm = data.dJ.col(ip);     // phi_dot for p DOF
 
-      r1 = Bicphii = oYcrb.variation(S_dm);  // S{i}(p)x*IC{i} - IC{i} S{i}(p)x
+      r1 = Bicphii = oYcrb.variation(S_i);  // S{i}(p)x*IC{i} - IC{i} S{i}(p)x
       oBicpsidot = oYcrb.variation(psid_dm); // new Bicpsidot in world frame
 
-      motionSet::inertiaAction(oYcrb, Sdmv, Ftmpv); // IC{i}S{i}(:,p)
-      ForceCrossMatrix(Ftmp, r0);                   // cmf_bar(IC{i}S{i}(:,p))
+      Force f_tmp = oYcrb * S_i; // IC{i}S{i}(:,p)
+      ForceCrossMatrix(f_tmp, r0);                   // cmf_bar(IC{i}S{i}(:,p))
       Bicphii += r0;
 
-      motionSet::inertiaAction(oYcrb, psid_dmv, Ftmpv); // IC{i}S{i}(:,p)
-      addForceCrossMatrix(Ftmp, oBicpsidot); // cmf_bar(IC{i}S{i}(:,p))
+      f_tmp = oYcrb * psid_dm; // IC{i}S{i}(:,p)
+      addForceCrossMatrix(f_tmp, oBicpsidot); // cmf_bar(IC{i}S{i}(:,p))
 
       r2.noalias() = 2 * r0 - Bicphii;
+
       r3.noalias() =
-          oBicpsidot - S_dmAT * oBcrb -
-          oBcrb * S_dmA; // Bicpsidot + S{i}(p)x*BC{i}- BC {i}S{i}(p)x
+      oBicpsidot - S_iA.transpose() * oBcrb -
+          oBcrb * S_iA; // Bicpsidot + S{i}(p)x*BC{i}- BC {i}S{i}(p)x
 
       // r4
-      Ftmpv = oBcrb.transpose() * Sdmv;
-      ForceCrossMatrix(Ftmp, r4); // cmf_bar(BC{i}.'S{i}(:,p))
+      f_tmp.toVector().noalias() = oBcrb.transpose() * S_i.toVector();
+      ForceCrossMatrix(f_tmp, r4); // cmf_bar(BC{i}.'S{i}(:,p))
       // r5
-      Ftmpv = oBcrb * psid_dmv - S_dmAT * data.of[i].toVector();
-      motionSet::inertiaAction<ADDTO>(oYcrb, psidd_dmv, Ftmpv);
+      f_tmp.toVector().noalias() = oBcrb * psid_dm.toVector();
+      f_tmp += S_i.cross(data.of[i]);
+      motionSet::inertiaAction<ADDTO>(oYcrb, psidd_dm.toVector(), f_tmp.toVector());
       ForceCrossMatrix(
-          Ftmp,
+          f_tmp,
           r5); //  cmf_bar(BC{i}psi_dot{i}(:,p)+IC{i}psi_ddot{i}(:,p)+S{i}(:,p)x*f{i})
 
-      r6.noalias() =
-          -S_dmAT * oYcrb.matrix_impl() + r0; // S{i}(:,p)x* IC{i} + r0
+      // S{i}(:,p)x* IC{i} + r0
+      r6 = r0 + oYcrb.vxi(S_i);
+
       // r7
-      Ftmpv = oBcrb * Sdmv;
-      motionSet::inertiaAction<ADDTO>(oYcrb, psid_dmv + phid_dmv, Ftmpv);
-      ForceCrossMatrix(Ftmp, r7); // cmf_bar(BC{i}S{i}(:,p) +
+      f_tmp.toVector().noalias() = oBcrb * S_i.toVector();
+      f_tmp += oYcrb * (psid_dm + phid_dm);
+      ForceCrossMatrix(f_tmp, r7); // cmf_bar(BC{i}S{i}(:,p) +
                                   // IC{i}(psi_dot{i}(:,p)+phi_dot{i}(:,p)))
 
-      j = i;
+      JointIndex j = i;
 
       while (j > 0) {
-        joint_idx_j = (Eigen::Index)(model.joints[j]).idx_v();
-        joint_dofs_j = (Eigen::Index)(model.joints[j]).nv(); // no of joint DOFs
-        Jcols_j = (model.joints[j]).jointCols(data.J);       //  S{j}
 
-        psid_cols_j = (model.joints[j]).jointCols(data.psid);   //  psi_dot{j}
-        psidd_cols_j = (model.joints[j]).jointCols(data.psidd); //  psi_ddot{j}
-        dJ_cols_j = (model.joints[j]).jointCols(data.dJ);       //  phi_dot{j}
+        for (int q = 0; q < model.nvs[j]; q++) {
+          const Eigen::DenseIndex jq = model.idx_vs[j] + q;
 
-        for (int q = 0; q < joint_dofs_j; q++) {
-          jq = joint_idx_j + q;
-          S_dm = Jcols_j.col(q);          // S{j}(:,q)
-          psid_dm = psid_cols_j.col(q);   // psi_dot{j}(:,q)
-          psidd_dm = psidd_cols_j.col(q); // psi_ddot{j}(:,q)
-          phid_dm = dJ_cols_j.col(q);     // phi_dot{j}(:,q)
-          SdmvT = Sdmv.transpose();       // (S{j}(:,q)).'
+          const MotionRef<typename Data::Matrix6x::ColXpr> S_j = data.J.col(jq);
+          const MotionRef<typename Data::Matrix6x::ColXpr> psid_dm = data.psid.col(jq);   // psi_dot{j}(:,q)
+          const MotionRef<typename Data::Matrix6x::ColXpr> psidd_dm = data.psidd.col(jq); // psi_ddot{j}(:,q)
+          const MotionRef<typename Data::Matrix6x::ColXpr> phid_dm = data.dJ.col(jq);     // phi_dot{j}(:,q)
 
-          u1 = SdmvT * r3;
-          u2 = SdmvT * r1;
-          u3 = r3 * psid_dmv + r1 * psidd_dmv + r5 * Sdmv;
-          u4 = r6 * Sdmv;
-          u5 = r2 * psid_dmv;
-          u6 = Bicphii * psid_dmv;
-          u6 += r7 * Sdmv;
-          u7 = r3 * Sdmv + r1 * (psid_dmv + phid_dmv);
-          u8 = r4 * Sdmv;
-          u9 = r0 * Sdmv;
-          u10 = Bicphii * Sdmv;
-          u11 = SdmvT * Bicphii;
-          u12 = psid_dmv.transpose() * Bicphii;
-          u13 = r1 * Sdmv;
+          u1.noalias() = S_j.toVector().transpose() * r3;
+          u2.noalias() = S_j.toVector().transpose() * r1;
+          u3.noalias() = r3 * psid_dm.toVector() + r1 * psidd_dm.toVector() + r5 * S_j.toVector();
+          u4.noalias()  = r6 * S_j.toVector();
+          u5.noalias()  = r2 * psid_dm.toVector();
+          u6.noalias()  = Bicphii * psid_dm.toVector();
+          u6.noalias()  += r7 * S_j.toVector();
+          u7.noalias()  = r3 * S_j.toVector() + r1 * (psid_dm.toVector() + phid_dm.toVector());
+          u8.noalias()  = r4 * S_j.toVector();
+          u9.noalias()  = r0 * S_j.toVector();
+          u10.noalias() = Bicphii * S_j.toVector();
+          u11.noalias() = S_j.toVector().transpose() * Bicphii;
+          u12.noalias() = psid_dm.toVector().transpose() * Bicphii;
+          u13.noalias() = r1 * S_j.toVector();
 
-          k = j;
+          JointIndex k = j;
 
           while (k > 0) {
-            joint_idx_k = (Eigen::Index)(model.joints[k]).idx_v();
-            joint_dofs_k =
-                (Eigen::Index)(model.joints[k]).nv();      // no of joint DOFs
-            Jcols_k = (model.joints[k]).jointCols(data.J); //  S{k}
-            psid_cols_k = (model.joints[k]).jointCols(data.psid); //  psi_dot{k}
-            psidd_cols_k =
-                (model.joints[k]).jointCols(data.psidd);      //  psi_ddot{k}
-            dJ_cols_k = (model.joints[k]).jointCols(data.dJ); //  phi_dot{k}
 
-            for (int r = 0; r < joint_dofs_k; r++) {
-              kr = joint_idx_k + r;
-              S_dm = Jcols_k.col(r);          // S{k}(:,r)
-              psid_dm = psid_cols_k.col(r);   // psi_dot{k}(:,r)
-              psidd_dm = psidd_cols_k.col(r); // psi_ddot{k}(:,r)
-              phid_dm = dJ_cols_k.col(r);     // phi_dot{k}(:,r)
+            for (int r = 0; r < model.nvs[k]; r++) {
+              const Eigen::DenseIndex kr = model.idx_vs[k] + r;
 
-              p1 = u11 * psid_dmv;
-              p2 = u9.dot(psidd_dmv);
-              p2 += (-u12 + u8.transpose()) * psid_dmv;
+              const MotionRef<typename Data::Matrix6x::ColXpr> S_k(data.J.col(kr));
+              const MotionRef<typename Data::Matrix6x::ColXpr> psid_dm = data.psid.col(kr);   // psi_dot{k}(:,r)
+              const MotionRef<typename Data::Matrix6x::ColXpr> psidd_dm = data.psidd.col(kr); // psi_ddot{k}(:,r)
+              const MotionRef<typename Data::Matrix6x::ColXpr> phid_dm = data.dJ.col(kr);     // phi_dot{k}(:,r)
 
-              dtau_dq2_(ip, jq, kr) = p2;
+              p1 = u11 * psid_dm.toVector();
+              p2 = u9.dot(psidd_dm.toVector());
+              p2 += (-u12 + u8.transpose()) * psid_dm.toVector();
+
+              dtau_dqdq_(ip, jq, kr) = p2;
               dtau_dqdv_(ip, kr, jq) = -p1;
 
               if (j != i) {
-                p3 = -u11 * Sdmv;
-                p4 = Sdmv.dot(u13);
-                dtau_dq2_(jq, kr, ip) = u1 * psid_dmv;
-                dtau_dq2_(jq, kr, ip) += u2 * psidd_dmv;
-                dtau_dq2_(jq, ip, kr) = dtau_dq2_(jq, kr, ip);
+                p3 = -u11 * S_k.toVector();
+                p4 = S_k.toVector().dot(u13);
+                dtau_dqdq_(jq, kr, ip) = u1 * psid_dm.toVector();
+                dtau_dqdq_(jq, kr, ip) += u2 * psidd_dm.toVector();
+                dtau_dqdq_(jq, ip, kr) = dtau_dqdq_(jq, kr, ip);
                 dtau_dqdv_(jq, kr, ip) = p1;
-                dtau_dqdv_(jq, ip, kr) = u1 * Sdmv;
-                dtau_dqdv_(jq, ip, kr) += u2 * (psid_dmv + phid_dmv);
-                dtau_dv2_(jq, kr, ip) = -p3;
-                dtau_dv2_(jq, ip, kr) = -p3;
+                dtau_dqdv_(jq, ip, kr) = u1 * S_k.toVector();
+                dtau_dqdv_(jq, ip, kr) += u2 * (psid_dm.toVector() + phid_dm.toVector());
+                dtau_dvdv_(jq, kr, ip) = -p3;
+                dtau_dvdv_(jq, ip, kr) = -p3;
                 dtau_dadq_(kr, jq, ip) = p4;
                 dtau_dadq_(jq, kr, ip) = p4;
               }
 
               if (k != j) {
-                p3 = -u11 * Sdmv;
-                p5 = Sdmv.dot(u9);
-                dtau_dq2_(ip, kr, jq) = p2;
-                dtau_dq2_(kr, ip, jq) = Sdmv.dot(u3);
-                dtau_dv2_(ip, jq, kr) = p3;
-                dtau_dv2_(ip, kr, jq) = p3;
-                dtau_dqdv_(ip, jq, kr) = Sdmv.dot(u5 + u8);
-                dtau_dqdv_(ip, jq, kr) += u9.dot(psid_dmv + phid_dmv);
-                dtau_dqdv_(kr, jq, ip) = Sdmv.dot(u6);
+                p3 = -u11 * S_k.toVector();
+                p5 = S_k.toVector().dot(u9);
+                dtau_dqdq_(ip, kr, jq) = p2;
+                dtau_dqdq_(kr, ip, jq) = S_k.toVector().dot(u3);
+                dtau_dvdv_(ip, jq, kr) = p3;
+                dtau_dvdv_(ip, kr, jq) = p3;
+                dtau_dqdv_(ip, jq, kr) = S_k.toVector().dot(u5 + u8);
+                dtau_dqdv_(ip, jq, kr) += u9.dot(psid_dm.toVector() + phid_dm.toVector());
+                dtau_dqdv_(kr, jq, ip) = S_k.toVector().dot(u6);
                 dtau_dadq_(kr, ip, jq) = p5;
                 dtau_dadq_(ip, kr, jq) = p5;
                 if (j != i) {
-                  p6 = Sdmv.dot(u10);
-                  dtau_dq2_(kr, jq, ip) = dtau_dq2_(kr, ip, jq);
-                  dtau_dv2_(kr, ip, jq) = p6;
-                  dtau_dv2_(kr, jq, ip) = p6;
-                  dtau_dqdv_(kr, ip, jq) = Sdmv.dot(u7);
+                  p6 = S_k.toVector().dot(u10);
+                  dtau_dqdq_(kr, jq, ip) = dtau_dqdq_(kr, ip, jq);
+                  dtau_dvdv_(kr, ip, jq) = p6;
+                  dtau_dvdv_(kr, jq, ip) = p6;
+                  dtau_dqdv_(kr, ip, jq) = S_k.toVector().dot(u7);
 
                 } else {
-                  dtau_dv2_(kr, jq, ip) = Sdmv.dot(u4);
+                  dtau_dvdv_(kr, jq, ip) = S_k.toVector().dot(u4);
                 }
 
               } else {
-                dtau_dv2_(ip, jq, kr) = -u2 * Sdmv;
+                dtau_dvdv_(ip, jq, kr) = -u2 * S_k.toVector();
               }
             }
 
@@ -369,6 +308,7 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
         j = model.parents[j];
       }
     }
+
     if (parent > 0) {
       data.oYcrb[parent] += data.oYcrb[i];
       data.doYcrb[parent] += data.doYcrb[i];
@@ -413,8 +353,8 @@ inline void ComputeRNEASecondOrderDerivatives(
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
-    const Eigen::MatrixBase<TangentVectorType2> &a, const Tensor1 &dtau_dq2,
-    const Tensor2 &dtau_dv2, const Tensor3 &dtau_dqdv,
+    const Eigen::MatrixBase<TangentVectorType2> &a, const Tensor1 &dtau_dqdq,
+    const Tensor2 &dtau_dvdv, const Tensor3 &dtau_dqdv,
     const Tensor4 &dtau_dadq) {
   // Extra safety here
   PINOCCHIO_CHECK_ARGUMENT_SIZE(
@@ -424,12 +364,12 @@ inline void ComputeRNEASecondOrderDerivatives(
       v.size(), model.nv, "The joint velocity vector is not of right size");
   PINOCCHIO_CHECK_ARGUMENT_SIZE(
       a.size(), model.nv, "The joint acceleration vector is not of right size");
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dq2.dimension(0), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dq2.dimension(1), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dq2.dimension(2), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dv2.dimension(0), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dv2.dimension(1), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dv2.dimension(2), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(0), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(1), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(2), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(0), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(1), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(2), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(0), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(1), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(2), model.nv);
@@ -458,8 +398,8 @@ inline void ComputeRNEASecondOrderDerivatives(
   for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i) {
     Pass2::run(model.joints[i],
                typename Pass2::ArgsType(model, data,
-                                        const_cast<Tensor1 &>(dtau_dq2),
-                                        const_cast<Tensor2 &>(dtau_dv2),
+                                        const_cast<Tensor1 &>(dtau_dqdq),
+                                        const_cast<Tensor2 &>(dtau_dvdv),
                                         const_cast<Tensor3 &>(dtau_dqdv),
                                         const_cast<Tensor4 &>(dtau_dadq)));
   }
