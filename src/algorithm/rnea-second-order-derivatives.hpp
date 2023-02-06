@@ -43,26 +43,26 @@ namespace pinocchio {
 /// \param[in] q The joint configuration vector (dim model.nq).
 /// \param[in] v The joint velocity vector (dim model.nv).
 /// \param[in] a The joint acceleration vector (dim model.nv).
-/// \param[out] d2tau_dq2 Second-Order Partial derivative of the generalized
+/// \param[out] dtau_dqdq Second-Order Partial derivative of the generalized
 /// torque vector with respect to the joint configuration.
-/// \param[out] d2tau_dv2 Second-Order Partial derivative of the generalized
+/// \param[out] dtau_dvdv Second-Order Partial derivative of the generalized
 /// torque vector with respect to the joint velocity
-/// \param[out] d2tau_dqdv Cross Second-Order Partial derivative of the
+/// \param[out] dtau_dqdv Cross Second-Order Partial derivative of the
 /// generalized torque vector with respect to the joint configuration and
 /// velocity.
-/// \param[out] d2tau_dadq Cross Second-Order Partial derivative of
+/// \param[out] dtau_dadq Cross Second-Order Partial derivative of
 /// the generalized torque vector with respect to the joint configuration and
 /// accleration.
 /// \remarks d2tau_dq2,
-/// d2tau_dv2, d2tau_dqdv and d2tau_dadq must be first initialized with zeros
-/// (dtau_dq2.setZero(),etc). The storage order of the 3D-tensor derivatives is
-/// important. For d2tau_dq2, the elements of generalized torque varies along
+/// dtau_dvdv, dtau_dqdv and dtau_dadq must be first initialized with zeros
+/// (dtau_dqdq.setZero(), etc). The storage order of the 3D-tensor derivatives is
+/// important. For dtau_dqdq, the elements of generalized torque varies along
 /// the rows, while elements of q vary along the columns and pages of the
-/// tensor. For d2tau_dqdv, the elements of generalized torque varies along the
+/// tensor. For dtau_dqdv, the elements of generalized torque varies along the
 /// rows, while elements of v vary along the columns and elements of q along the
-/// pages of the tensor. Hence, d2tau_dqdv is essentially d (d tau/dq)/dv, with
+/// pages of the tensor. Hence, dtau_dqdv is essentially d (d tau/dq)/dv, with
 /// outer-most derivative representing the third dimension (pages) of the
-/// tensor.  The tensor d2tau_dadq reduces down to dM/dq, and hence the elements
+/// tensor.  The tensor dtau_dadq reduces down to dM/dq, and hence the elements
 /// of q vary along the pages of the tensor. In other words, this tensor
 /// derivative is d(d tau/da)/dq. All other remaining combinations of
 /// second-order derivatives of generalized torque are zero.  \sa
@@ -78,8 +78,8 @@ inline void ComputeRNEASecondOrderDerivatives(
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
     const Eigen::MatrixBase<TangentVectorType2> &a,
-    const Tensor1 &d2tau_dq2, const Tensor2 &d2tau_dv2,
-    const Tensor3 &d2tau_dqdv, const Tensor4 &d2tau_dadq);
+    const Tensor1 &dtau_dqdq, const Tensor2 &dtau_dvdv,
+    const Tensor3 &dtau_dqdv, const Tensor4 &dtau_dadq);
 
 ///
 /// \brief Computes the Second-Order partial derivatives of the Recursive Newton
@@ -107,7 +107,7 @@ inline void ComputeRNEASecondOrderDerivatives(
 ///
 /// \remarks d2tau_dq2,
 /// d2tau_dv2, d2tau_dqdv and d2tau_dadq must be first initialized with zeros
-/// (dtau_dq2.setZero(),etc). The storage order of the 3D-tensor derivatives is
+/// (dtau_dqdq.setZero(),etc). The storage order of the 3D-tensor derivatives is
 /// important. For d2tau_dq2, the elements of generalized torque varies along
 /// the rows, while elements of q vary along the columns and pages of the
 /// tensor. For d2tau_dqdv, the elements of generalized torque varies along the
