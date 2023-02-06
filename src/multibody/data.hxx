@@ -316,11 +316,11 @@ namespace pinocchio
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
-    value &= (data1.kinematic_hessians == data2.kinematic_hessians).all()
-    && (data1.d2tau_dqdq == data2.d2tau_dqdq).all()
-    && (data1.d2tau_dvdv == data2.d2tau_dvdv).all()
-    && (data1.d2tau_dqdv == data2.d2tau_dqdv).all()
-    && (data1.d2tau_dadq == data2.d2tau_dadq).all();
+    value &= Tensor<bool, 0>((data1.kinematic_hessians == data2.kinematic_hessians).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dqdq == data2.d2tau_dqdq).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dvdv == data2.d2tau_dvdv).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dqdv == data2.d2tau_dqdv).all())(0)
+    && Tensor<bool, 0>((data1.d2tau_dadq == data2.d2tau_dadq).all())(0);
 
     return value;
   }
