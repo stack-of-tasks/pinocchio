@@ -43,9 +43,9 @@ namespace pinocchio {
 /// \param[in] q The joint configuration vector (dim model.nq).
 /// \param[in] v The joint velocity vector (dim model.nv).
 /// \param[in] a The joint acceleration vector (dim model.nv).
-/// \param[out] dtau_dqdq Second-Order Partial derivative of the generalized
+/// \param[out] d2tau_dqdq Second-Order Partial derivative of the generalized
 /// torque vector with respect to the joint configuration.
-/// \param[out] dtau_dvdv Second-Order Partial derivative of the generalized
+/// \param[out] d2tau_dvdv Second-Order Partial derivative of the generalized
 /// torque vector with respect to the joint velocity
 /// \param[out] dtau_dqdv Cross Second-Order Partial derivative of the
 /// generalized torque vector with respect to the joint configuration and
@@ -53,10 +53,10 @@ namespace pinocchio {
 /// \param[out] dtau_dadq Cross Second-Order Partial derivative of
 /// the generalized torque vector with respect to the joint configuration and
 /// accleration.
-/// \remarks d2tau_dq2,
-/// dtau_dvdv, dtau_dqdv and dtau_dadq must be first initialized with zeros
-/// (dtau_dqdq.setZero(), etc). The storage order of the 3D-tensor derivatives is
-/// important. For dtau_dqdq, the elements of generalized torque varies along
+/// \remarks d2tau_dqdq,
+/// d2tau_dvdv, dtau_dqdv and dtau_dadq must be first initialized with zeros
+/// (d2tau_dqdq.setZero(), etc). The storage order of the 3D-tensor derivatives is
+/// important. For d2tau_dqdq, the elements of generalized torque varies along
 /// the rows, while elements of q vary along the columns and pages of the
 /// tensor. For dtau_dqdv, the elements of generalized torque varies along the
 /// rows, while elements of v vary along the columns and elements of q along the
@@ -78,7 +78,7 @@ inline void ComputeRNEASecondOrderDerivatives(
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
     const Eigen::MatrixBase<TangentVectorType2> &a,
-    const Tensor1 &dtau_dqdq, const Tensor2 &dtau_dvdv,
+    const Tensor1 &d2tau_dqdq, const Tensor2 &d2tau_dvdv,
     const Tensor3 &dtau_dqdv, const Tensor4 &dtau_dadq);
 
 ///
@@ -98,17 +98,17 @@ inline void ComputeRNEASecondOrderDerivatives(
 /// \param[in] v The joint velocity vector (dim model.nv).
 /// \param[in] a The joint acceleration vector (dim model.nv).
 ///
-/// \returns The results are stored in data.d2tau_dq, data.d2tau_dv,
+/// \returns The results are stored in data.d2tau_dqdq, data.d2tau_dvdv,
 /// data.d2tau_dqdv, and data.d2tau_dadq which respectively correspond to the
 /// Second-Order partial derivatives of the joint torque vector with respect to
 /// the joint configuration, velocity and cross Second-Order partial derivatives
 /// with respect to configuration/velocity and configuration/acceleration
 /// respectively.
 ///
-/// \remarks d2tau_dq2,
-/// d2tau_dv2, d2tau_dqdv and d2tau_dadq must be first initialized with zeros
-/// (dtau_dqdq.setZero(),etc). The storage order of the 3D-tensor derivatives is
-/// important. For d2tau_dq2, the elements of generalized torque varies along
+/// \remarks d2tau_dqdq,
+/// d2tau_dvdv2, d2tau_dqdv and d2tau_dadq must be first initialized with zeros
+/// (d2tau_dqdq.setZero(),etc). The storage order of the 3D-tensor derivatives is
+/// important. For d2tau_dqdq, the elements of generalized torque varies along
 /// the rows, while elements of q vary along the columns and pages of the
 /// tensor. For d2tau_dqdv, the elements of generalized torque varies along the
 /// rows, while elements of v vary along the columns and elements of q along the
@@ -129,13 +129,13 @@ inline void ComputeRNEASecondOrderDerivatives(
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
     const Eigen::MatrixBase<TangentVectorType2> &a) {
-  (data.d2tau_dq).setZero();
-  (data.d2tau_dv).setZero();
+  (data.d2tau_dqdq).setZero();
+  (data.d2tau_dvdv).setZero();
   (data.d2tau_dqdv).setZero();
   (data.d2tau_dadq).setZero();
 
   ComputeRNEASecondOrderDerivatives(model, data, q.derived(), v.derived(), a.derived(),
-                           data.d2tau_dq, data.d2tau_dv, data.d2tau_dqdv,
+                           data.d2tau_dqdq, data.d2tau_dvdv, data.d2tau_dqdv,
                            data.d2tau_dadq);
 }
 

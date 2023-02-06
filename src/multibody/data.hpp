@@ -205,44 +205,6 @@ namespace pinocchio
     RowMatrix6 M6tmpR;
     RowMatrix6 M6tmpR2;
       
-    /// \brief Temporary for RNEA SO derivative algorithms
-    Motion S_dm;
-    Motion psid_dm;
-    Motion psidd_dm;
-    Motion phid_dm;
-    typename Inertia::Matrix6 tmpoBicphiiIn;
-    typename Inertia::Matrix6 tmpoBicpsidotIn;
-    Matrix6x Jcols_j;
-    Matrix6x psid_cols_j;
-    Matrix6x psidd_cols_j;
-    Matrix6x dJ_cols_j;
-    Matrix6x Jcols_k;
-    Matrix6x psid_cols_k;
-    Matrix6x psidd_cols_k;
-    Matrix6x dJ_cols_k;
-    Matrix6 tmpmr0;
-    Matrix6 tmpr1In;
-    Matrix6 tmpr2In;
-    Matrix6 tmpr3In;
-    Matrix6 tmpr4In;
-    Matrix6 tmpr5In;
-    Matrix6 tmpr6In;
-    Matrix6 tmpr7In;
-    Force ftmp;
-    Vector6r tmpv1;
-    Vector6r vecu1;
-    Vector6r vecu2;
-    Vector6c vecu3;
-    Vector6c vecu4;
-    Vector6c vecu5;
-    Vector6c vecu6;
-    Vector6c vecu7;
-    Vector6c vecu8;
-    Vector6c vecu9;
-    Vector6c vecu10;
-    Vector6r vecu11;
-    Vector6r vecu12;
-    Vector6c vecu13;
     /// \brief The joint accelerations computed from ABA
     TangentVectorType ddq;
     
@@ -411,14 +373,17 @@ namespace pinocchio
 
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
-    
+
+    /// \brief Tensor containing the kinematic Hessian of all the joints.
+    Tensor3x kinematic_hessians;
+
     /// \brief SO Partial derivative of the joint torque vector with respect to
     /// the joint configuration.
-   Tensor3x d2tau_dq;
+    Tensor3x d2tau_dqdq;
 
     /// \brief SO Partial derivative of the joint torque vector with respect to
     /// the joint velocity.
-    Tensor3x d2tau_dv;
+    Tensor3x d2tau_dvdv;
 
     /// \brief SO Cross-Partial derivative of the joint torque vector with
     /// respect to the joint configuration/velocity.
@@ -430,8 +395,6 @@ namespace pinocchio
     /// configuration
     Tensor3x d2tau_dadq;
 
-    /// \brief Tensor containing the kinematic Hessian of all the joints.
-    Tensor3x kinematic_hessians;
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///

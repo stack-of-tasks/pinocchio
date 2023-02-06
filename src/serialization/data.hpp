@@ -108,8 +108,8 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,staticRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,bodyRegressor);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,jointTorqueRegressor);
-      PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dq);
-      PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dv);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dqdq);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dvdv);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dqdv);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,d2tau_dadq);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,kinematic_hessians);

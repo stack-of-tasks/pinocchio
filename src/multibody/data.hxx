@@ -105,17 +105,17 @@ namespace pinocchio
   , bodyRegressor(BodyRegressorType::Zero())
   , jointTorqueRegressor(MatrixXs::Zero(model.nv,10*(model.njoints-1)))
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
-  , d2tau_dq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
-  , d2tau_dv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , d2tau_dqdq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
+  , d2tau_dvdv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dqdv(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
   , d2tau_dadq(std::max(1,model.nv),std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
-  , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
  #else
-   , d2tau_dq(model.nv,model.nv,model.nv)
-   , d2tau_dv(model.nv,model.nv,model.nv)
+   , kinematic_hessians(6,model.nv,model.nv)
+   , d2tau_dqdq(model.nv,model.nv,model.nv)
+   , d2tau_dvdv(model.nv,model.nv,model.nv)
    , d2tau_dqdv(model.nv,model.nv,model.nv)
    , d2tau_dadq(model.nv,model.nv,model.nv)
-   , kinematic_hessians(6,model.nv,model.nv)
 #endif
   {
     typedef typename Model::JointIndex JointIndex;
@@ -140,11 +140,11 @@ namespace pinocchio
     /* Init universe states relatively to itself */
     a_gf[0] = -model.gravity;
     
-    d2tau_dq.setZero();
-    d2tau_dv.setZero();
+    kinematic_hessians.setZero();
+    d2tau_dqdq.setZero();
+    d2tau_dvdv.setZero();
     d2tau_dqdv.setZero();
     d2tau_dadq.setZero();
-    kinematic_hessians.setZero();
 
   }
 
@@ -316,19 +316,11 @@ namespace pinocchio
     ;
     
     // operator== for Eigen::Tensor provides an Expression which might be not evaluated as a boolean
-    typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
-    typedef Eigen::Map<const typename Data::VectorXs> MapVectorXs;
-    value &=
-       MapVectorXs(data1.kinematic_hessians.data(),data1.kinematic_hessians.size())
-    == MapVectorXs(data2.kinematic_hessians.data(),data2.kinematic_hessians.size())
-    && MapVectorXs(data1.d2tau_dq.data(), data1.d2tau_dq.size()) 
-    == MapVectorXs(data2.d2tau_dq.data(), data2.d2tau_dq.size())
-    && MapVectorXs(data1.d2tau_dv.data(), data1.d2tau_dv.size()) 
-    == MapVectorXs(data2.d2tau_dv.data(), data2.d2tau_dv.size())
-    && MapVectorXs(data1.d2tau_dqdv.data(), data1.d2tau_dqdv.size()) 
-    == MapVectorXs(data2.d2tau_dqdv.data(), data2.d2tau_dqdv.size())
-    && MapVectorXs(data1.d2tau_dadq.data(), data1.d2tau_dadq.size()) 
-    == MapVectorXs(data2.d2tau_dadq.data(), data2.d2tau_dadq.size());
+    value &= (data1.kinematic_hessians == data2.kinematic_hessians).all()
+    && (data1.d2tau_dqdq == data2.d2tau_dqdq).all()
+    && (data1.d2tau_dvdv == data2.d2tau_dvdv).all()
+    && (data1.d2tau_dqdv == data2.d2tau_dqdv).all()
+    && (data1.d2tau_dadq == data2.d2tau_dadq).all();
 
     return value;
   }

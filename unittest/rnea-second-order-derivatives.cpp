@@ -208,8 +208,8 @@ BOOST_AUTO_TEST_CASE(test_rnea_derivatives_SO) {
   Data data2(model);
   ComputeRNEASecondOrderDerivatives(model, data2, q, v, a);
 
-  Map<VectorXd> mq2(data2.d2tau_dq.data(), (data2.d2tau_dq).size());
-  Map<VectorXd> mv2(data2.d2tau_dv.data(), (data2.d2tau_dv).size());
+  Map<VectorXd> mq2(data2.d2tau_dqdq.data(), (data2.d2tau_dqdq).size());
+  Map<VectorXd> mv2(data2.d2tau_dvdv.data(), (data2.d2tau_dvdv).size());
   Map<VectorXd> mqv2(data2.d2tau_dqdv.data(), (data2.d2tau_dqdv).size());
   Map<VectorXd> maq2(data2.d2tau_dadq.data(), (data2.d2tau_dadq).size());
 

@@ -124,8 +124,8 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
 
   template <typename JointModel>
   static void algo(const JointModelBase<JointModel> &jmodel, const Model &model,
-                   Data &data, const Tensor1 &dtau_dqdq,
-                   const Tensor2 &dtau_dvdv, const Tensor3 &dtau_dqdv,
+                   Data &data, const Tensor1 &d2tau_dqdq,
+                   const Tensor2 &d2tau_dvdv, const Tensor3 &dtau_dqdv,
                    const Tensor3 &dtau_dadq) {
     typedef typename Data::Motion Motion;
     typedef typename Data::Force Force;
@@ -142,8 +142,8 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
     const Inertia &oYcrb = data.oYcrb[i];  // IC{i}
     const Matrix6 &oBcrb = data.doYcrb[i]; // BC{i}
 
-    Tensor1 &dtau_dqdq_ = const_cast<Tensor1 &>(dtau_dqdq);
-    Tensor2 &dtau_dvdv_ = const_cast<Tensor2 &>(dtau_dvdv);
+    Tensor1 &d2tau_dqdq_ = const_cast<Tensor1 &>(d2tau_dqdq);
+    Tensor2 &d2tau_dvdv_ = const_cast<Tensor2 &>(d2tau_dvdv);
     Tensor3 &dtau_dqdv_ = const_cast<Tensor3 &>(dtau_dqdv);
     Tensor4 &dtau_dadq_ = const_cast<Tensor4 &>(dtau_dadq);
 
@@ -256,20 +256,20 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
               p2 = u9.dot(psidd_dm.toVector());
               p2 += (-u12 + u8.transpose()) * psid_dm.toVector();
 
-              dtau_dqdq_(ip, jq, kr) = p2;
+              d2tau_dqdq_(ip, jq, kr) = p2;
               dtau_dqdv_(ip, kr, jq) = -p1;
 
               if (j != i) {
                 p3 = -u11 * S_k.toVector();
                 p4 = S_k.toVector().dot(u13);
-                dtau_dqdq_(jq, kr, ip) = u1 * psid_dm.toVector();
-                dtau_dqdq_(jq, kr, ip) += u2 * psidd_dm.toVector();
-                dtau_dqdq_(jq, ip, kr) = dtau_dqdq_(jq, kr, ip);
+                d2tau_dqdq_(jq, kr, ip) = u1 * psid_dm.toVector();
+                d2tau_dqdq_(jq, kr, ip) += u2 * psidd_dm.toVector();
+                d2tau_dqdq_(jq, ip, kr) = d2tau_dqdq_(jq, kr, ip);
                 dtau_dqdv_(jq, kr, ip) = p1;
                 dtau_dqdv_(jq, ip, kr) = u1 * S_k.toVector();
                 dtau_dqdv_(jq, ip, kr) += u2 * (psid_dm.toVector() + phid_dm.toVector());
-                dtau_dvdv_(jq, kr, ip) = -p3;
-                dtau_dvdv_(jq, ip, kr) = -p3;
+                d2tau_dvdv_(jq, kr, ip) = -p3;
+                d2tau_dvdv_(jq, ip, kr) = -p3;
                 dtau_dadq_(kr, jq, ip) = p4;
                 dtau_dadq_(jq, kr, ip) = p4;
               }
@@ -277,10 +277,10 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
               if (k != j) {
                 p3 = -u11 * S_k.toVector();
                 p5 = S_k.toVector().dot(u9);
-                dtau_dqdq_(ip, kr, jq) = p2;
-                dtau_dqdq_(kr, ip, jq) = S_k.toVector().dot(u3);
-                dtau_dvdv_(ip, jq, kr) = p3;
-                dtau_dvdv_(ip, kr, jq) = p3;
+                d2tau_dqdq_(ip, kr, jq) = p2;
+                d2tau_dqdq_(kr, ip, jq) = S_k.toVector().dot(u3);
+                d2tau_dvdv_(ip, jq, kr) = p3;
+                d2tau_dvdv_(ip, kr, jq) = p3;
                 dtau_dqdv_(ip, jq, kr) = S_k.toVector().dot(u5 + u8);
                 dtau_dqdv_(ip, jq, kr) += u9.dot(psid_dm.toVector() + phid_dm.toVector());
                 dtau_dqdv_(kr, jq, ip) = S_k.toVector().dot(u6);
@@ -288,17 +288,17 @@ struct ComputeRNEASecondOrderDerivativesBackwardStep
                 dtau_dadq_(ip, kr, jq) = p5;
                 if (j != i) {
                   p6 = S_k.toVector().dot(u10);
-                  dtau_dqdq_(kr, jq, ip) = dtau_dqdq_(kr, ip, jq);
-                  dtau_dvdv_(kr, ip, jq) = p6;
-                  dtau_dvdv_(kr, jq, ip) = p6;
+                  d2tau_dqdq_(kr, jq, ip) = d2tau_dqdq_(kr, ip, jq);
+                  d2tau_dvdv_(kr, ip, jq) = p6;
+                  d2tau_dvdv_(kr, jq, ip) = p6;
                   dtau_dqdv_(kr, ip, jq) = S_k.toVector().dot(u7);
 
                 } else {
-                  dtau_dvdv_(kr, jq, ip) = S_k.toVector().dot(u4);
+                  d2tau_dvdv_(kr, jq, ip) = S_k.toVector().dot(u4);
                 }
 
               } else {
-                dtau_dvdv_(ip, jq, kr) = -u2 * S_k.toVector();
+                d2tau_dvdv_(ip, jq, kr) = -u2 * S_k.toVector();
               }
             }
 
@@ -353,8 +353,8 @@ inline void ComputeRNEASecondOrderDerivatives(
     DataTpl<Scalar, Options, JointCollectionTpl> &data,
     const Eigen::MatrixBase<ConfigVectorType> &q,
     const Eigen::MatrixBase<TangentVectorType1> &v,
-    const Eigen::MatrixBase<TangentVectorType2> &a, const Tensor1 &dtau_dqdq,
-    const Tensor2 &dtau_dvdv, const Tensor3 &dtau_dqdv,
+    const Eigen::MatrixBase<TangentVectorType2> &a, const Tensor1 &d2tau_dqdq,
+    const Tensor2 &d2tau_dvdv, const Tensor3 &dtau_dqdv,
     const Tensor4 &dtau_dadq) {
   // Extra safety here
   PINOCCHIO_CHECK_ARGUMENT_SIZE(
@@ -364,12 +364,12 @@ inline void ComputeRNEASecondOrderDerivatives(
       v.size(), model.nv, "The joint velocity vector is not of right size");
   PINOCCHIO_CHECK_ARGUMENT_SIZE(
       a.size(), model.nv, "The joint acceleration vector is not of right size");
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(0), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(1), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdq.dimension(2), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(0), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(1), model.nv);
-  PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dvdv.dimension(2), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dqdq.dimension(0), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dqdq.dimension(1), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dqdq.dimension(2), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dvdv.dimension(0), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dvdv.dimension(1), model.nv);
+  PINOCCHIO_CHECK_ARGUMENT_SIZE(d2tau_dvdv.dimension(2), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(0), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(1), model.nv);
   PINOCCHIO_CHECK_ARGUMENT_SIZE(dtau_dqdv.dimension(2), model.nv);
@@ -398,8 +398,8 @@ inline void ComputeRNEASecondOrderDerivatives(
   for (JointIndex i = (JointIndex)(model.njoints - 1); i > 0; --i) {
     Pass2::run(model.joints[i],
                typename Pass2::ArgsType(model, data,
-                                        const_cast<Tensor1 &>(dtau_dqdq),
-                                        const_cast<Tensor2 &>(dtau_dvdv),
+                                        const_cast<Tensor1 &>(d2tau_dqdq),
+                                        const_cast<Tensor2 &>(d2tau_dvdv),
                                         const_cast<Tensor3 &>(dtau_dqdv),
                                         const_cast<Tensor4 &>(dtau_dadq)));
   }
