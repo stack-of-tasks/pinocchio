@@ -173,10 +173,12 @@ int main(int argc, const char ** argv)
   MatrixXd daba_dv(MatrixXd::Zero(model.nv,model.nv));
   Data::RowMatrixXs daba_dtau(Data::RowMatrixXs::Zero(model.nv,model.nv));
 
-  Data::Tensor3x dtau2_dq(model.nv, model.nv, model.nv);
-  Data::Tensor3x dtau2_dv(model.nv, model.nv, model.nv);
-  Data::Tensor3x dtau2_dqv(model.nv, model.nv, model.nv);
-  Data::Tensor3x dtau_dadq(model.nv, model.nv, model.nv);
+  typedef Data::Tensor3x Tensor3x;
+//  typedef Eigen::Tensor<double, 3, Eigen::RowMajor> Tensor3x;
+  Tensor3x dtau2_dq(model.nv, model.nv, model.nv);
+  Tensor3x dtau2_dv(model.nv, model.nv, model.nv);
+  Tensor3x dtau2_dqv(model.nv, model.nv, model.nv);
+  Tensor3x dtau_dadq(model.nv, model.nv, model.nv);
   dtau2_dq.setZero();
   dtau2_dv.setZero();
   dtau2_dqv.setZero();
