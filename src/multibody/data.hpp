@@ -59,7 +59,9 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    
+    typedef Eigen::Matrix<Scalar, 6, 1, Options> Vector6c;
+    typedef Eigen::Matrix<Scalar, 1, 6, Eigen::RowMajor | Options> Vector6r;
+
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
     
@@ -202,7 +204,7 @@ namespace pinocchio
     Matrix6 M6tmp;
     RowMatrix6 M6tmpR;
     RowMatrix6 M6tmpR2;
-    
+      
     /// \brief The joint accelerations computed from ABA
     TangentVectorType ddq;
     
@@ -282,7 +284,18 @@ namespace pinocchio
     
     /// \brief Derivative of the Jacobian with respect to the time.
     Matrix6x dJ;
-    
+
+      /// \brief Second derivative of the Jacobian with respect to the time.
+    Matrix6x ddJ;
+
+    /// \brief psidot Derivative of Jacobian w.r.t to the parent body moving
+    /// v(p(j)) x Sj
+    Matrix6x psid;
+
+    /// \brief psiddot Second Derivative of Jacobian w.r.t to the parent body
+    /// moving a(p(j)) x Sj + v(p(j)) x psidj
+    Matrix6x psidd;
+
     /// \brief Variation of the spatial velocity set with respect to the joint configuration.
     Matrix6x dVdq;
     
@@ -360,10 +373,28 @@ namespace pinocchio
 
     /// \brief Matrix related to joint torque regressor
     MatrixXs jointTorqueRegressor;
-    
+
     /// \brief Tensor containing the kinematic Hessian of all the joints.
     Tensor3x kinematic_hessians;
-    
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint configuration.
+    Tensor3x d2tau_dqdq;
+
+    /// \brief SO Partial derivative of the joint torque vector with respect to
+    /// the joint velocity.
+    Tensor3x d2tau_dvdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint configuration/velocity.
+    Tensor3x d2tau_dqdv;
+
+    /// \brief SO Cross-Partial derivative of the joint torque vector with
+    /// respect to the joint acceleration/configuration. This also equals to the
+    /// First Order partial derivative of the Mass Matrix w.r.t joint
+    /// configuration
+    Tensor3x d2tau_dadq;
+
     ///
     /// \brief Default constructor of pinocchio::Data from a pinocchio::Model.
     ///
