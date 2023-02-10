@@ -16,6 +16,7 @@ namespace pinocchio
 
     void exposeCones()
     {
+#ifndef PINOCCHIO_PYTHON_SKIP_COMPARISON_OPERATIONS
       CoulombFrictionConePythonVisitor<context::CoulombFrictionCone>::expose();
       StdVectorPythonVisitor<context::CoulombFrictionConeVector>::expose("StdVec_CoulombFrictionCone");
 //#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
@@ -27,6 +28,7 @@ namespace pinocchio
 //#ifndef PINOCCHIO_PYTHON_NO_SERIALIZATION
 //      serialize<StdAlignedVectorPythonVisitor<context::DualCoulombFrictionCone>::vector_type>();
 //#endif
+#endif
     }
 
   } // namespace python

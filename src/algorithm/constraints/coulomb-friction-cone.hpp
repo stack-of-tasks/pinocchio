@@ -138,9 +138,17 @@ namespace pinocchio
         res.template head<2>() = Scalar(mu_fz/ft_norm) * ft;
       }
       else
-        res.template head<2>() = f.template head<2>();
+        res.template head<2>() = ft;
 
       return res;
+    }
+
+    template<typename Vector3Like1, typename Vector3Like2>
+    Scalar computeContactComplementarity(const Eigen::MatrixBase<Vector3Like1> & v,
+                                         const Eigen::MatrixBase<Vector3Like2> & f) const
+    {
+      typedef typename PINOCCHIO_EIGEN_PLAIN_TYPE(Vector3Like1) Vector3Plain;
+      return math::fabs(f.dot(Vector3Plain(v + computeNormalCorrection(v))));
     }
 
     /// \brief Returns the dual cone associated to this.
