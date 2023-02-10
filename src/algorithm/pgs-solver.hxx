@@ -6,15 +6,16 @@
 #define __pinocchio_algorithm_pgs_solver_hxx__
 
 #include <limits>
+#include "pinocchio/algorithm/constraints/coulomb-friction-cone.hpp"
 
 namespace pinocchio
 {
   template<typename _Scalar>
   template<typename MatrixLike, typename VectorLike, typename ConstraintAllocator, typename VectorLikeOut>
-  bool PGSUnilateralContactSolverTpl<_Scalar>::solve(const Eigen::MatrixBase<MatrixLike> & G, const Eigen::MatrixBase<VectorLike> & g,
-                                                     const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
-                                                     const Eigen::DenseBase<VectorLikeOut> & x_,
-                                                     const Scalar over_relax)
+  bool PGSContactSolverTpl<_Scalar>::solve(const Eigen::MatrixBase<MatrixLike> & G, const Eigen::MatrixBase<VectorLike> & g,
+                                           const std::vector<CoulombFrictionConeTpl<Scalar>,ConstraintAllocator> & cones,
+                                           const Eigen::DenseBase<VectorLikeOut> & x_,
+                                           const Scalar over_relax)
 
   {
     typedef CoulombFrictionConeTpl<Scalar> CoulombFrictionCone;
@@ -23,6 +24,10 @@ namespace pinocchio
     //typedef Eigen::Matrix<Scalar,6,1> Vector6;
 
     PINOCCHIO_CHECK_INPUT_ARGUMENT(over_relax < Scalar(2) && over_relax > Scalar(0),"over_relax should lie in ]0,2[.")
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(g.size(), this->getProblemSize());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(G.rows(), this->getProblemSize());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(G.cols(), this->getProblemSize());
+    PINOCCHIO_CHECK_ARGUMENT_SIZE(x_.size(), this->getProblemSize());
 
     const size_t nc = cones.size(); // num constraints
     VectorLikeOut & x = x_.const_cast_derived();
@@ -34,7 +39,8 @@ namespace pinocchio
 
     Scalar complementarity, proximal_metric;
     bool abs_prec_reached = false, rel_prec_reached = false;
-    for(; it < max_it; ++it)
+    Scalar x_previous_norm_inf = x.template lpNorm<Eigen::Infinity>();
+    for(; it < this->max_it; ++it)
     {
       x_previous = x;
       complementarity = Scalar(0);
@@ -78,25 +84,28 @@ namespace pinocchio
       }
 
       // Checking stopping residual
-      if(check_expression_if_real<Scalar,false>(complementarity <= absolute_precision))
+      if(check_expression_if_real<Scalar,false>(complementarity <= this->absolute_precision))
         abs_prec_reached = true;
       else
         abs_prec_reached = false;
 
       proximal_metric = (x - x_previous).template lpNorm<Eigen::Infinity>();
-      if(check_expression_if_real<Scalar,false>(proximal_metric <= relative_precision))
+      const Scalar x_norm_inf = x.template lpNorm<Eigen::Infinity>();
+      if(check_expression_if_real<Scalar,false>(proximal_metric <= this->relative_precision * math::max(x_norm_inf,x_previous_norm_inf)))
         rel_prec_reached = true;
       else
         rel_prec_reached = false;
 
       if(abs_prec_reached || rel_prec_reached)
         break;
+
+      x_previous_norm_inf = x_norm_inf;
     }
 
     PINOCCHIO_EIGEN_MALLOC_ALLOWED();
 
-    absolute_residual = complementarity;
-    relative_residual = proximal_metric;
+    this->absolute_residual = complementarity;
+    this->relative_residual = proximal_metric;
     this->it = it;
 
     if(abs_prec_reached || rel_prec_reached)
