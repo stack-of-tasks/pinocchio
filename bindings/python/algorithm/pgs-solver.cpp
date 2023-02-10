@@ -14,7 +14,7 @@ namespace python
 {
   namespace bp = boost::python;
 
-  typedef PGSUnilateralContactSolverTpl<context::Scalar> Solver;
+  typedef PGSContactSolverTpl<context::Scalar> Solver;
 
   static bool solve_wrapper(Solver & solver, const context::MatrixXs & G,
                             const context::VectorXs & g, const context::CoulombFrictionConeVector & cones,
