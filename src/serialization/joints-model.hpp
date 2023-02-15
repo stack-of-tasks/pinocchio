@@ -210,6 +210,16 @@ namespace boost
       ar & make_nvp("axis",joint.axis);
     }
     
+    template <class Archive, typename Scalar, int Options, int axis>
+    void serialize(Archive & ar,
+                   pinocchio::JointModelUniversalTpl<Scalar,Options,axis> & joint,
+                   const unsigned int version)
+    {
+      typedef pinocchio::JointModelUniversalTpl<Scalar,Options,axis> JointType;
+//      ar & make_nvp("base_class",base_object< pinocchio::JointModelBase<JointType> >(joint));
+      fix::serialize(ar,*static_cast<pinocchio::JointModelBase<JointType> *>(&joint),version);
+    }
+
     template <class Archive, typename Scalar, int Options, template<typename S, int O> class JointCollectionTpl>
     void serialize(Archive & ar,
                    pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollectionTpl> & joint,

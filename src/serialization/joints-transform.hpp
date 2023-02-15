@@ -51,6 +51,14 @@ namespace boost
       ar & make_nvp("translation",m.translation());
     }
     
+    template <class Archive, typename Scalar, int Options, int axis>
+    void serialize(Archive & ar,
+                   pinocchio::TransformUniversalTpl<Scalar,Options,axis> & m,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("sin",m.sin());
+      ar & make_nvp("cos",m.cos());
+    }
   }
 }
 

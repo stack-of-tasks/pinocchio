@@ -92,6 +92,13 @@ namespace boost
       ar & make_nvp("v",m.linearRate());
     }
     
+    template <class Archive, typename Scalar, int Options, int axis>
+    void serialize(Archive & ar,
+                   pinocchio::MotionUniversalTpl<Scalar,Options,axis> & m,
+                   const unsigned int /*version*/)
+    {
+      ar & make_nvp("w",m.angularRate());
+    }
   }
 }
 
