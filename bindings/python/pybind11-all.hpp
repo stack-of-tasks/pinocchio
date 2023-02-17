@@ -9,6 +9,7 @@
 /// \li DataTpl
 /// \li SE3Tpl
 /// \li MotionTpl
+/// \li ForceTpl
 /// \li GeometryModel
 /// \li (not yet) GeometryData
 
@@ -33,6 +34,8 @@ _PINOCCHIO_PYBIND11_EXPOSE(_SINGLE_ARG(::pinocchio::SE3Tpl<SCALAR,OPTIONS>),
                            _("pinocchio.pinocchio_pywrap.SE3"))
 _PINOCCHIO_PYBIND11_EXPOSE(_SINGLE_ARG(::pinocchio::MotionTpl<SCALAR, OPTIONS>),
                            _("pinocchio.pinocchio_pywrap.Motion"))
+_PINOCCHIO_PYBIND11_EXPOSE(_SINGLE_ARG(::pinocchio::ForceTpl<SCALAR, OPTIONS>),
+                           _("pinocchio.pinocchio_pywrap.Force"))
 
 _PINOCCHIO_PYBIND11_EXPOSE(
     _SINGLE_ARG(::pinocchio::ModelTpl<SCALAR, OPTIONS, JOINT_MODEL_COLLECTION>),
