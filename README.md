@@ -196,11 +196,12 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
 -   [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
 -   [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
--   [Aamr El Kazdadi](https://github.com/aelkazdadi) (Inria): multiprecision arithmetic support
+-   [Sarah El Kazdadi](https://github.com/sarah-ek) (Inria): multiprecision arithmetic support
 -   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): RViz viewer support
 -   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
--   [Fabian Schramm](https://github.com/fabinsch) (Inria): main developper
+-   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
+-   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
 
 If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
 
