@@ -72,7 +72,10 @@ namespace pinocchio
     
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    
+
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) InertiaVector;
+    typedef PINOCCHIO_ALIGNED_STD_VECTOR(SE3) SE3Vector;
+
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
 
@@ -98,34 +101,34 @@ namespace pinocchio
     /// \brief Number of operational frames.
     int nframes;
 
-    /// \brief Spatial inertias supported by the joint *i*.
-    PINOCCHIO_ALIGNED_STD_VECTOR(Inertia) inertias;
+    /// \brief Vector of spatial inertias supported by each joint.
+    InertiaVector inertias;
     
-    /// \brief Placement (SE3) of the input of joint *i* regarding to the parent joint output *li*.
-    PINOCCHIO_ALIGNED_STD_VECTOR(SE3) jointPlacements;
+    /// \brief Vector of joint placements: placement of a joint *i* wrt its parent joint frame.
+    SE3Vector jointPlacements;
 
-    /// \brief Model of joint *i*, encapsulated in a JointModelAccessor.
+    /// \brief Vector of joint models.
     JointModelVector joints;
     
-    /// \brief Starting index of the joint *i* in the configuration space
+    /// \brief Vector of starting index of the *i*th  joint in the configuration space.
     std::vector<int> idx_qs;
     
-    /// \brief Dimension of the joint *i* configuration subspace
+    /// \brief Vector of dimension of the  joint configuration subspace.
     std::vector<int> nqs;
     
-    /// \brief Starting index of the joint *i* in the tangent configuration space
+    /// \brief Starting index of the *i*th joint in the tangent configuration space.
     std::vector<int> idx_vs;
     
-    /// \brief Dimension of the joint *i* tangent subspace
+    /// \brief Dimension of the *i*th joint tangent subspace.
     std::vector<int> nvs;
     
-    /// \brief Joint parent of joint *i*, denoted *li* (li==parents[i]).
+    /// \brief Vector of parent joint indexes. The parent of joint *i*, denoted *li*, corresponds to li==parents[i].
     std::vector<JointIndex> parents;
     
-    /// \brief Joint children of joint *i*, denoted *mu(i)* (i==parents[k] for k in mu(i)).
+    /// \brief Vector of children index. Chidren of the *i*th joint, denoted *mu(i)* corresponds to the set (i==parents[k] for k in mu(i)).
     std::vector<IndexVector> children;
 
-    /// \brief Name of joint *i*
+    /// \brief Name of the joints.
     std::vector<std::string> names;
 
     /// \brief Map of reference configurations, indexed by user given names.
