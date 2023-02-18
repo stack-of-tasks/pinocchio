@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
@@ -112,23 +112,23 @@ namespace pinocchio
         .def(bp::init<const Model &>((bp::arg("self"),bp::arg("clone")),"Copy constructor"))
         
         // Class Members
-        .add_property("nq", &Model::nq)
-        .add_property("nv", &Model::nv)
-        .add_property("njoints", &Model::njoints)
-        .add_property("nbodies", &Model::nbodies)
-        .add_property("nframes", &Model::nframes)
-        .add_property("inertias",&Model::inertias)
-        .def_readwrite("jointPlacements",&Model::jointPlacements)
-        .add_property("joints",&Model::joints)
-        .add_property("idx_qs",&Model::idx_qs)
-        .add_property("nqs",&Model::nqs)
-        .add_property("idx_vs",&Model::idx_vs)
-        .add_property("nvs",&Model::nvs)          
-        .add_property("parents",&Model::parents)
-        .add_property("children",&Model::children)
-        .add_property("names",&Model::names)
-        .def_readwrite("name",&Model::name)
-        .def_readwrite("referenceConfigurations", &Model::referenceConfigurations)
+        .add_property("nq", &Model::nq, "Dimension of the configuration vector representation.")
+        .add_property("nv", &Model::nv, "Dimension of the velocity vector space.")
+        .add_property("njoints", &Model::njoints, "Number of joints.")
+        .add_property("nbodies", &Model::nbodies, "Number of bodies.")
+        .add_property("nframes", &Model::nframes, "Number of frames.")
+        .add_property("inertias",&Model::inertias, "Vector of spatial inertias supported by each joint.")
+        .def_readwrite("jointPlacements",&Model::jointPlacements, "Vector of joint placements: placement of a joint *i* wrt its parent joint frame.")
+        .add_property("joints",&Model::joints, "Vector of joint models.")
+        .add_property("idx_qs",&Model::idx_qs, "Vector of starting index of the *i*th  joint in the configuration space.")
+        .add_property("nqs",&Model::nqs, "Vector of dimension of the  joint configuration subspace.")
+        .add_property("idx_vs",&Model::idx_vs, "Starting index of the *i*th joint in the tangent configuration space.")
+        .add_property("nvs",&Model::nvs, "Dimension of the *i*th joint tangent subspace.")
+        .add_property("parents",&Model::parents, "Vector of parent joint indexes. The parent of joint *i*, denoted *li*, corresponds to li==parents[i].")
+        .add_property("children",&Model::children, "Vector of children index. Chidren of the *i*th joint, denoted *mu(i)* corresponds to the set (i==parents[k] for k in mu(i)).")
+        .add_property("names",&Model::names, "Name of the joints.")
+        .def_readwrite("name",&Model::name, "Name of the model.")
+        .def_readwrite("referenceConfigurations", &Model::referenceConfigurations, "Map of reference configurations, indexed by user given names.")
         
         .def_readwrite("armature",&Model::armature,
                        "Armature vector.")
