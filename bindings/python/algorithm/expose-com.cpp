@@ -229,10 +229,10 @@ namespace pinocchio
                        "subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) expressed in the WORLD frame, according to the given joint configuration.");
       bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_kinematics_proxy,
-              bp::args("Model, the model of the kinematic tree",
-                       "Data, the data associated to the model where the results are stored",
-                       "Joint configuration q (size Model::nq)",
-                       "Subtree root ID, the index of the subtree root joint."),
+              bp::args("model",
+                       "data",
+                       "q",
+                       "subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given joint configuration.",
               deprecated_function<>("This function is now deprecated. It has been renamed jacobianSubtreeCenterOfMass."));
       
@@ -243,9 +243,9 @@ namespace pinocchio
               "Computes the Jacobian of the CoM of the given subtree (subtree_root_joint_id) expressed in the WORLD frame, according to the given entries in data.");
 
       bp::def("jacobianSubtreeCoMJacobian",jacobian_subtree_com_proxy,
-              bp::args("Model, the model of the kinematic tree",
-                       "Data, the data associated to the model where the results are stored",
-                       "Subtree root ID, the index of the subtree root joint."),
+              bp::args("model",
+                       "data",
+                       "subtree_root_joint_id"),
               "Computes the Jacobian of the CoM of the given subtree expressed in the world frame, according to the given entries in data.",
               deprecated_function<>("This function is now deprecated. It has been renamed jacobianSubtreeCenterOfMass."));
       
