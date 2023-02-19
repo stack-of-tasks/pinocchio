@@ -50,10 +50,7 @@ namespace pinocchio
       
       bp::def("computeCentroidalDynamicsDerivatives",
               computeCentroidalDynamicsDerivatives_proxy,
-              bp::args("Model","Data",
-                       "q: configuration vector (size model.nq)",
-                       "v: velocity vector (size model.nv)",
-                       "a: acceleration vector (size model.nv)"),
+              bp::args("Model","Data","q","v","a"),
               "Computes the analytical derivatives of the centroidal dynamics\n"
               "with respect to the joint configuration vector, velocity and acceleration.");
       

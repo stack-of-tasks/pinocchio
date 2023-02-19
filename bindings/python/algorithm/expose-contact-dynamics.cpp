@@ -91,13 +91,7 @@ namespace pinocchio
       bp::def("forwardDynamics",
               &forwardDynamics_proxy,
               forwardDynamics_overloads(
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity v (size Model::nv)",
-                       "Joint torque tau (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Contact drift gamma (size nb_constraint)",
-                       "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
+              bp::args("Model","Data","q","v","tau","J","gamma","damping"),
               "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
               " Internally, pinocchio.computeAllTerms is called."
               ));
@@ -105,11 +99,7 @@ namespace pinocchio
       bp::def("forwardDynamics",
               &forwardDynamics_proxy_no_q,
               forwardDynamics_overloads_no_q(
-              bp::args("Model","Data",
-                       "Joint torque tau (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Contact drift gamma (size nb_constraint)",
-                       "(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank."),
+              bp::args("Model","Data","tau","J","gamma","damping"),
               "Solves the forward dynamics problem with contacts, puts the result in Data::ddq and return it. The contact forces are stored in data.lambda_c."
               " Assumes pinocchio.computeAllTerms has been called."
               ));
@@ -117,13 +107,7 @@ namespace pinocchio
       bp::def("impulseDynamics",
               &impulseDynamics_proxy,
               impulseDynamics_overloads(
-              bp::args("Model","Data",
-                       "Joint configuration q (size Model::nq)",
-                       "Joint velocity before impact v_before (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
-                       "Damping factor when J is rank deficient."
-                       ),
+              bp::args("Model","Data","q","v_before","J","r_coeff","damping"),
               "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
               " Internally, pinocchio.crba is called."
               ));
@@ -131,11 +115,7 @@ namespace pinocchio
       bp::def("impulseDynamics",
               &impulseDynamics_proxy_no_q,
               impulseDynamics_overloads_no_q(
-              bp::args("Model","Data",
-                       "Joint velocity before impact v_before (size Model::nv)",
-                       "Contact Jacobian J (size nb_constraint * Model::nv)",
-                       "Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact)",
-                       "Damping factor when J is rank deficient."),
+              bp::args("Model","Data","v_before","J","r_coeff","damping"),
               "Solves the impact dynamics problem with contacts, store the result in Data::dq_after and return it. The contact impulses are stored in data.impulse_c."
               " Assumes pinocchio.crba has been called."
               ));
@@ -147,8 +127,7 @@ namespace pinocchio
       
       bp::def("getKKTContactDynamicMatrixInverse",
               getKKTContactDynamicMatrixInverse_proxy,
-              bp::args("Model","Data",
-                       "Contact Jacobian J(size nb_constraint * Model::nv)"),
+              bp::args("Model","Data","J"),
               "Computes the inverse of the constraint matrix [[M JT], [J 0]]. forward/impulseDynamics must be called first. The jacobian should be the same that was provided to forward/impulseDynamics.");
     }
     

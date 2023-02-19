@@ -33,7 +33,7 @@ def impulseDynamics(model, data, *args):
 
 impulseDynamics.__doc__ =  (
   pin.impulseDynamics.__doc__
-  + '\n\nimpulseDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity before impact v_before (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (float)Coefficient of restitution r_coeff (0 = rigid impact; 1 = fully elastic impact), (bool)updateKinematics) -> object :'
+  + '\n\nimpulseDynamics( (Model)Model, (Data)Data, (object)q, (object)v_before, (object)J, (float)r_coeff, (bool)updateKinematics) -> object :'
   + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
 
@@ -60,7 +60,7 @@ def forwardDynamics(model, data, *args):
 
 forwardDynamics.__doc__ = (
   pin.forwardDynamics.__doc__
-  + '\n\nforwardDynamics( (Model)Model, (Data)Data, (object)Joint configuration q (size Model::nq), (object)Joint velocity v (size Model::nv), (object)Joint torque tau (size Model::nv), (object)Contact Jacobian J (size nb_constraint * Model::nv), (object)Contact drift gamma (size nb_constraint), (float)(double) Damping factor for cholesky decomposition of JMinvJt. Set to zero if constraints are full rank, (bool)Update kinematics) -> object :'
+  + '\n\nforwardDynamics( (Model)Model, (Data)Data, (object)q, (object)v, (object)tau, (object)J, (object)gamma, (float)damping, (bool)update_kinematics) -> object :'
 + '\n    This function signature has been deprecated and will be removed in future releases of Pinocchio.'
 )
 

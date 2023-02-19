@@ -5,6 +5,8 @@
 #ifndef __pinocchio_python_joints_variant_hpp__
 #define __pinocchio_python_joints_variant_hpp__
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include <boost/python.hpp>
 
 #include "pinocchio/multibody/joint/joint-collection.hpp"
@@ -17,6 +19,14 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+
+    template<typename T>
+    std::string sanitizedClassname()
+    {
+        std::string className = boost::replace_all_copy(T::classname(), "<", "_");
+        boost::replace_all(className, ">", "");
+        return className;
+    }
 
     template<typename VariantType>
     struct JointVariantVisitor : boost::static_visitor<PyObject *>
@@ -39,8 +49,8 @@ namespace pinocchio
       void operator()(T)
       {
         expose_joint_data<T>(
-            bp::class_<T>(T::classname().c_str(),
-                          T::classname().c_str(),
+            bp::class_<T>(sanitizedClassname<T>().c_str(),
+                          sanitizedClassname<T>().c_str(),
                           bp::init<>())
             .def(JointDataDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
@@ -55,8 +65,8 @@ namespace pinocchio
       void operator()(T)
       {
         expose_joint_model<T>(
-            bp::class_<T>(T::classname().c_str(),
-                          T::classname().c_str(),
+            bp::class_<T>(sanitizedClassname<T>().c_str(),
+                          sanitizedClassname<T>().c_str(),
                           bp::no_init)
             .def(JointModelDerivedPythonVisitor<T>())
             .def(PrintableVisitor<T>())
