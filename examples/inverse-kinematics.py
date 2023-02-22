@@ -9,7 +9,7 @@ model = pinocchio.buildSampleModelManipulator()
 data  = model.createData()
 
 JOINT_ID = 6
-oMdes = pinocchio.SE3(np.eye(3), np.array([1., 0., 1.]))
+oMdes = pinocchio.SE3(np.eye(3), np.array([0., 1., 0.]))
 
 q      = pinocchio.neutral(model)
 eps    = 1e-4
