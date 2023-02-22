@@ -66,6 +66,21 @@ or via pip (currently only available on Linux):
 **Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).
 **Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
+## Documentation
+
+The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](./doc/pinocchio_cheat_sheet.pdf).
+
+## Examples
+
+We provide some basic examples on how to use **Pinocchio** in Python in the [examples](./examples) directory.
+Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
+
+## Tutorials
+
+**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
+Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
+You can also consider the [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developped by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
+
 ## Pinocchio continuous integrations
 
 **Pinocchio** is constantly tested for several platforms and distributions, as reported below:
@@ -118,20 +133,6 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 | **Noetic**  | [![](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary)   | &nbsp;&nbsp;&nbsp;&nbsp; | **Galactic** | [![](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Humble**   | [![](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
 |             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Rolling**  | [![](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
-
-## Documentation
-
-The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](./doc/pinocchio_cheat_sheet.pdf).
-
-## Examples
-
-We provide some basic examples on how to use **Pinocchio** in Python in the [examples](./examples) directory.
-Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
-
-## Tutorials
-
-**Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
-Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
 
 ## Visualization
 
