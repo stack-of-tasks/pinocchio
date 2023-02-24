@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2023 INRIA
 //
 
 #ifndef __pinocchio_multibody_joint_helical_unaligned_hpp__
@@ -590,7 +590,17 @@ internal::comparison_eq(m_v, other.m_v);
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
       assert(isUnitary(axis) && "Rotation axis is not unitary");
     }
-    
+
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true, true};
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true, true};
+    }
+
     JointDataDerived createData() const { return JointDataDerived(); }
     
     using Base::isEqual;

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2022 INRIA
+// Copyright (c) 2022-2023 INRIA
 //
 
 #ifndef __pinocchio_multibody_joint_helical_hpp__
@@ -232,7 +232,7 @@ namespace pinocchio
       return PlainReturnType(CartesianAxis3Linear() * m_v,
                              CartesianAxis3Angular() * m_w);
     }
-    
+
     template<typename OtherScalar>
     MotionHelicalTpl __mult__(const OtherScalar & alpha) const
     {
@@ -428,7 +428,7 @@ namespace pinocchio
       res.template segment<3>(ANGULAR) = m.rotation().col(axis);
       return res;
     }
-    
+
     template<typename S1, int O1>
     typename SE3GroupAction<JointMotionSubspaceHelicalTpl>::ReturnType
     se3ActionInverse(const SE3Tpl<S1,O1> & m) const
@@ -769,8 +769,18 @@ namespace pinocchio
     
     JointModelHelicalTpl() {}
 
-    explicit JointModelHelicalTpl(const Scalar & h) : m_pitch(h) {}
-    
+    explicit JointModelHelicalTpl(const Scalar &h) : m_pitch(h) {}
+
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true, true};
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true, true};
+    }
+
     template<typename ConfigVector>
     EIGEN_DONT_INLINE
     void calc(JointDataDerived & data,
