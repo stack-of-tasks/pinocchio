@@ -350,6 +350,9 @@ class MeshcatVisualizer(BaseVisualizer):
         "talos2": [[0.0, 1.1, 0.0], [1.2, 0.6, 1.5]],
     }
 
+    def __init__(self, *args, **kwargs):
+        super(MeshcatVisualizer, self).__init__(*args, **kwargs)
+        self.static_objects = []
 
     def getViewerNodeName(self, geometry_object, geometry_type):
         """Return the name of the geometry object inside the viewer."""
@@ -378,6 +381,10 @@ class MeshcatVisualizer(BaseVisualizer):
 
         if loadModel:
             self.loadViewerModel()
+
+    def reset(self):
+        self.viewer.delete()
+        self.static_objects = []
 
     def setBackgroundColor(self, preset_name: str = "gray"):
         """Set the background."""
