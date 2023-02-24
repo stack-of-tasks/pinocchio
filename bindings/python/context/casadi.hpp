@@ -245,33 +245,38 @@ struct EigenToPy<MatType,::casadi::Matrix<_Scalar> >
   }
 
 };
-  
-template<typename MatType, int Options, typename Stride, typename _Scalar>
-struct EigenToPy< Eigen::Ref<MatType,Options,Stride>,::casadi::Matrix<_Scalar> >
+
+template <typename TensorType, typename _Scalar>
+struct expose_eigen_type_impl<TensorType, Eigen::TensorBase<TensorType>, ::casadi::Matrix<_Scalar> >
 {
-  typedef ::casadi::Matrix<_Scalar> CasadiMatrix;
-  
-  static PyObject* convert(const Eigen::Ref<MatType,Options,Stride> & mat)
+  static void run() {}
+};
+
+  template <typename MatType, int Options, typename Stride, typename _Scalar>
+  struct EigenToPy<Eigen::Ref<MatType, Options, Stride>, ::casadi::Matrix<_Scalar>>
   {
-    assert( (mat.rows()<INT_MAX) && (mat.cols()<INT_MAX)
-           && "Matrix range larger than int ... should never happen." );
-    PyObject * casadi_matrix_py_ptr = PyObject_CallObject(reinterpret_cast<PyObject*>(casadi::CasadiType::getSXType()),
-                                                          NULL);
-    
-    eigenpy::PySwigObject * casadi_matrix_swig_obj = eigenpy::get_PySwigObject(casadi_matrix_py_ptr);
-    assert(casadi_matrix_swig_obj != NULL);
-    
-    CasadiMatrix * casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix*>(casadi_matrix_swig_obj->ptr);
-    pinocchio::casadi::copy(mat.derived(),*casadi_matrix_obj_ptr);
-    
-    Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
-    return casadi_matrix_py_ptr;
-  }
-  
-  static PyTypeObject const * get_pytype()
-  {
-    return ::eigenpy::casadi::CasadiType::getSXType();
-  }
+    typedef ::casadi::Matrix<_Scalar> CasadiMatrix;
+
+    static PyObject *convert(const Eigen::Ref<MatType, Options, Stride> &mat)
+    {
+      assert((mat.rows() < INT_MAX) && (mat.cols() < INT_MAX) && "Matrix range larger than int ... should never happen.");
+      PyObject *casadi_matrix_py_ptr = PyObject_CallObject(reinterpret_cast<PyObject *>(casadi::CasadiType::getSXType()),
+                                                           NULL);
+
+      eigenpy::PySwigObject *casadi_matrix_swig_obj = eigenpy::get_PySwigObject(casadi_matrix_py_ptr);
+      assert(casadi_matrix_swig_obj != NULL);
+
+      CasadiMatrix *casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix *>(casadi_matrix_swig_obj->ptr);
+      pinocchio::casadi::copy(mat.derived(), *casadi_matrix_obj_ptr);
+
+      Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
+      return casadi_matrix_py_ptr;
+    }
+
+    static PyTypeObject const *get_pytype()
+    {
+      return ::eigenpy::casadi::CasadiType::getSXType();
+    }
 };
 
 namespace internal {
