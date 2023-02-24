@@ -88,26 +88,18 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
   ///
-  GeometryObject(const std::string & name,
-                 const JointIndex parent_joint,
-                 const FrameIndex parent_frame,
-                 const SE3 & placement,
-                 const CollisionGeometryPtr & collision_geometry,
-                 const std::string & meshPath = "",
-                 const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
-                 const bool overrideMaterial = false,
-                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
-                 const std::string & meshTexturePath = "")
-  : Base(name, parent_joint, parent_frame, placement)
-  , geometry(collision_geometry)
-  , fcl(geometry)
-  , meshPath(meshPath)
-  , meshScale(meshScale)
-  , overrideMaterial(overrideMaterial)
-  , meshColor(meshColor)
-  , meshTexturePath(meshTexturePath)
-  , disableCollision(false)
-  {}
+GeometryObject(const std::string &name,
+               const JointIndex parent_joint,
+               const FrameIndex parent_frame,
+               const SE3 &placement,
+               const CollisionGeometryPtr &collision_geometry,
+               const std::string &meshPath = "",
+               const Eigen::Vector3d &meshScale = Eigen::Vector3d::Ones(),
+               const bool overrideMaterial = false,
+               const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
+               const std::string &meshTexturePath = "")
+    : Base(name, parent_joint, parent_frame, placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
+{}
 
   ///
   /// \brief Full constructor.
@@ -133,7 +125,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
                                       const std::string & meshPath = "",
                                       const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
                                       const bool overrideMaterial = false,
-                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
+                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d(0,0,0,1),
                                       const std::string & meshTexturePath = "")
   : Base(name, parent_joint, parent_frame, placement)
   , geometry(collision_geometry)
@@ -164,25 +156,17 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   /// \param[in] meshColor Color of the mesh [if applicable].
   /// \param[in] meshTexturePath Path to the file containing the texture information [if applicable].
   ///
-  GeometryObject(const std::string & name,
-                 const JointIndex parent_joint,
-                 const SE3 & placement,
-                 const CollisionGeometryPtr & collision_geometry,
-                 const std::string & meshPath = "",
-                 const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
-                 const bool overrideMaterial = false,
-                 const Eigen::Vector4d & meshColor = Eigen::Vector4d::Ones(),
-                 const std::string & meshTexturePath = "")
-  : Base(name, parent_joint,std::numeric_limits<FrameIndex>::max(), placement)
-  , geometry(collision_geometry)
-  , fcl(geometry)
-  , meshPath(meshPath)
-  , meshScale(meshScale)
-  , overrideMaterial(overrideMaterial)
-  , meshColor(meshColor)
-  , meshTexturePath(meshTexturePath)
-  , disableCollision(false)
-  {}
+GeometryObject(const std::string &name,
+               const JointIndex parent_joint,
+               const SE3 &placement,
+               const CollisionGeometryPtr &collision_geometry,
+               const std::string &meshPath = "",
+               const Eigen::Vector3d &meshScale = Eigen::Vector3d::Ones(),
+               const bool overrideMaterial = false,
+               const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
+               const std::string &meshTexturePath = "")
+    : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
+{}
 
 
   ///
@@ -201,24 +185,16 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_DEPRECECATED_DECLARATIONS
   ///
   /// \deprecated This constructor is now deprecated, and its argument order has been changed.
   ///
-  PINOCCHIO_DEPRECATED GeometryObject(const std::string & name,
+  PINOCCHIO_DEPRECATED GeometryObject(const std::string &name,
                                       const JointIndex parent_joint,
-                                      const CollisionGeometryPtr & collision_geometry,
-                                      const SE3 & placement,
-                                      const std::string & meshPath = "",
-                                      const Eigen::Vector3d & meshScale = Eigen::Vector3d::Ones(),
+                                      const CollisionGeometryPtr &collision_geometry,
+                                      const SE3 &placement,
+                                      const std::string &meshPath = "",
+                                      const Eigen::Vector3d &meshScale = Eigen::Vector3d::Ones(),
                                       const bool overrideMaterial = false,
-                                      const Eigen::Vector4d & meshColor = Eigen::Vector4d::Zero(),
-                                      const std::string & meshTexturePath = "")
-  : Base(name, parent_joint,std::numeric_limits<FrameIndex>::max(), placement)
-  , geometry(collision_geometry)
-  , fcl(geometry)
-  , meshPath(meshPath)
-  , meshScale(meshScale)
-  , overrideMaterial(overrideMaterial)
-  , meshColor(meshColor)
-  , meshTexturePath(meshTexturePath)
-  , disableCollision(false)
+                                      const Eigen::Vector4d &meshColor = Eigen::Vector4d(0, 0, 0, 1),
+                                      const std::string &meshTexturePath = "")
+      : Base(name, parent_joint, std::numeric_limits<FrameIndex>::max(), placement), geometry(collision_geometry), fcl(geometry), meshPath(meshPath), meshScale(meshScale), overrideMaterial(overrideMaterial), meshColor(meshColor), meshTexturePath(meshTexturePath), disableCollision(false)
   {}
 
 PINOCCHIO_COMPILER_DIAGNOSTIC_POP
