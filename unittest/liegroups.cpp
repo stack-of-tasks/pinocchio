@@ -195,6 +195,15 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
 
 struct TestJoint{
 
+  template<typename JointModel, typename JointData>
+  static void run_tests(JointModel & jmodel, JointData & jdata)
+  {
+    for (int i = 0; i <= 50; ++i)
+    {
+      test_lie_group_methods(jmodel, jdata);
+    }
+  }
+
   template <typename T>
   void operator()(const T ) const
   {
@@ -202,10 +211,7 @@ struct TestJoint{
     jmodel.setIndexes(0,0,0);
     typename T::JointDataDerived jdata = jmodel.createData();
 
-    for (int i = 0; i <= 50; ++i)
-    {
-      test_lie_group_methods(jmodel, jdata);
-    }
+    run_tests(jmodel, jdata);
   }
 
   void operator()(const pinocchio::JointModelRevoluteUnaligned & ) const
@@ -214,7 +220,7 @@ struct TestJoint{
     jmodel.setIndexes(0,0,0);
     pinocchio::JointModelRevoluteUnaligned::JointDataDerived jdata = jmodel.createData();
 
-    test_lie_group_methods(jmodel, jdata);
+    run_tests(jmodel, jdata);
   }
 
   void operator()(const pinocchio::JointModelPrismaticUnaligned & ) const
@@ -223,7 +229,7 @@ struct TestJoint{
     jmodel.setIndexes(0,0,0);
     pinocchio::JointModelPrismaticUnaligned::JointDataDerived jdata = jmodel.createData();
 
-    test_lie_group_methods(jmodel, jdata);
+    run_tests(jmodel, jdata);
   }
 
 };
