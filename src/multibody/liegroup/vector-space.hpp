@@ -51,6 +51,7 @@ namespace pinocchio
     VectorSpaceOperationTpl& operator=(const VectorSpaceOperationTpl& other)
     {
       size_.setValue(other.size_.value());
+      assert(size_.value() >= 0);
       return *this;
     }
 

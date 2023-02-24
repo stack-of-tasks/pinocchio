@@ -441,8 +441,7 @@ class MeshcatVisualizer(BaseVisualizer):
         elif isinstance(geom, hppfcl.Cylinder):
             obj = RotatedCylinder(2. * geom.halfLength, geom.radius)
         elif isinstance(geom, hppfcl.Cone):
-            RotatedCone = type("RotatedCone", (Cone,), {"intrinsic_transform": lambda self: basic_three_js_transform })
-            obj = RotatedCone(2. * geom.halfLength, geom.radius)
+            obj = RotatedCylinder(2. * geom.halfLength, 0, geom.radius, 0)
         elif isinstance(geom, hppfcl.Box):
             obj = mg.Box(npToTuple(2. * geom.halfSide))
         elif isinstance(geom, hppfcl.Sphere):

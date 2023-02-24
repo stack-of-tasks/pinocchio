@@ -434,6 +434,20 @@ namespace pinocchio
     bool check(const AlgorithmCheckerBase<D> & checker = AlgorithmCheckerBase<D>()) const
     { return checker.checkModel(*this); }
 
+    ///
+    /// \brief Check if joints have configuration limits
+    ///
+    /// \return Returns list of boolean of size model.nq.
+    ///
+    std::vector<bool> hasConfigurationLimit();
+
+    ///
+    /// \brief Check if joints have configuration limits
+    ///
+    /// \return Returns list of boolean of size model.nq.
+    ///
+    std::vector<bool> hasConfigurationLimitInTangent();
+
     /// Run check(fusion::list) with DEFAULT_CHECKERS as argument.
     bool check() const;
     

@@ -409,6 +409,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
      *
      * @param[out] v     the corresponding velocity.
      *
+     * @note             Both inputs must be well-formed configuration vectors. The output of this function is
+     *                   unspecified if inputs contain NaNs or extremal values for the underlying scalar type.
+     *
      * \cheatsheet \f$ q_1 \ominus q_0 = - \left( q_0 \ominus q_1 \right) \f$
      */
     template <class ConfigL_t, class ConfigR_t, class Tangent_t>
@@ -640,7 +643,9 @@ PINOCCHIO_LIE_GROUP_PUBLIC_INTERFACE_GENERIC(Derived,typename)
       return *this;
     }
 
-    
+    // C++11
+    // LieGroupBase(const LieGroupBase &) = delete;
+    // LieGroupBase& operator=(const LieGroupBase & /*x*/) = delete;
   }; // struct LieGroupBase
 
 } // namespace pinocchio

@@ -479,6 +479,34 @@ namespace pinocchio
     subtrees[0].push_back(joint_id);
   }
 
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  std::vector<bool> ModelTpl<Scalar,Options,JointCollectionTpl>::hasConfigurationLimit()
+  {
+    std::vector<bool> vec;
+    for(Index i=1;i<(Index)(njoints);++i)
+    {
+      const std::vector<bool> & cf_limits = joints[i].hasConfigurationLimit();
+      vec.insert(vec.end(),
+                 cf_limits.begin(),
+                 cf_limits.end());
+    }    
+    return vec;
+  }
+
+  template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
+  std::vector<bool> ModelTpl<Scalar,Options,JointCollectionTpl>::hasConfigurationLimitInTangent()
+  {
+    std::vector<bool> vec;
+    for(Index i=1;i<(Index)(njoints);++i)
+    {
+      const std::vector<bool> & cf_limits = joints[i].hasConfigurationLimitInTangent();
+      vec.insert(vec.end(),
+                 cf_limits.begin(),
+                 cf_limits.end());
+    }    
+    return vec;
+  }
+
 } // namespace pinocchio
 
 /// @endcond

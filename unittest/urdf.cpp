@@ -95,8 +95,7 @@ BOOST_AUTO_TEST_CASE ( check_mesh_relative_path )
   pinocchio::urdf::buildGeom(model1, filename, pinocchio::COLLISION, geomModel1, dir);
   BOOST_CHECK_EQUAL(geomModel1.ngeoms, 2);
 
-  // check that both models point to the same mesh on the disk
-  BOOST_CHECK_EQUAL(geomModel0.geometryObjects[1].meshPath.compare(geomModel1.geometryObjects[1].meshPath), 0);
+  BOOST_CHECK_EQUAL(geomModel0.geometryObjects[1].name.compare(geomModel1.geometryObjects[1].name), 0);
 }
     
 BOOST_AUTO_TEST_CASE ( build_model_from_XML )

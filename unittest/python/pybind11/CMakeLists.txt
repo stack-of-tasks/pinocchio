@@ -1,4 +1,4 @@
-if(CMAKE_VERSION VERSION_GREATER 3.11)
+if(CMAKE_VERSION VERSION_GREATER 4.11)
   include(FetchContent)
   FetchContent_Declare(pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11

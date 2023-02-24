@@ -170,8 +170,9 @@ FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   # Do not report:
   #  -Wconversion as the BOOST_PYTHON_FUNCTION_OVERLOADS implicitly converts.
   #  -Wcomment as latex equations have multi-line comments.
+  #  -Wself-assign-overloaded as bp::self operations trigger this
   IF(NOT WIN32)
-    TARGET_COMPILE_OPTIONS(${PYTHON_LIB_NAME} PRIVATE -Wno-conversion -Wno-comment)
+    TARGET_COMPILE_OPTIONS(${PYTHON_LIB_NAME} PRIVATE -Wno-conversion -Wno-comment -Wno-self-assign-overloaded)
   ENDIF(NOT WIN32)
   SET(PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE "pinocchio/bindings/python/context/${scalar_name}.hpp")
   TARGET_COMPILE_OPTIONS(${PYTHON_LIB_NAME} PRIVATE -DPINOCCHIO_PYTHON_CONTEXT_FILE="${PINOCCHIO_PYTHON_CONTEXT_FILE_VALUE}" -DPINOCCHIO_PYTHON_MODULE_NAME=${PYTHON_LIB_NAME})

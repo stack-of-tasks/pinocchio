@@ -132,7 +132,7 @@ In addition, the introspection done [here](https://github.com/rbd-benchmarks/rbd
 ## Ongoing developments
 
 If you want to follow the current developments, you can directly refer to the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel).
-The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
+The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) only contains the latest release. Any new Pull Request should then be submitted on the [devel branch](https://github.com/stack-of-tasks/pinocchio/tree/devel/).
 
 ## Installation
 
@@ -140,7 +140,16 @@ The [master branch](https://github.com/stack-of-tasks/pinocchio/tree/master/) on
 
 If you only need the Python bindings of Pinocchio, you may prefer to install it through [Conda](https://docs.conda.io/en/latest/). Please follow the procedure described [here](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio).
 
-**Pinocchio** is also deployed on ROS, you may follow its deployment status on [Melodic](https://index.ros.org/r/pinocchio/#melodic) or [Kinetic](https://index.ros.org/r/pinocchio/#kinetic).
+### ROS
+
+**Pinocchio** is also deployed on ROS, you may follow its deployment status below. If you're interested in using Pinocchio on systems and/or with packages that integrate with the ROS ecosystem, we recommend the installation of Pinocchio via the binaries distributed via the ROS PPA. Here, you can install Pinocchio using `sudo apt install ros-$ROS_DISTRO-pinocchio`. This installs Pinocchio with HPP-FCL support and with Python bindings. You can then depend on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`) and include it via CMake (`find_package(pinocchio REQUIRED)`) -- we include support and hooks to discover the package for both ROS1 and ROS2. An example can be found [here](https://github.com/wxmerkt/pinocchio_ros_example). Please note that we advise to always include the `pinocchio/fwd.hpp` header as the first include to avoid compilation errors from differing Boost-variant sizes.
+
+| ROS1        |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | ROS2         |                                                                                                                                                                            |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Melodic** | [![](https://build.ros.org/job/Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary/badge/icon)](https://build.ros.org/job/Mbin_uB64__pinocchio__ubuntu_bionic_amd64__binary) | &nbsp;&nbsp;&nbsp;&nbsp; | **Foxy**     | [![](https://build.ros2.org/job/Fbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Fbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
+| **Noetic**  | [![](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros.org/job/Nbin_uF64__pinocchio__ubuntu_focal_amd64__binary)   | &nbsp;&nbsp;&nbsp;&nbsp; | **Galactic** | [![](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary/badge/icon)](https://build.ros2.org/job/Gbin_uF64__pinocchio__ubuntu_focal_amd64__binary) |
+|             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Humble**   | [![](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Hbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
+|             |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | **Rolling**  | [![](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary/badge/icon)](https://build.ros2.org/job/Rbin_uJ64__pinocchio__ubuntu_jammy_amd64__binary) |
 
 ## Documentation
 
@@ -161,8 +170,8 @@ Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc
 **Pinocchio** provides support for many open-source and free visualizers:
 
 -   [Gepetto Viewer](https://github.com/Gepetto/gepetto-viewer): a C++ viewer based on [OpenSceneGraph](https://github.com/openscenegraph/OpenSceneGraph) with Python bindings and Blender export. See [here](https://github.com/stack-of-tasks/pinocchio-gepetto-viewer) for a C++ example on mixing **Pinocchio** and **Gepetto Viewer**.
--   [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embeded inside any browser.
--   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embeded inside any browser.
+-   [Meshcat](https://github.com/rdeits/meshcat): supporting visualization in Python and which can be embedded inside any browser.
+-   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embedded inside any browser.
 -   [RViz](https://github.com/ros-visualization/rviz): supporting visualization in Python and which can interact with other ROS packages.
 
 Many external viewers can also be integrated. See example [here](./bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
@@ -213,7 +222,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
 -   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes and Python bindings
 -   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and hpp-fcl support
--   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Edinburgh): ROS integration and support
+-   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Oxford): ROS integration and support
 -   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
 -   [Loïc Estève](https://github.com/lesteve) (Inria): Conda integration and support
 -   [Igor Kalevatykh](https://github.com/ikalevatykh) (Inria): Panda3d viewer support
@@ -230,13 +239,13 @@ If you have taken part to the development of **Pinocchio**, feel free to add you
 
 ## Open-source projects relying on Pinocchio
 
- * [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
- * [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
- * [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
- * [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
- * [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
- * [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
- * [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics. 
+-   [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
+-   [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
+-   [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
+-   [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
+-   [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
+-   [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
+-   [Casadi_Kin_Dyn](https://github.com/ADVRHumanoids/casadi_kin_dyn) IIT Package for generation of symbolic (SX) expressions of robot kinematics and dynamics.
 
 ## Acknowledgments
 
