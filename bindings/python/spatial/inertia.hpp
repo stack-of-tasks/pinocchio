@@ -52,7 +52,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_IGNORED_SELF_ASSIGN_OVERLOADED
         .def("__init__",
              bp::make_constructor(&InertiaPythonVisitor::makeFromMCI,
                                   bp::default_call_policies(),
-                                  (bp::arg("mass"),bp::arg("lever"),bp::arg("inertia"))),
+                                  bp::args("mass","lever","inertia")),
              "Initialize from mass, lever and 3d inertia.")
         
         .def(bp::init<>(bp::arg("self"),"Default constructor."))
