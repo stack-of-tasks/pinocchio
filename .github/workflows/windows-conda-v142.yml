@@ -30,6 +30,7 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
+        conda list
 
     - name: Display the path
       run: echo %cd%

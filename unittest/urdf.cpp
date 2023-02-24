@@ -76,6 +76,29 @@ BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
   BOOST_CHECK(model_ff.nq == 36);
 }
   
+BOOST_AUTO_TEST_CASE ( check_mesh_relative_path )
+{
+  std::string filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid.urdf");
+  const std::string dir = PINOCCHIO_MODEL_DIR;
+
+  pinocchio::Model model0;
+  pinocchio::urdf::buildModel(filename, model0);
+  pinocchio::GeometryModel geomModel0;
+  pinocchio::urdf::buildGeom(model0, filename, pinocchio::COLLISION, geomModel0, dir);
+  BOOST_CHECK_EQUAL(geomModel0.ngeoms, 2);
+
+  // check if urdf with relative mesh path without //package can be loaded
+  filename = PINOCCHIO_MODEL_DIR + std::string("/simple_humanoid_rel_mesh.urdf");
+  pinocchio::Model model1;
+  pinocchio::urdf::buildModel(filename, model1);
+  pinocchio::GeometryModel geomModel1;
+  pinocchio::urdf::buildGeom(model1, filename, pinocchio::COLLISION, geomModel1, dir);
+  BOOST_CHECK_EQUAL(geomModel1.ngeoms, 2);
+
+  // check that both models point to the same mesh on the disk
+  BOOST_CHECK_EQUAL(geomModel0.geometryObjects[1].meshPath.compare(geomModel1.geometryObjects[1].meshPath), 0);
+}
+    
 BOOST_AUTO_TEST_CASE ( build_model_from_XML )
 {
   const std::string filename = PINOCCHIO_MODEL_DIR + std::string("/example-robot-data/robots/romeo_description/urdf/romeo_small.urdf");

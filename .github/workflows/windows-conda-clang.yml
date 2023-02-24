@@ -34,6 +34,7 @@ jobs:
     - name: Install cmake and update conda
       run: |
         conda install cmake -c main
+        conda list
 
     - name: Build Pinocchio
       shell: cmd /C CALL {0}

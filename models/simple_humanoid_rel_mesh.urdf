@@ -1,0 +1,501 @@
+<?xml version="1.0"?>
+<!--
+   simple_humanoid URDF model
+
+   FIXME: fill missing data: sole, gripper and sensors
+  -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="simple_humanoid_rel_mesh">
+
+  <link name="WAIST_LINK0">
+    <inertial>
+      <origin xyz="0 0 0.0375" rpy="0 0 0"/>
+      <mass value="27"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+    <collision name="test">
+      <geometry>
+        <cylinder radius="1" length="1"/>
+      </geometry>
+    </collision>
+    <collision name="box">
+      <geometry>
+        <mesh filename="./simple_humanoid_description/box.stl" />
+      </geometry>
+    </collision>
+    <collision_checking>
+      <!--- This tells to pinocchio to replace the cylinder called "test"
+           by a capsule with the same radius and length -->
+      <capsule name="test"/>
+      <convex name="box"/>
+    </collision_checking>
+  </link>
+
+  <link name="WAIST_LINK1">
+    <inertial>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <mass value="6"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="WAIST_LINK2">
+    <inertial>
+      <origin xyz="0.11 0 0.25" rpy="0 0 0"/>
+      <mass value="30"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="WAIST_LINK3">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="13"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK1">
+    <inertial>
+      <origin xyz="0.1 0 0" rpy="0 0 0"/>
+      <mass value="3"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK2">
+    <inertial>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <mass value="0.6"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK3">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK4">
+    <inertial>
+      <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+      <mass value="0.6"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK5">
+    <inertial>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK6">
+    <inertial>
+      <origin xyz="-0.1 0 0" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LARM_LINK7">
+    <inertial>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK1">
+    <inertial>
+      <origin xyz="0.1 0 0" rpy="0 0 0"/>
+      <mass value="3"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK2">
+    <inertial>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <mass value="0.6"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK3">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK4">
+    <inertial>
+      <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+      <mass value="0.6"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK5">
+    <inertial>
+      <origin xyz="0 0 0.1" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK6">
+    <inertial>
+      <origin xyz="-0.1 0 0" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RARM_LINK7">
+    <inertial>
+      <origin xyz="0 0 -0.1" rpy="0 0 0"/>
+      <mass value="0.4"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK1">
+    <inertial>
+      <origin xyz="0 0.1 0" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK2">
+    <inertial>
+      <origin xyz="0 0 -0.15" rpy="0 0 0"/>
+      <mass value="2"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK3">
+    <inertial>
+      <origin xyz="0 0.04 0" rpy="0 0 0"/>
+      <mass value="5.1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK4">
+    <inertial>
+      <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+      <mass value="7"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK5">
+    <inertial>
+      <origin xyz="-0.15 0 0" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="LLEG_LINK6">
+    <inertial>
+      <origin xyz="0.28 0 -0.2" rpy="0 0 0"/>
+      <mass value="1.9"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK1">
+    <inertial>
+      <origin xyz="0 -0.1 0" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK2">
+    <inertial>
+      <origin xyz="0 0 -0.15" rpy="0 0 0"/>
+      <mass value="2"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK3">
+    <inertial>
+      <origin xyz="0 -0.04 0" rpy="0 0 0"/>
+      <mass value="5.1"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK4">
+    <inertial>
+      <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+      <mass value="7"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK5">
+    <inertial>
+      <origin xyz="-0.15 0 0" rpy="0 0 0"/>
+      <mass value="2.5"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+  <link name="RLEG_LINK6">
+    <inertial>
+      <origin xyz="0.28 0 -0.2" rpy="0 0 0"/>
+      <mass value="1.9"/>
+      <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
+    </inertial>
+  </link>
+
+
+
+  <!--   Joints following below -->
+
+  <joint name="RLEG_HIP_R" type="revolute">
+    <origin xyz="0 -0.09 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="WAIST_LINK0"/>
+    <child link="RLEG_LINK1"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RLEG_HIP_P" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="RLEG_LINK1"/>
+    <child link="RLEG_LINK2"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RLEG_HIP_Y" type="revolute">
+    <origin xyz="0 0 -0.3535" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="RLEG_LINK2"/>
+    <child link="RLEG_LINK3"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RLEG_KNEE" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="RLEG_LINK3"/>
+    <child link="RLEG_LINK4"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RLEG_ANKLE_P" type="revolute">
+    <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="RLEG_LINK4"/>
+    <child link="RLEG_LINK5"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RLEG_ANKLE_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="RLEG_LINK5"/>
+    <child link="RLEG_LINK6"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_SHOULDER_P" type="revolute">
+    <origin xyz="0 -0.21 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="WAIST_LINK3"/>
+    <child link="RARM_LINK1"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_SHOULDER_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="RARM_LINK1"/>
+    <child link="RARM_LINK2"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_SHOULDER_Y" type="revolute">
+    <origin xyz="0 0 -0.263" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="RARM_LINK2"/>
+    <child link="RARM_LINK3"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_ELBOW" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="RARM_LINK3"/>
+    <child link="RARM_LINK4"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_WRIST_Y" type="revolute">
+    <origin xyz="0 0 -0.247" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="RARM_LINK4"/>
+    <child link="RARM_LINK5"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_WRIST_P" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="RARM_LINK5"/>
+    <child link="RARM_LINK6"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="RARM_WRIST_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="RARM_LINK6"/>
+    <child link="RARM_LINK7"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_HIP_R" type="revolute">
+    <origin xyz="0 0.09 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="WAIST_LINK0"/>
+    <child link="LLEG_LINK1"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_HIP_P" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="LLEG_LINK1"/>
+    <child link="LLEG_LINK2"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_HIP_Y" type="revolute">
+    <origin xyz="0 0 -0.3535" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="LLEG_LINK2"/>
+    <child link="LLEG_LINK3"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_KNEE" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="LLEG_LINK3"/>
+    <child link="LLEG_LINK4"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_ANKLE_P" type="revolute">
+    <origin xyz="0 0 -0.3" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="LLEG_LINK4"/>
+    <child link="LLEG_LINK5"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LLEG_ANKLE_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="LLEG_LINK5"/>
+    <child link="LLEG_LINK6"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_SHOULDER_P" type="revolute">
+    <origin xyz="0 0.21 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="WAIST_LINK3"/>
+    <child link="LARM_LINK1"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_SHOULDER_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="LARM_LINK1"/>
+    <child link="LARM_LINK2"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_SHOULDER_Y" type="revolute">
+    <origin xyz="0 0 -0.263" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="LARM_LINK2"/>
+    <child link="LARM_LINK3"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_ELBOW" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="LARM_LINK3"/>
+    <child link="LARM_LINK4"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_WRIST_Y" type="revolute">
+    <origin xyz="0 0 -0.247" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="LARM_LINK4"/>
+    <child link="LARM_LINK5"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_WRIST_P" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="LARM_LINK5"/>
+    <child link="LARM_LINK6"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="LARM_WRIST_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="LARM_LINK6"/>
+    <child link="LARM_LINK7"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="WAIST_P" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <parent link="WAIST_LINK0"/>
+    <child link="WAIST_LINK1"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="WAIST_R" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <parent link="WAIST_LINK1"/>
+    <child link="WAIST_LINK2"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+  <joint name="CHEST" type="revolute">
+    <origin xyz="0 0 0.35" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <parent link="WAIST_LINK2"/>
+    <child link="WAIST_LINK3"/>
+    <limit effort="30" lower="0" upper="0" velocity="0" />
+  </joint>
+
+</robot>
