@@ -149,8 +149,40 @@ namespace pinocchio
         for (Eigen::Index j = 0; j < n; ++j)
           dst(i, j) = src(i, j);
     }
-    
-    
+
+    // Copy casadi matrix to Eigen::Tensor
+    template <typename TensorDerived, typename Scalar>
+    inline void copy(::casadi::Matrix<Scalar> const &src,
+                     Eigen::TensorBase<TensorDerived> &dst_)
+    {
+      TensorDerived &dst = static_cast<TensorDerived &>(dst_);
+      Eigen::Index const m = src.size1();
+      Eigen::Index const n = src.size2();
+      // Eigen::Index const d = 1;
+      //dst.resize(d, m, n); // TODO(jcarpent) enable the resize depending on the tensor type. Otherwise we should throw an error.
+
+      for (Eigen::Index i = 0; i < m; ++i)
+        for (Eigen::Index j = 0; j < n; ++j)
+          dst(0, i, j) = src(i, j);
+    }
+
+    // Copy Eigen matrix to casadi matrix
+    template <typename TensorDerived, typename Scalar>
+    inline void copy(Eigen::TensorBase<TensorDerived> const &_src,
+                     ::casadi::Matrix<Scalar> &dst)
+    {
+      const TensorDerived &src = static_cast<const TensorDerived &>(_src);
+      Eigen::Index const m = src.dimension(1);
+      Eigen::Index const n = src.dimension(2);
+
+      PINOCCHIO_CHECK_ARGUMENT_SIZE(src.dimension(0), 1);
+      dst.resize(m, n);
+
+      for (Eigen::Index i = 0; i < m; ++i)
+        for (Eigen::Index j = 0; j < n; ++j)
+          dst(i, j) = src(0, i, j);
+    }
+
     // Copy Eigen matrix to casadi matrix
     template<typename MT, typename Scalar>
     inline void copy(Eigen::MatrixBase<MT> const & src,
