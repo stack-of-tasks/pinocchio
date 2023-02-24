@@ -233,7 +233,7 @@ struct EigenToPy<MatType,::casadi::Matrix<_Scalar> >
     assert(casadi_matrix_swig_obj != NULL);
     
     CasadiMatrix * casadi_matrix_obj_ptr = reinterpret_cast<CasadiMatrix*>(casadi_matrix_swig_obj->ptr);
-    pinocchio::casadi::copy(mat.derived(),*casadi_matrix_obj_ptr);
+    pinocchio::casadi::copy(mat,*casadi_matrix_obj_ptr);
     
     Py_DECREF(reinterpret_cast<PyObject *>(casadi_matrix_swig_obj));
     return casadi_matrix_py_ptr;
