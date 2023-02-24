@@ -234,8 +234,21 @@ namespace pinocchio
               "Returns the Jacobian time variation of the frame given by its frame_id either in the reference frame provided by reference_frame.\n"
               "You have to call computeJointJacobiansTimeVariation(model,data,q,v) and updateFramePlacements(model,data) first.");
 
+      bp::def("computeSupportedInertiaByFrame",
+              &computeSupportedInertiaByFrame<double,0,JointCollectionDefaultTpl>,
+              bp::args("model", "data", "frame_id", "with_subtree"),
+              "Computes the supported inertia by the frame (given by frame_id) and returns it.\n"
+              "The supported inertia corresponds to the sum of the inertias of all the child frames (that belongs to the same joint body) and the child joints, if with_subtree=True.\n"
+              "You must first call pinocchio::forwardKinematics to update placement values in data structure.");
+
+      bp::def("computeSupportedForceByFrame",
+              &computeSupportedForceByFrame<double,0,JointCollectionDefaultTpl>,
+              bp::args("model","data","frame_id"),
+              "Computes the supported force of the frame (given by frame_id) and returns it.\n"
+              "The supported force corresponds to the sum of all the forces experienced after the given frame.\n"
+              "You must first call pinocchio::rnea to update placement values in data structure.");
+
     }
-  
   } // namespace python
 
 } // namespace pinocchio

@@ -20,7 +20,7 @@ jobs:
     - name: Checkout submodules
       run: |
         git submodule update --init
-    - uses: goanpeca/setup-miniconda@v1
+    - uses: goanpeca/setup-miniconda@v2
       env:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:

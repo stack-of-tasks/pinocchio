@@ -24,7 +24,11 @@ namespace hpp
   namespace fcl
   {
     class MeshLoader;
+#ifdef PINOCCHIO_HPPFCL_USE_STD_SHARED_PTR
+    typedef std::shared_ptr<MeshLoader> MeshLoaderPtr;
+#else
     typedef boost::shared_ptr<MeshLoader> MeshLoaderPtr;
+#endif
   }
 }
 /// \endcond

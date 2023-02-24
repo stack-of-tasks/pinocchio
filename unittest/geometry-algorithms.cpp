@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
-  std::shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
+  shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_1 = model.getBodyId("planar1_body");
   Model::JointIndex joint_parent_1 = model.frames[body_id_1].parentJoint;
   Model::JointIndex idx_geom1 = geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   geomModel.geometryObjects[idx_geom1].parentJoint = model.frames[body_id_1].parentJoint;
   
   
-  std::shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
+  shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_2 = model.getBodyId("planar2_body");
   Model::JointIndex joint_parent_2 = model.frames[body_id_2].parentJoint;
   Model::JointIndex idx_geom2 = geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
                                                             model);
   BOOST_CHECK(geomModel.geometryObjects[idx_geom2].parentJoint == model.frames[body_id_2].parentJoint);
   
-  std::shared_ptr<fcl::Box> universe_body_geometry(new fcl::Box(1, 1, 1));
+  shared_ptr<fcl::Box> universe_body_geometry(new fcl::Box(1, 1, 1));
   model.addBodyFrame("universe_body", 0, SE3::Identity());
   Model::FrameIndex body_id_3 = model.getBodyId("universe_body");
   Model::JointIndex joint_parent_3 = model.frames[body_id_3].parentJoint;
@@ -290,6 +290,15 @@ BOOST_AUTO_TEST_CASE(test_append_geom_models)
   
   appendGeometryModel(geom_model2,geom_model1);
   BOOST_CHECK(geom_model2.ngeoms == 2*geom_model1.ngeoms);
+
+  // Check that collision pairs between geoms on the same joint are discarded.
+  for (pinocchio::Index i = 0; i < geom_model2.collisionPairs.size(); ++i) {
+    pinocchio::CollisionPair cp = geom_model2.collisionPairs[i];
+    BOOST_CHECK_NE(
+        geom_model2.geometryObjects[cp.first].parentJoint,
+        geom_model2.geometryObjects[cp.second].parentJoint
+    );
+  }
   
   {
     GeometryModel geom_model_empty;

@@ -4,12 +4,15 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/multibody/data.hpp"
+#include "pinocchio/algorithm/model.hpp"
 #include "pinocchio/algorithm/jacobian.hpp"
 #include "pinocchio/algorithm/frames.hpp"
 #include "pinocchio/algorithm/rnea.hpp"
+#include "pinocchio/algorithm/crba.hpp"
 #include "pinocchio/spatial/act-on-set.hpp"
 #include "pinocchio/parsers/sample-models.hpp"
 #include "pinocchio/utils/timer.hpp"
+#include "pinocchio/parsers/urdf.hpp"
 #include "pinocchio/algorithm/joint-configuration.hpp"
 
 #include <iostream>
@@ -613,6 +616,69 @@ BOOST_AUTO_TEST_CASE ( test_frame_jacobian_time_variation )
     BOOST_CHECK(dJ_local_world_aligned.isApprox(dJ_ref_local_world_aligned,sqrt(alpha)));
   }
 }
-             
-BOOST_AUTO_TEST_SUITE_END ()
 
+BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  // Create a humanoid robot
+  Model model_free;
+  pinocchio::buildModels::humanoid(model_free, true);
+  Data data_free(model_free);
+
+  // Set freeflyer limits to allow for randomConfiguration
+  model_free.lowerPositionLimit.segment(0, 3) << Vector3d::Constant(-1);
+  model_free.upperPositionLimit.segment(0, 3) << Vector3d::Constant( 1);
+
+  // Joint of interest (that will be converted to frame)
+  const std::string joint_name = "chest2_joint";
+  const JointIndex joint_id = model_free.getJointId(joint_name);
+
+  // Duplicate of the model with the joint of interest fixed (to make a frame)
+  pinocchio::Model model_fix = buildReducedModel(model_free, {joint_id}, neutral(model_free));
+  Data data_fix(model_fix);
+  const FrameIndex frame_id = model_fix.getFrameId(joint_name);
+
+  // Const variable to help convert q, v, a from one model to another
+  const int joint_idx_q(model_free.joints[joint_id].idx_q());
+  const int joint_idx_v(model_free.joints[joint_id].idx_v());
+
+  // Pick random q, v, a
+  VectorXd q_free = randomConfiguration(model_free);
+  VectorXd v_free(VectorXd::Random(model_free.nv));
+  VectorXd a_free(VectorXd::Random(model_free.nv));
+
+  // Set joint of interest to q, v, a = 0 to mimic the fixed joint
+  q_free[joint_idx_q] =  0;
+  v_free[joint_idx_v] =  0;
+  a_free[joint_idx_v] =  0;
+
+  // Adapt configuration for fixed joint model
+  VectorXd q_fix(model_fix.nq);
+  q_fix << q_free.head(joint_idx_q), q_free.tail(model_free.nq - joint_idx_q - 1);
+  VectorXd v_fix(model_fix.nv);
+  v_fix << v_free.head(joint_idx_v), v_free.tail(model_free.nv - joint_idx_v - 1);
+  VectorXd a_fix(model_fix.nv);
+  a_fix << a_free.head(joint_idx_v), a_free.tail(model_free.nv - joint_idx_v - 1);
+
+  // Compute inertia/force for both models differently
+  forwardKinematics(model_fix, data_fix, q_fix, v_fix, a_fix);
+  crba(model_free, data_free, q_free);
+
+  Inertia inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, false);
+  Inertia inertia_free(model_free.inertias[joint_id]);
+  BOOST_CHECK(inertia_fix.isApprox(inertia_free));
+
+  inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, true);
+  inertia_free = data_free.Ycrb[joint_id];
+  BOOST_CHECK(inertia_fix.isApprox(inertia_free));
+
+  rnea(model_fix, data_fix, q_fix, v_fix, a_fix);
+  rnea(model_free,  data_free,  q_free,  v_free,  a_free);
+
+  Force force_fix = computeSupportedForceByFrame(model_fix, data_fix, frame_id);
+  Force force_free(data_free.f[joint_id]);
+  BOOST_CHECK(force_fix.isApprox(force_free));
+}
+BOOST_AUTO_TEST_SUITE_END ()
