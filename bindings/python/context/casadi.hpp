@@ -60,8 +60,9 @@ private:
 
 } // namespace casadi
 
-template<typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-struct expected_pytype_for_arg<Eigen::Matrix<::casadi::Matrix<CasadiScalar>, Rows, Cols, Options, MaxRows, MaxCols> >
+template <typename CasadiScalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+struct expected_pytype_for_arg<Eigen::Matrix<::casadi::Matrix<CasadiScalar>, Rows, Cols, Options, MaxRows, MaxCols>,
+                               Eigen::MatrixBase<Eigen::Matrix<::casadi::Matrix<CasadiScalar>, Rows, Cols, Options, MaxRows, MaxCols>> >
 {
   static PyTypeObject const *get_pytype()
   {
