@@ -16,6 +16,7 @@ namespace python
 
   typedef PGSContactSolverTpl<context::Scalar> Solver;
 
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
   static bool solve_wrapper(Solver & solver, const context::MatrixXs & G,
                             const context::VectorXs & g, const context::CoulombFrictionConeVector & cones,
                             Eigen::Ref<context::VectorXs> x,
@@ -23,9 +24,11 @@ namespace python
   {
     return solver.solve(G,g,cones,x,over_relax);
   }
+#endif
 
   void exposePGSContactSolver()
   {
+#ifdef PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
     bp::class_<Solver>("PGSSolver",
                        "Projected Gauss Siedel solver.",
                        bp::init<int>(bp::args("self","problem_dim"),"Default constructor."))
@@ -55,6 +58,7 @@ namespace python
     .def("getRelativeConvergenceResidual",&Solver::getRelativeConvergenceResidual,bp::arg("self"),
          "Returns the value of the relative residual value corresponding to the difference between two successive iterates (infinity norms).")
     ;
+#endif
   }
 
 
