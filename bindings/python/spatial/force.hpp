@@ -146,15 +146,7 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       
       static void expose()
       {
-        typedef pinocchio::ForceBase<Force> ForceBase;
-        bp::objects::register_dynamic_id<ForceBase>();
-        bp::objects::register_conversion<Force,ForceBase>(false);
-        
-        typedef pinocchio::ForceDense<Force> ForceDense;
-        bp::objects::register_dynamic_id<ForceBase>();
-        bp::objects::register_conversion<Force,ForceDense>(false);
-        
-#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+#if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2,9,0)
     typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Force) HolderType;
 #else
     typedef ::boost::python::detail::not_specified HolderType;
