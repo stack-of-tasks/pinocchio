@@ -384,7 +384,8 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
-      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t, d) = quaternion::log3(quat0.conjugate()*quat1);
+      PINOCCHIO_EIGEN_CONST_CAST(Tangent_t,d)
+        = quaternion::log3(Quaternion_t(quat0.conjugate() * quat1));
     }
 
     template <ArgumentPosition arg, class ConfigL_t, class ConfigR_t, class JacobianOut_t>
@@ -399,17 +400,34 @@ namespace pinocchio
       ConstQuaternionMap_t quat1 (q1.derived().data());
       assert(quaternion::isNormalized(quat1,RealScalar(PINOCCHIO_DEFAULT_QUATERNION_NORM_TOLERANCE_VALUE)));
       
+      // TODO: check whether the merge with 2.6.9 is correct
       const Quaternion_t q = quat0.conjugate() * quat1;
       const Matrix3 R = q.matrix();
 
+      if (arg == ARG0)
+      {
+          JacobianMatrix_t J1;
+          Jlog3(R, J1);
+
+          PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t, J).noalias() = -J1 * R.transpose();
+      }
+      else if (arg == ARG1)
+      {
+          Jlog3(R, J);
+      }
+      /*
+      const Quaternion_t quat_diff = quat0.conjugate() * quat1;
+
       if (arg == ARG0) {
         JacobianMatrix_t J1;
-        Jlog3 (R, J1);
+        quaternion::Jlog3(quat_diff, J1);
+        const Matrix3 R = (quat_diff).matrix();
 
         PINOCCHIO_EIGEN_CONST_CAST(JacobianOut_t,J).noalias() = - J1 * R.transpose();
       } else if (arg == ARG1) {
-        Jlog3 (R, J);
+        quaternion::Jlog3(quat_diff, J);
       }
+      */
     }
 
     template <class ConfigIn_t, class Velocity_t, class ConfigOut_t>

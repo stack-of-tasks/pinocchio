@@ -13,7 +13,7 @@ jobs:
         os: ["ubuntu-latest", "macos-latest"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1

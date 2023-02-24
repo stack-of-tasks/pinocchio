@@ -14,6 +14,7 @@ jobs:
         env:
           - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic}
+          - {ROS_DISTRO: rolling, BUILDER: colcon}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
       # The following is a work-around for ROS tooling in conjunction with jrl-cmakemodules:
@@ -25,14 +26,14 @@ jobs:
       # target after completion of the regular test target. The output of this step does affect the output of the CI process.
       # Note, this does not affect projects that do not have pure CMake projects in their upstream_ws.
       BUILDER: catkin_tools
-      AFTER_RUN_TARGET_TEST: 'source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
+      AFTER_RUN_TARGET_TEST: 'ici_with_unset_variables source /root/target_ws/install/setup.bash && cd /root/target_ws/build/pinocchio && make test'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
       # This step will fetch/store the directory used by ccache before/after the ci run
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}

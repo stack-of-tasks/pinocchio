@@ -90,7 +90,6 @@ void test_lie_group_methods (T & jmodel, typename T::JointDataDerived &)
   LieGroupType().integrate(qTest, qTest_dot, qTest);
   BOOST_CHECK_MESSAGE(LieGroupType().isNormalized(qTest),
     std::string("Normalization error when integrating with same input and output " + jmodel.shortname()));
-
   SE3 MTest, MResult;
   {
     typename T::JointDataDerived jdata = jmodel.createData();
@@ -693,6 +692,18 @@ BOOST_AUTO_TEST_CASE(test_dim_computation)
   BOOST_CHECK(dim == Eigen::Dynamic);
   dim = eval_set_dim<1,Eigen::Dynamic>::value;
   BOOST_CHECK(dim == Eigen::Dynamic);
+}
+
+BOOST_AUTO_TEST_CASE (small_distance_test)
+{
+  SpecialOrthogonalOperationTpl <3,double> so3;
+  Eigen::VectorXd q1(so3.nq());
+  Eigen::VectorXd q2(so3.nq());
+  q1 << 0,0,-0.1953711450011105244,0.9807293794421349169;
+  q2 << 0,0,-0.19537114500111049664,0.98072937944213492244;
+
+  BOOST_CHECK_MESSAGE (so3.distance(q1,q2) > 0.,
+                       "SO3 small distance - wrong results");
 }
 
 template<typename LieGroupCollection>

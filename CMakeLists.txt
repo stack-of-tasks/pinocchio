@@ -37,7 +37,6 @@ COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/boost.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/python.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/ide.cmake)
 INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmake/apple.cmake)
 IF(APPLE) # Use the handmade approach
@@ -138,8 +137,8 @@ ADD_PROJECT_DEPENDENCY(Eigen3 REQUIRED PKG_CONFIG_REQUIRES "eigen3 >= 3.0.5")
 SET(CFLAGS_DEPENDENCIES)
 
 IF(BUILD_WITH_URDF_SUPPORT)
-  ADD_PROJECT_DEPENDENCY(urdfdom_headers)
-  ADD_PROJECT_DEPENDENCY(urdfdom PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
+  ADD_PROJECT_DEPENDENCY(urdfdom_headers REQUIRED)
+  ADD_PROJECT_DEPENDENCY(urdfdom REQUIRED PKG_CONFIG_REQUIRES "urdfdom >= 0.2.0")
   SET(urdfdom_VERSION ${urdfdom_headers_VERSION})
   ADD_DEFINITIONS(-DPINOCCHIO_WITH_URDFDOM)
   LIST(APPEND CFLAGS_DEPENDENCIES "-DPINOCCHIO_WITH_URDFDOM")
@@ -236,11 +235,6 @@ ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 # but it avoids any compilation issue.
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_LIST_SIZE=30)
 ADD_DEFINITIONS(-DBOOST_MPL_LIMIT_VECTOR_SIZE=30)
-
-LIST(APPEND CFLAGS_DEPENDENCIES "-DBOOST_MPL_LIMIT_LIST_SIZE=30")
-
-# Path to boost headers
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIRS})
 
 # ----------------------------------------------------
 # --- INCLUDE ----------------------------------------
@@ -476,3 +470,7 @@ INSTALL(FILES package.xml DESTINATION share/${PROJECT_NAME})
 # Allows Colcon to find non-Ament packages when using workspace underlays
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv "prepend-non-duplicate;PYTHONPATH;${PYTHON_SITELIB}")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/python_path.dsv DESTINATION share/${PROJECT_NAME}/hook)

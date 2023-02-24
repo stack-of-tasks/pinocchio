@@ -1,0 +1,6 @@
+{
+    "hooks": [
+        "share/pinocchio/hook/ament_prefix_path.dsv",
+        "share/pinocchio/hook/python_path.dsv"
+    ]
+}

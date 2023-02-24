@@ -84,6 +84,7 @@ IF(BUILD_PYTHON_INTERFACE)
         meshcat-viewer
         collisions
         collision-with-point-clouds
+        append-urdf-model-with-another-model
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(BUILD_WITH_COLLISION_SUPPORT)
