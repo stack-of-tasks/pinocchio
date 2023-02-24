@@ -146,6 +146,14 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
       
       static void expose()
       {
+        typedef pinocchio::ForceBase<Force> ForceBase;
+        bp::objects::register_dynamic_id<ForceBase>();
+        bp::objects::register_conversion<Force, ForceBase>(false);
+
+        typedef pinocchio::ForceDense<Force> ForceDense;
+        bp::objects::register_dynamic_id<ForceBase>();
+        bp::objects::register_conversion<Force, ForceDense>(false);
+        
 #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 6 && EIGENPY_VERSION_AT_LEAST(2,9,0)
     typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Force) HolderType;
 #else
@@ -161,9 +169,8 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         .def(CopyableVisitor<Force>())
         .def(PrintableVisitor<Force>())
         ;
-        
       }
-      
+
     private:
       
       struct Pickle : bp::pickle_suite
