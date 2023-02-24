@@ -110,7 +110,7 @@ namespace pinocchio
           {
             RowMatrixBlockXpr tmp_mat = const_cast<ContactCholeskyDecompositionTpl&>(self).OSIMinv_tmp.topLeftCorner(self.constraintDim(),x.cols());
 //            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1.adjoint(), x.derived(), tmp_mat);
+            triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
             tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
 //            res.const_cast_derived().noalias() = U1 * tmp_mat;
             triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
@@ -119,7 +119,7 @@ namespace pinocchio
           {
             RowMatrix tmp_mat(x.rows(),x.cols());
 //            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1.adjoint(), x.derived(), tmp_mat);
+            triangularMatrixMatrixProduct<Eigen::UnitLower>(U1.adjoint(), x.derived(), tmp_mat);
             tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
 //            res.const_cast_derived().noalias() = U1 * tmp_mat;
             triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
