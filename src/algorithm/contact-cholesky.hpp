@@ -104,26 +104,25 @@ namespace pinocchio
 
           PINOCCHIO_EIGEN_MALLOC_NOT_ALLOWED();
 
-          const Eigen::TriangularView<RowMatrixConstBlockXpr,Eigen::UnitUpper> U1
-          = self.U.topLeftCorner(self.constraintDim(),self.constraintDim()).template triangularView<Eigen::UnitUpper>();
+          const RowMatrixConstBlockXpr U1 = self.U.topLeftCorner(self.constraintDim(), self.constraintDim());
 
           if(x.cols() <= self.constraintDim())
           {
             RowMatrixBlockXpr tmp_mat = const_cast<ContactCholeskyDecompositionTpl&>(self).OSIMinv_tmp.topLeftCorner(self.constraintDim(),x.cols());
 //            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct(U1.adjoint(), x.derived(), tmp_mat);
+            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1.adjoint(), x.derived(), tmp_mat);
             tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
 //            res.const_cast_derived().noalias() = U1 * tmp_mat;
-            triangularMatrixMatrixProduct(U1, tmp_mat, res.const_cast_derived());
+            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
           }
           else // do memory allocation
           {
             RowMatrix tmp_mat(x.rows(),x.cols());
 //            tmp_mat.noalias() = U1.adjoint() * x;
-            triangularMatrixMatrixProduct(U1.adjoint(), x.derived(), tmp_mat);
+            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1.adjoint(), x.derived(), tmp_mat);
             tmp_mat.array().colwise() *= -self.D.head(self.constraintDim()).array();
 //            res.const_cast_derived().noalias() = U1 * tmp_mat;
-            triangularMatrixMatrixProduct(U1, tmp_mat, res.const_cast_derived());
+            triangularMatrixMatrixProduct<Eigen::UnitUpper>(U1, tmp_mat, res.const_cast_derived());
           }
 
           PINOCCHIO_EIGEN_MALLOC_ALLOWED();
