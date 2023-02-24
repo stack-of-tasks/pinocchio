@@ -1,13 +1,13 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 // Copyright (c) 2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 //
 
 #ifndef __pinocchio_python_spatial_motion_hpp__
 #define __pinocchio_python_spatial_motion_hpp__
 
+#include <eigenpy/eigenpy.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/python/implicit.hpp>
 
@@ -168,7 +168,12 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
         bp::objects::register_dynamic_id<MotionDense>();
         bp::objects::register_conversion<Motion,MotionDense>(false);
         
-        bp::class_<Motion>("Motion",
+#if BOOST_VERSION / 100 % 1000 < 71 && EIGENPY_VERSION_AT_LEAST(2,9,0)
+    typedef PINOCCHIO_SHARED_PTR_HOLDER_TYPE(Motion) HolderType;
+#else
+    typedef ::boost::python::detail::not_specified HolderType;
+#endif
+        bp::class_<Motion,HolderType>("Motion",
                            "Motion vectors, in se3 == M^6.\n\n"
                            "Supported operations ...",
                            bp::no_init)

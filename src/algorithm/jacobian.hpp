@@ -51,7 +51,12 @@ namespace pinocchio
                         DataTpl<Scalar,Options,JointCollectionTpl> & data);
 
   ///
-  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame, in the local world aligned (rf = LOCAL_WORLD_ALIGNED) frame or in the local frame (rf = LOCAL) of the joint.
+  /// \brief Computes the Jacobian of a specific joint frame expressed either in the world (rf = WORLD) frame or in the local frame (rf = LOCAL) of the joint.
+  ///
+  /// For the world frame W, the Jacobian \f${}^0 J_{0j}$ from the joint frame \f$j$ to the world frame $0$ is such that \f${}^0 v_{0j} = {}^0 J_{0j} \dot{q}$,
+  /// where \f${}^0 v_{0j}$ is the spatial velocity of the joint frame. (When serialized to a 6D vector, the three linear coordinates are followed by the three
+  /// angular coordinates).
+  ///
   /// \note This jacobian is extracted from data.J. You have to run pinocchio::computeJointJacobians before calling it.
   ///
   /// \tparam JointCollection Collection of Joint types.
