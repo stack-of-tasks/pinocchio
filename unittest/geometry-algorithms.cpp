@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   model.appendBodyToJoint(idx,Inertia::Random(),SE3::Identity());
   model.addBodyFrame("planar2_body", idx, SE3::Identity());
   
-  shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
+  std::shared_ptr<fcl::Box> sample(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_1 = model.getBodyId("planar1_body");
   Model::JointIndex joint_parent_1 = model.frames[body_id_1].parentJoint;
   Model::JointIndex idx_geom1 = geomModel.addGeometryObject(GeometryObject("ff1_collision_object",
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
   geomModel.geometryObjects[idx_geom1].parentJoint = model.frames[body_id_1].parentJoint;
   
   
-  shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
+  std::shared_ptr<fcl::Box> sample2(new fcl::Box(1, 1, 1));
   Model::FrameIndex body_id_2 = model.getBodyId("planar2_body");
   Model::JointIndex joint_parent_2 = model.frames[body_id_2].parentJoint;
   Model::JointIndex idx_geom2 = geomModel.addGeometryObject(GeometryObject("ff2_collision_object",
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(test_simple_boxes)
                                                             model);
   BOOST_CHECK(geomModel.geometryObjects[idx_geom2].parentJoint == model.frames[body_id_2].parentJoint);
   
-  shared_ptr<fcl::Box> universe_body_geometry(new fcl::Box(1, 1, 1));
+  std::shared_ptr<fcl::Box> universe_body_geometry(new fcl::Box(1, 1, 1));
   model.addBodyFrame("universe_body", 0, SE3::Identity());
   Model::FrameIndex body_id_3 = model.getBodyId("universe_body");
   Model::JointIndex joint_parent_3 = model.frames[body_id_3].parentJoint;

@@ -15,7 +15,7 @@
 #define PINOCCHIO_URDF_WEAK_PTR(type) std::weak_ptr<type>
 #else
 #include <boost/shared_ptr.hpp>
-#define PINOCCHIO_URDF_SHARED_PTR(type) boost::shared_ptr<type>
+#define PINOCCHIO_URDF_SHARED_PTR(type) std::shared_ptr<type>
 #define PINOCCHIO_URDF_WEAK_PTR(type) boost::weak_ptr<type>
 #endif
 

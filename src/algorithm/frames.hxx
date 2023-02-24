@@ -273,7 +273,7 @@ namespace pinocchio
     typedef InertiaTpl<Scalar, Options> Inertia;
 
     const Frame & frame = model.frames[frame_id];
-    const JointIndex & joint_id = frame.parent;
+    const JointIndex &joint_id = frame.parentJoint;
 
     // Add all the inertia of child frames (i.e that are part of the same joint but comes after the given frame)
     std::vector<typename Model::JointIndex> child_frames = {frame_id};
@@ -320,7 +320,7 @@ namespace pinocchio
     typedef ForceTpl<Scalar, Options> Force;
 
     const Frame & frame = model.frames[frame_id];
-    const JointIndex & joint_id = frame.parent;
+    const JointIndex &joint_id = frame.parentJoint;
 
     // Compute 'in body' forces
     const Inertia fI = computeSupportedInertiaByFrame(model, data, frame_id, false);

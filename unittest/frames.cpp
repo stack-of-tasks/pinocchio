@@ -671,7 +671,7 @@ BOOST_AUTO_TEST_CASE(test_supported_inertia_and_force)
   BOOST_CHECK(inertia_fix.isApprox(inertia_free));
 
   inertia_fix = computeSupportedInertiaByFrame(model_fix, data_fix, frame_id, true);
-  inertia_free = data_free.Ycrb[joint_id];
+  inertia_free = data_free.oMi[joint_id].actInv(data_free.oYcrb[joint_id]);
   BOOST_CHECK(inertia_fix.isApprox(inertia_free));
 
   rnea(model_fix, data_fix, q_fix, v_fix, a_fix);

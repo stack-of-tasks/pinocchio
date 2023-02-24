@@ -540,34 +540,6 @@ namespace pinocchio
 
     template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
     ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const boost::shared_ptr< ::urdf::ModelInterface> urdfTree,
-               const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
-               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const bool verbose)
-    {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
-      details::UrdfVisitorWithRootJoint<Scalar, Options, JointCollectionTpl> visitor (model, rootJoint);
-      if (verbose) visitor.log = &std::cout;
-      details::parseRootTree(urdfTree.get(), visitor);
-      return model;
-    }
-
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    ModelTpl<Scalar,Options,JointCollectionTpl> &
-    buildModel(const boost::shared_ptr< ::urdf::ModelInterface> urdfTree,
-               ModelTpl<Scalar,Options,JointCollectionTpl> & model,
-               const bool verbose)
-    {
-      PINOCCHIO_CHECK_INPUT_ARGUMENT(urdfTree != NULL);
-      details::UrdfVisitor<Scalar, Options, JointCollectionTpl> visitor (model);
-      if (verbose) visitor.log = &std::cout;
-      details::parseRootTree(urdfTree.get(), visitor);
-      return model;
-    }
-
-#ifdef PINOCCHIO_WITH_CXX11_SUPPORT
-    template<typename Scalar, int Options, template<typename,int> class JointCollectionTpl>
-    ModelTpl<Scalar,Options,JointCollectionTpl> &
     buildModel(const std::shared_ptr< ::urdf::ModelInterface> urdfTree,
                const typename ModelTpl<Scalar,Options,JointCollectionTpl>::JointModel & rootJoint,
                ModelTpl<Scalar,Options,JointCollectionTpl> & model,
@@ -592,7 +564,6 @@ namespace pinocchio
       details::parseRootTree(urdfTree.get(), visitor);
       return model;
     }
-#endif
 
   } // namespace urdf
 } // namespace pinocchio
