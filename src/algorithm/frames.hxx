@@ -280,9 +280,9 @@ namespace pinocchio
     Inertia I = frame.placement.act(frame.inertia); // Express the inertia in the parent joint frame
     for(FrameIndex i=frame_id+1; i < (FrameIndex) model.nframes; ++i)
     {
-      if(model.frames[i].parent != joint_id)
+      if(model.frames[i].parentJoint != joint_id)
         continue;
-      if(std::find(child_frames.begin(), child_frames.end(), model.frames[i].previousFrame) == child_frames.end())
+      if(std::find(child_frames.begin(), child_frames.end(), model.frames[i].parentFrame) == child_frames.end())
         continue;
       child_frames.push_back(i);
       I += model.frames[i].placement.act(model.frames[i].inertia);

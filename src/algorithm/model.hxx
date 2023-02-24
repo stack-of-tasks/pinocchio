@@ -40,7 +40,7 @@ namespace pinocchio
     {
       const FrameIndex frame_id = model_in.getFrameId(frame_name_in_model_in);
       assert(frame_id < model_in.frames.size());
-      if(frame_id == 0 && model_in.frames[0].previousFrame == 0 && model_in.frames[0].parent == 0) // This is the universe, maybe renamed.
+      if(frame_id == 0 && model_in.frames[0].parentFrame == 0 && model_in.frames[0].parent == 0) // This is the universe, maybe renamed.
         return model_out.getFrameId(model_out.frames[0].name,type);
       else
         return model_out.getFrameId(frame_name_in_model_in,type);
@@ -81,8 +81,8 @@ namespace pinocchio
           frame.parentJoint = jid;
           if (frame.parentFrame != 0)
           {
-            frame.previousFrame = getFrameId(modelAB,model,modelAB.frames[frame.previousFrame].name,
-                                             modelAB.frames[frame.previousFrame].type);
+            frame.parentFrame = getFrameId(modelAB,model,modelAB.frames[frame.parentFrame].name,
+                                             modelAB.frames[frame.parentFrame].type);
           }
           else
           {
@@ -182,7 +182,7 @@ namespace pinocchio
             assert (frame.parentFrame > 0 || frame.type == JOINT);
             if (frame.parentFrame != 0)
             {
-              frame.previousFrame = getFrameId(modelAB,model,modelAB.frames[frame.previousFrame].name,modelAB.frames[frame.previousFrame].type);
+              frame.parentFrame = getFrameId(modelAB,model,modelAB.frames[frame.parentFrame].name,modelAB.frames[frame.parentFrame].type);
             }
             
             model.addFrame(frame);
