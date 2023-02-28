@@ -37,18 +37,9 @@ namespace pinocchio {
         - \subpage md_doc_b-examples_a-model
         - \subpage md_doc_b-examples_ab-geometry-models
         - \subpage md_doc_b-examples_b-display
-        - \subpage md_doc_b-examples_c-dynamics
-        - \subpage md_doc_b-examples_d-contact
-        - \subpage md_doc_b-examples_e-collisions
-        - \subpage md_doc_b-examples_f-derivatives
-        - \subpage md_doc_b-examples_g-code-generation
-        - \subpage md_doc_b-examples_h-inverse-geometry
-        - \subpage md_doc_b-examples_i-inverse-kinematics
-        - \subpage md_doc_b-examples_j-tsid
-        - \subpage md_doc_b-examples_k-qp
-        - \subpage md_doc_b-examples_l-postures
-        - \subpage md_doc_b-examples_m-rrt
-        - \subpage md_doc_b-examples_n-rl
+        - \subpage md_doc_b-examples_c-collisions
+        - \subpage md_doc_b-examples_d-inverse-kinematics
+        - \subpage md_doc_b-examples_e-reduced-model
   */
 
   /** \page md_doc_b-examples_b-display
