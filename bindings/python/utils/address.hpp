@@ -5,7 +5,7 @@
 #ifndef __pinocchio_python_utils_address_hpp__
 #define __pinocchio_python_utils_address_hpp__
 
-#include <boost/python.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 namespace pinocchio
 {

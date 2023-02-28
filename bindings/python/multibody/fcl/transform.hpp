@@ -5,8 +5,6 @@
 #ifndef __pinocchio_python_fcl_transform_hpp__
 #define __pinocchio_python_fcl_transform_hpp__
 
-#include <boost/python.hpp>
-
 #include "pinocchio/spatial/se3.hpp"
 #include <hpp/fcl/math/transform.h>
 

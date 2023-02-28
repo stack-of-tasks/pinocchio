@@ -5,7 +5,6 @@
 #ifndef __pinocchio_python_geometry_functors_hpp__
 #define __pinocchio_python_geometry_functors_hpp__
 
-#include <boost/python.hpp>
 #include "pinocchio/bindings/python/utils/registration.hpp"
 
 #include "pinocchio/multibody/geometry.hpp"

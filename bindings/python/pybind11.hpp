@@ -39,7 +39,7 @@
 // This lines forces clang-format to keep the include split here
 #include <pybind11/pybind11.h>
 
-#include <boost/python.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 namespace pinocchio {
 namespace python {

@@ -5,7 +5,6 @@
 #ifndef __pinocchio_python_algorithm_proximal_hpp__
 #define __pinocchio_python_algorithm_proximal_hpp__
 
-#include <boost/python.hpp>
 #include "pinocchio/algorithm/proximal.hpp"
 
 #include <sstream>

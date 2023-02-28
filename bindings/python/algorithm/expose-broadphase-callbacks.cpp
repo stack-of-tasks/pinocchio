@@ -2,8 +2,7 @@
 // Copyright (c) 2022 INRIA
 //
 
-#include <boost/python.hpp>
-#include <eigenpy/eigen-to-python.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 #include "pinocchio/algorithm/broadphase-callbacks.hpp"
 

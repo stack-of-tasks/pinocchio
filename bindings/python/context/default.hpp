@@ -10,7 +10,7 @@
 #define PINOCCHIO_PYTHON_PLAIN_SCALAR_TYPE
 
 #include "pinocchio/bindings/python/context/generic.hpp"
-#include <boost/python.hpp>
+#include <eigenpy/eigenpy.hpp>
 
 namespace pinocchio { namespace python {
 

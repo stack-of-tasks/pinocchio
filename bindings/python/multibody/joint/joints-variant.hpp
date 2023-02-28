@@ -5,8 +5,6 @@
 #ifndef __pinocchio_python_joints_variant_hpp__
 #define __pinocchio_python_joints_variant_hpp__
 
-#include <boost/python.hpp>
-
 #include "pinocchio/utils/string.hpp"
 #include "pinocchio/multibody/joint/joint-collection.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joints-models.hpp"

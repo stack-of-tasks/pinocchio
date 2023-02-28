@@ -5,7 +5,7 @@
 #ifndef __pinocchio_python_utils_std_vector_hpp__
 #define __pinocchio_python_utils_std_vector_hpp__
 
-#include <boost/python.hpp>
+#include <eigenpy/eigenpy.hpp>
 #include <boost/python/stl_iterator.hpp>
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 #include <boost/mpl/if.hpp>

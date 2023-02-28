@@ -5,8 +5,6 @@
 #ifndef __pinocchio_python_multibody_data_hpp__
 #define __pinocchio_python_multibody_data_hpp__
 
-#include <boost/python.hpp>
-
 #include "pinocchio/multibody/data.hpp"
 #include "pinocchio/serialization/data.hpp"
 

@@ -5,8 +5,6 @@
 #ifndef __pinocchio_python_multibody_joint_joint_data_hpp__
 #define __pinocchio_python_multibody_joint_joint_data_hpp__
 
-#include <boost/python.hpp>
-
 #include "pinocchio/multibody/joint/joint-generic.hpp"
 #include "pinocchio/bindings/python/multibody/joint/joint-derived.hpp"
 #include "pinocchio/bindings/python/utils/printable.hpp"

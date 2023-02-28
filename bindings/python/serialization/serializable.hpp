@@ -5,8 +5,6 @@
 #ifndef __pinocchio_python_serialization_serializable_hpp__
 #define __pinocchio_python_serialization_serializable_hpp__
 
-#include <boost/python.hpp>
-
 #include "pinocchio/serialization/serializable.hpp"
 #include "pinocchio/bindings/python/serialization/serialization.hpp"
 

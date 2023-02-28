@@ -6,7 +6,6 @@
 #define __pinocchio_python_algorithms_hpp__
 
 #include "pinocchio/bindings/python/fwd.hpp"
-#include <boost/python.hpp>
 
 namespace pinocchio
 {

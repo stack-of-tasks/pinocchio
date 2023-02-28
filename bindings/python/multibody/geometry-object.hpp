@@ -5,9 +5,7 @@
 #ifndef __pinocchio_python_geometry_object_hpp__
 #define __pinocchio_python_geometry_object_hpp__
 
-#include <boost/python.hpp>
 #include <eigenpy/memory.hpp>
-#include <eigenpy/eigen-to-python.hpp>
 
 #include "pinocchio/bindings/python/utils/address.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"

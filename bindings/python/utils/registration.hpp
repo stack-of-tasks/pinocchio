@@ -5,9 +5,6 @@
 #ifndef __pinocchio_python_utils_registration_hpp__
 #define __pinocchio_python_utils_registration_hpp__
 
-#include <boost/python.hpp>
-#include <boost/python/scope.hpp>
-
 #include <eigenpy/registration.hpp>
 
 namespace pinocchio
