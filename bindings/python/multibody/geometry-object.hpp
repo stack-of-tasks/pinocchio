@@ -6,6 +6,8 @@
 #define __pinocchio_python_geometry_object_hpp__
 
 #include <eigenpy/memory.hpp>
+#include <eigenpy/eigen-from-python.hpp>
+#include <eigenpy/eigen-to-python.hpp>
 
 #include "pinocchio/bindings/python/utils/address.hpp"
 #include "pinocchio/bindings/python/utils/copyable.hpp"
