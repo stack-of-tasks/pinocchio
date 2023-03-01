@@ -75,7 +75,7 @@ namespace pinocchio
     typedef JointModelHelicalUnalignedTpl<Scalar,Options> JointModelHelicalUnaligned;
 
     //Joint Universal
-    typedef JointModelUniversalTpl<Scalar, Options, 0> JointModelUniversal;
+    typedef JointModelUniversalTpl<Scalar, Options> JointModelUniversal;
     
     typedef boost::variant<
 //    JointModelVoid,
@@ -151,7 +151,7 @@ namespace pinocchio
     typedef JointDataHelicalUnalignedTpl<Scalar,Options> JointDataHelicalUnaligned;
     
     //Joint Universal
-    typedef JointDataUniversalTpl<Scalar, Options, 0> JointDataUniversal;
+    typedef JointDataUniversalTpl<Scalar, Options> JointDataUniversal;
 
     typedef boost::variant<
 //    JointDataVoid

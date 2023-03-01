@@ -180,7 +180,6 @@ struct TestJointComposite{
   {
     JointModelPrismaticUnaligned jmodel(1.5, 1., 0.);
     jmodel.setIndexes(0,0,0);
-
     test_joint_methods(jmodel);
   }
 

@@ -179,12 +179,12 @@ namespace boost
       fix::serialize(ar,static_cast<pinocchio::JointDataBase<JointType>&>(joint),version);
     }
     
-    template <class Archive, typename Scalar, int Options, int axis>
+    template <class Archive, typename Scalar, int Options>
     void serialize(Archive & ar,
-                   pinocchio::JointDataUniversalTpl<Scalar,Options,axis> & joint,
+                   pinocchio::JointDataUniversalTpl<Scalar,Options> & joint,
                    const unsigned int version)
     {
-      typedef pinocchio::JointDataUniversalTpl<Scalar,Options,axis> JointType;
+      typedef pinocchio::JointDataUniversalTpl<Scalar,Options> JointType;
       fix::serialize(ar,static_cast<pinocchio::JointDataBase<JointType>&>(joint),version);
     }
 
