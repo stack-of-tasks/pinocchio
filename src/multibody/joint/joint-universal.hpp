@@ -541,7 +541,7 @@ namespace pinocchio
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
       normalize(axis2);
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
-      assert(axis1.dot(axis2)!=0 && "Axii are not orthogonal");
+      assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
     }
     
     template<typename Vector3Like>
@@ -556,7 +556,7 @@ namespace pinocchio
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
       normalize(axis2);
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
-      assert(axis1.dot(axis2)!=0 && "Axii are not orthogonal");
+      assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
     }
 
     JointDataDerived createData() const { return JointDataDerived(); }
