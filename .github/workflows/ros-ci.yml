@@ -15,6 +15,7 @@ jobs:
           - {ROS_DISTRO: melodic}
           - {ROS_DISTRO: noetic}
           - {ROS_DISTRO: rolling, BUILDER: colcon}
+          - {ROS_DISTRO: noetic, CMAKE_ARGS: "-DGENERATE_PYTHON_STUBS=ON"}
     env:
       CCACHE_DIR: /github/home/.ccache             # Enable ccache
       # The following is a work-around for ROS tooling in conjunction with jrl-cmakemodules:
