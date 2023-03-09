@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2021 INRIA
+// Copyright (c) 2019-2023 INRIA
 //
 
 #ifndef __pinocchio_container_boost_container_limits_hpp__
@@ -14,8 +14,6 @@
   #ifndef PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE
     #define PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE PINOCCHIO_BOOST_MPL_LIMIT_CONTAINER_SIZE_DEFAULT
   #endif
-
-  #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 
   #if !defined(BOOST_MPL_LIMIT_LIST_SIZE)
     // Check the inclusion order
