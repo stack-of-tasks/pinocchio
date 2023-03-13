@@ -65,6 +65,7 @@ IF(BUILD_PYTHON_INTERFACE)
     kinematics-derivatives
     forward-dynamics-derivatives
     inverse-dynamics-derivatives
+    static-contact-dynamics
     )
 
   IF(BUILD_WITH_URDF_SUPPORT)
