@@ -90,25 +90,25 @@ Jc__feet_bl_T[:, :] = np.vstack(Js__feet_bl).T
 ls = np.linalg.pinv(Jc__feet_bl_T) @ g_bl  # This is (3)
 
 # Contact forces at local coordinates (at each foot coordinate)
-ls__F = np.split(ls, ncontact)
+ls__f = np.split(ls, ncontact)
 
 pin.framesForwardKinematics(model, data, q0)
 
 # Contact forces at base link frame
-ls__BL = []
-for l, foot_id in zip(ls__F, feet_ids):
-    l_sp__F = pin.Force(l, np.zeros(3))
-    l_sp__BL = data.oMf[bl_id].actInv(data.oMf[foot_id].act(l_sp__F))
-    ls__BL.append(np.copy(l_sp__BL.vector))
+ls__bl = []
+for l__f, foot_id in zip(ls__f, feet_ids):
+    l_sp__f = pin.Force(l__f, np.zeros(3))
+    l_sp__bl = data.oMf[bl_id].actInv(data.oMf[foot_id].act(l_sp__f))
+    ls__bl.append(np.copy(l_sp__bl.vector))
 
 print("\n--- CONTACT FORCES ---")
-for l, foot_id, name in zip(ls__BL, feet_ids, feet_names):
+for l__f, foot_id, name in zip(ls__bl, feet_ids, feet_names):
     print("Contact force at foot {} expressed at the BL is: {}".format(
-        name, l))
+        name, l__f))
 
 # Notice that if we add all the contact forces are equal to the g_grav
 print("Error between contact forces and gravity at base link: {}".format(
-    np.linalg.norm(g_bl - sum(ls__BL))))
+    np.linalg.norm(g_bl - sum(ls__bl))))
 
 # 3. FIND TAU
 # Find Jc__feet_j
@@ -132,8 +132,8 @@ joint_ids = [model.getJointId(n) for n in joint_names]
 fs_ext = [pin.Force(np.zeros(6)) for _ in range(len(model.joints))]
 for idx, joint in enumerate(model.joints):
     if joint.id in joint_ids:
-        fext__BL = pin.Force(ls__BL[joint_ids.index(joint.id)])
-        fs_ext[idx] = data.oMi[joint.id].actInv(data.oMf[bl_id].act(fext__BL))
+        fext__bl = pin.Force(ls__bl[joint_ids.index(joint.id)])
+        fs_ext[idx] = data.oMi[joint.id].actInv(data.oMf[bl_id].act(fext__bl))
 
 tau_rnea = pin.rnea(model, data, q0, v0, a0, fs_ext)
 
