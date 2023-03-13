@@ -7,6 +7,7 @@
 
 #include "pinocchio/fwd.hpp"
 #include "pinocchio/multibody/joint/joint-base.hpp"
+#include "pinocchio/multibody/joint/joint-spherical.hpp"
 #include "pinocchio/multibody/joint-motion-subspace.hpp"
 #include "pinocchio/spatial/inertia.hpp"
 
@@ -15,182 +16,6 @@
 
 namespace pinocchio
 {
-
-  template<typename Scalar, int Options=context::Options> struct MotionUniversalTpl;
-  typedef MotionUniversalTpl<context::Scalar> MotionUniversal;
-  
-  template<typename Scalar, int Options>
-  struct SE3GroupAction< MotionUniversalTpl<Scalar,Options> >
-  {
-    typedef MotionTpl<Scalar,Options> ReturnType;
-  };
-  
-  template<typename Scalar, int Options, typename MotionDerived>
-  struct MotionAlgebraAction< MotionUniversalTpl<Scalar,Options>, MotionDerived>
-  {
-    typedef MotionTpl<Scalar,Options> ReturnType;
-  };
-
-  template<typename _Scalar, int _Options>
-  struct traits< MotionUniversalTpl<_Scalar,_Options> >
-  {
-    typedef _Scalar Scalar;
-    enum { Options = _Options };
-    typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
-    typedef Eigen::Matrix<Scalar,6,6,Options> Matrix6;
-    typedef typename PINOCCHIO_EIGEN_REF_CONST_TYPE(Vector6) ToVectorConstReturnType;
-    typedef typename PINOCCHIO_EIGEN_REF_TYPE(Vector6) ToVectorReturnType;
-    typedef Vector3 AngularType;
-    typedef Vector3 LinearType;
-    typedef const Vector3 ConstAngularType;
-    typedef const Vector3 ConstLinearType;
-    typedef Matrix6 ActionMatrixType;
-    typedef MotionTpl<Scalar,Options> MotionPlain;
-    typedef MotionPlain PlainReturnType;
-    enum {
-      LINEAR = 0,
-      ANGULAR = 3
-    };
-  }; // traits MotionUniversalTpl
-
-  template<typename _Scalar, int _Options>
-  struct MotionUniversalTpl
-  : MotionBase< MotionUniversalTpl<_Scalar,_Options> >
-  {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    MOTION_TYPEDEF_TPL(MotionUniversalTpl);
-
-    MotionUniversalTpl() {}
-    
-    template<typename Vector3Like>
-    MotionUniversalTpl(const Eigen::MatrixBase<Vector3Like> & w)
-    : m_w(w)
-    {}
-    
-    inline PlainReturnType plain() const
-    {
-      return PlainReturnType(PlainReturnType::Vector3::Zero(), m_w);
-    }
-    
-    template<typename OtherScalar>
-    MotionUniversalTpl __mult__(const OtherScalar & alpha) const
-    {
-      return MotionUniversalTpl(alpha * m_w);
-    }
-
-    MotionUniversalTpl __plus__(const MotionUniversalTpl & other) const
-    {
-      return MotionUniversalTpl(m_w + other.m_w);
-    }
-    
-    template<typename MotionDerived>
-    inline void addTo(MotionDense<MotionDerived> & v) const
-    {
-      v.angular() += m_w;
-    }
-    
-    template<typename Derived>
-    void setTo(MotionDense<Derived> & other) const
-    {
-      other.linear().setZero();
-      other.angular().noalias() = m_w;
-    }
-
-    template<typename S2, int O2, typename D2>
-    void se3Action_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
-    {
-      // Angular
-      v.angular().noalias() =  m.rotation() * m_w;
-
-      // Linear
-      v.linear().noalias() = m.translation().cross(v.angular());
-    }
-    
-    template<typename S2, int O2>
-    MotionPlain se3Action_impl(const SE3Tpl<S2,O2> & m) const
-    {
-      MotionPlain res;
-      se3Action_impl(m,res);
-      return res;
-    }
-    
-    template<typename S2, int O2, typename D2>
-    void se3ActionInverse_impl(const SE3Tpl<S2,O2> & m, MotionDense<D2> & v) const
-    {
-      // Linear
-      // TODO: use v.angular() as temporary variable
-      Vector3 v3_tmp;
-      v3_tmp.noalias() = m_w.cross(m.translation());
-      v.linear().noalias() = m.rotation().transpose() * v3_tmp;
-      
-      // Angular
-      v.angular().noalias() = m.rotation().transpose() * m_w;
-    }
-    
-    template<typename S2, int O2>
-    MotionPlain se3ActionInverse_impl(const SE3Tpl<S2,O2> & m) const
-    {
-      MotionPlain res;
-      se3ActionInverse_impl(m,res);
-      return res;
-    }
-    
-    template<typename M1, typename M2>
-    void motionAction(const MotionDense<M1> & v, MotionDense<M2> & mout) const
-    {
-      // Linear
-      mout.linear().noalias() = v.linear().cross(m_w);
-      
-      // Angular
-      mout.angular().noalias() = v.angular().cross(m_w);
-    }
-    
-    template<typename M1>
-    MotionPlain motionAction(const MotionDense<M1> & v) const
-    {
-      MotionPlain res;
-      motionAction(v,res);
-      return res;
-    }
-    
-    bool isEqual_impl(const MotionUniversalTpl & other) const
-    {
-      return internal::comparison_eq(m_w, other.m_w);
-    }
-
-    template<typename MotionDerived>
-    bool isEqual_impl(const MotionDense<MotionDerived> & other) const
-    {
-      return internal::comparison_eq(other.angular(), m_w) && other.linear().isZero(0);
-    }
-    
-    Vector3 & operator() () { return m_w; }
-    const Vector3 & operator() () const { return m_w; }
-
-    const Vector3 & angular() const { return m_w; }
-    Vector3 & angular() { return m_w; }
-
-  protected:
-    Vector3 m_w;
-  }; // struct MotionUniversalTpl
-
-  template<typename S1, int O1, typename MotionDerived>
-  inline typename MotionDerived::MotionPlain
-  operator+(const MotionUniversalTpl<S1,O1> & m1,
-            const MotionDense<MotionDerived> & m2)
-  {
-    return typename MotionDerived::MotionPlain(m2.linear(),m2.angular() + m1.angular());
-  }
-  
-  template<typename MotionDerived, typename S2, int O2>
-  inline typename MotionDerived::MotionPlain
-  operator^(const MotionDense<MotionDerived> & m1,
-            const MotionUniversalTpl<S2,O2> & m2)
-  {
-    return m2.motionAction(m1);
-  }
-
   template<typename Scalar, int Options> struct JointMotionSubspaceUniversalTpl;
   
   template<typename _Scalar, int _Options>
@@ -203,7 +28,7 @@ namespace pinocchio
       ANGULAR = 3
     };
     
-    typedef MotionUniversalTpl<Scalar,Options> JointMotion;
+    typedef MotionSphericalTpl<Scalar,Options> JointMotion;
     typedef Eigen::Matrix<Scalar,2,1,Options> JointForce;
     typedef Eigen::Matrix<Scalar,6,2,Options> DenseBase;
     typedef Eigen::Matrix<Scalar,3,3,Options> ReducedSquaredMatrix;
@@ -438,8 +263,8 @@ namespace pinocchio
     typedef JointModelUniversalTpl<Scalar,Options> JointModelDerived;
     typedef JointMotionSubspaceUniversalTpl<Scalar,Options> Constraint_t;
     typedef SE3Tpl<Scalar,Options> Transformation_t;
-    typedef MotionUniversalTpl<Scalar,Options> Motion_t;
-    typedef MotionUniversalTpl<Scalar,Options> Bias_t;
+    typedef MotionSphericalTpl<Scalar,Options> Motion_t;
+    typedef MotionSphericalTpl<Scalar,Options> Bias_t;
 
     // [ABA]
     typedef Eigen::Matrix<Scalar,6,NV,Options> U_t;
