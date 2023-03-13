@@ -96,13 +96,13 @@ pin.framesForwardKinematics(model, data, q0)
 
 # Contact forces at base link frame
 ls__BL = []
-for l, id in zip(ls__F, feet_ids):
+for l, foot_id in zip(ls__F, feet_ids):
     l_sp__F = pin.Force(l, np.zeros(3))
-    l_sp__BL = data.oMf[bl_id].actInv(data.oMf[id].act(l_sp__F))
+    l_sp__BL = data.oMf[bl_id].actInv(data.oMf[foot_id].act(l_sp__F))
     ls__BL.append(np.copy(l_sp__BL.vector))
 
 print("\n--- CONTACT FORCES ---")
-for l, id, name in zip(ls__BL, feet_ids, feet_names):
+for l, foot_id, name in zip(ls__BL, feet_ids, feet_names):
     print("Contact force at foot {} expressed at the BL is: {}".format(
         name, l))
 
