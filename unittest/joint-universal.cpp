@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015-2021 CNRS INRIA
-// Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2023 INRIA
 //
 
 #include "pinocchio/math/fwd.hpp"
