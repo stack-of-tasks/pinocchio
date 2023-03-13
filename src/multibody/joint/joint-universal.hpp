@@ -1,6 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
-// Copyright (c) 2015-2016 Wandercraft, 86 rue de Paris 91400 Orsay, France.
+// Copyright (c) 2023 INRIA
 //
 
 #ifndef __pinocchio_multibody_joint_universal_hpp__
