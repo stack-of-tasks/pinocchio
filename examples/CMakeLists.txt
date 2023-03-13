@@ -65,7 +65,6 @@ IF(BUILD_PYTHON_INTERFACE)
     kinematics-derivatives
     forward-dynamics-derivatives
     inverse-dynamics-derivatives
-    static-contact-dynamics
     )
 
   IF(BUILD_WITH_URDF_SUPPORT)
@@ -76,6 +75,7 @@ IF(BUILD_PYTHON_INTERFACE)
       meshcat-viewer-dae
       robot-wrapper-viewer
       geometry-models
+      static-contact-dynamics
       )
   ENDIF(BUILD_WITH_URDF_SUPPORT)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pinocchio as pin
-import example_robot_data
 
+from os.path import dirname, join, abspath
 np.set_printoptions(linewidth=np.inf)
 
 # ----- PROBLEM STATEMENT ------
@@ -47,12 +47,22 @@ np.set_printoptions(linewidth=np.inf)
 # ----- SOLUTION ------
 
 # 0. DATA
-robot = example_robot_data.load('solo12')
+pinocchio_model_dir = join(dirname(dirname(str(abspath(__file__)))), "models")
 
-model = robot.model
+model_path = join(pinocchio_model_dir, "example-robot-data/robots")
+mesh_dir = pinocchio_model_dir
+urdf_filename = "solo12.urdf"
+urdf_model_path = join(join(model_path, "solo_description/robots"),
+                       urdf_filename)
+
+model, collision_model, visual_model = pin.buildModelsFromUrdf(
+    urdf_model_path, mesh_dir, pin.JointModelFreeFlyer())
 data = model.createData()
 
-q0 = robot.q0
+q0 = np.array([
+    0., 0., 0.235, 0., 0., 0., 1., 0., 0.8, -1.6, 0., -0.8, 1.6, 0., 0.8, -1.6,
+    0., -0.8, 1.6
+])
 v0 = np.zeros(model.nv)
 a0 = np.zeros(model.nv)
 
