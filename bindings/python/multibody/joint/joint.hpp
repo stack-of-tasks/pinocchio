@@ -42,7 +42,21 @@ namespace pinocchio
              &JointModel::hasSameIndexes<JointModel>,
              bp::args("self","other"),
              "Check if this has same indexes than other.")
-        .def("shortname",&JointModel::shortname,bp::arg("self"))
+        .def("shortname",
+             &JointModel::shortname,
+             bp::arg("self"),
+             "Returns string indicating the joint type (class name):" 
+                "\n\t- JointModelR[*]: Revolute Joint, with rotation axis [*] ∈ [X,Y,Z]"
+                "\n\t- JointModelRevoluteUnaligned: Revolute Joint, with rotation axis not aligned with X, Y, nor Z"
+                "\n\t- JointModelRUB[*]: Unbounded revolute Joint (without position limits), with rotation axis [*] ∈ [X,Y,Z]"
+                "\n\t- JointModelRevoluteUnboundedUnaligned: Unbounded revolute Joint, with rotation axis not aligned with X, Y, nor Z"
+                "\n\t- JointModelP[*]: Prismatic Joint, with rotation axis [*] ∈ [X,Y,Z]"
+                "\n\t- JointModelPlanar: Planar joint"
+                "\n\t- JointModelPrismaticUnaligned: Prismatic joint, with translation axis not aligned with X, Y, nor Z"
+                "\n\t- JointModelSphericalZYX: Spherical joint (3D rotation)"
+                "\n\t- JointModelTranslation: Translation joint (3D translation)"
+                "\n\t- JointModelFreeFlyer: Joint enabling 3D rotation and translations." 
+                )
         
         .def(bp::self == bp::self)
         .def(bp::self != bp::self)
