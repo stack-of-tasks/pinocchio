@@ -90,6 +90,7 @@ IF(BUILD_PYTHON_INTERFACE)
         collision-with-point-clouds
         append-urdf-model-with-another-model
         meshcat-viewer
+        static-contact-dynamics
         )
     ENDIF(BUILD_WITH_URDF_SUPPORT)
   ENDIF(hpp-fcl_FOUND)
