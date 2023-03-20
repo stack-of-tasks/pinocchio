@@ -147,16 +147,7 @@ Many external viewers can also be integrated. See example [here](./bindings/pyth
 
 ## Citing Pinocchio
 
-To cite **Pinocchio** in your academic research, please use the following bibtex lines:
-```bibtex
-@misc{pinocchioweb,
-   author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
-   title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
-   howpublished = {https://stack-of-tasks.github.io/pinocchio},
-   year = {2015--2021}
-}
-```
-and the following one for the reference to the paper introducing **Pinocchio**:
+To cite **Pinocchio** in your academic research, please use the following bibtex entry:
 ```bibtex
 @inproceedings{carpentier2019pinocchio,
    title={The Pinocchio C++ library -- A fast and flexible implementation of rigid body dynamics algorithms and their analytical derivatives},
@@ -165,7 +156,15 @@ and the following one for the reference to the paper introducing **Pinocchio**:
    year={2019}
 }
 ```
-
+and the following one for the link to the GitHub codebase:
+```bibtex
+@misc{pinocchioweb,
+   author = {Justin Carpentier and Florian Valenza and Nicolas Mansard and others},
+   title = {Pinocchio: fast forward and inverse dynamics for poly-articulated systems},
+   howpublished = {https://stack-of-tasks.github.io/pinocchio},
+   year = {2015--2021}
+}
+```
 The algorithms for the analytical derivatives of rigid-body dynamics algorithms are detailed here:
 ```bibtex
 @inproceedings{carpentier2018analytical,
