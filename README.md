@@ -6,7 +6,7 @@ Forked from roboptim.net
 ## Testing locally
 
 ```sh
-$ bundle exec jekyll serve
+bundle exec jekyll serve
 ```
 
 You will get something like:
