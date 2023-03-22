@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
+  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-logo-large.png" width="800" alt="Pinocchio Logo" align="center"/>
 </p>
 
 <p align="center">
@@ -68,18 +68,18 @@ or via pip (currently only available on Linux):
 
 ## Documentation
 
-The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](./doc/pinocchio_cheat_sheet.pdf).
+The online **Pinocchio** documentation of the last release is available [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/). A cheat sheet pdf with the main functions and algorithms can be found [here](https://github.com/stack-of-tasks/pinocchio/blob/master/doc/pinocchio_cheat_sheet.pdf).
 
 ## Examples
 
-We provide some basic examples on how to use **Pinocchio** in Python in the [examples](./examples) directory.
+We provide some basic examples on how to use **Pinocchio** in Python in the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory.
 Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
 
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
 Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
-You can also consider the [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developped by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
+You can also consider the interactive jupyter notebook [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developped by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
 
 ## Pinocchio continuous integrations
 
@@ -106,7 +106,7 @@ You can also consider the [set of tutorials](https://github.com/ymontmarin/_tps_
 **Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations directly at compile time, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
 
 <p align="center">
-  <img src="./doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
+  <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
 </p>
 
 For other benchmarks, and mainly the capacity of Pinocchio to exploit at best your CPU capacities using advanced code generation techniques, we refer to the technical [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
@@ -143,7 +143,7 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 -   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embedded inside any browser.
 -   [RViz](https://github.com/ros-visualization/rviz): supporting visualization in Python and which can interact with other ROS packages.
 
-Many external viewers can also be integrated. See example [here](./bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
+Many external viewers can also be integrated. See example [here](https://github.com/stack-of-tasks/pinocchio/blob/master/bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
 
 ## Citing Pinocchio
 
