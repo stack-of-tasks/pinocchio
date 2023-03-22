@@ -6,10 +6,10 @@ versions and to resolve the dependencies.
 robotpkg is a package manager tailored for robotics softwares. It greatly simplifies the release of new versions along
 with the management of their dependencies.
 
-## Ubuntu LTS 16.04, 18.04 and 20.04
+## Ubuntu LTS 18.04, 20.04 and 22.04
 
 The software binaries of the packages managed by robotpkg are directly available through the apt repository
-of robotpkg for the Ubuntu LTS 16.04, 18.04 and 20.04. You just need to add the robotpkg apt repository to your
+of robotpkg for the Ubuntu LTS 18.04, 20.04 and 22.04. You just need to add the robotpkg apt repository to your
 sources.list and typically use `sudo apt install robotpkg- + packagename` to install a missing software and its
 dependencies. Below, we recall the steps to first add the robotpkg apt repository and then install Pinocchio.
 
@@ -40,7 +40,7 @@ Otherwise, go directly to instruction 5. Those instructions are similar to the i
 4. You need to run at least once apt update to fetch the package descriptions:
 
     ```bash
-    sudo apt-get update
+    sudo apt update
     ```
 
 ### Install Pinocchio
@@ -48,7 +48,7 @@ Otherwise, go directly to instruction 5. Those instructions are similar to the i
 5. The installation of Pinocchio and its dependencies is made through the line:
 
     ```bash
-    sudo apt install -qqy robotpkg-py27-pinocchio  # Adapt your desired python version here
+    sudo apt install -qqy robotpkg-py3*-pinocchio
     ```
 
 It will install all the systems and additional required dependences.
@@ -63,7 +63,7 @@ point inside this directory. For instance:
 export PATH=/opt/openrobots/bin:$PATH
 export PKG_CONFIG_PATH=/opt/openrobots/lib/pkgconfig:$PKG_CONFIG_PATH
 export LD_LIBRARY_PATH=/opt/openrobots/lib:$LD_LIBRARY_PATH
-export PYTHONPATH=/opt/openrobots/lib/python2.7/site-packages:$PYTHONPATH # Adapt your desired python version here
+export PYTHONPATH=/opt/openrobots/lib/python3.10/site-packages:$PYTHONPATH # Adapt your desired python version here
 export CMAKE_PREFIX_PATH=/opt/openrobots:$CMAKE_PREFIX_PATH
 ```
 
