@@ -173,6 +173,20 @@ If you want to refer to the new algorithms, without explicitley mentioning Pinoc
 
 \include carpentier-rss18.bib
 
+\section OverviewImplementation Implementation details
+
+Several design choices contribute to making the algorithm implementations in Pinocchio efficient.
+One of them is the curiously recurring template pattern (CRTP).
+Similarly to Eigen, Pinocchio library makes intensive use of the so called CRTP design
+pattern. This pattern is used for performance reasons in the
+implementation of static polymorphism, avoiding dynamic casts and calls to virtual methods.
+All in all, CRTP plays a central role in the performance of Pinocchio.
+
+We refer to  https://en.wikipedia.org/wiki/Curiously_recurring_template_pattern for further explanations.
+
+Other factors that contribute to making Pinocchio efficient include proper
+handling of matrix sparsity, templatization, automatic differentiation and code
+generation. Check out the related papers above for more technical details.
 
 \section OverviewConclu Where to go from here?
 

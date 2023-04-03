@@ -1,1 +1,0 @@
-# Implementation / Technical details
