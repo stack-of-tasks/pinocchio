@@ -114,6 +114,9 @@ typedef JointDataFreeFlyerTpl<Scalar> JointDataFreeFlyer;
 typedef JointModelPlanarTpl<Scalar> JointModelPlanar;
 typedef JointDataPlanarTpl<Scalar> JointDataPlanar;
 
+typedef JointModelUniversalTpl<Scalar> JointModelUniversal;
+typedef JointDataUniversalTpl<Scalar> JointDataUniversal;
+
 typedef JointModelTranslationTpl<Scalar> JointModelTranslation;
 typedef JointDataTranslationTpl<Scalar> JointDataTranslation;
 

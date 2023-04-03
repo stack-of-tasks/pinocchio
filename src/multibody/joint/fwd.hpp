@@ -69,6 +69,12 @@ namespace pinocchio
   template<typename Scalar, int Options = context::Options> struct JointDataPrismaticUnalignedTpl;
   typedef JointDataPrismaticUnalignedTpl<context::Scalar> JointDataPrismaticUnaligned;
 
+  template<typename Scalar, int Options = context::Options> struct JointModelUniversalTpl;
+  typedef JointModelUniversalTpl<context::Scalar> JointModelUniversal;
+
+  template<typename Scalar, int Options = context::Options> struct JointDataUniversalTpl;
+  typedef JointDataUniversalTpl<context::Scalar> JointDataUniversal;
+
   template<typename Scalar, int Options = context::Options> struct JointModelFreeFlyerTpl;
   typedef JointModelFreeFlyerTpl<context::Scalar> JointModelFreeFlyer;
   

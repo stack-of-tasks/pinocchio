@@ -116,6 +116,23 @@ namespace pinocchio
                      "Pitch h of the JointModelHZ.")
       ;
     }
+
+    // specialization for JointModelUniversal
+    template<>
+    bp::class_<context::JointModelUniversal>&
+    expose_joint_model<context::JointModelUniversal> (bp::class_<context::JointModelUniversal> & cl)
+    {
+      return cl
+      .def(bp::init<context::Scalar, context::Scalar, context::Scalar, context::Scalar, context::Scalar, context::Scalar> (bp::args("self","x1", "y1", "z1", "x2", "y2", "z2"),
+                                                                        "Init JointModelUniversal from the components x, y, z of the axes"))
+      .def(bp::init<const context::Vector3s &, const context::Vector3s &> (bp::args("self","axis1", "axis2"),
+                                                "Init JointModelUniversal from two axes with x-y-z components"))
+      .def_readwrite("axis1",&context::JointModelUniversal::axis1,
+                     "First rotation axis of the JointModelUniversal.")
+      .def_readwrite("axis2",&context::JointModelUniversal::axis2,
+                     "Second rotation axis of the JointModelUniversal.")
+      ;
+    }
     
     // specialization for JointModelComposite
 

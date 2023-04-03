@@ -91,7 +91,6 @@ namespace boost
       ar & make_nvp("w",m.angularRate());
       ar & make_nvp("v",m.linearRate());
     }
-    
   }
 }
 
