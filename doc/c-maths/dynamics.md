@@ -1,3 +1,0 @@
-# Dynamics
-
-## Direct Dynamics
