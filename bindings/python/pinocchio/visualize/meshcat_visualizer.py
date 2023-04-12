@@ -171,6 +171,67 @@ class Plane(mg.Geometry):
             u"heightSegments": self.heightSegments,
         }
 
+def loadOctree(octree: hppfcl.OcTree):
+    boxes = octree.toBoxes()
+
+    if len(boxes) == 0:
+        return
+    bs = boxes[0][3] / 2.
+    num_boxes = len(boxes)
+
+    box_corners = np.array([
+        [bs,bs,bs],
+        [bs,bs,-bs],
+        [bs,-bs,bs],
+        [bs,-bs,-bs],
+        [-bs,bs,bs],
+        [-bs,bs,-bs],
+        [-bs,-bs,bs],
+        [-bs,-bs,-bs],
+        ])
+
+    all_points = np.empty((8*num_boxes,3))
+    all_faces = np.empty((12*num_boxes,3),dtype=np.int)
+    face_id = 0
+    for box_id, box_properties in enumerate(boxes):
+        box_center = box_properties[:3]
+
+        corners = box_corners + box_center
+        point_range = range(box_id*8,(box_id + 1) * 8)
+        all_points[point_range,:] = corners 
+
+        A = box_id*8
+        B = A+1
+        C = B+1 
+        D = C+1 
+        E = D+1 
+        F = E+1 
+        G = F+1 
+        H = G+1 
+
+        all_faces[face_id  ] = np.array([C,D,B])
+        all_faces[face_id+1] = np.array([B,A,C])
+        all_faces[face_id+2] = np.array([A,B,F])
+        all_faces[face_id+3] = np.array([F,E,A])
+        all_faces[face_id+4] = np.array([E,F,H])
+        all_faces[face_id+5] = np.array([H,G,E])
+        all_faces[face_id+6] = np.array([G,H,D])
+        all_faces[face_id+7] = np.array([D,C,G])
+        # # top
+        all_faces[face_id+8] = np.array([A,E,G])
+        all_faces[face_id+9] = np.array([G,C,A])
+        # # bottom
+        all_faces[face_id+10] = np.array([B,H,F])
+        all_faces[face_id+11] = np.array([H,B,D])
+
+        face_id += 12
+
+    colors = np.empty((all_points.shape[0],3))
+    colors[:] = np.ones(3)
+    mesh = mg.TriangularMeshGeometry(all_points, all_faces, colors)
+    return mesh
+
+
 def loadMesh(mesh):
 
     if isinstance(mesh,(hppfcl.HeightFieldOBBRSS, hppfcl.HeightFieldAABB)):
@@ -493,12 +554,15 @@ class MeshcatVisualizer(BaseVisualizer):
 
     def loadViewerGeometryObject(self, geometry_object, geometry_type, color=None):
         """Load a single geometry object"""
-        viewer_name = self.getViewerNodeName(geometry_object, geometry_type)
+        node_name = self.getViewerNodeName(geometry_object, geometry_type)
+        meshcat_node = self.viewer[node_name]
 
         is_mesh = False
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
+            if WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
+                obj = loadOctree(geometry_object.geometry)
             elif hasMeshFileInfo(geometry_object):
                 obj = self.loadMeshFromFile(geometry_object)
                 is_mesh = True
@@ -515,7 +579,6 @@ class MeshcatVisualizer(BaseVisualizer):
             warnings.warn(msg, category=UserWarning, stacklevel=2)
             return
 
-        meshcat_node = self.viewer[viewer_name]
         if isinstance(obj, mg.Object):
             meshcat_node.set_object(obj)
         elif isinstance(obj, (mg.Geometry, mg.ReferenceSceneElement)):
