@@ -64,6 +64,10 @@ belongs to one of the following categories:
   planning).
 - More complex joints can be created as a collection of ordinary ones through the concept of **Composite** joint.
 
+Remark: In the URDF format, a joint of type *fixed* can be defined. However,
+a **fixed** joint is not really a joint because it cannot move.
+For efficiency reasons, it is therefore treated as operational frame of the model.
+
 ## Dealing with Lie group geometry
 
 Each type of joints is characterized by its own specific configuration

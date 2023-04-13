@@ -103,7 +103,9 @@ namespace pinocchio
       bp::def("buildModelFromUrdf",
               static_cast <Model & (*) (const std::string &, const JointModel &, Model &)> (pinocchio::python::buildModelFromUrdf),
               bp::args("urdf_filename","root_joint","model"),
-              "Append to a given model a URDF structure given by its filename and the root joint.",
+              "Append to a given model a URDF structure given by its filename and the root joint.\n"
+              "Remark: In the URDF format, a joint of type fixed can be defined. For efficiency reasons,"
+              "it is treated as operational frame and not as a joint of the model.",
               bp::return_internal_reference<3>()
               );
       
