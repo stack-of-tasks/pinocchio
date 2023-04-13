@@ -36,8 +36,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pinocchio
-        conda install cmake -c main
-        mamba install llvm-openmp compilers=1.4.2 -c conda-forge
+        mamba install cmake llvm-openmp compilers=1.4.2 -c conda-forge
         conda list
 
     - name: Build Pinocchio
