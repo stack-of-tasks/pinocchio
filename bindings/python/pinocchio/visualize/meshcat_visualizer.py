@@ -561,7 +561,7 @@ class MeshcatVisualizer(BaseVisualizer):
         try:
             if WITH_HPP_FCL_BINDINGS and isinstance(geometry_object.geometry, hppfcl.ShapeBase):
                 obj = self.loadPrimitive(geometry_object)
-            if WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
+            elif WITH_HPP_FCL_BINDINGS and hppfcl.WITH_OCTOMAP and isinstance(geometry_object.geometry, hppfcl.OcTree):
                 obj = loadOctree(geometry_object.geometry)
             elif hasMeshFileInfo(geometry_object):
                 obj = self.loadMeshFromFile(geometry_object)
