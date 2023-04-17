@@ -148,7 +148,7 @@
             Data {\small related to the model} & \texttt{data = pin.Data(model)} \\ 
              & \texttt{data = model.createData()} \\ \hline
             \hspace{0.5em} joint data & \texttt{data.joints} \\
-            \hspace{0.5em} joint placements & \texttt{data.oMi} \\
+            \hspace{0.5em} joint/[frame] placements & \texttt{data.oMi} /[\texttt{data.oMf}] \\
             \hspace{0.5em} joint velocities & \texttt{data.v} \\
             \hspace{0.5em} joint accelerations & \texttt{data.a} \\
             \hspace{0.5em} joint forces & \texttt{data.f} \\
@@ -247,6 +247,7 @@
     \rowcolors{1}{white}{gray!20}
         \begin{tabular}{p{4cm} | p{7.5cm}}
             placement of all operational frames & \texttt{pin.updateFramePlacements(model, data)} \\ 
+            current frame placements wrt origin & \texttt{data.oMf} \\
             frame veloctiy & \texttt{pin.getFrameVelocity(model, data, frame\_id, ref\_frame)} \\ 
             frame acceleration & \texttt{pin.getFrameAcceleration(model, data, frame\_id, ref\_frame)} \\
             frame acceleration & \texttt{pin.getFrameClassicalAcceleration(\newline model, data, frame\_id, ref\_frame)} \\
