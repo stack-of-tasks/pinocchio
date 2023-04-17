@@ -14,15 +14,21 @@
 namespace pinocchio
 {
   ///
-  /// \brief Enum on the possible types of frame
+  /// \brief Enum on the possible types of frames
+  ///
+  /// \note Only joint frames are relevant to Pinocchio algorithms internally.
+  /// All other frame types are defined for user convenience and code
+  /// readability.
+  ///
+  /// See also https://wiki.ros.org/urdf/XML/joint, https://wiki.ros.org/urdf/XML/link and https://wiki.ros.org/urdf/XML/sensor.
   ///
   enum FrameType
   {
-    OP_FRAME     = 0x1 << 0, // operational frame type
-    JOINT        = 0x1 << 1, // joint frame type
-    FIXED_JOINT  = 0x1 << 2, // fixed joint frame type
-    BODY         = 0x1 << 3, // body frame type
-    SENSOR       = 0x1 << 4  // sensor frame type
+    OP_FRAME     = 0x1 << 0, ///< operational frame: user-defined frames that are defined at runtime
+    JOINT        = 0x1 << 1, ///< joint frame: attached to the child body of a joint (a.k.a. child frame)
+    FIXED_JOINT  = 0x1 << 2, ///< fixed joint frame: joint frame but for a fixed joint
+    BODY         = 0x1 << 3, ///< body frame: attached to the collision, inertial or visual properties of a link
+    SENSOR       = 0x1 << 4  ///< sensor frame: defined in a sensor element
   };
   
   ///
