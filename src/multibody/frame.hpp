@@ -14,11 +14,14 @@
 namespace pinocchio
 {
   ///
-  /// \brief Enum on the possible types of frames
+  /// \brief Enum on the possible types of frames.
   ///
-  /// \note Only joint frames are relevant to Pinocchio algorithms internally.
+  /// \note 
+  /// In Pinocchio, the FIXED joints are not included in the kinematic tree but we keep track of them via the vector of frames contained in ModelTpl.
+  /// The JOINT frames are duplicate information with respect to the joint information contained in ModelTpl.
+  /// 
   /// All other frame types are defined for user convenience and code
-  /// readability.
+  /// readability, to also keep track of the information usually stored within URDF models.
   ///
   /// See also https://wiki.ros.org/urdf/XML/joint, https://wiki.ros.org/urdf/XML/link and https://wiki.ros.org/urdf/XML/sensor.
   ///
