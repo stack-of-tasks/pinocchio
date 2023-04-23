@@ -37,9 +37,10 @@ namespace pinocchio
     typedef const DenseBase ConstMatrixReturnType;
     
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
-    typedef Eigen::Matrix<Scalar,3,2,Options> Matrix32;
-    
-    typedef typename ReducedSquaredMatrix::IdentityReturnType StDiagonalMatrixSOperationReturnType;
+    typedef Eigen::Matrix<Scalar, 3, 2, Options> Matrix32;
+    typedef Eigen::Matrix<Scalar, 2, 2, Options> Matrix2;
+
+    typedef Matrix2 StDiagonalMatrixSOperationReturnType;
   }; // traits JointMotionSubspaceUniversalTpl
   
   template<typename Scalar, int Options>
@@ -189,7 +190,22 @@ namespace pinocchio
     Matrix32 m_S;
     
   }; // struct JointMotionSubspaceUniversalTpl
-  
+
+  namespace details
+  {
+    template <typename Scalar, int Options>
+    struct StDiagonalMatrixSOperation<JointMotionSubspaceUniversalTpl<Scalar, Options>>
+    {
+      typedef JointMotionSubspaceUniversalTpl<Scalar, Options> Constraint;
+      typedef typename traits<Constraint>::StDiagonalMatrixSOperationReturnType ReturnType;
+
+      static ReturnType run(const JointMotionSubspaceBase<Constraint> &constraint)
+      {
+        return constraint.matrix().transpose() * constraint.matrix();
+      }
+    };
+  }
+
   template<typename S1, int O1,typename S2, int O2>
   struct MultiplicationOp<InertiaTpl<S1,O1>, JointMotionSubspaceUniversalTpl<S2,O2> >
   {
