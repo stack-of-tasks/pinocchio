@@ -400,7 +400,17 @@ namespace pinocchio
     }
 
     JointDataDerived createData() const { return JointDataDerived(); }
-    
+
+    const std::vector<bool> hasConfigurationLimit() const
+    {
+      return {true, true};
+    }
+
+    const std::vector<bool> hasConfigurationLimitInTangent() const
+    {
+      return {true, true};
+    }
+
     using Base::isEqual;
     bool isEqual(const JointModelUniversalTpl & other) const
     {
