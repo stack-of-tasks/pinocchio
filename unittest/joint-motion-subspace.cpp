@@ -344,6 +344,21 @@ struct init<pinocchio::JointModelTpl<Scalar,Options,JointCollection> >
   }
 };
 
+template <typename Scalar, int Options>
+struct init<pinocchio::JointModelUniversalTpl<Scalar, Options>>
+{
+  typedef pinocchio::JointModelUniversalTpl<Scalar, Options> JointModel;
+
+  static JointModel run()
+  {
+    typedef typename JointModel::Vector3 Vector3;
+    JointModel jmodel(Vector3::Random().normalized(), Vector3::Random().normalized());
+
+    jmodel.setIndexes(0, 0, 0);
+    return jmodel;
+  }
+};
+
 template<typename Scalar, int Options, template<typename,int> class JointCollection>
 struct init<pinocchio::JointModelCompositeTpl<Scalar,Options,JointCollection> >
 {
