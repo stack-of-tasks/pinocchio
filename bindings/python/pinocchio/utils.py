@@ -31,26 +31,17 @@ def npToTuple(M):
 
 def eye(n):
     res = np.eye(n)
-    if pin.getNumpyType()==np.matrix:
-        return np.matrix(res)
-    else:
-        return res
+    return res
 
 def zero(n):
-    if pin.getNumpyType()==np.matrix:
-        return np.matrix(np.zeros([n, 1] if isinstance(n, int) else n))
-    else:
-        return np.zeros(n)
+    return np.zeros(n)
 
 def rand(n):
-    if pin.getNumpyType()==np.matrix:
-        return np.matrix(np.random.rand(n, 1) if isinstance(n, int) else np.random.rand(n[0], n[1]))
-    else:
-        return np.random.rand(n) if isinstance(n, int) else np.random.rand(n[0], n[1])
+    return np.random.rand(n) if isinstance(n, int) else np.random.rand(n[0], n[1])
 
 @deprecated("Please use numpy.cross(a, b) or numpy.cross(a, b, axis=0).")
 def cross(a, b):
-    return np.matrix(np.cross(a, b, axis=0))
+    return np.cross(a, b, axis=0)
 
 @deprecated('Now useless. You can directly have access to this function from the main scope of Pinocchio')
 def skew(p):
