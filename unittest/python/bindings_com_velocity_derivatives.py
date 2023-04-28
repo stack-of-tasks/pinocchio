@@ -5,8 +5,8 @@ from numpy.linalg import norm
 
 def df_dq(model,func,q,h=1e-9):
     """ Perform df/dq by num_diff. q is in the lie manifold.
-    :params func: function to differentiate f : np.matrix -> np.matrix
-    :params q: configuration value at which f is differentiated. type np.matrix
+    :params func: function to differentiate f : np.array -> np.array
+    :params q: configuration value at which f is differentiated. type np.array
     :params h: eps
     
     :returns df/dq

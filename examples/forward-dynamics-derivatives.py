@@ -19,8 +19,8 @@ model.lowerPositionLimit = -np.ones((model.nq,1))
 model.upperPositionLimit = np.ones((model.nq,1))
 
 q = pin.randomConfiguration(model) # joint configuration
-v = np.matrix(np.random.rand(model.nv,1)) # joint velocity
-tau = np.matrix(np.random.rand(model.nv,1)) # joint acceleration
+v = np.random.rand(model.nv,1) # joint velocity
+tau = np.random.rand(model.nv,1) # joint acceleration
 
 # Evaluate the derivatives
 

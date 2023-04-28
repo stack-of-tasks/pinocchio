@@ -31,12 +31,12 @@ def loadRobot(M0, name):
 
 robots = []
 # Load 4 Ur5 robots, placed at 0.3m from origin in the 4 directions x,y,-x,-y.
-Mt = SE3(eye(3), np.matrix([.3, 0, 0]).T)  # First robot is simply translated
+Mt = SE3(eye(3), np.array([.3, 0, 0]))  # First robot is simply translated
 for i in range(4):
     robots.append(loadRobot(SE3(rotate('z', np.pi / 2 * i), zero(3)) * Mt, "robot%d" % i))
 
 # Set up the robots configuration with end effector pointed upward.
-q0 = np.matrix([np.pi / 4, -np.pi / 4, -np.pi / 2, np.pi / 4, np.pi / 2, 0]).T
+q0 = np.array([np.pi / 4, -np.pi / 4, -np.pi / 2, np.pi / 4, np.pi / 2, 0])
 for i in range(4):
     robots[i].display(q0)
 
@@ -45,6 +45,6 @@ gepettoViewer = robots[0].viewer.gui
 w, h, d = 0.25, 0.25, 0.005
 color = [red, green, blue, transparency] = [1, 1, 0.78, 1.0]
 gepettoViewer.addBox('world/toolplate', w, h, d, color)
-Mtool = SE3(rotate('z', 1.268), np.matrix([0, 0, .77]).T)
+Mtool = SE3(rotate('z', 1.268), np.array([0, 0, .77]))
 gepettoViewer.applyConfiguration('world/toolplate', se3ToXYZQUATtuple(Mtool))
 gepettoViewer.refresh()

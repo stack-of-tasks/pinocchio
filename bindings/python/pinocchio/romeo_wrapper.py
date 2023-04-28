@@ -21,8 +21,6 @@ class RomeoWrapper(RobotWrapper):
             0, 0, 0, 0,                                      # head
             1.5, -0.6, 0.5, 1.05, -0.4, -0.3, -0.2,          # right arm
         ])
-        if pin.getNumpyType()==np.matrix:
-            self.q0 = np.matrix(self.q0).T
 
         self.opCorrespondances = {"lh": "LWristPitch",
                                   "rh": "RWristPitch",

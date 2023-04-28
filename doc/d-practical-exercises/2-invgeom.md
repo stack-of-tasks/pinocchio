@@ -85,7 +85,7 @@ from a SciPy-like vector to a Pinocchio-like vector using:
 ```py
 import numpy as np
 x = np.array([1.0, 2.0, 3.0])
-q = np.matrix(x).T
+q = np.array(x)
 x = q.getA()[:, 0]
 ```
 

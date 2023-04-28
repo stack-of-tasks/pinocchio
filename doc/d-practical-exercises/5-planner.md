@@ -29,7 +29,7 @@ below:
 obs = se3.GeometryObject.CreateCapsule(rad, length)  # Pinocchio obstacle object
 obs.name = "obs"                                     # Set object name
 obs.parentJoint = 0                                  # Set object parent = 0 = universe
-obs.placement = se3.SE3(rotate('x', .1) * rotate('y', .1) * rotate('z', .1), np.matrix([.1, .1, .1]).T)  # Set object placement wrt parent
+obs.placement = se3.SE3(rotate('x', .1) * rotate('y', .1) * rotate('z', .1), np.array([.1, .1, .1]))  # Set object placement wrt parent
 robot.collision_model.addGeometryObject(obs, robot.model, False) # Add object to collision model
 robot.visual_model.addGeometryObject(obs, robot.model, False)    # Add object to visual model
 # Also create a geometric object in gepetto viewer, with according name.
