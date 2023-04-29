@@ -96,10 +96,10 @@ class Visual(object):
             wb = pb + ab * r2
 
             # Compute normal matrix
-            x = np.matrix([1., 0, 0]).T
+            x = np.array([1., 0, 0])
             r1 = cross(ab, x)
             if norm(r1) < 1e-2:
-                x = np.matrix([0, 1., 0]).T
+                x = np.array([0, 1., 0])
             r1 = cross(ab, x)
             r1 /= norm(r1)
             r2 = cross(ab, r1)
@@ -158,10 +158,10 @@ class Robot(object):
 
     def createHand(self, root_id=0, prefix='', joint_placement=None):
         def trans(x, y, z):
-            return pin.SE3(eye(3), np.matrix([x, y, z]).T)
+            return pin.SE3(eye(3), np.array([x, y, z]))
 
         def inertia(m, c):
-            return pin.Inertia(m, np.matrix(c, np.double).T, eye(3) * m ** 2)
+            return pin.Inertia(m, np.array(c, np.double), eye(3) * m ** 2)
 
         def joint_name(body):
             return prefix + body + '_joint'
@@ -186,18 +186,18 @@ class Robot(object):
         self.visuals.append(Visual(body_name('wpalmb'), joint_id, pin.SE3(rotate('x', pi / 2), zero(3)), H, W))
 
         self.viewer.viewer.gui.addCapsule(body_name('wpalmt'), H, W, color)
-        pos = pin.SE3(rotate('x', pi / 2), np.matrix([L, 0, 0]).T)
+        pos = pin.SE3(rotate('x', pi / 2), np.array([L, 0, 0]))
         self.visuals.append(Visual(body_name('wpalmt'), joint_id, pos, H, W))
 
         self.viewer.viewer.gui.addCapsule(body_name('wpalml'), H, L, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([L / 2, -W / 2, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([L / 2, -W / 2, 0]))
         self.visuals.append(Visual(body_name('wpalml'), joint_id, pos, H, L))
 
         self.viewer.viewer.gui.addCapsule(body_name('wpalmr'), H, L, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([L / 2, +W / 2, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([L / 2, +W / 2, 0]))
         self.visuals.append(Visual(body_name('wpalmr'), joint_id, pos, H, L))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([5 * cm, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([5 * cm, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('palm'))
         self.model.appendBodyToJoint(joint_id, inertia(2, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('palm2'), 1 * cm, W, color)
@@ -206,79 +206,79 @@ class Robot(object):
         FL = 4 * cm
         palmIdx = joint_id
 
-        joint_placement = pin.SE3(eye(3), np.matrix([2 * cm, W / 2, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([2 * cm, W / 2, 0]))
         joint_id = self.model.addJoint(palmIdx, pin.JointModelRY(), joint_placement, joint_name('finger11'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('finger11'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger11'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger12'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
 
         self.viewer.viewer.gui.addCapsule(body_name('finger12'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger12'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL - 2 * H, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL - 2 * H, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger13'))
         self.model.appendBodyToJoint(joint_id, inertia(.3, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addSphere(body_name('finger13'), H, color)
         self.visuals.append(Visual(body_name('finger13'), joint_id, trans(2 * H, 0, 0), H, 0))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([2 * cm, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([2 * cm, 0, 0]))
         joint_id = self.model.addJoint(palmIdx, pin.JointModelRY(), joint_placement, joint_name('finger21'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('finger21'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger21'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger22'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('finger22'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger22'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL - H, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL - H, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger23'))
         self.model.appendBodyToJoint(joint_id, inertia(.3, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addSphere(body_name('finger23'), H, color)
         self.visuals.append(Visual(body_name('finger23'), joint_id, trans(H, 0, 0), H, 0))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([2 * cm, -W / 2, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([2 * cm, -W / 2, 0]))
         joint_id = self.model.addJoint(palmIdx, pin.JointModelRY(), joint_placement, joint_name('finger31'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('finger31'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger31'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger32'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('finger32'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('y', pi / 2), np.matrix([FL / 2 - H, 0, 0]).T)
+        pos = pin.SE3(rotate('y', pi / 2), np.array([FL / 2 - H, 0, 0]))
         self.visuals.append(Visual(body_name('finger32'), joint_id, pos, H, FL - 2 * H))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([FL - 2 * H, 0, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([FL - 2 * H, 0, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRY(), joint_placement, joint_name('finger33'))
         self.model.appendBodyToJoint(joint_id, inertia(.3, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addSphere(body_name('finger33'), H, color)
         self.visuals.append(Visual(body_name('finger33'), joint_id, trans(2 * H, 0, 0), H, 0))
 
-        joint_placement = pin.SE3(eye(3), np.matrix([1 * cm, -W / 2 - H * 1.5, 0]).T)
+        joint_placement = pin.SE3(eye(3), np.array([1 * cm, -W / 2 - H * 1.5, 0]))
         joint_id = self.model.addJoint(1, pin.JointModelRY(), joint_placement, joint_name('thumb1'))
         self.model.appendBodyToJoint(joint_id, inertia(.5, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('thumb1'), H, 2 * cm, color)
-        pos = pin.SE3(rotate('z', pi / 3) * rotate('x', pi / 2), np.matrix([1 * cm, -1 * cm, 0]).T)
+        pos = pin.SE3(rotate('z', pi / 3) * rotate('x', pi / 2), np.array([1 * cm, -1 * cm, 0]))
         self.visuals.append(Visual(body_name('thumb1'), joint_id, pos, 2 * cm))
 
-        joint_placement = pin.SE3(rotate('z', pi / 3) * rotate('x', pi), np.matrix([3 * cm, -1.8 * cm, 0]).T)
+        joint_placement = pin.SE3(rotate('z', pi / 3) * rotate('x', pi), np.array([3 * cm, -1.8 * cm, 0]))
         joint_id = self.model.addJoint(joint_id, pin.JointModelRZ(), joint_placement, joint_name('thumb2'))
         self.model.appendBodyToJoint(joint_id, inertia(.4, [0, 0, 0]), pin.SE3.Identity())
         self.viewer.viewer.gui.addCapsule(body_name('thumb2'), H, FL - 2 * H, color)
-        pos = pin.SE3(rotate('x', pi / 3), np.matrix([-0.7 * cm, .8 * cm, -0.5 * cm]).T)
+        pos = pin.SE3(rotate('x', pi / 3), np.array([-0.7 * cm, .8 * cm, -0.5 * cm]))
         self.visuals.append(Visual(body_name('thumb2'), joint_id, pos, H, FL - 2 * H))
 
         # Prepare some patches to represent collision points. Yet unvisible.

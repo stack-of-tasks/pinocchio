@@ -55,7 +55,7 @@ the following example.
 
 ```py
 import numpy as np
-A = np.matrix([[1, 2, 3, 4], [5, 6, 7, 8]])  # Define a 2x4 matrix
+A = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])  # Define a 2x4 matrix
 b = np.zeros([4, 1])  # Define a 4 vector (ie a 4x1 matrix) initialized with 0
 c = A * b             # Obtain c by multiplying A by b.
 ```

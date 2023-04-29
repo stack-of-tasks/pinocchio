@@ -69,7 +69,7 @@ def Rquat(x, y, z, w):
     q.normalize()
     return q.matrix()
 
-Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.matrix([.2, -.4, .7]).T)
+Mgoal = pin.SE3(Rquat(.4, .02, -.5, .7), np.array([.2, -.4, .7]))
 robot.viewer.gui.addXYZaxis('world/framegoal', [1., 0., 0., 1.], .015, 4)
 place('world/framegoal', Mgoal)
 ```

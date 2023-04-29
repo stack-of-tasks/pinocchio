@@ -85,11 +85,11 @@ class DPendulum:
 
     def render(self):
         q = d2cq(self.x[0])
-        self.pendulum.display(np.matrix([q,]))
+        self.pendulum.display(np.array([q,]))
         time.sleep(self.pendulum.DT)
 
     def dynamics(self,ix,iu):
-        x   = np.matrix(d2c (ix)).T
+        x   = np.array(d2c (ix))
         u   = d2cu(iu)
         
         self.xc,_ = self.pendulum.dynamics(x,u)

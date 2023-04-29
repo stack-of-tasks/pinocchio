@@ -78,7 +78,7 @@ class Pendulum:
         length = 1.0
         mass = length
         inertia = pin.Inertia(mass,
-                              np.matrix([0.0,0.0,length/2]).T,
+                              np.array([0.0,0.0,length/2]),
                               mass/5*np.diagflat([ 1e-2,length**2,  1e-2 ]) )
 
         for i in range(nbJoint):
@@ -93,8 +93,8 @@ class Pendulum:
             try:self.viewer.viewer.gui.addCapsule('world/'+prefix+'arm'+istr, .1,.8*length,color)
             except:pass
             self.visuals.append( Visual('world/'+prefix+'arm'+istr,jointId,
-                                        pin.SE3(eye(3),np.matrix([0.,0.,length/2]))))
-            jointPlacement     = pin.SE3(eye(3),np.matrix([0.0,0.0,length]).T)
+                                        pin.SE3(eye(3),np.array([0.,0.,length/2]))))
+            jointPlacement     = pin.SE3(eye(3),np.array([0.0,0.0,length]))
 
         self.model.addFrame( pin.Frame('tip',jointId,0,jointPlacement,pin.FrameType.OP_FRAME) )
 
@@ -156,7 +156,7 @@ class Pendulum:
         cost = 0.0
         q = modulePi(x[:self.nq])
         v = x[self.nq:]
-        u = np.clip(np.reshape(np.matrix(u),[self.nu,1]),-self.umax,self.umax)
+        u = np.clip(np.reshape(np.array(u),[self.nu,1]),-self.umax,self.umax)
 
 
         DT = self.DT/self.NDT

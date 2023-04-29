@@ -83,8 +83,8 @@ class DCRBA:
 
                     for d in iv(joint_diff):
 
-                        T_iSd = np.matrix(H[:,d,i0:i1])   # this is 0 if d<=i (<=j)
-                        T_jSd = np.matrix(H[:,d,j0:j1])   # this is 0 is d<=j
+                        T_iSd = np.array(H[:,d,i0:i1])   # this is 0 if d<=i (<=j)
+                        T_jSd = np.array(H[:,d,j0:j1])   # this is 0 is d<=j
 
                         '''
                         assert( norm(T_iSd)<1e-6 or not joint_diff<i )  # d<i => TiSd=0
@@ -254,7 +254,7 @@ class Coriolis:
                 # CEN ===> Sii' vi x Yi Si = (Sii x vi)' Yi Si
                 C[ii0:ii1,i0:i1] += Sii.T*vxYS
                 # CEN ===> Sii' Si x Yi vi = (Sii x Si)' Yi vi
-                C[ii0:ii1,i0:i1] += np.matrix(td(H[:,i0:i1,ii0:ii1],Yv,[0,0])[:,:,0]).T
+                C[ii0:ii1,i0:i1] += np.array(td(H[:,i0:i1,ii0:ii1],Yv,[0,0])[:,:,0])
 
         return C
 
