@@ -26,7 +26,7 @@ It is built upon Eigen for linear algebra and FCL for collision detection. **Pin
 
 **Pinocchio** is now at the heart of various robotics software as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning.
 
-If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
+If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228) and the online [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
 
 If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
 
@@ -38,6 +38,21 @@ or via pip (currently only available on Linux):
 <p align="center">
 <strong> pip install pin </strong>
 </p>
+
+## Table of contents 
+
+  - [Pinocchio main features](#pinocchio-main-features)
+  - [Documentation](#documentation)
+  - [Examples](#examples)
+  - [Tutorials](#tutorials)
+  - [Performances](#performances)
+  - [Ongoing developments](#ongoing-developments)
+  - [Visualization](#visualization)
+  - [Citing Pinocchio](#citing-pinocchio)
+  - [Questions and Issues](#questions-and-issues)
+  - [Credits](#credits)
+  - [Open-source projects relying on Pinocchio](#open-source-projects-relying-on-pinocchio)
+  - [Acknowledgments](#acknowledgments)
 
 ## Pinocchio main features
 
@@ -177,7 +192,7 @@ The algorithms for the analytical derivatives of rigid-body dynamics algorithms 
 
 ## Questions and Issues
 
-You have a question or an issue? You may either directly open a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or use the mailing list <pinocchio@inria.fr>.
+You have a question or an issue? You may either directly open a [new question](https://github.com/stack-of-tasks/pinocchio/discussions/new?category=q-a) or a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or, directly contact us via the mailing list <pinocchio@inria.fr>.
 
 ## Credits
 
