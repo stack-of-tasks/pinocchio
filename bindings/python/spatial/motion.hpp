@@ -101,6 +101,7 @@ namespace pinocchio
         
         .add_property("action",&Motion::toActionMatrix,"Returns the action matrix of *this (acting on Motion).")
         .add_property("dualAction",&Motion::toDualActionMatrix,"Returns the dual action matrix of *this (acting on Force).")
+        .add_property("homogeneous", &Motion::toHomogeneousMatrix, "Equivalent homogeneous representation of the Motion vector")
         
         .def("setZero",&MotionPythonVisitor::setZero,bp::arg("self"),
              "Set the linear and angular components of *this to zero.")
