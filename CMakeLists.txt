@@ -151,6 +151,15 @@ SET_BOOST_DEFAULT_OPTIONS()
 EXPORT_BOOST_DEFAULT_OPTIONS()
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
+
+IF(Boost_VERSION_STRING VERSION_LESS 1.81)
+  # Default C++ version should be C++11
+  CHECK_MINIMAL_CXX_STANDARD(11 ENFORCE)
+ELSE()
+  # Boost.Math will be C++14 starting in July 2023 (Boost 1.82 release)
+  CHECK_MINIMAL_CXX_STANDARD(14 ENFORCE)
+ENDIF()
+
 IF(BUILD_PYTHON_INTERFACE)
   MESSAGE(STATUS "The Python bindings of Pinocchio will be compiled along the main library. If you want to disable this feature, please set the option BUILD_PYTHON_INTERFACE to OFF.")
 
