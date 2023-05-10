@@ -49,7 +49,7 @@ namespace pinocchio
 
 
   /**
-   * @brief      Retrieve the path of the file whose path is given in an url-format.
+   * @brief      Retrieve the path of the file whose path is given in URL-format.
    *             Currently convert from the following patterns : package:// or file://
    *
    * @param[in]  string          The path given in the url-format
