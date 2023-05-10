@@ -117,7 +117,7 @@ namespace pinocchio
 # endif
 
       /**
-       * @brief      Get a fcl::CollisionObject from an urdf geometry, searching
+       * @brief      Get a fcl::CollisionObject from a URDF geometry, searching
        *             for it in specified package directories
        *
        * @param[in]  urdf_geometry  A shared pointer on the input urdf Geometry
@@ -330,7 +330,7 @@ namespace pinocchio
       }
 
       /**
-       * @brief      Add the geometries attached to an URDF link to a GeometryModel, looking
+       * @brief      Add the geometries attached to a URDF link to a GeometryModel, looking
        *             either for collisions or visuals
        *
        * @param[in]  tree           The URDF kinematic tree
