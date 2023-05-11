@@ -30,7 +30,7 @@ while True:
         break
     J = pinocchio.computeJointJacobian(model,data,q,JOINT_ID)  # in joint frame
     J = -pinocchio.Jlog6(iMd.inverse()) @ J
-    v = -J.T.dot(solve(J.dot(J.T) + damp * np.eye(6), err))
+    v = - J.T.dot(solve(J.dot(J.T) + damp * np.eye(6), err))
     q = pinocchio.integrate(model,q,v*DT)
     if not i % 10:
         print('%d: error = %s' % (i, err.T))
