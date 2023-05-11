@@ -20,16 +20,17 @@ damp   = 1e-12
 i=0
 while True:
     pinocchio.forwardKinematics(model,data,q)
-    dMi = oMdes.actInv(data.oMi[JOINT_ID])
-    err = pinocchio.log(dMi).vector
+    iMd = data.oMi[JOINT_ID].actInv(oMdes)
+    err = pinocchio.log(iMd).vector  # in joint frame
     if norm(err) < eps:
         success = True
         break
     if i >= IT_MAX:
         success = False
         break
-    J = pinocchio.computeJointJacobian(model,data,q,JOINT_ID)
-    v = - J.T.dot(solve(J.dot(J.T) + damp * np.eye(6), err))
+    J = pinocchio.computeJointJacobian(model,data,q,JOINT_ID)  # in joint frame
+    J = pinocchio.Jlog6(iMd.inverse()) @ J
+    v = J.T.dot(solve(J.dot(J.T) + damp * np.eye(6), err))
     q = pinocchio.integrate(model,q,v*DT)
     if not i % 10:
         print('%d: error = %s' % (i, err.T))
