@@ -42,7 +42,7 @@ int main(int /* argc */, char ** /* argv */)
       break;
     }
     pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);  // J in joint frame
-    pinocchio::Data::Matrix6x Jlog(6, 6);
+    pinocchio::Data::Matrix6 Jlog;
     pinocchio::Jlog6(iMd.inverse(), Jlog);
     J = -Jlog * J
     pinocchio::Data::Matrix6 JJt;
