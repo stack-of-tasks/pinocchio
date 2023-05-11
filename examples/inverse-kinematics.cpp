@@ -29,8 +29,8 @@ int main(int /* argc */, char ** /* argv */)
   for (int i=0;;i++)
   {
     pinocchio::forwardKinematics(model,data,q);
-    const pinocchio::SE3 dMi = oMdes.actInv(data.oMi[JOINT_ID]);
-    err = pinocchio::log6(dMi).toVector();
+    const pinocchio::SE3 iMd = data.oMi[JOINT_ID].actInv(oMdes);
+    err = pinocchio::log6(iMd).toVector();  // in joint frame
     if(err.norm() < eps)
     {
       success = true;
@@ -41,11 +41,11 @@ int main(int /* argc */, char ** /* argv */)
       success = false;
       break;
     }
-    pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);
+    pinocchio::computeJointJacobian(model,data,q,JOINT_ID,J);  // J in joint frame
     pinocchio::Data::Matrix6 JJt;
     JJt.noalias() = J * J.transpose();
     JJt.diagonal().array() += damp;
-    v.noalias() = - J.transpose() * JJt.ldlt().solve(err);
+    v.noalias() = J.transpose() * JJt.ldlt().solve(err);
     q = pinocchio::integrate(model,q,v*DT);
     if(!(i%10))
       std::cout << i << ": error = " << err.transpose() << std::endl;
