@@ -35,8 +35,8 @@ Then, we begin the iterative process.
 At each iteration, we begin by computing the forward kinematics:
 \skipline forwardKinematics
 
-Next, we compute the error between the desired pose and the current one.
-\skip dMi
+Next, we compute the error between the desired pose ``d`` and the current one ``i``, expressed in the current joint frame ``i``:
+\skip iMd
 \until err
 Here, `data.oMi[JOINT_ID]` corresponds to the placement of the sixth joint (previously computed by `forwardKinematics`),
 `dMi` corresponds to the transformation between the desired pose and the current one, and `err` is the error.
@@ -53,7 +53,10 @@ If we have reached the maximum number of iterations, it means a solution has not
 
 Otherwise, we search for another configuration trying to reduce the error.
 
-We start by computing the Jacobian.
+We start by computing the Jacobian in the joint frame:
+\skipline J
+
+To get the proper Jacobian of our task, we should include a call to the \ref Jlog6 function (see *e.g.* [this note](https://scaron.info/robotics/jacobian-of-a-kinematic-task-and-derivatives-on-manifolds.html) for derivation details):
 \skipline J
 
 Next, we can compute the evolution of the configuration by solving the inverse kinematics.
