@@ -44,6 +44,8 @@ namespace pinocchio
         .add_property("Kd",&getKd,&setKd,
                       "Damping corrector value.")
         
+        .def(CastVisitor<Self>())
+        .def(ExposeConstructorByCastVisitor<Self, ::pinocchio::context::RigidConstraintModel::BaumgarteCorrectorParameters>())
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
@@ -137,7 +139,6 @@ namespace pinocchio
         .def("createData",
              &RigidConstraintModelPythonVisitor::createData,
              "Create a Data object for the given model.")
-        
         .def(ComparableVisitor<Self,pinocchio::is_floating_point<Scalar>::value>())
         ;
       }
@@ -148,7 +149,7 @@ namespace pinocchio
                                       "Rigid contact model for contact dynamic algorithms.",
                                       bp::no_init)
         .def(RigidConstraintModelPythonVisitor())
-        .def(CastVisitor<Model>())
+        .def(CastVisitor<RigidConstraintModel>())
         .def(ExposeConstructorByCastVisitor<RigidConstraintModel,::pinocchio::context::RigidConstraintModel>())
         ;
         
