@@ -66,6 +66,15 @@ namespace pinocchio
     
     /// \brief Damping corrector value.
     Scalar Kd;
+
+    template<typename NewScalar>
+    BaumgarteCorrectorParametersTpl<NewScalar> cast() const {
+      typedef BaumgarteCorrectorParametersTpl<NewScalar> ReturnType;
+      ReturnType res;
+      res.Kp = Kp;
+      res.Kd = Kd;
+      return res;
+    }  
   };
 
   template<typename Scalar, int Options> struct RigidConstraintModelTpl;
@@ -351,6 +360,7 @@ namespace pinocchio
       res.desired_contact_placement = desired_contact_placement.template cast<NewScalar>();
       res.desired_contact_velocity = desired_contact_velocity.template cast<NewScalar>();
       res.desired_contact_acceleration = desired_contact_acceleration.template cast<NewScalar>();
+      res.corrector = corrector.template cast<NewScalar>();
       res.colwise_joint1_sparsity = colwise_joint1_sparsity;
       res.colwise_joint2_sparsity = colwise_joint2_sparsity;
       res.colwise_span_indexes = colwise_span_indexes;
