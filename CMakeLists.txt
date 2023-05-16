@@ -330,6 +330,7 @@ IF(ENABLE_TEMPLATE_INSTANTIATION)
     algorithm/rnea-derivatives.cpp
     algorithm/rnea.cpp
     algorithm/proximal.cpp
+    algorithm/contact-info.cpp
     algorithm/contact-dynamics.cpp
     algorithm/contact-cholesky.cpp
     algorithm/contact-jacobian.cpp
@@ -363,6 +364,7 @@ IF(ENABLE_TEMPLATE_INSTANTIATION)
     algorithm/rnea-derivatives.txx
     algorithm/rnea.txx
     algorithm/proximal.txx
+    algorithm/contact-info.txx
     algorithm/contact-dynamics.txx
     algorithm/contact-cholesky.txx
     algorithm/contact-jacobian.txx
