@@ -71,8 +71,8 @@ namespace pinocchio
     BaumgarteCorrectorParametersTpl<NewScalar> cast() const {
       typedef BaumgarteCorrectorParametersTpl<NewScalar> ReturnType;
       ReturnType res;
-      res.Kp = Kp;
-      res.Kd = Kd;
+      res.Kp = static_cast<NewScalar>(Kp);
+      res.Kd = static_cast<NewScalar>(Kd);
       return res;
     }  
   };
