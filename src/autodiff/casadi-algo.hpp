@@ -29,6 +29,8 @@ namespace pinocchio
       typedef ::casadi::DMVector DMVector;
       enum { Options = 0 };
 
+      int ad_fun_num_operations, ad_fun_derivs_num_operations;
+
       typedef pinocchio::ModelTpl<Scalar,Options> Model;
       typedef pinocchio::DataTpl<Scalar,Options> Data;
       typedef pinocchio::ModelTpl<ADScalar,Options> ADModel;
@@ -68,9 +70,11 @@ namespace pinocchio
         buildMap();
         //Generated code;
         cg_generated.add(ad_fun);
+        ad_fun_num_operations = ad_fun.n_instructions() - ad_fun.nnz_in() - ad_fun.nnz_out();
         if(build_jacobian)
         {
           cg_generated.add(ad_fun_derivs);
+          ad_fun_derivs_num_operations = ad_fun_derivs.n_instructions() - ad_fun_derivs.nnz_in() - ad_fun_derivs.nnz_out();
         }
         cg_generated.generate();
       }
