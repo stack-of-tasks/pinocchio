@@ -523,7 +523,9 @@ class MeshcatVisualizer(BaseVisualizer):
             To = np.eye(4)
             To[:3, 3] = geom.d * geom.n
             TranslatedPlane = type("TranslatedPlane", (mg.Plane,), {"intrinsic_transform": lambda self: To})
-            obj = TranslatedPlane(-10, 10)
+            sx = geometry_object.meshScale[0] * 10
+            sy = geometry_object.meshScale[1] * 10
+            obj = TranslatedPlane(-sx, sy)
         elif isinstance(geom, hppfcl.Ellipsoid):
             obj = mg.Ellipsoid(geom.radii)
         elif isinstance(geom, (hppfcl.Plane,hppfcl.Halfspace)):
