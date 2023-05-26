@@ -34,7 +34,7 @@ except ImportError:
 
 DEFAULT_COLOR_PROFILES = {
     "gray": ([0.98, 0.98, 0.98], [0.8, 0.8, 0.8]),
-    "white": (np.ones(3), )
+    "white": ([1., 1., 1.], [1., 1., 1.])
 }
 COLOR_PRESETS = DEFAULT_COLOR_PROFILES.copy()
 
