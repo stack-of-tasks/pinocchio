@@ -134,7 +134,7 @@ dt = 5e-3
 T_sim = 100000
 t = 0
 mu_sim = 1e-10
-constraint_model.corrector.Kp = 10
+constraint_model.corrector.Kp[:] = 10
 constraint_model.corrector.Kd = 2. * np.sqrt(constraint_model.corrector.Kp)
 pin.initConstraintDynamics(model,data,[constraint_model])
 prox_settings = pin.ProximalSettings(1e-8,mu_sim,10)
