@@ -459,10 +459,14 @@ class MeshcatVisualizer(BaseVisualizer):
         self.viewer.delete()
         self.static_objects = []
 
-    def setBackgroundColor(self, preset_name: str = "gray"):
+    def setBackgroundColor(self, preset_name: str = "gray", col_top=None, col_bot=None):
         """Set the background."""
-        assert preset_name in COLOR_PRESETS.keys()
-        col_top, col_bot = COLOR_PRESETS[preset_name]
+        if col_top is not None:
+            if col_bot is None:
+                col_bot = col_top
+        else:
+            assert preset_name in COLOR_PRESETS.keys()
+            col_top, col_bot = COLOR_PRESETS[preset_name]
         self._node_background.set_property("top_color", col_top)
         self._node_background.set_property("bottom_color", col_bot)
 
