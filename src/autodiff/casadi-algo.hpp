@@ -68,9 +68,11 @@ namespace pinocchio
         buildMap();
         //Generated code;
         cg_generated.add(ad_fun);
+        ad_fun_num_operations = ad_fun.n_instructions() - ad_fun.nnz_in() - ad_fun.nnz_out();
         if(build_jacobian)
         {
           cg_generated.add(ad_fun_derivs);
+          ad_fun_derivs_num_operations = ad_fun_derivs.n_instructions() - ad_fun_derivs.nnz_in() - ad_fun_derivs.nnz_out();
         }
         cg_generated.generate();
       }
@@ -119,6 +121,9 @@ namespace pinocchio
       ADFun ad_fun, ad_fun_derivs;
       ADFun fun, fun_derivs;
       std::vector<DMMatrix> fun_output, fun_output_derivs;
+      
+    public:
+      int ad_fun_num_operations, ad_fun_derivs_num_operations;
     };
     
     
