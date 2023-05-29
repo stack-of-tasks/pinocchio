@@ -432,7 +432,7 @@ class MeshcatVisualizer(BaseVisualizer):
 
         self._node_default_cam = self.viewer["/Cameras/default"]
         self._node_background = self.viewer["/Background"]
-        self._rot_cam_key = "rotated/object"
+        self._rot_cam_key = "rotated/<object>"
         self.static_objects = []
 
         self._check_meshcat_has_get_image()
