@@ -16,6 +16,7 @@ variables:
     - git clone --recursive https://github.com/stack-of-tasks/eigenpy.git
     - cd eigenpy
     - git checkout devel
+    - git submodule update
     - mkdir build
     - cd build
     - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
