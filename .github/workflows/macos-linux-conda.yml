@@ -4,26 +4,32 @@ on: [push,pull_request]
 
 jobs:
   pinocchio-conda:
-    name: Pinocchio on ${{ matrix.os }} with Conda
+    name: Pinocchio on ${{ matrix.os }} in ${{ matrix.build_type }} mode with Conda
     runs-on: ${{ matrix.os }}
+    env:
+      CCACHE_DIR: ${{ matrix.CCACHE_DIR }}
 
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
+        build_type: [Release, Debug]
+
+        include:
+          - os: ubuntu-latest
+            CCACHE_DIR: /home/runner/.ccache
+          - os: macos-latest
+            CCACHE_DIR: /Users/runner/.ccache
 
     steps:
     - uses: actions/checkout@v3
-
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1
       with:
-        key: ${{ matrix.os }}-${{ matrix.type }}
-        max-size: 1G
+        submodules: recursive
 
-    - name: Checkout submodules
-      run: |
-        git submodule update --init
+    - uses: actions/cache@v3
+      with:
+        path: ${{ env.CCACHE_DIR }}
+        key: ccache-conda-${{ matrix.os }}-${{ matrix.build_type }}
 
     - uses: conda-incubator/setup-miniconda@v2
       with:
@@ -36,7 +42,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pinocchio
-        mamba install cmake llvm-openmp compilers=1.4.2 -c conda-forge
+        mamba install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
         conda list
 
     - name: Build Pinocchio
@@ -45,8 +51,6 @@ jobs:
         conda activate pinocchio
         echo $CONDA_PREFIX
 
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-
         mkdir build
         cd build
 
@@ -54,11 +58,10 @@ jobs:
         if [ "$(uname)" == "Darwin" ]; then
           export LINK_PYTHON_INTERFACE_TO_OPENMP=OFF
         fi
-        cmake .. -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON -DOpenMP_ROOT=$CONDA_PREFIX
+        cmake .. -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON -DOpenMP_ROOT=$CONDA_PREFIX
         make
         make build_tests
-        export CTEST_OUTPUT_ON_FAILURE=1
-        make test
+        CTEST_OUTPUT_ON_FAILURE=1 make test
         make install
 
     - name: Uninstall Pinocchio
