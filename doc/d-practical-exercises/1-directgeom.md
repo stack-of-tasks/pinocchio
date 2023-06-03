@@ -95,7 +95,8 @@ Spatial velocities, elements of \f$se(3) = M^6\f$, are represented by the
 class `Motion`.
 
 ```py
-v = zero(3); w = zero(3)
+v = zero(3)
+w = zero(3)
 nu0 = pin.Motion(v, w)
 nu = pin.Motion.Random()
 nu.linear = v
@@ -106,7 +107,8 @@ Spatial forces, elements of \f$se(3)^* = F^6\f$, are represented by the
 class `Force`.
 
 ```py
-f = zero(3); tau = zero(3)
+f = zero(3)
+tau = zero(3)
 phi0 = pin.Force(f, tau)
 phi = pin.Force.Random()
 phi.linear = f
