@@ -10,8 +10,13 @@ import numpy as np
 from distutils.version import LooseVersion
 from typing import List
 
-import meshcat
-import meshcat.geometry as mg
+try:
+    import meshcat
+    import meshcat.geometry as mg
+except ImportError:
+    import_meshcat_fail = True
+else:
+    import_meshcat_fail = False
 
 # DaeMeshGeometry
 import xml.etree.ElementTree as Et
@@ -412,6 +417,12 @@ class MeshcatVisualizer(BaseVisualizer):
     }
 
     def __init__(self, *args, **kwargs):
+        if import_meshcat_fail:
+            msg = ("Error while importing the viewer client.\n"
+            "Check whether meshcat is properly installed (pip install --user meshcat)."
+            )
+            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            
         super(MeshcatVisualizer, self).__init__(*args, **kwargs)
         self.static_objects = []
 
