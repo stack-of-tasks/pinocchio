@@ -422,7 +422,7 @@ class MeshcatVisualizer(BaseVisualizer):
             msg = ("Error while importing the viewer client.\n"
             "Check whether meshcat is properly installed (pip install --user meshcat)."
             )
-            warnings.warn(msg, category=UserWarning, stacklevel=2)
+            raise ImportError(msg)
 
         super(MeshcatVisualizer, self).__init__(*args, **kwargs)
         self.static_objects = []
