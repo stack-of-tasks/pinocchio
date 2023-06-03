@@ -63,15 +63,17 @@ c = A @ b             # Obtain c by multiplying A by b.
 A bunch of useful functions are packaged in the utils of pinocchio.
 
 ```py
+import pinocchio as pin
 from pinocchio.utils import *
+import numpy as np
 eye(6)                      # Return a 6x6 identity matrix
 zero(6)                     # Return a zero 6x1 vector
 zero([6, 4])                # Return az zero 6x4 matrix
 rand(6)                     # Random 6x1 vector
 isapprox(zero(6), rand(6))  # Test epsilon equality
 mprint(rand([6, 6]))        # Matlab-style print
-skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
-cross(rand(3), rand(3))     # Cross product of R^3
+pin.skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
+np.cross(rand(3), rand(3))     # Cross product of R^3
 rotate('x', 0.4)            # Build a rotation matrix of 0.4rad around X.
 ```
 
