@@ -87,10 +87,9 @@ for k in range(N):
 from pinocchio.visualize import MeshcatVisualizer as Visualizer
 
 visual_model = geom_model
-viz = Visualizer(model, geom_model, visual_model)
-
 # Initialize the viewer.
 try:
+    viz = Visualizer(model, geom_model, visual_model)
     viz.initViewer()
 except ImportError as err:
     print("Error while initializing the viewer. It seems you should install gepetto-viewer")
