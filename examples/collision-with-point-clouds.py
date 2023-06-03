@@ -73,8 +73,6 @@ go_panda_hand.geometry = go_panda_hand.geometry.convex # We need to work with th
 collision_pair = pin.CollisionPair(height_field_collision_id, panda_hand_collision_id)
 collision_model.addCollisionPair(collision_pair)
 
-viz = MeshcatVisualizer(model, collision_model, visual_model)
-
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
 # this enables the server to remain active after the current script ends.
@@ -82,6 +80,7 @@ viz = MeshcatVisualizer(model, collision_model, visual_model)
 # Option open=True pens the visualizer.
 # Note: the visualizer can also be opened seperately by visiting the provided URL.
 try:
+    viz = MeshcatVisualizer(model, collision_model, visual_model)
     viz.initViewer(open=True)
 except ImportError as err:
     print("Error while initializing the viewer. It seems you should install Python meshcat")

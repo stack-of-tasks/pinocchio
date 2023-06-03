@@ -60,9 +60,9 @@ model, visual_model = pin.appendModel(
     model1, model2, visual_model1, visual_model2, frame_id_end_effector, pin.SE3.Identity())
 
 print("Check the joints of the appended model:\n %s \n ->Notice the spherical joint at the end." % model)
-viz = Visualizer(model, visual_model, visual_model)
 
 try:
+    viz = Visualizer(model, visual_model, visual_model)
     viz.initViewer(open=True)
 except ImportError as err:
     print("Error while initializing the viewer. It seems you should install Python meshcat")
@@ -70,7 +70,6 @@ except ImportError as err:
     sys.exit(0)
 
 # Load the robot in the viewer.
-viz.viewer.open()
 viz.loadViewerModel()
 
 # Display a random robot configuration.
