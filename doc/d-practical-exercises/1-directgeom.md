@@ -83,7 +83,8 @@ the class `SE3`.
 
 ```py
 import pinocchio as pin
-R = eye(3); p = zero(3)
+R = eye(3)
+p = zero(3)
 M0 = pin.SE3(R, p)
 M = pin.SE3.Random()
 M.translation = p
@@ -97,7 +98,8 @@ class `Motion`.
 v = zero(3); w = zero(3)
 nu0 = pin.Motion(v, w)
 nu = pin.Motion.Random()
-nu.linear = v; nu.angular = w
+nu.linear = v
+nu.angular = w
 ```
 
 Spatial forces, elements of \f$se(3)^* = F^6\f$, are represented by the
@@ -107,7 +109,8 @@ class `Force`.
 f = zero(3); tau = zero(3)
 phi0 = pin.Force(f, tau)
 phi = pin.Force.Random()
-phi.linear = f; phi.angular = tau
+phi.linear = f
+phi.angular = tau
 ```
 
 ## 1.1) Creating and displaying the robot
