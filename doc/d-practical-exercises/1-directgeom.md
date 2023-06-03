@@ -86,7 +86,8 @@ import pinocchio as pin
 R = eye(3); p = zero(3)
 M0 = pin.SE3(R, p)
 M = pin.SE3.Random()
-M.translation = p; M.rotation = R
+M.translation = p
+M.rotation = R
 ```
 
 Spatial velocities, elements of \f$se(3) = M^6\f$, are represented by the
