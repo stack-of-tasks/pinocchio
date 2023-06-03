@@ -177,7 +177,7 @@ namespace pinocchio
   addJointFrame(const JointIndex & joint_index,
                 int previous_frame_index)
   {
-    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_index >= 0 && joint_index < joints.size(),
+    PINOCCHIO_CHECK_INPUT_ARGUMENT(joint_index < joints.size(),
                                    "The joint index is larger than the number of joints in the model.");
     if(previous_frame_index < 0)
     {
