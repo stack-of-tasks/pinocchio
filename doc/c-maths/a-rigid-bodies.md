@@ -4,11 +4,11 @@
 
 A rigid body system is an assembly of different parts which are joints, rigid bodies and forces. A joint connects two different bodies and gather all kinematic relations between those two bodies, allowing the creation of a relative displacement between the two bodies. This displacement is described by breaking it down into three parts, rotations, translations or the compositions of a rotation and a translation.
 
-Rotation matrices form the so-called **Special Orthogonal** group \f$ SO(n) \f$. There are two groups within the latter which interest us as for now: \f$ SO(2) \f$ and \f$ SO(3) \f$. \f$ SO(3) \f$ is the group of all rotations in the 3-dimensionnal space. Its elements are matrices of size 3 by 3. \f$ SO(3) \f$ is useful for planar problems. It is the group of rotations in the 2-dimensionnal space. Its elements are matrices of size 2 by 2.
+Rotation matrices form the so-called **Special Orthogonal** group \f$ SO(n) \f$. There are two groups within the latter which interest us as for now: \f$ SO(2) \f$ and \f$ SO(3) \f$. \f$ SO(3) \f$ is the group of all rotations in the 3-dimensionnal space. Its elements are matrices of size 3 by 3. \f$ SO(3) \f$ is useful for planar problems. It is the group of rotations in the 2-dimensionnal space. Its elements are matrices of size 2x2.
 
 The set that brings together all the homogeneous transformations matrices is the **Special Euclidean** group \f$ SE(n) \f$. As with rotation matrices, there are two different groups, \f$ SE(3) \f$ for 3-dimensional transformations and \f$ SE(2) \f$ for 2-dimensional transformation, i.e. transformation in a plane. 
 
-### Using quaternions for an <!-- $ SO(3) $ --> <img src="https://latex.codecogs.com/svg.image?\bold\color{black}SO(3)" /> object 
+### Using quaternions for an <!-- $ SO(3) $ --> <img src="https://latex.codecogs.com/svg.image?\color{black}\textbf{SO(3)}" /> object 
 
 To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do as in the \f$ SE(3) \f$ example in the **e-lie** chapter by removing the translation vector. 
 
