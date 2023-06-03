@@ -134,10 +134,12 @@ will use the model of the UR5 robot, available in the directory "models"
 of pinocchio (available in the homedir of the VBox).
 
 ```py
-from pinocchio.robot_wrapper import RobotWrapper
+from robot_descriptions.loaders.pinocchio import load_robot_description
 
-URDF = '/opt/openrobots/share/ur5_description/urdf/ur5_gripper.urdf'
-robot = RobotWrapper.BuildFromURDF(URDF)
+robot = load_robot_description("ur5_description")
+model = robot.model
+collision_model = robot.collision_model
+visual_model = robot.visual_model
 ```
 
 The code of the RobotWrapper class is in
