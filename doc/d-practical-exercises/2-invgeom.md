@@ -146,7 +146,7 @@ PKG = '/opt/openrobots/share'
 URDF = join(PKG, 'romeo_description/urdf/romeo.urdf')
 
 robot = RomeoWrapper(URDF, [PKG])  # Load urdf model
-robot.initDisplay(loadModel=True)
+robot.initViewer(loadModel=True)
 ```
 
 Additionally, the index of right

@@ -21,7 +21,7 @@ For this tutorial, you will need [Pinocchio](http://stack-of-tasks.github.io/pin
 
 For this, the easiest way is to add [robotpkg apt repository](http://robotpkg.openrobots.org/debian.html) and launch:
 ```
-sudo apt install robotpkg-py27-pinocchio robotpkg-ur5-description robotpkg-py27-qt4-gepetto-viewer-corba robotpkg-osg-dae
+sudo apt install robotpkg-pinocchio robotpkg-ur5-description robotpkg-py310-qt5-gepetto-viewer
 ```
 
 ### Python
@@ -57,21 +57,23 @@ the following example.
 import numpy as np
 A = np.array([[1, 2, 3, 4], [5, 6, 7, 8]])  # Define a 2x4 matrix
 b = np.zeros([4, 1])  # Define a 4 vector (ie a 4x1 matrix) initialized with 0
-c = A * b             # Obtain c by multiplying A by b.
+c = A @ b             # Obtain c by multiplying A by b.
 ```
 
 A bunch of useful functions are packaged in the utils of pinocchio.
 
 ```py
+import pinocchio as pin
 from pinocchio.utils import *
+import numpy as np
 eye(6)                      # Return a 6x6 identity matrix
 zero(6)                     # Return a zero 6x1 vector
 zero([6, 4])                # Return az zero 6x4 matrix
 rand(6)                     # Random 6x1 vector
 isapprox(zero(6), rand(6))  # Test epsilon equality
 mprint(rand([6, 6]))        # Matlab-style print
-skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
-cross(rand(3), rand(3))     # Cross product of R^3
+pin.skew(rand(3))               # Skew "cross-product" 3x3 matrix from a 3x1 vector
+np.cross(rand(3), rand(3))     # Cross product of R^3
 rotate('x', 0.4)            # Build a rotation matrix of 0.4rad around X.
 ```
 
@@ -81,30 +83,36 @@ the class `SE3`.
 
 ```py
 import pinocchio as pin
-R = eye(3); p = zero(3)
+R = eye(3)
+p = zero(3)
 M0 = pin.SE3(R, p)
 M = pin.SE3.Random()
-M.translation = p; M.rotation = R
+M.translation = p
+M.rotation = R
 ```
 
 Spatial velocities, elements of \f$se(3) = M^6\f$, are represented by the
 class `Motion`.
 
 ```py
-v = zero(3); w = zero(3)
+v = zero(3)
+w = zero(3)
 nu0 = pin.Motion(v, w)
 nu = pin.Motion.Random()
-nu.linear = v; nu.angular = w
+nu.linear = v
+nu.angular = w
 ```
 
 Spatial forces, elements of \f$se(3)^* = F^6\f$, are represented by the
 class `Force`.
 
 ```py
-f = zero(3); tau = zero(3)
+f = zero(3)
+tau = zero(3)
 phi0 = pin.Force(f, tau)
 phi = pin.Force.Random()
-phi.linear = f; phi.angular = tau
+phi.linear = f
+phi.angular = tau
 ```
 
 ## 1.1) Creating and displaying the robot
@@ -114,26 +122,23 @@ phi.linear = f; phi.angular = tau
 The kinematic tree is represented by two C++ objects called Model (which
 contains the model constants: lengths, masses, names, etc) and Data
 (which contains the working memory used by the model algorithms). Both
-C++ objects are contained in a unique Python class. The first class is
-called RobotWrapper and is generic.
-
-For the next steps, we are going to work with the RobotWrapper.
-
-Import the class `RobotWrapper` and create an instance of this class in
-the python terminal. At initialization, RobotWrapper will read the model
-description in the URDF file given as argument. In the following, we
-will use the model of the UR5 robot, available in the directory "models"
-of pinocchio (available in the homedir of the VBox).
+C++ objects are contained in a unique Python class. load_robot_description
+can load common robot models without issue into pinocchio. First install
+the example-robot-data package using: 
+'sudo apt install robotpkg-example-robot-data'
 
 ```py
-from pinocchio.robot_wrapper import RobotWrapper
+from robot_descriptions.loaders.pinocchio import load_robot_description
 
-URDF = '/opt/openrobots/share/ur5_description/urdf/ur5_gripper.urdf'
-robot = RobotWrapper.BuildFromURDF(URDF)
+robot = load_robot_description("ur5_description")
+model = robot.model
+collision_model = robot.collision_model
+visual_model = robot.visual_model
 ```
 
-The code of the RobotWrapper class is in
-`/opt/openrobots/lib/python2.7/site-packages/pinocchio/robot_wrapper.py`.
+The code of the RobotWrapper class can also be used to load local URDF's
+and can be found at 
+`/opt/openrobots/lib/python3.10/site-packages/pinocchio/robot_wrapper.py`.
 Do not hesitate to have a look at it and to take inspiration from the
 implementation of the class functions.
 
@@ -143,7 +148,7 @@ is in R^6 and is not subject to any constraint. The model of UR5 is
 described in a URDF file, with the visuals of the bodies of the robot
 being described as meshed (i.e. polygon soups) using the Collada format
 ".dae". Both the URDF and the DAE files are available in the package
-`robotpkg-ur5-description`
+`robotpkg-example-robot-data'
 
 ### Exploring the model
 
