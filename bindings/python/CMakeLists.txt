@@ -1,7 +1,9 @@
 #
-# Copyright (c) 2015-2021 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
+
+include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
 # --- MACROS --- #
 MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
