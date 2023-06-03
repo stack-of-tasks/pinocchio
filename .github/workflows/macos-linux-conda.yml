@@ -4,7 +4,7 @@ on: [push,pull_request]
 
 jobs:
   pinocchio-conda:
-    name: Pinocchio on ${{ matrix.os }} with ${{ matrix.build_type }} MODE on Conda
+    name: Pinocchio on ${{ matrix.os }} in ${{ matrix.build_type }} mode with Conda
     runs-on: ${{ matrix.os }}
     env:
       CCACHE_DIR: ${{ matrix.CCACHE_DIR }}
@@ -29,7 +29,7 @@ jobs:
     - uses: actions/cache@v3
       with:
         path: ${{ env.CCACHE_DIR }}
-        key: ccache-${{ matrix.os }}-${{ matrix.build_type }}
+        key: ccache-conda-${{ matrix.os }}-${{ matrix.build_type }}
 
     - uses: conda-incubator/setup-miniconda@v2
       with:
