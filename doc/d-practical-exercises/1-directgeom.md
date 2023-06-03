@@ -122,16 +122,10 @@ phi.angular = tau
 The kinematic tree is represented by two C++ objects called Model (which
 contains the model constants: lengths, masses, names, etc) and Data
 (which contains the working memory used by the model algorithms). Both
-C++ objects are contained in a unique Python class. The first class is
-called RobotWrapper and is generic.
-
-For the next steps, we are going to work with the RobotWrapper.
-
-Import the class `RobotWrapper` and create an instance of this class in
-the python terminal. At initialization, RobotWrapper will read the model
-description in the URDF file given as argument. In the following, we
-will use the model of the UR5 robot, available in the directory "models"
-of pinocchio (available in the homedir of the VBox).
+C++ objects are contained in a unique Python class. load_robot_description
+can load common robot models without issue into pinocchio. First install
+the example-robot-data package using: 
+'sudo apt install robotpkg-example-robot-data'
 
 ```py
 from robot_descriptions.loaders.pinocchio import load_robot_description
@@ -142,8 +136,9 @@ collision_model = robot.collision_model
 visual_model = robot.visual_model
 ```
 
-The code of the RobotWrapper class is in
-`/opt/openrobots/lib/python2.7/site-packages/pinocchio/robot_wrapper.py`.
+The code of the RobotWrapper class can also be used to load local URDF's
+and can be found at 
+`/opt/openrobots/lib/python3.10/site-packages/pinocchio/robot_wrapper.py`.
 Do not hesitate to have a look at it and to take inspiration from the
 implementation of the class functions.
 
@@ -153,7 +148,7 @@ is in R^6 and is not subject to any constraint. The model of UR5 is
 described in a URDF file, with the visuals of the bodies of the robot
 being described as meshed (i.e. polygon soups) using the Collada format
 ".dae". Both the URDF and the DAE files are available in the package
-`robotpkg-ur5-description`
+`robotpkg-example-robot-data'
 
 ### Exploring the model
 
