@@ -14,9 +14,9 @@ try:
     import meshcat
     import meshcat.geometry as mg
 except ImportError:
-    import_meshcat_fail = True
+    import_meshcat_succeed = False
 else:
-    import_meshcat_fail = False
+    import_meshcat_succeed = True
 
 # DaeMeshGeometry
 import xml.etree.ElementTree as Et
@@ -57,124 +57,125 @@ def hasMeshFileInfo(geometry_object):
 
     return False
 
-# Code adapted from Jiminy
-class Cone(mg.Geometry):
-    """A cone of the given height and radius. By Three.js convention, the axis
-    of rotational symmetry is aligned with the y-axis.
-    """
-    def __init__(self, height: float, radius: float, radialSegments: float = 32, openEnded: bool = False):
-        super().__init__()
-        self.radius = radius
-        self.height = height
-        self.radialSegments = radialSegments
-        self.openEnded = openEnded
-
-    def lower(self, object_data: Any) -> MsgType:
-        return {
-            u"uuid": self.uuid,
-            u"type": u"ConeGeometry",
-            u"radius": self.radius,
-            u"height": self.height,
-            u"radialSegments": self.radialSegments,
-            u"openEnded": self.openEnded,
-        }
-
-class DaeMeshGeometry(mg.ReferenceSceneElement):
-    def __init__(self,
-                 dae_path: str,
-                 cache: Optional[Set[str]] = None) -> None:
-        """Load Collada files with texture images.
-        Inspired from
-        https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
+if import_meshcat_succeed:
+    # Code adapted from Jiminy
+    class Cone(mg.Geometry):
+        """A cone of the given height and radius. By Three.js convention, the axis
+        of rotational symmetry is aligned with the y-axis.
         """
-        # Init base class
-        super().__init__()
+        def __init__(self, height: float, radius: float, radialSegments: float = 32, openEnded: bool = False):
+            super().__init__()
+            self.radius = radius
+            self.height = height
+            self.radialSegments = radialSegments
+            self.openEnded = openEnded
 
-        # Attributes to be specified by the user
-        self.path = None
-        self.material = None
+        def lower(self, object_data: Any) -> MsgType:
+            return {
+                u"uuid": self.uuid,
+                u"type": u"ConeGeometry",
+                u"radius": self.radius,
+                u"height": self.height,
+                u"radialSegments": self.radialSegments,
+                u"openEnded": self.openEnded,
+            }
 
-        # Raw file content
-        dae_dir = os.path.dirname(dae_path)
-        with open(dae_path, 'r') as text_file:
-            self.dae_raw = text_file.read()
+    class DaeMeshGeometry(mg.ReferenceSceneElement):
+        def __init__(self,
+                    dae_path: str,
+                    cache: Optional[Set[str]] = None) -> None:
+            """Load Collada files with texture images.
+            Inspired from
+            https://gist.github.com/danzimmerman/a392f8eadcf1166eb5bd80e3922dbdc5
+            """
+            # Init base class
+            super().__init__()
 
-        # Parse the image resource in Collada file
-        img_resource_paths = []
-        img_lib_element = Et.parse(dae_path).find(
-            "{http://www.collada.org/2005/11/COLLADASchema}library_images")
-        if img_lib_element:
-            img_resource_paths = [
-                e.text for e in img_lib_element.iter()
-                if e.tag.count('init_from')]
+            # Attributes to be specified by the user
+            self.path = None
+            self.material = None
 
-        # Convert textures to data URL for Three.js ColladaLoader to load them
-        self.img_resources = {}
-        for img_path in img_resource_paths:
-            # Return empty string if already in cache
-            if cache is not None:
-                if img_path in cache:
-                    self.img_resources[img_path] = ""
-                    continue
-                cache.add(img_path)
+            # Raw file content
+            dae_dir = os.path.dirname(dae_path)
+            with open(dae_path, 'r') as text_file:
+                self.dae_raw = text_file.read()
 
-            # Encode texture in base64
-            img_path_abs = img_path
-            if not os.path.isabs(img_path):
-                img_path_abs = os.path.normpath(
-                    os.path.join(dae_dir, img_path_abs))
-            if not os.path.isfile(img_path_abs):
-                raise UserWarning(f"Texture '{img_path}' not found.")
-            with open(img_path_abs, 'rb') as img_file:
-                img_data = base64.b64encode(img_file.read())
-            img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
-            self.img_resources[img_path] = img_uri
+            # Parse the image resource in Collada file
+            img_resource_paths = []
+            img_lib_element = Et.parse(dae_path).find(
+                "{http://www.collada.org/2005/11/COLLADASchema}library_images")
+            if img_lib_element:
+                img_resource_paths = [
+                    e.text for e in img_lib_element.iter()
+                    if e.tag.count('init_from')]
 
-    def lower(self) -> Dict[str, Any]:
-        """Pack data into a dictionary of the format that must be passed to
-        `Visualizer.window.send`.
-        """
-        data = {
-            'type': 'set_object',
-            'path': self.path.lower() if self.path is not None else "",
-            'object': {
-                'metadata': {'version': 4.5, 'type': 'Object'},
-                'geometries': [],
-                'materials': [],
+            # Convert textures to data URL for Three.js ColladaLoader to load them
+            self.img_resources = {}
+            for img_path in img_resource_paths:
+                # Return empty string if already in cache
+                if cache is not None:
+                    if img_path in cache:
+                        self.img_resources[img_path] = ""
+                        continue
+                    cache.add(img_path)
+
+                # Encode texture in base64
+                img_path_abs = img_path
+                if not os.path.isabs(img_path):
+                    img_path_abs = os.path.normpath(
+                        os.path.join(dae_dir, img_path_abs))
+                if not os.path.isfile(img_path_abs):
+                    raise UserWarning(f"Texture '{img_path}' not found.")
+                with open(img_path_abs, 'rb') as img_file:
+                    img_data = base64.b64encode(img_file.read())
+                img_uri = f"data:image/png;base64,{img_data.decode('utf-8')}"
+                self.img_resources[img_path] = img_uri
+
+        def lower(self) -> Dict[str, Any]:
+            """Pack data into a dictionary of the format that must be passed to
+            `Visualizer.window.send`.
+            """
+            data = {
+                'type': 'set_object',
+                'path': self.path.lower() if self.path is not None else "",
                 'object': {
-                    'uuid': self.uuid,
-                    'type': '_meshfile_object',
-                    'format': 'dae',
-                    'data': self.dae_raw,
-                    'resources': self.img_resources
+                    'metadata': {'version': 4.5, 'type': 'Object'},
+                    'geometries': [],
+                    'materials': [],
+                    'object': {
+                        'uuid': self.uuid,
+                        'type': '_meshfile_object',
+                        'format': 'dae',
+                        'data': self.dae_raw,
+                        'resources': self.img_resources
+                    }
                 }
             }
-        }
-        if self.material is not None:
-            self.material.lower_in_object(data)
-        return data
+            if self.material is not None:
+                self.material.lower_in_object(data)
+            return data
 
-# end code adapted from Jiminy
+    # end code adapted from Jiminy
 
-class Plane(mg.Geometry):
-    """A plane of the given width and height. 
-    """
-    def __init__(self, width: float, height: float, widthSegments: float = 1, heightSegments: float = 1):
-        super().__init__()
-        self.width = width
-        self.height = height
-        self.widthSegments = widthSegments
-        self.heightSegments = heightSegments
+    class Plane(mg.Geometry):
+        """A plane of the given width and height. 
+        """
+        def __init__(self, width: float, height: float, widthSegments: float = 1, heightSegments: float = 1):
+            super().__init__()
+            self.width = width
+            self.height = height
+            self.widthSegments = widthSegments
+            self.heightSegments = heightSegments
 
-    def lower(self, object_data: Any) -> MsgType:
-        return {
-            u"uuid": self.uuid,
-            u"type": u"PlaneGeometry",
-            u"width": self.width,
-            u"height": self.height,
-            u"widthSegments": self.widthSegments,
-            u"heightSegments": self.heightSegments,
-        }
+        def lower(self, object_data: Any) -> MsgType:
+            return {
+                u"uuid": self.uuid,
+                u"type": u"PlaneGeometry",
+                u"width": self.width,
+                u"height": self.height,
+                u"widthSegments": self.widthSegments,
+                u"heightSegments": self.heightSegments,
+            }
 
 def loadOctree(octree: hppfcl.OcTree):
     boxes = octree.toBoxes()
@@ -417,12 +418,12 @@ class MeshcatVisualizer(BaseVisualizer):
     }
 
     def __init__(self, *args, **kwargs):
-        if import_meshcat_fail:
+        if not import_meshcat_succeed:
             msg = ("Error while importing the viewer client.\n"
             "Check whether meshcat is properly installed (pip install --user meshcat)."
             )
             warnings.warn(msg, category=UserWarning, stacklevel=2)
-            
+
         super(MeshcatVisualizer, self).__init__(*args, **kwargs)
         self.static_objects = []
 
