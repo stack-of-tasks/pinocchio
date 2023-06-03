@@ -8,7 +8,7 @@ Rotation matrices form the so-called **Special Orthogonal** group \f$ SO(n) \f$.
 
 The set that brings together all the homogeneous transformations matrices is the **Special Euclidean** group \f$ SE(n) \f$. As with rotation matrices, there are two different groups, \f$ SE(3) \f$ for 3-dimensional transformations and \f$ SE(2) \f$ for 2-dimensional transformation, i.e. transformation in a plane. 
 
-### Using quaternions for an $ SO(3) $ object 
+### Using quaternions for an <img src="https://render.githubusercontent.com/render/math?math={SO(3)}##gh-light-mode-only"> object 
 
 To use quaternions for a \f$ SO(3) \f$ object we have several methods, we can do as in the \f$ SE(3) \f$ example in the **e-lie** chapter by removing the translation vector. 
 
