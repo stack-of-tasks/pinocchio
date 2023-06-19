@@ -391,8 +391,8 @@ namespace pinocchio
 
     /// \brief SO Cross-Partial derivative of the joint torque vector with
     /// respect to the joint acceleration/configuration. This also equals to the
-    /// First Order partial derivative of the Mass Matrix w.r.t joint
-    /// configuration
+    /// first-order partial derivative of the Mass Matrix w.r.t joint
+    /// configuration.
     Tensor3x d2tau_dadq;
 
     ///
