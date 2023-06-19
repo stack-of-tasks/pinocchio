@@ -47,6 +47,9 @@ viz.loadViewerModel()
 
 # Display a robot configuration.
 q0 = pin.neutral(model)
+v0 = np.zeros(model.nv)
+data = viz.data
+pin.forwardKinematics(model, data, q0, v0)
 viz.display(q0)
 
 mesh = visual_model.geometryObjects[0].geometry
@@ -73,9 +76,9 @@ q1 = np.array(
     [0.0, 0.0, 0.235, 0.0, 0.0, 0.0, 1.0, 0.8, -1.6, 0.8, -1.6, -0.8, 1.6, -0.8, 1.6]
 )
 
-v0 = np.random.randn(model.nv) * 2
+v1 = np.random.randn(model.nv) * 2
 data = viz.data
-pin.forwardKinematics(model, data, q1, v0)
+pin.forwardKinematics(model, data, q1, v1)
 frame_id = model.getFrameId("HR_FOOT")
 viz.display()
 viz.drawFrameVelocities(frame_id=frame_id)
@@ -87,7 +90,7 @@ dt = 0.01
 def sim_loop():
     tau0 = np.zeros(model.nv)
     qs = [q1]
-    vs = [v0]
+    vs = [v1]
     nsteps = 100
     for i in range(nsteps):
         q = qs[i]
