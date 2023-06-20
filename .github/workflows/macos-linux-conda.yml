@@ -42,7 +42,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pinocchio
-        mamba install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
+        conda install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
         conda list
 
     - name: Build Pinocchio
