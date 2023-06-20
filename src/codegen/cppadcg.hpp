@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -33,6 +33,12 @@ namespace boost
           
           template <int N>
           static inline CGScalar get(const mpl::int_<N>& n)
+          {
+            return CGScalar(constant_pi<Scalar>::get(n));
+          }
+
+          template <class T, T value>
+          static inline CGScalar get(const std::integral_constant<T, value> &n)
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
