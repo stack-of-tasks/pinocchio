@@ -377,9 +377,7 @@ namespace pinocchio
     : axis1(x1, y1, z1)
     , axis2(x2, y2, z2)
     {
-      normalize(axis1);
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
-      normalize(axis2);
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
       assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
     }
@@ -392,9 +390,7 @@ namespace pinocchio
     , axis2(axis2_)
     {
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Vector3Like);
-      normalize(axis1);
       assert(isUnitary(axis1) && "First Rotation axis is not unitary");
-      normalize(axis2);
       assert(isUnitary(axis2) && "Second Rotation axis is not unitary");
       assert(axis1.dot(axis2)==0 && "Axii are not orthogonal");
     }
