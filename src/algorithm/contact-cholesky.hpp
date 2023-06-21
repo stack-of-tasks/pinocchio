@@ -203,6 +203,27 @@ namespace pinocchio
           return self.getOperationalSpaceInertiaMatrix();
         }
 
+        ///
+        /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping terms should be all positives.
+        ///
+        /// \param[in] mus Vector of positive regularization factor allowing to enforce the definite positiveness of the matrix.
+        ///
+        template<typename VectorLike>
+        void updateDamping(const Eigen::MatrixBase<VectorLike> & mus)
+        {
+          const_cast<ContactCholeskyDecompositionTpl &>(self).updateDamping(mus);
+        }
+
+        ///
+        /// \brief Add a damping term to the diagonal of the Delassus matrix. The damping term should be positive.
+        ///
+        /// \param[in] mu Regularization factor allowing to enforce the definite positiveness of the matrix.
+        ///
+        void updateDamping(const Scalar & mu)
+        {
+          const_cast<ContactCholeskyDecompositionTpl &>(self).updateDamping(mu);
+        }
+
         Eigen::DenseIndex size() const { return self.constraintDim(); }
         Eigen::DenseIndex rows() const { return size(); }
         Eigen::DenseIndex cols() const { return size(); }
