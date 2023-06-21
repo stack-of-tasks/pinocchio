@@ -5,7 +5,6 @@
 #ifndef __pinocchio_algorithm_constrained_dynamics_hpp__
 #define __pinocchio_algorithm_constrained_dynamics_hpp__
 
-#include "pinocchio/algorithm/constrained-dynamics.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 
 #include "pinocchio/algorithm/proximal.hpp"

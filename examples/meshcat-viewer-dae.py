@@ -27,7 +27,6 @@ for geom in visual_model.geometryObjects:
   s *= 0.01
   geom.meshScale = s
 
-viz = MeshcatVisualizer(model, collision_model, visual_model)
 
 # Start a new MeshCat server and client.
 # Note: the server can also be started separately using the "meshcat-server" command in a terminal:
@@ -36,6 +35,7 @@ viz = MeshcatVisualizer(model, collision_model, visual_model)
 # Option open=True pens the visualizer.
 # Note: the visualizer can also be opened seperately by visiting the provided URL.
 try:
+    viz = MeshcatVisualizer(model, collision_model, visual_model)
     viz.initViewer(open=True)
 except ImportError as err:
     print("Error while initializing the viewer. It seems you should install Python meshcat")

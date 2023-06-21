@@ -49,10 +49,14 @@ namespace pinocchio
   : NumericalBase< BaumgarteCorrectorParametersTpl<_Scalar> >
   {
     typedef _Scalar Scalar;
+    typedef Eigen::Matrix<Scalar, -1, 1, Eigen::ColMajor, 6> Vector6Max;
     
-    BaumgarteCorrectorParametersTpl()
-    : Kp(Scalar(0)), Kd(Scalar(0))
-    {};
+    BaumgarteCorrectorParametersTpl(int size = 6)
+      : Kp(size), Kd(size)
+    {
+      Kp.setZero();
+      Kd.setZero();
+    }
     
     bool operator ==(const BaumgarteCorrectorParametersTpl & other) const
     { return Kp == other.Kp && Kd == other.Kd; }
@@ -62,17 +66,17 @@ namespace pinocchio
     
     // parameters
     /// \brief Proportional corrector value.
-    Scalar Kp;
+    Vector6Max Kp;
     
     /// \brief Damping corrector value.
-    Scalar Kd;
+    Vector6Max Kd;
 
     template<typename NewScalar>
     BaumgarteCorrectorParametersTpl<NewScalar> cast() const {
       typedef BaumgarteCorrectorParametersTpl<NewScalar> ReturnType;
       ReturnType res;
-      res.Kp = static_cast<NewScalar>(Kp);
-      res.Kd = static_cast<NewScalar>(Kd);
+      res.Kp = Kp.template cast<NewScalar>();
+      res.Kd = Kd.template cast<NewScalar>();
       return res;
     }  
   };
@@ -199,6 +203,7 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
+    , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
     {
@@ -228,6 +233,7 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
+    , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
     {
@@ -256,6 +262,7 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
+    , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
     {
@@ -284,6 +291,7 @@ namespace pinocchio
     , desired_contact_placement(SE3::Identity())
     , desired_contact_velocity(Motion::Zero())
     , desired_contact_acceleration(Motion::Zero())
+    , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
     {

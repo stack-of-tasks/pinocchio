@@ -28,6 +28,7 @@ namespace pinocchio
     : public boost::python::def_visitor< BaumgarteCorrectorParametersPythonVisitor<BaumgarteCorrectorParameters> >
     {
       typedef typename BaumgarteCorrectorParameters::Scalar Scalar;
+      typedef typename BaumgarteCorrectorParameters::Vector6Max Vector6Max;
       typedef BaumgarteCorrectorParameters Self;
       
     public:
@@ -36,12 +37,12 @@ namespace pinocchio
       void visit(PyClass& cl) const
       {
         cl
-        .def(bp::init<>(bp::arg("self"),
+        .def(bp::init<int>(bp::args("self", "size"),
                         "Default constructor."))
         
-        .add_property("Kp",&getKp,&setKp,
+        .def_readwrite("Kp",&Self::Kp,
                       "Proportional corrector value.")
-        .add_property("Kd",&getKd,&setKd,
+        .def_readwrite("Kd",&Self::Kd,
                       "Damping corrector value.")
         
         .def(CastVisitor<Self>())
@@ -50,14 +51,9 @@ namespace pinocchio
         ;
       }
       
-      static void setKp(Self & self, const Scalar & value) { self.Kp = value; }
-      static Scalar getKp(const Self & self) { return self.Kp; }
-      
-      static void setKd(Self & self, const Scalar & value) { self.Kd = value; }
-      static Scalar getKd(const Self & self) { return self.Kd; }
-      
       static void expose()
       {
+        eigenpy::enableEigenPySpecific<Vector6Max>();
         bp::class_<BaumgarteCorrectorParameters>("BaumgarteCorrectorParameters",
                                                  "Paramaters of the Baumgarte Corrector.",
                                                  bp::no_init)

@@ -3,6 +3,7 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
+include(${PROJECT_SOURCE_DIR}/cmake/python-helpers.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/stubs.cmake)
 set(CMAKE_MODULE_PATH
   "${PINOCCHIO_PROJECT_SOURCE_DIR}/cmake/find-external/GMP"

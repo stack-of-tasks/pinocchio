@@ -297,7 +297,7 @@ namespace pinocchio
         contact_data.contact_velocity_error.angular().setZero();
       }
 
-      if(check_expression_if_real<Scalar,false>(corrector.Kp == Scalar(0) && corrector.Kd == Scalar(0)))
+      if(check_expression_if_real<Scalar,false>(corrector.Kp.isZero(Scalar(0)) && corrector.Kd.isZero(Scalar(0))))
       {
         contact_acceleration_error.setZero();
       }
@@ -305,13 +305,13 @@ namespace pinocchio
       {
         if(contact_model.type == CONTACT_6D)
           contact_acceleration_error.toVector().noalias() =
-          - corrector.Kp /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector()
-          - corrector.Kd * contact_data.contact_velocity_error.toVector();
+          - (corrector.Kp.asDiagonal() /* * Jexp6(contact_data.contact_placement_error) */ * contact_data.contact_placement_error.toVector())
+          - (corrector.Kd.asDiagonal() * contact_data.contact_velocity_error.toVector());
         else
         {
           contact_acceleration_error.linear().noalias() =
-          - corrector.Kp * contact_data.contact_placement_error.linear()
-          - corrector.Kd * contact_data.contact_velocity_error.linear();
+          - (corrector.Kp.asDiagonal() * contact_data.contact_placement_error.linear())
+          - (corrector.Kd.asDiagonal() * contact_data.contact_velocity_error.linear());
           contact_acceleration_error.angular().setZero();
         }
       }

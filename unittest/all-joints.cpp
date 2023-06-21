@@ -206,7 +206,7 @@ struct TestJointModelCast : TestJointModel<TestJointModelCast>
     BOOST_CHECK(jmodel == jmodel);
     BOOST_CHECK(jmodel.template cast<Scalar>().isEqual(jmodel));
     BOOST_CHECK(jmodel.template cast<Scalar>() == jmodel);
-    BOOST_CHECK(jmodel.template cast<long double>().template cast<double>() == jmodel);
+    BOOST_CHECK_MESSAGE(jmodel.template cast<long double>().template cast<double>() == jmodel, std::string("Error when casting " + jmodel.shortname() + " from long double to double."));
   }
 };
 

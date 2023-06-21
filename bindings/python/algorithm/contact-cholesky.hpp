@@ -111,6 +111,12 @@ namespace pinocchio
              "Returns the Operational Space Inertia Matrix resulting from the decomposition.",
              bp::return_value_policy<bp::return_by_value>())
         
+        .def("getInverseMassMatrix",
+             (Matrix (Self::*)(void) const)&Self::getInverseMassMatrix,
+             bp::arg("self"),
+             "Returns the inverse of the Joint Space Inertia Matrix or \"mass matrix\".",
+             bp::return_value_policy<bp::return_by_value>())
+
         .def("solve",
              &solve<Matrix>,
              bp::args("self","matrix"),

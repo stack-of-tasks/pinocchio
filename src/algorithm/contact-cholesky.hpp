@@ -315,6 +315,13 @@ namespace pinocchio
         PINOCCHIO_EIGEN_MALLOC_ALLOWED();
       }
 
+      Matrix getInverseMassMatrix() const
+      {
+        Matrix res(nv, nv);
+        getInverseMassMatrix(res);
+        return res;
+      }
+
       template<typename MatrixType>
       void getInverseMassMatrix(const Eigen::MatrixBase<MatrixType> & res_) const
       {
