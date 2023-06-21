@@ -123,6 +123,8 @@ namespace pinocchio
         .ADD_DATA_PROPERTY(oYcrb,"Composite Rigid Body Inertia of the sub-tree expressed in the WORLD coordinate system.")
         .ADD_DATA_PROPERTY(Yaba,"Articulated Body Inertia of the sub-tree")
         .ADD_DATA_PROPERTY(oYaba,"Articulated Body Inertia of the sub-tree expressed in the WORLD coordinate system.")
+        .ADD_DATA_PROPERTY(oL,"Acceleration propagator.")
+        .ADD_DATA_PROPERTY(oK,"Inverse articulated inertia.")
         .ADD_DATA_PROPERTY(M,"The joint space inertia matrix")
         .ADD_DATA_PROPERTY(Minv,"The inverse of the joint space inertia matrix")
         .ADD_DATA_PROPERTY(C,"The Coriolis C(q,v) matrix such that the Coriolis effects are given by c(q,v) = C(q,v)v")

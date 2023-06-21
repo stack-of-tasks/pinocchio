@@ -25,6 +25,7 @@ namespace pinocchio
       exposeConstraintDynamics();
       exposeConstraintDynamicsDerivatives();
       exposeContactDynamics();
+      exposeDelassus();
       exposeCAT();
       exposeJacobian();
 #if defined(PINOCCHIO_PYTHON_INTERFACE_MAIN_MODULE)
