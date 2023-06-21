@@ -229,6 +229,12 @@ namespace pinocchio
     /// \brief Articulated Body Inertia matrix with contact apparent inertia, of a given the subtree and expressed in the WORLD coordinate frame
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oYaba_contact;  // TODO: change with dense symmetric matrix6
     
+    /// \brief Acceleration propagator
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oL;  // TODO: change with dense symmetric matrix6
+    
+    /// \brief Inverse articulated inertia
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) oK;  // TODO: change with dense symmetric matrix6
+    
     /// \brief Intermediate quantity corresponding to apparent torque [ABA]
     TangentVectorType u;                  // Joint Inertia
     

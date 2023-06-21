@@ -60,6 +60,8 @@ namespace pinocchio
   , ddq(VectorXs::Zero(model.nv))
   , Yaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , oYaba((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oL((std::size_t)model.njoints,Inertia::Matrix6::Zero())
+  , oK((std::size_t)model.njoints,Inertia::Matrix6::Zero())
   , u(VectorXs::Zero(model.nv))
   , Ag(Matrix6x::Zero(6,model.nv))
   , dAg(Matrix6x::Zero(6,model.nv))
@@ -262,6 +264,8 @@ namespace pinocchio
     && data1.Yaba == data2.Yaba
     && data1.oYaba == data2.oYaba
     && data1.oYaba_contact == data2.oYaba_contact
+    && data1.oL == data2.oL
+    && data1.oK == data2.oK
     && data1.u == data2.u
     && data1.Ag == data2.Ag
     && data1.dAg == data2.dAg
