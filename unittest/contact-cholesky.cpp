@@ -1551,18 +1551,35 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_updateDamping)
 
   const double mu1 = 1e-2, mu2 = 1e-10;
 
-  ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_models);
-  contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu1);
-  contact_chol_decomposition.updateDamping(mu2);
+  {
+    ContactCholeskyDecomposition contact_chol_decomposition;
+    contact_chol_decomposition.allocate(model, contact_models);
+    contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu1);
+    contact_chol_decomposition.updateDamping(mu2);
 
-  ContactCholeskyDecomposition contact_chol_decomposition_ref;
-  contact_chol_decomposition_ref.allocate(model, contact_models);
-  contact_chol_decomposition_ref.compute(model,data,contact_models,contact_datas,mu2);
+    ContactCholeskyDecomposition contact_chol_decomposition_ref;
+    contact_chol_decomposition_ref.allocate(model, contact_models);
+    contact_chol_decomposition_ref.compute(model,data,contact_models,contact_datas,mu2);
 
-  BOOST_CHECK(contact_chol_decomposition.D.isApprox(contact_chol_decomposition_ref.D));
-  BOOST_CHECK(contact_chol_decomposition.Dinv.isApprox(contact_chol_decomposition_ref.Dinv));
-  BOOST_CHECK(contact_chol_decomposition.U.isApprox(contact_chol_decomposition_ref.U));
+    BOOST_CHECK(contact_chol_decomposition.D.isApprox(contact_chol_decomposition_ref.D));
+    BOOST_CHECK(contact_chol_decomposition.Dinv.isApprox(contact_chol_decomposition_ref.Dinv));
+    BOOST_CHECK(contact_chol_decomposition.U.isApprox(contact_chol_decomposition_ref.U));
+  }
+
+  {
+    ContactCholeskyDecomposition contact_chol_decomposition;
+    contact_chol_decomposition.allocate(model, contact_models);
+    contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu1);
+    contact_chol_decomposition.getDelassusCholeskyExpression().updateDamping(mu2);
+
+    ContactCholeskyDecomposition contact_chol_decomposition_ref;
+    contact_chol_decomposition_ref.allocate(model, contact_models);
+    contact_chol_decomposition_ref.compute(model,data,contact_models,contact_datas,mu2);
+
+    BOOST_CHECK(contact_chol_decomposition.D.isApprox(contact_chol_decomposition_ref.D));
+    BOOST_CHECK(contact_chol_decomposition.Dinv.isApprox(contact_chol_decomposition_ref.Dinv));
+    BOOST_CHECK(contact_chol_decomposition.U.isApprox(contact_chol_decomposition_ref.U));
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
