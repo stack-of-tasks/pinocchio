@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_fwd_hpp__
@@ -115,6 +115,11 @@ namespace pinocchio
     ADDTO,
     RMTO
   };
+
+  /** This value means that a positive quantity (e.g., a size) is not known at compile-time, and that instead the value is
+    * stored in some runtime variable.
+    */
+  const int Dynamic = -1;
 
   /// \brief Return type undefined
   ///        This is an helper structure to help internal diagnosis.
