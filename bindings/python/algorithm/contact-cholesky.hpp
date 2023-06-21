@@ -174,6 +174,15 @@ namespace pinocchio
                (bp::arg("self"),bp::arg("max_it") = 10,bp::arg("prec") = Scalar(1e-8)),
                "Compute the largest eigen value associated to the underlying Delassus matrix.")
 
+          .def("updateDamping",
+               (void (DelassusCholeskyExpression::*)(const Scalar &))&DelassusCholeskyExpression::updateDamping,
+               bp::args("self","mu"),
+               "Add a damping term to the diagonal of the Delassus matrix. The damping term should be positive.")
+          .def("updateDamping",
+               &DelassusCholeskyExpression::template updateDamping<Vector>,
+               bp::args("self","mus"),
+               "Add a damping term to the diagonal of the Delassus matrix. The damping terms should be all positive.")
+
           .def("matrix",&DelassusCholeskyExpression::matrix,bp::arg("self"),"Returns the Delassus expression as a dense matrix.")
           .def("inverse",&DelassusCholeskyExpression::inverse,bp::arg("self"),"Returns the inverse of the Delassus expression as a dense matrix.")
 
