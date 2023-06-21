@@ -104,6 +104,8 @@ namespace boost
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dq);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dv);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dtau);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,dlambda_dx_prox);
+      PINOCCHIO_MAKE_DATA_NVP(ar,data,drhs_prox);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,iMf);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,com);
       PINOCCHIO_MAKE_DATA_NVP(ar,data,vcom);
