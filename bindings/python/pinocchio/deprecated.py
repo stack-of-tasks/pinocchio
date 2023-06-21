@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2022 CNRS INRIA
+# Copyright (c) 2018-2023 CNRS INRIA
 #
 
 ## In this file, are reported some deprecated functions that are still maintained until the next important future releases ##
@@ -10,12 +10,6 @@ import warnings as _warnings
 
 from . import pinocchio_pywrap_default as pin
 from .deprecation import deprecated, DeprecatedWarning
-
-class GeometryObject(pin.GeometryObject):
-    @property
-    @deprecated("The fcl property has been renamed geometry. Please use GeometryObject.geometry instead")
-    def fcl(self):
-       return self.geometry
 
 @deprecated("This function is now called SE3ToXYZQUATtuple. Please change for this new signature to delete this warning.")
 def se3ToXYZQUATtuple(M):
