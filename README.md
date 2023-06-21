@@ -218,8 +218,9 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
 -   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
 -   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
+-   [Stéphane Caron](https://scaron.info) (Inria): core developper
 
-If you have participated in the development of **Pinocchio**, feel free to add your name and contribution to this list.
+If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
 ## Open-source projects relying on Pinocchio
 
