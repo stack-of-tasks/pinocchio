@@ -713,7 +713,7 @@ namespace pinocchio
       }
       
       // Add the contribution of the corrector
-      if(check_expression_if_real<Scalar>(!cmodel.corrector.Kp.isZero(Scalar(0))) or check_expression_if_real<Scalar>(!cmodel.corrector.Kd.isZero(Scalar(0))))
+      if(check_expression_if_real<Scalar>(!isZero(cmodel.corrector.Kp, static_cast<Scalar>(0.))) or check_expression_if_real<Scalar>(!isZero(cmodel.corrector.Kd, static_cast<Scalar>(0.))))
       {
         Jlog6(cdata.c1Mc2.inverse(),Jlog);
         

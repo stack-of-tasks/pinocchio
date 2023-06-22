@@ -297,7 +297,7 @@ namespace pinocchio
         contact_data.contact_velocity_error.angular().setZero();
       }
 
-      if(check_expression_if_real<Scalar,false>(corrector.Kp.isZero(Scalar(0)) && corrector.Kd.isZero(Scalar(0))))
+      if(check_expression_if_real<Scalar,false>(isZero(corrector.Kp, static_cast<Scalar>(0.)) && isZero(corrector.Kd, static_cast<Scalar>(0.))))
       {
         contact_acceleration_error.setZero();
       }
