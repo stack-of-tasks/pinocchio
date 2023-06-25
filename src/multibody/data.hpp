@@ -21,6 +21,7 @@
 #include "pinocchio/serialization/serializable.hpp"
 
 #include <Eigen/Cholesky>
+#include <cstddef>
 
 namespace pinocchio
 {
@@ -445,6 +446,16 @@ namespace pinocchio
     /// \brief Default constructor
     ///
     DataTpl() {}
+
+
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) extended_motion_propagator; // Stores force propagator to the base link
+    PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
+    Matrix6 scratch_pad1;
+    Matrix6 scratch_pad2;
 
   private:
     void computeLastChild(const Model & model);
