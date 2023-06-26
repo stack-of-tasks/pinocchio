@@ -453,6 +453,8 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported;
+    std::vector<size_t> joints_supporting_constraints;
+    std::vector<size_t> accumulation_joints;
     PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
     Matrix6 scratch_pad1;
     Matrix6 scratch_pad2;

@@ -8,6 +8,7 @@
 #include "pinocchio/algorithm/check.hpp"
 #include "pinocchio/algorithm/contact-info.hpp"
 #include "pinocchio/algorithm/model.hpp"
+#include "pinocchio/multibody/fwd.hpp"
 #include <cassert>
 #include <cstddef>
 
@@ -317,10 +318,21 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
     {
       const JointIndex & parent = model.parents[i];
-      if (data.constraints_supported[i] > 0 && data.constraints_supported[parent] > data.constraints_supported[i])
-        data.accumulation_descendant[parent] = parent;
-      else if (data.constraints_supported[i] > 0)
+      if (data.constraints_supported[i] > 0)
+      {
+        data.joints_supporting_constraints.push_back(i);
         data.accumulation_descendant[parent] = data.accumulation_descendant[i];
+        if (data.constraints_supported[parent] > data.constraints_supported[i])
+        {
+          data.accumulation_descendant[parent] = parent;
+        }
+      }
+    }
+
+    for (JointIndex i = 1; i < (JointIndex)model.njoints; i++)
+    {
+      if (data.accumulation_descendant[i] == i)
+        data.accumulation_joints.push_back(i);
     }
     // Assign accumulation ancestors
     for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
@@ -379,14 +391,15 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
       jdata.UDinv().noalias() = Jcols * jdata.Dinv().transpose(); //@justin can we remove the transpose since Dinv() is symmetric?
       // data.oK[i].noalias() = jdata.UDinv() * Jcols.transpose();
-      data.oL[i].noalias() = -jdata.UDinv() * jdata.U().transpose();
-      data.oL[i] += Matrix6::Identity();
+      data.oL[i].setIdentity();
+      data.oL[i].noalias() -= jdata.UDinv() * jdata.U().transpose();
+      // data.oL[i] += Matrix6::Identity();
       
       if(parent > 0)
       {
-        jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
-        data.oYaba[parent] += Ia;
-        data.oYaba[parent].noalias() -= jdata.UDinv() * jdata.U().transpose();
+        // jdata.UDinv().noalias() = jdata.U() * jdata.Dinv();
+        data.oYaba[parent].noalias() += data.oL[i]*Ia;
+        // data.oYaba[parent].noalias() -= jdata.UDinv() * jdata.U().transpose();
       }
     }
     
@@ -494,21 +507,16 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     // Initialize motion propagator and spatial_inv_inertia at all the accumulation joints
     
-   
-
-    for(JointIndex i=(JointIndex)model.njoints-1;i>0; --i)
+    for (JointIndex i : data.accumulation_joints)
     {
-      size_t constraints_size = 0;
-      if (data.accumulation_descendant[i] == i)
-      {
         if (data.constraints_supported[i] > 6)
         {
-          constraints_size = 6;
+          // constraints_size = 6;
           data.extended_motion_propagator[i].setIdentity();
         } 
         else
         {
-          constraints_size = data.constraints_supported[i];
+          // constraints_size = data.constraints_supported[i];
         //   int efp_counter = 0;
         //   for (size_t constraint : data.constraints_on_joint[i])
         //   {
@@ -530,33 +538,46 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         //   // TODO: accumulate EMP also from descendant constraints
         }
         data.spatial_inv_inertia[i].setZero();
-      }
+    }
+
+
+    for(JointIndex i : data.joints_supporting_constraints)
+    {
+      size_t constraints_size = 0;
       
-      if (data.constraints_supported[i] > 0)
-      {
+      
         constraints_size = data.constraints_supported[i] > 6 ? 6 : data.constraints_supported[i];
         
         size_t ad_i = data.accumulation_descendant[i];
+        size_t nv = model.joints[i].nv();
         // propagate the spatial inverse inertia
-        auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
-        data.spatial_inv_inertia[ad_i].noalias() += PS*data.joints[i].Dinv()*PS.transpose();  
+        // auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
+        data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
+        data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
+        data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();  
 
         // propagate the EMP
-        data.extended_motion_propagator[ad_i].topRows(constraints_size) = 
-          data.extended_motion_propagator[ad_i].topRows(constraints_size)*data.oL[i];
-      }
+        // data.scratch_pad1.topRows(constraints_size).noalias() = 
+        //   data.extended_motion_propagator[ad_i].topRows(constraints_size)*data.oL[i];
+        // data.extended_motion_propagator[ad_i].topRows(constraints_size).noalias() = 
+        //   data.scratch_pad1.topRows(constraints_size);
 
+        // Multiply 6X6 matrices even if it has only mX6 terms, with m < 6. Just faster due to compile-time optimizations
+        data.scratch_pad1.noalias() = 
+          data.extended_motion_propagator[ad_i]*data.oL[i];
+        data.extended_motion_propagator[ad_i] = data.scratch_pad1;
       
     }
 
-    for(JointIndex i=2;i<(JointIndex)model.njoints-1; ++i)
+    for(JointIndex i : data.accumulation_joints)
     {
-
-      if (data.accumulation_descendant[i] == i)
-      {
-        size_t an_i = data.accumulation_ancestor[i];
-        data.spatial_inv_inertia[i].noalias() += data.extended_motion_propagator[i]*
-          data.spatial_inv_inertia[an_i]*data.extended_motion_propagator[i].transpose();
+      
+      size_t an_i = data.accumulation_ancestor[i];
+      if (an_i != 0)
+      { 
+        data.scratch_pad1.noalias() = data.extended_motion_propagator[i]*
+          data.spatial_inv_inertia[an_i];
+        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i].transpose();
       }
       
     }
@@ -584,7 +605,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           size_t id_in_support1, id_in_support1_other, gca;
           gca = findCommonAncestor(model,joint1_id,cmodel_other.joint1_id,
                              id_in_support1,id_in_support1_other);
-          
 //          std::cout << "k: " << k << std::endl;
 //          std::cout << "i: " << i << std::endl;
 //          std::cout << "joint1_id: " << joint1_id << std::endl;
@@ -596,9 +616,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           
 //          std::cout << "lambdas[ support1[id_in_support1] ]" << std::endl;
 //          std::cout << lambdas[ support1[id_in_support1] ] << std::endl;
+          data.scratch_pad1.noalias() = data.extended_motion_propagator[cmodel_other.joint1_id]*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.extended_motion_propagator[cmodel_other.joint1_id]*data.spatial_inv_inertia[gca]*
-              data.extended_motion_propagator[cmodel.joint1_id].transpose();
+            = data.scratch_pad1*data.extended_motion_propagator[cmodel.joint1_id].transpose();
           
           current_row_id_other += size_other;
         }
@@ -610,15 +630,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     }
     assert(current_row_id == delassus.rows() && "current row indexes do not the number of rows in the Delassus matrix.");
   }
-
-
-
-
-
-
-
-
-
 
 
 

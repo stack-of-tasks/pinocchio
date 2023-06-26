@@ -117,6 +117,8 @@ namespace pinocchio
   , extended_motion_propagator((std::size_t)model.njoints, Matrix6::Zero())
   , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
   , constraints_on_joint((std::size_t)model.njoints, std::vector<size_t>(0, 0))
+  , scratch_pad1(Matrix6::Zero())
+  , scratch_pad2(Matrix6::Zero())
 #if EIGEN_VERSION_AT_LEAST(3,2,90) && !EIGEN_VERSION_AT_LEAST(3,2,93)
   , kinematic_hessians(6,std::max(1,model.nv),std::max(1,model.nv)) // the minimum size should be 1 for compatibility reasons
 #else
