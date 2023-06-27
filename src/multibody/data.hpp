@@ -67,6 +67,7 @@ namespace pinocchio
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic,Options> MatrixXs;
     typedef Eigen::Matrix<Scalar,Eigen::Dynamic,1,Options> VectorXs;
     typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
+    typedef Eigen::Matrix<Scalar,6,1,Options> Vector6;
     
     /// \brief Dense vectorized version of a joint configuration vector.
     typedef VectorXs ConfigVectorType;
@@ -458,6 +459,9 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
     Matrix6 scratch_pad1;
     Matrix6 scratch_pad2;
+    Vector6 scratch_pad_vector;
+    Vector6 scratch_pad_vector2;
+    
 
   private:
     void computeLastChild(const Model & model);

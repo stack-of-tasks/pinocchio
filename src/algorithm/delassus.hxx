@@ -279,6 +279,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
+
+    data.scratch_pad_vector = Data::Vector6::Zero();
+    data.scratch_pad_vector2 = Data::Vector6::Zero(); 
     for(std::size_t i=0;i<contact_models.size();++i)
     {
       const RigidConstraintModelTpl<Scalar,Options> & contact_model = contact_models[i];
@@ -506,7 +509,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     }
 
     // Initialize motion propagator and spatial_inv_inertia at all the accumulation joints
-    
     for (JointIndex i : data.accumulation_joints)
     {
         if (data.constraints_supported[i] > 6)
@@ -543,29 +545,38 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     for(JointIndex i : data.joints_supporting_constraints)
     {
-      size_t constraints_size = 0;
-      
-      
-        constraints_size = data.constraints_supported[i] > 6 ? 6 : data.constraints_supported[i];
+      size_t constraints_size =  data.constraints_supported[i] > 6 ? 6 : data.constraints_supported[i];
         
-        size_t ad_i = data.accumulation_descendant[i];
-        size_t nv = model.joints[i].nv();
-        // propagate the spatial inverse inertia
-        // auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
-        data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
-        data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
-        data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();  
-
-        // propagate the EMP
-        // data.scratch_pad1.topRows(constraints_size).noalias() = 
-        //   data.extended_motion_propagator[ad_i].topRows(constraints_size)*data.oL[i];
-        // data.extended_motion_propagator[ad_i].topRows(constraints_size).noalias() = 
-        //   data.scratch_pad1.topRows(constraints_size);
-
-        // Multiply 6X6 matrices even if it has only mX6 terms, with m < 6. Just faster due to compile-time optimizations
-        data.scratch_pad1.noalias() = 
-          data.extended_motion_propagator[ad_i]*data.oL[i];
-        data.extended_motion_propagator[ad_i] = data.scratch_pad1;
+      size_t ad_i = data.accumulation_descendant[i];
+      size_t nv = model.joints[i].nv();
+      // propagate the spatial inverse inertia
+      // auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
+      if (nv == 1)
+      {
+        data.scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
+        data.scratch_pad_vector2.noalias() = data.scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
+        data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad_vector2*data.scratch_pad_vector.transpose(); 
+        
+      }
+      else if (nv > 1) 
+      {
+       data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
+       data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
+       data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
+      }
+      else 
+      {
+        assert(false && "must never happen");
+      }
+      // propagate the EMP
+      // data.scratch_pad1.topRows(constraints_size).noalias() = 
+      //   data.extended_motion_propagator[ad_i].topRows(constraints_size)*data.oL[i];
+      // data.extended_motion_propagator[ad_i].topRows(constraints_size).noalias() = 
+      //   data.scratch_pad1.topRows(constraints_size);
+      // Multiply 6X6 matrices even if it has only mX6 terms, with m < 6. Just faster due to compile-time optimizations
+      data.scratch_pad1.noalias() = 
+        data.extended_motion_propagator[ad_i]*data.oL[i];
+      data.extended_motion_propagator[ad_i] = data.scratch_pad1;
       
     }
 
@@ -646,15 +657,19 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                           std::vector<RigidConstraintDataTpl<Scalar,Options>,DataAllocator> & contact_data,
                                           const Eigen::MatrixBase<MatrixType> & damped_delassus_inverse_,
                                           const Scalar mu,
-                                          const bool scaled)
+                                          const bool scaled, 
+                                          const bool Pv)
   {
     PINOCCHIO_CHECK_INPUT_ARGUMENT(check_expression_if_real<Scalar>(mu >= Eigen::NumTraits<Scalar>::dummy_precision()),"mu is too small.");
     
     const Scalar mu_inv = Scalar(1)/mu;
     MatrixType & damped_delassus_inverse = damped_delassus_inverse_.const_cast_derived();
     
-    // computeDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
-    computePvDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
+    if (Pv)
+      computePvDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
+    else
+      computeDelassusMatrix(model,data,q,contact_models,contact_data,damped_delassus_inverse,mu_inv);
+    
     
     
     const Scalar mu_inv_square = mu_inv * mu_inv;
