@@ -352,6 +352,16 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     // allocate memory for EMP vectors. If not end-effector, a single Matrix 6, otherwise
     // as many as end-effector points.
+    for (JointIndex i : data.accumulation_joints)
+    {
+      size_t k = i;
+      while (data.accumulation_ancestor[k] != 0)
+      {
+        data.extended_motion_propagator[i].push_back(Data::Matrix6::Zero());
+        k = data.accumulation_ancestor[k];
+      }
+      
+    }
   }
 
 
@@ -374,7 +384,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
     {
       typedef typename Model::JointIndex JointIndex;
       typedef typename Data::Inertia Inertia;
-      typedef typename Data::Matrix6 Matrix6;
+      // typedef typename Data::Matrix6 Matrix6;
       typedef typename Data::Matrix6x Matrix6x;
       
       const JointIndex i = jmodel.id();
@@ -490,13 +500,13 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         {
           case CONTACT_3D:
           {
-            data.extended_motion_propagator[joint1_id].template leftCols<3>().template topRows<3>() = oMc1.rotation().transpose();
-            data.extended_motion_propagator[joint1_id].template leftCols<3>().template bottomRows<3>().setZero();
+            data.extended_motion_propagator[joint1_id][0].template leftCols<3>().template topRows<3>() = oMc1.rotation().transpose();
+            data.extended_motion_propagator[joint1_id][0].template leftCols<3>().template bottomRows<3>().setZero();
             break;
           }
           case CONTACT_6D:
           {
-            oMc1.toActionMatrixInverse(data.extended_motion_propagator[joint1_id]);
+            oMc1.toActionMatrixInverse(data.extended_motion_propagator[joint1_id][0]);
             break;
           }
           default:
@@ -514,7 +524,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         if (data.constraints_supported[i] > 6)
         {
           // constraints_size = 6;
-          data.extended_motion_propagator[i].setIdentity();
+          data.extended_motion_propagator[i][0].setIdentity();
         } 
         else
         {
@@ -553,14 +563,14 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       // auto PS = (data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J)).eval();
       if (nv == 1)
       {
-        data.scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
+        data.scratch_pad_vector.noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
         data.scratch_pad_vector2.noalias() = data.scratch_pad_vector*data.joints[i].Dinv().coeff(0,0);
         data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad_vector2*data.scratch_pad_vector.transpose(); 
         
       }
       else if (nv > 1) 
       {
-       data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i]*model.joints[i].jointCols(data.J);
+       data.scratch_pad1.leftCols(nv).noalias() = data.extended_motion_propagator[ad_i][0]*model.joints[i].jointCols(data.J);
        data.scratch_pad2.leftCols(nv).noalias() = data.scratch_pad1.leftCols(nv)*data.joints[i].Dinv();
        data.spatial_inv_inertia[ad_i].noalias() += data.scratch_pad2.leftCols(nv)*data.scratch_pad1.leftCols(nv).transpose();    
       }
@@ -575,8 +585,13 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       //   data.scratch_pad1.topRows(constraints_size);
       // Multiply 6X6 matrices even if it has only mX6 terms, with m < 6. Just faster due to compile-time optimizations
       data.scratch_pad1.noalias() = 
-        data.extended_motion_propagator[ad_i]*data.oL[i];
-      data.extended_motion_propagator[ad_i] = data.scratch_pad1;
+        data.extended_motion_propagator[ad_i][0]*data.oL[i];
+      // data.extended_motion_propagator[ad_i][0].setZero();
+      // RigidConstraintData::VectorOfMatrix6 & propagators = data.extended_motion_propagator[ad_i];
+      // auto & temp = data.extended_motion_propagator[ad_i];
+      // temp[0] = data.scratch_pad1;
+      data.extended_motion_propagator[ad_i][0].template block<6, 6>(0, 0) = 
+        data.scratch_pad1;
       
     }
 
@@ -586,14 +601,27 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t an_i = data.accumulation_ancestor[i];
       if (an_i != 0)
       { 
-        data.scratch_pad1.noalias() = data.extended_motion_propagator[i]*
+        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0]*
           data.spatial_inv_inertia[an_i];
-        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i].transpose();
+        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].transpose();
       }
       
     }
 
     // TODO: compute EMP in the reverse direction
+    for(size_t k = 0; k < contact_models.size(); ++k)
+    {
+      JointIndex curr_joint = contact_models[k].joint1_id;
+      JointIndex j = data.accumulation_ancestor[curr_joint];
+      size_t counter = 1;
+      while (data.accumulation_ancestor[j] != 0)
+      {
+        data.extended_motion_propagator[curr_joint][counter].template block<6, 6>(0, 0).noalias() = 
+          data.extended_motion_propagator[curr_joint][counter-1]*data.extended_motion_propagator[j][0];     
+        j = data.accumulation_ancestor[j];
+        counter++;   
+      }
+    }
     
     Eigen::DenseIndex current_row_id = 0;
     for(size_t k = 0; k < contact_models.size(); ++k)
@@ -616,6 +644,22 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           size_t id_in_support1, id_in_support1_other, gca;
           gca = findCommonAncestor(model,joint1_id,cmodel_other.joint1_id,
                              id_in_support1,id_in_support1_other);
+          
+          id_in_support1 = 0;
+          id_in_support1_other = 0;
+          size_t j = joint1_id;
+          while (data.accumulation_ancestor[j] != gca)
+          {
+            j = data.accumulation_ancestor[j];
+            id_in_support1++;
+          }
+          j = cmodel_other.joint1_id;
+          while (data.accumulation_ancestor[j] != gca)
+          {
+            j = data.accumulation_ancestor[j];
+            id_in_support1_other++;
+          }
+
 //          std::cout << "k: " << k << std::endl;
 //          std::cout << "i: " << i << std::endl;
 //          std::cout << "joint1_id: " << joint1_id << std::endl;
@@ -627,9 +671,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           
 //          std::cout << "lambdas[ support1[id_in_support1] ]" << std::endl;
 //          std::cout << lambdas[ support1[id_in_support1] ] << std::endl;
-          data.scratch_pad1.noalias() = data.extended_motion_propagator[cmodel_other.joint1_id]*data.spatial_inv_inertia[gca];
+          data.scratch_pad1.noalias() = data.extended_motion_propagator[cmodel_other.joint1_id][id_in_support1_other]*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1*data.extended_motion_propagator[cmodel.joint1_id].transpose();
+            = data.scratch_pad1*data.extended_motion_propagator[cmodel.joint1_id][id_in_support1].transpose();
           
           current_row_id_other += size_other;
         }

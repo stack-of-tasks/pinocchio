@@ -114,7 +114,7 @@ namespace pinocchio
   , constraints_supported((std::size_t)model.njoints,0)
   , accumulation_ancestor((std::size_t)model.njoints,0)
   , accumulation_descendant((std::size_t)model.njoints,0)
-  , extended_motion_propagator((std::size_t)model.njoints, Matrix6::Zero())
+  , extended_motion_propagator((std::size_t)model.njoints, {Matrix6::Zero()})
   , spatial_inv_inertia((std::size_t)model.njoints, Matrix6::Zero())
   , constraints_on_joint((std::size_t)model.njoints, std::vector<size_t>(0, 0))
   , scratch_pad1(Matrix6::Zero())
