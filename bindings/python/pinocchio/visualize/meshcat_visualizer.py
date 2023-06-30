@@ -434,13 +434,13 @@ class MeshcatVisualizer(BaseVisualizer):
         elif geometry_type is pin.GeometryType.COLLISION:
             return self.viewerCollisionGroupName + '/' + geometry_object.name
 
-    def initViewer(self, viewer=None, open=False, loadModel=False):
+    def initViewer(self, viewer=None, open=False, loadModel=False, zmq_url=None):
         """Start a new MeshCat server and client.
         Note: the server can also be started separately using the "meshcat-server" command in a terminal:
         this enables the server to remain active after the current script ends.
         """
 
-        self.viewer = meshcat.Visualizer() if viewer is None else viewer
+        self.viewer = meshcat.Visualizer(zmq_url) if viewer is None else viewer
 
         self._node_default_cam = self.viewer["/Cameras/default"]
         self._node_background = self.viewer["/Background"]
