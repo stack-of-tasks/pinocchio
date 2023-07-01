@@ -144,7 +144,7 @@ class BaseVisualizer(object):
             f_fmt = "%Y%m%d_%H%M%S"
             ext = "mp4"
             filename = Path(directory).joinpath(time.strftime(f"{f_fmt}.{ext}"))
-        return VideoContext(self, fps, filename)
+        return VideoContext(self, fps, filename, **kwargs)
 
 class VideoContext:
     def __init__(self, viz: BaseVisualizer, fps: int, filename: str, **kwargs):
