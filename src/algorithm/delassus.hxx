@@ -281,7 +281,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
     
-    std::cout << "Initializing PV\n";
     data.scratch_pad_vector = Data::Vector6::Zero();
     data.scratch_pad_vector2 = Data::Vector6::Zero(); 
     for(std::size_t i=0;i<contact_models.size();++i)
@@ -354,7 +353,6 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     // allocate memory for EMP vectors. If not end-effector, a single Matrix 6, otherwise
     // as many as end-effector points.
-    std::cout << "mem alloc for emp for " << model.njoints << " \n";
     data.extended_motion_propagator.resize(model.njoints);
     for (JointIndex i : data.accumulation_joints)
     {
@@ -365,7 +363,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
         count++;
         k = data.accumulation_ancestor[k];
       }
-      data.extended_motion_propagator[i].resize(count);
+      data.extended_motion_propagator[i].resize(count, Data::Matrix6::Zero());
       
     }
   }

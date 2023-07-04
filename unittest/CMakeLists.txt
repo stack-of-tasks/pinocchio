@@ -119,6 +119,7 @@ ADD_PINOCCHIO_UNIT_TEST(closed-loop-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(impulse-dynamics)
 ADD_PINOCCHIO_UNIT_TEST(sample-models)
 ADD_PINOCCHIO_UNIT_TEST(kinematics)
+ADD_PINOCCHIO_UNIT_TEST(delassus)
 
 IF(urdfdom_FOUND)
   ADD_PINOCCHIO_UNIT_TEST(urdf)

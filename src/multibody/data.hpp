@@ -21,6 +21,8 @@
 #include "pinocchio/serialization/serializable.hpp"
 
 #include <Eigen/Cholesky>
+#include<Eigen/StdVector>
+#include <Eigen/src/Core/util/Constants.h>
 #include <cstddef>
 
 namespace pinocchio
@@ -448,8 +450,8 @@ namespace pinocchio
     ///
     DataTpl() {}
 
-
-    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
+    typedef Eigen::Matrix<Scalar,6,6,Eigen::AutoAlign> aligned_Matrix6;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<aligned_Matrix6>) extended_motion_propagator; // Stores force propagator to the base link
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
