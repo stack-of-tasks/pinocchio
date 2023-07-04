@@ -48,8 +48,9 @@ namespace pinocchio
       
       jmodel.jointCols(data.J) = data.oMi[i].act(jdata.S());
       
-      data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
-      data.oYaba[i] = data.oYcrb[i].matrix();
+      // data.oYcrb[i] = data.oMi[i].act(model.inertias[i]);
+      // data.oYaba[i] = data.oYcrb[i].matrix();
+      data.oYaba[i] = data.oMi[i].act(model.inertias[i]);
     }
     
   };
@@ -279,7 +280,8 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
                                      DataTpl<Scalar,Options,JointCollectionTpl> & data,
                                      const std::vector<RigidConstraintModelTpl<Scalar,Options>,Allocator> & contact_models)
   {
-
+    
+    std::cout << "Initializing PV\n";
     data.scratch_pad_vector = Data::Vector6::Zero();
     data.scratch_pad_vector2 = Data::Vector6::Zero(); 
     for(std::size_t i=0;i<contact_models.size();++i)
@@ -352,14 +354,18 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
 
     // allocate memory for EMP vectors. If not end-effector, a single Matrix 6, otherwise
     // as many as end-effector points.
+    std::cout << "mem alloc for emp for " << model.njoints << " \n";
+    data.extended_motion_propagator.resize(model.njoints);
     for (JointIndex i : data.accumulation_joints)
     {
       size_t k = i;
+      size_t count = 1;
       while (data.accumulation_ancestor[k] != 0)
       {
-        data.extended_motion_propagator[i].push_back(Data::Matrix6::Zero());
+        count++;
         k = data.accumulation_ancestor[k];
       }
+      data.extended_motion_propagator[i].resize(count);
       
     }
   }
@@ -585,7 +591,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       //   data.scratch_pad1.topRows(constraints_size);
       // Multiply 6X6 matrices even if it has only mX6 terms, with m < 6. Just faster due to compile-time optimizations
       data.scratch_pad1.noalias() = 
-        data.extended_motion_propagator[ad_i][0]*data.oL[i];
+        data.extended_motion_propagator[ad_i][0].template block<6, 6>(0, 0)*data.oL[i];
       // data.extended_motion_propagator[ad_i][0].setZero();
       // RigidConstraintData::VectorOfMatrix6 & propagators = data.extended_motion_propagator[ad_i];
       // auto & temp = data.extended_motion_propagator[ad_i];
@@ -601,9 +607,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       size_t an_i = data.accumulation_ancestor[i];
       if (an_i != 0)
       { 
-        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0]*
+        data.scratch_pad1.noalias() = data.extended_motion_propagator[i][0].template block<6, 6>(0, 0)*
           data.spatial_inv_inertia[an_i];
-        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].transpose();
+        data.spatial_inv_inertia[i].noalias() += data.scratch_pad1*data.extended_motion_propagator[i][0].template block<6, 6>(0, 0).transpose();
       }
       
     }
@@ -617,7 +623,7 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
       while (data.accumulation_ancestor[j] != 0)
       {
         data.extended_motion_propagator[curr_joint][counter].template block<6, 6>(0, 0).noalias() = 
-          data.extended_motion_propagator[curr_joint][counter-1]*data.extended_motion_propagator[j][0];     
+          data.extended_motion_propagator[curr_joint][counter-1].template block<6, 6>(0, 0)*data.extended_motion_propagator[j][0].template block<6, 6>(0, 0);     
         j = data.accumulation_ancestor[j];
         counter++;   
       }
@@ -671,9 +677,9 @@ template<typename Scalar, int Options, template<typename,int> class JointCollect
           
 //          std::cout << "lambdas[ support1[id_in_support1] ]" << std::endl;
 //          std::cout << lambdas[ support1[id_in_support1] ] << std::endl;
-          data.scratch_pad1.noalias() = data.extended_motion_propagator[cmodel_other.joint1_id][id_in_support1_other]*data.spatial_inv_inertia[gca];
+          data.scratch_pad1.noalias() = data.extended_motion_propagator[cmodel_other.joint1_id][id_in_support1_other].template block<6, 6>(0, 0)*data.spatial_inv_inertia[gca];
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-            = data.scratch_pad1*data.extended_motion_propagator[cmodel.joint1_id][id_in_support1].transpose();
+            = data.scratch_pad1*data.extended_motion_propagator[cmodel.joint1_id][id_in_support1].template block<6, 6>(0, 0).transpose();
           
           current_row_id_other += size_other;
         }
