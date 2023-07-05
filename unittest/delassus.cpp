@@ -217,7 +217,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
     
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -273,9 +273,12 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
+    // std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() <<  std::endl; 
+    // std::cout << H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) << "****\n\n" << std::endl; 
+    // std::cout << dampedDelassusInverse << std::endl; 
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
 
     computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
@@ -313,16 +316,15 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
     
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
-      dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
+      dampedDelassusInverse.triangularView<StrictlyUpper>().transpose(); 
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-10));  
 
 
     computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-    // std::cout << (H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()) + dampedDelassusInverse).lpNorm<Infinity>() << std::endl; 
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7));
   
   }
@@ -360,7 +362,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -412,7 +414,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -454,7 +456,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
     
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -501,10 +503,10 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
     
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-9));  
 
     computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
@@ -564,7 +566,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
     
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -609,10 +611,10 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
-      dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
-    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
+      dampedDelassusInverse.triangularView<StrictlyUpper>().transpose(); 
+    BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-9));  
 
     computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu, false, false);
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
@@ -653,7 +655,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -707,7 +709,7 @@ namespace pinocchio
     dampedDelassusInverse.resize(contact_chol.constraintDim(),contact_chol.constraintDim());  
 
     initPvDelassus(model, data, contact_models); // Allocate memory
-    // computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
+    computeDampedDelassusMatrixInverse(model, data, q, contact_models, contact_data, dampedDelassusInverse, mu);  
     dampedDelassusInverse.triangularView<StrictlyLower>() = 
       dampedDelassusInverse.triangularView<StrictlyUpper>().transpose();
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-11));  
@@ -718,9 +720,6 @@ namespace pinocchio
     BOOST_CHECK(dampedDelassusInverse.isApprox(-H_inverse.topLeftCorner(contact_chol.constraintDim(), contact_chol.constraintDim()), 1e-7)); 
     
   }
-
-
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()

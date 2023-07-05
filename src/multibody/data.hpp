@@ -455,7 +455,8 @@ namespace pinocchio
     PINOCCHIO_ALIGNED_STD_VECTOR(Matrix6) spatial_inv_inertia; // Stores spatial inverse inertia
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_descendant;
     PINOCCHIO_ALIGNED_STD_VECTOR(size_t) accumulation_ancestor; 
-    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported;
+    PINOCCHIO_ALIGNED_STD_VECTOR(size_t) constraints_supported_dim;
+    PINOCCHIO_ALIGNED_STD_VECTOR(std::set<size_t>) constraints_supported;
     std::vector<size_t> joints_supporting_constraints;
     std::vector<size_t> accumulation_joints;
     PINOCCHIO_ALIGNED_STD_VECTOR(std::vector<size_t>) constraints_on_joint;
