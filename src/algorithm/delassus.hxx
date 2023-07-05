@@ -190,8 +190,10 @@ namespace pinocchio
         {
           case CONTACT_3D:
           {
-            propagators.back().template leftCols<3>().template topRows<3>() = oMc1.rotation().transpose();
-            propagators.back().template leftCols<3>().template bottomRows<3>().setZero();
+            // propagators.back().template leftCols<3>().template topRows<3>() = oMc1.rotation().transpose();
+            // 
+            oMc1.toActionMatrixInverse(propagators.back());
+            propagators.back().template bottomRows<3>().setZero();
             for(size_t j = support1.size()-1; j > 1; --j)
             {
               lambdas[j].template leftCols<3>().noalias() = data.oK[(size_t)support1[j]] * propagators[j].template topRows<3>().transpose();
@@ -262,13 +264,17 @@ namespace pinocchio
 //          std::cout << "lambdas[ support1[id_in_support1] ]" << std::endl;
 //          std::cout << lambdas[ support1[id_in_support1] ] << std::endl;
           delassus.block(current_row_id_other,current_row_id,size_other,size).noalias()
-          = propagators_other[id_in_support1_other] * lambdas[id_in_support1];
+          = propagators_other[id_in_support1_other].topRows(size_other) 
+            * lambdas[id_in_support1].leftCols(size);
           
           current_row_id_other += size_other;
         }
         
         assert(current_row_id_other == current_row_id && "current row indexes do not match.");
-        delassus.block(current_row_id,current_row_id,size,size).noalias() = propagators.back() * lambdas.back();
+        // std::cout << propagators.back() 
+        //   * lambdas.back() << std::endl;
+        delassus.block(current_row_id,current_row_id,size,size).noalias() = propagators.back().topRows(size) 
+          * lambdas.back().leftCols(size);
         current_row_id += size;
       }
     }
