@@ -23,7 +23,7 @@ namespace pinocchio
       static const long i2 = (i0+2) % 3;
       Vector3 & axis = _axis.const_cast_derived();
 
-      const Scalar s = math::sqrt(val + eps*eps) * if_then_else(GE,R.coeff(i2,i1),R.coeff(i1,i2),Scalar(1.),Scalar(-1.));
+      const Scalar s = math::sqrt(val + eps + eps*eps) * if_then_else(GE,R.coeff(i2,i1),R.coeff(i1,i2),Scalar(1.),Scalar(-1.)); // Ensure value in sqrt is non negative and that s is non zero
       axis[i0] = s/Scalar(2);
       axis[i1] = Scalar(1)/(2*s) * (R.coeff(i1,i0) + R.coeff(i0,i1));
       axis[i2] = Scalar(1)/(2*s) * (R.coeff(i2,i0) + R.coeff(i0,i2));
