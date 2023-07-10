@@ -5,6 +5,13 @@ from numpy.random import rand
 
 import pinocchio as pin
 from pinocchio import skew, unSkew, skewSquare
+try:
+    import casadi
+    from pinocchio import casadi as cpin
+    WITH_CASADI = True
+except:
+    print("Failed to import casadi, skipping corresponding tests")
+    WITH_CASADI = False
 
 from test_case import PinocchioTestCase
 
@@ -36,6 +43,20 @@ class TestSpatial(PinocchioTestCase):
         Mss_ref = Ms.dot(Ms)
 
         self.assertApprox(Mss,Mss_ref)
+    
+    def test_NaN_log3_casadi(self):
+        if WITH_CASADI:
+            Rtarget = pin.utils.rotate('x', 3.14 / 4)  # Target
+            R0 = pin.Quaternion(.707107,0.707107,0,0).matrix() 
+            nu0 = pin.log3(R0)
+
+            # Casadi symbolic variables and functions functions
+            nu = casadi.SX.sym("v", 3, 1)
+            D = (cpin.log3(cpin.exp3(nu).T @ Rtarget)) # This seems to be the probelematic function
+            dDi_dnu = [ casadi.Function('gradient'+str(i), [nu], [casadi.gradient(D[i], nu)]) for i in range(3)]  # Compute the gradient of function D wrt nu
+
+            d0 = dDi_dnu[0](nu0)    # Evaluate the gradient at a problematic point nu0
+            self.assertFalse(np.any(np.isnan(d0)), "NaN detected in the log3 function derivative")
 
     def test_Jlog6(self):
         for _ in range(10):

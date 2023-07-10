@@ -16,6 +16,79 @@
 
 BOOST_AUTO_TEST_SUITE(BOOST_TEST_MODULE)
 
+BOOST_AUTO_TEST_CASE(test_log3_firstorder_derivatives)
+{
+  // std::cout << "Starting Jacobian test" << std::endl;
+  typedef double Scalar;
+  typedef casadi::SX ADScalar;
+
+  typedef pinocchio::SE3 SE3;
+  typedef SE3::Vector3 Vector3;
+  typedef SE3::Matrix3 Matrix3;
+  
+  typedef pinocchio::SE3Tpl<ADScalar> SE3AD;
+  typedef SE3AD::Vector3 Vector3AD;
+  typedef SE3AD::Matrix3 Matrix3AD;
+
+  SE3::Matrix3 RTarget;
+  pinocchio::toRotationMatrix(Vector3(SE3::Vector3::UnitX()), Scalar(3.14)/ 4, RTarget);
+
+  SE3::Quaternion quat0(0.707107, 0.707107, 0, 0);
+  Matrix3 R0 = quat0.toRotationMatrix();
+  Vector3 nu0 = pinocchio::log3(R0);
+
+  casadi::SX cs_nu = casadi::SX::sym("nu", 3);
+
+  Vector3AD nu_ad = Eigen::Map<Vector3AD>(static_cast<std::vector<ADScalar>>(cs_nu).data());
+  auto log3_casadi_exp = pinocchio::log3(pinocchio::exp3(nu_ad).transpose() * RTarget.cast<ADScalar>());
+
+  casadi::SX cs_res = casadi::SX::sym("res", 3);
+  pinocchio::casadi::copy(log3_casadi_exp, cs_res);
+
+  casadi::Function log3_casadi("log3_casadi",
+                             casadi::SXVector{cs_nu},
+                             casadi::SXVector{log3_casadi_exp[0]});
+
+  std::vector<double> log3_casadi_input(3);
+  Eigen::Map<Vector3>(log3_casadi_input.data()) = nu0;
+  casadi::DM log3_casadi_res = log3_casadi(casadi::DMVector{log3_casadi_input})[0];
+
+  Vector3 res0 = Eigen::Map<Vector3>(static_cast<std::vector<double>>(log3_casadi_res).data());
+
+  Vector3 res0_ref = pinocchio::log3(pinocchio::exp3(nu0).transpose() * RTarget);
+
+  // Check first that the value matches
+  std::cout << "Value of log3[0]: " << res0[0] << std::endl;
+  BOOST_CHECK(res0 == res0);
+  BOOST_CHECK(res0_ref == res0_ref);
+  BOOST_CHECK(res0.isApprox(res0_ref));
+
+  ADScalar log3_casadi_jacobian_exp = jacobian(cs_res, cs_nu);
+  casadi::Function log3_casadi_jacobian("log3_casadi_jacobian",
+                                        casadi::SXVector{cs_nu},
+                                        casadi::SXVector{log3_casadi_jacobian_exp});
+
+  casadi::DM log3_casadi_jacobian_res = log3_casadi_jacobian(casadi::DMVector{log3_casadi_input})[0];
+  Matrix3 jac0 = Eigen::Map<Matrix3>(static_cast<std::vector<double>>(log3_casadi_jacobian_res).data());
+
+  std::cout << "jac0:\n" << jac0 << std::endl;
+  BOOST_CHECK(jac0 == jac0);
+  std::cout << " Jacobian test passed " << std::endl;
+
+  ADScalar log3_casadi_gradient_exp = gradient(log3_casadi_exp[0], cs_nu);
+
+  casadi::Function log3_casadi_gradient("log3_casadi_jacobian",
+                                        casadi::SXVector{cs_nu},
+                                        casadi::SXVector{log3_casadi_gradient_exp});
+
+  casadi::DM log3_casadi_gradient_res = log3_casadi_gradient(casadi::DMVector{log3_casadi_input})[0];
+  Vector3 grad0 = Eigen::Map<Vector3>(static_cast<std::vector<double>>(log3_casadi_gradient_res).data());
+
+  std::cout << "grad0:\n" << grad0 << std::endl;
+  BOOST_CHECK(grad0 == grad0);
+  std::cout << " Gradient test passed " << std::endl;
+}
+
 BOOST_AUTO_TEST_CASE(test_se3)
 {
   typedef pinocchio::SE3Tpl<casadi::SX> SE3;
