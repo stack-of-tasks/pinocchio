@@ -10,7 +10,6 @@ try:
     from pinocchio import casadi as cpin
     WITH_CASADI = True
 except:
-    print("Failed to import casadi, skipping corresponding tests")
     WITH_CASADI = False
 
 from test_case import PinocchioTestCase
