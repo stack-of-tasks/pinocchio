@@ -618,8 +618,4 @@ namespace pinocchio
   
 }
 
-#if PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-#include "pinocchio/algorithm/contact-info.txx"
-#endif // PINOCCHIO_ENABLE_TEMPLATE_INSTANTIATION
-
 #endif // ifndef __pinocchio_algorithm_contact_info_hpp__
