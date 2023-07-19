@@ -28,6 +28,7 @@ Otherwise, go directly to instruction 5. Those instructions are similar to the i
 2. Register the authentication certificate of robotpkg:
 
     ```bash
+    mkdir -p /etc/apt/keyrings
     curl http://robotpkg.openrobots.org/packages/debian/robotpkg.asc \
         | sudo tee /etc/apt/keyrings/robotpkg.asc
     ```
