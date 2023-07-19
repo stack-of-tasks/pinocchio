@@ -22,19 +22,21 @@ Otherwise, go directly to instruction 5. Those instructions are similar to the i
 1. Ensure you have some required installation dependencies
 
     ```bash
-    sudo apt install -qqy lsb-release gnupg2 curl
+    sudo apt install -qqy lsb-release curl
     ```
 
-2. Add robotpkg as source repository to apt:
+2. Register the authentication certificate of robotpkg:
 
     ```bash
-    echo "deb [arch=amd64] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg" | sudo tee /etc/apt/sources.list.d/robotpkg.list
+    curl http://robotpkg.openrobots.org/packages/debian/robotpkg.asc \
+        | sudo tee /etc/apt/keyrings/robotpkg.asc
     ```
 
-3. Register the authentication certificate of robotpkg:
+3. Add robotpkg as source repository to apt:
 
     ```bash
-    curl http://robotpkg.openrobots.org/packages/debian/robotpkg.key | sudo apt-key add -
+    echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/robotpkg.asc] http://robotpkg.openrobots.org/packages/debian/pub $(lsb_release -cs) robotpkg" \
+        | sudo tee /etc/apt/sources.list.d/robotpkg.list
     ```
 
 4. You need to run at least once apt update to fetch the package descriptions:
