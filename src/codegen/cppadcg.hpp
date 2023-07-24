@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_codegen_ccpadcg_hpp__
@@ -36,6 +36,12 @@ namespace boost
           {
             return CGScalar(constant_pi<Scalar>::get(n));
           }
+
+          template <class T, T value>
+          static inline CGScalar get(const std::integral_constant<T, value> &n)
+          {
+            return CGScalar(constant_pi<Scalar>::get(n));
+          }
         };
       }
     }
@@ -64,10 +70,13 @@ namespace Eigen
 namespace CppAD
 {
   template <class Scalar>
-  bool isfinite(const cg::CG<Scalar> & x) { return std::isfinite(x.getValue()); }
-  
-  template <class Scalar>
   bool isfinite(const AD<Scalar> & x) { return isfinite(Value(x)); }
+
+  namespace cg
+  {
+    template <class Scalar>
+    bool isfinite(const CG<Scalar> &x) { return std::isfinite(x.getValue()); }
+  }
 }
 
 namespace pinocchio

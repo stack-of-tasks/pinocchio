@@ -8,6 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CCACHE_DIR: ${{ matrix.CCACHE_DIR }}
+      BUILD_ADVANCED_TESTING: ${{ matrix.BUILD_ADVANCED_TESTING }}
 
     strategy:
       fail-fast: false
@@ -18,8 +19,10 @@ jobs:
         include:
           - os: ubuntu-latest
             CCACHE_DIR: /home/runner/.ccache
+            BUILD_ADVANCED_TESTING: OFF
           - os: macos-latest
             CCACHE_DIR: /Users/runner/.ccache
+            BUILD_ADVANCED_TESTING: ON
 
     steps:
     - uses: actions/checkout@v3
@@ -42,7 +45,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda activate pinocchio
-        mamba install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
+        conda install cmake ccache llvm-openmp compilers=1.4.2 -c conda-forge
         conda list
 
     - name: Build Pinocchio
@@ -54,11 +57,7 @@ jobs:
         mkdir build
         cd build
 
-        export LINK_PYTHON_INTERFACE_TO_OPENMP=ON
-        if [ "$(uname)" == "Darwin" ]; then
-          export LINK_PYTHON_INTERFACE_TO_OPENMP=OFF
-        fi
-        cmake .. -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=ON -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON -DOpenMP_ROOT=$CONDA_PREFIX
+        cmake .. -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DBUILD_WITH_COLLISION_SUPPORT=ON -DBUILD_ADVANCED_TESTING=${{ env.BUILD_ADVANCED_TESTING }}  -DBUILD_WITH_CASADI_SUPPORT=OFF -DPYTHON_EXECUTABLE=$(which python3) -DBUILD_WITH_OPENMP_SUPPORT=ON -DINSTALL_DOCUMENTATION=ON -DOpenMP_ROOT=$CONDA_PREFIX
         make
         make build_tests
         CTEST_OUTPUT_ON_FAILURE=1 make test

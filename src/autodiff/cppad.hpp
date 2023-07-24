@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2018-2020 CNRS INRIA
+// Copyright (c) 2018-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_autodiff_cppad_hpp__
@@ -37,6 +37,11 @@ namespace boost
             return ADScalar(constant_pi<Scalar>::get(n));
           }
 
+          template <class T, T value>
+          static inline ADScalar get(const std::integral_constant<T, value> &n)
+          {
+            return ADScalar(constant_pi<Scalar>::get(n));
+          }
         };
       }
     }

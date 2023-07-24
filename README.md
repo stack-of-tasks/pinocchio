@@ -24,11 +24,11 @@ Besides, **Pinocchio** provides the analytical derivatives of the main Rigid-Bod
 **Pinocchio** is first tailored for robotics applications, but it can be used in extra contexts (biomechanics, computer graphics, vision, etc.).
 It is built upon Eigen for linear algebra and FCL for collision detection. **Pinocchio** comes with a Python interface for fast code prototyping, [directly accessible](https://github.com/conda-forge/pinocchio-feedstock#installing-pinocchio) through [Conda](https://docs.conda.io/en/latest/).
 
-**Pinocchio** is now at the heart of various robotics software as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), an open-source software for Motion and Manipulation Planning.
+**Pinocchio** is now at the heart of various robotics software as [Crocoddyl](https://github.com/loco-3d/crocoddyl/tree/devel), an open-source and efficient Differential Dynamic Programming solver for robotics, the [Stack-of-Tasks](http://stack-of-tasks.github.io), an open-source and versatile hierarchical controller framework or the [Humanoid Path Planner](https://humanoid-path-planner.github.io/hpp-doc), open-source software for Motion and Manipulation Planning.
 
-If you want to learn more on **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228) and the online [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
+If you want to learn more about **Pinocchio** internal behaviors and main features, we invite you to read the related [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228) and the online [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/).
 
-If you want to directly dive into **Pinocchio**, only one single line is sufficient (assuming you have Conda):
+If you want to dive into **Pinocchio** directly, only one single line is sufficient (assuming you have Conda):
 
 <p align="center">
 <strong> conda install pinocchio -c conda-forge </strong>
@@ -69,7 +69,7 @@ or via pip (currently only available on Linux):
    - centroidal dynamics and its analytical derivatives,
    - support of multiple precision arithmetic via Boost.Multiprecision or any similar framework,
    - computations of kinematic and dynamic regressors for system identification and more,
-   - and much more with the support of modern and open source Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
+   - and much more with the support of modern and open-source Automatic Differentiation frameworks like [CppAD](https://github.com/coin-or/CppAD) or [CasADi](https://web.casadi.org/).
 
 **Pinocchio** is flexible:
 
@@ -78,8 +78,8 @@ or via pip (currently only available on Linux):
 
 **Pinocchio** is extensible.
 **Pinocchio** is multi-thread friendly.
-**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real world robotics applications).
-**Pinocchio** is supported and tested on Windows, Mac OS X, Unix and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
+**Pinocchio** is reliable and extensively tested (unit-tests, simulations and real-world robotics applications).
+**Pinocchio** is supported and tested on Windows, Mac OS X, Unix, and Linux ([see build status here](http://robotpkg.openrobots.org/rbulk/robotpkg/math/pinocchio/index.html)).
 
 ## Documentation
 
@@ -87,14 +87,14 @@ The online **Pinocchio** documentation of the last release is available [here](h
 
 ## Examples
 
-We provide some basic examples on how to use **Pinocchio** in Python in the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory.
+We provide some basic examples of using **Pinocchio** in Python in the [examples](https://github.com/stack-of-tasks/pinocchio/tree/master/examples) directory.
 Additional examples introducing **Pinocchio** are also available in the [documentation](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/md_doc_d-practical-exercises_intro.html).
 
 ## Tutorials
 
 **Pinocchio** comes with a large bunch of tutorials aiming at introducing the basic tools for robot control.
 Tutorial and training documents are listed [here](https://gepettoweb.laas.fr/doc/stack-of-tasks/pinocchio/master/doxygen-html/index.html#OverviewConclu).
-You can also consider the interactive jupyter notebook [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developped by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
+You can also consider the interactive Jupyter notebook [set of tutorials](https://github.com/ymontmarin/_tps_robotique) developed by [Nicolas Mansard](https://gepettoweb.laas.fr/index.php/Members/NicolasMansard) and [Yann de Mont-Marin](https://github.com/ymontmarin).
 
 ## Pinocchio continuous integrations
 
@@ -118,14 +118,14 @@ You can also consider the interactive jupyter notebook [set of tutorials](https:
 
 ## Performances
 
-**Pinocchio** exploits at best the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** is able to unroll most of the computations directly at compile time, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
+**Pinocchio** exploits, at best, the sparsity induced by the kinematic tree of robotics systems. Thanks to modern programming language paradigms, **Pinocchio** can unroll most of the computations directly at compile time, allowing to achieve impressive performances for a large range of robots, as illustrated by the plot below, obtained on a standard laptop equipped with an Intel Core i7 CPU @ 2.4 GHz.
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/stack-of-tasks/pinocchio/master/doc/images/pinocchio-performances.png" width="600" alt="Pinocchio Logo" align="center"/>
 </p>
 
-For other benchmarks, and mainly the capacity of Pinocchio to exploit at best your CPU capacities using advanced code generation techniques, we refer to the technical [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
-In addition, the introspection done [here](https://github.com/rbd-benchmarks/rbd-benchmarks) may also help you to understand and compare the performances of the modern rigid body dynamics librairies.
+For other benchmarks, and mainly the capacity of Pinocchio to exploit, at best, your CPU capacities using advanced code generation techniques, we refer to the technical [paper](https://hal-laas.archives-ouvertes.fr/hal-01866228).
+In addition, the [introspection](https://github.com/rbd-benchmarks/rbd-benchmarks) may also help you to understand and compare the performances of the modern rigid body dynamics libraries.
 
 ## Ongoing developments
 
@@ -140,7 +140,7 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 
 ### ROS
 
-**Pinocchio** is also deployed on ROS, you may follow its deployment status below. If you're interested in using Pinocchio on systems and/or with packages that integrate with the ROS ecosystem, we recommend the installation of Pinocchio via the binaries distributed via the ROS PPA. Here, you can install Pinocchio using `sudo apt install ros-$ROS_DISTRO-pinocchio`. This installs Pinocchio with HPP-FCL support and with Python bindings. You can then depend on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`) and include it via CMake (`find_package(pinocchio REQUIRED)`) -- we include support and hooks to discover the package for both ROS1 and ROS2. An example can be found [here](https://github.com/wxmerkt/pinocchio_ros_example). Please note that we advise to always include the `pinocchio/fwd.hpp` header as the first include to avoid compilation errors from differing Boost-variant sizes.
+**Pinocchio** is also deployed on ROS. You may follow its deployment status below. If you're interested in using Pinocchio on systems and/or with packages that integrate with the ROS ecosystem, we recommend the installation of Pinocchio via the binaries distributed via the ROS PPA. Here, you can install Pinocchio using `sudo apt install ros-$ROS_DISTRO-pinocchio`. This installs Pinocchio with HPP-FCL support and with Python bindings. You can then depend on Pinocchio in your `package.xml` config (`<depend>pinocchio</depend>`) and include it via CMake (`find_package(pinocchio REQUIRED)`) -- we include support and hooks to discover the package for both ROS1 and ROS2. An example can be found [here](https://github.com/wxmerkt/pinocchio_ros_example). Please note that we advise always include the `pinocchio/fwd.hpp` header as the first include to avoid compilation errors from differing Boost-variant sizes.
 
 | ROS1        |                                                                                                                                                                            | &nbsp;&nbsp;&nbsp;&nbsp; | ROS2         |                                                                                                                                                                            |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -158,7 +158,7 @@ If you only need the Python bindings of Pinocchio, you may prefer to install it 
 -   [Panda3d](https://github.com/ikalevatykh/panda3d_viewer): supporting visualization in Python and which can be embedded inside any browser.
 -   [RViz](https://github.com/ros-visualization/rviz): supporting visualization in Python and which can interact with other ROS packages.
 
-Many external viewers can also be integrated. See example [here](https://github.com/stack-of-tasks/pinocchio/blob/master/bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
+Many external viewers can also be integrated. See the example [here](https://github.com/stack-of-tasks/pinocchio/blob/master/bindings/python/pinocchio/visualize/base_visualizer.py) for more information.
 
 ## Citing Pinocchio
 
@@ -192,7 +192,7 @@ The algorithms for the analytical derivatives of rigid-body dynamics algorithms 
 
 ## Questions and Issues
 
-You have a question or an issue? You may either directly open a [new question](https://github.com/stack-of-tasks/pinocchio/discussions/new?category=q-a) or a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or, directly contact us via the mailing list <pinocchio@inria.fr>.
+Do you have a question or an issue? You may either directly open a [new question](https://github.com/stack-of-tasks/pinocchio/discussions/new?category=q-a) or a [new issue](https://github.com/stack-of-tasks/pinocchio/issues) or, directly contact us via the mailing list <pinocchio@inria.fr>.
 
 ## Credits
 
@@ -203,7 +203,7 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Guilhem Saurel](http://projects.laas.fr/gepetto/index.php/Members/GuilhemSaurel) (LAAS-CNRS): continuous integration and deployment
 -   [Joseph Mirabel](http://jmirabel.github.io/) (Eureka Robotics): Lie groups and hpp-fcl implementation
 -   [Antonio El Khoury](https://www.linkedin.com/in/antonioelkhoury) (Wandercraft): bug fixes
--   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes and Python bindings
+-   [Gabriele Buondono](http://projects.laas.fr/gepetto/index.php/Members/GabrieleBuondonno) (LAAS-CNRS): features extension, bug fixes, and Python bindings
 -   [Florian Valenza](https://fr.linkedin.com/in/florian-valenza-1b274082) (Astek): core developments and hpp-fcl support
 -   [Wolfgang Merkt](http://www.wolfgangmerkt.com/) (University of Oxford): ROS integration and support
 -   [Rohan Budhiraja](https://scholar.google.com/citations?user=NW9Io9AAAAAJ) (LAAS-CNRS): features extension
@@ -212,20 +212,21 @@ The following people have been involved in the development of **Pinocchio** and 
 -   [Matthieu Vigne](https://github.com/matthieuvigne) (Wandercraft): MeshCat viewer support
 -   [Robin Strudel](https://www.di.ens.fr/robin.strudel/) (Inria): features extension
 -   [François Keith](https://scholar.google.fr/citations?user=cxSxXiQAAAAJ&hl=en) (CEA): Windows support
--   [Sarah El Kazdadi](https://github.com/sarah-ek) (Inria): multiprecision arithmetic support
+-   [Sarah El Kazdadi](https://github.com/sarah-ek) (Inria): multi-precision arithmetic support
 -   [Nicolas Torres Alberto](https://scholar.google.com/citations?user=gYNLhEIAAAAJ&hl=en) (Inria): features extension
 -   [Etienne Arlaud](https://github.com/EtienneAr) (Inria): RViz viewer support
 -   [Wilson Jallet](https://github.com/ManifoldFR) (LAAS-CNRS/Inria): extension of Python bindings
 -   [Fabian Schramm](https://github.com/fabinsch) (Inria): core developper
 -   [Shubham Singh](https://github.com/shubhamsingh91) (UT Austin): second-order inverse dynamics derivatives
+-   [Stéphane Caron](https://scaron.info) (Inria): core developper
 
-If you have taken part to the development of **Pinocchio**, feel free to add your name and contribution in this list.
+If you have participated in the development of **Pinocchio**, please add your name and contribution to this list.
 
 ## Open-source projects relying on Pinocchio
 
--   [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platform.
--   [TSID](https://github.com/stack-of-tasks/tsid/) A software which implements an Task Space Inverse Dynamics QP.
--   [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planner for humanoids and other robots.
+-   [Crocoddyl](https://github.com/loco-3d/crocoddyl) A software to realize model predictive control for complex robotics platforms.
+-   [TSID](https://github.com/stack-of-tasks/tsid/) A software that implements a Task Space Inverse Dynamics QP.
+-   [HPP](https://humanoid-path-planner.github.io/hpp-doc/ ) A SDK which implements motion planners for humanoids and other robots.
 -   [Jiminy](https://github.com/duburcqa/jiminy) A simulator based on Pinocchio.
 -   [ocs2](https://github.com/leggedrobotics/ocs2) A toolbox for Optimal Control for Switched Systems (OCS2)
 -   [TriFingerSimulation](https://github.com/open-dynamic-robot-initiative/trifinger_simulation) TriFinger Robot Simulation (a Robot to perform RL on manipulation).
