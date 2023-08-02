@@ -8,6 +8,8 @@
 #include <pinocchio/spatial/se3.hpp>
 #include <pinocchio/spatial/motion.hpp>
 
+#include <pinocchio/spatial/explog.hpp>
+
 #include <boost/variant.hpp> // to avoid C99 warnings
 
 #include <iostream>
@@ -103,7 +105,7 @@ BOOST_AUTO_TEST_CASE(test_log3_firstorder_derivatives)
   typedef SE3AD::Matrix3 Matrix3AD;
 
   SE3::Matrix3 RTarget;
-  pinocchio::toRotationMatrix(Vector3(SE3::Vector3::UnitX()), Scalar(3.14)/ 4, RTarget);
+  pinocchio::toRotationMatrix(Vector3(SE3::Vector3::UnitX()), pinocchio::PI<Scalar>() / 4, RTarget);
 
   SE3::Quaternion quat0(0.707107, 0.707107, 0, 0);
   Matrix3 R0 = quat0.toRotationMatrix();
@@ -119,12 +121,11 @@ BOOST_AUTO_TEST_CASE(test_log3_firstorder_derivatives)
 
   casadi::Function log3_casadi("log3_casadi",
                              casadi::SXVector{cs_nu},
-                             casadi::SXVector{log3_casadi_exp[0]});
+                             casadi::SXVector{cs_res});
 
   std::vector<double> log3_casadi_input(3);
   Eigen::Map<Vector3>(log3_casadi_input.data()) = nu0;
   casadi::DM log3_casadi_res = log3_casadi(casadi::DMVector{log3_casadi_input})[0];
-
   Vector3 res0 = Eigen::Map<Vector3>(static_cast<std::vector<double>>(log3_casadi_res).data());
 
   Vector3 res0_ref = pinocchio::log3(pinocchio::exp3(nu0).transpose() * RTarget);
