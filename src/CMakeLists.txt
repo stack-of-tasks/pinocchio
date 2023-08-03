@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020 CNRS INRIA
+# Copyright (c) 2015-2023 CNRS INRIA
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
@@ -20,7 +20,7 @@ ENDIF()
 LIST(APPEND ${PROJECT_NAME}_SOURCES utils/file-explorer.cpp)
 
 # Create header-only target
-ADD_LIBRARY(${PROJECT_NAME}_headers INTERFACE)
+ADD_LIBRARY(${PROJECT_NAME}_headers INTERFACE ${HEADERS})
 
 # Exclude parts from hppfcl which is not header only
 IF(BUILD_WITH_HPP_FCL_SUPPORT)
@@ -56,6 +56,7 @@ FUNCTION(PINOCCHIO_SPECIFIC_TYPE scalar_name)
 
   # Create target libpinocchio.so
   ADD_LIBRARY(${LIB_NAME} SHARED ${${PROJECT_NAME}_SOURCES})
+  target_link_libraries(${LIB_NAME} PUBLIC ${PROJECT_NAME}_headers)
   TARGET_COMPILE_DEFINITIONS(${LIB_NAME} PUBLIC ${CURRENT_COMPILE_DEFINITIONS})
   SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES
     LINKER_LANGUAGE CXX
