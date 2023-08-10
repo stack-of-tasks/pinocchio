@@ -286,7 +286,6 @@ namespace pinocchio
       const Eigen::DenseIndex total_dim = size();
       const Eigen::DenseIndex total_constraints_dim = total_dim - nv;
       
-      typedef ModelTpl<Scalar,Options,JointCollectionTpl> Model;
       typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
       const typename Data::MatrixXs & M = data.M;
       
@@ -298,24 +297,10 @@ namespace pinocchio
         const RigidConstraintModel & cmodel = contact_models[ee_id];
         RigidConstraintData & cdata = contact_datas[ee_id];
 
-        const typename Model::JointIndex joint1_id = cmodel.joint1_id;
-        if(joint1_id > 0)
-          cdata.oMc1 = data.oMi[joint1_id] * cmodel.joint1_placement;
-        else
-          cdata.oMc1 = cmodel.joint1_placement;
-
-        const typename Model::JointIndex joint2_id = cmodel.joint2_id;
-        if(joint2_id > 0)
-          cdata.oMc2 = data.oMi[joint2_id] * cmodel.joint2_placement;
-        else
-          cdata.oMc2 = cmodel.joint2_placement;
-        
-        // Compute relative placement
-        cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
+        cmodel.calc(model,data,cdata);
       }
 
       // Core
-//      Motion Jcol_motion;
       for(Eigen::DenseIndex j=nv-1;j>=0;--j)
       {
         // Classic Cholesky decomposition related to the mass matrix

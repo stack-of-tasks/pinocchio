@@ -338,6 +338,27 @@ namespace pinocchio
     {
       return !(*this == other);
     }
+
+    template<template<typename,int> class JointCollectionTpl>
+    void calc(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+              const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                    RigidConstraintDataTpl<Scalar,Options> & cdata) const
+    {
+      PINOCCHIO_UNUSED_VARIABLE(model);
+
+      if(joint1_id > 0)
+        cdata.oMc1 = data.oMi[joint1_id] * joint1_placement;
+      else
+        cdata.oMc1 = joint1_placement;
+
+      if(joint2_id > 0)
+        cdata.oMc2 = data.oMi[joint2_id] * joint2_placement;
+      else
+        cdata.oMc2 = joint2_placement;
+
+      // Compute relative placement
+      cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
+    }
     
     int size() const
     {
