@@ -405,6 +405,8 @@ namespace pinocchio
     template<int OtherOptions, template<typename,int> class JointCollectionTpl>
     void init(const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model)
     {
+      PINOCCHIO_CHECK_INPUT_ARGUMENT(reference_frame == LOCAL || reference_frame == LOCAL_WORLD_ALIGNED,
+                                     "reference_frame should be LOCAL or LOCAL_WORLD_ALIGNED");
       nv = model.nv;
       depth_joint1 = static_cast<size_t>(model.supports[joint1_id].size());
       depth_joint2 = static_cast<size_t>(model.supports[joint2_id].size());
