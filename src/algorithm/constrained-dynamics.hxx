@@ -812,7 +812,7 @@ namespace pinocchio
         }
       }
 
-      if(primal_infeasibility < settings.absolute_accuracy)
+      if (check_expression_if_real<Scalar,false>(primal_infeasibility < settings.absolute_accuracy))
       {
         optimal_solution_found = true;
         break;
