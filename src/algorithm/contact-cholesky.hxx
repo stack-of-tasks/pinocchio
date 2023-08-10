@@ -65,7 +65,8 @@ namespace pinocchio
         last_child[(Eigen::DenseIndex)parent] = std::max(last_child[joint_id],
                                                          last_child[(Eigen::DenseIndex)parent]);
       }
-      
+
+      // Fill nv_subtree_fromRow for model
       for(JointIndex joint_id = 1;joint_id < (JointIndex)(model.njoints);joint_id++)
       {
         const JointIndex & parent_id = model.parents[joint_id];
@@ -204,7 +205,7 @@ namespace pinocchio
           if(joint1_indexes_ee[col_id] != joint2_indexes_ee[col_id])
             colwise_loop_sparsity_patterns_ee[size++] = col_id;
         }
-        colwise_loop_sparsity_patterns_ee.conservativeResize(size);
+        colwise_loop_sparsity_patterns_ee.conservativeResize(size); // reduce the size
 	
       }
       
