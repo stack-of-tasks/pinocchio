@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_simple)
   BOOST_CHECK(mass_matrix_chol.Dinv.isApprox(data_ref.Dinv));
 }
 
-BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
+BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -272,10 +272,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
 
@@ -290,9 +290,9 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   // Compute Jacobians
   Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
   J_RF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
   J_LF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
 
   const int constraint_dim = 12;
   const int total_dim = model.nv + constraint_dim;
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_WORLD)
   BOOST_CHECK(mat3.isApprox(H));
 }
 
-BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
+BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_LOCAL)
 {
   using namespace Eigen;
   using namespace pinocchio;
@@ -536,10 +536,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_3D,model,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
 //  RigidConstraintModel ci_RA(CONTACT_3D,model.getJointId(RA),LOCAL);
@@ -560,9 +560,9 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   // Compute Jacobians
   Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv), J_RA(6,model.nv), J_LA(6,model.nv);
   J_RF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF);
+  getJointJacobian(model, data_ref, model.getJointId(RF), LOCAL, J_RF);
   J_LF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
   J_RA.setZero();
   getJointJacobian(model, data_ref, model.getJointId(RA), LOCAL, J_RA);
   J_LA.setZero();
@@ -738,99 +738,6 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD)
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }
 
-BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL)
-{
-  using namespace Eigen;
-  using namespace pinocchio;
-  using namespace pinocchio::cholesky;
-  
-  pinocchio::Model model;
-  pinocchio::buildModels::humanoidRandom(model,true);
-  pinocchio::Data data_ref(model);
-  
-  model.lowerPositionLimit.head<3>().fill(-1.);
-  model.upperPositionLimit.head<3>().fill(1.);
-  VectorXd q = randomConfiguration(model);
-  
-  const std::string RF = "rleg6_joint";
-  const std::string LF = "lleg6_joint";
-  
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
-  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL);
-  contact_models.push_back(ci_RF);
-  contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
-  contact_models.push_back(ci_LF);
-  contact_datas.push_back(RigidConstraintData(ci_LF));
-  
-  // Compute Mass Matrix
-  crba(model,data_ref,q);
-  data_ref.M.triangularView<Eigen::StrictlyLower>() =
-  data_ref.M.triangularView<Eigen::StrictlyUpper>().transpose();
-  
-  // Compute Cholesky decomposition
-  pinocchio::cholesky::decompose(model,data_ref);
-  
-  // Compute Jacobians
-  Data::Matrix6x J_RF(6,model.nv), J_LF(6,model.nv);
-  J_RF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(RF), ci_RF.reference_frame, J_RF);
-  J_LF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(LF), ci_LF.reference_frame, J_LF);
-  
-  const int constraint_dim = 12;
-  const int total_dim = model.nv + constraint_dim;
-  
-  Data::MatrixXs H(total_dim,total_dim); H.setZero();
-  H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
-  H.middleRows<6>(0).rightCols(model.nv) = J_RF;
-  H.middleRows<6>(6).rightCols(model.nv) = J_LF;
-  
-  H.triangularView<Eigen::StrictlyLower>() =
-  H.triangularView<Eigen::StrictlyUpper>().transpose();
-  
-  Data data(model); crba(model,data,q);
-  ContactCholeskyDecomposition contact_chol_decomposition;
-  contact_chol_decomposition.allocate(model, contact_models);
-  contact_chol_decomposition.compute(model,data,contact_models,contact_datas);
-  
-  data.M.triangularView<Eigen::StrictlyLower>() =
-  data.M.triangularView<Eigen::StrictlyUpper>().transpose();
-  
-  Data::MatrixXs H_recomposed = contact_chol_decomposition.matrix();
-  
-  BOOST_CHECK(H_recomposed.bottomRightCorner(model.nv,model.nv).isApprox(data.M));
-  BOOST_CHECK(H_recomposed.topRightCorner(constraint_dim,model.nv).isApprox(H.topRightCorner(constraint_dim,model.nv)));
-  BOOST_CHECK(H_recomposed.isApprox(H));
-  
-  // inverse
-  MatrixXd H_inv(contact_chol_decomposition.size(),contact_chol_decomposition.size());
-  contact_chol_decomposition.inverse(H_inv);
-  
-  MatrixXd H_inv_ref = H_recomposed.inverse();
-  BOOST_CHECK(H_inv.isApprox(H_inv_ref));
-  
-  // test Operational Space Inertia Matrix
-  MatrixXd JMinvJt = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose();
-  MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
-  MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
-  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(12, model.nv));
-  contact_chol_decomposition.getJMinv(JMinv_test);
-  MatrixXd JMinv_ref = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse();
-  BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
-  
-  BOOST_CHECK(iosim.isApprox(JMinvJt));
-  BOOST_CHECK(osim.isApprox(JMinvJt.inverse()));
-  
-  // test Mass matrix cholesky
-  data_ref.Minv = data_ref.M.inverse();
-  Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
-  contact_chol_decomposition.getInverseMassMatrix(Minv_test);
-  
-  BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
-}
-
 BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
 {
   using namespace Eigen;
@@ -853,7 +760,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_LOCAL_WORLD_ALIGNED)
   RigidConstraintModel ci_RF(CONTACT_6D,model,model.getJointId(RF),LOCAL_WORLD_ALIGNED);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   
@@ -947,10 +854,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_6D,model,0,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_6D,model,0,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   RigidConstraintModel ci_RA(CONTACT_6D,model,0,model.getJointId(RA),LOCAL_WORLD_ALIGNED);
@@ -988,8 +895,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact6D_by_joint_2)
   Data::MatrixXs H(total_dim,total_dim); H.setZero();
   H.topLeftCorner(constraint_dim,constraint_dim).diagonal().fill(-mu);
   H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
-  H.middleRows<6>(0).rightCols(model.nv) = -J_RF;
-  H.middleRows<6>(6).rightCols(model.nv) = -J_LF;
+  H.middleRows<6>(0).rightCols(model.nv) = -ci_RF.joint1_placement.toActionMatrixInverse()*J_RF;
+  H.middleRows<6>(6).rightCols(model.nv) = -ci_LF.joint1_placement.toActionMatrixInverse()*J_LF;
   H.middleRows<6>(12).rightCols(model.nv) = -oMRA_wla.toActionMatrixInverse()*J_RA;
   H.middleRows<6>(18).rightCols(model.nv) = -ci_LA.joint1_placement.toActionMatrixInverse()*J_LA;
   
@@ -1148,10 +1055,10 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
-  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),WORLD);
+  RigidConstraintModel ci_RF(CONTACT_6D,model,0,model.getJointId(RF),LOCAL);
   contact_models.push_back(ci_RF);
   contact_datas.push_back(RigidConstraintData(ci_RF));
-  RigidConstraintModel ci_LF(CONTACT_3D,model,0,model.getJointId(LF),WORLD);
+  RigidConstraintModel ci_LF(CONTACT_3D,model,0,model.getJointId(LF),LOCAL);
   contact_models.push_back(ci_LF);
   contact_datas.push_back(RigidConstraintData(ci_LF));
   RigidConstraintModel ci_RA(CONTACT_3D,model,0,model.getJointId(RA),LOCAL);
@@ -1174,7 +1081,7 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   J_RF.setZero();
   getJointJacobian(model, data_ref, model.getJointId(RF), WORLD, J_RF);
   J_LF.setZero();
-  getJointJacobian(model, data_ref, model.getJointId(LF), WORLD, J_LF);
+  getJointJacobian(model, data_ref, model.getJointId(LF), LOCAL, J_LF);
   J_RA.setZero();
   getJointJacobian(model, data_ref, model.getJointId(RA), LOCAL, J_RA);
   J_LA.setZero();
@@ -1185,8 +1092,8 @@ BOOST_AUTO_TEST_CASE(contact_cholesky_contact3D_6D_WORLD_by_joint_2)
   
   Data::MatrixXs H(total_dim,total_dim); H.setZero();
   H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
-  H.middleRows<6>(0).rightCols(model.nv) = -J_RF;
-  H.middleRows<3>(6).rightCols(model.nv) = -J_LF.middleRows<3>(Motion::LINEAR);
+  H.middleRows<6>(0).rightCols(model.nv) = -ci_RF.joint1_placement.toActionMatrix() * J_RF;
+  H.middleRows<3>(6).rightCols(model.nv) = -data_ref.oMi[model.getJointId(LF)].rotation()*J_LF.middleRows<3>(Motion::LINEAR);
   H.middleRows<3>(9).rightCols(model.nv) = -data_ref.oMi[model.getJointId(RA)].rotation()*J_RA.middleRows<3>(Motion::LINEAR);
   H.middleRows<3>(12).rightCols(model.nv) = -J_LA.middleRows<3>(Motion::LINEAR);
   
@@ -1262,7 +1169,6 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   RigidConstraintModel loop_RF_LF_local(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidConstraintModel loop_RF_LF_world(CONTACT_6D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
   RigidConstraintModel loop_RA_LA_lwa(CONTACT_6D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
@@ -1273,9 +1179,6 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   
   contact_models.push_back(loop_RF_LF_local);
   contact_datas.push_back(RigidConstraintData(loop_RF_LF_local));
-  
-  contact_models.push_back(loop_RF_LF_world);
-  contact_datas.push_back(RigidConstraintData(loop_RF_LF_world));
   
   contact_models.push_back(loop_RA_LA_lwa);
   contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
@@ -1318,16 +1221,15 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   const SE3 oM2_loop2 = data_ref.oMi[loop_RA_LA_lwa.joint2_id] * loop_RA_LA_lwa.joint2_placement;
   const SE3 _1M2_loop2 = oM1_loop2.inverse() * oM2_loop2;
   
-  const int constraint_dim = 18;
+  const int constraint_dim = 12;
   const int total_dim = model.nv + constraint_dim;
   
   Data::MatrixXs H(total_dim,total_dim); H.setZero();
   H.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
   H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
   H.middleRows<6>(0).rightCols(model.nv) = J_RF_local - _1M2_loop1.toActionMatrix() * J_LF_local;
-  H.middleRows<6>(6).rightCols(model.nv) = J_RF_world - J_LF_world;
   const SE3 oM1_loop2_lwa = SE3(oM1_loop2.rotation(),SE3::Vector3::Zero());
-  H.middleRows<6>(12).rightCols(model.nv) = oM1_loop2_lwa.toActionMatrix()*J_RA_local - (oM1_loop2_lwa.toActionMatrix()*_1M2_loop2.toActionMatrix())*J_LA_local;
+  H.middleRows<6>(6).rightCols(model.nv) = oM1_loop2_lwa.toActionMatrix()*J_RA_local - (oM1_loop2_lwa.toActionMatrix()*_1M2_loop2.toActionMatrix())*J_LA_local;
   
   H.triangularView<Eigen::StrictlyLower>() =
   H.triangularView<Eigen::StrictlyUpper>().transpose();
@@ -1355,8 +1257,8 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   
   // test Operational Space Inertia Matrix
   MatrixXd JMinvJt =
-  H.middleRows<18>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<18>(0).rightCols(model.nv).transpose()
-  + mu * Eigen::MatrixXd::Identity(18,18);
+  H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<12>(0).rightCols(model.nv).transpose()
+  + mu * Eigen::MatrixXd::Identity(12,12);
   MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
   MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
   
@@ -1369,9 +1271,9 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact6D)
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
-  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(18, model.nv));
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(12, model.nv));
   contact_chol_decomposition.getJMinv(JMinv_test);
-  MatrixXd JMinv_ref = H.middleRows<18>(0).rightCols(model.nv) * data_ref.M.inverse();
+  MatrixXd JMinv_ref = H.middleRows<12>(0).rightCols(model.nv) * data_ref.M.inverse();
   BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
 
 
@@ -1399,23 +1301,16 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) contact_models;
   PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) contact_datas;
   RigidConstraintModel loop_RF_LF_local(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),LOCAL);
-  RigidConstraintModel loop_RF_LF_world(CONTACT_3D,model,model.getJointId(RF),model.getJointId(LF),WORLD);
   RigidConstraintModel loop_RA_LA_lwa(CONTACT_3D,model,model.getJointId(RA),model.getJointId(LA),LOCAL_WORLD_ALIGNED);
   
   loop_RF_LF_local.joint1_placement.setRandom();
   loop_RF_LF_local.joint2_placement.setRandom();
 
-  loop_RF_LF_world.joint1_placement.setRandom();
-  loop_RF_LF_world.joint2_placement.setRandom();
-  
   loop_RA_LA_lwa.joint1_placement.setRandom();
   loop_RA_LA_lwa.joint2_placement.setRandom();
   
   contact_models.push_back(loop_RF_LF_local);
   contact_datas.push_back(RigidConstraintData(loop_RF_LF_local));
-  
-  contact_models.push_back(loop_RF_LF_world);
-  contact_datas.push_back(RigidConstraintData(loop_RF_LF_world));
   
   contact_models.push_back(loop_RA_LA_lwa);
   contact_datas.push_back(RigidConstraintData(loop_RA_LA_lwa));
@@ -1458,17 +1353,16 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   const SE3 oM2_loop2 = data_ref.oMi[loop_RA_LA_lwa.joint2_id] * loop_RA_LA_lwa.joint2_placement;
   const SE3 _1M2_loop2 = oM1_loop2.inverse() * oM2_loop2;
 
-  const int constraint_dim = 9;
+  const int constraint_dim = 6;
   const int total_dim = model.nv + constraint_dim;
   
   Data::MatrixXs H(total_dim,total_dim); H.setZero();
   H.topLeftCorner(constraint_dim, constraint_dim).diagonal().fill(-mu);
   H.bottomRightCorner(model.nv, model.nv) = data_ref.M;
   H.middleRows<3>(0).rightCols(model.nv) = J_RF_local.middleRows<3>(Motion::LINEAR) - _1M2_loop1.rotation() * J_LF_local.middleRows<3>(Motion::LINEAR);
-  H.middleRows<3>(3).rightCols(model.nv) = J_RF_world.middleRows<3>(Motion::LINEAR) - J_LF_world.middleRows<3>(Motion::LINEAR);
   const SE3 oM1_loop2_lwa = SE3(oM1_loop2.rotation(),SE3::Vector3::Zero());
   const SE3 oM2_loop2_lwa = SE3(oM2_loop2.rotation(),SE3::Vector3::Zero());
-  H.middleRows<3>(6).rightCols(model.nv) = (oM1_loop2_lwa.toActionMatrix()*J_RA_local - (oM2_loop2_lwa.toActionMatrix())*J_LA_local).middleRows<3>(Motion::LINEAR);
+  H.middleRows<3>(3).rightCols(model.nv) = (oM1_loop2_lwa.toActionMatrix()*J_RA_local - (oM2_loop2_lwa.toActionMatrix())*J_LA_local).middleRows<3>(Motion::LINEAR);
   
   H.triangularView<Eigen::StrictlyLower>() =
   H.triangularView<Eigen::StrictlyUpper>().transpose();
@@ -1478,7 +1372,7 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   contact_chol_decomposition.allocate(model, contact_models);
   contact_chol_decomposition.compute(model,data,contact_models,contact_datas,mu);
   BOOST_CHECK(contact_datas[0].c1Mc2.isApprox(_1M2_loop1));
-  BOOST_CHECK(contact_datas[2].c1Mc2.isApprox(_1M2_loop2));
+  BOOST_CHECK(contact_datas[1].c1Mc2.isApprox(_1M2_loop2));
 
   Data::MatrixXs H_recomposed = contact_chol_decomposition.matrix();
   
@@ -1501,8 +1395,8 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   
   // test Operational Space Inertia Matrix
   MatrixXd JMinvJt
-  = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<9>(0).rightCols(model.nv).transpose()
-  + mu * Eigen::MatrixXd::Identity(9,9);
+  = H.middleRows<6>(0).rightCols(model.nv) * data_ref.M.inverse() * H.middleRows<6>(0).rightCols(model.nv).transpose()
+  + mu * Eigen::MatrixXd::Identity(6,6);
   MatrixXd iosim = contact_chol_decomposition.getInverseOperationalSpaceInertiaMatrix();
   MatrixXd osim = contact_chol_decomposition.getOperationalSpaceInertiaMatrix();
   
@@ -1514,9 +1408,9 @@ BOOST_AUTO_TEST_CASE(loop_contact_cholesky_contact_3d)
   Eigen::MatrixXd Minv_test(Eigen::MatrixXd::Zero(model.nv, model.nv));
   contact_chol_decomposition.getInverseMassMatrix(Minv_test);
   
-  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(9, model.nv));
+  Eigen::MatrixXd JMinv_test(Eigen::MatrixXd::Zero(6, model.nv));
   contact_chol_decomposition.getJMinv(JMinv_test);
-  MatrixXd JMinv_ref = H.middleRows<9>(0).rightCols(model.nv) * data_ref.M.inverse();
+  MatrixXd JMinv_ref = H.middleRows<6>(0).rightCols(model.nv) * data_ref.M.inverse();
   BOOST_CHECK(JMinv_ref.isApprox(JMinv_test));
   BOOST_CHECK(Minv_test.isApprox(data_ref.Minv));
 }

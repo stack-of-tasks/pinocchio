@@ -173,7 +173,7 @@ namespace pinocchio
         }
         assert(current1_id == current2_id && "current1_id should be equal to current2_id");
         // current1_id and current2_id now contains the common ancestor to the two joints.
-        if(cmodel.type == CONTACT_3D && cmodel.reference_frame != WORLD)
+        if(cmodel.type == CONTACT_3D)
         {
           JointIndex current_id = current1_id;
           while(current_id > 0)
@@ -359,16 +359,6 @@ namespace pinocchio
               {
                 switch(cmodel.reference_frame)
                 {
-                  case WORLD:
-                  {
-                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_3D>::value; _i++)
-                    {
-                      const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_motion.linear()[contact_dim<CONTACT_3D>::value-_i-1] * sign
-                                - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                    }
-                    break;
-                  }
                   case LOCAL:
                   {
                     if(sign == 0)
@@ -448,16 +438,6 @@ namespace pinocchio
                 assert(check_expression_if_real<Scalar>(sign != 0) && "sign should be equal to +1 or -1.");
                 switch(cmodel.reference_frame)
                 {
-                  case WORLD:
-                  {
-                    for(Eigen::DenseIndex _i = 0; _i < contact_dim<CONTACT_6D>::value; _i++)
-                    {
-                      const Eigen::DenseIndex _ii = current_row - _i;
-                      U(_ii,jj) = (Jcol_motion.toVector()[contact_dim<CONTACT_6D>::value-_i-1] * sign
-                                - U.row(_ii).segment(jj+1,NVT).dot(DUt_partial)) * Dinv[jj];
-                    }
-                    break;
-                  }
                   case LOCAL:
                   {
                     const Motion Jcol_local(oMc1.actInv(Jcol_motion));
