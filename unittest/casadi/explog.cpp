@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(test_Jlog6)
   casadi::DM M0_dm = SE3toCasadiDM(M0);
   casadi::DM M1_dm = SE3toCasadiDM(M1);
   casadi::DM M2_dm = SE3toCasadiDM(M1.actInv(M1));
-  std::cout << M0_dm << '\n\n';
+  std::cout << M0_dm << "\n\n";
   std::cout << M2_dm << '\n';
 
   auto J0 = grad_cdM_eval(DMVector { M0_dm, M1_dm })[0];
