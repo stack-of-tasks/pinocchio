@@ -339,6 +339,7 @@ namespace pinocchio
       return !(*this == other);
     }
 
+    /// \brief Evaluate the constraint values at the current state given by data and store the results in cdata.
     template<template<typename,int> class JointCollectionTpl>
     void calc(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
               const DataTpl<Scalar,Options,JointCollectionTpl> & data,
@@ -358,6 +359,124 @@ namespace pinocchio
 
       // Compute relative placement
       cdata.c1Mc2 = cdata.oMc1.actInv(cdata.oMc2);
+    }
+
+    /// \brief Evaluate the Jacobian associated to the constraint at the given state stored in data and cdata.
+    /// The results Jacobian is evaluated in the jacobian input/output matrix.
+    template<typename JacobianMatrix, template<typename,int> class JointCollectionTpl>
+    void jacobian(const ModelTpl<Scalar,Options,JointCollectionTpl> & model,
+                  const DataTpl<Scalar,Options,JointCollectionTpl> & data,
+                  RigidConstraintDataTpl<Scalar,Options> & cdata,
+                  const Eigen::MatrixBase<JacobianMatrix> & _jacobian_matrix) const
+    {
+      typedef DataTpl<Scalar,Options,JointCollectionTpl> Data;
+      JacobianMatrix & jacobian_matrix = _jacobian_matrix.const_cast_derived();
+      
+      const RigidConstraintModel & cmodel = *this;
+
+      const Eigen::DenseIndex constraint_dim = cmodel.size();
+      const SE3 & oMc1 = cdata.oMc1;
+      const SE3 & oMc2 = cdata.oMc2;
+      const SE3 & c1Mc2 = cdata.c1Mc2;
+
+      for(Eigen::DenseIndex jj = 0; jj < model.nv; ++jj)
+      {
+
+        if(colwise_joint1_sparsity[jj] || colwise_joint2_sparsity[jj])
+        {
+          const int sign =
+          colwise_joint1_sparsity[jj] != colwise_joint2_sparsity[jj]
+          ? colwise_joint1_sparsity[jj] ? +1:-1
+          : 0; // specific case for CONTACT_3D
+
+          typedef typename Data::Matrix6x::ConstColXpr ConstColXpr;
+          const ConstColXpr Jcol = data.J.col(jj);
+          const MotionRef<const ConstColXpr> Jcol_motion(Jcol);
+
+          switch(cmodel.type)
+          {
+            case CONTACT_3D:
+            {
+              switch(cmodel.reference_frame)
+              {
+                case LOCAL:
+                {
+                  if(sign == 0)
+                  {
+                    const Motion Jcol_local1(oMc1.actInv(Jcol_motion)); // TODO: simplify computations
+                    const Motion Jcol_local2(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
+                    const typename Motion::Vector3 Jdiff_linear = Jcol_local1.linear() - c1Mc2.rotation()*Jcol_local2.linear();
+                    jacobian_matrix.col(jj) = Jdiff_linear;
+                    break;
+                  }
+                  else if(sign == 1)
+                  {
+                    const Motion Jcol_local(oMc1.actInv(Jcol_motion));
+                    jacobian_matrix.col(jj) = Jcol_local.linear();
+                    break;
+                  }
+                  else // sign == -1
+                  {
+                    Motion Jcol_local(oMc2.actInv(Jcol_motion)); // TODO: simplify computations
+                    Jcol_local.linear() = c1Mc2.rotation()*Jcol_local.linear(); // TODO: simplify computations
+                    jacobian_matrix.col(jj) = -Jcol_local.linear();
+                    break;
+                  }
+                }
+                case LOCAL_WORLD_ALIGNED:
+                {
+                  if(sign == 0)
+                  {
+                    const typename Motion::Vector3 Jdiff_linear = (oMc2.translation() - oMc1.translation()).cross(Jcol_motion.angular());
+                    jacobian_matrix.col(jj) = Jdiff_linear;
+                    break;
+                  }
+                  else
+                  {
+                    typename Motion::Vector3 Jcol_local_world_aligned_linear(Jcol_motion.linear());
+                    if(sign == 1)
+                      Jcol_local_world_aligned_linear
+                      -= oMc1.translation().cross(Jcol_motion.angular());
+                    else
+                      Jcol_local_world_aligned_linear
+                      -= oMc2.translation().cross(Jcol_motion.angular());
+                    jacobian_matrix.col(jj) = Jcol_local_world_aligned_linear * sign;
+                    break;
+                  }
+                }
+              }
+              break;
+            }
+
+            case CONTACT_6D:
+            {
+              assert(check_expression_if_real<Scalar>(sign != 0) && "sign should be equal to +1 or -1.");
+              switch(cmodel.reference_frame)
+              {
+                case LOCAL:
+                {
+                  const Motion Jcol_local(oMc1.actInv(Jcol_motion));
+                  jacobian_matrix.col(jj) = Jcol_local.toVector() * sign;
+                  break;
+                }
+                case LOCAL_WORLD_ALIGNED:
+                {
+                  Motion Jcol_local_world_aligned(Jcol_motion);
+                  Jcol_local_world_aligned.linear()
+                  -= oMc1.translation().cross(Jcol_local_world_aligned.angular());
+                  jacobian_matrix.col(jj) = Jcol_local_world_aligned.toVector() * sign;
+                  break;
+                }
+              }
+              break;
+            }
+
+            default:
+              assert(false && "must never happened");
+              break;
+          }
+
+        }}
     }
     
     int size() const
