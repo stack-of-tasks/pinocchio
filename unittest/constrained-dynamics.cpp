@@ -480,6 +480,65 @@ PINOCCHIO_COMPILER_DIAGNOSTIC_POP
   }
 }
 
+BOOST_AUTO_TEST_CASE(test_constraint_dynamics_LOCAL_6D_loop_closure_j1j2)
+{
+  using namespace Eigen;
+  using namespace pinocchio;
+
+  Model model;
+  buildModels::humanoidRandom(model,true);
+  Data data(model), data_fd(model);
+
+  model.lowerPositionLimit.head<3>().fill(-1.);
+  model.upperPositionLimit.head<3>().fill( 1.);
+  VectorXd q = randomConfiguration(model);
+
+  VectorXd v = VectorXd::Random(model.nv);
+  VectorXd tau = VectorXd::Random(model.nv);
+
+  const std::string RF = "rleg6_joint";
+  const std::string LF = "lleg6_joint";
+
+  // Contact models and data
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintModel) constraint_models;
+  PINOCCHIO_STD_VECTOR_WITH_EIGEN_ALLOCATOR(RigidConstraintData) constraint_data, constraint_data_fd;
+
+  const std::string RA = "rarm5_joint";
+  const Model::JointIndex RA_id = model.getJointId(RA);
+  const std::string LA = "larm5_joint";
+  const Model::JointIndex LA_id = model.getJointId(LA);
+
+  // Add loop closure constraint
+  RigidConstraintModel ci_closure(CONTACT_6D, model, LA_id, SE3::Random(),
+                                  RA_id, SE3::Random(), LOCAL);
+  ci_closure.corrector.Kp.array() = KP;
+  ci_closure.corrector.Kd.array() = KD;
+
+  constraint_models.push_back(ci_closure);
+  constraint_data.push_back(RigidConstraintData(ci_closure));
+  constraint_data_fd.push_back(RigidConstraintData(ci_closure));
+
+  Eigen::DenseIndex constraint_dim = 0;
+  for(size_t k = 0; k < constraint_models.size(); ++k)
+    constraint_dim += constraint_models[k].size();
+
+  const double mu0 = 0.;
+  ProximalSettings prox_settings(1e-12,mu0,100);
+
+  initConstraintDynamics(model,data,constraint_models);
+  const VectorXd ddq_ref = constraintDynamics(model,data,q,v,tau,constraint_models,constraint_data,prox_settings);
+  const VectorXd lambda_ref = data.lambda_c;
+
+  // test multiple call
+  {
+    const VectorXd ddq = constraintDynamics(model,data,q,v,tau,constraint_models,constraint_data,prox_settings);
+    const VectorXd lambda = data.lambda_c;
+    BOOST_CHECK(ddq_ref == ddq);
+    BOOST_CHECK(lambda_ref == lambda_ref);
+  }
+
+}
+
 BOOST_AUTO_TEST_CASE(test_sparse_forward_dynamics_in_contact_6D_LOCAL_WORLD_ALIGNED)
 {
   using namespace Eigen;
