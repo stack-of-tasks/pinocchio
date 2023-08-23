@@ -23,6 +23,7 @@ namespace pinocchio
              const std::vector<RigidConstraintModelTpl<S1,O1>,Allocator> & contact_models)
     {
       typedef ModelTpl<S1,O1,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
       typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
       typedef std::vector<RigidConstraintModel,Allocator> RigidConstraintModelVector;
       
@@ -69,10 +70,10 @@ namespace pinocchio
       // Fill nv_subtree_fromRow for model
       for(JointIndex joint_id = 1;joint_id < (JointIndex)(model.njoints);joint_id++)
       {
-        const JointIndex & parent_id = model.parents[joint_id];
-        
-        const typename Model::JointModel & joint = model.joints[joint_id];
-        const typename Model::JointModel & parent_joint = model.joints[parent_id];
+        const JointIndex parent_id = model.parents[joint_id];
+
+        const JointModel & joint = model.joints[joint_id];
+        const JointModel & parent_joint = model.joints[parent_id];
         const int nvj    = joint.nv();
         const int idx_vj = joint.idx_v();
         
@@ -94,7 +95,7 @@ namespace pinocchio
         }
       }
       
-      // Fill nv_subtree_fromRow for constraints
+
       Eigen::DenseIndex row_id = 0;
       for(typename RigidConstraintModelVector::const_iterator it = contact_models.begin();
           it != contact_models.end();
@@ -102,114 +103,24 @@ namespace pinocchio
       {
         const RigidConstraintModel & cmodel = *it;
         const JointIndex joint1_id = cmodel.joint1_id;
-        const typename Model::JointModel & joint1 = model.joints[joint1_id];
+        const JointModel & joint1 = model.joints[joint1_id];
         const JointIndex joint2_id = cmodel.joint2_id;
-        const typename Model::JointModel & joint2 = model.joints[joint2_id];
-        
+        const JointModel & joint2 = model.joints[joint2_id];
+
+        // Fill nv_subtree_fromRow for constraints
         const Eigen::DenseIndex nv1 = joint1.idx_v() + joint1.nv();
         const Eigen::DenseIndex nv2 = joint2.idx_v() + joint2.nv();
         const Eigen::DenseIndex nv = std::max(nv1,nv2);
-        for(Eigen::DenseIndex k = 0; k < cmodel.size(); ++k)
+        for(Eigen::DenseIndex k = 0; k < cmodel.size(); ++k, row_id++)
         {
           nv_subtree_fromRow[row_id] = nv + (num_total_constraints - row_id);
-          row_id++;
         }
+
       }
       assert(row_id == num_total_constraints);
-     
-      // Allocate and fill sparsity joint1_indexes and joint2_indexes
-      static const bool default_sparsity_value = false;
-      joint1_indexes.resize(static_cast<size_t>(num_contacts),
-                            BooleanVector::Constant(total_dim,default_sparsity_value));
-      joint2_indexes.resize(static_cast<size_t>(num_contacts),
-                            BooleanVector::Constant(total_dim,default_sparsity_value));
-      colwise_sparsity_patterns.resize(static_cast<size_t>(num_contacts),
-                                       IndexVector());
-      colwise_loop_sparsity_patterns.resize(static_cast<size_t>(num_contacts),
-                                       IndexVector());      
-      for(size_t ee_id = 0; ee_id < joint1_indexes.size(); ++ee_id)
-      {
-        BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
-        joint1_indexes_ee.resize(total_dim); joint1_indexes_ee.fill(default_sparsity_value);
-        BooleanVector & joint2_indexes_ee = joint2_indexes[ee_id];
-        joint2_indexes_ee.resize(total_dim); joint2_indexes_ee.fill(default_sparsity_value);
-        IndexVector & colwise_sparsity_patterns_ee = colwise_sparsity_patterns[ee_id];
-        IndexVector & colwise_loop_sparsity_patterns_ee = colwise_loop_sparsity_patterns[ee_id];
-        
-        const RigidConstraintModel & cmodel = contact_models[ee_id];
-        
-        const JointIndex joint1_id = cmodel.joint1_id;
-        JointIndex current1_id = 0;
-        if(joint1_id > 0)
-          current1_id = joint1_id;
-
-        const JointIndex joint2_id = cmodel.joint2_id;
-        JointIndex current2_id = 0;
-        if(joint2_id > 0)
-          current2_id = joint2_id;
-
-        while(current1_id != current2_id)
-        {
-          if(current1_id > current2_id)
-          {
-            const typename Model::JointModel & joint1 = model.joints[current1_id];
-            Eigen::DenseIndex current1_row_id = joint1.idx_v() + num_total_constraints;
-            for(int k = 0; k < joint1.nv(); ++k,++current1_row_id)
-            {
-              joint1_indexes_ee[current1_row_id] = true;
-            }
-            current1_id = model.parents[current1_id];
-          }
-          else
-          {
-            const typename Model::JointModel & joint2 = model.joints[current2_id];
-            Eigen::DenseIndex current2_row_id = joint2.idx_v() + num_total_constraints;
-            for(int k = 0; k < joint2.nv(); ++k,++current2_row_id)
-            {
-              joint2_indexes_ee[current2_row_id] = true;
-            }
-            current2_id = model.parents[current2_id];
-          }
-        }
-        assert(current1_id == current2_id && "current1_id should be equal to current2_id");
-        // current1_id and current2_id now contains the common ancestor to the two joints.
-        if(cmodel.type == CONTACT_3D)
-        {
-          JointIndex current_id = current1_id;
-          while(current_id > 0)
-          {
-            const typename Model::JointModel & joint = model.joints[current_id];
-            Eigen::DenseIndex current_row_id = joint.idx_v() + num_total_constraints;
-            for(int k = 0; k < joint.nv(); ++k,++current_row_id)
-            {
-              joint1_indexes_ee[current_row_id] = true;
-              joint2_indexes_ee[current_row_id] = true;
-            }
-            current_id = model.parents[current_id];
-          }
-        }
-        
-        Eigen::DenseIndex size = 0;
-        colwise_sparsity_patterns_ee.resize(total_dim);
-        for(Eigen::DenseIndex col_id = 0; col_id < total_dim; ++col_id)
-        {
-          if(joint1_indexes_ee[col_id] || joint2_indexes_ee[col_id])
-            colwise_sparsity_patterns_ee[size++] = col_id;
-        }
-        colwise_sparsity_patterns_ee.conservativeResize(size);
-	
-        size = 0;
-        colwise_loop_sparsity_patterns_ee.resize(total_dim);
-        for(Eigen::DenseIndex col_id = 0; col_id < total_dim; ++col_id)
-        {
-          if(joint1_indexes_ee[col_id] != joint2_indexes_ee[col_id])
-            colwise_loop_sparsity_patterns_ee[size++] = col_id;
-        }
-        colwise_loop_sparsity_patterns_ee.conservativeResize(size); // reduce the size
-	
-      }
       
       // Fill the sparsity pattern for each Row of the Cholesky decomposition (matrix U)
+/*
       static const Slice default_slice_value(1,1);
       static const SliceVector default_slice_vector(1,default_slice_value);
 
@@ -221,7 +132,7 @@ namespace pinocchio
           ++it, ++ee_id)
       {
         const RigidConstraintModel & cmodel = *it;
-        const BooleanVector & joint1_indexes_ee = joint1_indexes[ee_id];
+        const BooleanVector & joint1_indexes_ee = cmodel.colwise_joint1_sparsity;
         const Eigen::DenseIndex contact_dim = cmodel.size();
 
         for(Eigen::DenseIndex k = 0; k < contact_dim; ++k)
@@ -252,6 +163,7 @@ namespace pinocchio
           row_id++;
         }
       }
+ */
       
       // Allocate memory
       D.resize(total_dim); Dinv.resize(total_dim);
@@ -338,6 +250,23 @@ namespace pinocchio
         }
         
         // Constraint part
+//        Eigen::DenseIndex current_row = total_constraints_dim - 1;
+//        for(size_t ee_id = 0; ee_id < num_ee; ++ee_id)
+//        {
+//          const RigidConstraintModel & cmodel = contact_models[num_ee - 1 - ee_id];
+//
+//          const Eigen::DenseIndex constraint_dim = cmodel.size();
+//          if(cmodel.colwise_sparsity[j])
+//          {
+//            for(Eigen::DenseIndex k = 0; k < constraint_dim; ++k)
+//            {
+//              U(current_row - k,jj) -= U.row(current_row - k).segment(jj+1,NVT).dot(DUt_partial);
+//              U(current_row - k,jj) *= Dinv[jj];
+//            }
+//          }
+//
+//          current_row -= constraint_dim;
+//        }
         for(Eigen::DenseIndex current_row = total_constraints_dim - 1; current_row >= 0; --current_row)
         {
           U(current_row,jj) -= U.row(current_row).segment(jj+1,NVT).dot(DUt_partial);
@@ -477,8 +406,7 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     Uv(const Eigen::MatrixBase<MatrixLike> & mat) const
     {
-      details::UvAlgo<MatrixLike>::run(*this,
-                                       PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
+      details::UvAlgo<MatrixLike>::run(*this,mat.const_cast_derived());
     }
     
     namespace details
@@ -490,7 +418,7 @@ namespace pinocchio
         static void run(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
                         const Eigen::MatrixBase<MatrixLike> & mat)
         {
-          MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
+          MatrixLike & mat_ = mat.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.size(),
                                          "The input matrix is of wrong size");
@@ -508,7 +436,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<VectorLike> & vec)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
-          VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+          VectorLike & vec_ = vec.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.size(),
                                          "The input vector is of wrong size");
@@ -533,8 +461,7 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     Utv(const Eigen::MatrixBase<MatrixLike> & mat) const
     {
-      details::UtvAlgo<MatrixLike>::run(*this,
-                                        PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
+      details::UtvAlgo<MatrixLike>::run(*this,mat.const_cast_derived());
     }
     
     namespace details
@@ -546,7 +473,7 @@ namespace pinocchio
         static void run(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
                         const Eigen::MatrixBase<MatrixLike> & mat)
         {
-          MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
+          MatrixLike & mat_ = mat.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.size(),
                                          "The input matrix is of wrong size");
@@ -564,7 +491,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<VectorLike> & vec)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
-          VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+          VectorLike & vec_ = vec.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.size(),
                                          "The input vector is of wrong size");
@@ -588,8 +515,7 @@ namespace pinocchio
     void ContactCholeskyDecompositionTpl<Scalar,Options>::
     Uiv(const Eigen::MatrixBase<MatrixLike> & mat) const
     {
-      details::UivAlgo<MatrixLike>::run(*this,
-                                        PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat));
+      details::UivAlgo<MatrixLike>::run(*this,mat.const_cast_derived());
     }
     
     namespace details
@@ -601,7 +527,7 @@ namespace pinocchio
         static void run(const ContactCholeskyDecompositionTpl<Scalar,Options> & chol,
                         const Eigen::MatrixBase<MatrixLike> & mat)
         {
-          MatrixLike & mat_ = PINOCCHIO_EIGEN_CONST_CAST(MatrixLike,mat);
+          MatrixLike & mat_ = mat.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(mat.rows() == chol.size(),
                                          "The input matrix is of wrong size");
@@ -619,7 +545,7 @@ namespace pinocchio
                         const Eigen::MatrixBase<VectorLike> & vec)
         {
           EIGEN_STATIC_ASSERT_VECTOR_ONLY(VectorLike)
-          VectorLike & vec_ = PINOCCHIO_EIGEN_CONST_CAST(VectorLike,vec);
+          VectorLike & vec_ = vec.const_cast_derived();
           
           PINOCCHIO_CHECK_INPUT_ARGUMENT(vec.size() == chol.size(),
                                          "The input vector is of wrong size");

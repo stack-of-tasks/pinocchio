@@ -394,13 +394,15 @@ namespace pinocchio
     for(size_t k = 0; k < contact_models.size(); ++k)
     {
       typedef typename Data::ContactCholeskyDecomposition ContactCholeskyDecomposition;
-      typedef typename ContactCholeskyDecomposition::IndexVector IndexVector;
+      typedef typename RigidConstraintModel::BooleanVector BooleanVector;
+      typedef typename RigidConstraintModel::IndexVector IndexVector;
 
       const RigidConstraintModel & cmodel = contact_models[k];
       RigidConstraintData & cdata = contact_data[k];
-      const IndexVector & colwise_sparsity = data.contact_chol.getLoopSparsityPattern(k);
-      const auto & joint2_indexes = data.contact_chol.getJoint2SparsityPattern(k).tail(model.nv);
-      
+      const IndexVector & loop_span_indexes = cmodel.loop_span_indexes;
+//      const BooleanVector & joint1_indexes = cmodel.colwise_joint1_sparsity;
+      const BooleanVector & joint2_indexes = cmodel.colwise_joint2_sparsity;
+
       switch(cmodel.type)
       {
         case CONTACT_6D:
@@ -465,13 +467,13 @@ namespace pinocchio
             const Motion v2_in_c1 = cdata.c1Mc2.act(cdata.contact2_velocity);
             const Motion a2_in_c1 = cdata.oMc1.actInv(data.oa[cmodel.joint2_id]);
 
-            Eigen::DenseIndex k = colwise_sparsity.size()-1;
+            Eigen::DenseIndex k = loop_span_indexes.size()-1;
             Eigen::DenseIndex col_id;
-            while(cmodel.reference_frame==LOCAL && colwise_sparsity.size() > 0)
+            while(cmodel.reference_frame==LOCAL && loop_span_indexes.size() > 0)
             {
               if(k >= 0)
               {
-                col_id = colwise_sparsity[k] - constraint_dim;
+                col_id = loop_span_indexes[k];
                 k--;
               }
               else
@@ -575,7 +577,7 @@ namespace pinocchio
           break;
       }
       
-      assert(colwise_sparsity.size() > 0 && "Must never happened, the sparsity pattern is empty");
+      assert(loop_span_indexes.size() > 0 && "Must never happened, the sparsity pattern is empty");
       
       // Derivative of closed loop kinematic tree
       if(cmodel.joint2_id > 0)
@@ -610,9 +612,10 @@ namespace pinocchio
             }
             
             // d./dq
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            for(Eigen::DenseIndex k = 0; k < loop_span_indexes.size(); ++k)
             {
-              const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+              const Eigen::DenseIndex col_id = loop_span_indexes[k];
+
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
               const Force J_col_cross_contact_force_in_WORLD = J_col.cross(contact_force_in_WORLD);
               for(Eigen::DenseIndex j=colRef2; j>=0; j=data.parents_fromRow[(size_t)j])
@@ -659,9 +662,10 @@ namespace pinocchio
             }
             
             // d./dq
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            for(Eigen::DenseIndex k = 0; k < loop_span_indexes.size(); ++k)
             {
-              const Eigen::DenseIndex col_id = colwise_sparsity[k] - constraint_dim;
+              const Eigen::DenseIndex col_id = loop_span_indexes[k];
+
               const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(col_id));
               
               switch(cmodel.reference_frame) {
@@ -729,9 +733,9 @@ namespace pinocchio
             contact_dac_dq += cmodel.corrector.Kd.asDiagonal() * contact_dvc_dq;
             contact_dac_dv += cmodel.corrector.Kd.asDiagonal() * contact_dac_da;
             // d./dq
-            for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+            for(Eigen::DenseIndex k = 0; k < loop_span_indexes.size(); ++k)
             {
-              const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+              const Eigen::DenseIndex row_id = loop_span_indexes[k];
               //contact_dac_dq.col(row_id) += cmodel.corrector.Kd * contact_dvc_dq.col(row_id);
               contact_dac_dq.col(row_id).noalias() += cmodel.corrector.Kp.asDiagonal() * Jlog * contact_dac_da.col(row_id);
             }
@@ -750,9 +754,9 @@ namespace pinocchio
               typename SE3::Matrix3 vc2_cross_in_c1, vc2_cross_in_world;
               skew(a_tmp.linear(), vc2_cross_in_world);
               vc2_cross_in_c1.noalias() = cdata.oMc1.rotation().transpose() * vc2_cross_in_world;
-              for(Eigen::DenseIndex k = 0; k < colwise_sparsity.size(); ++k)
+              for(Eigen::DenseIndex k = 0; k < loop_span_indexes.size(); ++k)
               {
-                const Eigen::DenseIndex row_id = colwise_sparsity[k] - constraint_dim;
+                const Eigen::DenseIndex row_id = loop_span_indexes[k];
                 const MotionRef<typename Data::Matrix6x::ColXpr> J_col(data.J.col(row_id));
                 if(joint2_indexes[row_id])
                 {

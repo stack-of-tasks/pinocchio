@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2019-2022 INRIA CNRS
+// Copyright (c) 2019-2023 INRIA CNRS
 //
 
 #ifndef __pinocchio_algorithm_contact_info_hpp__
@@ -7,6 +7,7 @@
 
 #include "pinocchio/multibody/model.hpp"
 #include "pinocchio/algorithm/fwd.hpp"
+#include "pinocchio/algorithm/constraints/constraint-model-base.hpp"
 
 namespace pinocchio
 {
@@ -88,12 +89,16 @@ namespace pinocchio
   struct traits< RigidConstraintModelTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef RigidConstraintDataTpl<Scalar,Options> ConstraintData;
   };
 
   template<typename _Scalar, int _Options>
   struct traits< RigidConstraintDataTpl<_Scalar,_Options> >
   {
     typedef _Scalar Scalar;
+    enum { Options = _Options };
+    typedef RigidConstraintModelTpl<Scalar,Options> ConstraintModel;
   };
 
   ///
@@ -101,12 +106,17 @@ namespace pinocchio
   ///
   template<typename _Scalar, int _Options>
   struct RigidConstraintModelTpl
-  : NumericalBase< RigidConstraintModelTpl<_Scalar,_Options> >
+  : ConstraintModelBase< RigidConstraintModelTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     
     typedef _Scalar Scalar;
     enum { Options = _Options };
+    typedef ConstraintModelBase< RigidConstraintModelTpl<_Scalar,_Options> > Base;
+
+    using Base::base;
+    using Base::colwise_sparsity;
+    using Base::colwise_span_indexes;
     
     typedef RigidConstraintModelTpl ContactModel;
     typedef RigidConstraintDataTpl<Scalar,Options> ContactData;
@@ -115,12 +125,9 @@ namespace pinocchio
     typedef MotionTpl<Scalar,Options> Motion;
     typedef ForceTpl<Scalar,Options> Force;
     typedef BaumgarteCorrectorParametersTpl<Scalar> BaumgarteCorrectorParameters;
-    typedef Eigen::Matrix<bool,Eigen::Dynamic,1,Options> BooleanVector;
-    typedef Eigen::Matrix<Eigen::DenseIndex,Eigen::Dynamic,1,Options> IndexVector;
-    
-    /// \brief Name of the contact
-    std::string name;
-    
+    typedef typename Base::BooleanVector BooleanVector;
+    typedef typename Base::IndexVector IndexVector;
+
     /// \brief Type of the contact.
     ContactType type;
     
@@ -156,24 +163,23 @@ namespace pinocchio
     
     /// \brief Sparsity pattern associated to joint 2.
     BooleanVector colwise_joint2_sparsity;
-    
-    /// \brief Indexes of the columns spanned by the constraints.
-    IndexVector colwise_span_indexes;
-    
+
+    IndexVector loop_span_indexes;
+
     /// \brief Dimensions of the models
     int nv;
     
     /// \brief Depth of the kinematic tree for joint1 and joint2
     size_t depth_joint1, depth_joint2;
     
-    ///
-    /// \brief Default constructor
-    ///
-    RigidConstraintModelTpl()
-    : nv(-1)
-    , depth_joint1(0)
-    , depth_joint2(0)
-    {}
+//    ///
+//    /// \brief Default constructor
+//    ///
+//    RigidConstraintModelTpl()
+//    : nv(-1)
+//    , depth_joint1(0)
+//    , depth_joint2(0)
+//    {}
         
     ///
     /// \brief Contructor with from a given type, joint indexes and placements.
@@ -194,7 +200,8 @@ namespace pinocchio
                             const JointIndex joint2_id,
                             const SE3 & joint2_placement,
                             const ReferenceFrame & reference_frame = LOCAL)
-    : type(type)
+    : Base(model)
+    , type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
     , joint1_placement(joint1_placement)
@@ -206,6 +213,7 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
+    , loop_span_indexes(model.nv)
     {
       init(model);
     }
@@ -224,7 +232,8 @@ namespace pinocchio
                             const JointIndex joint1_id,
                             const SE3 & joint1_placement,
                             const ReferenceFrame & reference_frame = LOCAL)
-    : type(type)
+    : Base(model)
+    , type(type)
     , joint1_id(joint1_id)
     , joint2_id(0)
     , joint1_placement(joint1_placement)
@@ -236,6 +245,7 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
+    , loop_span_indexes(model.nv)
     {
       init(model);
     }
@@ -253,7 +263,8 @@ namespace pinocchio
                             const JointIndex joint1_id,
                             const JointIndex joint2_id,
                             const ReferenceFrame & reference_frame = LOCAL)
-    : type(type)
+    : Base(model)
+    , type(type)
     , joint1_id(joint1_id)
     , joint2_id(joint2_id)
     , joint1_placement(SE3::Identity())
@@ -265,6 +276,7 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
+    , loop_span_indexes(model.nv)
     {
       init(model);
     }
@@ -282,7 +294,8 @@ namespace pinocchio
                             const ModelTpl<Scalar,OtherOptions,JointCollectionTpl> & model,
                             const JointIndex joint1_id,
                             const ReferenceFrame & reference_frame = LOCAL)
-    : type(type)
+    : Base(model)
+    , type(type)
     , joint1_id(joint1_id)
     , joint2_id(0) // set to be the Universe
     , joint1_placement(SE3::Identity())
@@ -294,6 +307,7 @@ namespace pinocchio
     , corrector(size())
     , colwise_joint1_sparsity(model.nv)
     , colwise_joint2_sparsity(model.nv)
+    , loop_span_indexes(model.nv)
     {
       init(model);
     }
@@ -309,7 +323,7 @@ namespace pinocchio
     bool operator==(const RigidConstraintModelTpl<Scalar,OtherOptions> & other) const
     {
       return
-         name == other.name
+         base() == other.base()
       && type == other.type
       && joint1_id == other.joint1_id
       && joint2_id == other.joint2_id
@@ -319,10 +333,10 @@ namespace pinocchio
       && corrector == other.corrector
       && colwise_joint1_sparsity == other.colwise_joint1_sparsity
       && colwise_joint2_sparsity == other.colwise_joint2_sparsity
-      && colwise_span_indexes == other.colwise_span_indexes
       && nv == other.nv
       && depth_joint1 == other.depth_joint1
       && depth_joint2 == other.depth_joint2
+      && loop_span_indexes == other.loop_span_indexes
       ;
     }
     
@@ -499,6 +513,7 @@ namespace pinocchio
     {
       typedef RigidConstraintModelTpl<NewScalar,Options> ReturnType;
       ReturnType res;
+      res.base() = base();
       res.type = type;
       res.joint1_id = joint1_id;
       res.joint2_id = joint2_id;
@@ -511,11 +526,11 @@ namespace pinocchio
       res.corrector = corrector.template cast<NewScalar>();
       res.colwise_joint1_sparsity = colwise_joint1_sparsity;
       res.colwise_joint2_sparsity = colwise_joint2_sparsity;
-      res.colwise_span_indexes = colwise_span_indexes;
       res.nv = nv;
       res.depth_joint1 = depth_joint1;
       res.depth_joint2 = depth_joint2;
-      
+      res.loop_span_indexes = loop_span_indexes;
+
       return res;
     }
     
@@ -531,10 +546,11 @@ namespace pinocchio
       depth_joint2 = static_cast<size_t>(model.supports[joint2_id].size());
       
       typedef ModelTpl<Scalar,OtherOptions,JointCollectionTpl> Model;
+      typedef typename Model::JointModel JointModel;
       static const bool default_sparsity_value = false;
       colwise_joint1_sparsity.fill(default_sparsity_value);
       colwise_joint2_sparsity.fill(default_sparsity_value);
-      
+
       JointIndex current1_id = 0;
       if(joint1_id > 0)
         current1_id = joint1_id;
@@ -547,7 +563,7 @@ namespace pinocchio
       {
         if(current1_id > current2_id)
         {
-          const typename Model::JointModel & joint1 = model.joints[current1_id];
+          const JointModel & joint1 = model.joints[current1_id];
           Eigen::DenseIndex current1_col_id = joint1.idx_v();
           for(int k = 0; k < joint1.nv(); ++k,++current1_col_id)
           {
@@ -557,7 +573,7 @@ namespace pinocchio
         }
         else
         {
-          const typename Model::JointModel & joint2 = model.joints[current2_id];
+          const JointModel & joint2 = model.joints[current2_id];
           Eigen::DenseIndex current2_col_id = joint2.idx_v();
           for(int k = 0; k < joint2.nv(); ++k,++current2_col_id)
           {
@@ -573,7 +589,7 @@ namespace pinocchio
         JointIndex current_id = current1_id;
         while(current_id > 0)
         {
-          const typename Model::JointModel & joint = model.joints[current_id];
+          const JointModel & joint = model.joints[current_id];
           Eigen::DenseIndex current_row_id = joint.idx_v();
           for(int k = 0; k < joint.nv(); ++k,++current_row_id)
           {
@@ -584,14 +600,24 @@ namespace pinocchio
         }
       }
       
-      Eigen::DenseIndex size = 0;
-      colwise_span_indexes.resize(model.nv);
+      Eigen::DenseIndex colwise_span_indexes_size = 0, loop_span_indexes_size = 0;
+      Base::colwise_span_indexes.resize(model.nv);
+      loop_span_indexes.resize(model.nv);
       for(Eigen::DenseIndex col_id = 0; col_id < model.nv; ++col_id)
       {
         if(colwise_joint1_sparsity[col_id] || colwise_joint2_sparsity[col_id])
-          colwise_span_indexes[size++] = col_id;
+        {
+          colwise_span_indexes[colwise_span_indexes_size++] = col_id;
+          colwise_sparsity[col_id] = true;
+        }
+
+        if(colwise_joint1_sparsity[col_id] != colwise_joint2_sparsity[col_id])
+        {
+          loop_span_indexes[loop_span_indexes_size++] = col_id;
+        }
       }
-      colwise_span_indexes.conservativeResize(size);
+      colwise_span_indexes.conservativeResize(colwise_span_indexes_size);
+      loop_span_indexes.conservativeResize(loop_span_indexes_size);
     }
     
   };
@@ -612,7 +638,7 @@ namespace pinocchio
   ///
   template<typename _Scalar, int _Options>
   struct RigidConstraintDataTpl
-  : NumericalBase< RigidConstraintDataTpl<_Scalar,_Options> >
+  : ConstraintDataBase< RigidConstraintDataTpl<_Scalar,_Options> >
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     

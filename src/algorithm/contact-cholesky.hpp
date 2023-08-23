@@ -547,10 +547,6 @@ namespace pinocchio
         is_same &= (parents_fromRow == other.parents_fromRow);
         is_same &= (nv_subtree_fromRow == other.nv_subtree_fromRow);
         is_same &= (last_child == other.last_child);
-        is_same &= (joint1_indexes == other.joint1_indexes);
-        is_same &= (joint2_indexes == other.joint2_indexes);
-        is_same &= (colwise_sparsity_patterns == other.colwise_sparsity_patterns);
-        is_same &= (colwise_loop_sparsity_patterns == other.colwise_loop_sparsity_patterns);
 //        is_same &= (rowise_sparsity_pattern == other.rowise_sparsity_pattern);
         
         return is_same;
@@ -561,34 +557,6 @@ namespace pinocchio
       {
         return !(*this == other);
       }
-      
-      const IndexVector & getConstraintSparsityPattern(const size_t constraint_id) const
-      {
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < colwise_sparsity_patterns.size(),
-                                       "The index of the constraint is invalid.");
-        return colwise_sparsity_patterns[constraint_id];
-      }
-
-      const IndexVector & getLoopSparsityPattern(const size_t constraint_id) const
-      {
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < colwise_loop_sparsity_patterns.size(),
-                                       "The index of the constraint is invalid.");
-        return colwise_loop_sparsity_patterns[constraint_id];
-      }
-      
-      const BooleanVector & getJoint1SparsityPattern(const size_t constraint_id) const
-      {
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < joint1_indexes.size(),
-                                       "The index of the constraint is invalid.");
-        return joint1_indexes[constraint_id];
-      }
-
-      const BooleanVector & getJoint2SparsityPattern(const size_t constraint_id) const
-      {
-        PINOCCHIO_CHECK_INPUT_ARGUMENT(constraint_id < joint2_indexes.size(),
-                                       "The index of the constraint is invalid.");
-        return joint2_indexes[constraint_id];
-      }
 
     protected:
       
@@ -598,9 +566,6 @@ namespace pinocchio
       /// \brief Last child of the given joint index
       IndexVector last_child;
       
-      std::vector<BooleanVector> joint1_indexes, joint2_indexes;
-      VectorOfIndexVector colwise_sparsity_patterns;
-      VectorOfIndexVector colwise_loop_sparsity_patterns;
       Vector DUt; // temporary containing the results of D * U^t
       
       /// \brief Dimension of the tangent of the configuration space of the model
