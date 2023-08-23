@@ -217,6 +217,7 @@ namespace pinocchio
 
       // Constraint filling
       Eigen::DenseIndex current_row = 0;
+      U.topRightCorner(total_constraints_dim,model.nv).setZero();
       for(size_t ee_id = 0; ee_id < num_ee; ++ee_id)
       {
         const RigidConstraintModel & cmodel = contact_models[ee_id];
