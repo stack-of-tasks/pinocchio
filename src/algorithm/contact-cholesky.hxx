@@ -183,8 +183,6 @@ namespace pinocchio
     {
       typedef RigidConstraintModelTpl<S1,O1> RigidConstraintModel;
       typedef RigidConstraintDataTpl<S1,O1> RigidConstraintData;
-      typedef MotionTpl<Scalar,Options> Motion;
-      typedef SE3Tpl<Scalar,Options> SE3;
       
       assert(model.check(data) && "data is not consistent with model.");
       PINOCCHIO_CHECK_INPUT_ARGUMENT((Eigen::DenseIndex)contact_models.size() == num_contacts,
