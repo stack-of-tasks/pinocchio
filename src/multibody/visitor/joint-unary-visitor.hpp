@@ -14,9 +14,6 @@ namespace pinocchio
 {
   namespace fusion
   {
-    namespace bf = boost::fusion;
-    
-    typedef boost::blank NoArg;
     
     ///
     /// \brief Base structure for \b Unary visitation of a JointModel.

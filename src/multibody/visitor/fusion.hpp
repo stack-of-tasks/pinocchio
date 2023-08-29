@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2020 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_visitor_fusion_hpp__
@@ -12,6 +12,14 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/fusion/include/invoke.hpp>
 #include <boost/fusion/container/generation/make_vector.hpp>
+
+namespace pinocchio {
+namespace fusion {
+
+namespace bf = boost::fusion;
+typedef boost::blank NoArg;
+
+}}
 
 namespace boost
 {
