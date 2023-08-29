@@ -1,14 +1,12 @@
 //
-// Copyright (c) 2015-2019 CNRS INRIA
+// Copyright (c) 2015-2023 CNRS INRIA
 //
 
 #ifndef __pinocchio_multibody_visitor_joint_unary_visitor_hpp__
 #define __pinocchio_multibody_visitor_joint_unary_visitor_hpp__
 
-#include <boost/variant.hpp>
-
-#include "pinocchio/multibody/joint/joint-base.hpp"
 #include "pinocchio/multibody/visitor/fusion.hpp"
+#include "pinocchio/multibody/joint/joint-base.hpp"
 
 namespace pinocchio
 {
