@@ -237,7 +237,7 @@ namespace pinocchio
     template<typename Quaternion>
     inline void normalize(const Eigen::QuaternionBase<Quaternion> & quat)
     {
-      return pinocchio::normalize(quat.const_cast_derived().coeffs());
+      return pinocchio::normalize(PINOCCHIO_EIGEN_CONST_CAST(Quaternion, quat).coeffs());
     }
   
     ///
