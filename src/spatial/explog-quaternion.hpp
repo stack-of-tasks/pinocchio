@@ -85,36 +85,47 @@ namespace pinocchio
          typename QuaternionLike::Scalar & theta)
     {
       typedef typename QuaternionLike::Scalar Scalar;
-      typedef Eigen::Matrix<Scalar,3,1,PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options> Vector3;
+      enum { Options = PINOCCHIO_EIGEN_PLAIN_TYPE(typename QuaternionLike::Vector3)::Options };
+      typedef Eigen::Matrix<Scalar,3,1,Options> Vector3;
       
       Vector3 res;
       const Scalar norm_squared = quat.vec().squaredNorm();
-      const Scalar norm = math::sqrt(norm_squared);
-      static const Scalar ts_prec = math::sqrt(Eigen::NumTraits<Scalar>::epsilon());
 
-      const Scalar y_x = norm / quat.w();
-      static const Scalar PI_value = PI<Scalar>();
+      static const Scalar eps = Eigen::NumTraits<Scalar>::epsilon();
+      static const Scalar ts_prec = TaylorSeriesExpansion<Scalar>::template precision<2>();
+      const Scalar norm = math::sqrt(norm_squared + eps * eps);
+
       using ::pinocchio::internal::if_then_else;
       using ::pinocchio::internal::GE;
       using ::pinocchio::internal::LT;
-        
-      const Scalar theta_2 = if_then_else(GE, quat.w(), Scalar(0),
-                                          math::atan2(norm,quat.w()),
-                                          PI_value - math::atan2(norm,quat.w()));
 
       const Scalar pos_neg = if_then_else(GE, quat.w(), Scalar(0),
                                           Scalar(+1),
                                           Scalar(-1));
+        
+      Eigen::Quaternion<Scalar, Options> quat_pos;
+      quat_pos.w() = pos_neg * quat.w();
+      quat_pos.vec() = pos_neg * quat.vec();
 
-      
+      const Scalar theta_2 = math::atan2(norm,quat_pos.w());  // in [0,pi]
+      const Scalar y_x = norm / quat_pos.w();  // nonnegative
+      const Scalar y_x_sq = norm_squared / (quat_pos.w() * quat_pos.w());
+
       theta = if_then_else(LT, norm_squared, ts_prec,
-                           (Scalar(1) - y_x * y_x / Scalar(3)) * y_x,
+                           Scalar(2.)*(Scalar(1) - y_x_sq / Scalar(3)) * y_x,
                            Scalar(2.)*theta_2);
+
+      const Scalar th2_2 = theta * theta / Scalar(4);
+      const Scalar inv_sinc = if_then_else(LT, norm_squared, ts_prec,
+                                           Scalar(2) * (Scalar(1) + th2_2 / Scalar(6) + Scalar(7)/Scalar(360) * th2_2*th2_2),
+                                           theta / math::sin(theta_2));
+
       for(Eigen::DenseIndex k = 0; k < 3; ++k)
       {
-        res[k] = if_then_else(LT, norm_squared, ts_prec,
-                              (Scalar(1) + norm_squared / (Scalar(6) * quat.w() * quat.w())) * quat.vec()[k],
-                              pos_neg*(theta / math::sin(theta_2)) * quat.vec()[k]);
+        // res[k] = if_then_else(LT, norm_squared, ts_prec,
+        //                       Scalar(2) * (Scalar(1) + y_x_sq / Scalar(6) - y_x_sq*y_x_sq / Scalar(9)) * pos_neg * quat.vec()[k],
+        //                       inv_sinc * pos_neg * quat.vec()[k]);
+        res[k] = inv_sinc * quat_pos.vec()[k];
       }
       return res;
     }

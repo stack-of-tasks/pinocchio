@@ -57,12 +57,16 @@ BOOST_AUTO_TEST_CASE(test_isNormalized)
 #endif
   for(int i = 0; i < max_test; ++i)
   {
-    Quaternion q;
-    q.coeffs() = Vector4::Random() + Vector4::Constant(2);
-    BOOST_CHECK(!quaternion::isNormalized(q));
+    Quaternion q1, q2;
+    q1.coeffs() = Vector4::Random() + Vector4::Constant(2);
+    BOOST_CHECK(!quaternion::isNormalized(q1));
+    q2.coeffs() = Vector4::Random() + Vector4::Constant(3);
+    BOOST_CHECK(!quaternion::isNormalized(q2));
     
-    q.normalize();
-    BOOST_CHECK(quaternion::isNormalized(q));
+    q1.normalize();
+    BOOST_CHECK(quaternion::isNormalized(q1));
+    quaternion::normalize(q2);
+    BOOST_CHECK(quaternion::isNormalized(q2));
   }
   
   // Specific check for the Zero vector
