@@ -3,12 +3,39 @@
 # Copyright (c) 2015 Wandercraft, 86 rue de Paris 91400 Orsay, France.
 #
 
+# ----------------------------------------------------
+# --- INCLUDE ----------------------------------------
+# ----------------------------------------------------
+
+# Find all headers
+FILE(GLOB_RECURSE HEADERS
+  ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/*.hpp
+  ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/*.hxx
+  )
+
+# Remove bindings
+LIST(FILTER HEADERS EXCLUDE REGEX "../include/${PROJECT_NAME}/bindings/.*")
+
+# Add generated headers
+LIST(APPEND HEADERS
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/config.hpp
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/deprecated.hpp
+     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/warning.hpp)
+
 IF(BUILD_WITH_URDF_SUPPORT)
   LIST(APPEND ${PROJECT_NAME}_SOURCES
     parsers/urdf/model.cpp
     parsers/urdf/geometry.cpp
     parsers/urdf/utils.cpp
   )
+ELSE(BUILD_WITH_URDF_SUPPORT)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf.hpp
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/model.hxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/geometry.hxx
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/utils.hpp
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/types.hpp
+    )
 ENDIF()
 
 LIST(APPEND ${PROJECT_NAME}_SOURCES utils/file-explorer.cpp)
@@ -29,6 +56,10 @@ ADD_LIBRARY(${PROJECT_NAME}_headers INTERFACE)
 # Exclude parts from hppfcl which is not header only
 IF(BUILD_WITH_HPP_FCL_SUPPORT)
   LIST(REMOVE_ITEM CURRENT_COMPILE_DEFINITIONS PINOCCHIO_WITH_HPP_FCL)
+ELSE(BUILD_WITH_HPP_FCL_SUPPORT)
+  LIST(REMOVE_ITEM HEADERS
+    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/spatial/fcl-pinocchio-conversions.hpp
+    )
 ENDIF(BUILD_WITH_HPP_FCL_SUPPORT)
 
 TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME}_headers INTERFACE ${CURRENT_COMPILE_DEFINITIONS})
