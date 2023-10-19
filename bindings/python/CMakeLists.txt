@@ -62,14 +62,6 @@ ELSE(NOT BUILD_WITH_OPENMP_SUPPORT)
   ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
 ENDIF(NOT BUILD_WITH_OPENMP_SUPPORT)
 
-# Headers of the Python parser
-IF(BUILD_WITH_LIBPYTHON)
-  # TODO
-  # INSTALL(FILES ${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}
-  #     DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${SUBPATH}/${headerPath}
-  #           PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-ENDIF(BUILD_WITH_LIBPYTHON)
-
 # --- COMPILE WRAPPER
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
 SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES})
@@ -153,11 +145,10 @@ IF(BUILD_PYTHON_INTERFACE)
     )
 
   FOREACH(header ${${PYWRAP}_HEADERS})
-    GET_FILENAME_COMPONENT(headerPath ${header} PATH)
-    # Here, headerPath is relative to our source directory (begin with ../../include/pinocchio/)
-    # We add include in the destination to cancel the `../..` part of the relative path
+    GET_FILENAME_COMPONENT(header_path ${header} PATH)
+    STRING(REPLACE "../../" "" non_relative_header_path ${header_path})
     INSTALL(FILES ${header}
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/include/pinocchio/${headerPath}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/${non_relative_header_path}
             PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
   ENDFOREACH(header)
 
