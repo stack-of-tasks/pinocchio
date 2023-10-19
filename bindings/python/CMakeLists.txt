@@ -81,6 +81,8 @@ IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
     )
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     multibody/fcl/expose-fcl.cpp
+    algorithm/expose-broadphase.cpp
+    algorithm/expose-broadphase-callbacks.cpp
     )
 ENDIF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 
