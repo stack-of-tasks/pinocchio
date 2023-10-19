@@ -7,20 +7,26 @@
 # --- INCLUDE ----------------------------------------
 # ----------------------------------------------------
 
-# Find all headers
+# Find all headers with a relative path to avoid conflict with root path
+# when applying filters
 FILE(GLOB_RECURSE HEADERS
+  RELATIVE
+  ${CMAKE_CURRENT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/*.hpp
   ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/*.hxx
   )
 
+SET(SOURCE_HEADERS_ROOT "../include/${PROJECT_NAME}")
+SET(BINARY_HEADERS_ROOT "${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}")
+
 # Remove bindings
-LIST(FILTER HEADERS EXCLUDE REGEX "../include/${PROJECT_NAME}/bindings/.*")
+LIST(FILTER HEADERS EXCLUDE REGEX "^${SOURCE_HEADERS_ROOT}/bindings/.*")
 
 # Add generated headers
 LIST(APPEND HEADERS
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/config.hpp
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/deprecated.hpp
-     ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/warning.hpp)
+  ${BINARY_HEADERS_ROOT}/config.hpp
+  ${BINARY_HEADERS_ROOT}/deprecated.hpp
+  ${BINARY_HEADERS_ROOT}/warning.hpp)
 
 IF(BUILD_WITH_URDF_SUPPORT)
   LIST(APPEND ${PROJECT_NAME}_SOURCES
@@ -30,11 +36,11 @@ IF(BUILD_WITH_URDF_SUPPORT)
   )
 ELSE(BUILD_WITH_URDF_SUPPORT)
   LIST(REMOVE_ITEM HEADERS
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf.hpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/model.hxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/geometry.hxx
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/utils.hpp
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/parsers/urdf/types.hpp
+    ${SOURCE_HEADERS_ROOT}/parsers/urdf.hpp
+    ${SOURCE_HEADERS_ROOT}/parsers/urdf/model.hxx
+    ${SOURCE_HEADERS_ROOT}/parsers/urdf/geometry.hxx
+    ${SOURCE_HEADERS_ROOT}/parsers/urdf/utils.hpp
+    ${SOURCE_HEADERS_ROOT}/parsers/urdf/types.hpp
     )
 ENDIF()
 
@@ -47,7 +53,8 @@ GET_DIRECTORY_PROPERTY(CURRENT_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${HEADERS} ${${PROJECT_NAME}_SOURCES})
 SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES
   LINKER_LANGUAGE CXX
-  INSTALL_RPATH "\$ORIGIN")
+  INSTALL_RPATH "\$ORIGIN"
+  )
 TARGET_COMPILE_DEFINITIONS(${PROJECT_NAME} PUBLIC ${CURRENT_COMPILE_DEFINITIONS})
 
 # Create header-only target
@@ -133,3 +140,12 @@ INSTALL(TARGETS ${PROJECT_NAME}_headers
   LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
+
+FOREACH(header ${HEADERS})
+  GET_FILENAME_COMPONENT(headerPath ${header} PATH)
+  # Here, headerPath is relative to our source directory (begin with ../include/pinocchio/)
+  # We add include in the destination to cancel the `..` part of the relative path
+  INSTALL(FILES ${header}
+          DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${headerPath}
+          PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+ENDFOREACH(header)

@@ -5,31 +5,12 @@
 
 include(${JRL_CMAKE_MODULES}/python-helpers.cmake)
 
-# --- MACROS --- #
-
-FUNCTION(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
-  SET(list_name_)
-  FOREACH(header ${list_name})
-    STRING(REGEX REPLACE "${path_name}" "" header ${header})
-    LIST(APPEND list_name_ ${header})
-  ENDFOREACH(header ${list_name_})
-  SET(${dest_list} ${list_name_} PARENT_SCOPE)
-ENDFUNCTION(REMOVE_PATH_FROM_LIST)
-
-FUNCTION(LIST_FILTER list regular_expression dest_list)
-  FOREACH(elt ${list})
-    IF(${elt} MATCHES ${regular_expression})
-      LIST(REMOVE_ITEM list ${elt})
-    ENDIF()
-  ENDFOREACH(elt ${list})
-  SET(${dest_list} ${list} PARENT_SCOPE)
-ENDFUNCTION(LIST_FILTER)
-
 # --- PYTHON TARGET --- #
 SET(PYWRAP ${PROJECT_NAME}_pywrap)
 SET(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
 FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_HEADERS
+  RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
   ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/bindings/*.hpp
   ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/bindings/*.hxx
   )
@@ -39,17 +20,16 @@ FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
   )
 
-# REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_HEADERS}" "${CMAKE_CURRENT_SOURCE_DIR}/" ${PROJECT_NAME}_PYTHON_HEADERS)
-# REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/" ${PROJECT_NAME}_PYTHON_SOURCES)
+SET(SOURCE_HEADERS_ROOT "../../include/${PROJECT_NAME}/bindings/python")
 
 # Parser for Python model
 IF(BUILD_WITH_LIBPYTHON)
   SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/bindings/parsers/python.hpp
+    ${SOURCE_HEADERS_ROOT}/parsers/python.hpp
     )
 ELSE(BUILD_WITH_LIBPYTHON)
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/bindings/parsers/python.hpp
+    ${SOURCE_HEADERS_ROOT}/parsers/python.hpp
     )
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     parsers/python/model.cpp
@@ -59,7 +39,7 @@ ENDIF(BUILD_WITH_LIBPYTHON)
 # Python exposition of FCL
 IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/bindings/multibody/fcl/transform.hpp
+    ${SOURCE_HEADERS_ROOT}/multibody/fcl/transform.hpp
     )
   LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
     multibody/fcl/expose-fcl.cpp
@@ -67,25 +47,20 @@ IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 ENDIF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
 
 IF(NOT BUILD_WITH_OPENMP_SUPPORT)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" ".*/include/${PROJECT_NAME}/bindings/python/multibody/pool" ${PROJECT_NAME}_PYTHON_HEADERS)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^multibody/pool" ${PROJECT_NAME}_PYTHON_SOURCES)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" ".*/include/${PROJECT_NAME}/bindings/python/algorithm/parallel" ${PROJECT_NAME}_PYTHON_HEADERS)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel" ${PROJECT_NAME}_PYTHON_SOURCES)
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^multibody/pool")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^multibody/pool")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^algorithm/parallel")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel")
+  LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^${SOURCE_HEADERS_ROOT}/multibody/pool")
+  LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^multibody/pool")
+  LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^${SOURCE_HEADERS_ROOT}/algorithm/parallel")
+  LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel")
 ELSE(NOT BUILD_WITH_OPENMP_SUPPORT)
   IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" ".*/include/${PROJECT_NAME}/bindings/python/multibody/pool/geometry.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel/geometry.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
-    #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^multibody/pool/geometry.hpp")
-    #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel/geometry.cpp")
+  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
+    ${SOURCE_HEADERS_ROOT}/multibody/pool/geometry.hpp
+    )
+  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
+    algorithm/parallel/geometry.cpp
+    )
   ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
 ENDIF(NOT BUILD_WITH_OPENMP_SUPPORT)
-
-LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
-
 
 # Headers of the Python parser
 IF(BUILD_WITH_LIBPYTHON)
@@ -176,6 +151,16 @@ IF(BUILD_PYTHON_INTERFACE)
     EXPORT ${TARGETS_EXPORT_NAME}
     DESTINATION ${${PYWRAP}_INSTALL_DIR}
     )
+
+  FOREACH(header ${${PYWRAP}_HEADERS})
+    GET_FILENAME_COMPONENT(headerPath ${header} PATH)
+    # Here, headerPath is relative to our source directory (begin with ../../include/pinocchio/)
+    # We add include in the destination to cancel the `../..` part of the relative path
+    INSTALL(FILES ${header}
+            DESTINATION ${CMAKE_INSTALL_PREFIX}/include/pinocchio/${headerPath}
+            PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
+  ENDFOREACH(header)
+
 
   # --- INSTALL SCRIPTS
   SET(PYTHON_FILES
