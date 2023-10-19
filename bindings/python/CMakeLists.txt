@@ -227,7 +227,8 @@ IF(BUILD_PYTHON_INTERFACE)
     SET(DOXYGEN_GENERATE_LATEX NO)
     SET(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
     DOXYGEN_ADD_DOCS(doc_pybind11
-      pybind11.hpp pybind11-all.hpp
+      ${SOURCE_HEADERS_ROOT}/pybind11.hpp
+      ${SOURCE_HEADERS_ROOT}/pybind11-all.hpp
       USE_STAMP_FILE
       COMMENT "Generating documentation of the PyBind11 helpers.")
   ENDIF()
