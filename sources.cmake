@@ -11,7 +11,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/spatial/explog-quaternion.hpp
   include/pinocchio/spatial/log.hxx
   include/pinocchio/spatial/spatial-axis.hpp
-  include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
   include/pinocchio/spatial/symmetric3.hpp
   include/pinocchio/spatial/act-on-set.hpp
   include/pinocchio/spatial/fwd.hpp
@@ -221,7 +220,6 @@ SET(${PROJECT_NAME}_CORE_PUBLIC_HEADERS
   include/pinocchio/deprecation.hpp
   include/pinocchio/core/unary-op.hpp
   include/pinocchio/core/binary-op.hpp
-  include/pinocchio/parsers/python.hpp
   include/pinocchio/parsers/urdf.hpp
   include/pinocchio/parsers/sample-models.hpp
   include/pinocchio/parsers/utils.hpp
