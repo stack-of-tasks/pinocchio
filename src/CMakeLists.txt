@@ -44,6 +44,11 @@ ELSE(BUILD_WITH_URDF_SUPPORT)
     )
 ENDIF()
 
+# Parser for Python model
+IF(NOT BUILD_WITH_LIBPYTHON)
+  LIST(REMOVE_ITEM PUBLIC_HEADERS ${SOURCE_HEADERS_ROOT}/parsers/python.hpp)
+ENDIF(BUILD_WITH_LIBPYTHON)
+
 LIST(APPEND ${PROJECT_NAME}_SOURCES utils/file-explorer.cpp)
 
 # Extract the compile definitions of the project for export
