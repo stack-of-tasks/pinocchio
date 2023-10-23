@@ -5,8 +5,6 @@
 #ifndef __pinocchio_parser_python_hpp__
 #define __pinocchio_parser_python_hpp__
 
-#include "pinocchio/macros.hpp"
-
 #include "pinocchio/bindings/python/parsers/python.hpp"
 
 #endif // ifndef __pinocchio_parser_python_hpp__
