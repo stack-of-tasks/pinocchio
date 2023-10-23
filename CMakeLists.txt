@@ -247,7 +247,7 @@ IF(BUILD_PYTHON_INTERFACE)
     )
 ENDIF(BUILD_PYTHON_INTERFACE)
 
-# Macros to update souces path in subdirs
+# Macros to update sources path in subdirs
 FUNCTION(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
   SET(list_name_)
   FOREACH(header ${${list_name}})
