@@ -255,7 +255,7 @@ SET(${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS
   )
 
 SET(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
-SET(${PROJECT_NAME}_CORE_PRIVATE_HEADERS
+SET(${PROJECT_NAME}_CORE_GENERATED_PUBLIC_HEADERS
   ${_binary_headers_root}/config.hpp
   ${_binary_headers_root}/deprecated.hpp
   ${_binary_headers_root}/warning.hpp
