@@ -2,7 +2,7 @@
 // Copyright (c) 2016-2023 CNRS INRIA
 //
 
-#include "pinocchio/parsers/python.hpp"
+#include "pinocchio/bindings/python/parsers/python.hpp"
 
 #include <iostream>
 #include <Python.h>
