@@ -11,150 +11,36 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
 )
 
-# --- MACROS --- #
-MACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
-  FOREACH(header ${HEADERS})
-    GET_FILENAME_COMPONENT(headerName ${header} NAME)
-    GET_FILENAME_COMPONENT(headerPath ${header} PATH)
-    EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E ${LINK}
-      ${CMAKE_CURRENT_SOURCE_DIR}/${header}
-      ${${PROJECT_NAME}_BINARY_DIR}/include/${PROJECT_NAME}/${SUBPATH}/${header})
-
-    INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/${header}
-      DESTINATION ${CMAKE_INSTALL_PREFIX}/include/${PROJECT_NAME}/${SUBPATH}/${headerPath}
-            PERMISSIONS OWNER_READ GROUP_READ WORLD_READ OWNER_WRITE)
-  ENDFOREACH(header)
-ENDMACRO(SYMLINK_AND_INSTALL_HEADERS HEADERS SUBPATH)
-
-FUNCTION(REMOVE_PATH_FROM_LIST list_name path_name dest_list)
-  SET(list_name_)
-  FOREACH(header ${list_name})
-    STRING(REGEX REPLACE "${path_name}" "" header ${header})
-    LIST(APPEND list_name_ ${header})
-  ENDFOREACH(header ${list_name_})
-  SET(${dest_list} ${list_name_} PARENT_SCOPE)
-ENDFUNCTION(REMOVE_PATH_FROM_LIST)
-
-FUNCTION(LIST_FILTER list regular_expression dest_list)
-  FOREACH(elt ${list})
-    IF(${elt} MATCHES ${regular_expression})
-      LIST(REMOVE_ITEM list ${elt})
-    ENDIF()
-  ENDFOREACH(elt ${list})
-  SET(${dest_list} ${list} PARENT_SCOPE)
-ENDFUNCTION(LIST_FILTER)
-
 # --- PYTHON TARGET --- #
 SET(PYWRAP ${PROJECT_NAME}_pywrap)
 SET(PYWRAP ${PYWRAP} PARENT_SCOPE)
 
-FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_HEADERS
-     ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp
-     )
-
-FILE(GLOB_RECURSE ${PROJECT_NAME}_PYTHON_SOURCES
-     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
-     )
-
-REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_HEADERS}" "${CMAKE_CURRENT_SOURCE_DIR}/" ${PROJECT_NAME}_PYTHON_HEADERS)
-REMOVE_PATH_FROM_LIST("${${PROJECT_NAME}_PYTHON_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/" ${PROJECT_NAME}_PYTHON_SOURCES)
-LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^extra" ${PROJECT_NAME}_PYTHON_SOURCES)
-
-# Parser for Python model
-IF(BUILD_WITH_LIBPYTHON)
-  SET(${PROJECT_NAME}_PARSER_PYTHON_HEADERS
-    parsers/python.hpp
-    )
-ELSE(BUILD_WITH_LIBPYTHON)
-  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    parsers/python.hpp
-    )
-  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
-    parsers/python/model.cpp
-    )
-ENDIF(BUILD_WITH_LIBPYTHON)
-
-# Python exposition of FCL
-IF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_HEADERS
-    multibody/fcl/transform.hpp
-    )
-  LIST(REMOVE_ITEM ${PROJECT_NAME}_PYTHON_SOURCES
-    multibody/fcl/expose-fcl.cpp
-    algorithm/expose-broadphase.cpp
-    algorithm/expose-broadphase-callbacks.cpp
-    )
-ENDIF(NOT BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-
-IF(NOT BUILD_WITH_OPENMP_SUPPORT)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/pool" ${PROJECT_NAME}_PYTHON_HEADERS)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^multibody/pool" ${PROJECT_NAME}_PYTHON_SOURCES)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^algorithm/parallel" ${PROJECT_NAME}_PYTHON_HEADERS)
-  LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel" ${PROJECT_NAME}_PYTHON_SOURCES)
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^multibody/pool")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^multibody/pool")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^algorithm/parallel")
-  #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel")
-ELSE(NOT BUILD_WITH_OPENMP_SUPPORT)
-  IF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/pool/geometry.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/pool/broadphase-manager.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_HEADERS}" "^multibody/broadphase-manager.hpp" ${PROJECT_NAME}_PYTHON_HEADERS)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel/geometry.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/parallel/broadphase.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/expose-broadphase.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
-    LIST_FILTER("${${PROJECT_NAME}_PYTHON_SOURCES}" "^algorithm/expose-broadphase-callbacks.cpp" ${PROJECT_NAME}_PYTHON_SOURCES)
-    #LIST(FILTER ${PROJECT_NAME}_PYTHON_HEADERS EXCLUDE REGEX "^multibody/pool/geometry.hpp")
-    #LIST(FILTER ${PROJECT_NAME}_PYTHON_SOURCES EXCLUDE REGEX "^algorithm/parallel/geometry.cpp")
-  ENDIF(NOT BUILD_WITH_HPP_FCL_SUPPORT)
-ENDIF(NOT BUILD_WITH_OPENMP_SUPPORT)
-
-LIST(APPEND HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
-
-# Headers of the Python bindings
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/context")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/math")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/spatial")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/joint")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/pool")
-IF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/multibody/fcl")
-ENDIF(BUILD_WITH_HPP_FCL_PYTHON_BINDINGS)
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/parsers")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/serialization")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm")
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm/constraints")
-IF(BUILD_WITH_OPENMP_SUPPORT)
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/algorithm/parallel")
-ENDIF(BUILD_WITH_OPENMP_SUPPORT)
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/math/multiprecision")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/math/multiprecision/boost")
-MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/bindings/python/utils")
-SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PYTHON_HEADERS}" "bindings/python")
-
-# Headers of the Python parser
-IF(BUILD_WITH_LIBPYTHON)
-  MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio/parsers/python")
-  SYMLINK_AND_INSTALL_HEADERS("${${PROJECT_NAME}_PARSER_PYTHON_HEADERS}" "")
-ENDIF(BUILD_WITH_LIBPYTHON)
-
 # --- COMPILE WRAPPER
+REMOVE_PATH_FROM_LIST(${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES
+  "bindings/python/"
+  ${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES)
+PREPEND_PATH_FROM_LIST(${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS
+  "../../"
+  ${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS)
 MAKE_DIRECTORY("${${PROJECT_NAME}_BINARY_DIR}/bindings/python/${PROJECT_NAME}")
+SET(${PYWRAP}_SOURCES ${${PROJECT_NAME}_BINDINGS_PYTHON_SOURCES})
+SET(${PYWRAP}_HEADERS ${${PROJECT_NAME}_BINDINGS_PYTHON_PUBLIC_HEADERS})
 
 FUNCTION(PINOCCHIO_PYTHON_BINDINGS_SPECIFIC_TYPE scalar_name)
   SET(scalar_name "${scalar_name}")
   SET(PYTHON_LIB_NAME "${PYWRAP}_${scalar_name}")
-  SET(EXTRA_SOURCES ${${PYTHON_LIB_NAME}_EXTRA_SOURCES})
-  FILE(GLOB_RECURSE EXTRA_SOURCES
-       ${CMAKE_CURRENT_SOURCE_DIR}/extra/${scalar_name}/*.cpp
-     )
 
-  REMOVE_PATH_FROM_LIST("${EXTRA_SOURCES}" "${CMAKE_CURRENT_SOURCE_DIR}/" EXTRA_SOURCES)
+  STRING(TOUPPER ${scalar_name} upper_scalar_name)
+  SET(EXTRA_SOURCES
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_SOURCES})
+  SET(EXTRA_HEADERS
+    ${${PROJECT_NAME}_BINDINGS_PYTHON_EXTRA_${upper_scalar_name}_PUBLIC_HEADERS})
 
-  SET(${PYTHON_LIB_NAME}_SOURCES ${${PROJECT_NAME}_PYTHON_SOURCES} ${EXTRA_SOURCES})
-  SET(${PYTHON_LIB_NAME}_HEADERS ${${PROJECT_NAME}_PYTHON_HEADERS})
+  REMOVE_PATH_FROM_LIST(EXTRA_SOURCES "bindings/python/" EXTRA_SOURCES)
+  PREPEND_PATH_FROM_LIST(EXTRA_HEADERS "../../" EXTRA_HEADERS)
+
+  SET(${PYTHON_LIB_NAME}_SOURCES ${${PYWRAP}_SOURCES} ${EXTRA_SOURCES})
+  SET(${PYTHON_LIB_NAME}_HEADERS ${${PYWRAP}_HEADERS} ${EXTRA_HEADERS})
 
   ADD_LIBRARY(${PYTHON_LIB_NAME} SHARED ${${PYTHON_LIB_NAME}_SOURCES} ${${PYTHON_LIB_NAME}_HEADERS})
 
@@ -365,8 +251,10 @@ IF(BUILD_PYTHON_INTERFACE)
     SET(DOXYGEN_PROJECT_NAME "Pinocchio PyBind11 helpers.")
     CMAKE_POLICY(PUSH)
     CMAKE_POLICY(SET CMP0054 NEW)
+    SET(_source_headers_root "../../include/${PROJECT_NAME}/bindings/python")
     DOXYGEN_ADD_DOCS(doc_pybind11
-      pybind11.hpp pybind11-all.hpp
+      ${_source_headers_root}/pybind11.hpp
+      ${_source_headers_root}/pybind11-all.hpp
       USE_STAMP_FILE
       COMMENT "Generating documentation of the PyBind11 helpers.")
     CMAKE_POLICY(POP)
