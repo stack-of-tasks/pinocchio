@@ -14,6 +14,11 @@ class TestUtils(TestCase):
         m.rotation = np.array([[1., 0., 0.],[0., 0., -1.],[0., 1., 0.]])  # rotate('x', pi / 2)
         self.assertApprox(pin.SE3ToXYZQUAT(m).T, [1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])
         self.assertApprox(pin.XYZQUATToSE3([1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2]), m)
+        self.assertApprox(pin.XYZQUATToSE3(np.array([1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])), m)
+        with self.assertRaisesRegex(ValueError, "Wrong size: .*"):
+            pin.XYZQUATToSE3([1., 2., 3.])
+        with self.assertRaisesRegex(ValueError, "Wrong size: .*"):
+            pin.XYZQUATToSE3(np.array([1., 2., 3., sqrt(2) / 2]))
 
     def test_isapprox(self):
         self.assertFalse(isapprox(1, 2))
