@@ -38,10 +38,10 @@ namespace pinocchio
     SE3 XYZQUATToSE3_bp(const TupleOrList& v)
     {
       ssize_t size = bp::len(v);
-      if(size < 7)
+      if(size != 7)
       {
         throw std::invalid_argument(
-            "Wrong size: v(" + std::to_string(size) + ") should at least have 7 elements");
+            "Wrong size: v(" + std::to_string(size) + ") should have 7 elements");
       }
       SE3::Quaternion q (
           static_cast<Scalar>(bp::extract<Scalar>(v[6])),
