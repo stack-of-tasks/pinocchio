@@ -10,4 +10,5 @@ dependencies:
   - eigenpy
   - urdfdom
   - python
+  - packaging
   - mamba
