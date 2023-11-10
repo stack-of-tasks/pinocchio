@@ -537,10 +537,13 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_LIBPYTHON_PUBLIC_HEADERS
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_SOURCES
   bindings/python/multibody/fcl/expose-fcl.cpp
+  bindings/python/algorithm/expose-broadphase.cpp
+  bindings/python/algorithm/expose-broadphase-callbacks.cpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/fcl/transform.hpp
+  include/pinocchio/bindings/python/multibody/broadphase-manager.hpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_SOURCES
@@ -557,14 +560,11 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_OPENMP_PUBLIC_HEADERS
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_SOURCES
   bindings/python/algorithm/parallel/geometry.cpp
   bindings/python/algorithm/parallel/broadphase.cpp
-  bindings/python/algorithm/expose-broadphase.cpp
-  bindings/python/algorithm/expose-broadphase-callbacks.cpp
   )
 
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/pool/geometry.hpp
   include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
-  include/pinocchio/bindings/python/multibody/broadphase-manager.hpp
   )
 
 
