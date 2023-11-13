@@ -1,6 +1,11 @@
 // Copyright 2023 Inria
 // SPDX-License-Identifier: BSD-2-Clause
 
+/*
+ * In this short script, we show how to compute inverse dynamics (RNEA), i.e.
+ * the vector of joint torques corresponding to a given motion.
+ */
+
 #include <iostream>
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
