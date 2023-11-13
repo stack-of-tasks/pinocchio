@@ -139,8 +139,8 @@ namespace pinocchio
       template <class ArgumentPackage>
       static PyObject* postcall(ArgumentPackage const& args_, PyObject* result)
       {
-        // If owner_arg exist, we run bp::return_internal_reference postcall
-        // result lifetime will be tied to owner_arg lifetime
+        // If owner_arg exists, we run bp::return_internal_reference postcall
+        // result lifetime will be tied to the owner_arg lifetime
         PyObject* patient = bp::detail::get_prev<owner_arg>::execute(args_, result);
         if (patient != Py_None)
           return bp::return_internal_reference<owner_arg>::postcall(args_, result);
@@ -151,7 +151,7 @@ namespace pinocchio
           return bp::to_python_indirect<GeometryModel, bp::detail::make_owning_holder>()(geom_model_extract());
         }
         // If returned value is not a GeometryModel*, then raise an error
-        PyErr_SetString(PyExc_RuntimeError, "pinocchio::python::return_value_policy only work on GeometryModel* data type");
+        PyErr_SetString(PyExc_RuntimeError, "pinocchio::python::return_value_policy only works on GeometryModel* data type");
         return 0;
       }
     };
