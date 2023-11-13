@@ -1,3 +1,6 @@
+// Copyright 2023 Inria
+// SPDX-License-Identifier: BSD-2-Clause
+
 #include <iostream>
 
 #include "pinocchio/algorithm/joint-configuration.hpp"
@@ -13,7 +16,7 @@
 int main(int argc, char** argv) {
   using namespace pinocchio;
 
-  // Change to your own URDF file here, or pass it as a command-line argument
+  // Change to your own URDF file here, or give a path as command-line argument
   const std::string urdf_filename =
       (argc <= 1)
           ? PINOCCHIO_MODEL_DIR + std::string(
@@ -36,7 +39,7 @@ int main(int argc, char** argv) {
   // Computes the inverse dynamics (RNEA) for all the joints of the robot
   Eigen::VectorXd tau = pinocchio::rnea(model, data, q, v, a);
 
-  // Print out to the vector of joint torques (in Nm)
+  // Print out to the vector of joint torques (in N.m)
   std::cout << "Joint torques: " << data.tau.transpose() << std::endl;
   return 0;
 }
