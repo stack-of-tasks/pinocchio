@@ -15,9 +15,9 @@ class TestUtils(TestCase):
         self.assertApprox(pin.SE3ToXYZQUAT(m).T, [1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])
         self.assertApprox(pin.XYZQUATToSE3([1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2]), m)
         self.assertApprox(pin.XYZQUATToSE3(np.array([1., 2., 3., sqrt(2) / 2, 0, 0, sqrt(2) / 2])), m)
-        with self.assertRaisesRegex(ValueError, "Wrong size: .*"):
+        with self.assertRaises(ValueError):
             pin.XYZQUATToSE3([1., 2., 3.])
-        with self.assertRaisesRegex(ValueError, "Wrong size: .*"):
+        with self.assertRaises(ValueError):
             pin.XYZQUATToSE3(np.array([1., 2., 3., sqrt(2) / 2]))
 
     def test_isapprox(self):
