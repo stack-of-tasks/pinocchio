@@ -109,6 +109,7 @@ namespace pinocchio
         mesh->scale.z;
       }
 
+#ifdef PINOCCHIO_WITH_HPP_FCL
       /**
        * @brief      Get a fcl::CollisionObject from a URDF geometry, searching
        *             for it in specified package directories
