@@ -6,7 +6,6 @@ from . import BaseVisualizer
 import os
 import warnings
 import numpy as np
-from distutils.version import LooseVersion
 
 try:
     import hppfcl
