@@ -1,12 +1,11 @@
 # This examples shows how to load and move a robot in panda3d_viewer.
 # Note: this feature requires panda3d_viewer to be installed, this can be done using
-# pip install --user panda3d_viewer
+# pip install panda3d_viewer
 
 
 
 import sys
 import numpy as np
-import pinocchio as pin
 from os.path import dirname, join, abspath
 
 # Add path to the example-robot-data package

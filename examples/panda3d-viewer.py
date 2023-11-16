@@ -3,7 +3,6 @@
 # pip install panda3d_viewer
 
 import sys
-import pinocchio as pin
 from os.path import dirname, join, abspath
 
 # Add path to the example-robot-data package
