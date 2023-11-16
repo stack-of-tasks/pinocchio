@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE ( build_model_simple_humanoid )
 
 #ifndef PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getNodeType(), hpp::fcl::GEOM_CONVEX);
-#else PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
+#else // PINOCCHIO_URDFDOM_COLLISION_WITH_GROUP_NAME
   BOOST_CHECK_EQUAL(geomModel.geometryObjects[1].geometry->getObjectType(), hpp::fcl::OT_BVH);
 #endif
 #endif // PINOCCHIO_WITH_HPP_FCL
