@@ -1,23 +1,24 @@
 # This examples shows how to load and move a robot in panda3d_viewer.
 # Note: this feature requires panda3d_viewer to be installed, this can be done using
-# pip install --user panda3d_viewer
+# pip install panda3d_viewer
 
-import pinocchio as pin
-import numpy as np
+
+
 import sys
-
+import numpy as np
 from os.path import dirname, join, abspath
 
-# add path to the example-robot-data package
+# Add path to the example-robot-data package
 path = join(dirname(dirname(abspath(__file__))), 'models', 'example-robot-data', 'python')
 sys.path.append(path)
-from example_robot_data import loadTalos
+from example_robot_data.robots_loader import TalosLoader
 
-# import visualizer
 from panda3d_viewer import ViewerClosedError
 from pinocchio.visualize.panda3d_visualizer import Panda3dVisualizer
 
-talos = loadTalos()
+# talos is a RobotWrapper object
+talos = TalosLoader().robot
+# Attach talos to the viewer scene
 talos.setVisualizer(Panda3dVisualizer())
 talos.initViewer()
 talos.loadViewerModel(group_name='talos', color=(1, 1, 1, 1))
@@ -42,7 +43,7 @@ def play_sample_trajectory():
     )
 
     while True:
-        talos.play(traj, 1. / update_rate)
+        talos.play(traj.T, 1. / update_rate)
         traj = np.flip(traj, 1)
 
 
