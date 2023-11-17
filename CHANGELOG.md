@@ -37,9 +37,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * build(deps): bump ros-industrial/industrial_ci from afbf77f39db26785371161d5691ab435b31bb3ba to 9f963f67ebb889792175776c5ee00134d7bb569b by [@dependabot](https://github.com/dependabot) in https://github.com/stack-of-tasks/pinocchio/pull/2013
 * Sync submodule cmake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/2029
 
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
-
 ## [2.6.19] - 2023-06-19
 
 ### What's Changed
@@ -58,8 +55,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### New Contributors
 * [@drewhamiltonasdf](https://github.com/drewhamiltonasdf) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1986
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.18...v2.6.19
 
 ## [2.6.18] - 2023-04-29
 
@@ -87,8 +82,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * [@PepMS](https://github.com/PepMS) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1891
 * [@Danfoa](https://github.com/Danfoa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1892
 
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.17...v2.6.18
-
 ## [2.6.17] - 2023-02-15
 
 ### What's Changed
@@ -99,17 +92,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1863
 * Fix support of AVX2. by [@duburcqa](https://github.com/duburcqa) in https://github.com/stack-of-tasks/pinocchio/pull/1865
 
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.16...v2.6.17
-
 ## [2.6.16] - 2023-02-02
 
 ### What's Changed
 * Enforce testing of Python bindings by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1853
 * Fix issue with Python 3.6 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1855
-
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.15...v2.6.16
 
 ## [2.6.15] - 2023-01-31
 
@@ -121,16 +108,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix issue with recent change on master branch for ROS-CI by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1847
 * Fix issue with old version of Boost and eigenpy >= 2.9.0 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1851
 
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.14...v2.6.15
-
 ## [2.6.14] - 2023-01-13
 
 ### What's Changed
 * Fix registration of ptr to Python by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1832
-
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.13...v2.6.14
 
 ## [2.6.13] - 2023-01-12
 
@@ -149,18 +130,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * Fix Python issues by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1821
 * Allow to use std::shared_ptr by [@florent-lamiraux](https://github.com/florent-lamiraux) in https://github.com/stack-of-tasks/pinocchio/pull/1822
 
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.12...v2.6.13
-
 ## [2.6.12] - 2022-11-06
 
 ### What's Changed
 * Elevate check for ambiguous input argument to an exception by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1781
 * Fix packaging issues + sync submodule CMake by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1782
 * Fix issue with clang by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1784
-
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.11...v2.6.12
 
 ## [2.6.11] - 2022-10-25
 
@@ -180,8 +155,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * [@whtqh](https://github.com/whtqh) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1769
 * [@nikoandpiko](https://github.com/nikoandpiko) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1776
 
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.10...v2.6.11
-
 ## [2.6.10] - 2022-09-14
 
 ### What's Changed
@@ -193,8 +166,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### New Contributors
 * [@Jiayuan-Gu](https://github.com/Jiayuan-Gu) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1736
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.9...v2.6.10
 
 ## [2.6.9] - 2022-08-12
 
@@ -228,8 +199,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### New Contributors
 * [@fabinsch](https://github.com/fabinsch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1698
 
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.8...v2.6.9
-
 ## [2.6.8] - 2022-06-06
 
 ### What's Changed
@@ -248,8 +217,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * [@danielcostanzi18](https://github.com/danielcostanzi18) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1667
 * [@nathannaveen](https://github.com/nathannaveen) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1659
 
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.7...v2.6.8
-
 ## [2.6.7] - 2022-05-03
 
 ### What's Changed
@@ -260,16 +227,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * follow up on hpp-fcl v2 by [@nim65s](https://github.com/nim65s) in https://github.com/stack-of-tasks/pinocchio/pull/1637
 * Fix pickling for Boost >= 1.7.4 by [@jcarpent](https://github.com/jcarpent) in https://github.com/stack-of-tasks/pinocchio/pull/1640
 
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.6...v2.6.7
-
 ## [2.6.6] - 2022-03-22
 
 ### What's Changed
 * Support HPP-FCL for ROS binaries & introduce ROS2 ament integration by [@wxmerkt](https://github.com/wxmerkt) in https://github.com/stack-of-tasks/pinocchio/pull/1622
-
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.5...v2.6.6
 
 ## [2.6.5] - 2022-02-14
 
@@ -294,8 +255,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### New Contributors
 * [@duburcqa](https://github.com/duburcqa) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1585
 * [@vnghia](https://github.com/vnghia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1606
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.4...v2.6.5
 
 ## [2.6.4] - 2021-11-02
 
@@ -328,8 +287,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 * [@EtienneAr](https://github.com/EtienneAr) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1488
 * [@kozakromch](https://github.com/kozakromch) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1489
 * [@rubengrandia](https://github.com/rubengrandia) made their first contribution in https://github.com/stack-of-tasks/pinocchio/pull/1536
-
-**Full Changelog**: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.3...v2.6.4
 
 ## [2.6.3] - 2021-07-27
 
@@ -380,7 +337,7 @@ This new release fixes some issues with the Python bindings, add new examples an
 
 ## [2.5.2] - 2020-11-02
 
-This new release enhances the compatibility with Windows, provides new tools eitheir to work on joint configurations and also to compute the kinematic regressors. 
+This new release enhances the compatibility with Windows, provides new tools eitheir to work on joint configurations and also to compute the kinematic regressors.
 
 ## [2.5.1] - 2020-10-12
 
@@ -409,7 +366,7 @@ This new release provides:
 
 ## [2.4.6] - 2020-06-15
 
-This new release of Pinocchio removes the use of pkg-config to check dependencies and provides a full compatibility and support for Windows systems. 
+This new release of Pinocchio removes the use of pkg-config to check dependencies and provides a full compatibility and support for Windows systems.
 
 ## [2.4.5] - 2020-05-23
 
@@ -431,7 +388,7 @@ and enhances the global CMake packaging of the project.
 ## [2.4.3] - 2020-04-24
 
 This new release provides a new Viewer, named Panda3d, for easy code visualization in Python.
-It also provides additional fixes to the Code Generation support. 
+It also provides additional fixes to the Code Generation support.
 
 ## [2.4.2] - 2020-04-21
 
@@ -457,8 +414,8 @@ This new release of Pinocchio makes several improvements:
 - improve compatibility with CppAD and notably the Lie algebra features
 - a better CMake >= 3.0 export of the project
 - new examples for Code generation
-- improved Python bindings 
-- improved support for Boost.Multiprecision 
+- improved Python bindings
+- improved support for Boost.Multiprecision
 - reduce the memory usage when compilation unit tests
 
 and we have started to move some dependencies like urdfdom to the pinocchio.so library to avoid additional compilations issues and to useless compilations burden.
@@ -500,7 +457,7 @@ It also comes with new and detailed examples.
 This new release:
 - improves the compatibility with HPP-FCL bindings
 - improves the documentation of the project with more examples
-- fixes some bugs related to Eigen 
+- fixes some bugs related to Eigen
 - add new algorithms to compute the centroidal matrix and its time derivatives
 
 ## [2.2.1] - 2019-11-25
@@ -574,7 +531,6 @@ This new release provides some fixes with respect to Python bindings, C++17 as w
 
 This new release fixes some issues with Python 3 and C++17 standard.
 It also provides additional documentation, enlarges the current Python bindings and uniformizes naming convention in Python.
- 
 
 ## [2.1.2] - 2019-04-05
 
@@ -591,7 +547,7 @@ It also provides a serialization interface for Spatial classes and the Model cla
 ## [2.1.0] - 2019-02-27
 
 This new release makes some major improvements:
-- it is now possible to use MeshCat, another viewer working in the browser directly in Python 
+- it is now possible to use MeshCat, another viewer working in the browser directly in Python
 - the Python bindings are now hardly tested and uniformized with respect to the C++ API
 - this new release is compatible with recent releases of `hpp-fcl`
 - the SRDF parsing has been improved. Its now possible to load several reference configuration vectors
@@ -609,10 +565,6 @@ This release makes official the last important and new features for efficiently 
 - Full scalar type overloading
 - Code generation among others
 
-## [2.0.0-alpha] - 2018-10-29
-
-
-
 ## [1.3.3] - 2018-10-29
 
 This is for real the last release before Pinocchio 2.0.0 and more.
@@ -624,7 +576,7 @@ Thanks to [@aelkhour](https://github.com/aelkhour) for raising this issue.
 
 This release is the last one before Pinocchio 2.0.0.
 
-It mostly: 
+It mostly:
 - fixes issues introduced by new API of frame functionalities;
 - introduces new sample models for manipulator and humanoid systems;
 - fixes bugs due to boost 1.58.0;
@@ -677,7 +629,7 @@ It also adds new convention with a LOCAL and  a WORLD frame to express Jacobian 
 ## [1.2.5] - 2017-10-10
 
 This a maintenance Release. We added some algo to compute the time variation of the Jacobians together with the variation with respect to time of the centroidal momemtum matrix.
-HPP-FCL works now with Eigen for linear algebra. 
+HPP-FCL works now with Eigen for linear algebra.
 
 ## [1.2.4] - 2017-06-09
 
@@ -702,7 +654,7 @@ Add FCL object bindings
 
 This release is a minor patch of the previous release 1.2.0.
 
-This release is directly accessible as a Debian package. Please see https://github.com/stack-of-tasks/pinocchio/wiki/installation for further details. 
+This release is directly accessible as a Debian package. Please see https://github.com/stack-of-tasks/pinocchio/wiki/installation for further details.
 
 ### New
 - The Python bindings are aligned and free of unnecessary allocations
@@ -724,7 +676,7 @@ This release is directly accessible as a Debian package. Please see https://gith
 
 The main modifications concern the update of the code to comply with the Humanoid Path Planner (HPP).
 
-This release is directly accessible as a Debian package. Please see https://github.com/stack-of-tasks/pinocchio/wiki/installation for further details. 
+This release is directly accessible as a Debian package. Please see https://github.com/stack-of-tasks/pinocchio/wiki/installation for further details.
 
 ### New Features
 - Add Joint{Model,Data} classes based on Joint{Model,Data}Base and Joint{Model,Data}Variant. Those classes call directly the visitors and make Variant accessible throw methods
@@ -737,7 +689,7 @@ This release is directly accessible as a Debian package. Please see https://gith
 ### API modifications
 - Model has some methods deprecated. The default name has been removed.
 - The Geometry classes have been updated and several methods have been set to deprecated. They now use Frames as parent instead of Joint directly: a Geometry is now supported by a BODY.
-- Add active collision pair flags in GeomData which define the active collision pairs. 
+- Add active collision pair flags in GeomData which define the active collision pairs.
 - Unify naming conventions (nframes, njoints, etc).
 
 ### Fixes
@@ -781,7 +733,7 @@ This release is directly accessible as a Debian package. Please see https://gith
 ### Bugs Fixed
 - Fixed operator Inertia x constraint in JointSphericalZYX
 - Fixed the Dense conversion of joints (models and datas)
-  Fixed bugs in JointRevoluteUnaligned and JointPrismaticUnaligned to access the access when visiting a variant containing such joints with boost::fusion
+- Fixed bugs in JointRevoluteUnaligned and JointPrismaticUnaligned to access the access when visiting a variant containing such joints with boost::fusion
 
 
 ## [1.1.0] - 2016-02-04
@@ -790,7 +742,7 @@ This release is directly accessible as a Debian package. Please see https://gith
 
 ### New Features
 - Spatial classes now follow the CRTP Design Pattern, for performance reasons.
-- JointModels are now exposed in Python. This feature enables one to load a URDF model with a precise root joint and to create his/her own model. 
+- JointModels are now exposed in Python. This feature enables one to load a URDF model with a precise root joint and to create his/her own model.
 - Python models can now be created by hand ( ex: buildEmptyModel() + calls to addBody() )
 - Added utility tools to check an urdf model ( same as check_urdf but dislpay the Pinocchio model created from urdf parsing)
 - Add unaligned prismatic joint
@@ -827,7 +779,7 @@ The source of the release are available in the file **pinocchio-1.1.0.tar.gz** j
 
 ### New Features
 - The limits in position, velocity and torque for joints Revolute and Prismatic are now parsed from urdf model and accessible
-- Implementation of exp and log functions on SE3 in C++ with its python binding thanks to [@aelkhour](https://github.com/aelkhour) 
+- Implementation of exp and log functions on SE3 in C++ with its python binding thanks to [@aelkhour](https://github.com/aelkhour)
 - Data now contains information relative to the center of mass position, velocity and acceleration
 - Add Lua parser - compatible with RBDL
 - Add translational joint
@@ -857,3 +809,76 @@ The model can either be parsed from a URDF format or be created by appendending 
         • Fixed (concatenation of two consecutive bodies)
 
 
+[Unreleased]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.20...HEAD
+[2.6.20]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.19...v2.6.20
+[2.6.19]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.18...v2.6.19
+[2.6.18]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.17...v2.6.18
+[2.6.17]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.16...v2.6.17
+[2.6.16]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.15...v2.6.16
+[2.6.15]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.14...v2.6.15
+[2.6.14]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.13...v2.6.14
+[2.6.13]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.12...v2.6.13
+[2.6.12]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.11...v2.6.12
+[2.6.11]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.10...v2.6.11
+[2.6.10]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.9...v2.6.10
+[2.6.9]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.8...v2.6.9
+[2.6.8]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.7...v2.6.8
+[2.6.7]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.6...v2.6.7
+[2.6.6]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.5...v2.6.6
+[2.6.5]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.4...v2.6.5
+[2.6.4]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.3...v2.6.4
+[2.6.3]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.2...v2.6.3
+[2.6.2]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.1...v2.6.2
+[2.6.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.6.0...v2.6.1
+[2.6.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.6...v2.6.0
+[2.5.6]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.5...v2.5.6
+[2.5.5]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.4...v2.5.5
+[2.5.4]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.3...v2.5.4
+[2.5.3]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.2...v2.5.3
+[2.5.2]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.1...v2.5.2
+[2.5.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.5.0...v2.5.1
+[2.5.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.7...v2.5.0
+[2.4.7]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.6...v2.4.7
+[2.4.6]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.5...v2.4.6
+[2.4.5]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.4...v2.4.5
+[2.4.4]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.3...v2.4.4
+[2.4.3]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.2...v2.4.3
+[2.4.2]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.1...v2.4.2
+[2.4.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.4.0...v2.4.1
+[2.4.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.3.1...v2.4.0
+[2.3.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.2.3...v2.3.0
+[2.2.3]: https://github.com/stack-of-tasks/pinocchio/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/stack-of-tasks/pinocchio/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.11...v2.2.0
+[2.1.11]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.10...v2.1.11
+[2.1.10]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.9...v2.1.10
+[2.1.9]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.8...v2.1.9
+[2.1.8]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.7...v2.1.8
+[2.1.7]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.6...v2.1.7
+[2.1.6]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.5...v2.1.6
+[2.1.5]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.4...v2.1.5
+[2.1.4]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/stack-of-tasks/pinocchio/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/stack-of-tasks/pinocchio/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/stack-of-tasks/pinocchio/compare/v1.3.3...v2.0.0
+[1.3.3]: https://github.com/stack-of-tasks/pinocchio/compare/v1.3.2...v1.3.3
+[1.3.2]: https://github.com/stack-of-tasks/pinocchio/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/stack-of-tasks/pinocchio/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.9...v1.3.0
+[1.2.9]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.8...v1.2.9
+[1.2.8]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.7...v1.2.8
+[1.2.7]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.6...v1.2.7
+[1.2.6]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.5...v1.2.6
+[1.2.5]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.4...v1.2.5
+[1.2.4]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.1...v1.2.3
+[1.2.1]: https://github.com/stack-of-tasks/pinocchio/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/stack-of-tasks/pinocchio/compare/v1.1.2...v1.2.0
+[1.1.2]: https://github.com/stack-of-tasks/pinocchio/compare/v1.1.0...v1.1.2
+[1.1.0]: https://github.com/stack-of-tasks/pinocchio/compare/v1.0.2...v1.1.0
+[1.0.2]: https://github.com/stack-of-tasks/pinocchio/compare/v1.0.0...v1.0.2
+[1.0.0]: https://github.com/stack-of-tasks/pinocchio/releases/tag/v1.0.0
