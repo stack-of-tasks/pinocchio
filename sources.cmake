@@ -301,8 +301,8 @@ SET(${PROJECT_NAME}_URDF_PUBLIC_HEADERS
   )
 
 SET(${PROJECT_NAME}_SDF_SOURCES
-    src/parsers/sdf/model.cpp
-    src/parsers/sdf/geometry.cpp
+  src/parsers/sdf/model.cpp
+  src/parsers/sdf/geometry.cpp
   )
 
 SET(${PROJECT_NAME}_SDF_PUBLIC_HEADERS
@@ -317,6 +317,15 @@ SET(${PROJECT_NAME}_LIBPYTHON_PUBLIC_HEADERS
 
 SET(${PROJECT_NAME}_HPP_FCL_PUBLIC_HEADERS
   include/pinocchio/spatial/fcl-pinocchio-conversions.hpp
+  )
+
+SET(${PROJECT_NAME}_QHULL_SOURCES
+  src/algorithm/reachable-workspace.cpp
+  )
+
+SET(${PROJECT_NAME}_QHULL_PUBLIC_HEADERS
+  include/pinocchio/algorithm/reachable-workspace.hpp
+  include/pinocchio/algorithm/reachable-workspace.hxx
   )
 
 SET(_binary_headers_root ${${PROJECT_NAME}_BINARY_DIR}/include/pinocchio)
@@ -565,6 +574,16 @@ SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_SOURCES
 SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
   include/pinocchio/bindings/python/multibody/pool/geometry.hpp
   include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
+  )
+
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_QHULL_SOURCES
+  bindings/python/algorithm/expose-reachable-workspace.cpp
+  )
+
+SET(${PROJECT_NAME}_BINDINGS_PYTHON_HPP_FCL_OPENMP_PUBLIC_HEADERS
+  include/pinocchio/bindings/python/multibody/pool/geometry.hpp
+  include/pinocchio/bindings/python/multibody/pool/broadphase-manager.hpp
+  include/pinocchio/bindings/python/multibody/broadphase-manager.hpp
   )
 
 
